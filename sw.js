@@ -1,22 +1,20 @@
-const CACHE_NAME = 'budgetpro-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/assets/css/index.css',
-  '/assets/js/index.js',
-  '/assets/images/money.jpg'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-  );
-});
-
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
-  );
-});
+{
+  "name": "BudgetPro",
+  "short_name": "BudgetPro",
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff"
+}
