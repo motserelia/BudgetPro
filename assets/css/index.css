@@ -514,6 +514,13 @@
         .balance-grid {
           flex-direction: column;
         }
+           .balance-items {
+    justify-content: center;
+  }
+  .balance-item {
+    flex: 0 0 auto;
+    text-align: center;
+  }
       }
       @media (min-width: 801px) {
         .desktop-table {
