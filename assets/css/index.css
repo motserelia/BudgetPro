@@ -166,11 +166,7 @@
           rgba(37, 24, 64, 0.82) 100%
         );
         --grad-categories: linear-gradient(135deg, rgb(26 16 15) 0%, rgb(46 26 24 / 0%) 100%);
-        --grad-operations: linear-gradient(
-          135deg,
-          rgba(15, 21, 34, 0.82) 0%,
-          rgba(26, 37, 53, 0.82) 100%
-        );
+        --grad-operations: linear-gradient(135deg, rgba(15, 21, 34, 0.82) 0%, rgba(26, 37, 53, 0.82) 100%);
       }
       .container {
         max-width: 1400px;
