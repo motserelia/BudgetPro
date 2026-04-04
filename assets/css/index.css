@@ -698,7 +698,7 @@
         overflow-y: auto;
       }
       .calc-display {
-        background: var(--input-bg);
+       /* background: var(--input-bg);*/
         padding: 12px;
         border-radius: 28px;
         text-align: right;
