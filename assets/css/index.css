@@ -51,7 +51,7 @@
         --input-bg: rgba(255, 255, 255, 0.96);
         --input-border: #34a853;
         --btn-bg: #007764;
-        --btn-primary: #1a7a34;
+        --btn-primary: #1a7a34; 
         --btn-danger: #b91c1c;
         --btn-small-bg: rgba(255, 255, 255, 0.9);
         --cat-bg: rgba(52, 168, 83, 0.22);
@@ -329,7 +329,7 @@
         padding: 1.5rem;
         margin-bottom: 1.5rem;
       }
-       {
+      .balance-grid {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
@@ -372,10 +372,10 @@
       }
       .currency-selector select,
       .currency-selector button {
-        background: #2f4972;
+        background: #1e293b;
         border: none;
-        padding: 12px 16px;
-        border-radius: 10px;
+        padding: 8px 16px;
+        border-radius: 40px;
         color: white;
         font-weight: 500;
         cursor: pointer;
@@ -492,7 +492,7 @@
         background: #4a1a1a;
         color: #ff9e9e;
       }
-     @media (max-width: 800px) {
+      @media (max-width: 800px) {
   .desktop-table {
     display: none;
   }
@@ -513,10 +513,11 @@
   }
   .balance-grid {
     flex-direction: column;
+    gap: 20px;          /* ← вот это главное: задаёт расстояние между блоками */
   }
   .balance-items {
     justify-content: center;
-    margin-bottom: 16px;   /* добавлено */
+    /* margin-bottom: 16px;  ← можно убрать, теперь не нужно */
   }
   .balance-item {
     flex: 0 0 auto;
@@ -706,7 +707,7 @@
         overflow-y: auto;
       }
       .calc-display {
-       /* background: var(--input-bg);*/
+      /*  background: var(--input-bg); */
         padding: 12px;
         border-radius: 28px;
         text-align: right;
@@ -995,7 +996,7 @@
         margin-top: 8px;
       }
 
-/* Увеличиваем расстояние между элементами в калькуляторе */
+      /* Увеличиваем расстояние между элементами в калькуляторе */
 .tool-box > div:first-child {
   gap: 20px;          /* промежуток между заголовком и кнопкой */
   margin-bottom: 12px; /* отступ от этой строки до блока истории */
