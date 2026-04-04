@@ -138,7 +138,7 @@
         --notebook-card-bg: #1e293b;
         /* Moonlight gradients - dark mode */
         --grad-header: linear-gradient(135deg, #0a0c1800 0%, #1a1f3e4d 30%, #2d3a6e00 60%, #4a5a9e00 85%, #8898c800 100%);
-        --grad-balance: linear-gradient(135deg, #1a0a2e, #0a1a4e);
+        --grad-balance: linear-gradient(135deg, #1a0a2e47, #0a1a4e);
         --grad-card1: linear-gradient(
           135deg,
           rgba(18, 17, 30, 0.82) 0%,
