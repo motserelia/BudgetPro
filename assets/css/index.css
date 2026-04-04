@@ -492,36 +492,37 @@
         background: #4a1a1a;
         color: #ff9e9e;
       }
-      @media (max-width: 800px) {
-        .desktop-table {
-          display: none;
-        }
-        .mobile-full-list-btn {
-          display: block;
-        }
-        body {
-          padding: 16px;
-        }
-        .balance-value {
-          font-size: 1.2rem;
-        }
-        .balance-item {
-          min-width: 100px;
-        }
-        .field {
-          min-width: 100%;
-        }
-        .balance-grid {
-          flex-direction: column;
-        }
-        .balance-items {
-          justify-content: center;
-        }
-        .balance-item {
-          flex: 0 0 auto;
-          text-align: center;
-        }
-      }
+     @media (max-width: 800px) {
+  .desktop-table {
+    display: none;
+  }
+  .mobile-full-list-btn {
+    display: block;
+  }
+  body {
+    padding: 16px;
+  }
+  .balance-value {
+    font-size: 1.2rem;
+  }
+  .balance-item {
+    min-width: 100px;
+  }
+  .field {
+    min-width: 100%;
+  }
+  .balance-grid {
+    flex-direction: column;
+  }
+  .balance-items {
+    justify-content: center;
+    margin-bottom: 16px;   /* добавлено */
+  }
+  .balance-item {
+    flex: 0 0 auto;
+    text-align: center;
+  }
+}
       @media (min-width: 801px) {
         .desktop-table {
           display: block;
