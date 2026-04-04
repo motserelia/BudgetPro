@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover"
+    />
+    <title>Бюджет PRO</title>
+    <link rel="stylesheet" href="assets/css/index.css" />
+    <link rel="manifest" href="/manifest.json" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/favicon-96x96.png"
+      sizes="96x96"
+    />
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg" />
+    <link rel="shortcut icon" href="assets/images/favicon.ico" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/images/apple-touch-icon.png"
+    />
+    <meta name="apple-mobile-web-app-title" content="BudgetPro" />
+    <link rel="manifest" href="assets/images/site.webmanifest" />
+  </head>
+  <body>
+    <div class="container">
+      <div
+        class="card card-header-block"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 15px;
+        "
+      >
+        <div>
+          <h1 style="font-size: 1.6rem; color: white">🏠 Бюджет PRO 💰</h1>
+          <p style="opacity: 0.85; color: white">
+            💰 Твой капитал - твои правила 🏆
+          </p>
+        </div>
+        <div class="theme-switch" id="themeSwitch">
+          <span id="sunIcon">☀️</span><span id="moonIcon">🌙</span>
+        </div>
+      </div>
+
+      <div class="balance-panel">
+        <div class="balance-grid">
+          <div class="balance-items" id="balanceContainer"></div>
+          <div class="currency-selector">
+            <span>📊 Показать в:</span>
+            <select id="displayCurrencySelect" style="color: white !important">
+              <option value="RUB" style="color: white">🇷🇺 RUB</option>
+              <option value="USD" style="color: white">🇺🇸 USD</option>
+              <option value="EUR" style="color: white">🇪🇺 EUR</option>
+              <option value="GEL" selected style="color: white">🇬🇪 GEL</option>
+              <option value="GBP" style="color: white">🇬🇧 GBP</option>
+              <option value="KZT" style="color: white">🇰🇿 KZT</option>
+            </select>
+            <button id="refreshRatesBtn">🔄 Обновить курс</button>
+            <button id="editStartBtn" style="background: #f4a261">
+              ✏️ Зарплата
+            </button>
+          </div>
+        </div>
+        <div id="rateStatus" style="font-size: 0.8rem; margin-top: 8px"></div>
+      </div>
+
+      <div class="card card-categories" id="categoriesCard">
+        <div class="section-header" id="catSectionHeader">
+          <h2>🗂️ Категории</h2>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div id="accordionContent" class="accordion-content expanded">
+          <div id="catManager" class="cat-manager"></div>
+          <button
+            id="addCatGroupBtn"
+            class="small"
+            style="margin-top: 12px; width: auto"
+          >
+            + Добавить категорию
+          </button>
+        </div>
+      </div>
+
+      <div class="card card-new-op">
+        <h2>➕ Новая операция</h2>
+        <div class="form-row">
+          <div class="field">
+            <label>Тип</label>
+            <select id="typeSelect">
+              <option value="income">💰 Доход</option>
+              <option value="expense">💸 Расход</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Категория</label>
+            <select id="categorySelect"></select>
+            <div class="flex-buttons" style="margin-top: 8px">
+              <button id="addCatBtn" class="small">+ Добавить</button>
+              <button id="delCatBtn" class="small">🗑️ Удалить</button>
+              <button
+                id="quickAddCatBtn"
+                class="small"
+                style="background: #f4a261"
+              >
+                ➕ Новая категория
+              </button>
+            </div>
+          </div>
+          <div class="field" id="subcatField" style="display: none">
+            <label>Подкатегория</label>
+            <select id="subcatSelect"></select>
+          </div>
+          <div class="field">
+            <label id="amountLabel">Сумма</label>
+            <input
+              type="number"
+              id="amountInput"
+              step="any"
+              placeholder="0.00"
+            />
+          </div>
+          <div class="field">
+            <label>Дата</label>
+            <input type="date" id="dateInput" />
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button class="primary" id="addBtn">✅ Добавить</button>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>📝 Заметка</label>
+            <textarea
+              id="noteInput"
+              rows="2"
+              placeholder="Любой текст..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="form-row">
+          <button id="repeatLastBtn" class="small" style="background: #2d6a4f">
+            🔄 Повторить расход
+          </button>
+          <button id="showHistoryBtn" class="small">
+            📜 История с поиском
+          </button>
+        </div>
+      </div>
+
+      <div class="card card-operations">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 1rem;
+          "
+        >
+          <h2 style="margin-bottom: 0">📋 Последние операции</h2>
+          <button
+            id="clearAllBtn"
+            class="danger"
+            style="width: auto; padding: 8px 18px"
+          >
+            🧹 Очистить всё
+          </button>
+        </div>
+        <div class="desktop-table">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Тип</th>
+                  <th>Категория</th>
+                  <th>Подкатегория</th>
+                  <th>Сумма</th>
+                  <th>Заметка</th>
+                  <th>Дата</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="entriesTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mobile-full-list-btn" style="text-align: center">
+          <button
+            id="openFullListBtn"
+            class="primary"
+            style="
+              background: #2b7e3a;
+              width: 100%;
+              padding: 14px;
+              border-radius: 40px;
+            "
+          >
+            📱 Открыть полный список
+          </button>
+        </div>
+      </div>
+
+      <div class="tools">
+        <div class="tool-box">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
+            <h3>🧮 Калькулятор</h3>
+            <button id="openCalcHistoryBtn" class="small">📜 История</button>
+          </div>
+          <div id="calcHistoryPreview" class="calc-history-preview">
+            📋 История: пусто
+          </div>
+          <div class="calc-sub" id="calcSub">&nbsp;</div>
+          <div class="calc-display" id="calcDisplay">0</div>
+          <div class="calc-grid" id="calcGrid"></div>
+        </div>
+        <div class="tool-box">
+          <h3>💱 Конвертер</h3>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap">
+            <input type="number" id="convAmount" value="100" style="flex: 1" />
+            <select id="convFrom" style="flex: 1">
+              <option value="RUB">RUB</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GEL">GEL</option>
+              <option value="GBP">GBP</option>
+              <option value="KZT">KZT</option>
+            </select>
+            <span>→</span>
+            <select id="convTo" style="flex: 1">
+              <option value="GEL">GEL</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="RUB">RUB</option>
+              <option value="GBP">GBP</option>
+              <option value="KZT">KZT</option>
+            </select>
+            <button id="convBtn">Перевести</button>
+          </div>
+          <div
+            id="convResult"
+            style="
+              margin-top: 14px;
+              background: var(--history-bg);
+              padding: 10px;
+              border-radius: 20px;
+              text-align: center;
+            "
+          ></div>
+          <div id="convHistory" class="conv-history">
+            <strong>📜 История конвертации:</strong><br /><span
+              >нет записей</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-notebook" id="notebookCard">
+        <div class="section-header" id="notebookSectionHeader">
+          <h2>📓 Блокнот (заметки)</h2>
+          <span class="toggle-icon" id="notebookToggleIcon">▼</span>
+        </div>
+        <div id="notebookAccordionContent" class="accordion-content expanded">
+          <button
+            id="newPageBtn"
+            class="primary"
+            style="width: auto; margin-bottom: 16px"
+          >
+            ➕ Новая страница
+          </button>
+          <div id="notebookPagesList" class="notebook-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="fullListModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeFullListModal">&times;</span>
+        <h2>📋 Все операции</h2>
+        <div id="fullListCards" class="operations-cards"></div>
+      </div>
+    </div>
+    <div id="historyModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeHistoryModal">&times;</span>
+        <h2>📜 История с поиском</h2>
+        <div
+          class="search-fields"
+          style="
+            background: var(--history-bg);
+            padding: 16px;
+            border-radius: 28px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+          "
+        >
+          <div class="search-field" style="flex: 1; min-width: 130px">
+            <label>Поиск</label
+            ><input type="text" id="searchText" placeholder="текст..." />
+          </div>
+          <div class="search-field" style="flex: 1">
+            <label>Дата от</label><input type="date" id="searchDateFrom" />
+          </div>
+          <div class="search-field" style="flex: 1">
+            <label>Дата до</label><input type="date" id="searchDateTo" />
+          </div>
+          <div class="search-field" style="flex: 1">
+            <label>Тип</label
+            ><select id="searchType">
+              <option value="">Все</option>
+              <option value="income">Доход</option>
+              <option value="expense">Расход</option>
+            </select>
+          </div>
+          <button id="applySearchBtn" class="small">🔍 Искать</button>
+          <button id="resetSearchBtn" class="small">Сбросить</button>
+        </div>
+        <div id="historyCardsContainer" class="operations-cards"></div>
+      </div>
+    </div>
+    <div id="calcHistoryModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeCalcHistoryModal">&times;</span>
+        <h2>🧮 История вычислений</h2>
+        <div
+          id="calcHistoryList"
+          class="operations-cards"
+          style="max-height: 60vh; overflow-y: auto"
+        ></div>
+        <button id="clearCalcHistoryBtn" class="danger small">
+          🗑️ Очистить историю
+        </button>
+      </div>
+    </div>
+    <div id="notebookModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" id="closeNotebookModal">&times;</span>
+        <h2>📄 Редактировать страницу</h2>
+        <div class="field">
+          <label>Название страницы</label
+          ><input type="text" id="notebookEditTitle" placeholder="Название" />
+        </div>
+        <div class="field">
+          <label>Дата</label><input type="date" id="notebookEditDate" />
+        </div>
+        <div class="field">
+          <label>Текст (в линейку)</label
+          ><textarea
+            id="notebookEditContent"
+            rows="8"
+            class="lined-textarea"
+            placeholder="Ваши записи..."
+          ></textarea>
+        </div>
+        <div
+          class="flex-buttons"
+          style="margin-top: 20px; justify-content: flex-end"
+        >
+          <button id="saveNotebookBtn" class="primary">💾 Сохранить</button>
+          <button id="deleteNotebookPageBtn" class="danger">
+            🗑️ Удалить страницу
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Add Category Modal -->
+    <div id="addCatModal" class="add-cat-modal">
+      <div class="add-cat-modal-content">
+        <h3>🗂️ Добавить новую категорию</h3>
+        <p style="font-size: 0.85rem; opacity: 0.7; margin-top: 4px">
+          Заполните название и выберите, куда добавить категорию
+        </p>
+
+        <div class="add-cat-hint">
+          <strong>ℹ️ Подсказка — куда добавить?</strong>
+          <div class="hint-row">
+            🔴 <span class="hint-key">Р / R</span> → только в
+            <strong>Расходы</strong> (то, на что вы тратите деньги)
+          </div>
+          <div class="hint-row">
+            🟢 <span class="hint-key">Д / D</span> → только в
+            <strong>Доходы</strong> (источники поступления денег)
+          </div>
+          <div class="hint-row">
+            🔵 <span class="hint-key">Оба / B</span> →
+            <strong>и в Доходы, и в Расходы</strong> — подкатегории у каждой
+            будут свои, независимые
+          </div>
+        </div>
+
+        <div class="add-cat-name-field">
+          <label>Название категории</label>
+          <input
+            type="text"
+            id="addCatNameInput"
+            placeholder="Например: Транспорт, Аренда, Здоровье..."
+          />
+        </div>
+
+        <div
+          style="
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 8px;
+          "
+        >
+          Выберите тип (нажмите кнопку или введите букву Р, Д, B):
+        </div>
+        <div class="add-cat-type-btns">
+          <button
+            class="add-cat-type-btn"
+            id="catTypeBtnExpense"
+            onclick="selectCatType('expense')"
+          >
+            💸<span>Расходы</span
+            ><span style="font-size: 0.7rem; opacity: 0.7">клавиша Р / R</span>
+          </button>
+          <button
+            class="add-cat-type-btn"
+            id="catTypeBtnIncome"
+            onclick="selectCatType('income')"
+          >
+            💰<span>Доходы</span
+            ><span style="font-size: 0.7rem; opacity: 0.7">клавиша Д / D</span>
+          </button>
+          <button
+            class="add-cat-type-btn"
+            id="catTypeBtnBoth"
+            onclick="selectCatType('both')"
+          >
+            🔄<span>Оба типа</span
+            ><span style="font-size: 0.7rem; opacity: 0.7">клавиша B / О</span>
+          </button>
+        </div>
+
+        <div
+          id="addCatBothNote"
+          style="
+            display: none;
+            background: var(--cat-bg);
+            border-radius: 16px;
+            padding: 10px 14px;
+            font-size: 0.8rem;
+            margin-top: 4px;
+          "
+        >
+          ✅ Категория появится <strong>и в доходах, и в расходах</strong>.
+          Подкатегории для каждой секции будут <strong>независимыми</strong> —
+          можете добавить разные для дохода и расхода.
+        </div>
+
+        <button
+          class="add-cat-confirm-btn"
+          id="addCatConfirmBtn"
+          disabled
+          onclick="confirmAddCategory()"
+        >
+          ✅ Добавить
+        </button>
+        <button class="add-cat-cancel-btn" onclick="closeAddCatModal()">
+          Отмена
+        </button>
+      </div>
+    </div>
+
+    <script src="assets/js/index.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then((reg) => console.log("Service Worker зарегистрирован", reg))
+          .catch((err) => console.error("Ошибка регистрации", err));
+      }
+    </script>
+  </body>
+</html>
