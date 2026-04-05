@@ -142,8 +142,8 @@ function removeSubcat(cat, type, sub) {
 
 // ========== CALC HISTORY ==========
 function loadCalcHistory() { try { calcHistory = JSON.parse(localStorage.getItem("calc_hist") || "[]"); } catch { calcHistory = []; } }
-function saveCalcHistory() { localStorage.setItem("calc_hist", JSON.stringify(calcHistory.slice(0, 30))); }
-function addCalcHistory(expr, result) { if (!expr || !isFinite(result)) return; calcHistory.unshift({ expr, result, ts: new Date().toLocaleString() }); if (calcHistory.length > 30) calcHistory.pop(); saveCalcHistory(); renderCalcPreview(); }
+function saveCalcHistory() { localStorage.setItem("calc_hist", JSON.stringify(calcHistory)); } // без ограничений
+function addCalcHistory(expr, result) { if (!expr || !isFinite(result)) return; calcHistory.unshift({ expr, result, ts: new Date().toLocaleString() }); saveCalcHistory(); renderCalcPreview(); }
 function renderCalcPreview() {
   const el = $("calcHistoryPreview");
   if (!el) return;
@@ -151,18 +151,63 @@ function renderCalcPreview() {
   el.innerHTML = calcHistory.slice(0, 5).map(h => `<span style="margin-right:10px;">${esc(h.expr)} = ${h.result}</span>`).join("");
 }
 
-// ========== CONV HISTORY ==========
+// ========== CONV HISTORY (без ограничений) ==========
 function loadConvHistory() { try { convHistory = JSON.parse(localStorage.getItem("conv_hist") || "[]"); } catch { convHistory = []; } renderConvHistory(); }
-function saveConvHistory() { localStorage.setItem("conv_hist", JSON.stringify(convHistory.slice(0, 15))); }
-function addConvHistory(from, to, amount, result) { convHistory.unshift({ from, to, amount, result, ts: new Date().toLocaleString() }); if (convHistory.length > 15) convHistory.pop(); saveConvHistory(); renderConvHistory(); }
+function saveConvHistory() { localStorage.setItem("conv_hist", JSON.stringify(convHistory)); } // без slice
+function addConvHistory(from, to, amount, result) { convHistory.unshift({ from, to, amount, result, ts: new Date().toLocaleString() }); saveConvHistory(); renderConvHistory(); }
 function renderConvHistory() {
   const el = $("convHistoryList");
   if (!el) return;
   if (convHistory.length === 0) { el.innerHTML = '<div class="empty-msg">Нет истории</div>'; return; }
-  el.innerHTML = convHistory.slice(0, 10).map((h, i) => `<div class="conv-hist-item"><span>${h.amount} ${h.from} → ${h.result.toFixed(4)} ${h.to}</span><button class="op-del" data-idx="${i}">✕</button></div>`).join("");
-  el.querySelectorAll(".op-del").forEach(btn => btn.addEventListener("click", () => { convHistory.splice(parseInt(btn.dataset.idx), 1); saveConvHistory(); renderConvHistory(); }));
+  // Показываем последние 5 записей в превью
+  el.innerHTML = convHistory.slice(0, 5).map((h, i) => `<div class="conv-hist-item"><span>${h.amount} ${h.from} → ${h.result.toFixed(4)} ${h.to}</span><button class="op-del" data-idx="${i}">✕</button></div>`).join("");
+  el.querySelectorAll(".op-del").forEach(btn => btn.addEventListener("click", () => {
+    const idx = parseInt(btn.dataset.idx);
+    convHistory.splice(idx, 1);
+    saveConvHistory();
+    renderConvHistory();
+    if ($("convHistoryModal").classList.contains("open")) renderConvHistoryModal();
+  }));
 }
-function clearConvHistory() { convHistory = []; saveConvHistory(); renderConvHistory(); }
+function clearConvHistory() { convHistory = []; saveConvHistory(); renderConvHistory(); if ($("convHistoryModal").classList.contains("open")) renderConvHistoryModal(); }
+
+// ========== МОДАЛЬНОЕ ОКНО ИСТОРИИ КОНВЕРТАЦИИ ==========
+function renderConvHistoryModal() {
+  const container = $("convHistoryFullList");
+  if (!container) return;
+  container.innerHTML = "";
+  if (convHistory.length === 0) {
+    container.innerHTML = '<div class="empty-msg">История пуста</div>';
+    return;
+  }
+  convHistory.forEach((h, idx) => {
+    const card = document.createElement("div");
+    card.className = "op-card";
+    card.innerHTML = `
+      <div class="op-body">
+        <div class="op-row1">
+          <span class="op-cat">${h.amount} ${h.from} → ${h.to}</span>
+          <span class="op-amount income">= ${h.result.toFixed(4)} ${h.to}</span>
+        </div>
+        <div class="op-row2">
+          <span class="op-date">🕒 ${esc(h.ts)}</span>
+        </div>
+      </div>
+      <button class="op-del" data-idx="${idx}">✕</button>
+    `;
+    card.querySelector(".op-del").addEventListener("click", () => {
+      convHistory.splice(idx, 1);
+      saveConvHistory();
+      renderConvHistory();
+      renderConvHistoryModal();
+    });
+    container.appendChild(card);
+  });
+}
+function openConvHistoryModal() {
+  renderConvHistoryModal();
+  openModal("convHistoryModal");
+}
 
 // ========== NOTEBOOK ==========
 function loadNotebook() { try { notebookPages = JSON.parse(localStorage.getItem("notebook_v2") || "[]"); } catch { notebookPages = []; } if (notebookPages.length === 0) notebookPages.push({ id: Date.now(), title: "Пример", date: today(), content: "Здесь можно писать заметки ✍️" }); saveNotebook(); }
@@ -513,7 +558,7 @@ function renderCalcHistoryModal() {
   calcHistory.forEach((h, idx) => { const card = document.createElement("div"); card.className = "op-card"; card.innerHTML = `<div class="op-body"><div class="op-row1"><span class="op-cat">${esc(h.expr)}</span><span class="op-amount income">= ${h.result}</span></div><div class="op-row2"><span class="op-date">🕒 ${esc(h.ts)}</span></div></div><button class="op-del" data-idx="${idx}">✕</button>`; card.querySelector(".op-del").addEventListener("click", () => { calcHistory.splice(idx, 1); saveCalcHistory(); renderCalcHistoryModal(); renderCalcPreview(); }); container.appendChild(card); });
 }
 
-// ========== CONVERTER ==========
+// ========== CONVERTER (обновлённый doConvert) ==========
 function doConvert() {
   const amount = parseFloat($("convAmount").value);
   const from = $("convFrom").value;
@@ -600,6 +645,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("closeNotebookModal").addEventListener("click", () => closeModal("notebookModal"));
   $("closeEditSubcatModal").addEventListener("click", () => closeModal("editSubcatModal"));
   $("closeEditOpModal").addEventListener("click", () => closeModal("editOpModal"));
+  $("closeConvHistoryModal").addEventListener("click", () => closeModal("convHistoryModal"));
   $("clearAllBtn").addEventListener("click", () => { if (confirm("Удалить ВСЕ операции?")) { transactions = []; saveAll(); refreshAll(); } });
   $("viewAllOpsBtn").addEventListener("click", () => document.querySelector('.nav-item[data-tab="operations"]').click());
   $("editStartBtn").addEventListener("click", () => { const cur = toDisp(startBalanceRub).toFixed(2); const v = prompt(`Введите зарплату (${sym()}):`, cur); if (v !== null && !isNaN(+v) && +v >= 0) { startBalanceRub = toRub(+v); saveAll(); updateBalance(); } });
@@ -629,6 +675,8 @@ document.addEventListener("DOMContentLoaded", () => {
   $("modalDate").value = today();
   refreshModalCats();
   $("clearConvHistoryBtn").addEventListener("click", clearConvHistory);
+  $("openConvHistoryBtn").addEventListener("click", openConvHistoryModal);
+  $("clearFullConvHistoryBtn").addEventListener("click", () => { if (confirm("Очистить всю историю конвертации?")) { clearConvHistory(); if ($("convHistoryModal").classList.contains("open")) renderConvHistoryModal(); } });
   $("saveSubcatBtn").addEventListener("click", saveSubcatEdit);
   $("deleteSubcatBtn").addEventListener("click", deleteSubcatFromModal);
   $("editTypeExpenseBtn").addEventListener("click", () => { $("editTypeExpenseBtn").classList.add("active"); $("editTypeIncomeBtn").classList.remove("active"); refreshEditModalSubcats(); });
