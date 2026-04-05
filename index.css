@@ -1,78 +1,86 @@
-/* ========================
-       БЮДЖЕТ PRO — CSS (финальная версия)
-       Фоновое изображение: проверьте путь к money.jpg
-    ======================== */
-    @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Mono:wght@400;500&display=swap");
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --accent: #1a7a4a;
-      --accent-light: #2da066;
-      --accent-btn: #1e8a52;
-      --accent-glow: rgba(29, 138, 82, 0.35);
-      --gold: #d4850a;
-      --gold-bg: rgba(212, 133, 10, 0.12);
-      --red: #c0392b;
-      --red-bg: rgba(192, 57, 43, 0.1);
-      --red-text: #e05c4b;
-      --bg: #f5f0e8;
-      --surface-1: rgba(255, 252, 245, 0.96);
-      --surface-2: rgba(248, 244, 236, 0.95);
-      --header-bg: linear-gradient(135deg, #1c3a28 0%, #2d5c3e 55%, #8a6320 100%);
-      --balance-bg: linear-gradient(135deg, #1a3226, #254d38);
-      --border: rgba(100, 140, 110, 0.22);
-      --border-hover: rgba(29, 138, 82, 0.45);
-      --text-primary: #1a2620;
-      --text-secondary: #4a7a5a;
-      --text-muted: #8aab96;
-      --text-on-dark: #eef6ef;
-      --text-on-dark-sub: #85c4a0;
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-      --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.15);
-      --t: 0.22s ease;
-      --t-theme: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-      --header-h: 64px;
-      --nav-h: 68px;
-      --fab-size: 52px;
-    }
-
-    body.dark {
-      --accent: #4a8fff;
-      --accent-light: #6aa8ff;
-      --accent-btn: #3a7aee;
-      --accent-glow: rgba(74, 143, 255, 0.35);
-      --gold: #f0b429;
-      --gold-bg: rgba(240, 180, 41, 0.12);
-      --red: #e53e3e;
-      --red-bg: rgba(229, 62, 62, 0.12);
-      --red-text: #fc8181;
-      --bg: #07080e;
-      --surface-1: rgba(14, 18, 30, 0.97);
-      --surface-2: rgba(20, 26, 42, 0.92);
-      --header-bg: linear-gradient(135deg, #0a0c18 0%, #141830 55%, #2a3060 100%);
-      --balance-bg: linear-gradient(135deg, #0a0c1a, #0e1428);
-      --border: rgba(70, 100, 200, 0.2);
-      --border-hover: rgba(74, 143, 255, 0.45);
-      --text-primary: #dce8ff;
-      --text-secondary: #6b8ecf;
-      --text-muted: #3a4e7a;
-      --text-on-dark: #dce8ff;
-      --text-on-dark-sub: #6b8ecf;
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
-      --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
-    }
-
-    html, body { height: 100%; overflow: hidden; }
-    body {
+      /* ========== БАЗА И ТЕМЫ ========== */
+      @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Mono:wght@400;500&display=swap");
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --accent: #1a7a4a;
+        --accent-light: #2da066;
+        --accent-btn: #1e8a52;
+        --accent-glow: rgba(29, 138, 82, 0.35);
+        --gold: #d4850a;
+        --gold-bg: rgba(212, 133, 10, 0.12);
+        --red: #c0392b;
+        --red-bg: rgba(192, 57, 43, 0.1);
+        --red-text: #e05c4b;
+        --bg: #f5f0e8;
+        --surface-1: rgba(255, 252, 245, 0.96);
+        --surface-2: rgba(248, 244, 236, 0.95);
+        --header-bg: linear-gradient(
+          135deg,
+          #1c3a28 0%,
+          #2d5c3e 55%,
+          #8a6320 100%
+        );
+        --balance-bg: linear-gradient(135deg, #1a3226, #254d38);
+        --border: rgba(100, 140, 110, 0.22);
+        --border-hover: rgba(29, 138, 82, 0.45);
+        --text-primary: #1a2620;
+        --text-secondary: #4a7a5a;
+        --text-muted: #8aab96;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+        --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
+        --t: 0.22s ease;
+        --t-theme: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        --header-h: 64px;
+        --nav-h: 68px;
+        --fab-size: 52px;
+        --calc-bg: #2c3e2f;
+        --calc-text: #f0f0f0;
+        --calc-op-bg: #f39c12;
+        --calc-op-text: #1e2a1e;
+      }
+      body.dark {
+        --accent: #4a8fff;
+        --accent-light: #6aa8ff;
+        --accent-btn: #3a7aee;
+        --accent-glow: rgba(74, 143, 255, 0.35);
+        --gold: #f0b429;
+        --gold-bg: rgba(240, 180, 41, 0.12);
+        --red: #e53e3e;
+        --red-bg: rgba(229, 62, 62, 0.12);
+        --red-text: #fc8181;
+        --bg: #07080e;
+        --surface-1: rgba(14, 18, 30, 0.97);
+        --surface-2: rgba(20, 26, 42, 0.92);
+        --header-bg: linear-gradient(
+          135deg,
+          #0a0c18 0%,
+          #141830 55%,
+          #2a3060 100%
+        );
+        --balance-bg: linear-gradient(135deg, #0a0c1a, #0e1428);
+        --border: rgba(70, 100, 200, 0.2);
+        --border-hover: rgba(74, 143, 255, 0.45);
+        --text-primary: #dce8ff;
+        --text-secondary: #6b8ecf;
+        --text-muted: #3a4e7a;
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+        --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+        --calc-bg: #2a2f3f;
+        --calc-text: #e0e0e0;
+        --calc-op-bg: #4a8fff;
+        --calc-op-text: #ffffff;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+        body {
       font-family: "Nunito", sans-serif;
       background: var(--bg);
       color: var(--text-primary);
@@ -87,7 +95,7 @@
       /* Убедитесь, что путь к изображению правильный:
          - если money.jpg лежит в assets/images/, оставьте "../images/money.jpg"
          - если money.jpg в корне сайта, замените на "../../money.jpg" */
-      background-image: url("money.jpg");
+      background-image: url("../images/money.jpg");
       background-size: cover;
       background-position: center;
       opacity: 0.06;
@@ -96,751 +104,883 @@
       transition: opacity var(--t-theme);
     }
     body.dark::before { opacity: 0.09; }
+      .app {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        max-width: 600px;
+        margin: 0 auto;
+        overflow: hidden;
+      }
 
-    .app {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;
-      max-width: 600px;
-      margin: 0 auto;
-      overflow: hidden;
-    }
+      /* переключатель темы и кнопка помощи */
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .help-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+      .help-btn:hover {
+        background: var(--accent-light);
+        transform: scale(1.05);
+      }
+      .theme-switch-wrapper {
+        display: flex;
+        align-items: center;
+      }
+      .theme-switch {
+        position: relative;
+        display: inline-block;
+        width: 54px;
+        height: 28px;
+      }
+      .theme-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(145deg, #d4d9e8, #b0b8cc);
+        border-radius: 34px;
+        transition: 0.3s;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .slider:before {
+        position: absolute;
+        content: "☀️";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 2px;
+        background-color: #ffefb0;
+        border-radius: 50%;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      input:checked + .slider {
+        background: linear-gradient(145deg, #1e2a4a, #0f172a);
+      }
+      input:checked + .slider:before {
+        content: "🌙";
+        transform: translateX(26px);
+        background-color: #2d3a5e;
+        color: #ffefb0;
+      }
 
-    /* переключатель темы */
-    .theme-switch-wrapper {
-      display: flex;
-      align-items: center;
-    }
-    .theme-switch {
-      position: relative;
-      display: inline-block;
-      width: 54px;
-      height: 28px;
-    }
-    .theme-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(145deg, #d4d9e8, #b0b8cc);
-      border-radius: 34px;
-      transition: 0.3s;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .slider:before {
-      position: absolute;
-      content: "☀️";
-      height: 22px;
-      width: 22px;
-      left: 3px;
-      bottom: 2px;
-      background-color: #ffefb0;
-      border-radius: 50%;
-      transition: 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    input:checked + .slider {
-      background: linear-gradient(145deg, #1e2a4a, #0f172a);
-    }
-    input:checked + .slider:before {
-      content: "🌙";
-      transform: translateX(26px);
-      background-color: #2d3a5e;
-      color: #ffefb0;
-    }
+      /* Шапка */
+      .header {
+        flex-shrink: 0;
+        height: var(--header-h);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        background: var(--header-bg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .logo {
+        font-size: 1.8rem;
+        filter: drop-shadow(0 2px 6px rgba(240, 180, 41, 0.5));
+      }
+      .app-title {
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: #f0ede6;
+      }
+      .app-sub {
+        font-size: 0.68rem;
+        color: rgba(240, 237, 230, 0.65);
+        margin-top: 1px;
+      }
 
-    /* Подсказки */
-    .help-hint {
-      background: rgba(0, 0, 0, 0.03);
-      border-left: 4px solid var(--accent);
-      padding: 8px 12px;
-      border-radius: 14px;
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(4px);
-    }
-    body.dark .help-hint {
-      background: rgba(255, 255, 255, 0.04);
-    }
-    .help-hint span:first-child { font-size: 1rem; }
+      /* Панель баланса — адаптив */
+      .balance-panel {
+        flex-shrink: 0;
+        background: var(--balance-bg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        padding: 12px 14px;
+        transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      }
+      .balance-cards {
+        display: grid;
+        gap: 12px;
+        transition: all 0.2s;
+      }
+      .balance-panel:not(.compact) .balance-cards {
+        grid-template-columns: repeat(2, 1fr);
+        margin-bottom: 18px;
+      }
+      .balance-panel:not(.compact) .bal-card {
+        padding: 18px 12px;
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 28px;
+        text-align: center;
+      }
+      .balance-panel:not(.compact) .bal-label {
+        font-size: clamp(0.7rem, 4vw, 0.9rem);
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: rgba(255, 255, 245, 0.9);
+      }
+      .balance-panel:not(.compact) .bal-value {
+        font-size: clamp(1rem, 5vw, 1.7rem);
+        font-weight: 900;
+        word-break: break-word;
+        color: #ffffff;
+      }
+      .balance-panel.compact .balance-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .balance-panel.compact .bal-card {
+        flex: 1 1 calc(25% - 8px);
+        min-width: 70px;
+        padding: 8px 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        text-align: center;
+      }
+      .balance-panel.compact .bal-label {
+        font-size: 0.6rem;
+        margin-bottom: 4px;
+        color: rgba(255, 255, 240, 0.8);
+      }
+      .balance-panel.compact .bal-value {
+        font-size: 0.75rem;
+        font-weight: 800;
+        white-space: normal;
+        word-break: break-word;
+        color: #ffffff;
+      }
+      @media (max-width: 400px) {
+        .balance-panel.compact .bal-card {
+          flex-basis: calc(50% - 8px);
+        }
+        .balance-panel.compact .bal-value {
+          font-size: 0.9rem;
+        }
+      }
+      .bal-value.positive {
+        color: #a3f0b0;
+      }
+      .bal-value.negative {
+        color: #ffaa99;
+      }
+      body.dark .bal-value.positive {
+        color: #8effa0;
+      }
+      body.dark .bal-value.negative {
+        color: #ff8a7a;
+      }
 
-    /* Общие стили */
-    .header, .balance-panel, .card, .op-card, .cat-card, .nb-card, .bottom-nav, .modal, .search-bar, .bal-card, .nav-item, .modal-overlay, .help-hint { transition: background var(--t-theme), border-color var(--t-theme), color var(--t-theme), box-shadow var(--t-theme); }
-    .header {
-      flex-shrink: 0;
-      height: var(--header-h);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      background: var(--header-bg);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .header-left { display: flex; align-items: center; gap: 10px; }
-    .logo { font-size: 1.8rem; filter: drop-shadow(0 2px 6px rgba(240, 180, 41, 0.5)); }
-    .app-title { font-size: 1.15rem; font-weight: 900; color: #f0ede6; }
-    .app-sub { font-size: 0.68rem; color: rgba(240, 237, 230, 0.65); margin-top: 1px; }
-    .balance-panel {
-      flex-shrink: 0;
-      background: var(--balance-bg);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-      padding: 12px 14px;
-    }
-    .balance-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-    .bal-card {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      padding: 8px 6px;
-      text-align: center;
-      backdrop-filter: blur(6px);
-    }
-    .bal-label { font-size: 0.6rem; text-transform: uppercase; color: rgba(220, 240, 228, 0.65); margin-bottom: 3px; }
-    .bal-value { font-size: 0.85rem; font-weight: 800; color: rgba(240, 248, 244, 0.95); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bal-value.positive { color: #7de8a0; }
-    .bal-value.negative { color: #ff8a7a; }
-    .balance-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .currency-label { font-size: 0.7rem; color: rgba(200, 230, 210, 0.6); }
-    .currency-row { display: flex; align-items: center; gap: 6px; }
-    .currency-select { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 20px; color: rgba(240, 248, 244, 0.95); font-size: 0.75rem; padding: 4px 8px; cursor: pointer; }
-    .btn-row { display: flex; gap: 6px; margin-left: auto; }
-    .ctrl-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 20px; color: rgba(240, 248, 244, 0.9); font-size: 0.7rem; font-weight: 700; padding: 5px 10px; cursor: pointer; }
-    .ctrl-btn.accent { background: rgba(240, 180, 41, 0.18); border-color: rgba(240, 180, 41, 0.45); color: #f0d080; }
-    .rate-status { font-size: 0.63rem; color: rgba(200, 230, 210, 0.55); text-align: center; margin-top: 2px; }
-    .tab-content { flex: 1; overflow-y: auto; padding: 14px 14px 80px; scroll-behavior: smooth; }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+      .balance-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+      }
+      .currency-label {
+        font-size: 0.7rem;
+        color: rgba(200, 230, 210, 0.9);
+      }
+      .currency-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .currency-select {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 30px;
+        color: #fff;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        cursor: pointer;
+      }
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+      }
+      .ctrl-btn {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 30px;
+        color: rgba(255, 255, 245, 0.95);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .ctrl-btn.accent {
+        background: rgba(240, 180, 41, 0.3);
+        border-color: rgba(240, 180, 41, 0.7);
+        color: #ffe0a0;
+      }
+      .rate-status {
+        font-size: 0.65rem;
+        color: rgba(200, 230, 210, 0.8);
+        text-align: center;
+        margin-top: 6px;
+      }
 
-    /* карточки операций, категорий */
-    .op-card, .cat-card, .nb-card {
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 12px 14px;
-      transition: all var(--t);
-      box-shadow: var(--shadow-sm);
-      cursor: pointer;
-    }
-    .op-card:hover, .cat-card:hover, .nb-card:hover {
-      border-color: var(--border-hover);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
-    }
+      /* Сворачиваемый блок на главной */
+      .collapsible-block {
+        background: var(--surface-1);
+        border-radius: 20px;
+        margin-bottom: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+      }
+      .collapsible-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        cursor: pointer;
+        background: var(--surface-2);
+        font-weight: 800;
+      }
+      .collapsible-header:hover {
+        background: var(--border);
+      }
+      .collapse-icon {
+        font-size: 1.2rem;
+        transition: transform 0.2s;
+      }
+      .collapsible-content {
+        padding: 12px 16px;
+        transition: all 0.2s;
+      }
+      .collapsible-block.collapsed .collapsible-content {
+        display: none;
+      }
+      .collapsible-block.collapsed .collapse-icon {
+        transform: rotate(-90deg);
+      }
+      .quick-action-btn {
+        background: var(--accent-btn);
+        color: white;
+        border: none;
+        border-radius: 40px;
+        padding: 12px 20px;
+        font-weight: 800;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 100%;
+        transition: 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .quick-action-btn:hover {
+        background: var(--accent-light);
+        transform: translateY(-1px);
+      }
 
-    /* стили для кнопки удаления (крестик) */
-    .op-del {
-      background: none;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      color: var(--text-muted);
-      padding: 4px;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    .op-del:hover {
-      background: var(--red-bg);
-      color: var(--red-text);
-      transform: scale(1.05);
-    }
+      /* Табы */
+      .tab-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 14px 14px 80px;
+        scroll-behavior: smooth;
+      }
+      .tab-pane {
+        display: none;
+        animation: fadeIn 0.2s ease;
+      }
+      .tab-pane.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .help-hint {
+        background: rgba(0, 0, 0, 0.03);
+        border-left: 4px solid var(--accent);
+        padding: 8px 12px;
+        border-radius: 14px;
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      body.dark .help-hint {
+        background: rgba(255, 255, 255, 0.04);
+      }
 
-    /* даты в операциях */
-    .op-date {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      background: rgba(0,0,0,0.03);
-      padding: 2px 6px;
-      border-radius: 20px;
-      display: inline-block;
-    }
-    body.dark .op-date {
-      background: rgba(255,255,255,0.05);
-    }
+      /* Карточки операций */
+      .op-card,
+      .cat-card,
+      .nb-card {
+        background: var(--surface-1);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        transition: all var(--t);
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .op-card:hover {
+        border-color: var(--border-hover);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-1px);
+      }
+      .op-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .op-row1 {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: baseline;
+      }
+      .op-cat {
+        font-weight: 800;
+        font-size: 0.9rem;
+        word-break: break-word;
+      }
+      .op-amount {
+        font-weight: 800;
+        font-size: 1rem;
+        white-space: nowrap;
+      }
+      .op-amount.income {
+        color: var(--accent);
+      }
+      .op-amount.expense {
+        color: var(--red-text);
+      }
+      .op-row2 {
+        display: flex;
+        gap: 12px;
+        font-size: 0.65rem;
+        color: var(--text-muted);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .op-row2 span {
+        max-width: 180px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      @media (max-width: 450px) {
+        .op-row2 span {
+          max-width: 120px;
+        }
+      }
 
-    /* стили для подкатегорий (чипсы) */
-    .subcat-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(0,0,0,0.05);
-      padding: 4px 10px;
-      border-radius: 30px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.1s;
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-    }
-    .subcat-chip:hover { background: var(--accent-light); color: white; transform: scale(1.02); }
-    .subcat-del {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 0.7rem;
-      opacity: 0.6;
-      margin-left: 4px;
-      padding: 0 2px;
-      border-radius: 50%;
-      color: inherit;
-    }
-    .subcat-del:hover { opacity: 1; color: var(--red); background: var(--red-bg); }
-    .cat-actions-row { display: flex; gap: 8px; margin: 8px 0 6px; flex-wrap: wrap; }
+      .op-del,
+      .subcat-del,
+      .hist-del,
+      .modal-close {
+        background: rgba(0, 0, 0, 0.08);
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: var(--text-muted);
+        padding: 6px;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .op-del:hover,
+      .subcat-del:hover,
+      .hist-del:hover,
+      .modal-close:hover {
+        background: var(--red-bg);
+        color: var(--red-text);
+        transform: scale(1.05);
+      }
+      body.dark .op-del,
+      body.dark .subcat-del,
+      body.dark .hist-del,
+      body.dark .modal-close {
+        background: rgba(255, 255, 255, 0.1);
+      }
 
-    /* кнопки типа "btn-sm" */
-    .btn-sm {
-      background: rgba(26, 122, 74, 0.1);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-primary);
-    }
-    .btn-sm:hover {
-      background: var(--accent-light);
-      color: white;
-      border-color: var(--accent-light);
-    }
-    .btn-danger-sm {
-      background: var(--red-bg);
-      border: 1px solid rgba(192, 57, 43, 0.25);
-      border-radius: 20px;
-      color: var(--red-text);
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-danger-sm:hover {
-      background: var(--red);
-      color: white;
-    }
+      /* Стили для переключателя типа */
+      .type-toggle {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .type-btn {
+        flex: 1;
+        background: var(--surface-2);
+        border: 1.5px solid var(--border);
+        border-radius: 40px;
+        padding: 10px 0;
+        font-size: 0.9rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--text-primary);
+        text-align: center;
+      }
+      .type-btn.active[data-type="expense"] {
+        background: var(--red-bg);
+        border-color: var(--red);
+        color: var(--red-text);
+        box-shadow: 0 2px 6px rgba(192, 57, 43, 0.2);
+      }
+      .type-btn.active[data-type="income"] {
+        background: rgba(26, 122, 74, 0.2);
+        border-color: var(--accent);
+        color: var(--accent);
+        box-shadow: 0 2px 6px rgba(26, 122, 74, 0.2);
+      }
+      .type-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(0.97);
+      }
+      body.dark .type-btn.active[data-type="expense"] {
+        background: rgba(229, 62, 62, 0.3);
+        border-color: #ff7b6e;
+        color: #ff9f8e;
+      }
+      body.dark .type-btn.active[data-type="income"] {
+        background: rgba(74, 143, 255, 0.3);
+        border-color: #6aa8ff;
+        color: #b8d4ff;
+      }
 
-    /* Кнопка "Повторить расход" */
-    .btn-repeat {
-      background: var(--gold-bg);
-      border: 1px solid var(--gold);
-      border-radius: 30px;
-      padding: 8px 16px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--gold);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-repeat:hover {
-      background: var(--gold);
-      color: white;
-      transform: translateY(-1px);
-    }
-    body.dark .btn-repeat {
-      background: rgba(240, 180, 41, 0.15);
-    }
-    body.dark .btn-repeat:hover {
-      background: var(--gold);
-      color: #1a1a1a;
-    }
+      /* Поиск */
+      .search-bar {
+        background: var(--surface-2);
+        border-radius: 20px;
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+      .search-input-wrap {
+        display: flex;
+        align-items: center;
+        background: var(--surface-1);
+        border: 1px solid var(--border);
+        border-radius: 40px;
+        padding: 6px 12px;
+        margin-bottom: 10px;
+      }
+      .search-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text-primary);
+      }
+      .search-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .filter-input,
+      .filter-select {
+        background: var(--surface-1);
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        padding: 8px 12px;
+        color: var(--text-primary);
+      }
+      .date-range-label {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        margin-right: 4px;
+      }
 
-    /* нижняя навигация */
-    .bottom-nav {
-      flex-shrink: 0;
-      height: var(--nav-h);
-      display: flex;
-      background: var(--surface-1);
-      border-top: 1px solid var(--border);
-      padding: 6px 8px 10px;
-      gap: 4px;
-    }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: none; background: none; border-radius: 14px; cursor: pointer; color: var(--text-muted); padding: 6px 2px; transition: all 0.2s; }
-    .nav-item.active { background: rgba(26, 122, 74, 0.12); color: var(--accent); }
-    body.dark .nav-item.active { background: rgba(74, 143, 255, 0.14); color: var(--accent-light); }
-    .nav-icon { font-size: 1.3rem; }
-    .nav-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
+      /* Кнопки */
+      .btn-sm {
+        background: rgba(26, 122, 74, 0.1);
+        border: 1px solid var(--border);
+        border-radius: 30px;
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        color: var(--text-primary);
+      }
+      .btn-sm:hover {
+        background: var(--accent-light);
+        color: white;
+      }
+      .btn-danger-sm {
+        background: var(--red-bg);
+        border: 1px solid rgba(192, 57, 43, 0.3);
+        border-radius: 30px;
+        color: var(--red-text);
+        padding: 6px 14px;
+        cursor: pointer;
+      }
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--accent-btn),
+          var(--accent-light)
+        );
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 10px 18px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .btn-link {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-weight: 700;
+        padding: 8px 12px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .fab {
+        position: fixed;
+        bottom: calc(var(--nav-h) + 14px);
+        right: 18px;
+        width: var(--fab-size);
+        height: var(--fab-size);
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--accent-btn),
+          var(--accent-light)
+        );
+        color: white;
+        font-size: 1.8rem;
+        border: none;
+        box-shadow: 0 4px 20px var(--accent-glow);
+        cursor: pointer;
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+      }
+      .fab:hover {
+        transform: scale(1.05);
+      }
 
-    /* FAB */
-    .fab {
-      position: fixed;
-      bottom: calc(var(--nav-h) + 14px);
-      right: 18px;
-      width: var(--fab-size);
-      height: var(--fab-size);
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-btn), var(--accent-light));
-      color: white;
-      font-size: 1.6rem;
-      border: none;
-      box-shadow: 0 4px 20px var(--accent-glow);
-      cursor: pointer;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s;
-    }
-    .fab:hover { transform: scale(1.05); }
+      /* Навигация */
+      .bottom-nav {
+        flex-shrink: 0;
+        height: var(--nav-h);
+        display: flex;
+        background: var(--surface-1);
+        border-top: 1px solid var(--border);
+        padding: 6px 8px 10px;
+        gap: 4px;
+      }
+      .nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        border: none;
+        background: none;
+        border-radius: 14px;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: 0.2s;
+      }
+      .nav-item.active {
+        background: rgba(26, 122, 74, 0.15);
+        color: var(--accent);
+      }
+      .nav-icon {
+        font-size: 1.3rem;
+      }
 
-    /* модалки */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px); z-index: 500; align-items: flex-end; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface-1); border: 1px solid var(--border); border-radius: 28px 28px 0 0; width: 100%; max-width: 600px; max-height: 90dvh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 12px); }
-    .modal-header { display: flex; justify-content: space-between; padding: 20px 20px 14px; position: sticky; top: 0; background: var(--surface-1); border-bottom: 1px solid var(--border); }
-    .modal-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
-    .field-group { display: flex; flex-direction: column; gap: 6px; }
+      /* Модалки */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        z-index: 500;
+        align-items: flex-end;
+        justify-content: center;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal {
+        background: var(--surface-1);
+        border: 1px solid var(--border);
+        border-radius: 28px 28px 0 0;
+        width: 100%;
+        max-width: 600px;
+        max-height: 85dvh;
+        overflow-y: auto;
+      }
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px;
+        position: sticky;
+        top: 0;
+        background: var(--surface-1);
+        border-bottom: 1px solid var(--border);
+      }
+      .modal-header h2 {
+        font-size: 1.3rem;
+      }
+      .modal-body {
+        padding: 16px 20px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .modal-input,
+      .modal-select,
+      .modal-textarea {
+        background: var(--surface-1);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 12px 14px;
+        color: var(--text-primary);
+        width: 100%;
+        font-family: inherit;
+      }
+      .modal-textarea {
+        resize: vertical;
+      }
+      input[type="date"] {
+        color-scheme: light dark;
+      }
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.3);
+        cursor: pointer;
+        opacity: 0.8;
+      }
+      body.dark input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.9);
+        opacity: 0.9;
+      }
 
-    /* Поля ввода, селекты, textarea */
-    .modal-input, .modal-select, .modal-textarea, .filter-input, .filter-select {
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 11px 14px;
-      color: var(--text-primary);
-      font-family: inherit;
-      width: 100%;
-      transition: all 0.2s;
-    }
-    .modal-input:focus, .modal-select:focus, .modal-textarea:focus,
-    .filter-input:focus, .filter-select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+      /* Категории: подкатегории */
+      .subcats-wrap {
+        margin-top: 10px;
+      }
+      .subcats-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--text-secondary);
+      }
+      .subcats-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .subcat-chip {
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--border);
+      }
+      .cat-actions-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
 
-    /* Стилизация input[type="date"] для WebKit (иконка календаря) */
-    input[type="date"] {
-      color-scheme: light dark;
-      position: relative;
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.4);
-      cursor: pointer;
-      opacity: 0.7;
-      transition: opacity 0.2s;
-    }
-    body.dark input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.8);
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator:hover {
-      opacity: 1;
-    }
+      /* Калькулятор */
+      .calc-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .calc-btn {
+        background: var(--calc-bg);
+        border: none;
+        border-radius: 24px;
+        padding: 14px 0;
+        font-family: "Fira Mono", monospace;
+        font-weight: 700;
+        font-size: 1.2rem;
+        cursor: pointer;
+        text-align: center;
+        transition: 0.1s;
+        color: var(--calc-text);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      .calc-btn:hover {
+        background: var(--accent-light);
+        color: white;
+        transform: scale(0.97);
+      }
+      .calc-btn.op {
+        background: var(--calc-op-bg);
+        color: var(--calc-op-text);
+      }
+      .calc-btn.clear,
+      .calc-btn.back {
+        background: var(--red-bg);
+        color: var(--red-text);
+      }
+      body.dark .calc-btn {
+        background: #3a3f55;
+        color: #f0f0f0;
+      }
+      body.dark .calc-btn.op {
+        background: var(--accent);
+        color: white;
+      }
 
-    /* Кнопка "Показать все операции" */
-    .btn-link {
-      background: none;
-      border: none;
-      color: var(--accent);
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 8px 12px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 24px;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-    .btn-link:hover {
-      background: rgba(26, 122, 74, 0.08);
-      color: var(--accent-light);
-      transform: translateX(2px);
-    }
-    body.dark .btn-link:hover {
-      background: rgba(74, 143, 255, 0.12);
-    }
+      /* Конвертер */
+      .conv-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 10px 0;
+      }
+      .conv-input,
+      .conv-sel {
+        padding: 10px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        color: var(--text-primary);
+      }
+      .conv-result {
+        background: rgba(26, 122, 74, 0.08);
+        border-radius: 20px;
+        padding: 12px;
+        text-align: center;
+        font-weight: bold;
+        margin: 10px 0;
+      }
+      .conv-history,
+      .calc-history-list {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .conv-hist-item,
+      .calc-hist-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.8rem;
+      }
+      .empty-msg {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 20px;
+        font-style: italic;
+      }
 
-    /* Кнопка закрытия модалки */
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--text-muted);
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all 0.2s ease;
-    }
-    .modal-close:hover {
-      background: var(--red-bg);
-      color: var(--red-text);
-      transform: rotate(90deg);
-    }
-    body.dark .modal-close:hover {
-      background: rgba(229, 62, 62, 0.2);
-    }
+      /* Блокнот */
+      .nb-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+      .nb-card-top {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        font-weight: 800;
+      }
+      .nb-title {
+        font-size: 1rem;
+      }
+      .nb-date {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+      .nb-preview {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+      }
 
-    /* Блок поиска */
-    .search-bar {
-      background: var(--surface-2);
-      border-radius: 20px;
-      padding: 12px;
-      margin-bottom: 16px;
-      border: 1px solid var(--border);
-    }
-    .search-input-wrap {
-      display: flex;
-      align-items: center;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 6px 12px;
-      margin-bottom: 10px;
-    }
-    .search-icon {
-      font-size: 1rem;
-      margin-right: 8px;
-      color: var(--text-muted);
-    }
-    .search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-size: 0.9rem;
-      color: var(--text-primary);
-    }
-    .search-input::placeholder {
-      color: var(--text-muted);
-      opacity: 0.7;
-    }
-    .search-filters {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-    .search-btns {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-    .btn-sm.ghost {
-      background: transparent;
-      border-color: var(--border);
-    }
-    .btn-sm.ghost:hover {
-      background: var(--text-muted);
-      color: white;
-      border-color: var(--text-muted);
-    }
-    body.dark .btn-sm {
-      background: rgba(74, 143, 255, 0.15);
-    }
-    body.dark .btn-sm:hover {
-      background: var(--accent);
-      color: white;
-    }
-
-    /* Кнопка добавления категории / новой страницы */
-    .btn-add-cat {
-      background: var(--accent-btn);
-      border: none;
-      border-radius: 40px;
-      padding: 10px 18px;
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: white;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 16px;
-      transition: all 0.2s;
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-add-cat:hover {
-      background: var(--accent-light);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-    body.dark .btn-add-cat {
-      background: var(--accent);
-    }
-    body.dark .btn-add-cat:hover {
-      background: var(--accent-light);
-    }
-
-    /* Type Toggle (Расход/Доход) */
-    .type-toggle {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .type-btn {
-      flex: 1;
-      background: var(--surface-1);
-      border: 1.5px solid var(--border);
-      border-radius: 30px;
-      padding: 10px 0;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-primary);
-    }
-    .type-btn.active {
-      border-color: var(--accent);
-      background: rgba(26, 122, 74, 0.1);
-    }
-    .type-btn.active[data-type="expense"] {
-      background: rgba(192, 57, 43, 0.1);
-      border-color: var(--red);
-      color: var(--red-text);
-    }
-    .type-btn.active[data-type="income"] {
-      background: rgba(26, 122, 74, 0.15);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    body.dark .type-btn.active[data-type="expense"] {
-      background: rgba(229, 62, 62, 0.2);
-    }
-    body.dark .type-btn.active[data-type="income"] {
-      background: rgba(74, 143, 255, 0.2);
-      color: var(--accent-light);
-    }
-
-    /* Кнопки выбора типа категории (расходы/доходы/оба) */
-    .cat-type-btns {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 8px 0;
-    }
-    .cat-type-btn {
-      flex: 1;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 8px 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-primary);
-    }
-    .cat-type-btn.selected-expense {
-      background: var(--red-bg);
-      border-color: var(--red);
-      color: var(--red-text);
-    }
-    .cat-type-btn.selected-income {
-      background: rgba(26, 122, 74, 0.15);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .cat-type-btn.selected-both {
-      background: var(--gold-bg);
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-    body.dark .cat-type-btn.selected-expense {
-      background: rgba(229, 62, 62, 0.25);
-    }
-    body.dark .cat-type-btn.selected-income {
-      background: rgba(74, 143, 255, 0.25);
-    }
-    body.dark .cat-type-btn.selected-both {
-      background: rgba(240, 180, 41, 0.2);
-    }
-
-    /* Карточка категории: текст и иконки */
-    .cat-card-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .cat-emoji-wrap {
-      font-size: 1.4rem;
-    }
-    .cat-name-wrap {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .cat-name-text {
-      font-weight: 800;
-      font-size: 0.95rem;
-      cursor: pointer;
-      color: var(--text-primary);
-      transition: color 0.2s;
-    }
-    .cat-name-text:hover {
-      color: var(--accent);
-    }
-    .cat-type-badge {
-      font-size: 0.6rem;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: rgba(0,0,0,0.05);
-    }
-    .badge-expense {
-      background: var(--red-bg);
-      color: var(--red-text);
-    }
-    .badge-income {
-      background: rgba(26, 122, 74, 0.1);
-      color: var(--accent);
-    }
-    .badge-both {
-      background: var(--gold-bg);
-      color: var(--gold);
-    }
-    body.dark .badge-expense {
-      background: rgba(229, 62, 62, 0.2);
-    }
-    body.dark .badge-income {
-      background: rgba(74, 143, 255, 0.2);
-    }
-
-    /* Кнопка первичного действия */
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent-btn), var(--accent-light));
-      color: white;
-      border: none;
-      border-radius: 14px;
-      padding: 12px 20px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .btn-primary:hover { opacity: 0.9; }
-
-    /* Калькулятор */
-    .calc-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .calc-btn {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px 0;
-      font-family: 'Fira Mono', monospace;
-      font-weight: 700;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      color: var(--text-primary);
-    }
-    .calc-btn:hover {
-      background: var(--accent-light);
-      color: white;
-      transform: scale(0.98);
-      border-color: var(--accent-light);
-    }
-    .calc-btn.op {
-      background: var(--accent);
-      color: white;
-    }
-    .calc-btn.clear, .calc-btn.back {
-      background: var(--red-bg);
-      color: var(--red-text);
-    }
-    body.dark .calc-btn {
-      background: rgba(255,255,255,0.08);
-    }
-
-    /* ===== Визуальное разделение калькулятора и конвертера ===== */
-    #convCard {
-      margin-top: 24px;
-      border-top: 2px solid var(--accent);
-      padding-top: 16px;
-      position: relative;
-    }
-    #convCard::before {
-      content: "💱";
-      position: absolute;
-      top: -12px;
-      left: 16px;
-      background: var(--surface-1);
-      padding: 0 8px;
-      font-size: 0.8rem;
-      color: var(--accent);
-      font-weight: bold;
-    }
-
-    /* Конвертер валют */
-    .conv-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .conv-input, .conv-sel {
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text-primary);
-      font-size: 0.9rem;
-    }
-    .conv-input:focus, .conv-sel:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    .conv-result {
-      background: rgba(26, 122, 74, 0.08);
-      border-radius: 14px;
-      padding: 12px;
-      text-align: center;
-      margin: 12px 0;
-      font-weight: bold;
-    }
-    .conv-history {
-      max-height: 180px;
-      overflow-y: auto;
-      margin-top: 8px;
-    }
-    .conv-hist-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 10px;
-      font-size: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .empty-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
-
-    /* Адаптив */
-    @media (max-width: 380px) {
-      .balance-cards { grid-template-columns: repeat(2, 1fr); }
-      .nav-label { display: none; }
-    }
+      @media (max-width: 420px) {
+        .nav-label {
+          display: none;
+        }
+        .calc-btn {
+          font-size: 1rem;
+          padding: 10px 0;
+        }
+      }
