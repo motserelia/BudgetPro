@@ -1,9 +1,10 @@
-// ========== ПОЛНАЯ ЛОГИКА С ИСПРАВЛЕНИЕМ ПОДКАТЕГОРИЙ ДОХОДОВ ==========
+// ========== ПОЛНАЯ ЛОГИКА С ИСПРАВЛЕНИЕМ ПОИСКА И ПОРЯДКА КАТЕГОРИЙ ==========
 let transactions = [];
 let startBalanceRub = 70000;
 let incomeCategories = ["Работа", "Аренда"];
 let expenseCategories = ["Продукты", "Транспорт", "Коммуналка", "Кафе"];
 let categoryGroups = {};
+let allCategoriesOrder = []; // порядок категорий для отображения
 let exchangeRates = {
   RUB: 1,
   USD: 0.012,
@@ -58,6 +59,19 @@ function fmtDate(d) {
   }
 }
 
+function updateAllCategoriesOrder() {
+  // обновляем порядок на основе текущих income+expense, сохраняя существующий порядок, добавляя новые в конец
+  let allSet = new Set([...incomeCategories, ...expenseCategories]);
+  let newOrder = [];
+  for (let cat of allCategoriesOrder) {
+    if (allSet.has(cat)) newOrder.push(cat);
+  }
+  for (let cat of allSet) {
+    if (!newOrder.includes(cat)) newOrder.push(cat);
+  }
+  allCategoriesOrder = newOrder;
+}
+
 function saveAll() {
   localStorage.setItem(
     "budget_pro_full",
@@ -70,6 +84,7 @@ function saveAll() {
       displayCurrency,
       exchangeRates,
       lastRateUpdate,
+      allCategoriesOrder,
     }),
   );
 }
@@ -91,6 +106,7 @@ function loadAll() {
     if (d.exchangeRates)
       exchangeRates = { ...exchangeRates, ...d.exchangeRates };
     lastRateUpdate = d.lastRateUpdate || null;
+    allCategoriesOrder = d.allCategoriesOrder || [];
   }
   [...incomeCategories, ...expenseCategories].forEach((cat) => {
     if (!categoryGroups[cat])
@@ -109,6 +125,7 @@ function loadAll() {
       income: { subcats: [] },
       expense: { subcats: ["метро", "такси"] },
     };
+  updateAllCategoriesOrder();
 }
 
 function ensureGroup(cat, type) {
@@ -126,11 +143,11 @@ function addSubcat(cat, type, sub) {
   ensureGroup(cat, type);
   let arr = categoryGroups[cat][type].subcats;
   if (!arr.includes(sub)) arr.push(sub);
-  // Важно: если добавляем подкатегорию для доходов, убедимся, что категория есть в incomeCategories
   if (type === "income" && !incomeCategories.includes(cat))
     incomeCategories.push(cat);
   if (type === "expense" && !expenseCategories.includes(cat))
     expenseCategories.push(cat);
+  updateAllCategoriesOrder();
   saveAll();
 }
 function removeSubcat(cat, type, sub) {
@@ -327,7 +344,8 @@ function renderAllOps() {
     );
   filtered.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty-msg">Нет операций</div>';
+    container.innerHTML =
+      '<div class="empty-msg">Нет операций по заданным критериям</div>';
     return;
   }
   for (let op of filtered) container.appendChild(buildOpCard(op, op._i));
@@ -337,22 +355,21 @@ function renderCatManager() {
   let container = document.getElementById("catManager");
   if (!container) return;
   container.innerHTML = "";
-  let allCats = [...new Set([...incomeCategories, ...expenseCategories])];
-  for (let cat of allCats) {
+  for (let cat of allCategoriesOrder) {
     let inInc = incomeCategories.includes(cat);
     let inExp = expenseCategories.includes(cat);
+    if (!inInc && !inExp) continue;
     let typeLabel =
       inInc && inExp ? "🔄 Оба" : inInc ? "💰 Доход" : "💸 Расход";
     let div = document.createElement("div");
     div.className = "cat-card";
     div.innerHTML = `<div style="flex:1;"><div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.7rem;">${typeLabel}</span></div>`;
-    // Всегда создаём контейнеры для подкатегорий, даже если их пока нет (чтобы после добавления они появились)
-    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💰 Доход</div><div class="subcats-row" id="subs-inc-${cat}"></div></div>`;
-    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💸 Расход</div><div class="subcats-row" id="subs-exp-${cat}"></div></div>`;
+    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💰 Доход</div><div class="subcats-row" id="subs-inc-${cat.replace(/\s/g, "_")}"></div></div>`;
+    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💸 Расход</div><div class="subcats-row" id="subs-exp-${cat.replace(/\s/g, "_")}"></div></div>`;
     div.innerHTML += `<div class="cat-actions-row"><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">+ Подкат. доход</button><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">+ Подкат. расход</button><button class="btn-sm del-cat" data-cat="${esc(cat)}">🗑 Удалить</button></div></div>`;
     container.appendChild(div);
-    fillSubcatRow(cat, "income", `subs-inc-${cat}`);
-    fillSubcatRow(cat, "expense", `subs-exp-${cat}`);
+    fillSubcatRow(cat, "income", `subs-inc-${cat.replace(/\s/g, "_")}`);
+    fillSubcatRow(cat, "expense", `subs-exp-${cat.replace(/\s/g, "_")}`);
     div
       .querySelector(".cat-rename")
       .addEventListener("click", () => renameCategory(cat));
@@ -373,6 +390,7 @@ function renderCatManager() {
         incomeCategories = incomeCategories.filter((c) => c !== cat);
         expenseCategories = expenseCategories.filter((c) => c !== cat);
         delete categoryGroups[cat];
+        updateAllCategoriesOrder();
         saveAll();
         renderCatManager();
         refreshModalCats();
@@ -421,6 +439,8 @@ function renameCategory(oldName) {
     categoryGroups[newName] = categoryGroups[oldName];
     delete categoryGroups[oldName];
   }
+  let idx = allCategoriesOrder.indexOf(oldName);
+  if (idx !== -1) allCategoriesOrder[idx] = newName;
   transactions.forEach((t) => {
     if (t.category === oldName) t.category = newName;
   });
@@ -478,6 +498,7 @@ function deleteSubcatFromModal() {
   }
 }
 
+// Конвертер (без изменений)
 function doConvert() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -557,6 +578,7 @@ function clearConvHistory() {
     renderFullConvHistoryModal();
 }
 
+// Калькулятор
 let calcExpr = "",
   calcJustEvaled = false;
 function renderCalcDisplay() {
@@ -685,6 +707,7 @@ function clearCalcHistory() {
     renderFullCalcHistory();
 }
 
+// Блокнот
 function loadNotebook() {
   let saved = localStorage.getItem("notebook_pages");
   if (saved) notebookPages = JSON.parse(saved);
@@ -940,6 +963,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (currentOpType === "income") incomeCategories.push(newCat);
       else expenseCategories.push(newCat);
       ensureGroup(newCat, currentOpType);
+      updateAllCategoriesOrder();
       saveAll();
       refreshModalCats();
       renderCatManager();
@@ -952,6 +976,7 @@ document.addEventListener("DOMContentLoaded", () => {
         incomeCategories = incomeCategories.filter((c) => c !== cat);
       else expenseCategories = expenseCategories.filter((c) => c !== cat);
       delete categoryGroups[cat];
+      updateAllCategoriesOrder();
       saveAll();
       refreshModalCats();
       renderCatManager();
@@ -1024,7 +1049,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("clearCalcHistoryBtn").onclick = () => {
     if (confirm("Очистить историю калькулятора?")) clearCalcHistory();
   };
-  document.getElementById("applySearchBtn").onclick = renderAllOps;
+  document.getElementById("applySearchBtn").onclick = () => renderAllOps();
   document.getElementById("resetSearchBtn").onclick = () => {
     document.getElementById("searchText").value = "";
     document.getElementById("searchFrom").value = "";
@@ -1032,6 +1057,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("searchType").value = "";
     renderAllOps();
   };
+  document
+    .getElementById("searchText")
+    .addEventListener("input", () => renderAllOps());
+  document
+    .getElementById("searchFrom")
+    .addEventListener("change", () => renderAllOps());
+  document
+    .getElementById("searchTo")
+    .addEventListener("change", () => renderAllOps());
+  document
+    .getElementById("searchType")
+    .addEventListener("change", () => renderAllOps());
   document.getElementById("addCatGroupBtn").onclick = () => {
     let newCat = prompt("Название новой категории");
     if (
@@ -1041,6 +1078,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ) {
       expenseCategories.push(newCat);
       ensureGroup(newCat, "expense");
+      updateAllCategoriesOrder();
       saveAll();
       renderCatManager();
       refreshModalCats();
