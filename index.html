@@ -13,7 +13,7 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="BudgetPRO" />
     <meta name="theme-color" content="#0d2b1a" />
   </head>
@@ -27,15 +27,19 @@
             <p class="app-sub">Твой капитал — твои правила</p>
           </div>
         </div>
-        <div class="theme-switch-wrapper">
-          <label class="theme-switch"
-            ><input type="checkbox" id="themeToggleCheckbox" /><span
-              class="slider"
-            ></span
-          ></label>
+        <div class="header-actions">
+          <button class="help-btn" id="helpBtn" title="Помощь">❔</button>
+          <div class="theme-switch-wrapper">
+            <label class="theme-switch"
+              ><input type="checkbox" id="themeToggleCheckbox" /><span
+                class="slider"
+              ></span
+            ></label>
+          </div>
         </div>
       </header>
-      <div class="balance-panel">
+
+      <div class="balance-panel" id="balancePanel">
         <div class="balance-cards" id="balanceCards"></div>
         <div class="balance-controls">
           <div class="currency-row">
@@ -56,28 +60,61 @@
               ✏️ Зарплата
             </button>
           </div>
-          <div id="rateStatus" class="rate-status"></div>
         </div>
+        <div id="rateStatus" class="rate-status"></div>
       </div>
+
       <div class="tab-content" id="tabContent">
         <section class="tab-pane active" id="tabHome">
+          <!-- Сворачиваемый блок быстрого действия -->
+          <div class="collapsible-block" id="quickActionBlock">
+            <div class="collapsible-header">
+              <span>⚡ Быстрое действие</span>
+              <span class="collapse-icon">▼</span>
+            </div>
+            <div class="collapsible-content">
+              <button class="quick-action-btn" id="homeQuickAddBtn">
+                ➕ Новая операция
+              </button>
+              <div
+                style="
+                  font-size: 0.7rem;
+                  color: var(--text-muted);
+                  text-align: center;
+                  margin-top: 8px;
+                "
+              >
+                Нажмите, чтобы добавить доход или расход
+              </div>
+            </div>
+          </div>
           <div class="help-hint">
             <span>🏠</span> Последние 5 операций. Нажмите ＋ снизу, чтобы
             добавить доход/расход. ✏️ Зарплата — установите начальный баланс.
           </div>
-          <div class="section-header">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 12px;
+            "
+          >
             <h2>📋 Последние операции</h2>
-            <button class="btn-danger-sm" id="clearAllBtn">🧹 Очистить</button>
+            <button class="btn-danger-sm" id="clearAllBtn">
+              🧹 Очистить все
+            </button>
           </div>
           <div id="recentOpsList" class="ops-list"></div>
           <button class="btn-link" id="viewAllOpsBtn">
             Показать все операции →
           </button>
         </section>
+
         <section class="tab-pane" id="tabOperations">
           <div class="help-hint">
-            <span>🔍</span> Поиск по дате, категории, типу. Кликните по операции
-            для редактирования.
+            <span>🔍</span> Поиск по дате (с / по), категории, типу. Кликните по
+            операции для редактирования.
           </div>
           <div class="search-bar">
             <div class="search-input-wrap">
@@ -90,61 +127,78 @@
               />
             </div>
             <div class="search-filters">
-  <div class="filter-group">
-    <span class="filter-label">📅 От:</span>
-    <input type="date" id="searchFrom" class="filter-input" placeholder="дд.мм.гггг" />
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">📅 До:</span>
-    <input type="date" id="searchTo" class="filter-input" />
-  </div>
-  <div class="filter-group">
-    <span class="filter-label">🗂️ Тип:</span>
-    <select id="searchType" class="filter-select">
-      <option value="">Все</option>
-      <option value="income">💰 Доходы</option>
-      <option value="expense">💸 Расходы</option>
-    </select>
-  </div>
-</div>
+              <span class="date-range-label">с</span
+              ><input type="date" id="searchFrom" class="filter-input" />
+              <span class="date-range-label">по</span
+              ><input type="date" id="searchTo" class="filter-input" />
+              <select id="searchType" class="filter-select">
+                <option value="">Все</option>
+                <option value="income">💰 Доходы</option>
+                <option value="expense">💸 Расходы</option>
+              </select>
+            </div>
             <div class="search-btns">
               <button class="btn-sm" id="applySearchBtn">Найти</button
-              ><button class="btn-sm ghost" id="resetSearchBtn">Сброс</button>
+              ><button class="btn-sm" id="resetSearchBtn">Сброс</button>
             </div>
           </div>
-          <div id="allOpsList" class="ops-list" style="margin-top: 12px"></div>
+          <div id="allOpsList" class="ops-list"></div>
         </section>
         <section class="tab-pane" id="tabCategories">
           <div class="help-hint">
-            <span>🗂️</span> Кликните по названию категории — переименовать.
-            Кликните по подкатегории — изменить текст. Кнопки "+" для добавления
-            подкатегорий.
+            <span>🗂️</span> Клик по названию категории — переименовать. Клик по
+            подкатегории — изменить. Кнопки "+" для добавления подкатегорий.
           </div>
-          <button class="btn-add-cat" id="addCatGroupBtn">
+          <button
+            class="btn-sm"
+            id="addCatGroupBtn"
+            style="margin-bottom: 12px"
+          >
             + Добавить категорию
           </button>
           <div id="catManager" class="cat-manager"></div>
         </section>
         <section class="tab-pane" id="tabTools">
           <div class="help-hint">
-            <span>🧮</span> Калькулятор с историей. Конвертер валют —
-            автоматически по курсам. Кнопка "Очистить историю" удаляет историю
-            конвертации.
+            <span>🧮</span> Калькулятор и конвертер валют. История конвертации —
+            полный просмотр и удаление.
           </div>
-          <div class="card" id="calcCard">
-            <div class="card-header">
-              <h3>🧮 Калькулятор</h3>
-              <button class="btn-sm ghost" id="openCalcHistoryBtn">
-                История
-              </button>
+          <div>
+            <h3>🧮 Калькулятор</h3>
+            <div style="display: flex; justify-content: space-between">
+              <div id="calcHistoryPreview" style="font-size: 0.7rem">
+                Нет истории
+              </div>
+              <button class="btn-sm" id="openCalcHistoryBtn">История</button>
             </div>
-            <div id="calcHistoryPreview" class="calc-preview">Нет истории</div>
-            <div class="calc-display" id="calcDisplay">0</div>
+            <div
+              class="calc-display"
+              id="calcDisplay"
+              style="
+                font-size: 2rem;
+                font-weight: 800;
+                text-align: right;
+                padding: 10px 0;
+              "
+            >
+              0
+            </div>
             <div class="calc-grid" id="calcGrid"></div>
           </div>
-          <div class="card" id="convCard">
-            <div class="card-header">
-              <h3>💱 Конвертер валют</h3>
+          <div style="margin-top: 24px">
+            <h3>💱 Конвертер валют</h3>
+            <div
+              style="
+                display: flex;
+                gap: 8px;
+                justify-content: flex-end;
+                margin-bottom: 8px;
+              "
+            >
+              <button class="btn-sm" id="openConvHistoryBtn">📜 История</button
+              ><button class="btn-sm" id="clearConvHistoryBtn">
+                🗑 Очистить всё
+              </button>
             </div>
             <div class="conv-row">
               <input
@@ -159,7 +213,7 @@
                 <option value="GEL">GEL</option>
                 <option value="GBP">GBP</option>
                 <option value="KZT">KZT</option></select
-              ><span class="conv-arrow">→</span
+              ><span>→</span
               ><select id="convTo" class="conv-sel">
                 <option value="GEL">GEL</option>
                 <option value="USD">USD</option>
@@ -172,40 +226,162 @@
             <div id="convResult" class="conv-result"></div>
             <div id="convHistoryList" class="conv-history"></div>
           </div>
-          <button class="btn-sm ghost" id="clearConvHistoryBtn">
-            🗑 Очистить историю
-          </button>
         </section>
         <section class="tab-pane" id="tabNotebook">
           <div class="help-hint">
             <span>📓</span> Личный блокнот: создавайте страницы, редактируйте,
             удаляйте. Нажмите на карточку для редактирования.
           </div>
-          <button class="btn-add-cat" id="newPageBtn">➕ Новая страница</button>
-          <div id="notebookList" class="notebook-list"></div>
+          <button class="btn-sm" id="newPageBtn">➕ Новая страница</button>
+          <div
+            id="notebookList"
+            class="notebook-list"
+            style="margin-top: 12px"
+          ></div>
         </section>
       </div>
       <nav class="bottom-nav">
         <button class="nav-item active" data-tab="home">
-          <span class="nav-icon">🏠</span
-          ><span class="nav-label">Главная</span></button
-        ><button class="nav-item" data-tab="operations">
+          <span class="nav-icon">🏠</span><span class="nav-label">Главная</span>
+        </button>
+        <button class="nav-item" data-tab="operations">
           <span class="nav-icon">📋</span
-          ><span class="nav-label">Операции</span></button
-        ><button class="nav-item" data-tab="categories">
+          ><span class="nav-label">Операции</span>
+        </button>
+        <button class="nav-item" data-tab="categories">
           <span class="nav-icon">🗂️</span
-          ><span class="nav-label">Категории</span></button
-        ><button class="nav-item" data-tab="tools">
+          ><span class="nav-label">Категории</span>
+        </button>
+        <button class="nav-item" data-tab="tools">
           <span class="nav-icon">🧮</span
-          ><span class="nav-label">Инструменты</span></button
-        ><button class="nav-item" data-tab="notebook">
+          ><span class="nav-label">Инструменты</span>
+        </button>
+        <button class="nav-item" data-tab="notebook">
           <span class="nav-icon">📓</span><span class="nav-label">Блокнот</span>
         </button>
       </nav>
-      <button class="fab" id="fabBtn" title="Добавить операцию">＋</button>
+      <button class="fab" id="fabBtn">＋</button>
     </div>
 
-    <!-- Модалки -->
+    <!-- Модалка помощи (инструкция) -->
+    <div class="modal-overlay" id="helpModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>❔ Помощь и инструкция</h2>
+          <button class="modal-close" id="closeHelpModal">✕</button>
+        </div>
+        <div class="modal-body" style="gap: 12px">
+          <h3>📌 Главный экран</h3>
+          <p>
+            • После открытия приложения вы попадаете на главный экран.<br />
+            • Вверху находятся карточки: «Зарплата», «Доходы», «Расходы»,
+            «Остаток».<br />
+            • Суммы в них считаются автоматически после добавления операций.<br /><br />
+
+            • Ниже есть блок «Быстрое действие».<br />
+            • Нажмите кнопку «➕ Новая операция», чтобы сразу добавить
+            запись.<br />
+            • Блок можно свернуть или развернуть при необходимости.<br /><br />
+
+            • Внизу отображаются последние 5 операций.<br />
+            • Нажмите на любую операцию, чтобы изменить её.<br />
+            • Нажмите на крестик рядом с операцией, чтобы удалить её.<br /><br />
+
+            • Кнопка «Очистить все» удаляет все операции сразу.
+          </p>
+
+          <h3>📋 Раздел «Операции»</h3>
+          <p>
+            • Перейдите в раздел «Операции» через меню.<br />
+            • Вверху есть поиск — введите текст, чтобы найти нужную запись.<br />
+            • Можно выбрать период дат и тип (доход или расход) для
+            фильтрации.<br /><br />
+
+            • Нажмите на операцию, чтобы открыть редактирование.<br />
+            • Нажмите на крестик, чтобы удалить операцию.
+          </p>
+
+          <h3>🗂️ Раздел «Категории»</h3>
+          <p>
+            • Перейдите в раздел «Категории».<br />
+            • Нажмите на название категории, чтобы переименовать её.<br /><br />
+
+            • Чтобы добавить подкатегорию, нажмите «+ Подкат. доход» или «+
+            Подкат. расход».<br />
+            • Нажмите на подкатегорию, чтобы изменить её.<br />
+            • Нажмите на крестик рядом с подкатегорией, чтобы удалить её.<br /><br />
+
+            • Нажмите «+ Добавить категорию», чтобы создать новую категорию.<br />
+            • Тип категории выбирается при добавлении операции.
+          </p>
+
+          <h3>🧮 Инструменты</h3>
+          <p>
+            • Перейдите в раздел «Инструменты».<br /><br />
+
+            • Калькулятор:<br />
+            – Кнопка C — очистить всё.<br />
+            – Кнопка ⌫ — удалить последний символ.<br />
+            – Кнопка % — посчитать процент.<br />
+            – Кнопка +/− — изменить знак числа.<br /><br />
+
+            • Конвертер валют:<br />
+            – Введите сумму.<br />
+            – Выберите валюту «из» и «в».<br />
+            – Нажмите «Перевести».<br />
+            – Ниже появится результат и список прошлых операций.<br /><br />
+
+            • История:<br />
+            – Нажмите «История», чтобы открыть список всех конвертаций.<br />
+            – Можно удалить одну запись или очистить всё.
+          </p>
+
+          <h3>📓 Блокнот</h3>
+          <p>
+            • Перейдите в раздел «Блокнот».<br />
+            • Нажмите кнопку добавления, чтобы создать заметку.<br />
+            • Укажите название, дату и текст.<br /><br />
+
+            • Нажмите на заметку, чтобы изменить её.<br />
+            • Можно удалить заметку при необходимости.
+          </p>
+
+          <h3>🌙 Тема и валюта</h3>
+          <p>
+            • В верхней части экрана есть переключатель темы.<br />
+            • Нажмите на него, чтобы сменить светлую или тёмную тему.<br /><br />
+
+            • Выбор валюты:<br />
+            – Найдите выбор валюты (RUB, USD, EUR, GEL, GBP, KZT).<br />
+            – Выберите нужную валюту — все суммы обновятся автоматически.<br /><br />
+
+            • Нажмите «Обновить курс», чтобы загрузить актуальные курсы.
+          </p>
+
+          <h3>➕ Добавление операции</h3>
+          <p>
+            • Нажмите на кнопку «+» внизу справа или кнопку «➕ Новая
+            операция».<br /><br />
+
+            • В открывшемся окне:<br />
+            – Выберите тип: доход или расход.<br />
+            – Выберите категорию.<br />
+            – При необходимости выберите подкатегорию.<br />
+            – Введите сумму.<br />
+            – Укажите дату.<br />
+            – Добавьте заметку (по желанию).<br /><br />
+
+            • Нажмите кнопку сохранения, чтобы добавить операцию.
+          </p>
+
+          <p style="margin-top: 12px; font-style: italic; text-align: center">
+            Все данные сохраняются в браузере автоматически.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка добавления операции -->
     <div class="modal-overlay" id="addOpModal">
       <div class="modal">
         <div class="modal-header">
@@ -230,12 +406,12 @@
           <div class="field-group">
             <label>Категория</label
             ><select id="modalCat" class="modal-select"></select>
-            <div class="cat-actions">
-              <button class="btn-sm ghost" id="modalAddCatBtn">
-                + Добавить</button
-              ><button class="btn-sm ghost danger" id="modalDelCatBtn">
-                🗑 Удалить
-              </button>
+            <div
+              class="cat-actions"
+              style="display: flex; gap: 6px; margin-top: 6px"
+            >
+              <button class="btn-sm" id="modalAddCatBtn">+ Добавить</button
+              ><button class="btn-sm" id="modalDelCatBtn">🗑 Удалить</button>
             </div>
           </div>
           <div class="field-group" id="modalSubcatField" style="display: none">
@@ -247,10 +423,8 @@
             ><input
               type="number"
               id="modalAmount"
-              placeholder="0.00"
               class="modal-input"
               step="any"
-              min="0"
             />
           </div>
           <div class="field-group">
@@ -263,115 +437,15 @@
               id="modalNote"
               class="modal-textarea"
               rows="2"
-              placeholder="Необязательно..."
             ></textarea>
           </div>
           <div class="modal-actions">
-            <button class="btn-repeat" id="modalRepeatBtn">
-              🔄 Повторить расход</button
-            ><button class="btn-primary" id="modalAddBtn">✅ Добавить</button>
+            <button class="btn-primary" id="modalAddBtn">✅ Добавить</button>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-overlay" id="addCatModal">
-      <div class="modal modal-sm">
-        <div class="modal-header">
-          <h2>🗂 Новая категория</h2>
-          <button class="modal-close" id="closeAddCatModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="field-group">
-            <label>Название</label
-            ><input
-              type="text"
-              id="addCatName"
-              class="modal-input"
-              placeholder="Например: Транспорт"
-            />
-          </div>
-          <div class="field-group">
-            <label>Тип</label>
-            <div class="cat-type-btns">
-              <button class="cat-type-btn" id="catBtnExpense">💸 Расходы</button
-              ><button class="cat-type-btn" id="catBtnIncome">💰 Доходы</button
-              ><button class="cat-type-btn" id="catBtnBoth">🔄 Оба</button>
-            </div>
-          </div>
-          <button class="btn-primary" id="confirmAddCat" disabled>
-            ✅ Добавить
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-overlay" id="calcHistoryModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>🧮 История вычислений</h2>
-          <button class="modal-close" id="closeCalcHistoryModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div id="calcHistoryList" class="ops-list"></div>
-          <button class="btn-danger-sm" id="clearCalcHistoryBtn">
-            🗑 Очистить историю
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-overlay" id="notebookModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>📄 Редактировать</h2>
-          <button class="modal-close" id="closeNotebookModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="field-group">
-            <label>Название</label
-            ><input type="text" id="nbTitle" class="modal-input" />
-          </div>
-          <div class="field-group">
-            <label>Дата</label
-            ><input type="date" id="nbDate" class="modal-input" />
-          </div>
-          <div class="field-group">
-            <label>Содержимое</label
-            ><textarea
-              id="nbContent"
-              class="modal-textarea"
-              rows="8"
-            ></textarea>
-          </div>
-          <div class="modal-actions">
-            <button class="btn-danger-sm" id="deleteNbPageBtn">
-              🗑 Удалить</button
-            ><button class="btn-primary" id="saveNbPageBtn">
-              💾 Сохранить
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-overlay" id="editSubcatModal">
-      <div class="modal modal-sm">
-        <div class="modal-header">
-          <h2>✏️ Редактировать подкатегорию</h2>
-          <button class="modal-close" id="closeEditSubcatModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="field-group">
-            <label>Название</label
-            ><input type="text" id="editSubcatName" class="modal-input" />
-          </div>
-          <div class="modal-actions">
-            <button class="btn-danger-sm" id="deleteSubcatBtn">
-              🗑 Удалить</button
-            ><button class="btn-primary" id="saveSubcatBtn">
-              💾 Сохранить
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+
     <!-- Модалка редактирования операции -->
     <div class="modal-overlay" id="editOpModal">
       <div class="modal">
@@ -417,7 +491,6 @@
               id="editModalAmount"
               class="modal-input"
               step="any"
-              min="0"
             />
           </div>
           <div class="field-group">
@@ -432,9 +505,109 @@
               rows="2"
             ></textarea>
           </div>
-          <div class="modal-actions">
+          <div
+            class="modal-actions"
+            style="display: flex; gap: 8px; justify-content: space-between"
+          >
             <button class="btn-danger-sm" id="deleteOpBtn">🗑 Удалить</button
             ><button class="btn-primary" id="saveOpBtn">💾 Сохранить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка истории конвертера -->
+    <div class="modal-overlay" id="convHistoryModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>📜 Полная история конвертации</h2>
+          <button class="modal-close" id="closeConvHistoryModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="convHistoryFullList" class="ops-list"></div>
+          <button
+            class="btn-danger-sm"
+            id="clearFullConvHistoryBtn"
+            style="margin-top: 12px"
+          >
+            🗑 Очистить всю историю
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка истории калькулятора -->
+    <div class="modal-overlay" id="calcHistoryModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>🧮 История вычислений</h2>
+          <button class="modal-close" id="closeCalcHistoryModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div id="calcHistoryFullList" class="calc-history-list"></div>
+          <button class="btn-danger-sm" id="clearCalcHistoryBtn">
+            Очистить историю
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка редактирования подкатегории -->
+    <div class="modal-overlay" id="editSubcatModal">
+      <div class="modal modal-sm">
+        <div class="modal-header">
+          <h2>✏️ Редактировать подкатегорию</h2>
+          <button class="modal-close" id="closeEditSubcatModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-group">
+            <label>Название</label
+            ><input type="text" id="editSubcatName" class="modal-input" />
+          </div>
+          <div class="modal-actions" style="display: flex; gap: 8px">
+            <button class="btn-danger-sm" id="deleteSubcatBtn">
+              🗑 Удалить</button
+            ><button class="btn-primary" id="saveSubcatBtn">
+              💾 Сохранить
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модалка блокнота -->
+    <div class="modal-overlay" id="notebookModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>📄 Редактировать страницу</h2>
+          <button class="modal-close" id="closeNotebookModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="field-group">
+            <label>Название</label
+            ><input type="text" id="nbTitle" class="modal-input" />
+          </div>
+          <div class="field-group">
+            <label>Дата</label
+            ><input type="date" id="nbDate" class="modal-input" />
+          </div>
+          <div class="field-group">
+            <label>Содержимое</label
+            ><textarea
+              id="nbContent"
+              class="modal-textarea"
+              rows="8"
+            ></textarea>
+          </div>
+          <div
+            class="modal-actions"
+            style="display: flex; gap: 8px; justify-content: space-between"
+          >
+            <button class="btn-danger-sm" id="deleteNbPageBtn">
+              🗑 Удалить</button
+            ><button class="btn-primary" id="saveNbPageBtn">
+              💾 Сохранить
+            </button>
           </div>
         </div>
       </div>
