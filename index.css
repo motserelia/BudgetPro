@@ -841,3 +841,68 @@
       .balance-cards { grid-template-columns: repeat(2, 1fr); }
       .nav-label { display: none; }
     }
+
+/* Группа фильтра */
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  padding: 4px 10px;
+  transition: all 0.2s;
+}
+
+.filter-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.filter-input, .filter-select {
+  background: transparent;
+  border: none;
+  padding: 6px 4px;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+}
+
+.filter-select option {
+  background: var(--surface-1);
+  color: var(--text-primary);
+}
+
+/* Стилизация иконки календаря в WebKit-браузерах */
+.filter-input[type="date"] {
+  position: relative;
+  color-scheme: light dark;
+}
+
+.filter-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.4);
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.filter-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+body.dark .filter-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8);
+}
+
+/* Адаптив для маленьких экранов */
+@media (max-width: 480px) {
+  .filter-group {
+    flex: 1 1 auto;
+  }
+  .filter-label {
+    font-size: 0.65rem;
+  }
+}
