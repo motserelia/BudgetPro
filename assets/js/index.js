@@ -1,4 +1,4 @@
-// ========== ПОЛНОСТЬЮ РАБОЧАЯ ЛОГИКА + РЕДАКТИРОВАНИЕ + ИНСТРУКЦИЯ + СВОРАЧИВАЕМЫЙ БЛОК ==========
+// ========== ПОЛНАЯ ЛОГИКА С ИСПРАВЛЕНИЕМ ПОДКАТЕГОРИЙ ДОХОДОВ ==========
 let transactions = [];
 let startBalanceRub = 70000;
 let incomeCategories = ["Работа", "Аренда"];
@@ -126,6 +126,11 @@ function addSubcat(cat, type, sub) {
   ensureGroup(cat, type);
   let arr = categoryGroups[cat][type].subcats;
   if (!arr.includes(sub)) arr.push(sub);
+  // Важно: если добавляем подкатегорию для доходов, убедимся, что категория есть в incomeCategories
+  if (type === "income" && !incomeCategories.includes(cat))
+    incomeCategories.push(cat);
+  if (type === "expense" && !expenseCategories.includes(cat))
+    expenseCategories.push(cat);
   saveAll();
 }
 function removeSubcat(cat, type, sub) {
@@ -341,20 +346,13 @@ function renderCatManager() {
     let div = document.createElement("div");
     div.className = "cat-card";
     div.innerHTML = `<div style="flex:1;"><div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.7rem;">${typeLabel}</span></div>`;
-    if (inInc) {
-      let subsInc = getSubcats(cat, "income");
-      if (subsInc.length)
-        div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💰 Доход</div><div class="subcats-row" id="subs-inc-${cat}"></div></div>`;
-    }
-    if (inExp) {
-      let subsExp = getSubcats(cat, "expense");
-      if (subsExp.length)
-        div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💸 Расход</div><div class="subcats-row" id="subs-exp-${cat}"></div></div>`;
-    }
+    // Всегда создаём контейнеры для подкатегорий, даже если их пока нет (чтобы после добавления они появились)
+    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💰 Доход</div><div class="subcats-row" id="subs-inc-${cat}"></div></div>`;
+    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💸 Расход</div><div class="subcats-row" id="subs-exp-${cat}"></div></div>`;
     div.innerHTML += `<div class="cat-actions-row"><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">+ Подкат. доход</button><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">+ Подкат. расход</button><button class="btn-sm del-cat" data-cat="${esc(cat)}">🗑 Удалить</button></div></div>`;
     container.appendChild(div);
-    if (inInc) fillSubcatRow(cat, "income", `subs-inc-${cat}`);
-    if (inExp) fillSubcatRow(cat, "expense", `subs-exp-${cat}`);
+    fillSubcatRow(cat, "income", `subs-inc-${cat}`);
+    fillSubcatRow(cat, "expense", `subs-exp-${cat}`);
     div
       .querySelector(".cat-rename")
       .addEventListener("click", () => renameCategory(cat));
@@ -873,7 +871,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderNotebookList();
   refreshModalCats();
 
-  // FAB и кнопка быстрого действия на главной
   document.getElementById("fabBtn").onclick = () => {
     document.getElementById("modalDate").value = today();
     openModal("addOpModal");
@@ -883,19 +880,16 @@ document.addEventListener("DOMContentLoaded", () => {
     openModal("addOpModal");
   };
 
-  // Сворачиваемый блок
   const collapsible = document.getElementById("quickActionBlock");
   const header = collapsible.querySelector(".collapsible-header");
   header.addEventListener("click", () => {
     collapsible.classList.toggle("collapsed");
   });
 
-  // Помощь
   document.getElementById("helpBtn").onclick = () => openModal("helpModal");
   document.getElementById("closeHelpModal").onclick = () =>
     closeModal("helpModal");
 
-  // Закрытие модалок
   document.getElementById("closeAddOpModal").onclick = () =>
     closeModal("addOpModal");
   document.getElementById("closeEditOpModal").onclick = () =>
