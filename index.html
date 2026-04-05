@@ -66,11 +66,10 @@
 
       <div class="tab-content" id="tabContent">
         <section class="tab-pane active" id="tabHome">
-          <!-- Сворачиваемый блок быстрого действия -->
           <div class="collapsible-block" id="quickActionBlock">
             <div class="collapsible-header">
-              <span>⚡ Быстрое действие</span>
-              <span class="collapse-icon">▼</span>
+              <span>⚡ Быстрое действие</span
+              ><span class="collapse-icon">▼</span>
             </div>
             <div class="collapsible-content">
               <button class="quick-action-btn" id="homeQuickAddBtn">
@@ -110,7 +109,6 @@
             Показать все операции →
           </button>
         </section>
-
         <section class="tab-pane" id="tabOperations">
           <div class="help-hint">
             <span>🔍</span> Поиск по дате (с / по), категории, типу. Кликните по
@@ -185,8 +183,8 @@
             </div>
             <div class="calc-grid" id="calcGrid"></div>
           </div>
-          <div style="margin-top: 35px; border-top: double">
-            <h3 style="margin-top: 20px">💱 Конвертер валют</h3>
+          <div style="margin-top: 24px">
+            <h3>💱 Конвертер валют</h3>
             <div
               style="
                 display: flex;
@@ -195,7 +193,10 @@
                 margin-bottom: 8px;
               "
             >
-              
+              <button class="btn-sm" id="openConvHistoryBtn">📜 История</button
+              ><button class="btn-sm" id="clearConvHistoryBtn">
+                🗑 Очистить всё
+              </button>
             </div>
             <div class="conv-row">
               <input
@@ -222,10 +223,6 @@
             </div>
             <div id="convResult" class="conv-result"></div>
             <div id="convHistoryList" class="conv-history"></div>
-            <button class="btn-sm" id="openConvHistoryBtn">📜 История</button
-              ><button class="btn-sm" id="clearConvHistoryBtn">
-                🗑 Очистить всё
-              </button>
           </div>
         </section>
         <section class="tab-pane" id="tabNotebook">
@@ -243,146 +240,66 @@
       </div>
       <nav class="bottom-nav">
         <button class="nav-item active" data-tab="home">
-          <span class="nav-label">Главная</span><span class="nav-icon">🏠</span>
+          <span class="nav-icon">🏠</span><span class="nav-label">Главная</span>
         </button>
         <button class="nav-item" data-tab="operations">
-          <span class="nav-label">Операции</span><span class="nav-icon">📋</span
-          >
+          <span class="nav-icon">📋</span
+          ><span class="nav-label">Операции</span>
         </button>
         <button class="nav-item" data-tab="categories">
-          <span class="nav-label">Категории</span><span class="nav-icon">🗂️</span
-          >
+          <span class="nav-icon">🗂️</span
+          ><span class="nav-label">Категории</span>
         </button>
         <button class="nav-item" data-tab="tools">
-          <span class="nav-label">Инструменты</span><span class="nav-icon">🧮</span
-          >
+          <span class="nav-icon">🧮</span
+          ><span class="nav-label">Инструменты</span>
         </button>
         <button class="nav-item" data-tab="notebook">
-          <span class="nav-label">Блокнот</span><span class="nav-icon">📓</span>
+          <span class="nav-icon">📓</span><span class="nav-label">Блокнот</span>
         </button>
       </nav>
       <button class="fab" id="fabBtn">＋</button>
     </div>
 
-    <!-- Модалка помощи (инструкция) -->
+    <!-- Модалки -->
     <div class="modal-overlay" id="helpModal">
       <div class="modal">
         <div class="modal-header">
           <h2>❔ Помощь и инструкция</h2>
           <button class="modal-close" id="closeHelpModal">✕</button>
         </div>
-        <div class="modal-body" style="gap: 12px">
+        <div class="modal-body">
           <h3>📌 Главный экран</h3>
           <p>
-            • После открытия приложения вы попадаете на главный экран.<br />
-            • Вверху находятся карточки: «Зарплата», «Доходы», «Расходы»,
-            «Остаток».<br />
-            • Суммы в них считаются автоматически после добавления операций.<br /><br />
-
-            • Ниже есть блок «Быстрое действие».<br />
-            • Нажмите кнопку «➕ Новая операция», чтобы сразу добавить
-            запись.<br />
-            • Блок можно свернуть или развернуть при необходимости.<br /><br />
-
-            • Внизу отображаются последние 5 операций.<br />
-            • Нажмите на любую операцию, чтобы изменить её.<br />
-            • Нажмите на крестик рядом с операцией, чтобы удалить её.<br /><br />
-
-            • Кнопка «Очистить все» удаляет все операции сразу.
+            • Крупные карточки: Зарплата, Доходы, Расходы, Остаток.<br />• Блок
+            «Быстрое действие» — кнопка «➕ Новая операция».<br />• Последние 5
+            операций — клик для редактирования, крестик — удаление.<br />•
+            Кнопка «Очистить все» — удаляет все операции.
           </p>
-
-          <h3>📋 Раздел «Операции»</h3>
+          <h3>📋 Операции</h3>
           <p>
-            • Перейдите в раздел «Операции» через меню.<br />
-            • Вверху есть поиск — введите текст, чтобы найти нужную запись.<br />
-            • Можно выбрать период дат и тип (доход или расход) для
-            фильтрации.<br /><br />
-
-            • Нажмите на операцию, чтобы открыть редактирование.<br />
-            • Нажмите на крестик, чтобы удалить операцию.
+            • Поиск по тексту, дате, типу.<br />• Клик по операции —
+            редактирование.
           </p>
-
-          <h3>🗂️ Раздел «Категории»</h3>
+          <h3>🗂️ Категории</h3>
           <p>
-            • Перейдите в раздел «Категории».<br />
-            • Нажмите на название категории, чтобы переименовать её.<br /><br />
-
-            • Чтобы добавить подкатегорию, нажмите «+ Подкат. доход» или «+
-            Подкат. расход».<br />
-            • Нажмите на подкатегорию, чтобы изменить её.<br />
-            • Нажмите на крестик рядом с подкатегорией, чтобы удалить её.<br /><br />
-
-            • Нажмите «+ Добавить категорию», чтобы создать новую категорию.<br />
-            • Тип категории выбирается при добавлении операции.
+            • Клик по названию — переименовать.<br />• Кнопки «+ Подкат.
+            доход/расход» — добавить подкатегорию.<br />• Клик по подкатегории —
+            редактировать, крестик — удалить.
           </p>
-
           <h3>🧮 Инструменты</h3>
           <p>
-            • Перейдите в раздел «Инструменты».<br /><br />
-
-            • Калькулятор:<br />
-            – Кнопка C — очистить всё.<br />
-            – Кнопка ⌫ — удалить последний символ.<br />
-            – Кнопка % — посчитать процент.<br />
-            – Кнопка +/− — изменить знак числа.<br /><br />
-
-            • Конвертер валют:<br />
-            – Введите сумму.<br />
-            – Выберите валюту «из» и «в».<br />
-            – Нажмите «Перевести».<br />
-            – Ниже появится результат и список прошлых операций.<br /><br />
-
-            • История:<br />
-            – Нажмите «История», чтобы открыть список всех конвертаций.<br />
-            – Можно удалить одну запись или очистить всё.
+            • Калькулятор и конвертер валют с историей.<br />• История
+            конвертации — полный просмотр и удаление записей.
           </p>
-
           <h3>📓 Блокнот</h3>
-          <p>
-            • Перейдите в раздел «Блокнот».<br />
-            • Нажмите кнопку добавления, чтобы создать заметку.<br />
-            • Укажите название, дату и текст.<br /><br />
-
-            • Нажмите на заметку, чтобы изменить её.<br />
-            • Можно удалить заметку при необходимости.
-          </p>
-
-          <h3>🌙 Тема и валюта</h3>
-          <p>
-            • В верхней части экрана есть переключатель темы.<br />
-            • Нажмите на него, чтобы сменить светлую или тёмную тему.<br /><br />
-
-            • Выбор валюты:<br />
-            – Найдите выбор валюты (RUB, USD, EUR, GEL, GBP, KZT).<br />
-            – Выберите нужную валюту — все суммы обновятся автоматически.<br /><br />
-
-            • Нажмите «Обновить курс», чтобы загрузить актуальные курсы.
-          </p>
-
-          <h3>➕ Добавление операции</h3>
-          <p>
-            • Нажмите на кнопку «+» внизу справа или кнопку «➕ Новая
-            операция».<br /><br />
-
-            • В открывшемся окне:<br />
-            – Выберите тип: доход или расход.<br />
-            – Выберите категорию.<br />
-            – При необходимости выберите подкатегорию.<br />
-            – Введите сумму.<br />
-            – Укажите дату.<br />
-            – Добавьте заметку (по желанию).<br /><br />
-
-            • Нажмите кнопку сохранения, чтобы добавить операцию.
-          </p>
-
-          <p style="margin-top: 12px; font-style: italic; text-align: center">
+          <p>• Создавайте, редактируйте, удаляйте страницы.</p>
+          <p style="margin-top: 12px; font-style: italic">
             Все данные сохраняются в браузере автоматически.
           </p>
         </div>
       </div>
     </div>
-
-    <!-- Модалка добавления операции -->
     <div class="modal-overlay" id="addOpModal">
       <div class="modal">
         <div class="modal-header">
@@ -446,8 +363,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Модалка редактирования операции -->
     <div class="modal-overlay" id="editOpModal">
       <div class="modal">
         <div class="modal-header">
@@ -516,8 +431,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Модалка истории конвертера -->
     <div class="modal-overlay" id="convHistoryModal">
       <div class="modal">
         <div class="modal-header">
@@ -536,8 +449,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Модалка истории калькулятора -->
     <div class="modal-overlay" id="calcHistoryModal">
       <div class="modal">
         <div class="modal-header">
@@ -552,8 +463,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Модалка редактирования подкатегории -->
     <div class="modal-overlay" id="editSubcatModal">
       <div class="modal modal-sm">
         <div class="modal-header">
@@ -575,8 +484,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Модалка блокнота -->
     <div class="modal-overlay" id="notebookModal">
       <div class="modal">
         <div class="modal-header">
