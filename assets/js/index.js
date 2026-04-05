@@ -1,10 +1,10 @@
-// ========== ПОЛНАЯ ЛОГИКА С ИСПРАВЛЕНИЕМ ПОИСКА И ПОРЯДКА КАТЕГОРИЙ ==========
+// ========== ПОЛНАЯ ЛОГИКА + СТАТИСТИКА С ПЕРИОДАМИ, СБРОСОМ И УЛУЧШЕННЫМ ВИЗУАЛОМ ==========
 let transactions = [];
 let startBalanceRub = 70000;
 let incomeCategories = ["Работа", "Аренда"];
 let expenseCategories = ["Продукты", "Транспорт", "Коммуналка", "Кафе"];
 let categoryGroups = {};
-let allCategoriesOrder = []; // порядок категорий для отображения
+let allCategoriesOrder = [];
 let exchangeRates = {
   RUB: 1,
   USD: 0.012,
@@ -21,6 +21,13 @@ let notebookPages = [];
 let currentNbId = null;
 let currentOpType = "expense";
 let editingOpIndex = null;
+
+// Статистика
+let statsResetDate = null;
+let currentStatsPeriod = "month";
+let statsAnimationFrame = null;
+let currentDisplayPercentExpense = 0,
+  currentDisplayPercentIncome = 0;
 
 const SYM = {
   RUB: "₽",
@@ -60,15 +67,10 @@ function fmtDate(d) {
 }
 
 function updateAllCategoriesOrder() {
-  // обновляем порядок на основе текущих income+expense, сохраняя существующий порядок, добавляя новые в конец
   let allSet = new Set([...incomeCategories, ...expenseCategories]);
   let newOrder = [];
-  for (let cat of allCategoriesOrder) {
-    if (allSet.has(cat)) newOrder.push(cat);
-  }
-  for (let cat of allSet) {
-    if (!newOrder.includes(cat)) newOrder.push(cat);
-  }
+  for (let cat of allCategoriesOrder) if (allSet.has(cat)) newOrder.push(cat);
+  for (let cat of allSet) if (!newOrder.includes(cat)) newOrder.push(cat);
   allCategoriesOrder = newOrder;
 }
 
@@ -85,6 +87,7 @@ function saveAll() {
       exchangeRates,
       lastRateUpdate,
       allCategoriesOrder,
+      statsResetDate,
     }),
   );
 }
@@ -107,6 +110,7 @@ function loadAll() {
       exchangeRates = { ...exchangeRates, ...d.exchangeRates };
     lastRateUpdate = d.lastRateUpdate || null;
     allCategoriesOrder = d.allCategoriesOrder || [];
+    statsResetDate = d.statsResetDate || null;
   }
   [...incomeCategories, ...expenseCategories].forEach((cat) => {
     if (!categoryGroups[cat])
@@ -498,7 +502,7 @@ function deleteSubcatFromModal() {
   }
 }
 
-// Конвертер (без изменений)
+// Конвертер
 function doConvert() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -806,6 +810,277 @@ function createNotebookPage() {
   openNotebookEdit(newPage.id);
 }
 
+// ========== СТАТИСТИКА С ПЕРИОДАМИ И СБРОСОМ (УЛУЧШЕННЫЙ ВИЗУАЛ) ==========
+function showTemporaryMessage(text, duration = 15000) {
+  const msgDiv = document.getElementById("statsTempMessageInline");
+  msgDiv.textContent = text;
+  msgDiv.style.opacity = "1";
+  setTimeout(() => {
+    msgDiv.style.opacity = "0";
+  }, duration);
+}
+
+function getStartDateForPeriod(period) {
+  const now = new Date();
+  if (period === "day") return today();
+  if (period === "week") {
+    let start = new Date(now);
+    start.setDate(now.getDate() - 7);
+    return start.toISOString().slice(0, 10);
+  }
+  let start = new Date(now);
+  start.setDate(now.getDate() - 30);
+  return start.toISOString().slice(0, 10);
+}
+
+function getStatsForPeriod(period) {
+  let startPeriod = getStartDateForPeriod(period);
+  let resetDate = statsResetDate || "1970-01-01";
+  let effectiveStart = startPeriod > resetDate ? startPeriod : resetDate;
+  let totalIncomeRub = 0,
+    totalExpenseRub = 0;
+  for (let t of transactions) {
+    if (!t.date) continue;
+    if (t.date >= effectiveStart) {
+      if (t.type === "income") totalIncomeRub += t.amountRub;
+      else totalExpenseRub += t.amountRub;
+    }
+  }
+  return { incomeRub: totalIncomeRub, expenseRub: totalExpenseRub };
+}
+
+function getChartColors() {
+  const isDark = document.body.classList.contains("dark");
+  return {
+    expense: isDark ? "#fc8181" : "#e05c4b",
+    income: isDark ? "#6aa8ff" : "#1a7a4a",
+    bg: isDark ? "rgba(150,150,150,0.25)" : "rgba(150,150,150,0.15)",
+    stroke: isDark ? "rgba(255,255,255,0.2)" : "var(--border)",
+  };
+}
+
+function drawChartAnimated(
+  targetExpensePercent,
+  targetIncomePercent,
+  duration = 800,
+) {
+  const canvas = document.getElementById("statsChart");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const w = canvas.parentElement.clientWidth;
+  canvas.width = w;
+  canvas.height = w;
+  const centerX = w / 2,
+    centerY = w / 2,
+    radius = w / 2 - 10;
+  const startAngle = -Math.PI / 2;
+  const colors = getChartColors();
+
+  let startTime = null;
+  let startExpense = currentDisplayPercentExpense;
+  let startIncome = currentDisplayPercentIncome;
+  let diffExpense = targetExpensePercent - startExpense;
+  let diffIncome = targetIncomePercent - startIncome;
+
+  if (statsAnimationFrame) cancelAnimationFrame(statsAnimationFrame);
+
+  function animate(timestamp) {
+    if (!startTime) startTime = timestamp;
+    let elapsed = timestamp - startTime;
+    let progress = Math.min(1, elapsed / duration);
+    let currentExpense = startExpense + diffExpense * progress;
+    let currentIncome = startIncome + diffIncome * progress;
+    if (currentExpense < 0) currentExpense = 0;
+    if (currentIncome < 0) currentIncome = 0;
+
+    currentDisplayPercentExpense = currentExpense;
+    currentDisplayPercentIncome = currentIncome;
+    // Округляем до целых для отображения в круге
+    document.getElementById("statsPercent").innerHTML =
+      `${Math.round(currentExpense)}% / ${Math.round(currentIncome)}%`;
+
+    ctx.clearRect(0, 0, w, w);
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = colors.bg;
+    ctx.fill();
+
+    let expenseAngle = (currentExpense / 100) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
+    ctx.fillStyle = colors.expense;
+    ctx.fill();
+
+    let incomeAngle = (currentIncome / 100) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(
+      centerX,
+      centerY,
+      radius,
+      startAngle + expenseAngle,
+      startAngle + expenseAngle + incomeAngle,
+    );
+    ctx.fillStyle = colors.income;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = colors.stroke;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    if (progress < 1) {
+      statsAnimationFrame = requestAnimationFrame(animate);
+    } else {
+      statsAnimationFrame = null;
+      currentDisplayPercentExpense = targetExpensePercent;
+      currentDisplayPercentIncome = targetIncomePercent;
+      document.getElementById("statsPercent").innerHTML =
+        `${Math.round(targetExpensePercent)}% / ${Math.round(targetIncomePercent)}%`;
+    }
+  }
+  statsAnimationFrame = requestAnimationFrame(animate);
+}
+
+function updateStats(animate = true) {
+  let { incomeRub, expenseRub } = getStatsForPeriod(currentStatsPeriod);
+  let total = incomeRub + expenseRub;
+  let targetPercentIncome = total === 0 ? 0 : (incomeRub / total) * 100;
+  let targetPercentExpense = total === 0 ? 0 : (expenseRub / total) * 100;
+
+  let s = sym();
+  let incomeDisp = toDisp(incomeRub);
+  let expenseDisp = toDisp(expenseRub);
+  let balanceDisp = incomeDisp - expenseDisp;
+
+  let periodLabel =
+    currentStatsPeriod === "day"
+      ? "сегодня"
+      : currentStatsPeriod === "week"
+        ? "последние 7 дней"
+        : "последние 30 дней";
+  let resetInfo = statsResetDate ? `с ${statsResetDate}` : "с начала времён";
+  document.getElementById("statsPeriodLabel").innerHTML =
+    `📊 ${periodLabel} (${resetInfo})`;
+  // В тексте показываем целые проценты, чтобы совпадало с кругом
+  document.getElementById("statsIncomeAmount").innerHTML =
+    `💰 Доходы: ${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)`;
+  document.getElementById("statsExpenseAmount").innerHTML =
+    `💸 Расходы: ${expenseDisp.toFixed(2)} ${s} (${Math.round(targetPercentExpense)}%)`;
+  document.getElementById("statsBalance").innerHTML =
+    `💎 Чистый результат: ${balanceDisp.toFixed(2)} ${s}`;
+
+  // Обновляем легенду
+  const colors = getChartColors();
+  document.querySelectorAll(".legend-color")[0].style.background =
+    colors.expense;
+  document.querySelectorAll(".legend-color")[1].style.background =
+    colors.income;
+
+  if (animate) {
+    // При анимации сбрасываем текущие отображаемые проценты в 0, чтобы анимация всегда начиналась с пустого круга
+    currentDisplayPercentExpense = 0;
+    currentDisplayPercentIncome = 0;
+    drawChartAnimated(targetPercentExpense, targetPercentIncome, 800);
+  } else {
+    currentDisplayPercentExpense = targetPercentExpense;
+    currentDisplayPercentIncome = targetPercentIncome;
+    document.getElementById("statsPercent").innerHTML =
+      `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
+    const canvas = document.getElementById("statsChart");
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      const w = canvas.parentElement.clientWidth;
+      canvas.width = w;
+      canvas.height = w;
+      const centerX = w / 2,
+        centerY = w / 2,
+        radius = w / 2 - 10;
+      const startAngle = -Math.PI / 2;
+      let expenseAngle = (targetPercentExpense / 100) * 2 * Math.PI;
+      let incomeAngle = (targetPercentIncome / 100) * 2 * Math.PI;
+      ctx.clearRect(0, 0, w, w);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = colors.bg;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
+      ctx.fillStyle = colors.expense;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(
+        centerX,
+        centerY,
+        radius,
+        startAngle + expenseAngle,
+        startAngle + expenseAngle + incomeAngle,
+      );
+      ctx.fillStyle = colors.income;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = colors.stroke;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+  }
+}
+
+function resetStats() {
+  if (
+    confirm(
+      "⚠️ ВНИМАНИЕ! Сброс статистики удалит все накопленные данные за предыдущий период. Отсчёт начнётся с сегодняшнего дня. Вернуть статистику будет невозможно. Вы уверены?",
+    )
+  ) {
+    statsResetDate = today();
+    saveAll();
+    currentDisplayPercentExpense = 0;
+    currentDisplayPercentIncome = 0;
+    // Быстро перерисовываем пустой круг
+    const canvas = document.getElementById("statsChart");
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      const w = canvas.parentElement.clientWidth;
+      canvas.width = w;
+      canvas.height = w;
+      const centerX = w / 2,
+        centerY = w / 2,
+        radius = w / 2 - 10;
+      const colors = getChartColors();
+      ctx.clearRect(0, 0, w, w);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.fillStyle = colors.bg;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+      ctx.strokeStyle = colors.stroke;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+    document.getElementById("statsPercent").innerHTML = "0% / 0%";
+    updateStats(true);
+    showTemporaryMessage(
+      `✅ Статистика сброшена! Новый отсчёт с ${statsResetDate}`,
+      15000,
+    );
+  }
+}
+
+function setPeriod(period) {
+  currentStatsPeriod = period;
+  document.querySelectorAll(".period-btn").forEach((btn) => {
+    if (btn.dataset.period === period) btn.classList.add("active");
+    else btn.classList.remove("active");
+  });
+  updateStats(true);
+}
+
 function openModal(id) {
   document.getElementById(id).classList.add("open");
 }
@@ -821,6 +1096,7 @@ function initTheme() {
     chk.onchange = (e) => {
       document.body.classList.toggle("dark", e.target.checked);
       localStorage.setItem("budget_theme", e.target.checked ? "dark" : "light");
+      updateStats(true);
     };
   }
 }
@@ -843,6 +1119,9 @@ function setActiveTab(tabId) {
   if (tabId === "operations") renderAllOps();
   if (tabId === "categories") renderCatManager();
   if (tabId === "notebook") renderNotebookList();
+  if (tabId === "stats") {
+    updateStats(true);
+  }
 }
 function refreshAll() {
   updateBalance();
@@ -853,6 +1132,8 @@ function refreshAll() {
     renderCatManager();
   if (document.getElementById("tabNotebook").classList.contains("active"))
     renderNotebookList();
+  if (document.getElementById("tabStats").classList.contains("active"))
+    updateStats(true);
   doConvert();
 }
 function refreshModalCats() {
@@ -1006,6 +1287,8 @@ document.addEventListener("DOMContentLoaded", () => {
     displayCurrency = document.getElementById("displayCurrencySelect").value;
     saveAll();
     refreshAll();
+    if (document.getElementById("tabStats").classList.contains("active"))
+      updateStats(true);
   };
   document.getElementById("refreshRatesBtn").onclick = async () => {
     try {
@@ -1108,7 +1391,25 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("change", refreshEditModalSubcats);
   document.getElementById("saveOpBtn").onclick = saveEditedOp;
   document.getElementById("deleteOpBtn").onclick = deleteEditedOp;
+  // Статистика
+  document.getElementById("resetStatsBtn").onclick = resetStats;
+  document.querySelectorAll(".period-btn").forEach((btn) => {
+    btn.addEventListener("click", () => setPeriod(btn.dataset.period));
+  });
   document.querySelectorAll(".nav-item").forEach((btn) => {
     btn.onclick = () => setActiveTab(btn.dataset.tab);
+  });
+  window.addEventListener("resize", () => {
+    if (document.getElementById("tabStats").classList.contains("active"))
+      updateStats(true);
+  });
+  // Обновляем цвета круга при смене темы
+  const observer = new MutationObserver(() => {
+    if (document.getElementById("tabStats").classList.contains("active"))
+      updateStats(true);
+  });
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["class"],
   });
 });
