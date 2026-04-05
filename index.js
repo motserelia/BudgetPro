@@ -855,8 +855,24 @@ function getChartColors() {
     expense: isDark ? "#fc8181" : "#e05c4b",
     income: isDark ? "#6aa8ff" : "#1a7a4a",
     bg: isDark ? "rgba(150,150,150,0.25)" : "rgba(150,150,150,0.15)",
-    stroke: isDark ? "rgba(255,255,255,0.2)" : "var(--border)",
+    stroke: isDark ? "rgba(255,255,255,0.2)" : "rgba(100,140,110,0.22)",
   };
+}
+
+// ========== ИСПРАВЛЕНИЕ: надёжное получение размера canvas для Android ==========
+function getCanvasSize(canvas) {
+  const wrapper = canvas.parentElement;
+  let w = 0;
+  if (wrapper) {
+    w = wrapper.getBoundingClientRect().width;
+    if (!w) w = wrapper.offsetWidth;
+    if (!w) w = wrapper.clientWidth;
+  }
+  // Фоллбэк: если контейнер ещё не имеет размера (Android WebView), берём ширину экрана минус отступы
+  if (!w || w < 10) {
+    w = Math.min(window.innerWidth - 28, 400);
+  }
+  return Math.floor(w);
 }
 
 function drawChartAnimated(
@@ -867,9 +883,11 @@ function drawChartAnimated(
   const canvas = document.getElementById("statsChart");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  const w = canvas.parentElement.clientWidth;
+
+  const w = getCanvasSize(canvas);
   canvas.width = w;
   canvas.height = w;
+
   const centerX = w / 2,
     centerY = w / 2,
     radius = w / 2 - 10;
@@ -895,36 +913,46 @@ function drawChartAnimated(
 
     currentDisplayPercentExpense = currentExpense;
     currentDisplayPercentIncome = currentIncome;
-    // Округляем до целых для отображения в круге
     document.getElementById("statsPercent").innerHTML =
       `${Math.round(currentExpense)}% / ${Math.round(currentIncome)}%`;
 
     ctx.clearRect(0, 0, w, w);
+
+    // Фон круга
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.fillStyle = colors.bg;
     ctx.fill();
 
+    // Сектор расходов
     let expenseAngle = (currentExpense / 100) * 2 * Math.PI;
-    ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
-    ctx.fillStyle = colors.expense;
-    ctx.fill();
+    if (expenseAngle > 0) {
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
+      ctx.closePath();
+      ctx.fillStyle = colors.expense;
+      ctx.fill();
+    }
 
+    // Сектор доходов
     let incomeAngle = (currentIncome / 100) * 2 * Math.PI;
-    ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(
-      centerX,
-      centerY,
-      radius,
-      startAngle + expenseAngle,
-      startAngle + expenseAngle + incomeAngle,
-    );
-    ctx.fillStyle = colors.income;
-    ctx.fill();
+    if (incomeAngle > 0) {
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY);
+      ctx.arc(
+        centerX,
+        centerY,
+        radius,
+        startAngle + expenseAngle,
+        startAngle + expenseAngle + incomeAngle,
+      );
+      ctx.closePath();
+      ctx.fillStyle = colors.income;
+      ctx.fill();
+    }
 
+    // Обводка
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.strokeStyle = colors.stroke;
@@ -942,6 +970,66 @@ function drawChartAnimated(
     }
   }
   statsAnimationFrame = requestAnimationFrame(animate);
+}
+
+function drawChartStatic(targetExpensePercent, targetIncomePercent) {
+  const canvas = document.getElementById("statsChart");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+
+  const w = getCanvasSize(canvas);
+  canvas.width = w;
+  canvas.height = w;
+
+  const centerX = w / 2,
+    centerY = w / 2,
+    radius = w / 2 - 10;
+  const startAngle = -Math.PI / 2;
+  const colors = getChartColors();
+
+  let expenseAngle = (targetExpensePercent / 100) * 2 * Math.PI;
+  let incomeAngle = (targetIncomePercent / 100) * 2 * Math.PI;
+
+  ctx.clearRect(0, 0, w, w);
+
+  // Фон
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  ctx.fillStyle = colors.bg;
+  ctx.fill();
+
+  // Расходы
+  if (expenseAngle > 0) {
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
+    ctx.closePath();
+    ctx.fillStyle = colors.expense;
+    ctx.fill();
+  }
+
+  // Доходы
+  if (incomeAngle > 0) {
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(
+      centerX,
+      centerY,
+      radius,
+      startAngle + expenseAngle,
+      startAngle + expenseAngle + incomeAngle,
+    );
+    ctx.closePath();
+    ctx.fillStyle = colors.income;
+    ctx.fill();
+  }
+
+  // Обводка
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  ctx.strokeStyle = colors.stroke;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
 }
 
 function updateStats(animate = true) {
@@ -964,7 +1052,6 @@ function updateStats(animate = true) {
   let resetInfo = statsResetDate ? `с ${statsResetDate}` : "с начала времён";
   document.getElementById("statsPeriodLabel").innerHTML =
     `📊 ${periodLabel} (${resetInfo})`;
-  // В тексте показываем целые проценты, чтобы совпадало с кругом
   document.getElementById("statsIncomeAmount").innerHTML =
     `💰 Доходы: ${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)`;
   document.getElementById("statsExpenseAmount").innerHTML =
@@ -980,7 +1067,6 @@ function updateStats(animate = true) {
     colors.income;
 
   if (animate) {
-    // При анимации сбрасываем текущие отображаемые проценты в 0, чтобы анимация всегда начиналась с пустого круга
     currentDisplayPercentExpense = 0;
     currentDisplayPercentIncome = 0;
     drawChartAnimated(targetPercentExpense, targetPercentIncome, 800);
@@ -989,45 +1075,7 @@ function updateStats(animate = true) {
     currentDisplayPercentIncome = targetPercentIncome;
     document.getElementById("statsPercent").innerHTML =
       `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
-    const canvas = document.getElementById("statsChart");
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      const w = canvas.parentElement.clientWidth;
-      canvas.width = w;
-      canvas.height = w;
-      const centerX = w / 2,
-        centerY = w / 2,
-        radius = w / 2 - 10;
-      const startAngle = -Math.PI / 2;
-      let expenseAngle = (targetPercentExpense / 100) * 2 * Math.PI;
-      let incomeAngle = (targetPercentIncome / 100) * 2 * Math.PI;
-      ctx.clearRect(0, 0, w, w);
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = colors.bg;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
-      ctx.fillStyle = colors.expense;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(
-        centerX,
-        centerY,
-        radius,
-        startAngle + expenseAngle,
-        startAngle + expenseAngle + incomeAngle,
-      );
-      ctx.fillStyle = colors.income;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-    }
+    drawChartStatic(targetPercentExpense, targetPercentIncome);
   }
 }
 
@@ -1041,28 +1089,7 @@ function resetStats() {
     saveAll();
     currentDisplayPercentExpense = 0;
     currentDisplayPercentIncome = 0;
-    // Быстро перерисовываем пустой круг
-    const canvas = document.getElementById("statsChart");
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      const w = canvas.parentElement.clientWidth;
-      canvas.width = w;
-      canvas.height = w;
-      const centerX = w / 2,
-        centerY = w / 2,
-        radius = w / 2 - 10;
-      const colors = getChartColors();
-      ctx.clearRect(0, 0, w, w);
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = colors.bg;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
-    }
+    drawChartStatic(0, 0);
     document.getElementById("statsPercent").innerHTML = "0% / 0%";
     updateStats(true);
     showTemporaryMessage(
@@ -1120,7 +1147,8 @@ function setActiveTab(tabId) {
   if (tabId === "categories") renderCatManager();
   if (tabId === "notebook") renderNotebookList();
   if (tabId === "stats") {
-    updateStats(true);
+    // Небольшая задержка для Android, чтобы DOM успел отрисовать контейнер
+    setTimeout(() => updateStats(true), 50);
   }
 }
 function refreshAll() {
@@ -1401,7 +1429,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   window.addEventListener("resize", () => {
     if (document.getElementById("tabStats").classList.contains("active"))
-      updateStats(true);
+      updateStats(false);
   });
   // Обновляем цвета круга при смене темы
   const observer = new MutationObserver(() => {
