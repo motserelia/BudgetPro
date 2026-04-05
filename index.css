@@ -1,7 +1,6 @@
 /* ========================
        БЮДЖЕТ PRO — CSS (финальная версия)
-       Добавлены: .btn-repeat, разделение калькулятора и конвертера,
-       стилизованные фильтры с подписями и иконками календаря
+       Фоновое изображение: проверьте путь к money.jpg
     ======================== */
     @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Mono:wght@400;500&display=swap");
 
@@ -85,6 +84,9 @@
       content: "";
       position: fixed;
       inset: 0;
+      /* Убедитесь, что путь к изображению правильный:
+         - если money.jpg лежит в assets/images/, оставьте "../images/money.jpg"
+         - если money.jpg в корне сайта, замените на "../../money.jpg" */
       background-image: url("../images/money.jpg");
       background-size: cover;
       background-position: center;
@@ -532,63 +534,12 @@
       color: var(--text-muted);
       opacity: 0.7;
     }
-
-    /* Группы фильтров (обновлённые) */
     .search-filters {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-    .filter-group {
-      display: flex;
-      align-items: center;
       gap: 8px;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 4px 12px;
-      transition: all 0.2s;
-      flex: 1 1 auto;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
     }
-    .filter-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-    .filter-input, .filter-select {
-      background: transparent;
-      border: none;
-      padding: 6px 0;
-      font-size: 0.75rem;
-      color: var(--text-primary);
-      outline: none;
-      cursor: pointer;
-      width: auto;
-      min-width: 100px;
-    }
-    .filter-select option {
-      background: var(--surface-1);
-      color: var(--text-primary);
-    }
-    /* Стилизация иконки календаря в группах фильтров */
-    .filter-input[type="date"] {
-      color-scheme: light dark;
-    }
-    .filter-input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.4);
-      opacity: 0.6;
-      transition: opacity 0.2s;
-      cursor: pointer;
-    }
-    .filter-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-      opacity: 1;
-    }
-    body.dark .filter-input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.8);
-    }
-
     .search-btns {
       display: flex;
       gap: 8px;
@@ -889,10 +840,7 @@
     .empty-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
 
     /* Адаптив */
-    @media (max-width: 480px) {
+    @media (max-width: 380px) {
       .balance-cards { grid-template-columns: repeat(2, 1fr); }
       .nav-label { display: none; }
-      .filter-group { flex: 1 1 auto; }
-      .filter-label { font-size: 0.65rem; }
-      .filter-input, .filter-select { min-width: 80px; }
     }
