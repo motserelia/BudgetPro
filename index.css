@@ -95,7 +95,7 @@
       /* Убедитесь, что путь к изображению правильный:
          - если money.jpg лежит в assets/images/, оставьте "../images/money.jpg"
          - если money.jpg в корне сайта, замените на "../../money.jpg" */
-      background-image: url("../images/money.jpg");
+      background-image: url("../money.jpg");
       background-size: cover;
       background-position: center;
       opacity: 0.06;
