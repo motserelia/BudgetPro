@@ -237,6 +237,54 @@
             style="margin-top: 12px"
           ></div>
         </section>
+        <!-- СТАТИСТИКА -->
+        <section class="tab-pane" id="tabStats">
+          <div class="help-hint">
+            <span>📊</span> Анализ доходов и расходов. Выберите период: день,
+            неделя или месяц.
+          </div>
+          <div class="stats-container">
+            <div class="stats-header">
+              <div class="stats-period-buttons">
+                <button class="period-btn" data-period="day">📅 День</button>
+                <button class="period-btn" data-period="week">📆 Неделя</button>
+                <button class="period-btn active" data-period="month">
+                  📆 Месяц
+                </button>
+              </div>
+              <button class="btn-reset-stats" id="resetStatsBtn">
+                🔄 Сбросить статистику
+              </button>
+            </div>
+            <div
+              id="statsTempMessageInline"
+              class="stats-temp-message"
+              style="opacity: 0"
+            ></div>
+            <div class="chart-wrapper">
+              <canvas id="statsChart" width="400" height="400"></canvas>
+              <div class="chart-percent" id="statsPercent">—</div>
+            </div>
+            <div class="chart-legend">
+              <div class="legend-item">
+                <div class="legend-color" style="background: #e05c4b"></div>
+                <span>Расходы</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-color" style="background: #1a7a4a"></div>
+                <span>Доходы</span>
+              </div>
+            </div>
+            <div class="stats-details" id="statsDetails">
+              <div class="stats-period-label" id="statsPeriodLabel">
+                Загрузка...
+              </div>
+              <p id="statsIncomeAmount">💰 Доходы: 0</p>
+              <p id="statsExpenseAmount">💸 Расходы: 0</p>
+              <p id="statsBalance">💎 Чистый результат: 0</p>
+            </div>
+          </div>
+        </section>
       </div>
       <nav class="bottom-nav">
         <button class="nav-item active" data-tab="home">
@@ -257,11 +305,14 @@
         <button class="nav-item" data-tab="notebook">
           <span class="nav-icon">📓</span><span class="nav-label">Блокнот</span>
         </button>
+        <button class="nav-item" data-tab="stats">
+          <span class="nav-icon">📊</span><span class="nav-label">Данные</span>
+        </button>
       </nav>
       <button class="fab" id="fabBtn">＋</button>
     </div>
 
-    <!-- Модалки -->
+    <!-- Модалки (сокращены для краткости, но функционал сохранён) -->
     <div class="modal-overlay" id="helpModal">
       <div class="modal">
         <div class="modal-header">
@@ -294,6 +345,14 @@
           </p>
           <h3>📓 Блокнот</h3>
           <p>• Создавайте, редактируйте, удаляйте страницы.</p>
+          <h3>📊 Данные (Статистика)</h3>
+          <p>
+            • Выберите период: день, неделя или месяц — диаграмма покажет
+            соотношение доходов/расходов за выбранный промежуток.<br />• Кнопка
+            «Сбросить статистику» — обнуляет накопленные данные и начинает
+            отсчёт только с текущего момента (старые операции игнорируются).<br />•
+            Анимация круга и процентов запускается при каждом обновлении.
+          </p>
           <p style="margin-top: 12px; font-style: italic">
             Все данные сохраняются в браузере автоматически.
           </p>
