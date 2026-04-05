@@ -1,895 +1,1274 @@
-/* ========================
-       БЮДЖЕТ PRO — CSS (финальная версия с контрастными иконками календаря)
-    ======================== */
-    @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Mono:wght@400;500&display=swap");
+"use strict";
 
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+// ========== EMOJI MAP ==========
+const EMOJI_MAP = [
+  [/квартир|аренд|жиль|недвижим/i, "🏠"],
+  [/коммунал|свет|вода|газ|электр|отоплен|мусор/i, "💡"],
+  [/продукт|еда|магазин|супермаркет/i, "🛒"],
+  [/кафе|ресторан|обед|ужин|завтрак/i, "🍽️"],
+  [/транспорт|такси|автобус|метро|бензин|машин|авто/i, "🚗"],
+  [/одежд|гардероб|обувь/i, "👕"],
+  [/ребён|ребенок|дети|детск|игрушк/i, "👶"],
+  [/жен|супруг/i, "👩"],
+  [/медицин|врач|аптек|здоровь|лечен|больниц/i, "🏥"],
+  [/образован|курс|учёб|учеб|школ|универ|книг|репетит/i, "📚"],
+  [/подписк|netflix|spotify|онлайн|стриминг/i, "📱"],
+  [/ремонт|хозтовар|инструмент|строит/i, "🔧"],
+  [/подарок|праздник|день рожд|свадьб/i, "🎁"],
+  [/связь|телефон|интернет|мобильн/i, "📞"],
+  [/развлечен|кино|театр|игр|отдых/i, "🎭"],
+  [/сбережен|инвест|накоплен|депозит/i, "💰"],
+  [/взнос|кредит|ипотек|займ|долг/i, "🏦"],
+  [/работ|зарплат|доход|оклад|гонорар/i, "💼"],
+  [/ненужн|лишн/i, "🗑️"],
+];
 
-    :root {
-      --accent: #1a7a4a;
-      --accent-light: #2da066;
-      --accent-btn: #1e8a52;
-      --accent-glow: rgba(29, 138, 82, 0.35);
-      --gold: #d4850a;
-      --gold-bg: rgba(212, 133, 10, 0.12);
-      --red: #c0392b;
-      --red-bg: rgba(192, 57, 43, 0.1);
-      --red-text: #e05c4b;
-      --bg: #f5f0e8;
-      --surface-1: rgba(255, 252, 245, 0.96);
-      --surface-2: rgba(248, 244, 236, 0.95);
-      --header-bg: linear-gradient(135deg, #1c3a28 0%, #2d5c3e 55%, #8a6320 100%);
-      --balance-bg: linear-gradient(135deg, #1a3226, #254d38);
-      --border: rgba(100, 140, 110, 0.22);
-      --border-hover: rgba(29, 138, 82, 0.45);
-      --text-primary: #1a2620;
-      --text-secondary: #4a7a5a;
-      --text-muted: #8aab96;
-      --text-on-dark: #eef6ef;
-      --text-on-dark-sub: #85c4a0;
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-      --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.15);
-      --t: 0.22s ease;
-      --t-theme: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-      --header-h: 64px;
-      --nav-h: 68px;
-      --fab-size: 52px;
-    }
+function getEmoji(name) {
+  const n = (name || "").toLowerCase();
+  for (const [re, emoji] of EMOJI_MAP) if (re.test(n)) return emoji;
+  return "📌";
+}
 
-    body.dark {
-      --accent: #4a8fff;
-      --accent-light: #6aa8ff;
-      --accent-btn: #3a7aee;
-      --accent-glow: rgba(74, 143, 255, 0.35);
-      --gold: #f0b429;
-      --gold-bg: rgba(240, 180, 41, 0.12);
-      --red: #e53e3e;
-      --red-bg: rgba(229, 62, 62, 0.12);
-      --red-text: #fc8181;
-      --bg: #07080e;
-      --surface-1: rgba(14, 18, 30, 0.97);
-      --surface-2: rgba(20, 26, 42, 0.92);
-      --header-bg: linear-gradient(135deg, #0a0c18 0%, #141830 55%, #2a3060 100%);
-      --balance-bg: linear-gradient(135deg, #0a0c1a, #0e1428);
-      --border: rgba(70, 100, 200, 0.2);
-      --border-hover: rgba(74, 143, 255, 0.45);
-      --text-primary: #dce8ff;
-      --text-secondary: #6b8ecf;
-      --text-muted: #3a4e7a;
-      --text-on-dark: #dce8ff;
-      --text-on-dark-sub: #6b8ecf;
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
-      --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
-      --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.6);
-    }
+// ========== STATE ==========
+let transactions = [];
+let startBalanceRub = 70000;
+let incomeCategories = ["Работа", "Аренда квартиры"];
+let expenseCategories = [
+  "коммуналка",
+  "ежемесячные взносы",
+  "продукты",
+  "кафе / рестораны",
+  "одежда ребёнка",
+  "одежда жены",
+  "одежда моя",
+  "транспорт",
+  "подписки",
+  "образование",
+  "ремонт / хозтовары",
+  "подарки / праздники",
+  "связь",
+  "развлечения",
+  "сбережения",
+  "неожиданные расходы",
+  "медицина ребёнка",
+  "медицина жены",
+  "медицина моя",
+  "ненужные траты",
+];
+let categoryGroups = {};
+let exchangeRates = {
+  RUB: 1,
+  USD: 0.012,
+  EUR: 0.011,
+  GEL: 0.031,
+  GBP: 0.0095,
+  KZT: 5.2,
+};
+let displayCurrency = "GEL";
+let lastRateUpdate = null;
+let calcHistory = [];
+let convHistory = [];
+let notebookPages = [];
+let currentNbId = null;
+let selectedCatType = null;
+let calcExpr = "",
+  calcJustEvaled = false;
+let currentOpType = "expense";
+let editingOpIndex = null; // для редактирования операции
 
-    html, body { height: 100%; overflow: hidden; }
-    body {
-      font-family: "Nunito", sans-serif;
-      background: var(--bg);
-      color: var(--text-primary);
-      font-size: 15px;
-      line-height: 1.5;
-      transition: background var(--t-theme), color var(--t-theme);
-    }
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background-image: url("../images/money.jpg");
-      background-size: cover;
-      background-position: center;
-      opacity: 0.06;
-      z-index: 0;
-      pointer-events: none;
-      transition: opacity var(--t-theme);
-    }
-    body.dark::before { opacity: 0.09; }
+// ========== CURRENCY ==========
+const SYM = {
+  RUB: "₽",
+  USD: "$",
+  EUR: "€",
+  GEL: "₾",
+  GBP: "£",
+  KZT: "₸",
+};
+const sym = () => SYM[displayCurrency] || displayCurrency;
+const toDisp = (r) => r * (exchangeRates[displayCurrency] || 1);
+const toRub = (d) => d / (exchangeRates[displayCurrency] || 1);
 
-    .app {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;
-      max-width: 600px;
-      margin: 0 auto;
-      overflow: hidden;
-    }
+// ========== UTILS ==========
+function esc(str) {
+  return String(str || "").replace(
+    /[&<>"']/g,
+    (m) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      })[m],
+  );
+}
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+function fmtDate(d) {
+  if (!d) return "—";
+  try {
+    return new Date(d + "T00:00:00").toLocaleDateString("ru-RU");
+  } catch {
+    return d;
+  }
+}
+function $(id) {
+  return document.getElementById(id);
+}
 
-    /* переключатель темы */
-    .theme-switch-wrapper {
-      display: flex;
-      align-items: center;
-    }
-    .theme-switch {
-      position: relative;
-      display: inline-block;
-      width: 54px;
-      height: 28px;
-    }
-    .theme-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(145deg, #d4d9e8, #b0b8cc);
-      border-radius: 34px;
-      transition: 0.3s;
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    .slider:before {
-      position: absolute;
-      content: "☀️";
-      height: 22px;
-      width: 22px;
-      left: 3px;
-      bottom: 2px;
-      background-color: #ffefb0;
-      border-radius: 50%;
-      transition: 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-    input:checked + .slider {
-      background: linear-gradient(145deg, #1e2a4a, #0f172a);
-    }
-    input:checked + .slider:before {
-      content: "🌙";
-      transform: translateX(26px);
-      background-color: #2d3a5e;
-      color: #ffefb0;
-    }
+// ========== STORAGE ==========
+function saveAll() {
+  localStorage.setItem(
+    "budget_pro_v6",
+    JSON.stringify({
+      transactions,
+      startBalanceRub,
+      incomeCategories,
+      expenseCategories,
+      categoryGroups,
+      displayCurrency,
+      exchangeRates,
+      lastRateUpdate,
+    }),
+  );
+}
+function loadAll() {
+  const raw = localStorage.getItem("budget_pro_v6");
+  if (raw) {
+    const d = JSON.parse(raw);
+    transactions = d.transactions || [];
+    startBalanceRub = d.startBalanceRub ?? 70000;
+    incomeCategories = d.incomeCategories || ["Работа", "Аренда квартиры"];
+    expenseCategories = d.expenseCategories || expenseCategories;
+    categoryGroups = d.categoryGroups || {};
+    displayCurrency = d.displayCurrency || "GEL";
+    if (d.exchangeRates)
+      exchangeRates = { ...exchangeRates, ...d.exchangeRates };
+    lastRateUpdate = d.lastRateUpdate || null;
+  }
+  ensureDefaultSubcats();
+  loadCalcHistory();
+  loadConvHistory();
+  loadNotebook();
+  const sel = $("displayCurrencySelect");
+  if (sel) sel.value = displayCurrency;
+}
 
-    /* Подсказки */
-    .help-hint {
-      background: rgba(0, 0, 0, 0.03);
-      border-left: 4px solid var(--accent);
-      padding: 8px 12px;
-      border-radius: 14px;
-      font-size: 0.7rem;
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      backdrop-filter: blur(4px);
-    }
-    body.dark .help-hint {
-      background: rgba(255, 255, 255, 0.04);
-    }
-    .help-hint span:first-child { font-size: 1rem; }
+// ========== SUBCATS ==========
+function ensureDefaultSubcats() {
+  const defs = {
+    коммуналка: {
+      type: "expense",
+      subs: ["свет", "вода", "газ", "сбор мусора", "интернет"],
+    },
+    продукты: {
+      type: "expense",
+      subs: ["овощи", "фрукты", "мясо", "рыба", "молочные", "хлеб"],
+    },
+    транспорт: {
+      type: "expense",
+      subs: ["метро", "автобус", "такси", "бензин"],
+    },
+  };
+  for (const [cat, { type, subs }] of Object.entries(defs)) {
+    ensureGroup(cat, type);
+    for (const s of subs)
+      if (!categoryGroups[cat][type].subcats.includes(s))
+        categoryGroups[cat][type].subcats.push(s);
+  }
+}
+function ensureGroup(cat, type) {
+  if (!categoryGroups[cat]) categoryGroups[cat] = {};
+  const g = categoryGroups[cat];
+  if (Array.isArray(g.subcats)) {
+    const old = g.subcats;
+    delete g.subcats;
+    g.income = { subcats: [...old] };
+    g.expense = { subcats: [...old] };
+  }
+  if (!g[type]) g[type] = { subcats: [] };
+}
+function getSubcats(cat, type) {
+  const g = categoryGroups[cat];
+  if (!g) return [];
+  if (g[type]) return g[type].subcats || [];
+  return [];
+}
+function addSubcat(cat, type, sub) {
+  ensureGroup(cat, type);
+  const arr = categoryGroups[cat][type].subcats;
+  if (!arr.includes(sub)) arr.push(sub);
+  saveAll();
+}
+function removeSubcat(cat, type, sub) {
+  if (categoryGroups[cat]?.[type]) {
+    categoryGroups[cat][type].subcats = categoryGroups[cat][
+      type
+    ].subcats.filter((s) => s !== sub);
+    saveAll();
+  }
+}
 
-    /* Общие стили */
-    .header, .balance-panel, .card, .op-card, .cat-card, .nb-card, .bottom-nav, .modal, .search-bar, .bal-card, .nav-item, .modal-overlay, .help-hint { transition: background var(--t-theme), border-color var(--t-theme), color var(--t-theme), box-shadow var(--t-theme); }
-    .header {
-      flex-shrink: 0;
-      height: var(--header-h);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      background: var(--header-bg);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .header-left { display: flex; align-items: center; gap: 10px; }
-    .logo { font-size: 1.8rem; filter: drop-shadow(0 2px 6px rgba(240, 180, 41, 0.5)); }
-    .app-title { font-size: 1.15rem; font-weight: 900; color: #f0ede6; }
-    .app-sub { font-size: 0.68rem; color: rgba(240, 237, 230, 0.65); margin-top: 1px; }
-    .balance-panel {
-      flex-shrink: 0;
-      background: var(--balance-bg);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-      padding: 12px 14px;
-    }
-    .balance-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-    .bal-card {
-      background: rgba(255, 255, 255, 0.07);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      padding: 8px 6px;
-      text-align: center;
-      backdrop-filter: blur(6px);
-    }
-    .bal-label { font-size: 0.6rem; text-transform: uppercase; color: rgba(220, 240, 228, 0.65); margin-bottom: 3px; }
-    .bal-value { font-size: 0.85rem; font-weight: 800; color: rgba(240, 248, 244, 0.95); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bal-value.positive { color: #7de8a0; }
-    .bal-value.negative { color: #ff8a7a; }
-    .balance-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .currency-label { font-size: 0.7rem; color: rgba(200, 230, 210, 0.6); }
-    .currency-row { display: flex; align-items: center; gap: 6px; }
-    .currency-select { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 20px; color: rgba(240, 248, 244, 0.95); font-size: 0.75rem; padding: 4px 8px; cursor: pointer; }
-    .btn-row { display: flex; gap: 6px; margin-left: auto; }
-    .ctrl-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 20px; color: rgba(240, 248, 244, 0.9); font-size: 0.7rem; font-weight: 700; padding: 5px 10px; cursor: pointer; }
-    .ctrl-btn.accent { background: rgba(240, 180, 41, 0.18); border-color: rgba(240, 180, 41, 0.45); color: #f0d080; }
-    .rate-status { font-size: 0.63rem; color: rgba(200, 230, 210, 0.55); text-align: center; margin-top: 2px; }
-    .tab-content { flex: 1; overflow-y: auto; padding: 14px 14px 80px; scroll-behavior: smooth; }
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; animation: fadeIn 0.2s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+// ========== CALC HISTORY ==========
+function loadCalcHistory() {
+  try {
+    calcHistory = JSON.parse(localStorage.getItem("calc_hist") || "[]");
+  } catch {
+    calcHistory = [];
+  }
+}
+function saveCalcHistory() {
+  localStorage.setItem("calc_hist", JSON.stringify(calcHistory.slice(0, 30)));
+}
+function addCalcHistory(expr, result) {
+  if (!expr || !isFinite(result)) return;
+  calcHistory.unshift({ expr, result, ts: new Date().toLocaleString() });
+  if (calcHistory.length > 30) calcHistory.pop();
+  saveCalcHistory();
+  renderCalcPreview();
+}
+function renderCalcPreview() {
+  const el = $("calcHistoryPreview");
+  if (!el) return;
+  if (calcHistory.length === 0) {
+    el.textContent = "Нет истории";
+    return;
+  }
+  el.innerHTML = calcHistory
+    .slice(0, 5)
+    .map(
+      (h) =>
+        `<span style="margin-right:10px;">${esc(h.expr)} = ${h.result}</span>`,
+    )
+    .join("");
+}
 
-    /* карточки операций, категорий */
-    .op-card, .cat-card, .nb-card {
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 12px 14px;
-      transition: all var(--t);
-      box-shadow: var(--shadow-sm);
-      cursor: pointer;
-    }
-    .op-card:hover, .cat-card:hover, .nb-card:hover {
-      border-color: var(--border-hover);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-1px);
-    }
+// ========== CONV HISTORY ==========
+function loadConvHistory() {
+  try {
+    convHistory = JSON.parse(localStorage.getItem("conv_hist") || "[]");
+  } catch {
+    convHistory = [];
+  }
+  renderConvHistory();
+}
+function saveConvHistory() {
+  localStorage.setItem("conv_hist", JSON.stringify(convHistory.slice(0, 15)));
+}
+function addConvHistory(from, to, amount, result) {
+  convHistory.unshift({
+    from,
+    to,
+    amount,
+    result,
+    ts: new Date().toLocaleString(),
+  });
+  if (convHistory.length > 15) convHistory.pop();
+  saveConvHistory();
+  renderConvHistory();
+}
+function renderConvHistory() {
+  const el = $("convHistoryList");
+  if (!el) return;
+  if (convHistory.length === 0) {
+    el.innerHTML = '<div class="empty-msg">Нет истории</div>';
+    return;
+  }
+  el.innerHTML = convHistory
+    .slice(0, 10)
+    .map(
+      (h, i) =>
+        `<div class="conv-hist-item"><span>${h.amount} ${h.from} → ${h.result.toFixed(4)} ${h.to}</span><button class="op-del" data-idx="${i}">✕</button></div>`,
+    )
+    .join("");
+  el.querySelectorAll(".op-del").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      convHistory.splice(parseInt(btn.dataset.idx), 1);
+      saveConvHistory();
+      renderConvHistory();
+    }),
+  );
+}
+function clearConvHistory() {
+  convHistory = [];
+  saveConvHistory();
+  renderConvHistory();
+}
 
-    /* стили для кнопки удаления (крестик) */
-    .op-del {
-      background: none;
-      border: none;
-      font-size: 1rem;
-      cursor: pointer;
-      color: var(--text-muted);
-      padding: 4px;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    .op-del:hover {
-      background: var(--red-bg);
-      color: var(--red-text);
-      transform: scale(1.05);
-    }
+// ========== NOTEBOOK ==========
+function loadNotebook() {
+  try {
+    notebookPages = JSON.parse(localStorage.getItem("notebook_v2") || "[]");
+  } catch {
+    notebookPages = [];
+  }
+  if (notebookPages.length === 0)
+    notebookPages.push({
+      id: Date.now(),
+      title: "Пример",
+      date: today(),
+      content: "Здесь можно писать заметки ✍️",
+    });
+  saveNotebook();
+}
+function saveNotebook() {
+  localStorage.setItem("notebook_v2", JSON.stringify(notebookPages));
+}
+function renderNotebookList() {
+  const container = $("notebookList");
+  if (!container) return;
+  container.innerHTML = "";
+  if (notebookPages.length === 0) {
+    container.innerHTML =
+      '<div class="empty-msg">Нет страниц. Нажмите ➕ для создания.</div>';
+    return;
+  }
+  const sorted = [...notebookPages].sort((a, b) =>
+    (b.date || "").localeCompare(a.date || ""),
+  );
+  sorted.forEach((page) => {
+    const card = document.createElement("div");
+    card.className = "nb-card";
+    const preview = (page.content || "").replace(/\n/g, " ").substring(0, 70);
+    card.innerHTML = `<div class="nb-card-top"><span class="nb-title">📄 ${esc(page.title)}</span><span class="nb-date">${fmtDate(page.date)}</span></div><div class="nb-preview">${esc(preview) || "(пусто)"}</div>`;
+    card.addEventListener("click", () => openNotebookEdit(page.id));
+    container.appendChild(card);
+  });
+}
+function openNotebookEdit(id) {
+  const page = notebookPages.find((p) => p.id === id);
+  if (!page) return;
+  currentNbId = id;
+  $("nbTitle").value = page.title;
+  $("nbDate").value = page.date;
+  $("nbContent").value = page.content;
+  openModal("notebookModal");
+}
+function saveNotebookPage() {
+  if (currentNbId === null) return;
+  const title = $("nbTitle").value.trim();
+  const date = $("nbDate").value;
+  const content = $("nbContent").value;
+  if (!title) {
+    alert("Название не может быть пустым");
+    return;
+  }
+  const conflict = notebookPages.some(
+    (p) =>
+      p.id !== currentNbId && p.title.toLowerCase() === title.toLowerCase(),
+  );
+  if (conflict) {
+    alert(`Страница "${title}" уже существует`);
+    return;
+  }
+  const page = notebookPages.find((p) => p.id === currentNbId);
+  if (page) {
+    page.title = title;
+    page.date = date;
+    page.content = content;
+  }
+  saveNotebook();
+  renderNotebookList();
+  closeModal("notebookModal");
+}
+function deleteNotebookPage() {
+  if (currentNbId === null) return;
+  if (!confirm("Удалить эту страницу?")) return;
+  notebookPages = notebookPages.filter((p) => p.id !== currentNbId);
+  saveNotebook();
+  renderNotebookList();
+  closeModal("notebookModal");
+  currentNbId = null;
+}
+function createNotebookPage() {
+  let maxNum = 0;
+  notebookPages.forEach((p) => {
+    const m = p.title.match(/Страница (\d+)/i);
+    if (m && parseInt(m[1]) > maxNum) maxNum = parseInt(m[1]);
+  });
+  const title = `Страница ${maxNum + 1}`;
+  const newPage = { id: Date.now(), title, date: today(), content: "" };
+  notebookPages.push(newPage);
+  saveNotebook();
+  renderNotebookList();
+  openNotebookEdit(newPage.id);
+}
 
-    /* даты в операциях */
-    .op-date {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      background: rgba(0,0,0,0.03);
-      padding: 2px 6px;
-      border-radius: 20px;
-      display: inline-block;
+// ========== BALANCE & OPERATIONS ==========
+function updateBalance() {
+  let inc = 0,
+    exp = 0;
+  for (const t of transactions) {
+    if (t.type === "income") inc += t.amountRub;
+    else exp += t.amountRub;
+  }
+  const s = sym();
+  const net = startBalanceRub + inc - exp;
+  $("balanceCards").innerHTML = `
+      <div class="bal-card"><div class="bal-label">💰 Зарплата</div><div class="bal-value">${toDisp(startBalanceRub).toFixed(2)} ${s}</div></div>
+      <div class="bal-card"><div class="bal-label">📈 Доходы</div><div class="bal-value positive">${toDisp(inc).toFixed(2)} ${s}</div></div>
+      <div class="bal-card"><div class="bal-label">📉 Расходы</div><div class="bal-value negative">${toDisp(exp).toFixed(2)} ${s}</div></div>
+      <div class="bal-card"><div class="bal-label">💎 Остаток</div><div class="bal-value ${net >= 0 ? "positive" : "negative"}">${toDisp(net).toFixed(2)} ${s}</div></div>
+    `;
+  const symSpan = $("modalCurSymbol");
+  if (symSpan) symSpan.textContent = sym();
+  const editSymSpan = $("editModalCurSymbol");
+  if (editSymSpan) editSymSpan.textContent = sym();
+}
+function buildOpCard(op, deleteIndex) {
+  const isIncome = op.type === "income";
+  const emoji = getEmoji(op.category);
+  const amount = toDisp(op.amountRub).toFixed(2);
+  const s = sym();
+  const card = document.createElement("div");
+  card.className = "op-card";
+  card.dataset.index = deleteIndex;
+  card.innerHTML = `
+      <div class="op-emoji">${emoji}</div>
+      <div class="op-body">
+        <div class="op-row1"><span class="op-cat">${esc(op.category)}${op.subcategory ? " / " + esc(op.subcategory) : ""}</span><span class="op-amount ${isIncome ? "income" : "expense"}">${isIncome ? "+" : "−"}${amount} ${s}</span></div>
+        <div class="op-row2"><span class="op-tag">${isIncome ? "💰 Доход" : "💸 Расход"}</span><span class="op-date">📅 ${fmtDate(op.date)}</span></div>
+        ${op.note ? `<div class="op-note">📝 ${esc(op.note)}</div>` : ""}
+      </div>
+      <button class="op-del" data-idx="${deleteIndex}" title="Удалить">✕</button>
+    `;
+  // Удаление
+  card.querySelector(".op-del").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (confirm("Удалить операцию?")) {
+      transactions.splice(deleteIndex, 1);
+      saveAll();
+      refreshAll();
     }
-    body.dark .op-date {
-      background: rgba(255,255,255,0.05);
-    }
+  });
+  // Редактирование по клику на карточку (не на кнопку удаления)
+  card.addEventListener("click", (e) => {
+    if (e.target.classList.contains("op-del")) return;
+    openEditOpModal(deleteIndex);
+  });
+  return card;
+}
+function openEditOpModal(index) {
+  const op = transactions[index];
+  if (!op) return;
+  editingOpIndex = index;
+  // Заполняем модалку
+  $("editModalDate").value = op.date || today();
+  $("editModalAmount").value = toDisp(op.amountRub).toFixed(2);
+  $("editModalNote").value = op.note || "";
+  // Тип
+  const isIncome = op.type === "income";
+  $("editTypeExpenseBtn").className = "type-btn" + (isIncome ? "" : " active");
+  $("editTypeIncomeBtn").className = "type-btn" + (isIncome ? " active" : "");
+  // Категории
+  const cats = isIncome ? incomeCategories : expenseCategories;
+  const catSelect = $("editModalCat");
+  catSelect.innerHTML = "";
+  cats.forEach((c) =>
+    catSelect.appendChild(new Option(`${getEmoji(c)} ${c}`, c)),
+  );
+  catSelect.value = op.category;
+  // Подкатегории
+  refreshEditModalSubcats();
+  const subcatField = $("editModalSubcatField");
+  const subcatSelect = $("editModalSubcat");
+  if (
+    op.subcategory &&
+    getSubcats(op.category, op.type).includes(op.subcategory)
+  ) {
+    subcatField.style.display = "flex";
+    subcatSelect.value = op.subcategory;
+  } else {
+    subcatField.style.display = "none";
+  }
+  openModal("editOpModal");
+}
+function refreshEditModalSubcats() {
+  const cat = $("editModalCat").value;
+  const type = $("editTypeIncomeBtn").classList.contains("active")
+    ? "income"
+    : "expense";
+  const subs = getSubcats(cat, type);
+  const field = $("editModalSubcatField");
+  const sel = $("editModalSubcat");
+  if (subs.length > 0) {
+    field.style.display = "flex";
+    sel.innerHTML = '<option value="">— не указывать —</option>';
+    subs.forEach((s) => sel.appendChild(new Option(s, s)));
+  } else {
+    field.style.display = "none";
+  }
+}
+function saveEditedOp() {
+  if (editingOpIndex === null) return;
+  const type = $("editTypeIncomeBtn").classList.contains("active")
+    ? "income"
+    : "expense";
+  const cat = $("editModalCat").value;
+  const subcat =
+    $("editModalSubcatField").style.display !== "none"
+      ? $("editModalSubcat").value
+      : "";
+  let amount = parseFloat($("editModalAmount").value);
+  const date = $("editModalDate").value;
+  const note = $("editModalNote").value.trim();
+  if (!cat) {
+    alert("Выберите категорию");
+    return;
+  }
+  if (isNaN(amount) || amount <= 0) {
+    alert("Введите сумму больше 0");
+    return;
+  }
+  // конвертируем сумму из текущей валюты в рубли
+  const amountRub = toRub(amount);
+  transactions[editingOpIndex] = {
+    type,
+    category: cat,
+    subcategory: subcat || null,
+    amountRub,
+    note: note || null,
+    date,
+  };
+  saveAll();
+  refreshAll();
+  closeModal("editOpModal");
+  editingOpIndex = null;
+}
+function deleteEditedOp() {
+  if (editingOpIndex !== null && confirm("Удалить операцию?")) {
+    transactions.splice(editingOpIndex, 1);
+    saveAll();
+    refreshAll();
+    closeModal("editOpModal");
+    editingOpIndex = null;
+  }
+}
+function renderRecentOps() {
+  const container = $("recentOpsList");
+  if (!container) return;
+  container.innerHTML = "";
+  const sorted = [...transactions]
+    .map((t, i) => ({ ...t, _i: i }))
+    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
+    .slice(0, 5);
+  if (sorted.length === 0) {
+    container.innerHTML =
+      '<div class="empty-msg">Нет операций. Нажмите ＋ чтобы добавить.</div>';
+    return;
+  }
+  for (const op of sorted) container.appendChild(buildOpCard(op, op._i));
+}
+function renderAllOps() {
+  const container = $("allOpsList");
+  if (!container) return;
+  container.innerHTML = "";
+  const searchText = ($("searchText")?.value || "").toLowerCase();
+  const dateFrom = $("searchFrom")?.value || "";
+  const dateTo = $("searchTo")?.value || "";
+  const typeFilter = $("searchType")?.value || "";
+  let filtered = transactions.map((t, i) => ({ ...t, _i: i }));
+  if (typeFilter) filtered = filtered.filter((t) => t.type === typeFilter);
+  if (dateFrom) filtered = filtered.filter((t) => (t.date || "") >= dateFrom);
+  if (dateTo) filtered = filtered.filter((t) => (t.date || "") <= dateTo);
+  if (searchText)
+    filtered = filtered.filter((t) =>
+      (t.category + " " + (t.subcategory || "") + " " + (t.note || ""))
+        .toLowerCase()
+        .includes(searchText),
+    );
+  const sorted = filtered.sort((a, b) =>
+    (b.date || "").localeCompare(a.date || ""),
+  );
+  if (sorted.length === 0) {
+    container.innerHTML =
+      '<div class="empty-msg">Нет операций по заданным критериям.</div>';
+    return;
+  }
+  for (const op of sorted) container.appendChild(buildOpCard(op, op._i));
+}
 
-    /* стили для подкатегорий (чипсы) */
-    .subcat-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(0,0,0,0.05);
-      padding: 4px 10px;
-      border-radius: 30px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.1s;
-      border: 1px solid var(--border);
-      color: var(--text-primary);
+// ========== CATEGORIES MANAGER (with clickable subcats) ==========
+function buildSubcatSection(cat, type, label, subs) {
+  const chips = subs
+    .map(
+      (s) =>
+        `<span class="subcat-chip" data-cat="${esc(cat)}" data-type="${type}" data-sub="${esc(s)}">${esc(s)}<button class="subcat-del" data-cat="${esc(cat)}" data-type="${type}" data-sub="${esc(s)}">✕</button></span>`,
+    )
+    .join("");
+  return `<div class="subcats-wrap">${label ? `<div class="subcats-label">${label}</div>` : ""}<div class="subcats-row">${chips}</div></div>`;
+}
+function renderCatManager() {
+  const container = $("catManager");
+  if (!container) return;
+  container.innerHTML = "";
+  const allCats = new Set([...incomeCategories, ...expenseCategories]);
+  for (const catName of allCats) {
+    const inInc = incomeCategories.includes(catName);
+    const inExp = expenseCategories.includes(catName);
+    const emoji = getEmoji(catName);
+    let badge = "";
+    if (inInc && inExp)
+      badge = '<span class="cat-type-badge badge-both">🔄 Оба</span>';
+    else if (inInc)
+      badge = '<span class="cat-type-badge badge-income">💰 Доход</span>';
+    else badge = '<span class="cat-type-badge badge-expense">💸 Расход</span>';
+    let subcatHtml = "";
+    if (inInc && inExp) {
+      const incS = getSubcats(catName, "income");
+      const expS = getSubcats(catName, "expense");
+      if (incS.length)
+        subcatHtml += buildSubcatSection(catName, "income", "📈 Доход", incS);
+      if (expS.length)
+        subcatHtml += buildSubcatSection(catName, "expense", "📉 Расход", expS);
+    } else {
+      const type = inInc ? "income" : "expense";
+      const subs = getSubcats(catName, type);
+      if (subs.length)
+        subcatHtml += buildSubcatSection(catName, type, "", subs);
     }
-    .subcat-chip:hover { background: var(--accent-light); color: white; transform: scale(1.02); }
-    .subcat-del {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 0.7rem;
-      opacity: 0.6;
-      margin-left: 4px;
-      padding: 0 2px;
-      border-radius: 50%;
-      color: inherit;
+    const card = document.createElement("div");
+    card.className = "cat-card";
+    card.innerHTML = `<div class="cat-card-header"><div class="cat-emoji-wrap">${emoji}</div><div class="cat-name-wrap"><span class="cat-name-text" data-cat="${esc(catName)}">${esc(catName)}</span>${badge}</div></div><div class="cat-actions-row">${inInc && inExp ? `<button class="btn-sm ghost add-sub-btn" data-cat="${esc(catName)}" data-type="income">+ Подкат. доход</button><button class="btn-sm ghost add-sub-btn" data-cat="${esc(catName)}" data-type="expense">+ Подкат. расход</button>` : `<button class="btn-sm ghost add-sub-btn" data-cat="${esc(catName)}" data-type="${inInc ? "income" : "expense"}">+ Подкатегория</button>`}<button class="btn-sm danger del-cat-btn" data-cat="${esc(catName)}">🗑 Удалить</button></div>${subcatHtml}`;
+    card.querySelector(".cat-name-text").addEventListener("click", () => {
+      const newName = prompt(`Переименовать "${catName}":`, catName);
+      if (newName && newName.trim() && newName.trim() !== catName)
+        renameCategory(catName, newName.trim());
+    });
+    card.querySelectorAll(".add-sub-btn").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const cat = btn.dataset.cat,
+          type = btn.dataset.type,
+          sub = prompt(`Подкатегория для "${cat}":`);
+        if (sub?.trim() && !getSubcats(cat, type).includes(sub.trim())) {
+          addSubcat(cat, type, sub.trim());
+          renderCatManager();
+          refreshModalCats();
+        }
+      }),
+    );
+    card.querySelector(".del-cat-btn").addEventListener("click", () => {
+      if (confirm(`Удалить категорию "${catName}"?`)) {
+        incomeCategories = incomeCategories.filter((c) => c !== catName);
+        expenseCategories = expenseCategories.filter((c) => c !== catName);
+        delete categoryGroups[catName];
+        saveAll();
+        renderCatManager();
+        refreshModalCats();
+        updateBalance();
+      }
+    });
+    container.appendChild(card);
+  }
+  // attach events for subcat chips (click to edit)
+  document.querySelectorAll(".subcat-chip").forEach((chip) => {
+    chip.addEventListener("click", (e) => {
+      if (e.target.classList.contains("subcat-del")) return;
+      const cat = chip.dataset.cat,
+        type = chip.dataset.type,
+        sub = chip.dataset.sub;
+      openEditSubcatModal(cat, type, sub);
+    });
+  });
+  document.querySelectorAll(".subcat-del").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const cat = btn.dataset.cat,
+        type = btn.dataset.type,
+        sub = btn.dataset.sub;
+      if (confirm(`Удалить подкатегорию "${sub}"?`)) {
+        removeSubcat(cat, type, sub);
+        renderCatManager();
+        refreshModalCats();
+      }
+    });
+  });
+}
+function renameCategory(oldName, newName) {
+  const all = [...incomeCategories, ...expenseCategories];
+  if (all.includes(newName)) {
+    alert(`Категория "${newName}" уже существует`);
+    return;
+  }
+  incomeCategories = incomeCategories.map((c) => (c === oldName ? newName : c));
+  expenseCategories = expenseCategories.map((c) =>
+    c === oldName ? newName : c,
+  );
+  if (categoryGroups[oldName]) {
+    categoryGroups[newName] = categoryGroups[oldName];
+    delete categoryGroups[oldName];
+  }
+  transactions.forEach((t) => {
+    if (t.category === oldName) t.category = newName;
+  });
+  saveAll();
+  refreshAll();
+}
+function openEditSubcatModal(cat, type, sub) {
+  const modal = $("editSubcatModal");
+  $("editSubcatName").value = sub;
+  modal.dataset.cat = cat;
+  modal.dataset.type = type;
+  modal.dataset.oldSub = sub;
+  openModal("editSubcatModal");
+}
+function saveSubcatEdit() {
+  const modal = $("editSubcatModal");
+  const cat = modal.dataset.cat,
+    type = modal.dataset.type,
+    oldSub = modal.dataset.oldSub;
+  const newSub = $("editSubcatName").value.trim();
+  if (!newSub) {
+    alert("Название не может быть пустым");
+    return;
+  }
+  if (oldSub !== newSub) {
+    const subs = getSubcats(cat, type);
+    if (subs.includes(newSub)) {
+      alert("Такая подкатегория уже существует");
+      return;
     }
-    .subcat-del:hover { opacity: 1; color: var(--red); background: var(--red-bg); }
-    .cat-actions-row { display: flex; gap: 8px; margin: 8px 0 6px; flex-wrap: wrap; }
+    const idx = subs.indexOf(oldSub);
+    if (idx !== -1) {
+      subs[idx] = newSub;
+      categoryGroups[cat][type].subcats = subs;
+      saveAll();
+      renderCatManager();
+      refreshModalCats();
+    }
+  }
+  closeModal("editSubcatModal");
+}
+function deleteSubcatFromModal() {
+  const modal = $("editSubcatModal");
+  const cat = modal.dataset.cat,
+    type = modal.dataset.type,
+    sub = modal.dataset.oldSub;
+  if (confirm(`Удалить подкатегорию "${sub}"?`)) {
+    removeSubcat(cat, type, sub);
+    renderCatManager();
+    refreshModalCats();
+    closeModal("editSubcatModal");
+  }
+}
 
-    /* кнопки типа "btn-sm" */
-    .btn-sm {
-      background: rgba(26, 122, 74, 0.1);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-primary);
-    }
-    .btn-sm:hover {
-      background: var(--accent-light);
-      color: white;
-      border-color: var(--accent-light);
-    }
-    .btn-danger-sm {
-      background: var(--red-bg);
-      border: 1px solid rgba(192, 57, 43, 0.25);
-      border-radius: 20px;
-      color: var(--red-text);
-      padding: 6px 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-danger-sm:hover {
-      background: var(--red);
-      color: white;
-    }
+// ========== OPERATION MODAL (добавление) ==========
+function refreshModalCats() {
+  const cats =
+    currentOpType === "income" ? incomeCategories : expenseCategories;
+  const sel = $("modalCat");
+  const prev = sel.value;
+  sel.innerHTML = "";
+  cats.forEach((c) => sel.appendChild(new Option(`${getEmoji(c)} ${c}`, c)));
+  if (cats.includes(prev)) sel.value = prev;
+  refreshModalSubcats();
+}
+function refreshModalSubcats() {
+  const cat = $("modalCat").value;
+  const subs = getSubcats(cat, currentOpType);
+  const field = $("modalSubcatField");
+  const sel = $("modalSubcat");
+  if (subs.length > 0) {
+    field.style.display = "flex";
+    sel.innerHTML = '<option value="">— не указывать —</option>';
+    subs.forEach((s) => sel.appendChild(new Option(s, s)));
+  } else field.style.display = "none";
+}
+function setOpType(type) {
+  currentOpType = type;
+  $("typeExpenseBtn").className =
+    "type-btn" + (type === "expense" ? " active" : "");
+  $("typeIncomeBtn").className =
+    "type-btn" + (type === "income" ? " active" : "");
+  refreshModalCats();
+}
+function submitOp() {
+  const cat = $("modalCat").value;
+  const subcat =
+    $("modalSubcatField").style.display !== "none"
+      ? $("modalSubcat").value
+      : "";
+  const amount = parseFloat($("modalAmount").value);
+  const note = $("modalNote").value.trim();
+  const date = $("modalDate").value || today();
+  if (!cat) {
+    alert("Выберите категорию");
+    return;
+  }
+  if (isNaN(amount) || amount <= 0) {
+    alert("Введите сумму больше 0");
+    return;
+  }
+  transactions.push({
+    type: currentOpType,
+    category: cat,
+    subcategory: subcat || null,
+    amountRub: toRub(amount),
+    note: note || null,
+    date,
+  });
+  saveAll();
+  refreshAll();
+  closeModal("addOpModal");
+  $("modalAmount").value = "";
+  $("modalNote").value = "";
+}
+function openAddOpModal() {
+  $("modalDate").value = today();
+  $("modalAmount").value = "";
+  $("modalNote").value = "";
+  setOpType("expense");
+  openModal("addOpModal");
+  setTimeout(() => $("modalAmount").focus(), 120);
+}
+function deleteCurrentModalCat() {
+  const val = $("modalCat").value;
+  if (!val) return;
+  const arr = currentOpType === "income" ? incomeCategories : expenseCategories;
+  if (arr.length <= 1) {
+    alert("Нельзя удалить последнюю категорию");
+    return;
+  }
+  if (!confirm(`Удалить категорию "${val}"?`)) return;
+  if (currentOpType === "income")
+    incomeCategories = incomeCategories.filter((c) => c !== val);
+  else expenseCategories = expenseCategories.filter((c) => c !== val);
+  saveAll();
+  renderCatManager();
+  refreshModalCats();
+}
 
-    /* Кнопка "Повторить расход" */
-    .btn-repeat {
-      background: var(--gold-bg);
-      border: 1px solid var(--gold);
-      border-radius: 30px;
-      padding: 8px 16px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--gold);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
+// ========== CATEGORY MODAL ==========
+function openAddCatModal() {
+  selectedCatType = null;
+  $("addCatName").value = "";
+  $("confirmAddCat").disabled = true;
+  document
+    .querySelectorAll("#catBtnExpense, #catBtnIncome, #catBtnBoth")
+    .forEach((btn) => (btn.className = "cat-type-btn"));
+  openModal("addCatModal");
+  setTimeout(() => $("addCatName").focus(), 120);
+}
+window.selectCatType = function (type) {
+  selectedCatType = type;
+  ["catBtnExpense", "catBtnIncome", "catBtnBoth"].forEach(
+    (id) => ($(id).className = "cat-type-btn"),
+  );
+  if (type === "expense")
+    $("catBtnExpense").className = "cat-type-btn selected-expense";
+  if (type === "income")
+    $("catBtnIncome").className = "cat-type-btn selected-income";
+  if (type === "both") $("catBtnBoth").className = "cat-type-btn selected-both";
+  $("confirmAddCat").disabled = false;
+};
+window.confirmAddCategory = function () {
+  const name = $("addCatName").value.trim();
+  if (!name) {
+    alert("Введите название");
+    return;
+  }
+  if (!selectedCatType) {
+    alert("Выберите тип");
+    return;
+  }
+  let added = false;
+  if (selectedCatType === "expense" || selectedCatType === "both") {
+    if (!expenseCategories.includes(name)) {
+      expenseCategories.push(name);
+      added = true;
     }
-    .btn-repeat:hover {
-      background: var(--gold);
-      color: white;
-      transform: translateY(-1px);
+  }
+  if (selectedCatType === "income" || selectedCatType === "both") {
+    if (!incomeCategories.includes(name)) {
+      incomeCategories.push(name);
+      added = true;
     }
-    body.dark .btn-repeat {
-      background: rgba(240, 180, 41, 0.15);
-    }
-    body.dark .btn-repeat:hover {
-      background: var(--gold);
-      color: #1a1a1a;
-    }
+  }
+  if (!added) {
+    alert(`Категория "${name}" уже существует`);
+    return;
+  }
+  if (selectedCatType === "both") {
+    ensureGroup(name, "income");
+    ensureGroup(name, "expense");
+  } else ensureGroup(name, selectedCatType);
+  saveAll();
+  renderCatManager();
+  refreshModalCats();
+  closeModal("addCatModal");
+};
 
-    /* нижняя навигация */
-    .bottom-nav {
-      flex-shrink: 0;
-      height: var(--nav-h);
-      display: flex;
-      background: var(--surface-1);
-      border-top: 1px solid var(--border);
-      padding: 6px 8px 10px;
-      gap: 4px;
+// ========== CALCULATOR ==========
+function renderCalcDisplay() {
+  $("calcDisplay").textContent = calcExpr || "0";
+}
+function calcEval() {
+  if (!calcExpr) return;
+  try {
+    const res = Function('"use strict"; return (' + calcExpr + ")")();
+    if (isFinite(res)) {
+      const result = +res.toPrecision(12);
+      addCalcHistory(calcExpr, result);
+      calcExpr = String(result);
+      calcJustEvaled = true;
+    } else {
+      calcExpr = "Ошибка";
     }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: none; background: none; border-radius: 14px; cursor: pointer; color: var(--text-muted); padding: 6px 2px; transition: all 0.2s; }
-    .nav-item.active { background: rgba(26, 122, 74, 0.12); color: var(--accent); }
-    body.dark .nav-item.active { background: rgba(74, 143, 255, 0.14); color: var(--accent-light); }
-    .nav-icon { font-size: 1.3rem; }
-    .nav-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
+  } catch {
+    calcExpr = "Ошибка";
+    calcJustEvaled = false;
+  }
+  renderCalcDisplay();
+}
+function handleCalc(action) {
+  const isOp = "+-*/".includes(action);
+  if (calcExpr === "Ошибка") {
+    calcExpr = "";
+    calcJustEvaled = false;
+  }
+  if (action === "clear") {
+    calcExpr = "";
+    calcJustEvaled = false;
+  } else if (action === "back") {
+    if (calcJustEvaled) {
+      calcExpr = "";
+      calcJustEvaled = false;
+    } else calcExpr = calcExpr.slice(0, -1);
+  } else if (action === "=") {
+    calcEval();
+    return;
+  } else if (action === "sign") {
+    if (!calcExpr || calcExpr === "0") {
+      calcExpr = "-";
+      calcJustEvaled = false;
+    } else if (!isNaN(calcExpr)) {
+      calcExpr = String(-+calcExpr);
+      calcJustEvaled = false;
+    } else {
+      calcExpr = calcExpr.startsWith("-(")
+        ? calcExpr.slice(2, -1)
+        : `-(${calcExpr})`;
+      calcJustEvaled = false;
+    }
+  } else if (action === "%") {
+    try {
+      const v = Function('"use strict"; return (' + calcExpr + ")")();
+      if (isFinite(v)) {
+        calcExpr = String(v / 100);
+        calcJustEvaled = false;
+      }
+    } catch {}
+  } else {
+    if (calcJustEvaled) {
+      if (!isOp) calcExpr = "";
+      calcJustEvaled = false;
+    }
+    if (isOp && calcExpr && "+-*/".includes(calcExpr.slice(-1)))
+      calcExpr = calcExpr.slice(0, -1);
+    if (
+      action === "." &&
+      calcExpr
+        .split(/[+\-*/]/)
+        .pop()
+        .includes(".")
+    ) {
+      renderCalcDisplay();
+      return;
+    }
+    calcExpr += action;
+  }
+  renderCalcDisplay();
+}
+function buildCalcGrid() {
+  const keys = [
+    ["C", "clear"],
+    ["⌫", "back"],
+    ["%", "%"],
+    ["÷", "/"],
+    ["7", "7"],
+    ["8", "8"],
+    ["9", "9"],
+    ["×", "*"],
+    ["4", "4"],
+    ["5", "5"],
+    ["6", "6"],
+    ["−", "-"],
+    ["1", "1"],
+    ["2", "2"],
+    ["3", "3"],
+    ["+", "+"],
+    ["+/−", "sign"],
+    ["0", "0"],
+    [".", "."],
+    ["=", "="],
+  ];
+  const grid = $("calcGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
+  keys.forEach(([label, action]) => {
+    const btn = document.createElement("button");
+    btn.textContent = label;
+    btn.className = "calc-btn";
+    if (action === "clear" || action === "back") btn.classList.add("clear");
+    if (["/", "*", "-", "+", "="].includes(action)) btn.classList.add("op");
+    btn.addEventListener("click", () => handleCalc(action));
+    grid.appendChild(btn);
+  });
+}
+function renderCalcHistoryModal() {
+  const container = $("calcHistoryList");
+  if (!container) return;
+  container.innerHTML = "";
+  if (calcHistory.length === 0) {
+    container.innerHTML = '<div class="empty-msg">История пуста</div>';
+    return;
+  }
+  calcHistory.forEach((h, idx) => {
+    const card = document.createElement("div");
+    card.className = "op-card";
+    card.innerHTML = `<div class="op-body"><div class="op-row1"><span class="op-cat">${esc(h.expr)}</span><span class="op-amount income">= ${h.result}</span></div><div class="op-row2"><span class="op-date">🕒 ${esc(h.ts)}</span></div></div><button class="op-del" data-idx="${idx}">✕</button>`;
+    card.querySelector(".op-del").addEventListener("click", () => {
+      calcHistory.splice(idx, 1);
+      saveCalcHistory();
+      renderCalcHistoryModal();
+      renderCalcPreview();
+    });
+    container.appendChild(card);
+  });
+}
 
-    /* FAB */
-    .fab {
-      position: fixed;
-      bottom: calc(var(--nav-h) + 14px);
-      right: 18px;
-      width: var(--fab-size);
-      height: var(--fab-size);
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent-btn), var(--accent-light));
-      color: white;
-      font-size: 1.6rem;
-      border: none;
-      box-shadow: 0 4px 20px var(--accent-glow);
-      cursor: pointer;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s;
-    }
-    .fab:hover { transform: scale(1.05); }
+// ========== CONVERTER ==========
+function doConvert() {
+  const amount = parseFloat($("convAmount").value);
+  const from = $("convFrom").value;
+  const to = $("convTo").value;
+  if (isNaN(amount)) {
+    $("convResult").textContent = "";
+    return;
+  }
+  const rub = from === "RUB" ? amount : amount / (exchangeRates[from] || 1);
+  const result = rub * (exchangeRates[to] || 1);
+  $("convResult").textContent =
+    `${amount} ${from} = ${result.toFixed(4)} ${to}`;
+  addConvHistory(from, to, amount, result);
+}
 
-    /* модалки */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(8px); z-index: 500; align-items: flex-end; justify-content: center; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface-1); border: 1px solid var(--border); border-radius: 28px 28px 0 0; width: 100%; max-width: 600px; max-height: 90dvh; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 12px); }
-    .modal-header { display: flex; justify-content: space-between; padding: 20px 20px 14px; position: sticky; top: 0; background: var(--surface-1); border-bottom: 1px solid var(--border); }
-    .modal-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
-    .field-group { display: flex; flex-direction: column; gap: 6px; }
+// ========== RATES ==========
+async function fetchRates() {
+  const statusEl = $("rateStatus");
+  if (statusEl) statusEl.textContent = "⏳ Обновление курсов...";
+  try {
+    const res = await fetch("https://api.exchangerate-api.com/v4/latest/RUB");
+    if (!res.ok) throw new Error("Network");
+    const data = await res.json();
+    exchangeRates = { RUB: 1 };
+    for (const cur of ["USD", "EUR", "GEL", "GBP", "KZT"])
+      exchangeRates[cur] = data.rates[cur] || exchangeRates[cur];
+    lastRateUpdate = new Date().toLocaleString("ru-RU");
+    if (statusEl) statusEl.textContent = `✅ Обновлено: ${lastRateUpdate}`;
+    saveAll();
+  } catch {
+    if (statusEl)
+      statusEl.textContent = lastRateUpdate
+        ? `⚠️ Офлайн. Последнее: ${lastRateUpdate}`
+        : "⚠️ Офлайн (используются встроенные курсы)";
+  }
+  refreshAll();
+}
 
-    /* Поля ввода, селекты, textarea */
-    .modal-input, .modal-select, .modal-textarea, .filter-input, .filter-select {
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 11px 14px;
-      color: var(--text-primary);
-      font-family: inherit;
-      width: 100%;
-      transition: all 0.2s;
-    }
-    .modal-input:focus, .modal-select:focus, .modal-textarea:focus,
-    .filter-input:focus, .filter-select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
+// ========== REFRESH ALL ==========
+function refreshAll() {
+  updateBalance();
+  renderRecentOps();
+  if ($("tabOperations").classList.contains("active")) renderAllOps();
+  if ($("tabCategories").classList.contains("active")) renderCatManager();
+  if ($("tabNotebook").classList.contains("active")) renderNotebookList();
+  doConvert();
+}
 
-    /* ========== ИСПРАВЛЕННЫЕ СТИЛИ ДЛЯ ИКОНОК КАЛЕНДАРЯ ========== */
-    input[type="date"],
-    .filter-input[type="date"],
-    .modal-input[type="date"] {
-      color-scheme: light dark;
-      background-color: var(--surface-1);
-      color: var(--text-primary);
-    }
+// ========== MODAL HELPERS ==========
+function openModal(id) {
+  $(id).classList.add("open");
+}
+function closeModal(id) {
+  $(id).classList.remove("open");
+}
 
-    /* Иконка календаря для светлой темы – чёрная */
-    input[type="date"]::-webkit-calendar-picker-indicator,
-    .filter-input[type="date"]::-webkit-calendar-picker-indicator,
-    .modal-input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: brightness(0) saturate(100%);
-      opacity: 0.7;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
+// ========== THEME ==========
+function initTheme() {
+  const saved = localStorage.getItem("budget_theme") || "light";
+  const isDark = saved === "dark";
+  document.body.classList.toggle("dark", isDark);
+  const chk = $("themeToggleCheckbox");
+  if (chk) chk.checked = isDark;
+  chk.addEventListener("change", (e) => {
+    const dark = e.target.checked;
+    document.body.classList.toggle("dark", dark);
+    localStorage.setItem("budget_theme", dark ? "dark" : "light");
+  });
+}
 
-    input[type="date"]::-webkit-calendar-picker-indicator:hover,
-    .filter-input[type="date"]::-webkit-calendar-picker-indicator:hover,
-    .modal-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-      opacity: 1;
-    }
+// ========== TABS ==========
+function initTabs() {
+  document.querySelectorAll(".nav-item").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const tab = btn.dataset.tab;
+      document
+        .querySelectorAll(".nav-item")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      document
+        .querySelectorAll(".tab-pane")
+        .forEach((p) => p.classList.remove("active"));
+      $("tab" + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add(
+        "active",
+      );
+      if (tab === "operations") renderAllOps();
+      if (tab === "categories") renderCatManager();
+      if (tab === "notebook") renderNotebookList();
+    }),
+  );
+}
 
-    /* Тёмная тема – иконка белая */
-    body.dark input[type="date"]::-webkit-calendar-picker-indicator,
-    body.dark .filter-input[type="date"]::-webkit-calendar-picker-indicator,
-    body.dark .modal-input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: brightness(0) saturate(100%) invert(1);
-      opacity: 0.8;
-    }
+// ========== SERVICE WORKER ==========
+function registerSW() {
+  if ("serviceWorker" in navigator)
+    navigator.serviceWorker
+      .register("/sw.js")
+      .catch((e) => console.warn("SW:", e));
+}
 
-    /* Кнопка "Показать все операции" */
-    .btn-link {
-      background: none;
-      border: none;
-      color: var(--accent);
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 8px 12px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 24px;
-      transition: all 0.2s ease;
-      text-decoration: none;
-    }
-    .btn-link:hover {
-      background: rgba(26, 122, 74, 0.08);
-      color: var(--accent-light);
-      transform: translateX(2px);
-    }
-    body.dark .btn-link:hover {
-      background: rgba(74, 143, 255, 0.12);
-    }
-
-    /* Кнопка закрытия модалки */
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--text-muted);
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all 0.2s ease;
-    }
-    .modal-close:hover {
-      background: var(--red-bg);
-      color: var(--red-text);
-      transform: rotate(90deg);
-    }
-    body.dark .modal-close:hover {
-      background: rgba(229, 62, 62, 0.2);
-    }
-
-    /* Блок поиска */
-    .search-bar {
-      background: var(--surface-2);
-      border-radius: 20px;
-      padding: 12px;
-      margin-bottom: 16px;
-      border: 1px solid var(--border);
-    }
-    .search-input-wrap {
-      display: flex;
-      align-items: center;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 6px 12px;
-      margin-bottom: 10px;
-    }
-    .search-icon {
-      font-size: 1rem;
-      margin-right: 8px;
-      color: var(--text-muted);
-    }
-    .search-input {
-      flex: 1;
-      background: transparent;
-      border: none;
-      outline: none;
-      font-size: 0.9rem;
-      color: var(--text-primary);
-    }
-    .search-input::placeholder {
-      color: var(--text-muted);
-      opacity: 0.7;
-    }
-
-    /* Группы фильтров */
-    .search-filters {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-    .filter-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 40px;
-      padding: 4px 12px;
-      transition: all 0.2s;
-      flex: 1 1 auto;
-    }
-    .filter-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-    .filter-input, .filter-select {
-      background: transparent;
-      border: none;
-      padding: 6px 0;
-      font-size: 0.75rem;
-      color: var(--text-primary);
-      outline: none;
-      cursor: pointer;
-      width: auto;
-      min-width: 100px;
-    }
-    .filter-select option {
-      background: var(--surface-1);
-      color: var(--text-primary);
-    }
-
-    .search-btns {
-      display: flex;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-    .btn-sm.ghost {
-      background: transparent;
-      border-color: var(--border);
-    }
-    .btn-sm.ghost:hover {
-      background: var(--text-muted);
-      color: white;
-      border-color: var(--text-muted);
-    }
-    body.dark .btn-sm {
-      background: rgba(74, 143, 255, 0.15);
-    }
-    body.dark .btn-sm:hover {
-      background: var(--accent);
-      color: white;
-    }
-
-    /* Кнопка добавления категории / новой страницы */
-    .btn-add-cat {
-      background: var(--accent-btn);
-      border: none;
-      border-radius: 40px;
-      padding: 10px 18px;
-      font-size: 0.85rem;
-      font-weight: 800;
-      color: white;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 16px;
-      transition: all 0.2s;
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-add-cat:hover {
-      background: var(--accent-light);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-md);
-    }
-    body.dark .btn-add-cat {
-      background: var(--accent);
-    }
-    body.dark .btn-add-cat:hover {
-      background: var(--accent-light);
-    }
-
-    /* Type Toggle (Расход/Доход) */
-    .type-toggle {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .type-btn {
-      flex: 1;
-      background: var(--surface-1);
-      border: 1.5px solid var(--border);
-      border-radius: 30px;
-      padding: 10px 0;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-primary);
-    }
-    .type-btn.active {
-      border-color: var(--accent);
-      background: rgba(26, 122, 74, 0.1);
-    }
-    .type-btn.active[data-type="expense"] {
-      background: rgba(192, 57, 43, 0.1);
-      border-color: var(--red);
-      color: var(--red-text);
-    }
-    .type-btn.active[data-type="income"] {
-      background: rgba(26, 122, 74, 0.15);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    body.dark .type-btn.active[data-type="expense"] {
-      background: rgba(229, 62, 62, 0.2);
-    }
-    body.dark .type-btn.active[data-type="income"] {
-      background: rgba(74, 143, 255, 0.2);
-      color: var(--accent-light);
-    }
-
-    /* Кнопки выбора типа категории (расходы/доходы/оба) */
-    .cat-type-btns {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 8px 0;
-    }
-    .cat-type-btn {
-      flex: 1;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 8px 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: var(--text-primary);
-    }
-    .cat-type-btn.selected-expense {
-      background: var(--red-bg);
-      border-color: var(--red);
-      color: var(--red-text);
-    }
-    .cat-type-btn.selected-income {
-      background: rgba(26, 122, 74, 0.15);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .cat-type-btn.selected-both {
-      background: var(--gold-bg);
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-    body.dark .cat-type-btn.selected-expense {
-      background: rgba(229, 62, 62, 0.25);
-    }
-    body.dark .cat-type-btn.selected-income {
-      background: rgba(74, 143, 255, 0.25);
-    }
-    body.dark .cat-type-btn.selected-both {
-      background: rgba(240, 180, 41, 0.2);
-    }
-
-    /* Карточка категории: текст и иконки */
-    .cat-card-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .cat-emoji-wrap {
-      font-size: 1.4rem;
-    }
-    .cat-name-wrap {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .cat-name-text {
-      font-weight: 800;
-      font-size: 0.95rem;
-      cursor: pointer;
-      color: var(--text-primary);
-      transition: color 0.2s;
-    }
-    .cat-name-text:hover {
-      color: var(--accent);
-    }
-    .cat-type-badge {
-      font-size: 0.6rem;
-      padding: 2px 8px;
-      border-radius: 20px;
-      background: rgba(0,0,0,0.05);
-    }
-    .badge-expense {
-      background: var(--red-bg);
-      color: var(--red-text);
-    }
-    .badge-income {
-      background: rgba(26, 122, 74, 0.1);
-      color: var(--accent);
-    }
-    .badge-both {
-      background: var(--gold-bg);
-      color: var(--gold);
-    }
-    body.dark .badge-expense {
-      background: rgba(229, 62, 62, 0.2);
-    }
-    body.dark .badge-income {
-      background: rgba(74, 143, 255, 0.2);
-    }
-
-    /* Кнопка первичного действия */
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent-btn), var(--accent-light));
-      color: white;
-      border: none;
-      border-radius: 14px;
-      padding: 12px 20px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .btn-primary:hover { opacity: 0.9; }
-
-    /* Калькулятор */
-    .calc-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .calc-btn {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 14px 0;
-      font-family: 'Fira Mono', monospace;
-      font-weight: 700;
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      color: var(--text-primary);
-    }
-    .calc-btn:hover {
-      background: var(--accent-light);
-      color: white;
-      transform: scale(0.98);
-      border-color: var(--accent-light);
-    }
-    .calc-btn.op {
-      background: var(--accent);
-      color: white;
-    }
-    .calc-btn.clear, .calc-btn.back {
-      background: var(--red-bg);
-      color: var(--red-text);
-    }
-    body.dark .calc-btn {
-      background: rgba(255,255,255,0.08);
-    }
-
-    /* ===== Визуальное разделение калькулятора и конвертера ===== */
-    #convCard {
-      margin-top: 24px;
-      border-top: 2px solid var(--accent);
-      padding-top: 16px;
-      position: relative;
-    }
-    #convCard::before {
-      content: "💱";
-      position: absolute;
-      top: -12px;
-      left: 16px;
-      background: var(--surface-1);
-      padding: 0 8px;
-      font-size: 0.8rem;
-      color: var(--accent);
-      font-weight: bold;
-    }
-
-    /* Конвертер валют */
-    .conv-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .conv-input, .conv-sel {
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: var(--surface-2);
-      color: var(--text-primary);
-      font-size: 0.9rem;
-    }
-    .conv-input:focus, .conv-sel:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    .conv-result {
-      background: rgba(26, 122, 74, 0.08);
-      border-radius: 14px;
-      padding: 12px;
-      text-align: center;
-      margin: 12px 0;
-      font-weight: bold;
-    }
-    .conv-history {
-      max-height: 180px;
-      overflow-y: auto;
-      margin-top: 8px;
-    }
-    .conv-hist-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 10px;
-      font-size: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .empty-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
-
-    /* Адаптив */
-    @media (max-width: 480px) {
-      .balance-cards { grid-template-columns: repeat(2, 1fr); }
-      .nav-label { display: none; }
-      .filter-group { flex: 1 1 auto; }
-      .filter-label { font-size: 0.65rem; }
-      .filter-input, .filter-select { min-width: 80px; }
-    }
+// ========== INIT ==========
+document.addEventListener("DOMContentLoaded", () => {
+  loadAll();
+  initTheme();
+  initTabs();
+  buildCalcGrid();
+  renderCalcDisplay();
+  renderCalcPreview();
+  refreshAll();
+  $("fabBtn").addEventListener("click", openAddOpModal);
+  document.querySelectorAll(".modal-overlay").forEach((overlay) =>
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) overlay.classList.remove("open");
+    }),
+  );
+  $("closeAddOpModal").addEventListener("click", () =>
+    closeModal("addOpModal"),
+  );
+  $("closeAddCatModal").addEventListener("click", () =>
+    closeModal("addCatModal"),
+  );
+  $("closeCalcHistoryModal").addEventListener("click", () =>
+    closeModal("calcHistoryModal"),
+  );
+  $("closeNotebookModal").addEventListener("click", () =>
+    closeModal("notebookModal"),
+  );
+  $("closeEditSubcatModal").addEventListener("click", () =>
+    closeModal("editSubcatModal"),
+  );
+  $("closeEditOpModal").addEventListener("click", () =>
+    closeModal("editOpModal"),
+  );
+  $("clearAllBtn").addEventListener("click", () => {
+    if (confirm("Удалить ВСЕ операции?")) {
+      transactions = [];
+      saveAll();
+      refreshAll();
+    }
+  });
+  $("viewAllOpsBtn").addEventListener("click", () =>
+    document.querySelector('.nav-item[data-tab="operations"]').click(),
+  );
+  $("editStartBtn").addEventListener("click", () => {
+    const cur = toDisp(startBalanceRub).toFixed(2);
+    const v = prompt(`Введите зарплату (${sym()}):`, cur);
+    if (v !== null && !isNaN(+v) && +v >= 0) {
+      startBalanceRub = toRub(+v);
+      saveAll();
+      updateBalance();
+    }
+  });
+  $("displayCurrencySelect").addEventListener("change", () => {
+    displayCurrency = $("displayCurrencySelect").value;
+    saveAll();
+    refreshAll();
+  });
+  $("refreshRatesBtn").addEventListener("click", fetchRates);
+  $("addCatGroupBtn").addEventListener("click", openAddCatModal);
+  $("addCatName").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && selectedCatType) confirmAddCategory();
+  });
+  $("openCalcHistoryBtn").addEventListener("click", () => {
+    renderCalcHistoryModal();
+    openModal("calcHistoryModal");
+  });
+  $("clearCalcHistoryBtn").addEventListener("click", () => {
+    if (confirm("Очистить историю?")) {
+      calcHistory = [];
+      saveCalcHistory();
+      renderCalcHistoryModal();
+      renderCalcPreview();
+    }
+  });
+  $("convBtn").addEventListener("click", doConvert);
+  $("convAmount").addEventListener("input", doConvert);
+  $("convFrom").addEventListener("change", doConvert);
+  $("convTo").addEventListener("change", doConvert);
+  $("newPageBtn").addEventListener("click", createNotebookPage);
+  $("saveNbPageBtn").addEventListener("click", saveNotebookPage);
+  $("deleteNbPageBtn").addEventListener("click", deleteNotebookPage);
+  $("applySearchBtn").addEventListener("click", renderAllOps);
+  $("resetSearchBtn").addEventListener("click", () => {
+    $("searchText").value = "";
+    $("searchFrom").value = "";
+    $("searchTo").value = "";
+    $("searchType").value = "";
+    renderAllOps();
+  });
+  $("searchText").addEventListener("input", renderAllOps);
+  $("typeExpenseBtn").addEventListener("click", () => setOpType("expense"));
+  $("typeIncomeBtn").addEventListener("click", () => setOpType("income"));
+  $("modalCat").addEventListener("change", refreshModalSubcats);
+  $("modalAddBtn").addEventListener("click", submitOp);
+  $("modalRepeatBtn").addEventListener("click", () => {
+    const last = [...transactions].reverse().find((t) => t.type === "expense");
+    if (!last) {
+      alert("Нет расходов");
+      return;
+    }
+    setOpType("expense");
+    setTimeout(() => {
+      $("modalCat").value = last.category;
+      refreshModalSubcats();
+      if (last.subcategory) $("modalSubcat").value = last.subcategory;
+      $("modalAmount").focus();
+    }, 50);
+  });
+  $("modalAddCatBtn").addEventListener("click", openAddCatModal);
+  $("modalDelCatBtn").addEventListener("click", deleteCurrentModalCat);
+  $("modalDate").value = today();
+  refreshModalCats();
+  $("clearConvHistoryBtn").addEventListener("click", clearConvHistory);
+  $("saveSubcatBtn").addEventListener("click", saveSubcatEdit);
+  $("deleteSubcatBtn").addEventListener("click", deleteSubcatFromModal);
+  // Редактирование операции
+  $("editTypeExpenseBtn").addEventListener("click", () => {
+    $("editTypeExpenseBtn").classList.add("active");
+    $("editTypeIncomeBtn").classList.remove("active");
+    refreshEditModalSubcats();
+  });
+  $("editTypeIncomeBtn").addEventListener("click", () => {
+    $("editTypeIncomeBtn").classList.add("active");
+    $("editTypeExpenseBtn").classList.remove("active");
+    refreshEditModalSubcats();
+  });
+  $("editModalCat").addEventListener("change", refreshEditModalSubcats);
+  $("saveOpBtn").addEventListener("click", saveEditedOp);
+  $("deleteOpBtn").addEventListener("click", deleteEditedOp);
+  fetchRates();
+  registerSW();
+});
