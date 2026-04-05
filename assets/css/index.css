@@ -1,6 +1,6 @@
 /* ========================
        БЮДЖЕТ PRO — CSS (финальная версия)
-       Добавлены: .btn-repeat, разделение калькулятора и конвертера
+       Фоновое изображение: проверьте путь к money.jpg
     ======================== */
     @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Mono:wght@400;500&display=swap");
 
@@ -84,7 +84,10 @@
       content: "";
       position: fixed;
       inset: 0;
-      background-image: url("../images/money.jpg");
+      /* Убедитесь, что путь к изображению правильный:
+         - если money.jpg лежит в assets/images/, оставьте "../images/money.jpg"
+         - если money.jpg в корне сайта, замените на "../../money.jpg" */
+      background-image: url("money.jpg");
       background-size: cover;
       background-position: center;
       opacity: 0.06;
