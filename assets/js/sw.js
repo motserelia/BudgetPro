@@ -1,4 +1,4 @@
-const CACHE_NAME = "budgetpro-v5";
+const CACHE_NAME = "budgetpro-v6";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -11,11 +11,23 @@ const urlsToCache = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(urlsToCache).catch(err => {
-        console.error("Cache addAll error:", err);
-      });
-    })
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      // Кэшируем файлы по отдельности, игнорируя ошибки
+      for (const url of urlsToCache) {
+        try {
+          const response = await fetch(url);
+          if (response.ok) {
+            await cache.put(url, response);
+            console.log(`Cached: ${url}`);
+          } else {
+            console.warn(`Failed to cache ${url}: status ${response.status}`);
+          }
+        } catch (err) {
+          console.warn(`Could not fetch ${url}:`, err);
+        }
+      }
+    })()
   );
   self.skipWaiting();
 });
@@ -32,14 +44,23 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  // Обработка навигации (переход по страницам)
   if (event.request.mode === "navigate") {
     event.respondWith(
       caches.match("/index.html").then(response => {
-        return response || fetch(event.request);
+        return response || fetch(event.request).catch(() => {
+          // Если нет интернета и кэша, показываем заглушку
+          return new Response("Приложение не загружено. Проверьте интернет.", {
+            status: 200,
+            headers: { "Content-Type": "text/html; charset=utf-8" }
+          });
+        });
       })
     );
     return;
   }
+
+  // Для всех остальных запросов: сначала кэш, потом сеть
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
