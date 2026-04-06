@@ -1,4 +1,4 @@
-const CACHE_NAME = "budgetpro-v4"; // новая версия
+const CACHE_NAME = "budgetpro-v5";
 const urlsToCache = [
   "/",
   "/index.html",
@@ -6,17 +6,16 @@ const urlsToCache = [
   "/index.js",
   "/i18n.js",
   "/locales.js",
-  "/manifest.json",
-  "/favicon-96x96.png",
-  "/favicon.svg",
-  "/favicon.ico",
-  "/apple-touch-icon.png"
-  // money.jpg удалён, так как его нет
+  "/manifest.json"
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(urlsToCache).catch(err => {
+        console.error("Cache addAll error:", err);
+      });
+    })
   );
   self.skipWaiting();
 });
