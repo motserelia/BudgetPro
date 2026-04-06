@@ -1466,3 +1466,96 @@ body.dark .stats-temp-message {
 body.dark .lang-btn.active {
   background: var(--accent-light);
 }
+
+/* ========== ФИКС ШАПКИ НА МОБИЛЬНЫХ ========== */
+
+/* Шапка может расти по высоте если нужно */
+.header {
+  min-height: var(--header-h);
+  height: auto;
+}
+
+/* header-left занимает всё доступное место и умеет сжиматься */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;       /* ключевое: без этого flex-item не сжимается */
+  overflow: hidden;
+}
+
+/* Блок с текстом тоже должен уметь сжиматься */
+.header-left > div {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Заголовок — обрезаем многоточием если не влезает */
+.app-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Подзаголовок — то же самое */
+.app-sub {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* header-actions (кнопки языков, помощь, тема) — не сжимаются */
+.header-actions {
+  flex-shrink: 0;
+}
+
+/* 380px и меньше: показываем только флаг в кнопках языка */
+@media (max-width: 380px) {
+  .lang-btn {
+    padding: 4px 5px;
+    letter-spacing: -0.5em;   /* прижимаем "RU/EN/KA" вплотную */
+  }
+  /* Скрываем буквенный код, оставляем только эмодзи флага */
+  .lang-btn span,
+  .lang-btn {
+    font-size: 0.9rem;
+  }
+  /* Перебиваем текст кнопок: покажем только флаг через CSS */
+  .lang-btn[data-lang="ru"]::before { content: "🇷🇺"; }
+  .lang-btn[data-lang="en"]::before { content: "🇺🇸"; }
+  .lang-btn[data-lang="ka"]::before { content: "🇬🇪"; }
+  .lang-btn { color: transparent; font-size: 0; padding: 4px 6px; }
+  .lang-btn::before { font-size: 1.1rem; }
+
+  .app-title {
+    font-size: 0.95rem;
+  }
+  .app-sub {
+    display: none;
+  }
+}
+
+/* 381–480px: уменьшаем шрифты, подзаголовок очень маленький */
+@media (min-width: 381px) and (max-width: 480px) {
+  .app-title {
+    font-size: 1rem;
+  }
+  .app-sub {
+    font-size: 0.58rem;
+  }
+  .lang-btn {
+    font-size: 0.65rem;
+    padding: 4px 6px;
+  }
+}
+
+/* 481–600px: чуть крупнее */
+@media (min-width: 481px) and (max-width: 600px) {
+  .app-title {
+    font-size: 1.05rem;
+  }
+  .app-sub {
+    font-size: 0.62rem;
+  }
+}
