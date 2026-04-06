@@ -1,7 +1,7 @@
 {
   "name": "Бюджет PRO",
   "short_name": "BudgetPRO",
-  "start_url": "./",
+  "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#1a7a34",
   "background_color": "#0f2318",
