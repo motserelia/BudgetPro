@@ -1,16 +1,16 @@
-const CACHE_NAME = "budgetpro-v9";
+const CACHE_NAME = "budgetpro-v12";
 const urlsToCache = [
-  "./index.html",
-  "./index.css",
-  "./index.js",
-  "./i18n.js",
-  "./locales.js",
-  "./manifest.json",
-  "./money.jpg",
-  "./favicon-96x96.png",
-  "./apple-touch-icon.png",
-  "./favicon.ico",
-  "./favicon.svg"
+  "/BudgetPro/index.html",
+  "/BudgetPro/index.css",
+  "/BudgetPro/index.js",
+  "/BudgetPro/i18n.js",
+  "/BudgetPro/locales.js",
+  "/BudgetPro/manifest.json",
+  "/BudgetPro/money.jpg",
+  "/BudgetPro/favicon-96x96.png",
+  "/BudgetPro/apple-touch-icon.png",
+  "/BudgetPro/favicon.ico"
+  // favicon.svg удалён, если его нет
 ];
 
 self.addEventListener("install", (event) => {
@@ -38,31 +38,29 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   const url = new URL(request.url);
-
-  // Не кэшируем запросы к API курсов валют (они всё равно не работают офлайн)
+  
   if (url.pathname.includes("/v4/latest/RUB")) {
     event.respondWith(fetch(request));
     return;
   }
-
+  
   event.respondWith(
-    caches.match(request).then(cachedResponse => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
+    caches.match(request).then(response => {
+      if (response) return response;
       return fetch(request).then(networkResponse => {
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then(cache => {
-          cache.put(request, responseToCache);
-        });
-        return networkResponse;
-      }).catch(() => {
-        // Если нет сети и нет кэша, для навигации возвращаем index.html
-        if (request.mode === "navigate") {
-          return caches.match("./index.html");
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, responseToCache);
+          });
         }
-        return new Response("Ресурс не найден в офлайн-режиме", { status: 404 });
+        return networkResponse;
       });
+    }).catch(() => {
+      if (request.mode === "navigate") {
+        return caches.match("/BudgetPro/index.html");
+      }
+      return new Response("Offline", { status: 404 });
     })
   );
 });
