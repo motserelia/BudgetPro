@@ -1,4 +1,4 @@
-/* ========== ПОЛНЫЙ CSS С АДАПТАЦИЕЙ ПОД БОЛЬШИЕ ЭКРАНЫ (ПОЛНОЦЕННЫЙ САЙТ) ========== */
+/* ========== ПОЛНЫЙ CSS С АДАПТАЦИЕЙ ПОД БОЛЬШИЕ ЭКРАНЫ И УЛУЧШЕННОЙ ШАПКОЙ ========== */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Mono:wght@400;500&display=swap');
 
 * {
@@ -309,7 +309,7 @@ body.dark::before {
   }
 }
 
-/* ========== ОСТАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ, КРОМЕ АДАПТАЦИИ) ========== */
+/* ========== ОСТАЛЬНЫЕ СТИЛИ (БЕЗ ИЗМЕНЕНИЙ, КРОМЕ АДАПТАЦИИ ШАПКИ) ========== */
 .header-actions {
   display: flex;
   align-items: center;
@@ -395,9 +395,12 @@ input:checked + .slider:before {
   color: #ffefb0;
 }
 
+/* ========== УЛУЧШЕННАЯ АДАПТАЦИЯ ШАПКИ (ВМЕСТО СТАРЫХ ДУБЛИРУЮЩИХСЯ БЛОКОВ) ========== */
+/* Базовые стили шапки — гибкая высота, компактные отступы */
 .header {
   flex-shrink: 0;
-  height: var(--header-h);
+  min-height: var(--header-h);
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -406,29 +409,137 @@ input:checked + .slider:before {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+/* Левая часть занимает всё место, но позволяет тексту переноситься */
 .header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
-.logo {
-  font-size: 1.8rem;
-  filter: drop-shadow(0 2px 6px rgba(240, 180, 41, 0.5));
+/* Блок с текстом — может расти по высоте */
+.header-left > div {
+  min-width: 0;
+  line-height: 1.3;
 }
 
+/* По умолчанию заголовок и подзаголовок не обрезаются, но могут переноситься */
 .app-title {
-  font-size: 1.15rem;
   font-weight: 900;
+  white-space: normal;
+  word-break: break-word;
+  font-size: 1.15rem;
   color: #f0ede6;
 }
 
 .app-sub {
+  white-space: normal;
+  word-break: break-word;
   font-size: 0.68rem;
   color: rgba(240, 237, 230, 0.65);
   margin-top: 1px;
 }
 
+.logo {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 6px rgba(240, 180, 41, 0.5));
+  flex-shrink: 0;
+}
+
+/* Контейнер кнопок не сжимается */
+.header-actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Экран ≤ 400px: заголовок может занять 2 строки, подзаголовок скрыт --- */
+@media (max-width: 400px) {
+  .header {
+    padding: 8px 12px;
+  }
+  .header-left {
+    gap: 6px;
+  }
+  .app-title {
+    font-size: 0.9rem;
+    line-height: 1.2;
+  }
+  .app-sub {
+    display: none;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+  /* Кнопки языка — только флаги */
+  .lang-btn {
+    padding: 4px 5px;
+    font-size: 0;
+    color: transparent;
+  }
+  .lang-btn::before {
+    font-size: 1.1rem;
+  }
+  .lang-btn[data-lang="ru"]::before { content: "🇷🇺"; }
+  .lang-btn[data-lang="en"]::before { content: "🇺🇸"; }
+  .lang-btn[data-lang="ka"]::before { content: "🇬🇪"; }
+  /* Кнопка помощи и переключатель темы чуть меньше */
+  .help-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+  }
+  .theme-switch {
+    width: 48px;
+    height: 26px;
+  }
+  .slider:before {
+    height: 20px;
+    width: 20px;
+    font-size: 10px;
+  }
+  input:checked + .slider:before {
+    transform: translateX(22px);
+  }
+}
+
+/* --- Экран 401px – 480px: подзаголовок виден, но мелкий, без переноса --- */
+@media (min-width: 401px) and (max-width: 480px) {
+  .header {
+    padding: 0 12px;
+  }
+  .app-title {
+    font-size: 1rem;
+  }
+  .app-sub {
+    font-size: 0.58rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
+  }
+  .lang-btn {
+    font-size: 0.65rem;
+    padding: 4px 6px;
+  }
+}
+
+/* --- Экран 481px – 600px: всё стандартно, но отступы чуть меньше --- */
+@media (min-width: 481px) and (max-width: 600px) {
+  .header {
+    padding: 0 14px;
+  }
+  .app-title {
+    font-size: 1.05rem;
+  }
+  .app-sub {
+    font-size: 0.62rem;
+  }
+}
+
+/* ========== ОСТАЛЬНЫЕ СТИЛИ (ПРОДОЛЖЕНИЕ) ========== */
 .balance-panel {
   flex-shrink: 0;
   background: var(--balance-bg);
@@ -1435,6 +1546,7 @@ body.dark .stats-temp-message {
   background: var(--accent-light);
   color: #1a1a2e;
 }
+
 /* Переключатель языков */
 .lang-switch {
   display: flex;
@@ -1466,191 +1578,3 @@ body.dark .stats-temp-message {
 body.dark .lang-btn.active {
   background: var(--accent-light);
 }
-
-/* ========== ФИКС ШАПКИ НА МОБИЛЬНЫХ ========== */
-
-/* Шапка может расти по высоте если нужно */
-.header {
-  min-height: var(--header-h);
-  height: auto;
-}
-
-/* header-left занимает всё доступное место и умеет сжиматься */
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;       /* ключевое: без этого flex-item не сжимается */
-  overflow: hidden;
-}
-
-/* Блок с текстом тоже должен уметь сжиматься */
-.header-left > div {
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* Заголовок — обрезаем многоточием если не влезает */
-.app-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Подзаголовок — то же самое */
-.app-sub {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* header-actions (кнопки языков, помощь, тема) — не сжимаются */
-.header-actions {
-  flex-shrink: 0;
-}
-
-/* 380px и меньше: показываем только флаг в кнопках языка */
-@media (max-width: 380px) {
-  .lang-btn {
-    padding: 4px 5px;
-    letter-spacing: -0.5em;   /* прижимаем "RU/EN/KA" вплотную */
-  }
-  /* Скрываем буквенный код, оставляем только эмодзи флага */
-  .lang-btn span,
-  .lang-btn {
-    font-size: 0.9rem;
-  }
-  /* Перебиваем текст кнопок: покажем только флаг через CSS */
-  .lang-btn[data-lang="ru"]::before { content: "🇷🇺"; }
-  .lang-btn[data-lang="en"]::before { content: "🇺🇸"; }
-  .lang-btn[data-lang="ka"]::before { content: "🇬🇪"; }
-  .lang-btn { color: transparent; font-size: 0; padding: 4px 6px; }
-  .lang-btn::before { font-size: 1.1rem; }
-
-  .app-title {
-    font-size: 0.95rem;
-  }
-  .app-sub {
-    display: none;
-  }
-}
-
-/* 381–480px: уменьшаем шрифты, подзаголовок очень маленький */
-@media (min-width: 381px) and (max-width: 480px) {
-  .app-title {
-    font-size: 1rem;
-  }
-  .app-sub {
-    font-size: 0.58rem;
-  }
-  .lang-btn {
-    font-size: 0.65rem;
-    padding: 4px 6px;
-  }
-}
-
-/* 481–600px: чуть крупнее */
-@media (min-width: 481px) and (max-width: 600px) {
-  .app-title {
-    font-size: 1.05rem;
-  }
-  .app-sub {
-    font-size: 0.62rem;
-  }
-}
-
-/* ========== ФИКС ШАПКИ НА МОБИЛЬНЫХ ========== */
-
-/* Шапка может расти по высоте если нужно */
-.header {
-  min-height: var(--header-h);
-  height: auto;
-}
-
-/* header-left занимает всё доступное место и умеет сжиматься */
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;       /* ключевое: без этого flex-item не сжимается */
-  overflow: hidden;
-}
-
-/* Блок с текстом тоже должен уметь сжиматься */
-.header-left > div {
-  min-width: 0;
-  overflow: hidden;
-}
-
-/* Заголовок — обрезаем многоточием если не влезает */
-.app-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Подзаголовок — то же самое */
-.app-sub {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* header-actions (кнопки языков, помощь, тема) — не сжимаются */
-.header-actions {
-  flex-shrink: 0;
-}
-
-/* 380px и меньше: показываем только флаг в кнопках языка */
-@media (max-width: 380px) {
-  .lang-btn {
-    padding: 4px 5px;
-    letter-spacing: -0.5em;   /* прижимаем "RU/EN/KA" вплотную */
-  }
-  /* Скрываем буквенный код, оставляем только эмодзи флага */
-  .lang-btn span,
-  .lang-btn {
-    font-size: 0.9rem;
-  }
-  /* Перебиваем текст кнопок: покажем только флаг через CSS */
-  .lang-btn[data-lang="ru"]::before { content: "🇷🇺"; }
-  .lang-btn[data-lang="en"]::before { content: "🇺🇸"; }
-  .lang-btn[data-lang="ka"]::before { content: "🇬🇪"; }
-  .lang-btn { color: transparent; font-size: 0; padding: 4px 6px; }
-  .lang-btn::before { font-size: 1.1rem; }
-
-  .app-title {
-    font-size: 0.95rem;
-  }
-  .app-sub {
-    display: none;
-  }
-}
-
-/* 381–480px: уменьшаем шрифты, подзаголовок очень маленький */
-@media (min-width: 381px) and (max-width: 480px) {
-  .app-title {
-    font-size: 1rem;
-  }
-  .app-sub {
-    font-size: 0.58rem;
-  }
-  .lang-btn {
-    font-size: 0.65rem;
-    padding: 4px 6px;
-  }
-}
-
-/* 481–600px: чуть крупнее */
-@media (min-width: 481px) and (max-width: 600px) {
-  .app-title {
-    font-size: 1.05rem;
-  }
-  .app-sub {
-    font-size: 0.62rem;
-  }
-}
-
-
