@@ -7,6 +7,7 @@ const urlsToCache = [
   "./i18n.js",
   "./locales.js",
   "./manifest.json",
+  "./money.jpg",
   "./favicon-96x96.png",
   "./apple-touch-icon.png",
   "./favicon.ico",
