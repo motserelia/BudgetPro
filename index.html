@@ -31,7 +31,7 @@
         </div>
         <div class="header-actions">
           <div class="lang-switch">
-            <button class="lang-btn" data-lang="ru" title="Русский">
+            <button class="lang-btn active" data-lang="ru" title="Русский">
               🇷🇺 RU
             </button>
             <button class="lang-btn" data-lang="en" title="English">
@@ -90,16 +90,14 @@
         <section class="tab-pane active" id="tabHome">
           <div class="collapsible-block" id="quickActionBlock">
             <div class="collapsible-header">
-              <span data-i18n="quick_action">⚡ Быстрое действие</span>
+              <span
+                >⚡ <span data-i18n="quick_action">Быстрое действие</span></span
+              >
               <span class="collapse-icon">▼</span>
             </div>
             <div class="collapsible-content">
-              <button
-                class="quick-action-btn"
-                id="homeQuickAddBtn"
-                data-i18n="new_operation"
-              >
-                ➕ Новая операция
+              <button class="quick-action-btn" id="homeQuickAddBtn">
+                ➕ <span data-i18n="new_operation">Новая операция</span>
               </button>
               <div
                 style="
@@ -117,8 +115,8 @@
           <div class="help-hint">
             <span>🏠</span>
             <span data-i18n="home_hint"
-              >Последние 5 операций. Нажмите ＋ снизу, чтобы добавить
-              доход/расход. ✏️ Зарплата — установите начальный баланс.</span
+              >Последние 5 операций. Нажмите + снизу, чтобы добавить
+              доход/расход. Зарплата — установите начальный баланс.</span
             >
           </div>
           <div
@@ -129,7 +127,10 @@
               margin-bottom: 12px;
             "
           >
-            <h2 data-i18n="last_operations_title">📋 Последние операции</h2>
+            <h2>
+              📋
+              <span data-i18n="last_operations_title">Последние операции</span>
+            </h2>
             <button
               class="btn-danger-sm"
               id="clearAllBtn"
@@ -172,10 +173,10 @@
               <select id="searchType" class="filter-select">
                 <option value="" data-i18n-opt="all_types">Все</option>
                 <option value="income" data-i18n-opt="income_type">
-                  💰 Доходы
+                  Доходы
                 </option>
                 <option value="expense" data-i18n-opt="expense_type">
-                  💸 Расходы
+                  Расходы
                 </option>
               </select>
             </div>
@@ -221,7 +222,7 @@
             >
           </div>
           <div>
-            <h3 data-i18n="calculator">🧮 Калькулятор</h3>
+            <h3>🧮 <span data-i18n="calculator">Калькулятор</span></h3>
             <div style="display: flex; justify-content: space-between">
               <div id="calcHistoryPreview" style="font-size: 0.7rem"></div>
               <button
@@ -232,22 +233,11 @@
                 История
               </button>
             </div>
-            <div
-              class="calc-display"
-              id="calcDisplay"
-              style="
-                font-size: 2rem;
-                font-weight: 800;
-                text-align: right;
-                padding: 10px 0;
-              "
-            >
-              0
-            </div>
+            <div class="calc-display" id="calcDisplay">0</div>
             <div class="calc-grid" id="calcGrid"></div>
           </div>
           <div style="margin-top: 24px">
-            <h3 data-i18n="converter">💱 Конвертер валют</h3>
+            <h3>💱 <span data-i18n="converter">Конвертер валют</span></h3>
             <div
               style="
                 display: flex;
@@ -309,8 +299,8 @@
               Нажмите на карточку для редактирования.</span
             >
           </div>
-          <button class="btn-sm" id="newPageBtn" data-i18n="new_page">
-            ➕ Новая страница
+          <button class="btn-sm" id="newPageBtn">
+            ➕ <span data-i18n="new_page">Новая страница</span>
           </button>
           <div
             id="notebookList"
@@ -419,21 +409,17 @@
           <span class="nav-label" data-i18n="nav_stats">Данные</span>
         </button>
       </nav>
-      <button class="fab" id="fabBtn" data-i18n="fab_add">＋</button>
+      <button class="fab" id="fabBtn">＋</button>
     </div>
 
     <!-- МОДАЛКА ПОМОЩИ -->
     <div class="modal-overlay" id="helpModal">
       <div class="modal">
         <div class="modal-header">
-          <h2>
-            ❔ <span data-i18n-key="help_title">Помощь и инструкция</span>
-          </h2>
+          <h2>❔ <span data-i18n="help_title">Помощь и инструкция</span></h2>
           <button class="modal-close" id="closeHelpModal">✕</button>
         </div>
-        <div class="modal-body" id="helpModalBody">
-          <!-- Контент генерируется через JS в зависимости от языка -->
-        </div>
+        <div class="modal-body" id="helpModalBody"></div>
       </div>
     </div>
 
@@ -441,7 +427,7 @@
     <div class="modal-overlay" id="addOpModal">
       <div class="modal">
         <div class="modal-header">
-          <h2 data-i18n="add_operation">➕ Новая операция</h2>
+          <h2>➕ <span data-i18n="add_operation">Новая операция</span></h2>
           <button class="modal-close" id="closeAddOpModal">✕</button>
         </div>
         <div class="modal-body">
@@ -452,17 +438,11 @@
                 class="type-btn active"
                 data-type="expense"
                 id="typeExpenseBtn"
-                data-i18n="expense"
               >
-                💸 Расход
+                💸 <span data-i18n="expense">Расход</span>
               </button>
-              <button
-                class="type-btn"
-                data-type="income"
-                id="typeIncomeBtn"
-                data-i18n="income"
-              >
-                💰 Доход
+              <button class="type-btn" data-type="income" id="typeIncomeBtn">
+                💰 <span data-i18n="income">Доход</span>
               </button>
             </div>
           </div>
@@ -507,8 +487,8 @@
             <textarea id="modalNote" class="modal-textarea" rows="2"></textarea>
           </div>
           <div class="modal-actions">
-            <button class="btn-primary" id="modalAddBtn" data-i18n="add">
-              ✅ Добавить
+            <button class="btn-primary" id="modalAddBtn">
+              ✅ <span data-i18n="add">Добавить</span>
             </button>
           </div>
         </div>
@@ -519,7 +499,9 @@
     <div class="modal-overlay" id="editOpModal">
       <div class="modal">
         <div class="modal-header">
-          <h2 data-i18n="edit_operation">✏️ Редактировать операцию</h2>
+          <h2>
+            ✏️ <span data-i18n="edit_operation">Редактировать операцию</span>
+          </h2>
           <button class="modal-close" id="closeEditOpModal">✕</button>
         </div>
         <div class="modal-body">
@@ -530,17 +512,15 @@
                 class="type-btn"
                 data-type="expense"
                 id="editTypeExpenseBtn"
-                data-i18n="expense"
               >
-                💸 Расход
+                💸 <span data-i18n="expense">Расход</span>
               </button>
               <button
                 class="type-btn"
                 data-type="income"
                 id="editTypeIncomeBtn"
-                data-i18n="income"
               >
-                💰 Доход
+                💰 <span data-i18n="income">Доход</span>
               </button>
             </div>
           </div>
@@ -586,11 +566,11 @@
             class="modal-actions"
             style="display: flex; gap: 8px; justify-content: space-between"
           >
-            <button class="btn-danger-sm" id="deleteOpBtn" data-i18n="delete">
-              🗑 Удалить
+            <button class="btn-danger-sm" id="deleteOpBtn">
+              🗑 <span data-i18n="delete">Удалить</span>
             </button>
-            <button class="btn-primary" id="saveOpBtn" data-i18n="save">
-              💾 Сохранить
+            <button class="btn-primary" id="saveOpBtn">
+              💾 <span data-i18n="save">Сохранить</span>
             </button>
           </div>
         </div>
@@ -622,7 +602,7 @@
     <div class="modal-overlay" id="calcHistoryModal">
       <div class="modal">
         <div class="modal-header">
-          <h2 data-i18n="calculator">🧮 Калькулятор</h2>
+          <h2>🧮 <span data-i18n="calculator">Калькулятор</span></h2>
           <button class="modal-close" id="closeCalcHistoryModal">✕</button>
         </div>
         <div class="modal-body">
@@ -651,15 +631,11 @@
             <input type="text" id="editSubcatName" class="modal-input" />
           </div>
           <div class="modal-actions" style="display: flex; gap: 8px">
-            <button
-              class="btn-danger-sm"
-              id="deleteSubcatBtn"
-              data-i18n="delete"
-            >
-              🗑 Удалить
+            <button class="btn-danger-sm" id="deleteSubcatBtn">
+              🗑 <span data-i18n="delete">Удалить</span>
             </button>
-            <button class="btn-primary" id="saveSubcatBtn" data-i18n="save">
-              💾 Сохранить
+            <button class="btn-primary" id="saveSubcatBtn">
+              💾 <span data-i18n="save">Сохранить</span>
             </button>
           </div>
         </div>
@@ -690,23 +666,27 @@
             class="modal-actions"
             style="display: flex; gap: 8px; justify-content: space-between"
           >
-            <button
-              class="btn-danger-sm"
-              id="deleteNbPageBtn"
-              data-i18n="delete"
-            >
-              🗑 Удалить
+            <button class="btn-danger-sm" id="deleteNbPageBtn">
+              🗑 <span data-i18n="delete">Удалить</span>
             </button>
-            <button class="btn-primary" id="saveNbPageBtn" data-i18n="save">
-              💾 Сохранить
+            <button class="btn-primary" id="saveNbPageBtn">
+              💾 <span data-i18n="save">Сохранить</span>
             </button>
           </div>
         </div>
       </div>
     </div>
 
-    <script src="locales.js"></script>
     <script src="i18n.js"></script>
+    <script src="locales.js"></script>
     <script src="index.js"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("sw.js")
+          .then((reg) => console.log("SW registered:", reg))
+          .catch((err) => console.error("SW error:", err));
+      }
+    </script>
   </body>
 </html>
