@@ -1,4 +1,4 @@
-const CACHE_NAME = "budgetpro-v3"; // увеличиваем версию
+const CACHE_NAME = "budgetpro-v4"; // новая версия
 const urlsToCache = [
   "/",
   "/index.html",
@@ -11,21 +11,17 @@ const urlsToCache = [
   "/favicon.svg",
   "/favicon.ico",
   "/apple-touch-icon.png"
-  // money.jpg – удалён, если файла нет; если есть – добавьте обратно
+  // money.jpg удалён, так как его нет
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
-      .catch(err => console.error("Cache addAll error:", err))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
-  // Активируем сразу, не дожидаясь закрытия вкладок
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
-  // Удаляем старые кэши
   event.waitUntil(
     caches.keys().then(keys => Promise.all(
       keys.map(key => {
@@ -33,12 +29,10 @@ self.addEventListener("activate", (event) => {
       })
     ))
   );
-  // Забираем контроль над страницами сразу
   event.waitUntil(clients.claim());
 });
 
 self.addEventListener("fetch", (event) => {
-  // Для навигационных запросов всегда отдаём index.html
   if (event.request.mode === "navigate") {
     event.respondWith(
       caches.match("/index.html").then(response => {
@@ -47,8 +41,6 @@ self.addEventListener("fetch", (event) => {
     );
     return;
   }
-
-  // Для остальных запросов: сначала кэш, потом сеть
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
