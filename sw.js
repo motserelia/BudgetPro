@@ -1,19 +1,18 @@
-const CACHE_NAME = "budgetpro-v6";
+const CACHE_NAME = "budgetpro-v7";
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/index.css",
-  "/index.js",
-  "/i18n.js",
-  "/locales.js",
-  "/manifest.json"
+  "./",
+  "./index.html",
+  "./index.css",
+  "./index.js",
+  "./i18n.js",
+  "./locales.js",
+  "./manifest.json"
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHE_NAME);
-      // Кэшируем файлы по отдельности, игнорируя ошибки
       for (const url of urlsToCache) {
         try {
           const response = await fetch(url);
@@ -44,23 +43,14 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Обработка навигации (переход по страницам)
   if (event.request.mode === "navigate") {
     event.respondWith(
-      caches.match("/index.html").then(response => {
-        return response || fetch(event.request).catch(() => {
-          // Если нет интернета и кэша, показываем заглушку
-          return new Response("Приложение не загружено. Проверьте интернет.", {
-            status: 200,
-            headers: { "Content-Type": "text/html; charset=utf-8" }
-          });
-        });
+      caches.match("./index.html").then(response => {
+        return response || fetch(event.request);
       })
     );
     return;
   }
-
-  // Для всех остальных запросов: сначала кэш, потом сеть
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
