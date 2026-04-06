@@ -516,8 +516,7 @@ function deleteSubcatFromModal() {
   }
 }
 
-// ========== ИСПРАВЛЕНИЕ КОНВЕРТЕРА ==========
-// Функция только обновляет отображение результата, НЕ добавляя в историю
+// ========== КОНВЕРТЕР (исправленный) ==========
 function updateConversionDisplay() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -532,7 +531,6 @@ function updateConversionDisplay() {
     `${amount} ${from} = ${result.toFixed(4)} ${to}`;
 }
 
-// Функция для кнопки "Перевести" — добавляет запись в историю
 function doConvert() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -887,20 +885,19 @@ function getChartColors() {
     stroke: isDark ? "rgba(255,255,255,0.2)" : "var(--border)",
   };
 }
-function drawChartAnimated(
-  targetExpensePercent,
-  targetIncomePercent,
-  duration = 800,
-) {
+function drawChartAnimated(targetExpensePercent, targetIncomePercent, duration = 800) {
   const canvas = document.getElementById("statsChart");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  const w = canvas.parentElement.clientWidth;
+  const parent = canvas.parentElement;
+  if (!parent) return;
+  let w = parent.clientWidth;
+  if (w < 20) w = 200; // минимальная ширина
   canvas.width = w;
   canvas.height = w;
-  const centerX = w / 2,
-    centerY = w / 2,
-    radius = w / 2 - 10;
+  const centerX = w / 2, centerY = w / 2;
+  let radius = w / 2 - 10;
+  if (radius < 5) radius = 5; // защита от отрицательного радиуса
   const startAngle = -Math.PI / 2;
   const colors = getChartColors();
   let startTime = null;
@@ -935,13 +932,7 @@ function drawChartAnimated(
     let incomeAngle = (currentIncome / 100) * 2 * Math.PI;
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
-    ctx.arc(
-      centerX,
-      centerY,
-      radius,
-      startAngle + expenseAngle,
-      startAngle + expenseAngle + incomeAngle,
-    );
+    ctx.arc(centerX, centerY, radius, startAngle + expenseAngle, startAngle + expenseAngle + incomeAngle);
     ctx.fillStyle = colors.income;
     ctx.fill();
     ctx.beginPath();
@@ -969,28 +960,15 @@ function updateStats(animate = true) {
   let incomeDisp = toDisp(incomeRub);
   let expenseDisp = toDisp(expenseRub);
   let balanceDisp = incomeDisp - expenseDisp;
-  let periodLabel =
-    currentStatsPeriod === "day"
-      ? t("today")
-      : currentStatsPeriod === "week"
-        ? t("last_7_days")
-        : t("last_30_days");
-  let resetInfo = statsResetDate
-    ? `${t("since")} ${statsResetDate}`
-    : t("since_beginning");
-  document.getElementById("statsPeriodLabel").innerHTML =
-    `📊 ${periodLabel} (${resetInfo})`;
-  document.getElementById("statsIncomeAmount").innerHTML =
-    `💰 ${t("income")}: ${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)`;
-  document.getElementById("statsExpenseAmount").innerHTML =
-    `💸 ${t("expense")}: ${expenseDisp.toFixed(2)} ${s} (${Math.round(targetPercentExpense)}%)`;
-  document.getElementById("statsBalance").innerHTML =
-    `💎 ${t("balance")}: ${balanceDisp.toFixed(2)} ${s}`;
+  let periodLabel = currentStatsPeriod === "day" ? t("today") : currentStatsPeriod === "week" ? t("last_7_days") : t("last_30_days");
+  let resetInfo = statsResetDate ? `${t("since")} ${statsResetDate}` : t("since_beginning");
+  document.getElementById("statsPeriodLabel").innerHTML = `📊 ${periodLabel} (${resetInfo})`;
+  document.getElementById("statsIncomeAmount").innerHTML = `💰 ${t("income")}: ${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)`;
+  document.getElementById("statsExpenseAmount").innerHTML = `💸 ${t("expense")}: ${expenseDisp.toFixed(2)} ${s} (${Math.round(targetPercentExpense)}%)`;
+  document.getElementById("statsBalance").innerHTML = `💎 ${t("balance")}: ${balanceDisp.toFixed(2)} ${s}`;
   const colors = getChartColors();
-  document.querySelectorAll(".legend-color")[0].style.background =
-    colors.expense;
-  document.querySelectorAll(".legend-color")[1].style.background =
-    colors.income;
+  document.querySelectorAll(".legend-color")[0].style.background = colors.expense;
+  document.querySelectorAll(".legend-color")[1].style.background = colors.income;
   if (animate) {
     currentDisplayPercentExpense = 0;
     currentDisplayPercentIncome = 0;
@@ -998,46 +976,43 @@ function updateStats(animate = true) {
   } else {
     currentDisplayPercentExpense = targetPercentExpense;
     currentDisplayPercentIncome = targetPercentIncome;
-    document.getElementById("statsPercent").innerHTML =
-      `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
+    document.getElementById("statsPercent").innerHTML = `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
     const canvas = document.getElementById("statsChart");
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      const w = canvas.parentElement.clientWidth;
-      canvas.width = w;
-      canvas.height = w;
-      const centerX = w / 2,
-        centerY = w / 2,
-        radius = w / 2 - 10;
-      const startAngle = -Math.PI / 2;
-      let expenseAngle = (targetPercentExpense / 100) * 2 * Math.PI;
-      let incomeAngle = (targetPercentIncome / 100) * 2 * Math.PI;
-      ctx.clearRect(0, 0, w, w);
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = colors.bg;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
-      ctx.fillStyle = colors.expense;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY);
-      ctx.arc(
-        centerX,
-        centerY,
-        radius,
-        startAngle + expenseAngle,
-        startAngle + expenseAngle + incomeAngle,
-      );
-      ctx.fillStyle = colors.income;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
+      const parent = canvas.parentElement;
+      if (parent) {
+        let w = parent.clientWidth;
+        if (w < 20) w = 200;
+        canvas.width = w;
+        canvas.height = w;
+        const centerX = w / 2, centerY = w / 2;
+        let radius = w / 2 - 10;
+        if (radius < 5) radius = 5;
+        const startAngle = -Math.PI / 2;
+        let expenseAngle = (targetPercentExpense / 100) * 2 * Math.PI;
+        let incomeAngle = (targetPercentIncome / 100) * 2 * Math.PI;
+        ctx.clearRect(0, 0, w, w);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = colors.bg;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
+        ctx.fillStyle = colors.expense;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle + expenseAngle, startAngle + expenseAngle + incomeAngle);
+        ctx.fillStyle = colors.income;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = colors.stroke;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
     }
   }
 }
@@ -1050,30 +1025,31 @@ function resetStats() {
     const canvas = document.getElementById("statsChart");
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      const w = canvas.parentElement.clientWidth;
-      canvas.width = w;
-      canvas.height = w;
-      const centerX = w / 2,
-        centerY = w / 2,
-        radius = w / 2 - 10;
-      const colors = getChartColors();
-      ctx.clearRect(0, 0, w, w);
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = colors.bg;
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 2.5;
-      ctx.stroke();
+      const parent = canvas.parentElement;
+      if (parent) {
+        let w = parent.clientWidth;
+        if (w < 20) w = 200;
+        canvas.width = w;
+        canvas.height = w;
+        const centerX = w / 2, centerY = w / 2;
+        let radius = w / 2 - 10;
+        if (radius < 5) radius = 5;
+        const colors = getChartColors();
+        ctx.clearRect(0, 0, w, w);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = colors.bg;
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = colors.stroke;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      }
     }
     document.getElementById("statsPercent").innerHTML = "0% / 0%";
     updateStats(true);
-    showTemporaryMessage(
-      `${t("stats_reset_message")} ${statsResetDate}`,
-      15000,
-    );
+    showTemporaryMessage(`${t("stats_reset_message")} ${statsResetDate}`, 15000);
   }
 }
 function setPeriod(period) {
@@ -1135,7 +1111,6 @@ function refreshAll() {
     renderNotebookList();
   if (document.getElementById("tabStats").classList.contains("active"))
     updateStats(true);
-  // Обновляем отображение конвертера без добавления в историю
   updateConversionDisplay();
 }
 function refreshModalCats() {
@@ -1190,7 +1165,6 @@ document.addEventListener("DOMContentLoaded", () => {
   header.addEventListener("click", () => {
     collapsible.classList.toggle("collapsed");
   });
-  // ========== ИСПРАВЛЕНИЕ: заполнение модалки помощи ==========
   document.getElementById("helpBtn").onclick = () => {
     const helpBody = document.getElementById("helpModalBody");
     if (helpBody) {
@@ -1210,7 +1184,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     openModal("helpModal");
   };
-  // ============================================================
   document.getElementById("closeHelpModal").onclick = () =>
     closeModal("helpModal");
   document.getElementById("closeAddOpModal").onclick = () =>
@@ -1354,7 +1327,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("applySearchBtn").onclick = () => renderAllOps();
   document.getElementById("resetSearchBtn").onclick = () => {
     document.getElementById("searchText").value = "";
-    // Сбрасываем датапикеры поиска
     setDateValue("searchFrom", "");
     setDateValue("searchTo", "");
     document.getElementById("searchType").value = "";
@@ -1436,7 +1408,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.setLanguage) {
     window.setLanguage(localStorage.getItem("app_lang") || "ru");
   }
-  // Первоначальное отображение результата конвертации
   updateConversionDisplay();
 });
 window.refreshAll = refreshAll;
