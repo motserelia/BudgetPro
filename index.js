@@ -515,6 +515,24 @@ function deleteSubcatFromModal() {
     closeModal("editSubcatModal");
   }
 }
+
+// ========== ИСПРАВЛЕНИЕ КОНВЕРТЕРА ==========
+// Функция только обновляет отображение результата, НЕ добавляя в историю
+function updateConversionDisplay() {
+  let amount = parseFloat(document.getElementById("convAmount").value);
+  let from = document.getElementById("convFrom").value;
+  let to = document.getElementById("convTo").value;
+  if (isNaN(amount)) {
+    document.getElementById("convResult").textContent = "";
+    return;
+  }
+  let rub = from === "RUB" ? amount : amount / (exchangeRates[from] || 1);
+  let result = rub * (exchangeRates[to] || 1);
+  document.getElementById("convResult").textContent =
+    `${amount} ${from} = ${result.toFixed(4)} ${to}`;
+}
+
+// Функция для кнопки "Перевести" — добавляет запись в историю
 function doConvert() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -538,6 +556,8 @@ function doConvert() {
   localStorage.setItem("conv_hist_full", JSON.stringify(convHistory));
   renderConvHistory();
 }
+// ============================================
+
 function renderConvHistory() {
   let el = document.getElementById("convHistoryList");
   if (!el) return;
@@ -1115,7 +1135,8 @@ function refreshAll() {
     renderNotebookList();
   if (document.getElementById("tabStats").classList.contains("active"))
     updateStats(true);
-  doConvert();
+  // Обновляем отображение конвертера без добавления в историю
+  updateConversionDisplay();
 }
 function refreshModalCats() {
   let sel = document.getElementById("modalCat");
@@ -1306,9 +1327,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   document.getElementById("convBtn").onclick = doConvert;
-  document.getElementById("convAmount").oninput = doConvert;
-  document.getElementById("convFrom").onchange = doConvert;
-  document.getElementById("convTo").onchange = doConvert;
+  document.getElementById("convAmount").oninput = updateConversionDisplay;
+  document.getElementById("convFrom").onchange = updateConversionDisplay;
+  document.getElementById("convTo").onchange = updateConversionDisplay;
   document.getElementById("openConvHistoryBtn").onclick = () => {
     renderFullConvHistoryModal();
     openModal("convHistoryModal");
@@ -1415,6 +1436,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.setLanguage) {
     window.setLanguage(localStorage.getItem("app_lang") || "ru");
   }
+  // Первоначальное отображение результата конвертации
+  updateConversionDisplay();
 });
 window.refreshAll = refreshAll;
 window.updateStats = updateStats;
