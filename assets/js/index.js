@@ -1,5 +1,4 @@
-// ========== ПОЛНАЯ ЛОГИКА ПРИЛОЖЕНИЯ С ПОДДЕРЖКОЙ МНОГОЯЗЫЧНОСТИ ==========
-// Глобальные переменные
+// ========== ПОЛНАЯ ЛОГИКА ПРИЛОЖЕНИЯ ==========
 let transactions = [];
 let startBalanceRub = 70000;
 let incomeCategories = ["Работа", "Аренда"];
@@ -22,15 +21,23 @@ let notebookPages = [];
 let currentNbId = null;
 let currentOpType = "expense";
 let editingOpIndex = null;
-
-// Статистика
 let statsResetDate = null;
 let currentStatsPeriod = "month";
 let statsAnimationFrame = null;
 let currentDisplayPercentExpense = 0,
   currentDisplayPercentIncome = 0;
 
-// Вспомогательные функции
+// Устанавливаем дату с учётом кастомного датапикера
+function setDateValue(inputId, value) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  if (window._dpSetValue) {
+    window._dpSetValue(el, value);
+  } else {
+    el.value = value;
+  }
+}
+
 function sym() {
   const symbols = {
     RUB: "₽",
@@ -49,12 +56,10 @@ function toRub(d) {
   return d / (exchangeRates[displayCurrency] || 1);
 }
 function esc(str) {
-  return String(str || "").replace(/[&<>]/g, function (m) {
-    if (m === "&") return "&amp;";
-    if (m === "<") return "&lt;";
-    if (m === ">") return "&gt;";
-    return m;
-  });
+  return String(str || "").replace(
+    /[&<>]/g,
+    (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m] || m,
+  );
 }
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -68,7 +73,6 @@ function fmtDate(d) {
   }
 }
 
-// ========== РАБОТА С ХРАНИЛИЩЕМ ==========
 function updateAllCategoriesOrder() {
   let allSet = new Set([...incomeCategories, ...expenseCategories]);
   let newOrder = [];
@@ -76,7 +80,6 @@ function updateAllCategoriesOrder() {
   for (let cat of allSet) if (!newOrder.includes(cat)) newOrder.push(cat);
   allCategoriesOrder = newOrder;
 }
-
 function saveAll() {
   localStorage.setItem(
     "budget_pro_full",
@@ -94,7 +97,6 @@ function saveAll() {
     }),
   );
 }
-
 function loadAll() {
   let raw = localStorage.getItem("budget_pro_full");
   if (raw) {
@@ -116,7 +118,6 @@ function loadAll() {
     allCategoriesOrder = d.allCategoriesOrder || [];
     statsResetDate = d.statsResetDate || null;
   }
-  // Инициализация групп
   [...incomeCategories, ...expenseCategories].forEach((cat) => {
     if (!categoryGroups[cat])
       categoryGroups[cat] = {
@@ -136,7 +137,6 @@ function loadAll() {
     };
   updateAllCategoriesOrder();
 }
-
 function ensureGroup(cat, type) {
   if (!categoryGroups[cat])
     categoryGroups[cat] = { income: { subcats: [] }, expense: { subcats: [] } };
@@ -165,11 +165,9 @@ function removeSubcat(cat, type, sub) {
   }
 }
 
-// ========== БАЛАНС И ОПЕРАЦИИ ==========
 function updateBalance() {
   let inc = 0,
     exp = 0;
-  // ИСПРАВЛЕНО: переменная цикла переименована с 't' в 'tx'
   for (let tx of transactions) {
     if (tx.type === "income") inc += tx.amountRub;
     else exp += tx.amountRub;
@@ -187,7 +185,6 @@ function updateBalance() {
   let editSymSpan = document.getElementById("editModalCurSymbol");
   if (editSymSpan) editSymSpan.textContent = s;
 }
-
 function buildOpCard(op, idx) {
   let isIncome = op.type === "income";
   let amount = toDisp(op.amountRub).toFixed(2);
@@ -205,7 +202,7 @@ function buildOpCard(op, idx) {
         <span class="op-amount ${isIncome ? "income" : "expense"}">${isIncome ? "+" : "−"}${amount} ${s}</span>
       </div>
       <div class="op-row2">
-        <span>${isIncome ? "💰 " + t("income") : "💸 " + t("expense")}</span>
+        <span>${isIncome ? "💰" : "💸"} ${isIncome ? t("income") : t("expense")}</span>
         <span>📅 ${fmtDate(op.date)}</span>
         ${noteHtml}
       </div>
@@ -226,12 +223,10 @@ function buildOpCard(op, idx) {
   });
   return card;
 }
-
 function renderRecentOps() {
   let container = document.getElementById("recentOpsList");
   if (!container) return;
   container.innerHTML = "";
-  // ИСПРАВЛЕНО: переменная цикла переименована с 't' в 'tx'
   let sorted = [...transactions]
     .map((tx, i) => ({ ...tx, _i: i }))
     .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
@@ -242,12 +237,10 @@ function renderRecentOps() {
   }
   for (let op of sorted) container.appendChild(buildOpCard(op, op._i));
 }
-
 function renderAllOps() {
   let container = document.getElementById("allOpsList");
   if (!container) return;
   container.innerHTML = "";
-  // ИСПРАВЛЕНО: переменная цикла переименована с 't' в 'tx'
   let filtered = transactions.map((tx, i) => ({ ...tx, _i: i }));
   let search = (
     document.getElementById("searchText")?.value || ""
@@ -271,12 +264,11 @@ function renderAllOps() {
   }
   for (let op of filtered) container.appendChild(buildOpCard(op, op._i));
 }
-
 function openEditOpModal(index) {
   let op = transactions[index];
   if (!op) return;
   editingOpIndex = index;
-  document.getElementById("editModalDate").value = op.date || today();
+  setDateValue("editModalDate", op.date || today());
   document.getElementById("editModalAmount").value = toDisp(
     op.amountRub,
   ).toFixed(2);
@@ -305,7 +297,6 @@ function openEditOpModal(index) {
   }
   openModal("editOpModal");
 }
-
 function refreshEditModalSubcats() {
   let cat = document.getElementById("editModalCat").value;
   let type = document
@@ -324,7 +315,6 @@ function refreshEditModalSubcats() {
     field.style.display = "none";
   }
 }
-
 function saveEditedOp() {
   if (editingOpIndex === null) return;
   let type = document
@@ -362,7 +352,6 @@ function saveEditedOp() {
   closeModal("editOpModal");
   editingOpIndex = null;
 }
-
 function deleteEditedOp() {
   if (editingOpIndex !== null && confirm(t("confirm_delete"))) {
     transactions.splice(editingOpIndex, 1);
@@ -372,8 +361,6 @@ function deleteEditedOp() {
     editingOpIndex = null;
   }
 }
-
-// ========== КАТЕГОРИИ ==========
 function renderCatManager() {
   let container = document.getElementById("catManager");
   if (!container) return;
@@ -390,10 +377,17 @@ function renderCatManager() {
           : "💸 " + t("expense");
     let div = document.createElement("div");
     div.className = "cat-card";
-    div.innerHTML = `<div style="flex:1;"><div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.7rem;">${typeLabel}</span></div>`;
-    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💰 ${t("income")}</div><div class="subcats-row" id="subs-inc-${cat.replace(/\s/g, "_")}"></div></div>`;
-    div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💸 ${t("expense")}</div><div class="subcats-row" id="subs-exp-${cat.replace(/\s/g, "_")}"></div></div>`;
-    div.innerHTML += `<div class="cat-actions-row"><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">${t("add_subcat_income")}</button><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">${t("add_subcat_expense")}</button><button class="btn-sm del-cat" data-cat="${esc(cat)}">🗑 ${t("delete")}</button></div></div>`;
+    let titleHtml = `<div style="flex:1;"><div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.7rem;">${typeLabel}</span></div></div>`;
+    let actionsHtml = `<div class="cat-actions-row">
+      <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">+ ${t("add_subcat_income")}</button>
+      <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">+ ${t("add_subcat_expense")}</button>
+      <button class="btn-sm del-cat" data-cat="${esc(cat)}">🗑 ${t("delete")}</button>
+    </div>`;
+    let subsHtml = `
+      <div class="subcats-wrap"><div class="subcats-label">💰 ${t("income")}</div><div class="subcats-row" id="subs-inc-${cat.replace(/\s/g, "_")}"></div></div>
+      <div class="subcats-wrap"><div class="subcats-label">💸 ${t("expense")}</div><div class="subcats-row" id="subs-exp-${cat.replace(/\s/g, "_")}"></div></div>
+    `;
+    div.innerHTML = titleHtml + actionsHtml + subsHtml;
     container.appendChild(div);
     fillSubcatRow(cat, "income", `subs-inc-${cat.replace(/\s/g, "_")}`);
     fillSubcatRow(cat, "expense", `subs-exp-${cat.replace(/\s/g, "_")}`);
@@ -425,7 +419,6 @@ function renderCatManager() {
     });
   }
 }
-
 function fillSubcatRow(cat, type, containerId) {
   let container = document.getElementById(containerId);
   if (!container) return;
@@ -444,13 +437,12 @@ function fillSubcatRow(cat, type, containerId) {
       }
     });
     chip.addEventListener("click", (e) => {
-      if (e.target.classList.contains("subcat-del")) return;
-      openEditSubcatModal(cat, type, sub);
+      if (!e.target.classList.contains("subcat-del"))
+        openEditSubcatModal(cat, type, sub);
     });
     container.appendChild(chip);
   }
 }
-
 function renameCategory(oldName) {
   let newName = prompt(t("enter_new_category_name"), oldName);
   if (!newName || newName === oldName) return;
@@ -468,7 +460,6 @@ function renameCategory(oldName) {
   }
   let idx = allCategoriesOrder.indexOf(oldName);
   if (idx !== -1) allCategoriesOrder[idx] = newName;
-  // ИСПРАВЛЕНО: переменная цикла переименована с 't' в 'tx'
   transactions.forEach((tx) => {
     if (tx.category === oldName) tx.category = newName;
   });
@@ -477,7 +468,6 @@ function renameCategory(oldName) {
   refreshModalCats();
   refreshAll();
 }
-
 function openEditSubcatModal(cat, type, sub) {
   let modal = document.getElementById("editSubcatModal");
   modal.dataset.cat = cat;
@@ -525,8 +515,6 @@ function deleteSubcatFromModal() {
     closeModal("editSubcatModal");
   }
 }
-
-// ========== КОНВЕРТЕР ==========
 function doConvert() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -560,15 +548,11 @@ function renderConvHistory() {
   let last5 = convHistory.slice(0, 5);
   el.innerHTML = last5
     .map(
-      (h, i) => `
-    <div class="conv-hist-item">
-      <span>${h.amount} ${h.from} → ${h.result.toFixed(4)} ${h.to}</span>
-      <button class="hist-del" data-idx="${i}">✕</button>
-    </div>
-  `,
+      (h, i) =>
+        `<div class="conv-hist-item"><span>${h.amount} ${h.from} → ${h.result.toFixed(4)} ${h.to}</span><button class="hist-del" data-idx="${i}">✕</button></div>`,
     )
     .join("");
-  el.querySelectorAll(".hist-del").forEach((btn) => {
+  el.querySelectorAll(".hist-del").forEach((btn) =>
     btn.addEventListener("click", () => {
       let idx = parseInt(btn.dataset.idx);
       convHistory.splice(idx, 1);
@@ -578,8 +562,8 @@ function renderConvHistory() {
         document.getElementById("convHistoryModal").classList.contains("open")
       )
         renderFullConvHistoryModal();
-    });
-  });
+    }),
+  );
 }
 function renderFullConvHistoryModal() {
   let container = document.getElementById("convHistoryFullList");
@@ -592,13 +576,7 @@ function renderFullConvHistoryModal() {
   convHistory.forEach((h, idx) => {
     let card = document.createElement("div");
     card.className = "op-card";
-    card.innerHTML = `
-      <div class="op-body">
-        <div>${h.amount} ${h.from} → ${h.to} = ${h.result.toFixed(4)} ${h.to}</div>
-        <div style="font-size:0.7rem;">🕒 ${esc(h.ts)}</div>
-      </div>
-      <button class="hist-del" data-idx="${idx}">✕</button>
-    `;
+    card.innerHTML = `<div class="op-body"><div>${h.amount} ${h.from} → ${h.to} = ${h.result.toFixed(4)} ${h.to}</div><div style="font-size:0.7rem;">🕒 ${esc(h.ts)}</div></div><button class="hist-del" data-idx="${idx}">✕</button>`;
     card.querySelector(".hist-del").addEventListener("click", () => {
       convHistory.splice(idx, 1);
       localStorage.setItem("conv_hist_full", JSON.stringify(convHistory));
@@ -615,8 +593,6 @@ function clearConvHistory() {
   if (document.getElementById("convHistoryModal").classList.contains("open"))
     renderFullConvHistoryModal();
 }
-
-// ========== КАЛЬКУЛЯТОР ==========
 let calcExpr = "",
   calcJustEvaled = false;
 function renderCalcDisplay() {
@@ -732,10 +708,7 @@ function renderFullCalcHistory() {
   calcHistory.forEach((h, idx) => {
     let card = document.createElement("div");
     card.className = "calc-hist-item";
-    card.innerHTML = `
-      <span>${h.expr} = ${h.result}</span>
-      <div><span style="font-size:0.7rem;">${h.ts}</span><button class="hist-del" data-idx="${idx}" style="margin-left:8px;">✕</button></div>
-    `;
+    card.innerHTML = `<span>${h.expr} = ${h.result}</span><div><span style="font-size:0.7rem;">${h.ts}</span><button class="hist-del" data-idx="${idx}" style="margin-left:8px;">✕</button></div>`;
     card.querySelector(".hist-del").addEventListener("click", () => {
       calcHistory.splice(idx, 1);
       localStorage.setItem("calc_hist_full", JSON.stringify(calcHistory));
@@ -752,8 +725,6 @@ function clearCalcHistory() {
   if (document.getElementById("calcHistoryModal").classList.contains("open"))
     renderFullCalcHistory();
 }
-
-// ========== БЛОКНОТ ==========
 function loadNotebook() {
   let saved = localStorage.getItem("notebook_pages");
   if (saved) notebookPages = JSON.parse(saved);
@@ -786,10 +757,7 @@ function renderNotebookList() {
     let card = document.createElement("div");
     card.className = "nb-card";
     let preview = (page.content || "").replace(/\n/g, " ").substring(0, 70);
-    card.innerHTML = `
-      <div class="nb-card-top"><span class="nb-title">📄 ${esc(page.title)}</span><span class="nb-date">${fmtDate(page.date)}</span></div>
-      <div class="nb-preview">${esc(preview) || "(пусто)"}</div>
-    `;
+    card.innerHTML = `<div class="nb-card-top"><span class="nb-title">📄 ${esc(page.title)}</span><span class="nb-date">${fmtDate(page.date)}</span></div><div class="nb-preview">${esc(preview) || "(пусто)"}</div>`;
     card.addEventListener("click", () => openNotebookEdit(page.id));
     container.appendChild(card);
   }
@@ -799,7 +767,7 @@ function openNotebookEdit(id) {
   if (!page) return;
   currentNbId = id;
   document.getElementById("nbTitle").value = page.title;
-  document.getElementById("nbDate").value = page.date;
+  setDateValue("nbDate", page.date);
   document.getElementById("nbContent").value = page.content;
   openModal("notebookModal");
 }
@@ -853,8 +821,6 @@ function createNotebookPage() {
   renderNotebookList();
   openNotebookEdit(newPage.id);
 }
-
-// ========== СТАТИСТИКА ==========
 function showTemporaryMessage(text, duration = 15000) {
   const msgDiv = document.getElementById("statsTempMessageInline");
   if (!msgDiv) return;
@@ -882,7 +848,6 @@ function getStatsForPeriod(period) {
   let effectiveStart = startPeriod > resetDate ? startPeriod : resetDate;
   let totalIncomeRub = 0,
     totalExpenseRub = 0;
-  // ИСПРАВЛЕНО: переменная цикла переименована с 't' в 'tx'
   for (let tx of transactions) {
     if (!tx.date) continue;
     if (tx.date >= effectiveStart) {
@@ -964,9 +929,8 @@ function drawChartAnimated(
     ctx.strokeStyle = colors.stroke;
     ctx.lineWidth = 2.5;
     ctx.stroke();
-    if (progress < 1) {
-      statsAnimationFrame = requestAnimationFrame(animate);
-    } else {
+    if (progress < 1) statsAnimationFrame = requestAnimationFrame(animate);
+    else {
       statsAnimationFrame = null;
       currentDisplayPercentExpense = targetExpensePercent;
       currentDisplayPercentIncome = targetIncomePercent;
@@ -1013,7 +977,7 @@ function updateStats(animate = true) {
     drawChartAnimated(targetPercentExpense, targetPercentIncome, 800);
   } else {
     currentDisplayPercentExpense = targetPercentExpense;
-    currentDisplayPercentIncome = targetIncomePercent;
+    currentDisplayPercentIncome = targetPercentIncome;
     document.getElementById("statsPercent").innerHTML =
       `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
     const canvas = document.getElementById("statsChart");
@@ -1100,8 +1064,6 @@ function setPeriod(period) {
   });
   updateStats(true);
 }
-
-// ========== ОБЩИЕ ФУНКЦИИ ==========
 function openModal(id) {
   document.getElementById(id).classList.add("open");
 }
@@ -1176,8 +1138,6 @@ function refreshModalSubcats() {
     field.style.display = "none";
   }
 }
-
-// ========== ОБРАБОТЧИКИ И ИНИЦИАЛИЗАЦИЯ ==========
 document.addEventListener("DOMContentLoaded", () => {
   loadAll();
   initTheme();
@@ -1196,13 +1156,12 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCatManager();
   renderNotebookList();
   refreshModalCats();
-
   document.getElementById("fabBtn").onclick = () => {
-    document.getElementById("modalDate").value = today();
+    setDateValue("modalDate", today());
     openModal("addOpModal");
   };
   document.getElementById("homeQuickAddBtn").onclick = () => {
-    document.getElementById("modalDate").value = today();
+    setDateValue("modalDate", today());
     openModal("addOpModal");
   };
   const collapsible = document.getElementById("quickActionBlock");
@@ -1210,7 +1169,27 @@ document.addEventListener("DOMContentLoaded", () => {
   header.addEventListener("click", () => {
     collapsible.classList.toggle("collapsed");
   });
-  document.getElementById("helpBtn").onclick = () => openModal("helpModal");
+  // ========== ИСПРАВЛЕНИЕ: заполнение модалки помощи ==========
+  document.getElementById("helpBtn").onclick = () => {
+    const helpBody = document.getElementById("helpModalBody");
+    if (helpBody) {
+      helpBody.innerHTML = `
+        <p>${t("help_intro")}</p>
+        <br>
+        <b>${t("help_features")}</b>
+        <ul>
+          <li>${t("help_balance")}</li>
+          <li>${t("help_operations")}</li>
+          <li>${t("help_categories")}</li>
+          <li>${t("help_tools")}</li>
+          <li>${t("help_notebook")}</li>
+          <li>${t("help_stats")}</li>
+        </ul>
+      `;
+    }
+    openModal("helpModal");
+  };
+  // ============================================================
   document.getElementById("closeHelpModal").onclick = () =>
     closeModal("helpModal");
   document.getElementById("closeAddOpModal").onclick = () =>
@@ -1354,8 +1333,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("applySearchBtn").onclick = () => renderAllOps();
   document.getElementById("resetSearchBtn").onclick = () => {
     document.getElementById("searchText").value = "";
-    document.getElementById("searchFrom").value = "";
-    document.getElementById("searchTo").value = "";
+    // Сбрасываем датапикеры поиска
+    setDateValue("searchFrom", "");
+    setDateValue("searchTo", "");
     document.getElementById("searchType").value = "";
     renderAllOps();
   };
@@ -1411,12 +1391,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("saveOpBtn").onclick = saveEditedOp;
   document.getElementById("deleteOpBtn").onclick = deleteEditedOp;
   document.getElementById("resetStatsBtn").onclick = resetStats;
-  document.querySelectorAll(".period-btn").forEach((btn) => {
-    btn.addEventListener("click", () => setPeriod(btn.dataset.period));
-  });
-  document.querySelectorAll(".nav-item").forEach((btn) => {
-    btn.onclick = () => setActiveTab(btn.dataset.tab);
-  });
+  document
+    .querySelectorAll(".period-btn")
+    .forEach((btn) =>
+      btn.addEventListener("click", () => setPeriod(btn.dataset.period)),
+    );
+  document
+    .querySelectorAll(".nav-item")
+    .forEach((btn) => (btn.onclick = () => setActiveTab(btn.dataset.tab)));
   window.addEventListener("resize", () => {
     if (document.getElementById("tabStats").classList.contains("active"))
       updateStats(true);
@@ -1429,16 +1411,10 @@ document.addEventListener("DOMContentLoaded", () => {
     attributes: true,
     attributeFilter: ["class"],
   });
-
-  // Сообщаем i18n, что приложение готово
   window._appReady = true;
-
-  // Применяем язык ещё раз после инициализации всех элементов
   if (window.setLanguage) {
     window.setLanguage(localStorage.getItem("app_lang") || "ru");
   }
 });
-
-// Экспортируем для i18n
 window.refreshAll = refreshAll;
 window.updateStats = updateStats;
