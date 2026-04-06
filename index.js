@@ -393,7 +393,7 @@ function renderCatManager() {
     div.innerHTML = `<div style="flex:1;"><div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.7rem;">${typeLabel}</span></div>`;
     div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💰 ${t("income")}</div><div class="subcats-row" id="subs-inc-${cat.replace(/\s/g, "_")}"></div></div>`;
     div.innerHTML += `<div class="subcats-wrap"><div class="subcats-label">💸 ${t("expense")}</div><div class="subcats-row" id="subs-exp-${cat.replace(/\s/g, "_")}"></div></div>`;
-    div.innerHTML += `<div class="cat-actions-row"><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">+ ${t("add_subcat_income")}</button><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">+ ${t("add_subcat_expense")}</button><button class="btn-sm del-cat" data-cat="${esc(cat)}">🗑 ${t("delete")}</button></div></div>`;
+    div.innerHTML += `<div class="cat-actions-row"><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">${t("add_subcat_income")}</button><button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">${t("add_subcat_expense")}</button><button class="btn-sm del-cat" data-cat="${esc(cat)}">🗑 ${t("delete")}</button></div></div>`;
     container.appendChild(div);
     fillSubcatRow(cat, "income", `subs-inc-${cat.replace(/\s/g, "_")}`);
     fillSubcatRow(cat, "expense", `subs-exp-${cat.replace(/\s/g, "_")}`);
