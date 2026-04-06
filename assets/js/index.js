@@ -27,7 +27,6 @@ let statsAnimationFrame = null;
 let currentDisplayPercentExpense = 0,
   currentDisplayPercentIncome = 0;
 
-// Устанавливаем дату с учётом кастомного датапикера
 function setDateValue(inputId, value) {
   const el = document.getElementById(inputId);
   if (!el) return;
@@ -516,7 +515,6 @@ function deleteSubcatFromModal() {
   }
 }
 
-// ========== КОНВЕРТЕР (исправленный) ==========
 function updateConversionDisplay() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -554,7 +552,6 @@ function doConvert() {
   localStorage.setItem("conv_hist_full", JSON.stringify(convHistory));
   renderConvHistory();
 }
-// ============================================
 
 function renderConvHistory() {
   let el = document.getElementById("convHistoryList");
@@ -892,12 +889,12 @@ function drawChartAnimated(targetExpensePercent, targetIncomePercent, duration =
   const parent = canvas.parentElement;
   if (!parent) return;
   let w = parent.clientWidth;
-  if (w < 20) w = 200; // минимальная ширина
+  if (w < 20) w = 200;
   canvas.width = w;
   canvas.height = w;
   const centerX = w / 2, centerY = w / 2;
   let radius = w / 2 - 10;
-  if (radius < 5) radius = 5; // защита от отрицательного радиуса
+  if (radius < 5) radius = 5;
   const startAngle = -Math.PI / 2;
   const colors = getChartColors();
   let startTime = null;
