@@ -72,53 +72,53 @@
   --nb-margin: rgba(217, 79, 61, 0.2);
 }
 
-/* ============ ТЁМНАЯ ТЕМА — УМИРОТВОРЁННЫЙ СИНИЙ ============ */
+/* ============ ТЁМНАЯ ТЕМА — СПОКОЙНЫЙ ПРИГЛУШЁННЫЙ СИНИЙ ============ */
 body.dark {
-  --accent: #5a9cce;
-  --accent-light: #7bb3e0;
-  --accent-btn: #4a8abf;
-  --accent-glow: rgba(90, 156, 206, 0.35);
-  --accent-subtle: rgba(90, 156, 206, 0.12);
+  --accent: #6c8eae;        /* приглушённый серо-голубой акцент */
+  --accent-light: #8aaec9;  /* светлый, но мягкий */
+  --accent-btn: #5a7a9a;    /* кнопки */
+  --accent-glow: rgba(108, 142, 174, 0.25);
+  --accent-subtle: rgba(108, 142, 174, 0.1);
 
-  --gold: #e0b050;
-  --gold-bg: rgba(224, 176, 80, 0.1);
+  --gold: #c0a060;          /* приглушённый золотой */
+  --gold-bg: rgba(192, 160, 96, 0.08);
 
-  --red: #e08a7a;
-  --red-bg: rgba(224, 138, 122, 0.12);
-  --red-text: #e08a7a;
+  --red: #c47a6a;           /* мягкий красный для расходов */
+  --red-bg: rgba(196, 122, 106, 0.1);
+  --red-text: #c47a6a;
 
-  --bg: #0f1724;
-  --bg-pattern: #131c2a;
+  --bg: #121620;            /* глубокий тёмно-синий, почти серый */
+  --bg-pattern: #161b26;
 
-  --surface-0: #1a2538;
-  --surface-1: rgba(26, 37, 56, 0.96);
-  --surface-2: rgba(30, 42, 62, 0.92);
-  --surface-3: rgba(34, 48, 70, 0.88);
+  --surface-0: #1a202c;     /* карточки, модалки */
+  --surface-1: rgba(26, 32, 44, 0.96);
+  --surface-2: rgba(30, 36, 48, 0.92);
+  --surface-3: rgba(34, 42, 56, 0.88);
 
-  --header-bg: linear-gradient(150deg, #0a111f 0%, #0f1828 50%, #14213a 100%);
-  --balance-bg: linear-gradient(150deg, #0c1424, #111c30);
+  --header-bg: linear-gradient(150deg, #0a0e16 0%, #0f1420 50%, #141a28 100%);
+  --balance-bg: linear-gradient(150deg, #0c101c, #111828);
 
-  --border: rgba(90, 156, 206, 0.12);
-  --border-md: rgba(90, 156, 206, 0.2);
-  --border-hover: rgba(90, 156, 206, 0.45);
+  --border: rgba(108, 142, 174, 0.12);
+  --border-md: rgba(108, 142, 174, 0.18);
+  --border-hover: rgba(108, 142, 174, 0.35);
 
-  --text-primary: #e8edf4;
-  --text-secondary: #9bb4d0;
-  --text-muted: #5a7088;
-  --text-on-dark: rgba(232, 237, 244, 0.92);
+  --text-primary: #e0e4ea;
+  --text-secondary: #8a9cb0;
+  --text-muted: #5a6a80;
+  --text-on-dark: rgba(224, 228, 234, 0.92);
 
   --shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 6px 28px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.7);
 
-  --calc-bg: #1a2538;
-  --calc-text: #e8edf4;
-  --calc-op-bg: #5a9cce;
-  --calc-op-text: #0a111f;
+  --calc-bg: #1a202c;
+  --calc-text: #e0e4ea;
+  --calc-op-bg: #6c8eae;
+  --calc-op-text: #0a0e16;
 
-  --nb-line: rgba(90, 156, 206, 0.15);
-  --nb-margin: rgba(224, 138, 122, 0.2);
+  --nb-line: rgba(108, 142, 174, 0.12);
+  --nb-margin: rgba(196, 122, 106, 0.18);
 }
 
 /* ============ БАЗОВЫЕ ============ */
@@ -1191,34 +1191,34 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
   box-shadow: 0 6px 14px rgba(138,90,74,0.5);
 }
 
-/* Калькулятор в тёмной синей теме */
+/* Калькулятор в спокойной тёмной синей теме */
 body.dark .calc-btn {
-  background: #1e2a3e;
-  border-color: #2a3a52;
-  color: #cbdbe6;
+  background: #222838;
+  border-color: #2e3548;
+  color: #cbd5e6;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 body.dark .calc-btn:hover {
-  background: #2a3a52;
-  border-color: #5a9cce;
-  box-shadow: 0 0 12px rgba(90, 156, 206, 0.3);
+  background: #2e3548;
+  border-color: #6c8eae;
+  box-shadow: 0 0 10px rgba(108, 142, 174, 0.25);
 }
 body.dark .calc-btn.op {
-  background: linear-gradient(135deg, #4a8abf, #3a6ea5);
-  box-shadow: 0 4px 14px rgba(74, 138, 191, 0.5);
+  background: linear-gradient(135deg, #5a7a9a, #4a6a8a);
+  box-shadow: 0 4px 12px rgba(90, 122, 154, 0.3);
 }
 body.dark .calc-btn.op:hover {
-  background: linear-gradient(135deg, #5a9cce, #4a8abf);
-  box-shadow: 0 8px 22px rgba(90, 156, 206, 0.7);
+  background: linear-gradient(135deg, #6c8eae, #5a7a9a);
+  box-shadow: 0 6px 16px rgba(108, 142, 174, 0.45);
 }
 body.dark .calc-btn.clear, body.dark .calc-btn.back {
-  background: #5a6e7a;
-  color: #e0ecf4;
-  box-shadow: 0 2px 10px rgba(90, 110, 122, 0.4);
+  background: #5a6a7a;
+  color: #d0dce8;
+  box-shadow: 0 2px 8px rgba(90, 106, 122, 0.3);
 }
 body.dark .calc-btn.clear:hover, body.dark .calc-btn.back:hover {
-  background: #6a7e8a;
-  box-shadow: 0 6px 16px rgba(90, 110, 122, 0.6);
+  background: #6a7a8a;
+  box-shadow: 0 4px 12px rgba(90, 106, 122, 0.45);
 }
 
 /* ============ КОНВЕРТЕР ============ */
