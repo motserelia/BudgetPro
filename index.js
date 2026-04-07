@@ -1,4 +1,4 @@
-// ========== ПОЛНАЯ ЛОГИКА ПРИЛОЖЕНИЯ ==========
+// ========== БЮДЖЕТ PRO — ПОЛНАЯ ЛОГИКА ==========
 let transactions = [];
 let startBalanceRub = 70000;
 let incomeCategories = ["Работа", "Аренда"];
@@ -27,14 +27,166 @@ let statsAnimationFrame = null;
 let currentDisplayPercentExpense = 0,
   currentDisplayPercentIncome = 0;
 
+// ========== ГАЙД ==========
+const guideSteps = [
+  {
+    target: "#balancePanel",
+    titleKey: "guide_step1_title",
+    descKey: "guide_step1_desc",
+    defaultTitle: "💰 Панель баланса",
+    defaultDesc:
+      "Здесь отображается ваш финансовый баланс: начальная зарплата, доходы, расходы и остаток. Нажмите «Зарплата», чтобы установить начальный баланс.",
+  },
+  {
+    target: ".fab",
+    titleKey: "guide_step2_title",
+    descKey: "guide_step2_desc",
+    defaultTitle: "➕ Добавление операции",
+    defaultDesc:
+      "Нажмите эту кнопку, чтобы добавить новую операцию — доход или расход. Укажите категорию, сумму, дату и заметку.",
+  },
+  {
+    target: ".bottom-nav",
+    titleKey: "guide_step3_title",
+    descKey: "guide_step3_desc",
+    defaultTitle: "🗂️ Навигация",
+    defaultDesc:
+      "Главная — последние операции. Операции — полный список с поиском. Категории — управление категориями. Инструменты — калькулятор и конвертер. Блокнот — заметки. Данные — статистика.",
+  },
+  {
+    target: "#tabStats",
+    navTo: "stats",
+    titleKey: "guide_step4_title",
+    descKey: "guide_step4_desc",
+    defaultTitle: "📊 Статистика",
+    defaultDesc:
+      "Кольцевая диаграмма показывает соотношение расходов и доходов в процентах. Стрелочная диаграмма — динамику за период: рост вверх = доходы, падение вниз = расходы.",
+  },
+  {
+    target: "#tabNotebook",
+    navTo: "notebook",
+    titleKey: "guide_step5_title",
+    descKey: "guide_step5_desc",
+    defaultTitle: "📓 Блокнот",
+    defaultDesc:
+      "Личный блокнот для заметок. Создавайте страницы, редактируйте их, удаляйте. Страницы выглядят как настоящий блокнот с линиями.",
+  },
+  {
+    target: ".help-btn",
+    titleKey: "guide_step6_title",
+    descKey: "guide_step6_desc",
+    defaultTitle: "❔ Помощь",
+    defaultDesc:
+      "Нажмите кнопку ❔ в шапке, чтобы открыть подробную инструкцию по всем функциям приложения в любое время.",
+  },
+];
+
+let currentGuideStep = 0;
+let guideActive = false;
+
+function startGuide() {
+  guideActive = true;
+  currentGuideStep = 0;
+  document.getElementById("guideOverlay").style.display = "block";
+  // Переходим на главную
+  setActiveTab("home");
+  showGuideStep(0);
+}
+
+function showGuideStep(idx) {
+  const step = guideSteps[idx];
+  if (!step) {
+    endGuide();
+    return;
+  }
+
+  // Навигация если нужна
+  if (step.navTo) setActiveTab(step.navTo);
+
+  const overlay = document.getElementById("guideOverlay");
+  const spotlight = document.getElementById("guideSpotlight");
+  const tooltip = document.getElementById("guideTooltip");
+  overlay.style.display = "block";
+  overlay.style.pointerEvents = "none";
+  tooltip.style.pointerEvents = "all";
+
+  // Текст
+  document.getElementById("guideCounter").textContent =
+    `Шаг ${idx + 1} из ${guideSteps.length}`;
+  document.getElementById("guideTitle").textContent = step.defaultTitle;
+  document.getElementById("guideDesc").textContent = step.defaultDesc;
+
+  // Прогресс
+  const prog = document.getElementById("guideProgress");
+  prog.innerHTML = guideSteps
+    .map((_, i) => `<div class="guide-dot ${i === idx ? "active" : ""}"></div>`)
+    .join("");
+
+  // Кнопка
+  const nextBtn = document.getElementById("guideNextBtn");
+  nextBtn.textContent = idx === guideSteps.length - 1 ? "Готово ✓" : "Далее →";
+
+  // Позиционирование спотлайта
+  requestAnimationFrame(() => {
+    const targetEl = document.querySelector(step.target);
+    if (targetEl) {
+      const rect = targetEl.getBoundingClientRect();
+      const pad = 8;
+      spotlight.style.left = rect.left - pad + "px";
+      spotlight.style.top = rect.top - pad + "px";
+      spotlight.style.width = rect.width + pad * 2 + "px";
+      spotlight.style.height = rect.height + pad * 2 + "px";
+
+      // Позиционирование тултипа
+      let tTop, tLeft;
+      const tw = 280,
+        th = 200;
+      const viewH = window.innerHeight,
+        viewW = window.innerWidth;
+
+      // Пробуем снизу
+      if (rect.bottom + th + 20 < viewH) {
+        tTop = rect.bottom + pad + 10;
+      } else if (rect.top - th - 20 > 0) {
+        tTop = rect.top - th - 10;
+      } else {
+        tTop = viewH / 2 - th / 2;
+      }
+
+      tLeft = rect.left + rect.width / 2 - tw / 2;
+      if (tLeft + tw > viewW - 10) tLeft = viewW - tw - 10;
+      if (tLeft < 10) tLeft = 10;
+      if (tTop < 10) tTop = 10;
+
+      tooltip.style.top = tTop + "px";
+      tooltip.style.left = tLeft + "px";
+      tooltip.style.maxWidth = tw + "px";
+    } else {
+      // Нет элемента — центр экрана
+      spotlight.style.left = "-100px";
+      spotlight.style.top = "-100px";
+      spotlight.style.width = "0px";
+      spotlight.style.height = "0px";
+      tooltip.style.top = window.innerHeight / 2 - 100 + "px";
+      tooltip.style.left = window.innerWidth / 2 - 140 + "px";
+    }
+  });
+}
+
+function endGuide() {
+  guideActive = false;
+  document.getElementById("guideOverlay").style.display = "none";
+  localStorage.setItem("guide_shown", "1");
+  // Возвращаемся на главную
+  setActiveTab("home");
+}
+
+// ========== УТИЛИТЫ ==========
 function setDateValue(inputId, value) {
   const el = document.getElementById(inputId);
   if (!el) return;
-  if (window._dpSetValue) {
-    window._dpSetValue(el, value);
-  } else {
-    el.value = value;
-  }
+  if (window._dpSetValue) window._dpSetValue(el, value);
+  else el.value = value;
 }
 
 function sym() {
@@ -79,6 +231,7 @@ function updateAllCategoriesOrder() {
   for (let cat of allSet) if (!newOrder.includes(cat)) newOrder.push(cat);
   allCategoriesOrder = newOrder;
 }
+
 function saveAll() {
   localStorage.setItem(
     "budget_pro_full",
@@ -96,6 +249,7 @@ function saveAll() {
     }),
   );
 }
+
 function loadAll() {
   let raw = localStorage.getItem("budget_pro_full");
   if (raw) {
@@ -136,6 +290,7 @@ function loadAll() {
     };
   updateAllCategoriesOrder();
 }
+
 function ensureGroup(cat, type) {
   if (!categoryGroups[cat])
     categoryGroups[cat] = { income: { subcats: [] }, expense: { subcats: [] } };
@@ -164,6 +319,7 @@ function removeSubcat(cat, type, sub) {
   }
 }
 
+// ========== БАЛАНС ==========
 function updateBalance() {
   let inc = 0,
     exp = 0;
@@ -184,20 +340,22 @@ function updateBalance() {
   let editSymSpan = document.getElementById("editModalCurSymbol");
   if (editSymSpan) editSymSpan.textContent = s;
 }
+
+// ========== КАРТОЧКИ ОПЕРАЦИЙ ==========
 function buildOpCard(op, idx) {
   let isIncome = op.type === "income";
   let amount = toDisp(op.amountRub).toFixed(2);
   let s = sym();
   let card = document.createElement("div");
-  card.className = "op-card";
+  card.className = `op-card ${isIncome ? "income-card" : "expense-card"}`;
   card.dataset.index = idx;
   let noteHtml = op.note
-    ? `<span title="${esc(op.note)}">📝 ${esc(op.note).substring(0, 30)}${op.note.length > 30 ? "…" : ""}</span>`
+    ? `<span title="${esc(op.note)}">📝 ${esc(op.note).substring(0, 28)}${op.note.length > 28 ? "…" : ""}</span>`
     : "";
   card.innerHTML = `
     <div class="op-body">
       <div class="op-row1">
-        <span class="op-cat">${esc(op.category)}${op.subcategory ? " / " + esc(op.subcategory) : ""}</span>
+        <span class="op-cat">${esc(op.category)}${op.subcategory ? " · " + esc(op.subcategory) : ""}</span>
         <span class="op-amount ${isIncome ? "income" : "expense"}">${isIncome ? "+" : "−"}${amount} ${s}</span>
       </div>
       <div class="op-row2">
@@ -222,6 +380,7 @@ function buildOpCard(op, idx) {
   });
   return card;
 }
+
 function renderRecentOps() {
   let container = document.getElementById("recentOpsList");
   if (!container) return;
@@ -236,6 +395,7 @@ function renderRecentOps() {
   }
   for (let op of sorted) container.appendChild(buildOpCard(op, op._i));
 }
+
 function renderAllOps() {
   let container = document.getElementById("allOpsList");
   if (!container) return;
@@ -263,6 +423,8 @@ function renderAllOps() {
   }
   for (let op of filtered) container.appendChild(buildOpCard(op, op._i));
 }
+
+// ========== РЕДАКТИРОВАНИЕ ОПЕРАЦИИ ==========
 function openEditOpModal(index) {
   let op = transactions[index];
   if (!op) return;
@@ -296,6 +458,7 @@ function openEditOpModal(index) {
   }
   openModal("editOpModal");
 }
+
 function refreshEditModalSubcats() {
   let cat = document.getElementById("editModalCat").value;
   let type = document
@@ -314,6 +477,7 @@ function refreshEditModalSubcats() {
     field.style.display = "none";
   }
 }
+
 function saveEditedOp() {
   if (editingOpIndex === null) return;
   let type = document
@@ -351,6 +515,7 @@ function saveEditedOp() {
   closeModal("editOpModal");
   editingOpIndex = null;
 }
+
 function deleteEditedOp() {
   if (editingOpIndex !== null && confirm(t("confirm_delete"))) {
     transactions.splice(editingOpIndex, 1);
@@ -360,6 +525,8 @@ function deleteEditedOp() {
     editingOpIndex = null;
   }
 }
+
+// ========== КАТЕГОРИИ ==========
 function renderCatManager() {
   let container = document.getElementById("catManager");
   if (!container) return;
@@ -376,17 +543,18 @@ function renderCatManager() {
           : "💸 " + t("expense");
     let div = document.createElement("div");
     div.className = "cat-card";
-    let titleHtml = `<div style="flex:1;"><div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.7rem;">${typeLabel}</span></div></div>`;
-    let actionsHtml = `<div class="cat-actions-row">
-      <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">+ ${t("add_subcat_income")}</button>
-      <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">+ ${t("add_subcat_expense")}</button>
-      <button class="btn-sm del-cat" data-cat="${esc(cat)}">🗑 ${t("delete")}</button>
-    </div>`;
-    let subsHtml = `
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.68rem;color:var(--text-muted);">${typeLabel}</span></div>
+      </div>
+      <div class="cat-actions-row">
+        <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">+ ${t("add_subcat_income")}</button>
+        <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">+ ${t("add_subcat_expense")}</button>
+        <button class="btn-danger-sm del-cat" data-cat="${esc(cat)}">🗑</button>
+      </div>
       <div class="subcats-wrap"><div class="subcats-label">💰 ${t("income")}</div><div class="subcats-row" id="subs-inc-${cat.replace(/\s/g, "_")}"></div></div>
       <div class="subcats-wrap"><div class="subcats-label">💸 ${t("expense")}</div><div class="subcats-row" id="subs-exp-${cat.replace(/\s/g, "_")}"></div></div>
     `;
-    div.innerHTML = titleHtml + actionsHtml + subsHtml;
     container.appendChild(div);
     fillSubcatRow(cat, "income", `subs-inc-${cat.replace(/\s/g, "_")}`);
     fillSubcatRow(cat, "expense", `subs-exp-${cat.replace(/\s/g, "_")}`);
@@ -418,6 +586,7 @@ function renderCatManager() {
     });
   }
 }
+
 function fillSubcatRow(cat, type, containerId) {
   let container = document.getElementById(containerId);
   if (!container) return;
@@ -442,6 +611,7 @@ function fillSubcatRow(cat, type, containerId) {
     container.appendChild(chip);
   }
 }
+
 function renameCategory(oldName) {
   let newName = prompt(t("enter_new_category_name"), oldName);
   if (!newName || newName === oldName) return;
@@ -467,6 +637,7 @@ function renameCategory(oldName) {
   refreshModalCats();
   refreshAll();
 }
+
 function openEditSubcatModal(cat, type, sub) {
   let modal = document.getElementById("editSubcatModal");
   modal.dataset.cat = cat;
@@ -475,6 +646,7 @@ function openEditSubcatModal(cat, type, sub) {
   document.getElementById("editSubcatName").value = sub;
   openModal("editSubcatModal");
 }
+
 function saveSubcatEdit() {
   let modal = document.getElementById("editSubcatModal");
   let cat = modal.dataset.cat,
@@ -491,9 +663,9 @@ function saveSubcatEdit() {
       alert(t("subcategory_exists"));
       return;
     }
-    let idx = subs.indexOf(oldSub);
-    if (idx !== -1) {
-      subs[idx] = newSub;
+    let idx2 = subs.indexOf(oldSub);
+    if (idx2 !== -1) {
+      subs[idx2] = newSub;
       categoryGroups[cat][type].subcats = subs;
       saveAll();
       renderCatManager();
@@ -502,6 +674,7 @@ function saveSubcatEdit() {
   }
   closeModal("editSubcatModal");
 }
+
 function deleteSubcatFromModal() {
   let modal = document.getElementById("editSubcatModal");
   let cat = modal.dataset.cat,
@@ -515,6 +688,7 @@ function deleteSubcatFromModal() {
   }
 }
 
+// ========== КОНВЕРТЕР ==========
 function updateConversionDisplay() {
   let amount = parseFloat(document.getElementById("convAmount").value);
   let from = document.getElementById("convFrom").value;
@@ -580,6 +754,7 @@ function renderConvHistory() {
     }),
   );
 }
+
 function renderFullConvHistoryModal() {
   let container = document.getElementById("convHistoryFullList");
   if (!container) return;
@@ -591,7 +766,7 @@ function renderFullConvHistoryModal() {
   convHistory.forEach((h, idx) => {
     let card = document.createElement("div");
     card.className = "op-card";
-    card.innerHTML = `<div class="op-body"><div>${h.amount} ${h.from} → ${h.to} = ${h.result.toFixed(4)} ${h.to}</div><div style="font-size:0.7rem;">🕒 ${esc(h.ts)}</div></div><button class="hist-del" data-idx="${idx}">✕</button>`;
+    card.innerHTML = `<div class="op-body"><div>${h.amount} ${h.from} → ${h.to} = ${h.result.toFixed(4)} ${h.to}</div><div style="font-size:0.68rem;color:var(--text-muted);">🕒 ${esc(h.ts)}</div></div><button class="hist-del" data-idx="${idx}">✕</button>`;
     card.querySelector(".hist-del").addEventListener("click", () => {
       convHistory.splice(idx, 1);
       localStorage.setItem("conv_hist_full", JSON.stringify(convHistory));
@@ -601,6 +776,7 @@ function renderFullConvHistoryModal() {
     container.appendChild(card);
   });
 }
+
 function clearConvHistory() {
   convHistory = [];
   localStorage.setItem("conv_hist_full", "[]");
@@ -608,6 +784,8 @@ function clearConvHistory() {
   if (document.getElementById("convHistoryModal").classList.contains("open"))
     renderFullConvHistoryModal();
 }
+
+// ========== КАЛЬКУЛЯТОР ==========
 let calcExpr = "",
   calcJustEvaled = false;
 function renderCalcDisplay() {
@@ -633,6 +811,7 @@ function calcEval() {
   renderCalcDisplay();
   renderCalcPreview();
 }
+
 function handleCalc(action) {
   if (calcExpr === t("error")) {
     calcExpr = "";
@@ -667,6 +846,7 @@ function handleCalc(action) {
   }
   renderCalcDisplay();
 }
+
 function renderCalcPreview() {
   let el = document.getElementById("calcHistoryPreview");
   if (el)
@@ -674,8 +854,9 @@ function renderCalcPreview() {
       calcHistory
         .slice(0, 3)
         .map((h) => `${h.expr}=${h.result}`)
-        .join(" | ") || t("no_history");
+        .join(" · ") || t("no_history");
 }
+
 function buildCalcGrid() {
   let grid = document.getElementById("calcGrid");
   if (!grid) return;
@@ -712,6 +893,7 @@ function buildCalcGrid() {
     grid.appendChild(btn);
   });
 }
+
 function renderFullCalcHistory() {
   let container = document.getElementById("calcHistoryFullList");
   if (!container) return;
@@ -723,7 +905,7 @@ function renderFullCalcHistory() {
   calcHistory.forEach((h, idx) => {
     let card = document.createElement("div");
     card.className = "calc-hist-item";
-    card.innerHTML = `<span>${h.expr} = ${h.result}</span><div><span style="font-size:0.7rem;">${h.ts}</span><button class="hist-del" data-idx="${idx}" style="margin-left:8px;">✕</button></div>`;
+    card.innerHTML = `<span>${h.expr} = ${h.result}</span><div><span style="font-size:0.65rem;color:var(--text-muted);">${h.ts}</span><button class="hist-del" data-idx="${idx}" style="margin-left:8px;">✕</button></div>`;
     card.querySelector(".hist-del").addEventListener("click", () => {
       calcHistory.splice(idx, 1);
       localStorage.setItem("calc_hist_full", JSON.stringify(calcHistory));
@@ -733,6 +915,7 @@ function renderFullCalcHistory() {
     container.appendChild(card);
   });
 }
+
 function clearCalcHistory() {
   calcHistory = [];
   localStorage.setItem("calc_hist_full", "[]");
@@ -740,6 +923,8 @@ function clearCalcHistory() {
   if (document.getElementById("calcHistoryModal").classList.contains("open"))
     renderFullCalcHistory();
 }
+
+// ========== БЛОКНОТ ==========
 function loadNotebook() {
   let saved = localStorage.getItem("notebook_pages");
   if (saved) notebookPages = JSON.parse(saved);
@@ -757,6 +942,7 @@ function loadNotebook() {
 function saveNotebook() {
   localStorage.setItem("notebook_pages", JSON.stringify(notebookPages));
 }
+
 function renderNotebookList() {
   let container = document.getElementById("notebookList");
   if (!container) return;
@@ -771,12 +957,13 @@ function renderNotebookList() {
   for (let page of sorted) {
     let card = document.createElement("div");
     card.className = "nb-card";
-    let preview = (page.content || "").replace(/\n/g, " ").substring(0, 70);
+    let preview = (page.content || "").replace(/\n/g, " ").substring(0, 60);
     card.innerHTML = `<div class="nb-card-top"><span class="nb-title">📄 ${esc(page.title)}</span><span class="nb-date">${fmtDate(page.date)}</span></div><div class="nb-preview">${esc(preview) || "(пусто)"}</div>`;
     card.addEventListener("click", () => openNotebookEdit(page.id));
     container.appendChild(card);
   }
 }
+
 function openNotebookEdit(id) {
   let page = notebookPages.find((p) => p.id === id);
   if (!page) return;
@@ -786,6 +973,7 @@ function openNotebookEdit(id) {
   document.getElementById("nbContent").value = page.content;
   openModal("notebookModal");
 }
+
 function saveNotebookPage() {
   if (currentNbId === null) return;
   let title = document.getElementById("nbTitle").value.trim();
@@ -813,6 +1001,7 @@ function saveNotebookPage() {
   renderNotebookList();
   closeModal("notebookModal");
 }
+
 function deleteNotebookPage() {
   if (currentNbId === null) return;
   if (confirm(t("confirm_delete_page"))) {
@@ -823,6 +1012,7 @@ function deleteNotebookPage() {
     currentNbId = null;
   }
 }
+
 function createNotebookPage() {
   let maxNum = 0;
   notebookPages.forEach((p) => {
@@ -836,6 +1026,8 @@ function createNotebookPage() {
   renderNotebookList();
   openNotebookEdit(newPage.id);
 }
+
+// ========== СТАТИСТИКА ==========
 function showTemporaryMessage(text, duration = 15000) {
   const msgDiv = document.getElementById("statsTempMessageInline");
   if (!msgDiv) return;
@@ -845,6 +1037,7 @@ function showTemporaryMessage(text, duration = 15000) {
     msgDiv.style.opacity = "0";
   }, duration);
 }
+
 function getStartDateForPeriod(period) {
   const now = new Date();
   if (period === "day") return today();
@@ -857,6 +1050,7 @@ function getStartDateForPeriod(period) {
   start.setDate(now.getDate() - 30);
   return start.toISOString().slice(0, 10);
 }
+
 function getStatsForPeriod(period) {
   let startPeriod = getStartDateForPeriod(period);
   let resetDate = statsResetDate || "1970-01-01";
@@ -873,28 +1067,42 @@ function getStatsForPeriod(period) {
   totalIncomeRub += startBalanceRub;
   return { incomeRub: totalIncomeRub, expenseRub: totalExpenseRub };
 }
+
 function getChartColors() {
   const isDark = document.body.classList.contains("dark");
   return {
-    expense: isDark ? "#fc8181" : "#e05c4b",
-    income: isDark ? "#6aa8ff" : "#1a7a4a",
-    bg: isDark ? "rgba(150,150,150,0.25)" : "rgba(150,150,150,0.15)",
-    stroke: isDark ? "rgba(255,255,255,0.2)" : "var(--border)",
+    expense: isDark ? "#f07060" : "#d94f3d",
+    income: isDark ? "#4db87e" : "#2a9d60",
+    bg: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
+    stroke: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+    gridLine: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+    text: isDark ? "rgba(232,237,233,0.5)" : "rgba(26,31,28,0.4)",
   };
 }
-function drawChartAnimated(targetExpensePercent, targetIncomePercent, duration = 800) {
+
+// Кольцевая диаграмма с анимацией
+function drawChartAnimated(
+  targetExpensePercent,
+  targetIncomePercent,
+  duration = 700,
+) {
   const canvas = document.getElementById("statsChart");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const parent = canvas.parentElement;
   if (!parent) return;
+
   let w = parent.clientWidth;
-  if (w < 20) w = 200;
+  if (w < 20) w = 220;
   canvas.width = w;
   canvas.height = w;
-  const centerX = w / 2, centerY = w / 2;
-  let radius = w / 2 - 10;
-  if (radius < 5) radius = 5;
+  const cx = w / 2,
+    cy = w / 2;
+  let outerR = w / 2 - 4;
+  let innerR = outerR * 0.55;
+  if (outerR < 5) outerR = 5;
+  if (innerR < 5) innerR = 5;
+
   const startAngle = -Math.PI / 2;
   const colors = getChartColors();
   let startTime = null;
@@ -902,52 +1110,238 @@ function drawChartAnimated(targetExpensePercent, targetIncomePercent, duration =
   let startIncome = currentDisplayPercentIncome;
   let diffExpense = targetExpensePercent - startExpense;
   let diffIncome = targetIncomePercent - startIncome;
+
   if (statsAnimationFrame) cancelAnimationFrame(statsAnimationFrame);
-  function animate(timestamp) {
-    if (!startTime) startTime = timestamp;
-    let elapsed = timestamp - startTime;
-    let progress = Math.min(1, elapsed / duration);
-    let currentExpense = startExpense + diffExpense * progress;
-    let currentIncome = startIncome + diffIncome * progress;
-    if (currentExpense < 0) currentExpense = 0;
-    if (currentIncome < 0) currentIncome = 0;
-    currentDisplayPercentExpense = currentExpense;
-    currentDisplayPercentIncome = currentIncome;
-    document.getElementById("statsPercent").innerHTML =
-      `${Math.round(currentExpense)}% / ${Math.round(currentIncome)}%`;
+
+  function drawDonut(expPct, incPct) {
     ctx.clearRect(0, 0, w, w);
+
+    // Фон
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
+    ctx.arc(cx, cy, innerR, 0, 2 * Math.PI, true);
     ctx.fillStyle = colors.bg;
     ctx.fill();
-    let expenseAngle = (currentExpense / 100) * 2 * Math.PI;
-    ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
-    ctx.fillStyle = colors.expense;
-    ctx.fill();
-    let incomeAngle = (currentIncome / 100) * 2 * Math.PI;
-    ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, radius, startAngle + expenseAngle, startAngle + expenseAngle + incomeAngle);
-    ctx.fillStyle = colors.income;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = colors.stroke;
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
+
+    const total = expPct + incPct;
+    if (total > 0) {
+      let expAngle = (expPct / 100) * 2 * Math.PI;
+      let incAngle = (incPct / 100) * 2 * Math.PI;
+
+      // Расходы
+      if (expAngle > 0.01) {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, outerR, startAngle, startAngle + expAngle);
+        ctx.arc(cx, cy, innerR, startAngle + expAngle, startAngle, true);
+        ctx.closePath();
+        ctx.fillStyle = colors.expense;
+        // Тень
+        ctx.shadowColor = colors.expense + "60";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // Доходы
+      if (incAngle > 0.01) {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(
+          cx,
+          cy,
+          outerR,
+          startAngle + expAngle,
+          startAngle + expAngle + incAngle,
+        );
+        ctx.arc(
+          cx,
+          cy,
+          innerR,
+          startAngle + expAngle + incAngle,
+          startAngle + expAngle,
+          true,
+        );
+        ctx.closePath();
+        ctx.fillStyle = colors.income;
+        ctx.shadowColor = colors.income + "60";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // Разделитель (тонкие линии)
+      ctx.strokeStyle = colors.stroke;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+      ctx.stroke();
+    } else {
+      // Пустое кольцо
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
+      ctx.arc(cx, cy, innerR, 0, 2 * Math.PI, true);
+      ctx.fillStyle = isDarkMode()
+        ? "rgba(255,255,255,0.05)"
+        : "rgba(0,0,0,0.04)";
+      ctx.fill();
+    }
+  }
+
+  function animate(timestamp) {
+    if (!startTime) startTime = timestamp;
+    let progress = Math.min(1, (timestamp - startTime) / duration);
+    let eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+
+    let curExp = startExpense + diffExpense * eased;
+    let curInc = startIncome + diffIncome * eased;
+    if (curExp < 0) curExp = 0;
+    if (curInc < 0) curInc = 0;
+    currentDisplayPercentExpense = curExp;
+    currentDisplayPercentIncome = curInc;
+
+    drawDonut(curExp, curInc);
+
+    // Обновляем текст в центре
+    const pEl = document.getElementById("statsPercent");
+    if (pEl)
+      pEl.textContent = `${Math.round(curExp)}% / ${Math.round(curInc)}%`;
+
     if (progress < 1) statsAnimationFrame = requestAnimationFrame(animate);
     else {
       statsAnimationFrame = null;
       currentDisplayPercentExpense = targetExpensePercent;
       currentDisplayPercentIncome = targetIncomePercent;
-      document.getElementById("statsPercent").innerHTML =
-        `${Math.round(targetExpensePercent)}% / ${Math.round(targetIncomePercent)}%`;
+      drawDonut(targetExpensePercent, targetIncomePercent);
+      if (pEl)
+        pEl.textContent = `${Math.round(targetExpensePercent)}% / ${Math.round(targetIncomePercent)}%`;
     }
   }
+
   statsAnimationFrame = requestAnimationFrame(animate);
 }
+
+function isDarkMode() {
+  return document.body.classList.contains("dark");
+}
+
+// Трендовая диаграмма
+function drawTrendChart() {
+  const canvas = document.getElementById("trendChart");
+  if (!canvas) return;
+
+  const container = canvas.parentElement;
+  const W = container.clientWidth - 32; // учитываем padding
+  const H = 100;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  const colors = getChartColors();
+
+  // Берём последние 7 дней
+  const days = 7;
+  const now = new Date();
+  const dailyData = [];
+  for (let i = days - 1; i >= 0; i--) {
+    let d = new Date(now);
+    d.setDate(now.getDate() - i);
+    let dateStr = d.toISOString().slice(0, 10);
+    let inc = 0,
+      exp = 0;
+    for (let tx of transactions) {
+      if (tx.date === dateStr) {
+        if (tx.type === "income") inc += toDisp(tx.amountRub);
+        else exp += toDisp(tx.amountRub);
+      }
+    }
+    dailyData.push({ date: dateStr, inc, exp });
+  }
+
+  // Если нет данных — рисуем пустой график
+  const maxVal = Math.max(...dailyData.map((d) => Math.max(d.inc, d.exp)), 1);
+  const padX = 8,
+    padY = 12;
+  const chartW = W - padX * 2;
+  const chartH = H - padY * 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Сетка
+  ctx.strokeStyle = colors.gridLine;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 2; i++) {
+    let y = padY + chartH * (i / 2);
+    ctx.beginPath();
+    ctx.moveTo(padX, y);
+    ctx.lineTo(W - padX, y);
+    ctx.stroke();
+  }
+
+  const xStep = chartW / Math.max(dailyData.length - 1, 1);
+
+  function getPoints(arr, key) {
+    return arr.map((d, i) => ({
+      x: padX + i * xStep,
+      y: padY + chartH - (d[key] / maxVal) * chartH,
+    }));
+  }
+
+  function drawArea(points, color) {
+    if (points.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, padY + chartH);
+    ctx.lineTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i - 1],
+        curr = points[i];
+      const cpx = (prev.x + curr.x) / 2;
+      ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
+    }
+    ctx.lineTo(points[points.length - 1].x, padY + chartH);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, padY, 0, padY + chartH);
+    grad.addColorStop(0, color + "40");
+    grad.addColorStop(1, color + "00");
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Линия
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i - 1],
+        curr = points[i];
+      const cpx = (prev.x + curr.x) / 2;
+      ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.shadowColor = color + "80";
+    ctx.shadowBlur = 6;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Точки
+    points.forEach((p) => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 3, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+    });
+  }
+
+  const incPoints = getPoints(dailyData, "inc");
+  const expPoints = getPoints(dailyData, "exp");
+
+  drawArea(incPoints, colors.income);
+  drawArea(expPoints, colors.expense);
+}
+
 function updateStats(animate = true) {
   let { incomeRub, expenseRub } = getStatsForPeriod(currentStatsPeriod);
   let total = incomeRub + expenseRub;
@@ -957,112 +1351,77 @@ function updateStats(animate = true) {
   let incomeDisp = toDisp(incomeRub);
   let expenseDisp = toDisp(expenseRub);
   let balanceDisp = incomeDisp - expenseDisp;
-  let periodLabel = currentStatsPeriod === "day" ? t("today") : currentStatsPeriod === "week" ? t("last_7_days") : t("last_30_days");
-  let resetInfo = statsResetDate ? `${t("since")} ${statsResetDate}` : t("since_beginning");
-  document.getElementById("statsPeriodLabel").innerHTML = `📊 ${periodLabel} (${resetInfo})`;
-  document.getElementById("statsIncomeAmount").innerHTML = `💰 ${t("income")}: ${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)`;
-  document.getElementById("statsExpenseAmount").innerHTML = `💸 ${t("expense")}: ${expenseDisp.toFixed(2)} ${s} (${Math.round(targetPercentExpense)}%)`;
-  document.getElementById("statsBalance").innerHTML = `💎 ${t("balance")}: ${balanceDisp.toFixed(2)} ${s}`;
-  const colors = getChartColors();
-  document.querySelectorAll(".legend-color")[0].style.background = colors.expense;
-  document.querySelectorAll(".legend-color")[1].style.background = colors.income;
+  let periodLabel =
+    currentStatsPeriod === "day"
+      ? t("today")
+      : currentStatsPeriod === "week"
+        ? t("last_7_days")
+        : t("last_30_days");
+  let resetInfo = statsResetDate
+    ? `${t("since")} ${statsResetDate}`
+    : t("since_beginning");
+
+  document.getElementById("statsPeriodLabel").textContent =
+    `📊 ${periodLabel} (${resetInfo})`;
+
+  const inc = document.getElementById("statsIncomeAmount");
+  const exp = document.getElementById("statsExpenseAmount");
+  const bal = document.getElementById("statsBalance");
+
+  if (inc)
+    inc.innerHTML = `<span>💰 ${t("income")}</span><span style="font-family:'DM Mono',monospace;color:var(--accent)">${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)</span>`;
+  if (exp)
+    exp.innerHTML = `<span>💸 ${t("expense")}</span><span style="font-family:'DM Mono',monospace;color:var(--red-text)">${expenseDisp.toFixed(2)} ${s} (${Math.round(targetPercentExpense)}%)</span>`;
+  if (bal)
+    bal.innerHTML = `<span>💎 ${t("balance")}</span><span style="font-family:'DM Mono',monospace;color:${balanceDisp >= 0 ? "var(--accent)" : "var(--red-text)"}">${balanceDisp.toFixed(2)} ${s}</span>`;
+
   if (animate) {
     currentDisplayPercentExpense = 0;
     currentDisplayPercentIncome = 0;
-    drawChartAnimated(targetPercentExpense, targetPercentIncome, 800);
+    drawChartAnimated(targetPercentExpense, targetPercentIncome, 700);
   } else {
     currentDisplayPercentExpense = targetPercentExpense;
-    currentDisplayPercentIncome = targetPercentIncome;
-    document.getElementById("statsPercent").innerHTML = `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
-    const canvas = document.getElementById("statsChart");
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      const parent = canvas.parentElement;
-      if (parent) {
-        let w = parent.clientWidth;
-        if (w < 20) w = 200;
-        canvas.width = w;
-        canvas.height = w;
-        const centerX = w / 2, centerY = w / 2;
-        let radius = w / 2 - 10;
-        if (radius < 5) radius = 5;
-        const startAngle = -Math.PI / 2;
-        let expenseAngle = (targetPercentExpense / 100) * 2 * Math.PI;
-        let incomeAngle = (targetPercentIncome / 100) * 2 * Math.PI;
-        ctx.clearRect(0, 0, w, w);
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = colors.bg;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, startAngle, startAngle + expenseAngle);
-        ctx.fillStyle = colors.expense;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        ctx.arc(centerX, centerY, radius, startAngle + expenseAngle, startAngle + expenseAngle + incomeAngle);
-        ctx.fillStyle = colors.income;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.strokeStyle = colors.stroke;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-      }
-    }
+    currentDisplayPercentIncome = targetIncomePercent;
+    const pEl = document.getElementById("statsPercent");
+    if (pEl)
+      pEl.textContent = `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
+    drawChartAnimated(targetPercentExpense, targetPercentIncome, 0);
   }
+
+  drawTrendChart();
 }
+
 function resetStats() {
   if (confirm(t("confirm_reset_stats"))) {
     statsResetDate = today();
     saveAll();
     currentDisplayPercentExpense = 0;
     currentDisplayPercentIncome = 0;
-    const canvas = document.getElementById("statsChart");
-    if (canvas) {
-      const ctx = canvas.getContext("2d");
-      const parent = canvas.parentElement;
-      if (parent) {
-        let w = parent.clientWidth;
-        if (w < 20) w = 200;
-        canvas.width = w;
-        canvas.height = w;
-        const centerX = w / 2, centerY = w / 2;
-        let radius = w / 2 - 10;
-        if (radius < 5) radius = 5;
-        const colors = getChartColors();
-        ctx.clearRect(0, 0, w, w);
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = colors.bg;
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.strokeStyle = colors.stroke;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-      }
-    }
-    document.getElementById("statsPercent").innerHTML = "0% / 0%";
     updateStats(true);
-    showTemporaryMessage(`${t("stats_reset_message")} ${statsResetDate}`, 15000);
+    showTemporaryMessage(
+      `${t("stats_reset_message")} ${statsResetDate}`,
+      12000,
+    );
   }
 }
+
 function setPeriod(period) {
   currentStatsPeriod = period;
   document.querySelectorAll(".period-btn").forEach((btn) => {
-    if (btn.dataset.period === period) btn.classList.add("active");
-    else btn.classList.remove("active");
+    btn.classList.toggle("active", btn.dataset.period === period);
   });
   updateStats(true);
 }
+
+// ========== МОДАЛКИ ==========
 function openModal(id) {
   document.getElementById(id).classList.add("open");
 }
 function closeModal(id) {
   document.getElementById(id).classList.remove("open");
 }
+
+// ========== ТЕМА ==========
 function initTheme() {
   let dark = localStorage.getItem("budget_theme") === "dark";
   document.body.classList.toggle("dark", dark);
@@ -1076,40 +1435,46 @@ function initTheme() {
     };
   }
 }
+
+// ========== НАВИГАЦИЯ ==========
 function setActiveTab(tabId) {
   document
     .querySelectorAll(".tab-pane")
     .forEach((p) => p.classList.remove("active"));
-  document
-    .getElementById(`tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`)
-    .classList.add("active");
+  const tabEl = document.getElementById(
+    `tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`,
+  );
+  if (tabEl) tabEl.classList.add("active");
   document
     .querySelectorAll(".nav-item")
     .forEach((btn) => btn.classList.remove("active"));
-  document
-    .querySelector(`.nav-item[data-tab="${tabId}"]`)
-    .classList.add("active");
+  const navEl = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+  if (navEl) navEl.classList.add("active");
+
   let panel = document.getElementById("balancePanel");
   if (tabId === "home") panel.classList.remove("compact");
   else panel.classList.add("compact");
+
   if (tabId === "operations") renderAllOps();
   if (tabId === "categories") renderCatManager();
   if (tabId === "notebook") renderNotebookList();
   if (tabId === "stats") updateStats(true);
 }
+
 function refreshAll() {
   updateBalance();
   renderRecentOps();
-  if (document.getElementById("tabOperations").classList.contains("active"))
+  if (document.getElementById("tabOperations")?.classList.contains("active"))
     renderAllOps();
-  if (document.getElementById("tabCategories").classList.contains("active"))
+  if (document.getElementById("tabCategories")?.classList.contains("active"))
     renderCatManager();
-  if (document.getElementById("tabNotebook").classList.contains("active"))
+  if (document.getElementById("tabNotebook")?.classList.contains("active"))
     renderNotebookList();
-  if (document.getElementById("tabStats").classList.contains("active"))
+  if (document.getElementById("tabStats")?.classList.contains("active"))
     updateStats(true);
   updateConversionDisplay();
 }
+
 function refreshModalCats() {
   let sel = document.getElementById("modalCat");
   if (!sel) return;
@@ -1118,6 +1483,7 @@ function refreshModalCats() {
   for (let c of cats) sel.appendChild(new Option(c, c));
   refreshModalSubcats();
 }
+
 function refreshModalSubcats() {
   let field = document.getElementById("modalSubcatField");
   let sel = document.getElementById("modalSubcat");
@@ -1131,16 +1497,19 @@ function refreshModalSubcats() {
     field.style.display = "none";
   }
 }
+
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 document.addEventListener("DOMContentLoaded", () => {
   loadAll();
   initTheme();
   buildCalcGrid();
   loadNotebook();
+
   let savedConv = localStorage.getItem("conv_hist_full");
-  if (savedConv) convHistory = JSON.parse(savedConv);
-  else convHistory = [];
+  convHistory = savedConv ? JSON.parse(savedConv) : [];
   let savedCalc = localStorage.getItem("calc_hist_full");
-  if (savedCalc) calcHistory = JSON.parse(savedCalc);
+  calcHistory = savedCalc ? JSON.parse(savedCalc) : [];
+
   renderConvHistory();
   renderCalcPreview();
   updateBalance();
@@ -1149,6 +1518,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCatManager();
   renderNotebookList();
   refreshModalCats();
+
+  // ===== FAB =====
   document.getElementById("fabBtn").onclick = () => {
     setDateValue("modalDate", today());
     openModal("addOpModal");
@@ -1157,36 +1528,54 @@ document.addEventListener("DOMContentLoaded", () => {
     setDateValue("modalDate", today());
     openModal("addOpModal");
   };
+
+  // ===== КОЛЛАПС =====
   const collapsible = document.getElementById("quickActionBlock");
-  const header = collapsible.querySelector(".collapsible-header");
-  header.addEventListener("click", () => {
-    collapsible.classList.toggle("collapsed");
-  });
+  collapsible
+    .querySelector(".collapsible-header")
+    .addEventListener("click", () => {
+      collapsible.classList.toggle("collapsed");
+    });
+
+  // ===== ПОМОЩЬ =====
   document.getElementById("helpBtn").onclick = () => {
     const helpBody = document.getElementById("helpModalBody");
     if (helpBody) {
       helpBody.innerHTML = `
-        <p>${t("help_intro")}</p>
+        <p style="color:var(--text-secondary);font-size:0.88rem;line-height:1.7;">${t("help_intro")}</p>
         <br>
-        <b>${t("help_features")}</b>
-        <ul>
-          <li>${t("help_balance")}</li>
-          <li>${t("help_operations")}</li>
-          <li>${t("help_categories")}</li>
-          <li>${t("help_tools")}</li>
-          <li>${t("help_notebook")}</li>
-          <li>${t("help_stats")}</li>
-        </ul>
+        <div style="font-weight:600;margin-bottom:10px;">${t("help_features")}</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_balance")}</div>
+          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_operations")}</div>
+          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_categories")}</div>
+          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_tools")}</div>
+          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_notebook")}</div>
+          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_stats")}</div>
+        </div>
+        <br>
+        <div style="text-align:center;">
+          <button class="btn-sm guide-restart-btn" id="restartGuideBtn">🎯 Повторить гайд</button>
+        </div>
       `;
+      document
+        .getElementById("restartGuideBtn")
+        ?.addEventListener("click", () => {
+          closeModal("helpModal");
+          startGuide();
+        });
     }
     openModal("helpModal");
   };
+
   document.getElementById("closeHelpModal").onclick = () =>
     closeModal("helpModal");
   document.getElementById("closeAddOpModal").onclick = () =>
     closeModal("addOpModal");
   document.getElementById("closeEditOpModal").onclick = () =>
     closeModal("editOpModal");
+
+  // ===== ДОБАВЛЕНИЕ ОПЕРАЦИИ =====
   document.getElementById("modalAddBtn").onclick = () => {
     let cat = document.getElementById("modalCat").value;
     let amount = parseFloat(document.getElementById("modalAmount").value);
@@ -1206,8 +1595,12 @@ document.addEventListener("DOMContentLoaded", () => {
       saveAll();
       refreshAll();
       closeModal("addOpModal");
+      // Сброс формы
+      document.getElementById("modalAmount").value = "";
+      document.getElementById("modalNote").value = "";
     } else alert(t("fill_fields"));
   };
+
   document.getElementById("typeExpenseBtn").onclick = () => {
     currentOpType = "expense";
     document.getElementById("typeExpenseBtn").classList.add("active");
@@ -1220,6 +1613,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("typeExpenseBtn").classList.remove("active");
     refreshModalCats();
   };
+
   document
     .getElementById("modalCat")
     .addEventListener("change", refreshModalSubcats);
@@ -1252,6 +1646,7 @@ document.addEventListener("DOMContentLoaded", () => {
       renderCatManager();
     }
   };
+
   document.getElementById("clearAllBtn").onclick = () => {
     if (confirm(t("confirm_clear_all"))) {
       transactions = [];
@@ -1261,6 +1656,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   document.getElementById("viewAllOpsBtn").onclick = () =>
     setActiveTab("operations");
+
+  // ===== ЗАРПЛАТА =====
   document.getElementById("editStartBtn").onclick = () => {
     let val = prompt(
       `${t("enter_salary")} (${sym()}):`,
@@ -1274,6 +1671,8 @@ document.addEventListener("DOMContentLoaded", () => {
         updateStats(true);
     }
   };
+
+  // ===== ВАЛЮТА =====
   document.getElementById("displayCurrencySelect").onchange = () => {
     displayCurrency = document.getElementById("displayCurrencySelect").value;
     saveAll();
@@ -1296,6 +1695,8 @@ document.addEventListener("DOMContentLoaded", () => {
         `⚠️ ${t("update_error")}`;
     }
   };
+
+  // ===== КОНВЕРТЕР =====
   document.getElementById("convBtn").onclick = doConvert;
   document.getElementById("convAmount").oninput = updateConversionDisplay;
   document.getElementById("convFrom").onchange = updateConversionDisplay;
@@ -1312,6 +1713,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("clearFullConvHistoryBtn").onclick = () => {
     if (confirm(t("confirm_clear_conv_history"))) clearConvHistory();
   };
+
+  // ===== КАЛЬКУЛЯТОР =====
   document.getElementById("openCalcHistoryBtn").onclick = () => {
     renderFullCalcHistory();
     openModal("calcHistoryModal");
@@ -1321,6 +1724,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("clearCalcHistoryBtn").onclick = () => {
     if (confirm(t("confirm_clear_calc_history"))) clearCalcHistory();
   };
+
+  // ===== ПОИСК =====
   document.getElementById("applySearchBtn").onclick = () => renderAllOps();
   document.getElementById("resetSearchBtn").onclick = () => {
     document.getElementById("searchText").value = "";
@@ -1341,6 +1746,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("searchType")
     .addEventListener("change", () => renderAllOps());
+
+  // ===== КАТЕГОРИИ =====
   document.getElementById("addCatGroupBtn").onclick = () => {
     let newCat = prompt(t("enter_category_name"));
     if (
@@ -1356,15 +1763,21 @@ document.addEventListener("DOMContentLoaded", () => {
       refreshModalCats();
     }
   };
+
+  // ===== БЛОКНОТ =====
   document.getElementById("newPageBtn").onclick = createNotebookPage;
   document.getElementById("saveNbPageBtn").onclick = saveNotebookPage;
   document.getElementById("deleteNbPageBtn").onclick = deleteNotebookPage;
   document.getElementById("closeNotebookModal").onclick = () =>
     closeModal("notebookModal");
+
+  // ===== ПОДКАТЕГОРИИ =====
   document.getElementById("saveSubcatBtn").onclick = saveSubcatEdit;
   document.getElementById("deleteSubcatBtn").onclick = deleteSubcatFromModal;
   document.getElementById("closeEditSubcatModal").onclick = () =>
     closeModal("editSubcatModal");
+
+  // ===== РЕДАКТИРОВАНИЕ ОПЕРАЦИИ =====
   document.getElementById("editTypeExpenseBtn").onclick = () => {
     document.getElementById("editTypeExpenseBtn").classList.add("active");
     document.getElementById("editTypeIncomeBtn").classList.remove("active");
@@ -1380,32 +1793,55 @@ document.addEventListener("DOMContentLoaded", () => {
     .addEventListener("change", refreshEditModalSubcats);
   document.getElementById("saveOpBtn").onclick = saveEditedOp;
   document.getElementById("deleteOpBtn").onclick = deleteEditedOp;
+
+  // ===== СТАТИСТИКА =====
   document.getElementById("resetStatsBtn").onclick = resetStats;
   document
     .querySelectorAll(".period-btn")
     .forEach((btn) =>
       btn.addEventListener("click", () => setPeriod(btn.dataset.period)),
     );
+
+  // ===== НАВИГАЦИЯ =====
   document
     .querySelectorAll(".nav-item")
     .forEach((btn) => (btn.onclick = () => setActiveTab(btn.dataset.tab)));
+
+  // ===== РЕСАЙЗ =====
   window.addEventListener("resize", () => {
-    if (document.getElementById("tabStats").classList.contains("active"))
-      updateStats(true);
+    if (document.getElementById("tabStats")?.classList.contains("active"))
+      updateStats(false);
   });
+
+  // ===== НАБЛЮДАТЕЛЬ ЗА ТЕМОЙ =====
   const observer = new MutationObserver(() => {
-    if (document.getElementById("tabStats").classList.contains("active"))
+    if (document.getElementById("tabStats")?.classList.contains("active"))
       updateStats(false);
   });
   observer.observe(document.body, {
     attributes: true,
     attributeFilter: ["class"],
   });
-  window._appReady = true;
-  if (window.setLanguage) {
-    window.setLanguage(localStorage.getItem("app_lang") || "ru");
+
+  // ===== ГАЙД =====
+  document.getElementById("guideNextBtn").onclick = () => {
+    currentGuideStep++;
+    if (currentGuideStep >= guideSteps.length) endGuide();
+    else showGuideStep(currentGuideStep);
+  };
+  document.getElementById("guideSkipBtn").onclick = endGuide;
+
+  // Показываем гайд первый раз
+  if (!localStorage.getItem("guide_shown")) {
+    setTimeout(() => startGuide(), 800);
   }
+
+  window._appReady = true;
+  if (window.setLanguage)
+    window.setLanguage(localStorage.getItem("app_lang") || "ru");
   updateConversionDisplay();
 });
+
 window.refreshAll = refreshAll;
 window.updateStats = updateStats;
+window.startGuide = startGuide;
