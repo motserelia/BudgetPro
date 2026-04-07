@@ -39,7 +39,7 @@
 
   --text-primary: #1a1f1c;
   --text-secondary: #5a7060;
-  --text-muted: #9aad9f;
+  --text-muted: #363a37;
   --text-on-dark: rgba(255, 255, 248, 0.92);
 
   --shadow-xs: 0 1px 4px rgba(0,0,0,0.06);
@@ -76,7 +76,7 @@
 body.dark {
   --accent: #4db87e;
   --accent-light: #63cc92;
-  --accent-btn: #3faa70;
+  --accent-btn: #aa3f3f;
   --accent-glow: rgba(77, 184, 126, 0.3);
   --accent-subtle: rgba(77, 184, 126, 0.1);
 
@@ -591,7 +591,7 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
 .collapsible-block.collapsed .collapsible-content { display: none; }
 
 .quick-action-btn {
-  background: linear-gradient(135deg, var(--accent-btn), var(--accent-light));
+  background: linear-gradient(135deg, #3f8daa, var(--accent-light));
   color: white;
   border: none;
   border-radius: var(--radius-pill);
@@ -690,11 +690,11 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
 @media (max-width: 450px) { .op-row2 span { max-width: 120px; } }
 
 .op-del, .subcat-del, .hist-del, .modal-close {
-  background: var(--surface-3);
+  background: linear-gradient(135deg, #3f8daa, var(--accent-light));
   border: none;
   font-size: 0.9rem;
   cursor: pointer;
-  color: var(--text-muted);
+  color: white;
   padding: 0;
   border-radius: 50%;
   width: 30px; height: 30px;
@@ -1107,7 +1107,7 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
 .subcats-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .subcat-chip {
   background: var(--accent-subtle);
-  border: 1px solid rgba(42,157,96,0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-pill);
   padding: 4px 10px;
   font-size: 0.72rem;
@@ -1123,7 +1123,7 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
 }
 .subcat-chip:hover { background: var(--accent); color: #fff; }
 
-/* ============ КАЛЬКУЛЯТОР (улучшенные цвета) ============ */
+/* ============ КАЛЬКУЛЯТОР — Тёмный графит ============ */
 .calc-display {
   font-family: 'DM Mono', monospace;
   font-size: 2.2rem;
@@ -1147,59 +1147,84 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
   gap: 8px;
   margin-top: 10px;
 }
+
 .calc-btn {
-  background: var(--surface-2);
-  border: 1px solid var(--border-md);
+  background: #5a5a5a;
+  border: 1px solid #3a3a3a;
   border-radius: var(--radius-md);
   padding: 14px 0;
   font-family: 'DM Mono', monospace;
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.2rem;
   cursor: pointer;
-  transition: all 0.15s ease;
-  color: var(--text-primary);
-  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+  color: #f0f0f0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 .calc-btn:hover {
   transform: translateY(-2px);
-  background: var(--surface-3);
-  border-color: var(--border-hover);
+  background: #6a6a6a;
+  border-color: #5a5a5a;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
 }
 .calc-btn:active {
   transform: scale(0.96);
 }
+
 .calc-btn.op {
-  background: var(--accent);
+  background: linear-gradient(135deg, #c88050, #a86030);
   color: white;
-  border-color: var(--accent);
-  text-shadow: 0 1px 0 rgba(0,0,0,0.1);
+  border: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(200,128,80,0.4);
 }
 .calc-btn.op:hover {
-  background: var(--accent-light);
-  filter: brightness(1.05);
+  background: linear-gradient(135deg, #d89060, #c88050);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(200,128,80,0.6);
 }
+
 .calc-btn.clear, .calc-btn.back {
-  background: var(--red-bg);
-  color: var(--red-text);
-  border-color: rgba(217,79,61,0.3);
+  background: #8a5a4a;
+  color: #f8f0e8;
+  border: none;
+  box-shadow: 0 2px 8px rgba(138,90,74,0.3);
 }
 .calc-btn.clear:hover, .calc-btn.back:hover {
-  background: var(--red);
-  color: white;
-  border-color: transparent;
+  background: #7a4a3a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(138,90,74,0.5);
+}
+
+body.dark .calc-btn {
+  background: #2a2a2a;
+  border-color: #4a4a4a;
+  color: #e0e0e0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+body.dark .calc-btn:hover {
+  background: #3a3a3a;
+  border-color: #6a6a6a;
+  box-shadow: 0 0 12px rgba(100,100,100,0.3);
 }
 body.dark .calc-btn.op {
-  background: #3faa70;
-  color: #0a0f0b;
+  background: linear-gradient(135deg, #a86030, #884820);
+  box-shadow: 0 4px 14px rgba(168,96,48,0.5);
+}
+body.dark .calc-btn.op:hover {
+  background: linear-gradient(135deg, #c88050, #a86030);
+  box-shadow: 0 8px 22px rgba(200,128,80,0.7);
 }
 body.dark .calc-btn.clear, body.dark .calc-btn.back {
-  background: rgba(240,112,96,0.2);
-  color: #f07060;
+  background: #5a3a2a;
+  color: #f0d0b0;
+  box-shadow: 0 2px 10px rgba(90,58,42,0.4);
 }
 body.dark .calc-btn.clear:hover, body.dark .calc-btn.back:hover {
-  background: #f07060;
-  color: #0a0f0b;
+  background: #6a4a3a;
+  box-shadow: 0 6px 16px rgba(90,58,42,0.6);
 }
+
 
 /* ============ КОНВЕРТЕР ============ */
 .conv-row {
@@ -1648,20 +1673,24 @@ body.dark .calc-btn.clear:hover, body.dark .calc-btn.back:hover {
 .dp-btn-clear:hover { background: var(--red-bg); color: var(--red-text); border-color: var(--red); }
 
 /* ============ ТУТОРИАЛ / ГАЙД ============ */
-.guide-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2000;
-  pointer-events: none;
-}
 .guide-spotlight {
   position: absolute;
-  box-shadow: 0 0 0 9999px rgba(0,0,0,0.65);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.85); /* было 0.65 */
   border-radius: var(--radius-md);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   border: 2px solid rgba(255,255,255,0.25);
 }
+
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  pointer-events: none;
+ /* backdrop-filter: blur(2px); */ /* опционально, для лёгкого размытия */
+}
+
+
 .guide-tooltip {
   position: absolute;
   background: var(--surface-0);
