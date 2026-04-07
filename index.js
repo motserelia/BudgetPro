@@ -26,6 +26,7 @@ let currentStatsPeriod = "month";
 let statsAnimationFrame = null;
 let currentDisplayPercentExpense = 0,
   currentDisplayPercentIncome = 0;
+let trendAnimationId = null; // для анимации линейного графика
 
 // ========== ГАЙД ==========
 const guideSteps = [
@@ -36,6 +37,7 @@ const guideSteps = [
     defaultTitle: "💰 Панель баланса",
     defaultDesc:
       "Здесь отображается ваш финансовый баланс: начальная зарплата, доходы, расходы и остаток. Нажмите «Зарплата», чтобы установить начальный баланс.",
+    navTo: null,
   },
   {
     target: ".fab",
@@ -44,6 +46,7 @@ const guideSteps = [
     defaultTitle: "➕ Добавление операции",
     defaultDesc:
       "Нажмите эту кнопку, чтобы добавить новую операцию — доход или расход. Укажите категорию, сумму, дату и заметку.",
+    navTo: null,
   },
   {
     target: ".bottom-nav",
@@ -52,6 +55,7 @@ const guideSteps = [
     defaultTitle: "🗂️ Навигация",
     defaultDesc:
       "Главная — последние операции. Операции — полный список с поиском. Категории — управление категориями. Инструменты — калькулятор и конвертер. Блокнот — заметки. Данные — статистика.",
+    navTo: null,
   },
   {
     target: "#tabStats",
@@ -78,6 +82,7 @@ const guideSteps = [
     defaultTitle: "❔ Помощь",
     defaultDesc:
       "Нажмите кнопку ❔ в шапке, чтобы открыть подробную инструкцию по всем функциям приложения в любое время.",
+    navTo: null,
   },
 ];
 
@@ -110,11 +115,11 @@ function showGuideStep(idx) {
   overlay.style.pointerEvents = "none";
   tooltip.style.pointerEvents = "all";
 
-  // Текст
+  // Текст с переводом
   document.getElementById("guideCounter").textContent =
     `Шаг ${idx + 1} из ${guideSteps.length}`;
-  document.getElementById("guideTitle").textContent = step.defaultTitle;
-  document.getElementById("guideDesc").textContent = step.defaultDesc;
+  document.getElementById("guideTitle").textContent = t(step.titleKey);
+  document.getElementById("guideDesc").textContent = t(step.descKey);
 
   // Прогресс
   const prog = document.getElementById("guideProgress");
@@ -124,7 +129,8 @@ function showGuideStep(idx) {
 
   // Кнопка
   const nextBtn = document.getElementById("guideNextBtn");
-  nextBtn.textContent = idx === guideSteps.length - 1 ? "Готово ✓" : "Далее →";
+  nextBtn.textContent =
+    idx === guideSteps.length - 1 ? t("guide_finish") || "Готово ✓" : "Далее →";
 
   // Позиционирование спотлайта
   requestAnimationFrame(() => {
@@ -1228,13 +1234,12 @@ function isDarkMode() {
   return document.body.classList.contains("dark");
 }
 
-// Трендовая диаграмма
-function drawTrendChart() {
+// Трендовая диаграмма с анимацией
+function drawTrendChart(animate = true) {
   const canvas = document.getElementById("trendChart");
   if (!canvas) return;
-
   const container = canvas.parentElement;
-  const W = container.clientWidth - 32; // учитываем padding
+  const W = container.clientWidth - 32;
   const H = 100;
   canvas.width = W;
   canvas.height = H;
@@ -1260,26 +1265,11 @@ function drawTrendChart() {
     dailyData.push({ date: dateStr, inc, exp });
   }
 
-  // Если нет данных — рисуем пустой график
   const maxVal = Math.max(...dailyData.map((d) => Math.max(d.inc, d.exp)), 1);
   const padX = 8,
     padY = 12;
   const chartW = W - padX * 2;
   const chartH = H - padY * 2;
-
-  ctx.clearRect(0, 0, W, H);
-
-  // Сетка
-  ctx.strokeStyle = colors.gridLine;
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 2; i++) {
-    let y = padY + chartH * (i / 2);
-    ctx.beginPath();
-    ctx.moveTo(padX, y);
-    ctx.lineTo(W - padX, y);
-    ctx.stroke();
-  }
-
   const xStep = chartW / Math.max(dailyData.length - 1, 1);
 
   function getPoints(arr, key) {
@@ -1289,31 +1279,39 @@ function drawTrendChart() {
     }));
   }
 
-  function drawArea(points, color) {
-    if (points.length < 2) return;
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, padY + chartH);
-    ctx.lineTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      const prev = points[i - 1],
-        curr = points[i];
-      const cpx = (prev.x + curr.x) / 2;
-      ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
-    }
-    ctx.lineTo(points[points.length - 1].x, padY + chartH);
-    ctx.closePath();
-    const grad = ctx.createLinearGradient(0, padY, 0, padY + chartH);
-    grad.addColorStop(0, color + "40");
-    grad.addColorStop(1, color + "00");
-    ctx.fillStyle = grad;
-    ctx.fill();
+  const incPoints = getPoints(dailyData, "inc");
+  const expPoints = getPoints(dailyData, "exp");
 
-    // Линия
+  function drawLineAndArea(points, color, progress = 1) {
+    if (points.length < 2) return;
+    // Рисуем площадь только если progress > 0
+    if (progress > 0) {
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, padY + chartH);
+      ctx.lineTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1],
+          curr = points[i];
+        const cpx = (prev.x + curr.x) / 2;
+        ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
+      }
+      ctx.lineTo(points[points.length - 1].x, padY + chartH);
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, padY, 0, padY + chartH);
+      grad.addColorStop(0, color + "40");
+      grad.addColorStop(1, color + "00");
+      ctx.fillStyle = grad;
+      ctx.fill();
+    }
+    // Линия (обрезаем по progress)
     ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      const prev = points[i - 1],
-        curr = points[i];
+    let maxIndex = Math.floor((points.length - 1) * progress);
+    if (maxIndex < 1) maxIndex = 1;
+    const limitedPoints = points.slice(0, maxIndex + 1);
+    ctx.moveTo(limitedPoints[0].x, limitedPoints[0].y);
+    for (let i = 1; i < limitedPoints.length; i++) {
+      const prev = limitedPoints[i - 1],
+        curr = limitedPoints[i];
       const cpx = (prev.x + curr.x) / 2;
       ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
     }
@@ -1325,21 +1323,51 @@ function drawTrendChart() {
     ctx.shadowBlur = 6;
     ctx.stroke();
     ctx.shadowBlur = 0;
-
-    // Точки
-    points.forEach((p) => {
+    // Точки (только для отрисованных сегментов)
+    for (let i = 0; i <= maxIndex; i++) {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 3, 0, 2 * Math.PI);
+      ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
       ctx.fillStyle = color;
       ctx.fill();
-    });
+    }
   }
 
-  const incPoints = getPoints(dailyData, "inc");
-  const expPoints = getPoints(dailyData, "exp");
+  function drawGrid() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = colors.gridLine;
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 2; i++) {
+      let y = padY + chartH * (i / 2);
+      ctx.beginPath();
+      ctx.moveTo(padX, y);
+      ctx.lineTo(W - padX, y);
+      ctx.stroke();
+    }
+  }
 
-  drawArea(incPoints, colors.income);
-  drawArea(expPoints, colors.expense);
+  if (animate) {
+    const startTime = performance.now();
+    const duration = 700;
+    if (trendAnimationId) cancelAnimationFrame(trendAnimationId);
+    function animateTrend(nowTime) {
+      const elapsed = nowTime - startTime;
+      let progress = Math.min(1, elapsed / duration);
+      progress = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      drawGrid();
+      drawLineAndArea(incPoints, colors.income, progress);
+      drawLineAndArea(expPoints, colors.expense, progress);
+      if (progress < 1) {
+        trendAnimationId = requestAnimationFrame(animateTrend);
+      } else {
+        trendAnimationId = null;
+      }
+    }
+    trendAnimationId = requestAnimationFrame(animateTrend);
+  } else {
+    drawGrid();
+    drawLineAndArea(incPoints, colors.income, 1);
+    drawLineAndArea(expPoints, colors.expense, 1);
+  }
 }
 
 function updateStats(animate = true) {
@@ -1388,7 +1416,7 @@ function updateStats(animate = true) {
     drawChartAnimated(targetPercentExpense, targetPercentIncome, 0);
   }
 
-  drawTrendChart();
+  drawTrendChart(animate);
 }
 
 function resetStats() {
