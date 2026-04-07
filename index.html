@@ -12,13 +12,14 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
-    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="BudgetPRO" />
-    <meta name="theme-color" content="#0d2b1a" />
+    <meta name="theme-color" content="#1a3328" />
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
     <div class="app">
+      <!-- ===== ШАПКА ===== -->
       <header class="header">
         <div class="header-left">
           <div class="logo">💰</div>
@@ -51,6 +52,7 @@
         </div>
       </header>
 
+      <!-- ===== БАЛАНС ===== -->
       <div class="balance-panel" id="balancePanel">
         <div class="balance-cards" id="balanceCards"></div>
         <div class="balance-controls">
@@ -85,6 +87,7 @@
         <div id="rateStatus" class="rate-status"></div>
       </div>
 
+      <!-- ===== КОНТЕНТ ===== -->
       <div class="tab-content" id="tabContent">
         <!-- ГЛАВНАЯ -->
         <section class="tab-pane active" id="tabHome">
@@ -93,7 +96,7 @@
               <span
                 >⚡ <span data-i18n="quick_action">Быстрое действие</span></span
               >
-              <span class="collapse-icon">▼</span>
+              <span class="collapse-icon">▾</span>
             </div>
             <div class="collapsible-content">
               <button class="quick-action-btn" id="homeQuickAddBtn">
@@ -101,7 +104,7 @@
               </button>
               <div
                 style="
-                  font-size: 0.7rem;
+                  font-size: 0.68rem;
                   color: var(--text-muted);
                   text-align: center;
                   margin-top: 8px;
@@ -112,6 +115,7 @@
               </div>
             </div>
           </div>
+
           <div class="help-hint">
             <span>🏠</span>
             <span data-i18n="home_hint"
@@ -119,15 +123,9 @@
               доход/расход. Зарплата — установите начальный баланс.</span
             >
           </div>
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 12px;
-            "
-          >
-            <h2>
+
+          <div class="section-row">
+            <h2 class="section-title">
               📋
               <span data-i18n="last_operations_title">Последние операции</span>
             </h2>
@@ -139,6 +137,7 @@
               🧹 Очистить все
             </button>
           </div>
+
           <div id="recentOpsList" class="ops-list"></div>
           <button class="btn-link" id="viewAllOpsBtn" data-i18n="show_all_ops">
             Показать все операции →
@@ -150,7 +149,7 @@
           <div class="help-hint">
             <span>🔍</span>
             <span data-i18n="operations_hint"
-              >Поиск по дате (с / по), категории, типу. Кликните по операции для
+              >Поиск по дате (с / по), категории, типу. Нажмите на операцию для
               редактирования.</span
             >
           </div>
@@ -197,14 +196,15 @@
           <div class="help-hint">
             <span>🗂️</span>
             <span data-i18n="categories_hint"
-              >Клик по названию категории — переименовать. Клик по подкатегории
-              — изменить. Кнопки "+" для добавления подкатегорий.</span
+              >Нажмите на название категории — переименовать. Нажмите на
+              подкатегорию — изменить. Кнопки «+» для добавления
+              подкатегорий.</span
             >
           </div>
           <button
             class="btn-sm"
             id="addCatGroupBtn"
-            style="margin-bottom: 12px"
+            style="margin-bottom: 14px"
             data-i18n="add_category"
           >
             + Добавить категорию
@@ -217,35 +217,49 @@
           <div class="help-hint">
             <span>🧮</span>
             <span data-i18n="tools_hint"
-              >Калькулятор и конвертер валют. История конвертации — полный
-              просмотр и удаление.</span
+              >Калькулятор и конвертер валют. Нажмите «История» для
+              просмотра.</span
             >
           </div>
-          <div>
-            <h3>🧮 <span data-i18n="calculator">Калькулятор</span></h3>
-            <div style="display: flex; justify-content: space-between">
-              <div id="calcHistoryPreview" style="font-size: 0.7rem"></div>
+
+          <!-- Калькулятор -->
+          <div class="tools-section">
+            <div class="tools-section-title">
+              🧮 <span data-i18n="calculator">Калькулятор</span>
               <button
                 class="btn-sm"
                 id="openCalcHistoryBtn"
+                style="margin-left: auto; font-size: 0.7rem"
                 data-i18n="history"
               >
                 История
               </button>
             </div>
+            <div
+              id="calcHistoryPreview"
+              style="
+                font-size: 0.65rem;
+                color: var(--text-muted);
+                margin-bottom: 6px;
+                min-height: 16px;
+              "
+            ></div>
             <div class="calc-display" id="calcDisplay">0</div>
             <div class="calc-grid" id="calcGrid"></div>
           </div>
-          <div style="margin-top: 25px;
-    border-top: groove;">
-            <h3 style="margin: 20px;">💱 <span data-i18n="converter">Конвертер валют</span></h3>
-           
+
+          <!-- Конвертер -->
+          <div class="tools-section">
+            <div class="tools-section-title">
+              💱 <span data-i18n="converter">Конвертер валют</span>
+            </div>
             <div class="conv-row">
               <input
                 type="number"
                 id="convAmount"
                 value="100"
                 class="conv-input"
+                style="width: 90px; flex-shrink: 0"
               />
               <select id="convFrom" class="conv-sel">
                 <option value="RUB">RUB</option>
@@ -255,7 +269,7 @@
                 <option value="GBP">GBP</option>
                 <option value="KZT">KZT</option>
               </select>
-              <span>→</span>
+              <span style="color: var(--text-muted); font-size: 1.1rem">→</span>
               <select id="convTo" class="conv-sel">
                 <option value="GEL">GEL</option>
                 <option value="USD">USD</option>
@@ -270,26 +284,26 @@
             </div>
             <div id="convResult" class="conv-result"></div>
             <div id="convHistoryList" class="conv-history"></div>
-          </div>
-           <div
+            <div
               style="
                 display: flex;
                 gap: 8px;
                 justify-content: flex-end;
-                    margin: 20px;
+                margin-top: 10px;
               "
             >
               <button class="btn-sm" id="openConvHistoryBtn">
                 📜 <span data-i18n="history">История</span>
               </button>
               <button
-                class="btn-sm"
+                class="btn-danger-sm"
                 id="clearConvHistoryBtn"
                 data-i18n="clear_all_history"
               >
                 🗑 Очистить всё
               </button>
             </div>
+          </div>
         </section>
 
         <!-- БЛОКНОТ -->
@@ -301,14 +315,10 @@
               Нажмите на карточку для редактирования.</span
             >
           </div>
-          <button class="btn-sm" id="newPageBtn">
+          <button class="btn-sm" id="newPageBtn" style="margin-bottom: 14px">
             ➕ <span data-i18n="new_page">Новая страница</span>
           </button>
-          <div
-            id="notebookList"
-            class="notebook-list"
-            style="margin-top: 12px"
-          ></div>
+          <div id="notebookList" class="notebook-list"></div>
         </section>
 
         <!-- СТАТИСТИКА -->
@@ -316,8 +326,9 @@
           <div class="help-hint">
             <span>📊</span>
             <span data-i18n="stats_hint"
-              >Анализ доходов и расходов. Выберите период: день, неделя или
-              месяц.</span
+              >Анализ доходов и расходов. Выберите период — день, неделя или
+              месяц. Круговая диаграмма — соотношение. Стрелочная —
+              динамика.</span
             >
           </div>
           <div class="stats-container">
@@ -328,21 +339,21 @@
                   data-period="day"
                   data-i18n="day_period"
                 >
-                  📅 День
+                  День
                 </button>
                 <button
                   class="period-btn"
                   data-period="week"
                   data-i18n="week_period"
                 >
-                  📆 Неделя
+                  Неделя
                 </button>
                 <button
                   class="period-btn active"
                   data-period="month"
                   data-i18n="month_period"
                 >
-                  📆 Месяц
+                  Месяц
                 </button>
               </div>
               <button
@@ -350,41 +361,89 @@
                 id="resetStatsBtn"
                 data-i18n="reset_stats"
               >
-                🔄 Сбросить статистику
+                🔄 Сбросить
               </button>
             </div>
+
             <div
               id="statsTempMessageInline"
               class="stats-temp-message"
               style="opacity: 0"
             ></div>
+
+            <!-- Кольцевая диаграмма -->
             <div class="chart-wrapper">
-              <canvas id="statsChart" width="400" height="400"></canvas>
-              <div class="chart-percent" id="statsPercent">—</div>
+              <canvas id="statsChart" width="220" height="220"></canvas>
+              <div class="chart-center">
+                <div class="chart-percent" id="statsPercent">—</div>
+                <div class="chart-sublabel" id="statsPercentLabel">
+                  расх / дох
+                </div>
+              </div>
             </div>
+
             <div class="chart-legend">
               <div class="legend-item">
-                <div class="legend-color" style="background: #e05c4b"></div>
+                <div
+                  class="legend-dot"
+                  style="background: var(--red-text)"
+                ></div>
                 <span data-i18n="expenses_legend">Расходы</span>
               </div>
               <div class="legend-item">
-                <div class="legend-color" style="background: #1a7a4a"></div>
+                <div class="legend-dot" style="background: var(--accent)"></div>
                 <span data-i18n="income_legend">Доходы</span>
               </div>
             </div>
+
+            <!-- Трендовая диаграмма (стрелка) -->
+            <div class="trend-chart-wrap">
+              <div class="trend-chart-title">
+                📈 Динамика доходов и расходов
+              </div>
+              <canvas id="trendChart" height="100"></canvas>
+              <div class="trend-legend">
+                <div class="trend-legend-item">
+                  <div
+                    class="trend-dot"
+                    style="background: var(--accent)"
+                  ></div>
+                  <span data-i18n="income_legend">Доходы</span>
+                </div>
+                <div class="trend-legend-item">
+                  <div
+                    class="trend-dot"
+                    style="background: var(--red-text)"
+                  ></div>
+                  <span data-i18n="expenses_legend">Расходы</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Детали -->
             <div class="stats-details" id="statsDetails">
               <div class="stats-period-label" id="statsPeriodLabel">
                 Загрузка...
               </div>
-              <p id="statsIncomeAmount">💰 Доходы: 0</p>
-              <p id="statsExpenseAmount">💸 Расходы: 0</p>
-              <p id="statsBalance">💎 Чистый результат: 0</p>
+              <p id="statsIncomeAmount">
+                <span>💰 <span data-i18n="income">Доходы</span></span
+                ><span>—</span>
+              </p>
+              <p id="statsExpenseAmount">
+                <span>💸 <span data-i18n="expense">Расходы</span></span
+                ><span>—</span>
+              </p>
+              <p id="statsBalance">
+                <span>💎 <span data-i18n="balance">Баланс</span></span
+                ><span>—</span>
+              </p>
             </div>
           </div>
         </section>
       </div>
+      <!-- /tab-content -->
 
-      <!-- НАВИГАЦИЯ -->
+      <!-- ===== НАВИГАЦИЯ ===== -->
       <nav class="bottom-nav">
         <button class="nav-item active" data-tab="home">
           <span class="nav-icon">🏠</span>
@@ -413,8 +472,9 @@
       </nav>
       <button class="fab" id="fabBtn">＋</button>
     </div>
+    <!-- /app -->
 
-    <!-- МОДАЛКА ПОМОЩИ -->
+    <!-- ===== МОДАЛКА ПОМОЩИ ===== -->
     <div class="modal-overlay" id="helpModal">
       <div class="modal">
         <div class="modal-header">
@@ -425,7 +485,7 @@
       </div>
     </div>
 
-    <!-- МОДАЛКА ДОБАВЛЕНИЯ ОПЕРАЦИИ -->
+    <!-- ===== МОДАЛКА ДОБАВЛЕНИЯ ОПЕРАЦИИ ===== -->
     <div class="modal-overlay" id="addOpModal">
       <div class="modal">
         <div class="modal-header">
@@ -478,6 +538,7 @@
               id="modalAmount"
               class="modal-input"
               step="any"
+              placeholder="0.00"
             />
           </div>
           <div class="field-group">
@@ -485,8 +546,24 @@
             <input type="date" id="modalDate" class="modal-input" />
           </div>
           <div class="field-group">
-            <label data-i18n="note">Заметка</label>
-            <textarea id="modalNote" class="modal-textarea" rows="2"></textarea>
+            <label data-i18n="note"
+              >Заметка
+              <span
+                style="
+                  font-weight: 400;
+                  text-transform: none;
+                  letter-spacing: 0;
+                  color: var(--text-muted);
+                "
+                >(необязательно)</span
+              ></label
+            >
+            <textarea
+              id="modalNote"
+              class="modal-textarea"
+              rows="2"
+              placeholder="Коментарий к операции..."
+            ></textarea>
           </div>
           <div class="modal-actions">
             <button class="btn-primary" id="modalAddBtn">
@@ -497,7 +574,7 @@
       </div>
     </div>
 
-    <!-- МОДАЛКА РЕДАКТИРОВАНИЯ ОПЕРАЦИИ -->
+    <!-- ===== МОДАЛКА РЕДАКТИРОВАНИЯ ОПЕРАЦИИ ===== -->
     <div class="modal-overlay" id="editOpModal">
       <div class="modal">
         <div class="modal-header">
@@ -564,10 +641,7 @@
               rows="2"
             ></textarea>
           </div>
-          <div
-            class="modal-actions"
-            style="display: flex; gap: 8px; justify-content: space-between"
-          >
+          <div class="modal-actions" style="justify-content: space-between">
             <button class="btn-danger-sm" id="deleteOpBtn">
               🗑 <span data-i18n="delete">Удалить</span>
             </button>
@@ -579,11 +653,11 @@
       </div>
     </div>
 
-    <!-- МОДАЛКА ИСТОРИИ КОНВЕРТАЦИИ -->
+    <!-- ===== МОДАЛКА ИСТОРИИ КОНВЕРТАЦИИ ===== -->
     <div class="modal-overlay" id="convHistoryModal">
       <div class="modal">
         <div class="modal-header">
-          <h2>📜 <span data-i18n="history">История</span></h2>
+          <h2>📜 <span data-i18n="history">История конвертаций</span></h2>
           <button class="modal-close" id="closeConvHistoryModal">✕</button>
         </div>
         <div class="modal-body">
@@ -600,11 +674,11 @@
       </div>
     </div>
 
-    <!-- МОДАЛКА ИСТОРИИ КАЛЬКУЛЯТОРА -->
+    <!-- ===== МОДАЛКА ИСТОРИИ КАЛЬКУЛЯТОРА ===== -->
     <div class="modal-overlay" id="calcHistoryModal">
       <div class="modal">
         <div class="modal-header">
-          <h2>🧮 <span data-i18n="calculator">Калькулятор</span></h2>
+          <h2>🧮 <span data-i18n="calculator">История калькулятора</span></h2>
           <button class="modal-close" id="closeCalcHistoryModal">✕</button>
         </div>
         <div class="modal-body">
@@ -612,6 +686,7 @@
           <button
             class="btn-danger-sm"
             id="clearCalcHistoryBtn"
+            style="margin-top: 12px"
             data-i18n="clear_all_history"
           >
             Очистить историю
@@ -620,7 +695,7 @@
       </div>
     </div>
 
-    <!-- МОДАЛКА РЕДАКТИРОВАНИЯ ПОДКАТЕГОРИИ -->
+    <!-- ===== МОДАЛКА РЕДАКТИРОВАНИЯ ПОДКАТЕГОРИИ ===== -->
     <div class="modal-overlay" id="editSubcatModal">
       <div class="modal modal-sm">
         <div class="modal-header">
@@ -632,7 +707,7 @@
             <label data-i18n="enter_subcategory_name">Название</label>
             <input type="text" id="editSubcatName" class="modal-input" />
           </div>
-          <div class="modal-actions" style="display: flex; gap: 8px">
+          <div class="modal-actions" style="justify-content: space-between">
             <button class="btn-danger-sm" id="deleteSubcatBtn">
               🗑 <span data-i18n="delete">Удалить</span>
             </button>
@@ -644,7 +719,7 @@
       </div>
     </div>
 
-    <!-- МОДАЛКА БЛОКНОТА -->
+    <!-- ===== МОДАЛКА БЛОКНОТА ===== -->
     <div class="modal-overlay" id="notebookModal">
       <div class="modal">
         <div class="modal-header">
@@ -654,7 +729,12 @@
         <div class="modal-body">
           <div class="field-group">
             <label data-i18n="enter_subcategory_name">Название</label>
-            <input type="text" id="nbTitle" class="modal-input" />
+            <input
+              type="text"
+              id="nbTitle"
+              class="modal-input"
+              placeholder="Заголовок страницы"
+            />
           </div>
           <div class="field-group">
             <label data-i18n="date">Дата</label>
@@ -662,12 +742,14 @@
           </div>
           <div class="field-group">
             <label data-i18n="note">Содержимое</label>
-            <textarea id="nbContent" class="modal-textarea" rows="8"></textarea>
+            <textarea
+              id="nbContent"
+              class="modal-textarea"
+              rows="10"
+              placeholder="Начните писать..."
+            ></textarea>
           </div>
-          <div
-            class="modal-actions"
-            style="display: flex; gap: 8px; justify-content: space-between"
-          >
+          <div class="modal-actions" style="justify-content: space-between">
             <button class="btn-danger-sm" id="deleteNbPageBtn">
               🗑 <span data-i18n="delete">Удалить</span>
             </button>
@@ -675,6 +757,23 @@
               💾 <span data-i18n="save">Сохранить</span>
             </button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== ГАЙД / ТУТОРИАЛ ===== -->
+    <div class="guide-overlay" id="guideOverlay" style="display: none">
+      <div class="guide-spotlight" id="guideSpotlight"></div>
+      <div class="guide-tooltip" id="guideTooltip">
+        <div class="guide-step-counter" id="guideCounter">Шаг 1 из 6</div>
+        <div class="guide-title" id="guideTitle"></div>
+        <div class="guide-desc" id="guideDesc"></div>
+        <div class="guide-actions">
+          <button class="guide-btn-skip" id="guideSkipBtn">
+            Пропустить гайд
+          </button>
+          <div class="guide-progress" id="guideProgress"></div>
+          <button class="guide-btn-next" id="guideNextBtn">Далее →</button>
         </div>
       </div>
     </div>
