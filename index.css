@@ -343,6 +343,42 @@ input:checked + .slider:before {
   background: rgba(40,50,80,0.9);
 }
 
+/* ============ АДАПТИВНАЯ ШАПКА ============ */
+@media (max-width: 480px) {
+  .header {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 12px;
+  }
+  .header-left {
+    flex: 1;
+  }
+  .app-sub {
+    font-size: 0.55rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  /* скрываем переключатель языка на очень маленьких экранах, оставляя только тему и помощь */
+ /* .lang-switch {
+    display: none;  
+  } */
+  /* скрываем переключатель языка на очень маленьких экранах, оставляя только тему и помощь */
+  .header-actions {
+    gap: 6px;
+  }
+  .help-btn, .theme-switch-wrapper {
+    flex-shrink: 0;
+  }
+}
+@media (max-width: 360px) {
+  .app-sub {
+    max-width: 140px;
+    font-size: 0.5rem;
+  }
+}
+
 /* ============ БАЛАНС ============ */
 .balance-panel {
   flex-shrink: 0;
@@ -1087,7 +1123,7 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
 }
 .subcat-chip:hover { background: var(--accent); color: #fff; }
 
-/* ============ КАЛЬКУЛЯТОР ============ */
+/* ============ КАЛЬКУЛЯТОР (улучшенные цвета) ============ */
 .calc-display {
   font-family: 'DM Mono', monospace;
   font-size: 2.2rem;
@@ -1095,12 +1131,13 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
   text-align: right;
   padding: 10px 4px;
   min-height: 72px;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+  color: var(--text-primary);
   word-wrap: break-word;
   white-space: normal;
   word-break: break-all;
-  overflow-x: hidden;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
 }
 @media (max-width: 450px) { .calc-display { font-size: 1.6rem; } }
 
@@ -1112,35 +1149,56 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
 }
 .calc-btn {
   background: var(--surface-2);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-md);
   border-radius: var(--radius-md);
-  padding: 15px 0;
+  padding: 14px 0;
   font-family: 'DM Mono', monospace;
-  font-weight: 400;
+  font-weight: 600;
   font-size: 1.1rem;
   cursor: pointer;
-  text-align: center;
-  transition: all var(--t);
+  transition: all 0.15s ease;
   color: var(--text-primary);
   box-shadow: var(--shadow-xs);
 }
-.calc-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-.calc-btn:active { transform: scale(0.95); }
-.calc-btn.op {
-  background: var(--accent-subtle);
-  border-color: rgba(42,157,96,0.2);
-  color: var(--accent);
+.calc-btn:hover {
+  transform: translateY(-2px);
+  background: var(--surface-3);
+  border-color: var(--border-hover);
 }
-.calc-btn.op:hover { background: var(--accent); color: #fff; border-color: transparent; }
+.calc-btn:active {
+  transform: scale(0.96);
+}
+.calc-btn.op {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  text-shadow: 0 1px 0 rgba(0,0,0,0.1);
+}
+.calc-btn.op:hover {
+  background: var(--accent-light);
+  filter: brightness(1.05);
+}
 .calc-btn.clear, .calc-btn.back {
   background: var(--red-bg);
-  border-color: rgba(217,79,61,0.15);
   color: var(--red-text);
+  border-color: rgba(217,79,61,0.3);
 }
 .calc-btn.clear:hover, .calc-btn.back:hover {
   background: var(--red);
-  color: #fff;
+  color: white;
   border-color: transparent;
+}
+body.dark .calc-btn.op {
+  background: #3faa70;
+  color: #0a0f0b;
+}
+body.dark .calc-btn.clear, body.dark .calc-btn.back {
+  background: rgba(240,112,96,0.2);
+  color: #f07060;
+}
+body.dark .calc-btn.clear:hover, body.dark .calc-btn.back:hover {
+  background: #f07060;
+  color: #0a0f0b;
 }
 
 /* ============ КОНВЕРТЕР ============ */
@@ -1470,24 +1528,6 @@ body.dark .bal-value.negative { color: #ff9988 !important; }
   pointer-events: none;
   align-self: center;
   box-shadow: 0 3px 12px var(--accent-glow);
-}
-
-/* ============ АДАПТАЦИЯ МАЛЕНЬКИХ ЭКРАНОВ ============ */
-@media (max-width: 480px) {
-  .header {
-    height: auto;
-    min-height: var(--header-h);
-    padding: 10px 14px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .header-left { gap: 8px; }
-  .app-sub { display: none; }
-  .lang-switch { display: none; }
-}
-@media (max-width: 360px) {
-  .header-actions { gap: 5px; }
-  .lang-btn { padding: 3px 6px; font-size: 0.6rem; }
 }
 
 /* ============ КАСТОМНЫЙ ДАТАПИКЕР ============ */
