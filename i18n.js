@@ -99,8 +99,8 @@ const translations = {
     since: "с",
     since_beginning: "с начала",
     confirm_reset_stats:
-      "Сбросить статистику? Все данные за период до сегодняшнего дня будут исключены.",
-    stats_reset_message: "Статистика сброшена",
+      "⚠️ ВНИМАНИЕ! Сброс статистики удалит все накопленные данные за предыдущий период. Отсчёт начнётся с сегодняшнего дня. Вернуть статистику будет невозможно. Вы уверены?",
+    stats_reset_message: "✅ Статистика сброшена! Новый отсчёт с ",
     confirm_clear_all: "Очистить все операции?",
     confirm_clear_conv_history: "Очистить всю историю конвертации?",
     confirm_clear_calc_history: "Очистить историю калькулятора?",
@@ -109,7 +109,6 @@ const translations = {
     no_operations_criteria: "Нет операций по заданным критериям",
     enter_category_name: "Введите название категории",
     clear_all_history: "Очистить всё",
-    // Помощь
     help_intro:
       "Добро пожаловать в Бюджет PRO! Это приложение поможет вам вести учёт доходов и расходов, управлять бюджетом, отслеживать статистику и многое другое.",
     help_features: "Основные возможности:",
@@ -125,7 +124,27 @@ const translations = {
       "📓 Блокнот: создавайте текстовые страницы для заметок, редактируйте, удаляйте. Нажмите на карточку для редактирования.",
     help_stats:
       "📊 Статистика: анализ доходов и расходов за выбранный период (день, неделя, месяц). Круговая диаграмма показывает соотношение. Кнопка сброса статистики начинает отсчёт с текущей даты.",
-    // Кастомный датапикер
+    guide_step1_title: "💰 Панель баланса",
+    guide_step1_desc:
+      "Здесь отображается ваш финансовый баланс: начальная зарплата, доходы, расходы и остаток. Нажмите «Зарплата», чтобы установить начальный баланс.",
+    guide_step2_title: "➕ Добавление операции",
+    guide_step2_desc:
+      "Нажмите эту кнопку, чтобы добавить новую операцию — доход или расход. Укажите категорию, сумму, дату и заметку.",
+    guide_step3_title: "🗂️ Навигация",
+    guide_step3_desc:
+      "Главная — последние операции. Операции — полный список с поиском. Категории — управление категориями. Инструменты — калькулятор и конвертер. Блокнот — заметки. Данные — статистика.",
+    guide_step4_title: "📊 Статистика",
+    guide_step4_desc:
+      "Кольцевая диаграмма показывает соотношение расходов и доходов в процентах. Стрелочная диаграмма — динамику за период: рост вверх = доходы, падение вниз = расходы.",
+    guide_step5_title: "📓 Блокнот",
+    guide_step5_desc:
+      "Личный блокнот для заметок. Создавайте страницы, редактируйте их, удаляйте. Страницы выглядят как настоящий блокнот с линиями.",
+    guide_step6_title: "❔ Помощь",
+    guide_step6_desc:
+      "Нажмите кнопку ❔ в шапке, чтобы открыть подробную инструкцию по всем функциям приложения в любое время.",
+    stats_trend_title: "📈 Динамика доходов и расходов",
+    stats_percent_label: "расх / дох",
+    guide_finish: "Готово ✓",
     dp_months: [
       "Январь",
       "Февраль",
@@ -241,8 +260,8 @@ const translations = {
     since: "since",
     since_beginning: "since beginning",
     confirm_reset_stats:
-      "Reset statistics? All data before today will be excluded.",
-    stats_reset_message: "Statistics reset",
+      "⚠️ WARNING! Resetting statistics will delete all accumulated data for the previous period. Counting will start from today. Statistics cannot be restored. Are you sure?",
+    stats_reset_message: "✅ Statistics reset! New count from ",
     confirm_clear_all: "Clear all operations?",
     confirm_clear_conv_history: "Clear all conversion history?",
     confirm_clear_calc_history: "Clear calculator history?",
@@ -251,7 +270,6 @@ const translations = {
     no_operations_criteria: "No operations matching criteria",
     enter_category_name: "Enter category name",
     clear_all_history: "Clear all",
-    // Help
     help_intro:
       "Welcome to Budget PRO! This app helps you track income and expenses, manage your budget, view statistics and more.",
     help_features: "Main features:",
@@ -267,7 +285,27 @@ const translations = {
       "📓 Notebook: create text pages for notes, edit, delete. Click on card to edit.",
     help_stats:
       "📊 Statistics: analysis of income and expenses for the selected period (day, week, month). Pie chart shows the ratio. Reset statistics button starts counting from the current date.",
-    // Custom datepicker
+    guide_step1_title: "💰 Balance Panel",
+    guide_step1_desc:
+      "Here you see your financial balance: starting salary, total income, expenses, and remaining balance. Press 'Salary' to set the initial balance.",
+    guide_step2_title: "➕ Add Transaction",
+    guide_step2_desc:
+      "Press this button to add a new transaction – income or expense. Specify category, amount, date, and a note.",
+    guide_step3_title: "🗂️ Navigation",
+    guide_step3_desc:
+      "Home – last operations. Operations – full list with search. Categories – manage categories. Tools – calculator and currency converter. Notebook – notes. Data – statistics.",
+    guide_step4_title: "📊 Statistics",
+    guide_step4_desc:
+      "Donut chart shows the ratio of expenses to income as percentages. The line chart shows dynamics over the period: upward trend = income, downward = expenses.",
+    guide_step5_title: "📓 Notebook",
+    guide_step5_desc:
+      "Personal notebook for notes. Create, edit, delete pages. Pages look like a real ruled notebook.",
+    guide_step6_title: "❔ Help",
+    guide_step6_desc:
+      "Press the ❔ button in the header to open the full instructions at any time.",
+    stats_trend_title: "📈 Income and Expenses Dynamics",
+    stats_percent_label: "exp / inc",
+    guide_finish: "Finish ✓",
     dp_months: [
       "January",
       "February",
@@ -383,8 +421,8 @@ const translations = {
     since: "დან",
     since_beginning: "თავიდან",
     confirm_reset_stats:
-      "გადავტვირთოთ სტატისტიკა? ყველა მონაცემი დღევანდელი დღის წინ გამოირიცხება.",
-    stats_reset_message: "სტატისტიკა გადატვირთულია",
+      "⚠️ ყურადღება! სტატისტიკის გადატვირთვა წაშლის წინა პერიოდის ყველა დაგროვილ მონაცემს. ათვლა დაიწყება დღეიდან. სტატისტიკის აღდგენა შეუძლებელია. დარწმუნებული ხართ?",
+    stats_reset_message: "✅ სტატისტიკა გადატვირთულია! ახალი ათვლა ",
     confirm_clear_all: "წავშალოთ ყველა ოპერაცია?",
     confirm_clear_conv_history: "წავშალოთ კონვერტაციის მთელი ისტორია?",
     confirm_clear_calc_history: "წავშალოთ კალკულატორის ისტორია?",
@@ -393,7 +431,6 @@ const translations = {
     no_operations_criteria: "ოპერაციები არ მოიძებნა",
     enter_category_name: "შეიყვანეთ კატეგორიის სახელი",
     clear_all_history: "ყველას გასუფთავება",
-    // Help
     help_intro:
       "მოგესალმებით ბიუჯეტი PRO-ში! ეს აპლიკაცია დაგეხმარებათ შემოსავლებისა და ხარჯების აღრიცხვაში, ბიუჯეტის მართვაში, სტატისტიკის თვალყურის დევნებაში და სხვა.",
     help_features: "ძირითადი შესაძლებლობები:",
@@ -409,7 +446,27 @@ const translations = {
       "📓 ბლოკნოტი: შექმენით ტექსტური გვერდები შენიშვნებისთვის, რედაქტირება, წაშლა. დააჭირეთ ბარათს რედაქტირებისთვის.",
     help_stats:
       "📊 სტატისტიკა: შემოსავლებისა და ხარჯების ანალიზი შერჩეული პერიოდისთვის (დღე, კვირა, თვე). წრიული დიაგრამა აჩვენებს თანაფარდობას. სტატისტიკის გადატვირთვის ღილაკი იწყებს ათვლას მიმდინარე თარიღიდან.",
-    // კასტომური თარიღის პიკერი
+    guide_step1_title: "💰 ბალანსის პანელი",
+    guide_step1_desc:
+      "აქ ნაჩვენებია თქვენი ფინანსური ბალანსი: საწყისი ხელფასი, მთლიანი შემოსავალი, ხარჯები და ნაშთი. დააჭირეთ „ხელფასს“ საწყისი ბალანსის დასაყენებლად.",
+    guide_step2_title: "➕ ოპერაციის დამატება",
+    guide_step2_desc:
+      "დააჭირეთ ამ ღილაკს ახალი ოპერაციის – შემოსავლის ან ხარჯის – დასამატებლად. მიუთითეთ კატეგორია, თანხა, თარიღი და შენიშვნა.",
+    guide_step3_title: "🗂️ ნავიგაცია",
+    guide_step3_desc:
+      "მთავარი – ბოლო ოპერაციები. ოპერაციები – სრული სია ძიებით. კატეგორიები – მართეთ კატეგორიები. ინსტრუმენტები – კალკულატორი და ვალუტის გადამყვანი. ბლოკნოტი – შენიშვნები. მონაცემები – სტატისტიკა.",
+    guide_step4_title: "📊 სტატისტიკა",
+    guide_step4_desc:
+      "წრიული დიაგრამა გვიჩვენებს ხარჯებისა და შემოსავლების პროცენტულ შეფარდებას. ხაზოვანი დიაგრამა – დინამიკა პერიოდის მიხედვით: ზრდა = შემოსავალი, კლება = ხარჯი.",
+    guide_step5_title: "📓 ბლოკნოტი",
+    guide_step5_desc:
+      "პირადი ბლოკნოტი შენიშვნებისთვის. შექმენით, რედაქტირება, წაშალეთ გვერდები. გვერდები ჰგავს ნამდვილ ხაზოვან რვეულს.",
+    guide_step6_title: "❔ დახმარება",
+    guide_step6_desc:
+      "დააჭირეთ ❔ ღილაკს თავში, რათა ნებისმიერ დროს გახსნათ სრული ინსტრუქცია.",
+    stats_trend_title: "📈 შემოსავლებისა და ხარჯების დინამიკა",
+    stats_percent_label: "ხარჯი / შემოსავალი",
+    guide_finish: "მზადაა ✓",
     dp_months: [
       "იანვარი",
       "თებერვალი",
@@ -438,157 +495,45 @@ function t(key) {
 // Заменяет все <input type="date"> на кастомный пикер, реагирующий на язык
 
 (function () {
-  // Стили для кастомного пикера
-  const style = document.createElement("style");
-  style.textContent = `
-    .dp-wrapper {
-      position: relative;
-      display: block;
-      width: 100%;
-    }
-    .dp-input {
-      width: 100%;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px 14px;
-      color: var(--text-primary);
-      font-family: inherit;
-      font-size: 0.95rem;
-      cursor: pointer;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-    }
-    .dp-input:hover {
-      border-color: var(--border-hover);
-    }
-    .dp-input .dp-icon {
-      opacity: 0.5;
-      font-size: 1rem;
-    }
-    .dp-popup {
-      position: fixed;
-      z-index: 9999;
-      background: var(--surface-1);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.25);
-      padding: 16px;
-      min-width: 280px;
-      max-width: 320px;
-      display: none;
-      user-select: none;
-    }
-    .dp-popup.open {
-      display: block;
-      animation: dpFadeIn 0.15s ease;
-    }
-    @keyframes dpFadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .dp-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-    .dp-nav {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: var(--text-primary);
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s;
-    }
-    .dp-nav:hover { background: var(--border); }
-    .dp-month-year {
-      font-weight: 800;
-      font-size: 0.95rem;
-      cursor: pointer;
-      color: var(--text-primary);
-      flex: 1;
-      text-align: center;
-    }
-    .dp-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 3px;
-    }
-    .dp-day-name {
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-align: center;
-      padding: 4px 0;
-    }
-    .dp-cell {
-      text-align: center;
-      padding: 6px 2px;
-      border-radius: 10px;
-      font-size: 0.82rem;
-      cursor: pointer;
-      color: var(--text-primary);
-      transition: background 0.12s, color 0.12s;
-    }
-    .dp-cell:hover:not(.dp-empty):not(.dp-selected) {
-      background: var(--border);
-    }
-    .dp-cell.dp-other-month {
-      color: var(--text-muted);
-    }
-    .dp-cell.dp-today {
-      font-weight: 800;
-      color: var(--accent);
-    }
-    .dp-cell.dp-selected {
-      background: var(--accent);
-      color: #fff;
-      font-weight: 800;
-    }
-    .dp-cell.dp-empty { cursor: default; }
-    .dp-footer {
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .dp-btn-today, .dp-btn-clear {
-      flex: 1;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 7px 0;
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      color: var(--text-primary);
-      transition: background 0.15s;
-    }
-    .dp-btn-today:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .dp-btn-clear:hover  { background: var(--red-bg); color: var(--red-text); border-color: var(--red); }
-    /* Фильтровые инпуты даты в строке поиска */
-    .filter-input.dp-active-input {
-      cursor: pointer;
-    }
-  `;
-  document.head.appendChild(style);
+  // Стили для кастомного пикера (уже есть в CSS, но для гарантии добавим, если нет)
+  if (!document.getElementById("dp-styles")) {
+    const style = document.createElement("style");
+    style.id = "dp-styles";
+    style.textContent = `
+      .dp-wrapper { position: relative; display: block; width: 100%; }
+      .dp-input { width: 100%; background: var(--surface-1); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; color: var(--text-primary); font-family: inherit; font-size: 0.95rem; cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.2s; box-sizing: border-box; }
+      .dp-input:hover { border-color: var(--border-hover); }
+      .dp-input .dp-icon { opacity: 0.5; font-size: 1rem; }
+      .dp-popup { position: fixed; z-index: 9999; background: var(--surface-1); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.25); padding: 16px; min-width: 280px; max-width: 320px; display: none; user-select: none; }
+      .dp-popup.open { display: block; animation: dpFadeIn 0.15s ease; }
+      @keyframes dpFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+      .dp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+      .dp-nav { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-primary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+      .dp-nav:hover { background: var(--border); }
+      .dp-month-year { font-weight: 800; font-size: 0.95rem; cursor: pointer; color: var(--text-primary); flex: 1; text-align: center; }
+      .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+      .dp-day-name { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); text-align: center; padding: 4px 0; }
+      .dp-cell { text-align: center; padding: 6px 2px; border-radius: 10px; font-size: 0.82rem; cursor: pointer; color: var(--text-primary); transition: background 0.12s, color 0.12s; }
+      .dp-cell:hover:not(.dp-empty):not(.dp-selected) { background: var(--border); }
+      .dp-cell.dp-other-month { color: var(--text-muted); }
+      .dp-cell.dp-today { font-weight: 800; color: var(--accent); }
+      .dp-cell.dp-selected { background: var(--accent); color: #fff; font-weight: 800; }
+      .dp-cell.dp-empty { cursor: default; }
+      .dp-footer { margin-top: 10px; display: flex; justify-content: space-between; gap: 8px; }
+      .dp-btn-today, .dp-btn-clear { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 7px 0; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--text-primary); transition: background 0.15s; }
+      .dp-btn-today:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+      .dp-btn-clear:hover { background: var(--red-bg); color: var(--red-text); border-color: var(--red); }
+    `;
+    document.head.appendChild(style);
+  }
 
-  // Глобальный попап (один на всех)
   const popup = document.createElement("div");
   popup.className = "dp-popup";
   popup.id = "globalDatePicker";
   document.body.appendChild(popup);
 
-  let activeInput = null; // скрытый <input type="date"> или псевдо-объект
-  let activeDisplay = null; // кнопка-отображение
+  let activeInput = null;
+  let activeDisplay = null;
   let viewYear = null,
     viewMonth = null;
 
@@ -617,10 +562,8 @@ function t(key) {
   function setValue(str) {
     if (!activeInput) return;
     activeInput.value = str;
-    // Диспатчим change для прослушивателей
     activeInput.dispatchEvent(new Event("change", { bubbles: true }));
     activeInput.dispatchEvent(new Event("input", { bubbles: true }));
-    // Обновляем отображение
     if (activeDisplay) {
       const span = activeDisplay.querySelector(".dp-text");
       if (span)
@@ -634,7 +577,7 @@ function t(key) {
     if (!viewYear || viewMonth == null) {
       const todayParsed = parseDate(todayStr());
       viewYear = todayParsed.y;
-      viewMonth = todayParsed.m - 1; // 0-based
+      viewMonth = todayParsed.m - 1;
     }
     const months =
       translations[currentLang]?.dp_months || translations.ru.dp_months;
@@ -643,21 +586,17 @@ function t(key) {
     const selStr = getValue();
     const sel = parseDate(selStr);
 
-    // Первый день месяца (0=Вс..6=Сб), конвертируем в Пн=0
     const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-    const startOffset = (firstDay + 6) % 7; // Пн = 0
+    const startOffset = (firstDay + 6) % 7;
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
     let cells = "";
-    // Заголовок дней
     for (const d of days) {
       cells += `<div class="dp-day-name">${d}</div>`;
     }
-    // Пустые ячейки до начала
     for (let i = 0; i < startOffset; i++) {
       cells += `<div class="dp-cell dp-empty"></div>`;
     }
-    // Дни месяца
     for (let d = 1; d <= daysInMonth; d++) {
       const isToday =
         today &&
@@ -684,7 +623,7 @@ function t(key) {
       </div>
       <div class="dp-grid">${cells}</div>
       <div class="dp-footer">
-        <button class="dp-btn-today" id="dpTodayBtn">${today ? `${today.d} ${months[today.m - 1]}` : "Сегодня"}</button>
+        <button class="dp-btn-today" id="dpTodayBtn">${today ? `${today.d} ${months[today.m - 1]}` : "Today"}</button>
         <button class="dp-btn-clear" id="dpClearBtn">✕</button>
       </div>
     `;
@@ -732,7 +671,6 @@ function t(key) {
   function openPopup(inputEl, displayEl) {
     activeInput = inputEl;
     activeDisplay = displayEl;
-
     const val = getValue();
     const parsed = parseDate(val);
     if (parsed) {
@@ -743,7 +681,6 @@ function t(key) {
       viewYear = t2.y;
       viewMonth = t2.m - 1;
     }
-
     renderPopup();
     popup.classList.add("open");
     positionPopup(displayEl || inputEl);
@@ -755,11 +692,9 @@ function t(key) {
       ph = 320;
     let top = rect.bottom + 6;
     let left = rect.left;
-
     if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
     if (left < 8) left = 8;
     if (top + ph > window.innerHeight - 8) top = rect.top - ph - 6;
-
     popup.style.top = top + "px";
     popup.style.left = left + "px";
     popup.style.width = Math.min(pw, window.innerWidth - 16) + "px";
@@ -777,34 +712,25 @@ function t(key) {
     }
   });
 
-  // ====== Инициализация: заменяем все <input type="date"> ======
   function initDatePicker(input) {
     if (input._dpInitialized) return;
     input._dpInitialized = true;
-
-    // Скрываем нативный инпут
     input.style.display = "none";
-
     const wrapper = document.createElement("div");
     wrapper.className = "dp-wrapper";
     input.parentNode.insertBefore(wrapper, input);
     wrapper.appendChild(input);
-
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "dp-input";
-    // Определяем класс инпута для стилей
     if (input.classList.contains("modal-input"))
       btn.classList.add("modal-input");
     if (input.classList.contains("filter-input"))
       btn.classList.add("filter-input", "dp-active-input");
-
     const placeholder = input.placeholder || "";
     btn.dataset.placeholder = placeholder;
     btn.innerHTML = `<span class="dp-text">${input.value ? formatDisplay(input.value) : placeholder}</span><span class="dp-icon">📅</span>`;
-
     wrapper.appendChild(btn);
-
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (popup.classList.contains("open") && activeInput === input) {
@@ -813,13 +739,6 @@ function t(key) {
         openPopup(input, btn);
       }
     });
-
-    // Обновляем отображение при программном изменении value
-    const descriptor = Object.getOwnPropertyDescriptor(
-      HTMLInputElement.prototype,
-      "value",
-    );
-    // Вместо переопределения — слушаем change/input
     input.addEventListener("_dpUpdate", () => {
       const span = btn.querySelector(".dp-text");
       if (span)
@@ -829,15 +748,13 @@ function t(key) {
     });
   }
 
-  // Патчим setValue, чтобы тоже диспатчил _dpUpdate
-  const origSetValue = (window._dpSetValue = function (inputEl, str) {
+  window._dpSetValue = function (inputEl, str) {
     inputEl.value = str;
     inputEl.dispatchEvent(new Event("change", { bubbles: true }));
     inputEl.dispatchEvent(new Event("input", { bubbles: true }));
     inputEl.dispatchEvent(new Event("_dpUpdate"));
-  });
+  };
 
-  // Инициализируем после загрузки DOM
   function initAll() {
     document.querySelectorAll('input[type="date"]').forEach(initDatePicker);
   }
@@ -848,55 +765,40 @@ function t(key) {
     initAll();
   }
 
-  // Экспортируем для вызова при смене языка (перерисовка открытого попапа)
   window._dpRefreshLang = function () {
-    // Обновляем все отображения
     document.querySelectorAll('input[type="date"]').forEach((input) => {
       if (input._dpInitialized) {
         input.dispatchEvent(new Event("_dpUpdate"));
       }
     });
-    // Если попап открыт — перерисовываем
     if (popup.classList.contains("open")) {
       renderPopup();
     }
   };
 })();
-// ===================== КОНЕЦ ДАТАПИКЕРА =====================
 
 function setLanguage(lang) {
   if (translations[lang]) {
     currentLang = lang;
     localStorage.setItem("app_lang", lang);
-
-    // Обновляем lang-атрибут документа
     const langMap = { ru: "ru", en: "en", ka: "ka" };
     document.documentElement.setAttribute("lang", langMap[lang] || "ru");
-
-    // Обновляем активную кнопку языка
     document.querySelectorAll(".lang-btn").forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.lang === lang);
     });
-
-    // Обновляем все data-i18n элементы
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const key = el.getAttribute("data-i18n");
       if (key) el.textContent = t(key);
     });
-
     document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
       const key = el.getAttribute("data-i18n-placeholder");
       if (key) el.placeholder = t(key);
     });
-
     document.querySelectorAll("[data-i18n-opt]").forEach((opt) => {
       const key = opt.getAttribute("data-i18n-opt");
       if (key) opt.textContent = t(key);
     });
-
-    // Обновляем датапикеры
     if (window._dpRefreshLang) window._dpRefreshLang();
-
     if (window.refreshAll) window.refreshAll();
     if (window.updateStats) window.updateStats(true);
   }
