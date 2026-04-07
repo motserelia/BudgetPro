@@ -6,797 +6,218 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>Бюджет PRO — умный учёт</title>
+    <title>Мой Бюджет</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="shortcut icon" href="favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="BudgetPRO" />
-    <meta name="theme-color" content="#1a3328" />
+    <meta name="apple-mobile-web-app-title" content="Мой Бюджет" />
+    <meta name="theme-color" content="#2d6a4f" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
     <div class="app">
       <!-- ===== ШАПКА ===== -->
-      <header class="header">
+      <header class="app-header">
         <div class="header-left">
-          <div class="logo">💰</div>
-          <div>
-            <h1 class="app-title" data-i18n="app_title_short">Бюджет PRO</h1>
-            <p class="app-sub" data-i18n="app_subtitle">
-              Твой капитал — твои правила
-            </p>
-          </div>
+          <div class="app-logo">🌿 Мой Бюджет</div>
+          <div class="header-date" id="headerDate"></div>
         </div>
-        <div class="header-actions">
-          <div class="lang-switch">
-            <button class="lang-btn active" data-lang="ru" title="Русский">
-              🇷🇺 RU
-            </button>
-            <button class="lang-btn" data-lang="en" title="English">
-              🇺🇸 EN
-            </button>
-            <button class="lang-btn" data-lang="ka" title="ქართული">
-              🇬🇪 KA
-            </button>
-          </div>
-          <button class="help-btn" id="helpBtn" title="Помощь">❔</button>
-          <div class="theme-switch-wrapper">
-            <label class="theme-switch">
-              <input type="checkbox" id="themeToggleCheckbox" />
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
+        <button
+          class="theme-toggle"
+          id="themeToggle"
+          data-i18n-aria="toggleTheme"
+          aria-label="Переключить тему"
+        >
+          🌙
+        </button>
       </header>
 
-      <!-- ===== БАЛАНС ===== -->
-      <div class="balance-panel" id="balancePanel">
-        <div class="balance-cards" id="balanceCards"></div>
-        <div class="balance-controls">
-          <div class="currency-row">
-            <span class="currency-label" data-i18n="show_in">Показать в:</span>
-            <select id="displayCurrencySelect" class="currency-select">
-              <option value="RUB">🇷🇺 RUB</option>
-              <option value="USD">🇺🇸 USD</option>
-              <option value="EUR">🇪🇺 EUR</option>
-              <option value="GEL" selected>🇬🇪 GEL</option>
-              <option value="GBP">🇬🇧 GBP</option>
-              <option value="KZT">🇰🇿 KZT</option>
-            </select>
-          </div>
-          <div class="btn-row">
-            <button
-              class="ctrl-btn"
-              id="refreshRatesBtn"
-              data-i18n="refresh_rates"
-            >
-              🔄 Обновить курс
-            </button>
-            <button
-              class="ctrl-btn accent"
-              id="editStartBtn"
-              data-i18n="edit_salary"
-            >
-              ✏️ Зарплата
-            </button>
+      <!-- ===== КАРТОЧКИ СВЕРХУ ===== -->
+      <div class="top-cards">
+        <div
+          class="summary-card balance-card"
+          data-type="balance"
+          role="button"
+          tabindex="0"
+          data-i18n-aria="ariaBalance"
+        >
+          <div class="card-icon">💰</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="balance">Мой баланс</div>
+            <div class="card-value" id="balanceValue">0</div>
+            <div class="card-hint" data-i18n="cardHintBalance">
+              Сколько у вас сейчас
+            </div>
           </div>
         </div>
-        <div id="rateStatus" class="rate-status"></div>
+
+        <div
+          class="summary-card income-card"
+          data-type="income"
+          role="button"
+          tabindex="0"
+          data-i18n-aria="ariaIncome"
+        >
+          <div class="card-icon">📈</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="income">Доходы</div>
+            <div class="card-value" id="incomeValue">0</div>
+            <div class="card-hint" data-i18n="cardHintIncome">
+              Всего получено
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="summary-card expense-card"
+          data-type="expense"
+          role="button"
+          tabindex="0"
+          data-i18n-aria="ariaExpense"
+        >
+          <div class="card-icon">📉</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="expense">Расходы</div>
+            <div class="card-value" id="expenseValue">0</div>
+            <div class="card-hint" data-i18n="cardHintExpense">
+              Всего потрачено
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="summary-card salary-card"
+          data-type="salary"
+          role="button"
+          tabindex="0"
+          data-i18n-aria="ariaSalary"
+        >
+          <div class="card-icon">💼</div>
+          <div class="card-body">
+            <div class="card-label" data-i18n="salary">Начальная сумма</div>
+            <div class="card-value" id="salaryValue">0</div>
+            <div class="card-hint" data-i18n="cardHintSalary">
+              👆 Нажмите чтобы изменить
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- ===== КОНТЕНТ ===== -->
-      <div class="tab-content" id="tabContent">
-        <!-- ГЛАВНАЯ -->
-        <section class="tab-pane active" id="tabHome">
-          <div class="collapsible-block" id="quickActionBlock">
-            <div class="collapsible-header">
-              <span
-                >⚡ <span data-i18n="quick_action">Быстрое действие</span></span
-              >
-              <span class="collapse-icon">▾</span>
-            </div>
-            <div class="collapsible-content">
-              <button class="quick-action-btn" id="homeQuickAddBtn">
-                ➕ <span data-i18n="new_operation">Новая операция</span>
-              </button>
-              <div
-                style="
-                  font-size: 0.68rem;
-                  color: var(--text-muted);
-                  text-align: center;
-                  margin-top: 8px;
-                "
-                data-i18n="quick_action_hint"
-              >
-                Нажмите, чтобы добавить доход или расход
-              </div>
-            </div>
-          </div>
+      <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
+      <main
+        class="main-content"
+        id="mainContent"
+        role="main"
+        aria-live="polite"
+        style="margin-bottom: 80px"
+      ></main>
 
-          <div class="help-hint">
-            <span>🏠</span>
-            <span data-i18n="home_hint"
-              >Последние 5 операций. Нажмите + снизу, чтобы добавить
-              доход/расход. Зарплата — установите начальный баланс.</span
-            >
-          </div>
-
-          <div class="section-row">
-            <h2 class="section-title">
-              📋
-              <span data-i18n="last_operations_title">Последние операции</span>
-            </h2>
-            <button
-              class="btn-danger-sm"
-              id="clearAllBtn"
-              data-i18n="clear_all"
-            >
-              🧹 Очистить все
-            </button>
-          </div>
-
-          <div id="recentOpsList" class="ops-list"></div>
-          <button class="btn-link" id="viewAllOpsBtn" data-i18n="show_all_ops">
-            Показать все операции →
-          </button>
-        </section>
-
-        <!-- ОПЕРАЦИИ -->
-        <section class="tab-pane" id="tabOperations">
-          <div class="help-hint">
-            <span>🔍</span>
-            <span data-i18n="operations_hint"
-              >Поиск по дате (с / по), категории, типу. Нажмите на операцию для
-              редактирования.</span
-            >
-          </div>
-          <div class="search-bar">
-            <div class="search-input-wrap">
-              <span class="search-icon">🔍</span>
-              <input
-                type="text"
-                id="searchText"
-                data-i18n-placeholder="search_placeholder"
-                placeholder="Категория, заметка..."
-                class="search-input"
-              />
-            </div>
-            <div class="search-filters">
-              <span class="date-range-label" data-i18n="from">с</span>
-              <input type="date" id="searchFrom" class="filter-input" />
-              <span class="date-range-label" data-i18n="to">по</span>
-              <input type="date" id="searchTo" class="filter-input" />
-              <select id="searchType" class="filter-select">
-                <option value="" data-i18n-opt="all_types">Все</option>
-                <option value="income" data-i18n-opt="income_type">
-                  Доходы
-                </option>
-                <option value="expense" data-i18n-opt="expense_type">
-                  Расходы
-                </option>
-              </select>
-            </div>
-            <div class="search-btns">
-              <button class="btn-sm" id="applySearchBtn" data-i18n="find">
-                Найти
-              </button>
-              <button class="btn-sm" id="resetSearchBtn" data-i18n="reset">
-                Сброс
-              </button>
-            </div>
-          </div>
-          <div id="allOpsList" class="ops-list"></div>
-        </section>
-
-        <!-- КАТЕГОРИИ -->
-        <section class="tab-pane" id="tabCategories">
-          <div class="help-hint">
-            <span>🗂️</span>
-            <span data-i18n="categories_hint"
-              >Нажмите на название категории — переименовать. Нажмите на
-              подкатегорию — изменить. Кнопки «+» для добавления
-              подкатегорий.</span
-            >
-          </div>
-          <button
-            class="btn-sm"
-            id="addCatGroupBtn"
-            style="margin-bottom: 14px"
-            data-i18n="add_category"
-          >
-            + Добавить категорию
-          </button>
-          <div id="catManager" class="cat-manager"></div>
-        </section>
-
-        <!-- ИНСТРУМЕНТЫ -->
-        <section class="tab-pane" id="tabTools">
-          <div class="help-hint">
-            <span>🧮</span>
-            <span data-i18n="tools_hint"
-              >Калькулятор и конвертер валют. Нажмите «История» для
-              просмотра.</span
-            >
-          </div>
-
-          <!-- Калькулятор -->
-          <div class="tools-section">
-            <div class="tools-section-title">
-              🧮 <span data-i18n="calculator">Калькулятор</span>
-              <button
-                class="btn-sm"
-                id="openCalcHistoryBtn"
-                style="margin-left: auto; font-size: 0.7rem"
-                data-i18n="history"
-              >
-                История
-              </button>
-            </div>
-            <div
-              id="calcHistoryPreview"
-              style="
-                font-size: 0.65rem;
-                color: var(--text-muted);
-                margin-bottom: 6px;
-                min-height: 16px;
-              "
-            ></div>
-            <div class="calc-display" id="calcDisplay">0</div>
-            <div class="calc-grid" id="calcGrid"></div>
-          </div>
-
-          <!-- Конвертер -->
-          <div class="tools-section">
-            <div class="tools-section-title">
-              💱 <span data-i18n="converter">Конвертер валют</span>
-            </div>
-            <div class="conv-row">
-              <input
-                type="number"
-                id="convAmount"
-                value="100"
-                class="conv-input"
-                style="width: 90px; flex-shrink: 0"
-              />
-              <select id="convFrom" class="conv-sel">
-                <option value="RUB">RUB</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GEL">GEL</option>
-                <option value="GBP">GBP</option>
-                <option value="KZT">KZT</option>
-              </select>
-              <span style="color: var(--text-muted); font-size: 1.1rem">→</span>
-              <select id="convTo" class="conv-sel">
-                <option value="GEL">GEL</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="RUB">RUB</option>
-                <option value="GBP">GBP</option>
-                <option value="KZT">KZT</option>
-              </select>
-              <button class="btn-sm" id="convBtn" data-i18n="convert">
-                Перевести
-              </button>
-            </div>
-            <div id="convResult" class="conv-result"></div>
-            <div id="convHistoryList" class="conv-history"></div>
-            <div
-              style="
-                display: flex;
-                gap: 8px;
-                justify-content: flex-end;
-                margin-top: 10px;
-              "
-            >
-              <button class="btn-sm" id="openConvHistoryBtn">
-                📜 <span data-i18n="history">История</span>
-              </button>
-              <button
-                class="btn-danger-sm"
-                id="clearConvHistoryBtn"
-                data-i18n="clear_all_history"
-              >
-                🗑 Очистить всё
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- БЛОКНОТ -->
-        <section class="tab-pane" id="tabNotebook">
-          <div class="help-hint">
-            <span>📓</span>
-            <span data-i18n="notebook_hint"
-              >Личный блокнот: создавайте страницы, редактируйте, удаляйте.
-              Нажмите на карточку для редактирования.</span
-            >
-          </div>
-          <button class="btn-sm" id="newPageBtn" style="margin-bottom: 14px">
-            ➕ <span data-i18n="new_page">Новая страница</span>
-          </button>
-          <div id="notebookList" class="notebook-list"></div>
-        </section>
-
-        <!-- СТАТИСТИКА -->
-        <section class="tab-pane" id="tabStats">
-          <div class="help-hint">
-            <span>📊</span>
-            <span data-i18n="stats_hint"
-              >Анализ доходов и расходов. Выберите период — день, неделя или
-              месяц. Круговая диаграмма — соотношение. Стрелочная —
-              динамика.</span
-            >
-          </div>
-          <div class="stats-container">
-            <div class="stats-header">
-              <div class="stats-period-buttons">
-                <button
-                  class="period-btn"
-                  data-period="day"
-                  data-i18n="day_period"
-                >
-                  День
-                </button>
-                <button
-                  class="period-btn"
-                  data-period="week"
-                  data-i18n="week_period"
-                >
-                  Неделя
-                </button>
-                <button
-                  class="period-btn active"
-                  data-period="month"
-                  data-i18n="month_period"
-                >
-                  Месяц
-                </button>
-              </div>
-              <button
-                class="btn-reset-stats"
-                id="resetStatsBtn"
-                data-i18n="reset_stats"
-              >
-                🔄 Сбросить
-              </button>
-            </div>
-
-            <div
-              id="statsTempMessageInline"
-              class="stats-temp-message"
-              style="opacity: 0"
-            ></div>
-
-            <!-- Кольцевая диаграмма -->
-            <div class="chart-wrapper">
-              <canvas id="statsChart" width="220" height="220"></canvas>
-              <div class="chart-center">
-                <div class="chart-percent" id="statsPercent">—</div>
-                <div class="chart-sublabel" data-i18n="stats_percent_label">
-                  расх / дох
-                </div>
-              </div>
-            </div>
-
-            <div class="chart-legend">
-              <div class="legend-item">
-                <div
-                  class="legend-dot"
-                  style="background: var(--red-text)"
-                ></div>
-                <span data-i18n="expenses_legend">Расходы</span>
-              </div>
-              <div class="legend-item">
-                <div class="legend-dot" style="background: var(--accent)"></div>
-                <span data-i18n="income_legend">Доходы</span>
-              </div>
-            </div>
-
-            <!-- Трендовая диаграмма (стрелка) -->
-            <div class="trend-chart-wrap">
-              <div class="trend-chart-title" data-i18n="stats_trend_title">
-                📈 Динамика доходов и расходов
-              </div>
-              <canvas id="trendChart" height="100"></canvas>
-              <div class="trend-legend">
-                <div class="trend-legend-item">
-                  <div
-                    class="trend-dot"
-                    style="background: var(--accent)"
-                  ></div>
-                  <span data-i18n="income_legend">Доходы</span>
-                </div>
-                <div class="trend-legend-item">
-                  <div
-                    class="trend-dot"
-                    style="background: var(--red-text)"
-                  ></div>
-                  <span data-i18n="expenses_legend">Расходы</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Детали -->
-            <div class="stats-details" id="statsDetails">
-              <div class="stats-period-label" id="statsPeriodLabel">
-                Загрузка...
-              </div>
-              <p id="statsIncomeAmount">
-                <span>💰 <span data-i18n="income">Доходы</span></span
-                ><span>—</span>
-              </p>
-              <p id="statsExpenseAmount">
-                <span>💸 <span data-i18n="expense">Расходы</span></span
-                ><span>—</span>
-              </p>
-              <p id="statsBalance">
-                <span>💎 <span data-i18n="balance">Баланс</span></span
-                ><span>—</span>
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-      <!-- /tab-content -->
-
-      <!-- ===== НАВИГАЦИЯ ===== -->
-      <nav class="bottom-nav">
-        <button class="nav-item active" data-tab="home">
-          <span class="nav-icon">🏠</span>
-          <span class="nav-label" data-i18n="nav_home">Главная</span>
+      <!-- ===== НИЖНЯЯ НАВИГАЦИЯ ===== -->
+      <nav
+        class="bottom-nav"
+        role="navigation"
+        data-i18n-aria="ariaNav"
+        aria-label="Основное меню"
+      >
+        <button
+          class="nav-btn"
+          data-tab="home"
+          data-i18n-aria="ariaNavHome"
+          aria-label="Главная страница"
+        >
+          <span class="nav-icon" aria-hidden="true">🏠</span>
+          <span class="nav-label" data-i18n="home">Главная</span>
         </button>
-        <button class="nav-item" data-tab="operations">
-          <span class="nav-icon">📋</span>
-          <span class="nav-label" data-i18n="nav_operations">Операции</span>
+        <button
+          class="nav-btn"
+          data-tab="stats"
+          data-i18n-aria="ariaNavStats"
+          aria-label="Статистика"
+        >
+          <span class="nav-icon" aria-hidden="true">📊</span>
+          <span class="nav-label" data-i18n="stats">Статистика</span>
         </button>
-        <button class="nav-item" data-tab="categories">
-          <span class="nav-icon">🗂️</span>
-          <span class="nav-label" data-i18n="nav_categories">Категории</span>
+        <button
+          class="nav-btn"
+          data-tab="tools"
+          data-i18n-aria="ariaNavTools"
+          aria-label="Инструменты"
+        >
+          <span class="nav-icon" aria-hidden="true">🧮</span>
+          <span class="nav-label" data-i18n="tools">Инструменты</span>
         </button>
-        <button class="nav-item" data-tab="tools">
-          <span class="nav-icon">🧮</span>
-          <span class="nav-label" data-i18n="nav_tools">Инструменты</span>
+        <button
+          class="nav-btn"
+          data-tab="notebook"
+          data-i18n-aria="ariaNavNotebook"
+          aria-label="Блокнот"
+        >
+          <span class="nav-icon" aria-hidden="true">📓</span>
+          <span class="nav-label" data-i18n="notebook">Блокнот</span>
         </button>
-        <button class="nav-item" data-tab="notebook">
-          <span class="nav-icon">📓</span>
-          <span class="nav-label" data-i18n="nav_notebook">Блокнот</span>
+        <button
+          class="nav-btn"
+          data-tab="categories"
+          data-i18n-aria="ariaNavCategories"
+          aria-label="Категории"
+        >
+          <span class="nav-icon" aria-hidden="true">🗂️</span>
+          <span class="nav-label" data-i18n="categories">Категории</span>
         </button>
-        <button class="nav-item" data-tab="stats">
-          <span class="nav-icon">📊</span>
-          <span class="nav-label" data-i18n="nav_stats">Данные</span>
+        <button
+          class="nav-btn"
+          data-tab="settings"
+          data-i18n-aria="ariaNavSettings"
+          aria-label="Настройки"
+        >
+          <span class="nav-icon" aria-hidden="true">⚙️</span>
+          <span class="nav-label" data-i18n="settings">Настройки</span>
         </button>
       </nav>
-      <button class="fab" id="fabBtn">＋</button>
-    </div>
-    <!-- /app -->
 
-    <!-- ===== МОДАЛКА ПОМОЩИ ===== -->
-    <div class="modal-overlay" id="helpModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>❔ <span data-i18n="help_title">Помощь и инструкция</span></h2>
-          <button class="modal-close" id="closeHelpModal">✕</button>
-        </div>
-        <div class="modal-body" id="helpModalBody"></div>
-      </div>
+      <!-- ===== КНОПКА ДОБАВИТЬ ===== -->
+      <button
+        class="fab"
+        id="fabBtn"
+        data-i18n-aria="ariaFab"
+        aria-label="Добавить доход или расход"
+      >
+        <span class="fab-plus" aria-hidden="true">+</span>
+        <span class="fab-text">Добавить</span>
+      </button>
     </div>
 
-    <!-- ===== МОДАЛКА ДОБАВЛЕНИЯ ОПЕРАЦИИ ===== -->
-    <div class="modal-overlay" id="addOpModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>➕ <span data-i18n="add_operation">Новая операция</span></h2>
-          <button class="modal-close" id="closeAddOpModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="field-group">
-            <label data-i18n="type">Тип</label>
-            <div class="type-toggle">
-              <button
-                class="type-btn active"
-                data-type="expense"
-                id="typeExpenseBtn"
-              >
-                💸 <span data-i18n="expense">Расход</span>
-              </button>
-              <button class="type-btn" data-type="income" id="typeIncomeBtn">
-                💰 <span data-i18n="income">Доход</span>
-              </button>
-            </div>
-          </div>
-          <div class="field-group">
-            <label data-i18n="category">Категория</label>
-            <select id="modalCat" class="modal-select"></select>
-            <div
-              class="cat-actions"
-              style="display: flex; gap: 6px; margin-top: 6px"
-            >
-              <button class="btn-sm" id="modalAddCatBtn">
-                + <span data-i18n="add">Добавить</span>
-              </button>
-              <button class="btn-sm" id="modalDelCatBtn">
-                🗑 <span data-i18n="delete">Удалить</span>
-              </button>
-            </div>
-          </div>
-          <div class="field-group" id="modalSubcatField" style="display: none">
-            <label data-i18n="subcategory">Подкатегория</label>
-            <select id="modalSubcat" class="modal-select"></select>
-          </div>
-          <div class="field-group">
-            <label
-              ><span data-i18n="amount">Сумма</span> (<span id="modalCurSymbol"
-                >₾</span
-              >)</label
-            >
-            <input
-              type="number"
-              id="modalAmount"
-              class="modal-input"
-              step="any"
-              placeholder="0.00"
-            />
-          </div>
-          <div class="field-group">
-            <label data-i18n="date">Дата</label>
-            <input type="date" id="modalDate" class="modal-input" />
-          </div>
-          <div class="field-group">
-            <label data-i18n="note"
-              >Заметка
-              <span
-                style="
-                  font-weight: 400;
-                  text-transform: none;
-                  letter-spacing: 0;
-                  color: var(--text-muted);
-                "
-                >(необязательно)</span
-              ></label
-            >
-            <textarea
-              id="modalNote"
-              class="modal-textarea"
-              rows="2"
-              placeholder="Коментарий к операции..."
-            ></textarea>
-          </div>
-          <div class="modal-actions">
-            <button class="btn-primary" id="modalAddBtn">
-              ✅ <span data-i18n="add">Добавить</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- ===== УВЕДОМЛЕНИЕ (TOAST) ===== -->
+    <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
-    <!-- ===== МОДАЛКА РЕДАКТИРОВАНИЯ ОПЕРАЦИИ ===== -->
-    <div class="modal-overlay" id="editOpModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>
-            ✏️ <span data-i18n="edit_operation">Редактировать операцию</span>
-          </h2>
-          <button class="modal-close" id="closeEditOpModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="field-group">
-            <label data-i18n="type">Тип</label>
-            <div class="type-toggle">
-              <button
-                class="type-btn"
-                data-type="expense"
-                id="editTypeExpenseBtn"
-              >
-                💸 <span data-i18n="expense">Расход</span>
-              </button>
-              <button
-                class="type-btn"
-                data-type="income"
-                id="editTypeIncomeBtn"
-              >
-                💰 <span data-i18n="income">Доход</span>
-              </button>
-            </div>
-          </div>
-          <div class="field-group">
-            <label data-i18n="category">Категория</label>
-            <select id="editModalCat" class="modal-select"></select>
-          </div>
-          <div
-            class="field-group"
-            id="editModalSubcatField"
-            style="display: none"
-          >
-            <label data-i18n="subcategory">Подкатегория</label>
-            <select id="editModalSubcat" class="modal-select"></select>
-          </div>
-          <div class="field-group">
-            <label
-              ><span data-i18n="amount">Сумма</span> (<span
-                id="editModalCurSymbol"
-                >₾</span
-              >)</label
-            >
-            <input
-              type="number"
-              id="editModalAmount"
-              class="modal-input"
-              step="any"
-            />
-          </div>
-          <div class="field-group">
-            <label data-i18n="date">Дата</label>
-            <input type="date" id="editModalDate" class="modal-input" />
-          </div>
-          <div class="field-group">
-            <label data-i18n="note">Заметка</label>
-            <textarea
-              id="editModalNote"
-              class="modal-textarea"
-              rows="2"
-            ></textarea>
-          </div>
-          <div class="modal-actions" style="justify-content: space-between">
-            <button class="btn-danger-sm" id="deleteOpBtn">
-              🗑 <span data-i18n="delete">Удалить</span>
-            </button>
-            <button class="btn-primary" id="saveOpBtn">
-              💾 <span data-i18n="save">Сохранить</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== МОДАЛКА ИСТОРИИ КОНВЕРТАЦИИ ===== -->
-    <div class="modal-overlay" id="convHistoryModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>📜 <span data-i18n="history">История конвертаций</span></h2>
-          <button class="modal-close" id="closeConvHistoryModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div id="convHistoryFullList" class="ops-list"></div>
-          <button
-            class="btn-danger-sm"
-            id="clearFullConvHistoryBtn"
-            style="margin-top: 12px"
-            data-i18n="clear_all_history"
-          >
-            🗑 Очистить всю историю
+    <!-- ===== ПОДТВЕРЖДЕНИЕ (вместо alert/confirm) ===== -->
+    <div class="confirm-overlay" id="confirmOverlay">
+      <div class="confirm-box">
+        <div class="confirm-icon" id="confirmIcon">⚠️</div>
+        <div class="confirm-title" id="confirmTitle">Вы уверены?</div>
+        <div class="confirm-msg" id="confirmMsg"></div>
+        <div class="confirm-actions">
+          <button class="confirm-cancel" id="confirmCancel">
+            ✕ <span data-i18n="cancel">Отмена</span>
           </button>
+          <button class="confirm-ok" id="confirmOk">✓ Да, удалить</button>
         </div>
       </div>
     </div>
 
-    <!-- ===== МОДАЛКА ИСТОРИИ КАЛЬКУЛЯТОРА ===== -->
-    <div class="modal-overlay" id="calcHistoryModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>🧮 <span data-i18n="calculator">История калькулятора</span></h2>
-          <button class="modal-close" id="closeCalcHistoryModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div id="calcHistoryFullList" class="calc-history-list"></div>
-          <button
-            class="btn-danger-sm"
-            id="clearCalcHistoryBtn"
-            style="margin-top: 12px"
-            data-i18n="clear_all_history"
-          >
-            Очистить историю
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== МОДАЛКА РЕДАКТИРОВАНИЯ ПОДКАТЕГОРИИ ===== -->
-    <div class="modal-overlay" id="editSubcatModal">
-      <div class="modal modal-sm">
-        <div class="modal-header">
-          <h2>✏️ <span data-i18n="subcategory">Подкатегория</span></h2>
-          <button class="modal-close" id="closeEditSubcatModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="field-group">
-            <label data-i18n="enter_subcategory_name">Название</label>
-            <input type="text" id="editSubcatName" class="modal-input" />
-          </div>
-          <div class="modal-actions" style="justify-content: space-between">
-            <button class="btn-danger-sm" id="deleteSubcatBtn">
-              🗑 <span data-i18n="delete">Удалить</span>
-            </button>
-            <button class="btn-primary" id="saveSubcatBtn">
-              💾 <span data-i18n="save">Сохранить</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== МОДАЛКА БЛОКНОТА ===== -->
-    <div class="modal-overlay" id="notebookModal">
-      <div class="modal">
-        <div class="modal-header">
-          <h2>📄 <span data-i18n="page">Страница</span></h2>
-          <button class="modal-close" id="closeNotebookModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <div class="field-group">
-            <label data-i18n="enter_subcategory_name">Название</label>
-            <input
-              type="text"
-              id="nbTitle"
-              class="modal-input"
-              placeholder="Заголовок страницы"
-            />
-          </div>
-          <div class="field-group">
-            <label data-i18n="date">Дата</label>
-            <input type="date" id="nbDate" class="modal-input" />
-          </div>
-          <div class="field-group">
-            <label data-i18n="note">Содержимое</label>
-            <textarea
-              id="nbContent"
-              class="modal-textarea"
-              rows="10"
-              placeholder="Начните писать..."
-            ></textarea>
-          </div>
-          <div class="modal-actions" style="justify-content: space-between">
-            <button class="btn-danger-sm" id="deleteNbPageBtn">
-              🗑 <span data-i18n="delete">Удалить</span>
-            </button>
-            <button class="btn-primary" id="saveNbPageBtn">
-              💾 <span data-i18n="save">Сохранить</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===== ГАЙД / ТУТОРИАЛ ===== -->
-    <div class="guide-overlay" id="guideOverlay" style="display: none">
-      <div class="guide-spotlight" id="guideSpotlight"></div>
-      <div class="guide-tooltip" id="guideTooltip">
-        <div class="guide-step-counter" id="guideCounter">Шаг 1 из 6</div>
-        <div class="guide-title" id="guideTitle"></div>
-        <div class="guide-desc" id="guideDesc"></div>
-        <div class="guide-actions">
-          <button
-            class="guide-btn-skip"
-            id="guideSkipBtn"
-            data-i18n="guide_skip"
-          >
-            Пропустить гайд
-          </button>
-          <div class="guide-progress" id="guideProgress"></div>
-          <button
-            class="guide-btn-next"
-            id="guideNextBtn"
-            data-i18n="guide_next"
-          >
-            Далее →
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <script src="i18n.js"></script>
     <script src="index.js"></script>
     <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("sw.js")
-          .then((reg) => console.log("SW registered:", reg))
-          .catch((err) => console.error("SW error:", err));
-      }
+      if ("serviceWorker" in navigator)
+        navigator.serviceWorker.register("sw.js").catch((e) => console.log(e));
     </script>
   </body>
 </html>
