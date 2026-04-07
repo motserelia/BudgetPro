@@ -376,7 +376,7 @@
               <canvas id="statsChart" width="220" height="220"></canvas>
               <div class="chart-center">
                 <div class="chart-percent" id="statsPercent">—</div>
-                <div class="chart-sublabel" id="statsPercentLabel">
+                <div class="chart-sublabel" data-i18n="stats_percent_label">
                   расх / дох
                 </div>
               </div>
@@ -398,7 +398,7 @@
 
             <!-- Трендовая диаграмма (стрелка) -->
             <div class="trend-chart-wrap">
-              <div class="trend-chart-title">
+              <div class="trend-chart-title" data-i18n="stats_trend_title">
                 📈 Динамика доходов и расходов
               </div>
               <canvas id="trendChart" height="100"></canvas>
@@ -779,7 +779,6 @@
     </div>
 
     <script src="i18n.js"></script>
-    <script src="locales.js"></script>
     <script src="index.js"></script>
     <script>
       if ("serviceWorker" in navigator) {
