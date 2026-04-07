@@ -145,6 +145,9 @@ const translations = {
     stats_trend_title: "📈 Динамика доходов и расходов",
     stats_percent_label: "расх / дох",
     guide_finish: "Готово ✓",
+    guide_restart: "🎯 Повторить гайд",
+    guide_next: "Далее →",
+    guide_skip: "Пропустить гайд",
     dp_months: [
       "Январь",
       "Февраль",
@@ -306,6 +309,9 @@ const translations = {
     stats_trend_title: "📈 Income and Expenses Dynamics",
     stats_percent_label: "exp / inc",
     guide_finish: "Finish ✓",
+    guide_restart: "🎯 Repeat guide",
+    guide_next: "Next →",
+    guide_skip: "Skip guide",
     dp_months: [
       "January",
       "February",
@@ -467,6 +473,9 @@ const translations = {
     stats_trend_title: "📈 შემოსავლებისა და ხარჯების დინამიკა",
     stats_percent_label: "ხარჯი / შემოსავალი",
     guide_finish: "მზადაა ✓",
+    guide_restart: "🎯 გაიმეორეთ გიდი",
+    guide_next: "შემდეგი →",
+    guide_skip: "გამოტოვება",
     dp_months: [
       "იანვარი",
       "თებერვალი",
@@ -492,10 +501,7 @@ function t(key) {
 }
 
 // ===================== КАСТОМНЫЙ ДАТАПИКЕР =====================
-// Заменяет все <input type="date"> на кастомный пикер, реагирующий на язык
-
 (function () {
-  // Стили для кастомного пикера (уже есть в CSS, но для гарантии добавим, если нет)
   if (!document.getElementById("dp-styles")) {
     const style = document.createElement("style");
     style.id = "dp-styles";
