@@ -1,10 +1,709 @@
-// ========== БЮДЖЕТ PRO — ПОЛНАЯ ЛОГИКА ==========
+/* ============================================================
+   МОЙ БЮДЖЕТ — index.js
+   Полная логика приложения с кастомным выбором даты
+   ============================================================ */
+
+// ============================================================
+// МУЛЬТИЯЗЫЧНОСТЬ
+// ============================================================
+const translations = {
+  ru: {
+    // Название приложения
+    appName: "🌿 Мой Бюджет",
+    // Карточки сверху — БЕЗ эмодзи (иконки отдельно в HTML)
+    balance: "Мой баланс",
+    income: "Доходы",
+    expense: "Расходы",
+    salary: "Нач. сумма",
+    // Нижнее меню — БЕЗ эмодзи (иконки отдельно в HTML)
+    home: "Главная",
+    stats: "Статистика",
+    tools: "Инструменты",
+    notebook: "Блокнот",
+    categories: "Категории",
+    settings: "Настройки",
+    // Кнопки
+    add: "Добавить",
+    edit: "Изменить",
+    delete: "Удалить",
+    save: "Сохранить",
+    cancel: "Отмена",
+    // Форма добавления
+    type: "Что добавить?",
+    expenseType: "💸 Расход",
+    incomeType: "💰 Доход",
+    category: "Категория",
+    subcategory: "Подкатегория",
+    amount: "Сумма",
+    date: "Дата",
+    note: "Заметка",
+    selectCategory: "— выберите категорию —",
+    noSubcategory: "— без подкатегории —",
+    // История
+    allHistory: "📜 Вся история операций",
+    historyHint: "Нажмите, чтобы увидеть все ваши записи за всё время",
+    // Баланс
+    editBalance: "Изменить начальную сумму",
+    editSalaryHint: "👆 Нажмите, чтобы изменить",
+    totalIncome: "📈 Всего доходов",
+    totalExpense: "📉 Всего расходов",
+    currentBalance: "💎 Текущий баланс",
+    salary_label: "💼 Начальная сумма",
+    // Пустой список
+    noOperations:
+      "Пока нет записей.\nНажмите зелёную кнопку «Добавить» внизу ↓",
+    // Модалки операций
+    newOperation: "Новая операция",
+    editOperation: "Изменить запись",
+    confirmDelete: "Удалить эту запись?",
+    confirmDeleteAll: "Удалить ВСЕ записи?",
+    enterAmount: "Введите сумму",
+    enterPositive: "Сумма должна быть больше нуля",
+    selectCategoryFirst: "Пожалуйста, выберите категорию",
+    // Инструменты
+    calculator: "🧮 Калькулятор",
+    converter: "💱 Конвертер валют",
+    calcHint: "Нажимайте цифры и знаки, как на обычном калькуляторе",
+    convHint: "Введите сумму, выберите «из» и «в» — нажмите «Перевести»",
+    fromCurrency: "Из валюты",
+    toCurrency: "В валюту",
+    sumLabel: "Сумма",
+    history: "История",
+    clearHistory: "Очистить историю",
+    convert: "Перевести",
+    convertResult: "Результат",
+    // Блокнот
+    newPage: "Новая страница",
+    pageTitle: "Название страницы",
+    content: "Текст заметки",
+    noPages: "Нет страниц.\nНажмите «Новая страница» выше",
+    notebookHint:
+      "Здесь храните важные заметки: номера телефонов, напоминания, планы трат.",
+    // Категории
+    addCategory: "Добавить категорию расходов",
+    addIncomeCategory: "Добавить категорию доходов",
+    deleteCategory: "Удалить категорию",
+    addSubcategory: "Добавить подкатегорию",
+    incomeCats: "💰 Категории доходов",
+    expCatsTitle: "📉 Категории расходов",
+    catHint:
+      "Категории помогают группировать расходы и доходы. Нажмите на название категории, чтобы изменить его. Нажмите ✕ рядом с подкатегорией, чтобы удалить её.",
+    newExpCatTitle: "Новая категория расходов",
+    newIncCatTitle: "Новая категория доходов",
+    editCatTitle: "Изменить название категории",
+    editSubcatTitle: "Изменить подкатегорию",
+    newSubcatTitle: "Новая подкатегория",
+    catNameLabel: "Введите название:",
+    newName: "Новое название:",
+    inCategoryLabel: "В категории:",
+    // Настройки
+    theme: "🎨 Оформление",
+    light: "☀️ Светлая",
+    dark: "🌙 Тёмная",
+    language: "🌐 Язык",
+    data: "💾 Данные",
+    updateRates: "🔄 Обновить курсы валют",
+    resetAll: "🗑️ Сбросить всё",
+    proVersion: "🌟 Открыть Pro-версию",
+    currency: "🌍 Показывать суммы в валюте",
+    explanationCurrency: "В какой валюте показывать все суммы на экране.",
+    explanationTheme: "Светлый или тёмный фон — выберите, что удобнее глазам.",
+    explanationLanguage: "Выберите язык приложения.",
+    explanationRates: "Загрузить свежие курсы валют из интернета.",
+    explanationReset: "Удалить все данные и начать заново.",
+    explanationPro: "Расширенная версия с графиками и экспортом данных.",
+    // Валюты (полные названия)
+    currRUB: "₽ Российский рубль",
+    currUSD: "$ Доллар США",
+    currEUR: "€ Евро",
+    currGEL: "₾ Грузинский лари",
+    currGBP: "£ Фунт стерлингов",
+    currKZT: "₸ Казахстанский тенге",
+    // Символы
+    rub: "₽",
+    usd: "$",
+    eur: "€",
+    gel: "₾",
+    gbp: "£",
+    kzt: "₸",
+    ok: "Понятно",
+    error: "Ошибка",
+    allOps: "Все операции",
+    clearAllOps: "Удалить всю историю",
+    editNote: "Редактировать",
+    saved: "✓ Сохранено",
+    deleted: "🗑 Удалено",
+    ratesUpdated: "✓ Курсы обновлены",
+    resetDone: "✓ Всё сброшено",
+    welcomeTitle: "Добро пожаловать! 👋",
+    welcomeText:
+      "Здесь вы можете записывать доходы и расходы. Нажмите зелёную кнопку «Добавить» внизу, чтобы начать.",
+    welcomeClose: "Понятно, начинаем!",
+    expCategory: "Категория расходов",
+    incCategory: "Категория доходов",
+    expSub: "Подкатегория (необязательно)",
+    amountHint: "Введите число, например: 150",
+    dateHint: "Дата операции",
+    noteHint: "Можно оставить пустым",
+    addSubHint: "Подкатегория помогает уточнить трату (необязательно)",
+    // Подсказки карточек
+    cardHintBalance: "Сколько у вас сейчас",
+    cardHintIncome: "Всего получено",
+    cardHintExpense: "Всего потрачено",
+    cardHintSalary: "👆 Нажмите чтобы изменить",
+    // Aria-labels карточек
+    ariaBalance: "Баланс — нажмите для подробностей",
+    ariaIncome: "Доходы — нажмите для просмотра",
+    ariaExpense: "Расходы — нажмите для просмотра",
+    ariaSalary: "Начальная сумма — нажмите чтобы изменить",
+    // История операций (над списком)
+    recentOpsLabel: "📋 История доходов и расходов",
+    recentOpsHint: "Нажмите на любую запись — чтобы изменить или удалить",
+    // Добавление категории — модалка
+    addCatModalTitle: "Добавить категорию",
+    catTypeLabel: "Выберите тип категории",
+    catTypeExpenseTitle: "💸 Расходы",
+    catTypeExpenseDesc:
+      "Покупки, оплата услуг, коммунальные платежи и любые траты",
+    catTypeIncomeTitle: "💰 Доходы",
+    catTypeIncomeDesc:
+      "Зарплата, пенсия, подарки, фриланс и другие поступления",
+    catNamePlaceholder: "Например: «Транспорт» или «Аптека»",
+    noStatsYet: "Добавьте первые записи,\nчтобы увидеть статистику",
+    // Новые ключи
+    salaryModalHint:
+      "💡 Это начальная сумма — деньги, с которых вы начинаете учёт. Обычно это зарплата или сбережения.",
+    catFieldDesc: "Название категории этой записи",
+    toggleTheme: "Переключить тему",
+    ariaNav: "Основное меню",
+    ariaFab: "Добавить доход или расход",
+    ariaNavHome: "Главная страница",
+    ariaNavStats: "Статистика",
+    ariaNavTools: "Инструменты",
+    ariaNavNotebook: "Блокнот",
+    ariaNavCategories: "Категории",
+    ariaNavSettings: "Настройки",
+    statsTransCount: "записей",
+    statsSaved: "💾 Сохранено",
+    statsSavingsRate: "от доходов сохранено",
+    statsHealthy: "✅ Бюджет в норме — расходы меньше доходов",
+    statsWarning: "⚠️ Осторожно — расходы превышают доходы",
+    statsBreakeven: "〰️ Расходы равны доходам",
+    statsSpentOf: "потрачено из доходов",
+    statsIncomeSection: "📈 Из чего состоят доходы",
+    statsExpSection: "📉 На что уходят деньги",
+    statsTotalOps: "Всего записей",
+    // Футер настроек
+    appFooter:
+      "Мой Бюджет v2.0 · Работает без интернета 📴\nВсе данные хранятся только на вашем устройстве 🔒",
+    historyEmpty: "История пуста",
+    loading: "⏳ Загрузка...",
+    ariaDeleteOp: "Удалить запись",
+    ariaEditOp: "Изменить",
+    ariaDeleteOp2: "Удалить",
+    addOpTypeDesc: "Выберите, на что потратили или откуда получили деньги",
+    incomeAdded: "✓ Доход добавлен!",
+    expenseAdded: "✓ Расход добавлен!",
+    newNotebookTitle: "📝 Новая заметка",
+    notebookPlaceholder: "Пишите здесь...",
+    currencyChanged: "✓ Валюта изменена",
+    themeChanged: "✓ Тема изменена",
+    resetConfirmMsg:
+      "Все записи, заметки и настройки будут удалены. Это нельзя отменить.",
+    proComingSoon: "🌟 Pro-версия скоро будет доступна!",
+    themeLight: "☀️ Светлая тема",
+    themeDark: "🌙 Тёмная тема",
+    yesDeleteAll: "✓ Да, удалить всё",
+    resetConfirmTitle: "Сбросить всё?",
+    defaultNotePage: "📝 Заметка",
+    calcError: "Ошибка",
+    confirmOkBtn: "✓ Да, удалить",
+    // Дни недели и месяцы
+    weekdaysShort: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+    months: [
+      "Январь",
+      "Февраль",
+      "Март",
+      "Апрель",
+      "Май",
+      "Июнь",
+      "Июль",
+      "Август",
+      "Сентябрь",
+      "Октябрь",
+      "Ноябрь",
+      "Декабрь",
+    ],
+    pickDate: "Выберите дату",
+  },
+  en: {
+    appName: "🌿 My Budget",
+    balance: "My balance",
+    income: "Income",
+    expense: "Expenses",
+    salary: "Starting sum",
+    home: "Home",
+    stats: "Stats",
+    tools: "Tools",
+    notebook: "Notebook",
+    categories: "Categories",
+    settings: "Settings",
+    add: "Add",
+    edit: "Edit",
+    delete: "Delete",
+    save: "Save",
+    cancel: "Cancel",
+    type: "What to add?",
+    expenseType: "💸 Expense",
+    incomeType: "💰 Income",
+    category: "Category",
+    subcategory: "Subcategory",
+    amount: "Amount",
+    date: "Date",
+    note: "Note",
+    selectCategory: "— select a category —",
+    noSubcategory: "— no subcategory —",
+    allHistory: "📜 Full transaction history",
+    historyHint: "Tap to see all your records over all time",
+    editBalance: "Edit starting amount",
+    editSalaryHint: "👆 Tap to change",
+    totalIncome: "📈 Total income",
+    totalExpense: "📉 Total expenses",
+    currentBalance: "💎 Current balance",
+    salary_label: "💼 Starting amount",
+    noOperations: "No records yet.\nTap the green «Add» button below ↓",
+    newOperation: "New transaction",
+    editOperation: "Edit record",
+    confirmDelete: "Delete this record?",
+    confirmDeleteAll: "Delete ALL records?",
+    enterAmount: "Enter amount",
+    enterPositive: "Amount must be greater than zero",
+    selectCategoryFirst: "Please select a category first",
+    calculator: "🧮 Calculator",
+    converter: "💱 Currency converter",
+    calcHint: "Press numbers and signs just like a regular calculator",
+    convHint: "Enter an amount, choose «from» and «to» — tap «Convert»",
+    fromCurrency: "From currency",
+    toCurrency: "To currency",
+    sumLabel: "Amount",
+    history: "History",
+    clearHistory: "Clear history",
+    convert: "Convert",
+    convertResult: "Result",
+    newPage: "New page",
+    pageTitle: "Page title",
+    content: "Note text",
+    noPages: "No pages.\nTap «New page» above",
+    notebookHint:
+      "Store important notes here: phone numbers, reminders, spending plans.",
+    addCategory: "Add expense category",
+    addIncomeCategory: "Add income category",
+    deleteCategory: "Delete category",
+    addSubcategory: "Add subcategory",
+    incomeCats: "💰 Income categories",
+    expCatsTitle: "📉 Expense categories",
+    catHint:
+      "Categories help group expenses and income. Tap a category name to rename it. Tap ✕ next to a subcategory to remove it.",
+    newExpCatTitle: "New expense category",
+    newIncCatTitle: "New income category",
+    editCatTitle: "Edit category name",
+    editSubcatTitle: "Edit subcategory",
+    newSubcatTitle: "New subcategory",
+    catNameLabel: "Enter a name:",
+    newName: "New name:",
+    inCategoryLabel: "In category:",
+    theme: "🎨 Appearance",
+    light: "☀️ Light",
+    dark: "🌙 Dark",
+    language: "🌐 Language",
+    data: "💾 Data",
+    updateRates: "🔄 Update exchange rates",
+    resetAll: "🗑️ Reset all data",
+    proVersion: "🌟 Open Pro version",
+    currency: "🌍 Show amounts in currency",
+    explanationCurrency: "Choose in which currency to display all amounts.",
+    explanationTheme:
+      "Light or dark background — choose what's easier on your eyes.",
+    explanationLanguage: "Choose the app language.",
+    explanationRates: "Download current exchange rates from the internet.",
+    explanationReset: "Delete all data and start fresh.",
+    explanationPro: "Advanced version with charts and data export.",
+    currRUB: "₽ Russian Ruble",
+    currUSD: "$ US Dollar",
+    currEUR: "€ Euro",
+    currGEL: "₾ Georgian Lari",
+    currGBP: "£ British Pound",
+    currKZT: "₸ Kazakhstani Tenge",
+    rub: "₽",
+    usd: "$",
+    eur: "€",
+    gel: "₾",
+    gbp: "£",
+    kzt: "₸",
+    ok: "OK",
+    error: "Error",
+    allOps: "All operations",
+    clearAllOps: "Delete all history",
+    editNote: "Edit",
+    saved: "✓ Saved",
+    deleted: "🗑 Deleted",
+    ratesUpdated: "✓ Rates updated",
+    resetDone: "✓ All reset",
+    welcomeTitle: "Welcome! 👋",
+    welcomeText:
+      "Here you can record income and expenses. Tap the green «Add» button below to get started.",
+    welcomeClose: "Got it, let's start!",
+    expCategory: "Expense category",
+    incCategory: "Income category",
+    expSub: "Subcategory (optional)",
+    amountHint: "Enter a number, e.g. 150",
+    dateHint: "Date of transaction",
+    noteHint: "Can be left empty",
+    addSubHint: "Subcategory helps clarify the expense (optional)",
+    cardHintBalance: "How much you have now",
+    cardHintIncome: "Total received",
+    cardHintExpense: "Total spent",
+    cardHintSalary: "👆 Tap to change",
+    ariaBalance: "Balance — tap for details",
+    ariaIncome: "Income — tap to view",
+    ariaExpense: "Expenses — tap to view",
+    ariaSalary: "Starting amount — tap to change",
+    recentOpsLabel: "📋 Income and expense history",
+    recentOpsHint: "Tap any record to edit or delete it",
+    addCatModalTitle: "Add category",
+    catTypeLabel: "Choose category type",
+    catTypeExpenseTitle: "💸 Expenses",
+    catTypeExpenseDesc: "Purchases, bills, utilities and any spending",
+    catTypeIncomeTitle: "💰 Income",
+    catTypeIncomeDesc: "Salary, pension, gifts, freelance and other earnings",
+    catNamePlaceholder: "E.g. «Transport» or «Pharmacy»",
+    noStatsYet: "Add your first records\nto see statistics",
+    salaryModalHint:
+      "💡 This is your starting amount — the money you begin tracking with. Usually your salary or savings.",
+    catFieldDesc: "Name of the category for this record",
+    toggleTheme: "Switch theme",
+    ariaNav: "Main navigation",
+    ariaFab: "Add income or expense",
+    ariaNavHome: "Home page",
+    ariaNavStats: "Statistics",
+    ariaNavTools: "Tools",
+    ariaNavNotebook: "Notebook",
+    ariaNavCategories: "Categories",
+    ariaNavSettings: "Settings",
+    statsTransCount: "records",
+    statsSaved: "💾 Saved",
+    statsSavingsRate: "of income saved",
+    statsHealthy: "✅ Budget is healthy — spending is less than income",
+    statsWarning: "⚠️ Caution — expenses exceed income",
+    statsBreakeven: "〰️ Expenses equal income",
+    statsSpentOf: "spent of income",
+    statsIncomeSection: "📈 Income breakdown",
+    statsExpSection: "📉 Where the money goes",
+    statsTotalOps: "Total records",
+    appFooter:
+      "My Budget v2.0 · Works offline 📴\nAll data is stored only on your device 🔒",
+    historyEmpty: "History is empty",
+    loading: "⏳ Loading...",
+    ariaDeleteOp: "Delete record",
+    ariaEditOp: "Edit",
+    ariaDeleteOp2: "Delete",
+    addOpTypeDesc: "Choose what you spent on or where income came from",
+    incomeAdded: "✓ Income added!",
+    expenseAdded: "✓ Expense added!",
+    newNotebookTitle: "📝 New note",
+    notebookPlaceholder: "Write here...",
+    currencyChanged: "✓ Currency changed",
+    themeChanged: "✓ Theme changed",
+    resetConfirmMsg:
+      "All records, notes and settings will be deleted. This cannot be undone.",
+    proComingSoon: "🌟 Pro version coming soon!",
+    themeLight: "☀️ Light theme",
+    themeDark: "🌙 Dark theme",
+    yesDeleteAll: "✓ Yes, delete all",
+    resetConfirmTitle: "Reset everything?",
+    defaultNotePage: "📝 Note",
+    calcError: "Error",
+    confirmOkBtn: "✓ Yes, delete",
+    weekdaysShort: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    months: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    pickDate: "Pick a date",
+  },
+  ka: {
+    appName: "🌿 ჩემი ბიუჯეტი",
+    balance: "ჩემი ბალანსი",
+    income: "შემოსავალი",
+    expense: "ხარჯი",
+    salary: "საწყისი თანხა",
+    home: "მთავარი",
+    stats: "სტატისტიკა",
+    tools: "ინსტრუმენტები",
+    notebook: "ბლოკნოტი",
+    categories: "კატეგორიები",
+    settings: "პარამეტრები",
+    add: "დამატება",
+    edit: "შეცვლა",
+    delete: "წაშლა",
+    save: "შენახვა",
+    cancel: "გაუქმება",
+    type: "რა დავამატო?",
+    expenseType: "💸 ხარჯი",
+    incomeType: "💰 შემოსავალი",
+    category: "კატეგორია",
+    subcategory: "ქვეკატეგორია",
+    amount: "თანხა",
+    date: "თარიღი",
+    note: "შენიშვნა",
+    selectCategory: "— აირჩიეთ კატეგორია —",
+    noSubcategory: "— ქვეკატეგორიის გარეშე —",
+    allHistory: "📜 ოპერაციების სრული ისტორია",
+    historyHint: "დააჭირეთ, რომ ნახოთ ყველა თქვენი ჩანაწერი",
+    editBalance: "საწყისი თანხის შეცვლა",
+    editSalaryHint: "👆 დააჭირეთ შესაცვლელად",
+    totalIncome: "📈 სულ შემოსავალი",
+    totalExpense: "📉 სულ ხარჯი",
+    currentBalance: "💎 მიმდინარე ბალანსი",
+    salary_label: "💼 საწყისი თანხა",
+    noOperations: "ჩანაწერები არ არის.\nდააჭირეთ მწვანე «დამატება» ღილაკს ↓",
+    newOperation: "ახალი ოპერაცია",
+    editOperation: "ჩანაწერის შეცვლა",
+    confirmDelete: "წაიშალოს ეს ჩანაწერი?",
+    confirmDeleteAll: "წაიშალოს ყველა ჩანაწერი?",
+    enterAmount: "შეიყვანეთ თანხა",
+    enterPositive: "თანხა უნდა იყოს ნულზე მეტი",
+    selectCategoryFirst: "გთხოვთ, აირჩიეთ კატეგორია",
+    calculator: "🧮 კალკულატორი",
+    converter: "💱 ვალუტის გადამყვანი",
+    calcHint: "დააჭირეთ ციფრებს და ნიშნებს, როგორც ჩვეულებრივ კალკულატორზე",
+    convHint:
+      "შეიყვანეთ თანხა, აირჩიეთ «საიდან» და «სად» — დააჭირეთ «გადაყვანა»",
+    fromCurrency: "საიდან",
+    toCurrency: "სად",
+    sumLabel: "თანხა",
+    history: "ისტორია",
+    clearHistory: "ისტორიის გასუფთავება",
+    convert: "გადაყვანა",
+    convertResult: "შედეგი",
+    newPage: "ახალი გვერდი",
+    pageTitle: "გვერდის სათაური",
+    content: "შენიშვნის ტექსტი",
+    noPages: "გვერდები არ არის.\nდააჭირეთ «ახალი გვერდი» ზემოთ",
+    notebookHint:
+      "შეინახეთ მნიშვნელოვანი ჩანაწერები: ტელეფონის ნომრები, შეხსენებები, ხარჯის გეგმები.",
+    addCategory: "ხარჯის კატეგორიის დამატება",
+    addIncomeCategory: "შემოსავლის კატეგორიის დამატება",
+    deleteCategory: "კატეგორიის წაშლა",
+    addSubcategory: "ქვეკატეგორიის დამატება",
+    incomeCats: "💰 შემოსავლის კატეგორიები",
+    expCatsTitle: "📉 ხარჯის კატეგორიები",
+    catHint:
+      "კატეგორიები გეხმარებათ ხარჯებისა და შემოსავლების დაჯგუფებაში. დააჭირეთ კატეგორიის სახელს მის შესაცვლელად. დააჭირეთ ✕ ქვეკატეგორიის გვერდით მის წასაშლელად.",
+    newExpCatTitle: "ახალი ხარჯის კატეგორია",
+    newIncCatTitle: "ახალი შემოსავლის კატეგორია",
+    editCatTitle: "კატეგორიის სახელის შეცვლა",
+    editSubcatTitle: "ქვეკატეგორიის შეცვლა",
+    newSubcatTitle: "ახალი ქვეკატეგორია",
+    catNameLabel: "შეიყვანეთ სახელი:",
+    newName: "ახალი სახელი:",
+    inCategoryLabel: "კატეგორიაში:",
+    theme: "🎨 გაფორმება",
+    light: "☀️ ღია",
+    dark: "🌙 მუქი",
+    language: "🌐 ენა",
+    data: "💾 მონაცემები",
+    updateRates: "🔄 კურსის განახლება",
+    resetAll: "🗑️ ყველაფრის წაშლა",
+    proVersion: "🌟 Pro-ვერსიის გახსნა",
+    currency: "🌍 თანხის ჩვენება ვალუტაში",
+    explanationCurrency: "აირჩიეთ ვალუტა, რომელშიც გამოჩნდება ყველა თანხა.",
+    explanationTheme: "ღია ან მუქი ფონი — აირჩიეთ რაც თვალს მოხდება.",
+    explanationLanguage: "აპლიკაციის ენის არჩევა.",
+    explanationRates: "ჩამოტვირთეთ ვალუტის კურსები ინტერნეტიდან.",
+    explanationReset: "წაშალეთ ყველა მონაცემი და დაიწყეთ თავიდან.",
+    explanationPro: "გაფართოებული ვერსია გრაფიკებითა და ექსპორტით.",
+    currRUB: "₽ რუსული რუბლი",
+    currUSD: "$ აშშ დოლარი",
+    currEUR: "€ ევრო",
+    currGEL: "₾ ქართული ლარი",
+    currGBP: "£ ბრიტანული ფუნტი",
+    currKZT: "₸ ყაზახური ტენგე",
+    rub: "₽",
+    usd: "$",
+    eur: "€",
+    gel: "₾",
+    gbp: "£",
+    kzt: "₸",
+    ok: "კარგი",
+    error: "შეცდომა",
+    allOps: "ყველა ოპერაცია",
+    clearAllOps: "ყველა ისტორიის წაშლა",
+    editNote: "რედაქტირება",
+    saved: "✓ შენახულია",
+    deleted: "🗑 წაშლილია",
+    ratesUpdated: "✓ კურსი განახლდა",
+    resetDone: "✓ ყველაფერი წაიშალა",
+    welcomeTitle: "კეთილი იყოს თქვენი მობრძანება! 👋",
+    welcomeText:
+      "აქ შეგიძლიათ ჩაწეროთ შემოსავალი და ხარჯი. დააჭირეთ მწვანე «დამატება» ღილაკს დასაწყებად.",
+    welcomeClose: "გასაგებია, ვიწყებთ!",
+    expCategory: "ხარჯის კატეგორია",
+    incCategory: "შემოსავლის კატეგორია",
+    expSub: "ქვეკატეგორია (არასავალდებულო)",
+    amountHint: "შეიყვანეთ ციფრი, მაგ: 150",
+    dateHint: "ოპერაციის თარიღი",
+    noteHint: "შეიძლება ცარიელი დარჩეს",
+    addSubHint: "ქვეკატეგორია დაგეხმარება ხარჯის დაზუსტებაში (არასავალდებულო)",
+    cardHintBalance: "რამდენი გაქვთ ახლა",
+    cardHintIncome: "სულ მიღებული",
+    cardHintExpense: "სულ დახარჯული",
+    cardHintSalary: "👆 დააჭირეთ შესაცვლელად",
+    ariaBalance: "ბალანსი — დააჭირეთ დეტალებისთვის",
+    ariaIncome: "შემოსავალი — დააჭირეთ სანახავად",
+    ariaExpense: "ხარჯი — დააჭირეთ სანახავად",
+    ariaSalary: "საწყისი თანხა — დააჭირეთ შესაცვლელად",
+    recentOpsLabel: "📋 შემოსავლებისა და ხარჯების ისტორია",
+    recentOpsHint: "დააჭირეთ ნებისმიერ ჩანაწერს — შესაცვლელად ან წასაშლელად",
+    addCatModalTitle: "კატეგორიის დამატება",
+    catTypeLabel: "აირჩიეთ კატეგორიის ტიპი",
+    catTypeExpenseTitle: "💸 ხარჯი",
+    catTypeExpenseDesc:
+      "შენაძენები, სერვისების გადახდა, კომუნალური და ნებისმიერი ხარჯი",
+    catTypeIncomeTitle: "💰 შემოსავალი",
+    catTypeIncomeDesc:
+      "ხელფასი, პენსია, საჩუქრები, ფრილანსი და სხვა შემოსავლები",
+    catNamePlaceholder: "მაგ: «ტრანსპორტი» ან «აფთიაქი»",
+    noStatsYet: "დაამატეთ პირველი ჩანაწერები,\nსტატისტიკის სანახავად",
+    salaryModalHint:
+      "💡 ეს არის საწყისი თანხა — ფული, რომლითაც იწყებთ აღრიცხვას. ჩვეულებრივ ეს ხელფასი ან დანაზოგია.",
+    catFieldDesc: "ამ ჩანაწერის კატეგორიის სახელი",
+    toggleTheme: "თემის გადართვა",
+    ariaNav: "მთავარი მენიუ",
+    ariaFab: "შემოსავლის ან ხარჯის დამატება",
+    ariaNavHome: "მთავარი გვერდი",
+    ariaNavStats: "სტატისტიკა",
+    ariaNavTools: "ინსტრუმენტები",
+    ariaNavNotebook: "ბლოკნოტი",
+    ariaNavCategories: "კატეგორიები",
+    ariaNavSettings: "პარამეტრები",
+    statsTransCount: "ჩანაწერი",
+    statsSaved: "💾 დაზოგილია",
+    statsSavingsRate: "შემოსავლიდან დაზოგილია",
+    statsHealthy: "✅ ბიუჯეტი ნორმაშია — ხარჯი შემოსავალზე ნაკლებია",
+    statsWarning: "⚠️ ყურადღება — ხარჯი შემოსავალს აღემატება",
+    statsBreakeven: "〰️ ხარჯი შემოსავლის ტოლია",
+    statsSpentOf: "შემოსავლიდან დახარჯულია",
+    statsIncomeSection: "📈 შემოსავლების სტრუქტურა",
+    statsExpSection: "📉 სად მიდის ფული",
+    statsTotalOps: "სულ ჩანაწერი",
+    appFooter:
+      "ჩემი ბიუჯეტი v2.0 · მუშაობს ინტერნეტის გარეშე 📴\nყველა მონაცემი ინახება მხოლოდ თქვენს მოწყობილობაზე 🔒",
+    historyEmpty: "ისტორია ცარიელია",
+    loading: "⏳ იტვირთება...",
+    ariaDeleteOp: "წაშლა",
+    ariaEditOp: "შეცვლა",
+    ariaDeleteOp2: "წაშლა",
+    addOpTypeDesc: "აირჩიეთ, რაზე დახარჯეთ ან საიდან მოვიდა შემოსავალი",
+    incomeAdded: "✓ შემოსავალი დამატებულია!",
+    expenseAdded: "✓ ხარჯი დამატებულია!",
+    newNotebookTitle: "📝 ახალი შენიშვნა",
+    notebookPlaceholder: "დაწერეთ აქ...",
+    currencyChanged: "✓ ვალუტა შეიცვალა",
+    themeChanged: "✓ თემა შეიცვალა",
+    resetConfirmMsg:
+      "ყველა ჩანაწერი, შენიშვნა და პარამეტრი წაიშლება. ეს შეუქცევადია.",
+    proComingSoon: "🌟 Pro-ვერსია მალე იქნება ხელმისაწვდომი!",
+    themeLight: "☀️ ღია თემა",
+    themeDark: "🌙 მუქი თემა",
+    yesDeleteAll: "✓ დიახ, წავშალოთ ყველა",
+    resetConfirmTitle: "ყველაფრის წაშლა?",
+    defaultNotePage: "📝 შენიშვნა",
+    calcError: "შეცდომა",
+    confirmOkBtn: "✓ დიახ, წაშლა",
+    weekdaysShort: ["ორშ", "სამ", "ოთხ", "ხუთ", "პარ", "შაბ", "კვ"],
+    months: [
+      "იანვარი",
+      "თებერვალი",
+      "მარტი",
+      "აპრილი",
+      "მაისი",
+      "ივნისი",
+      "ივლისი",
+      "აგვისტო",
+      "სექტემბერი",
+      "ოქტომბერი",
+      "ნოემბერი",
+      "დეკემბერი",
+    ],
+    pickDate: "აირჩიეთ თარიღი",
+  },
+};
+
+let currentLang = localStorage.getItem("lang") || "ru";
+function t(key) {
+  return translations[currentLang]?.[key] || key;
+}
+function setLanguage(lang) {
+  if (translations[lang]) {
+    currentLang = lang;
+    localStorage.setItem("lang", lang);
+    document.documentElement.lang = lang;
+    applyTranslations();
+    updateHeader();
+    updateTopBlocks();
+    setTab(currentTab);
+  }
+}
+const localeMap = { ru: "ru-RU", en: "en-US", ka: "ka-GE" };
+
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (translations[currentLang][key])
+      el.textContent = translations[currentLang][key];
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-aria");
+    if (translations[currentLang][key])
+      el.setAttribute("aria-label", translations[currentLang][key]);
+  });
+  const logo = document.querySelector(".app-logo");
+  if (logo) logo.textContent = t("appName");
+  const fabText = document.querySelector(".fab-text");
+  if (fabText) fabText.textContent = t("add");
+  const themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) themeToggle.setAttribute("aria-label", t("toggleTheme"));
+}
+function sym() {
+  return (
+    {
+      RUB: t("rub"),
+      USD: t("usd"),
+      EUR: t("eur"),
+      GEL: t("gel"),
+      GBP: t("gbp"),
+      KZT: t("kzt"),
+    }[displayCurrency] || displayCurrency
+  );
+}
+
+// ============================================================
+// ДАННЫЕ
+// ============================================================
 let transactions = [];
 let startBalanceRub = 70000;
-let incomeCategories = ["Работа", "Аренда"];
-let expenseCategories = ["Продукты", "Транспорт", "Коммуналка", "Кафе"];
-let categoryGroups = {};
-let allCategoriesOrder = [];
+let displayCurrency = "GEL";
 let exchangeRates = {
   RUB: 1,
   USD: 0.012,
@@ -13,203 +712,54 @@ let exchangeRates = {
   GBP: 0.0095,
   KZT: 5.2,
 };
-let displayCurrency = "GEL";
-let lastRateUpdate = null;
+let notebookPages = [];
+let currentTab = "home";
+let editingOpIndex = null;
+let editingNoteId = null;
+let addType = "expense";
 let calcHistory = [];
 let convHistory = [];
-let notebookPages = [];
-let currentNbId = null;
-let currentOpType = "expense";
-let editingOpIndex = null;
-let statsResetDate = null;
-let currentStatsPeriod = "month";
-let statsAnimationFrame = null;
-let currentDisplayPercentExpense = 0,
-  currentDisplayPercentIncome = 0;
-let trendAnimationId = null;
+let calcExpr = "";
 
-// ========== ГАЙД ==========
-const guideSteps = [
-  {
-    target: "#balancePanel",
-    titleKey: "guide_step1_title",
-    descKey: "guide_step1_desc",
-    defaultTitle: "💰 Панель баланса",
-    defaultDesc:
-      "Здесь отображается ваш финансовый баланс: начальная зарплата, доходы, расходы и остаток. Нажмите «Зарплата», чтобы установить начальный баланс.",
-    navTo: null,
+let categories = {
+  Коммуналка: { subcats: ["Свет", "Вода", "Газ", "Интернет", "Сбор мусора"] },
+  Продукты: {
+    subcats: [
+      "Хлеб",
+      "Яйца",
+      "Зелень",
+      "Сыр",
+      "Молоко",
+      "Огурцы",
+      "Помидоры",
+      "Яблоки",
+      "Бананы",
+    ],
   },
-  {
-    target: ".fab",
-    titleKey: "guide_step2_title",
-    descKey: "guide_step2_desc",
-    defaultTitle: "➕ Добавление операции",
-    defaultDesc:
-      "Нажмите эту кнопку, чтобы добавить новую операцию — доход или расход. Укажите категорию, сумму, дату и заметку.",
-    navTo: null,
+  "Заём банка": { subcats: ["Банк TBC", "Банк Sakartvelo"] },
+  "Ежемесячные взносы": {
+    subcats: ["Телефон", "Ноутбук", "Планшет", "Ломбард", "Транспорт"],
   },
-  {
-    target: ".bottom-nav",
-    titleKey: "guide_step3_title",
-    descKey: "guide_step3_desc",
-    defaultTitle: "🗂️ Навигация",
-    defaultDesc:
-      "Главная — последние операции. Операции — полный список с поиском. Категории — управление категориями. Инструменты — калькулятор и конвертер. Блокнот — заметки. Данные — статистика.",
-    navTo: null,
+  Транспорт: {
+    subcats: ["Метро", "Автобус", "Маршрутка", "Трамвай", "Бензин", "Самолёт"],
   },
-  {
-    target: "#tabStats",
-    navTo: "stats",
-    titleKey: "guide_step4_title",
-    descKey: "guide_step4_desc",
-    defaultTitle: "📊 Статистика",
-    defaultDesc:
-      "Кольцевая диаграмма показывает соотношение расходов и доходов в процентах. Стрелочная диаграмма — динамику за период: рост вверх = доходы, падение вниз = расходы.",
-  },
-  {
-    target: "#tabNotebook",
-    navTo: "notebook",
-    titleKey: "guide_step5_title",
-    descKey: "guide_step5_desc",
-    defaultTitle: "📓 Блокнот",
-    defaultDesc:
-      "Личный блокнот для заметок. Создавайте страницы, редактируйте их, удаляйте. Страницы выглядят как настоящий блокнот с линиями.",
-  },
-  {
-    target: ".help-btn",
-    titleKey: "guide_step6_title",
-    descKey: "guide_step6_desc",
-    defaultTitle: "❔ Помощь",
-    defaultDesc:
-      "Нажмите кнопку ❔ в шапке, чтобы открыть подробную инструкцию по всем функциям приложения в любое время.",
-    navTo: null,
-  },
-];
+  "Неожиданные траты": { subcats: [] },
+};
+let incomeCategories = {
+  Зарплата: { subcats: [] },
+  Подарок: { subcats: [] },
+  Фриланс: { subcats: [] },
+};
+window.initialCategories = JSON.parse(JSON.stringify(categories));
 
-let currentGuideStep = 0;
-let guideActive = false;
-
-function startGuide() {
-  guideActive = true;
-  currentGuideStep = 0;
-  document.getElementById("guideOverlay").style.display = "block";
-  setActiveTab("home");
-  showGuideStep(0);
+// ============================================================
+// УТИЛИТЫ
+// ============================================================
+function toDisp(rub) {
+  return rub * (exchangeRates[displayCurrency] || 1);
 }
-
-function showGuideStep(idx) {
-  const step = guideSteps[idx];
-  if (!step) {
-    endGuide();
-    return;
-  }
-
-  if (step.navTo) setActiveTab(step.navTo);
-
-  const overlay = document.getElementById("guideOverlay");
-  const spotlight = document.getElementById("guideSpotlight");
-  const tooltip = document.getElementById("guideTooltip");
-  overlay.style.display = "block";
-  overlay.style.pointerEvents = "none";
-  tooltip.style.pointerEvents = "all";
-
-  document.getElementById("guideCounter").textContent =
-    `Шаг ${idx + 1} из ${guideSteps.length}`;
-  document.getElementById("guideTitle").textContent = t(step.titleKey);
-  document.getElementById("guideDesc").textContent = t(step.descKey);
-  document.getElementById("guideSkipBtn").textContent = t("guide_skip");
-
-  const prog = document.getElementById("guideProgress");
-  prog.innerHTML = guideSteps
-    .map((_, i) => `<div class="guide-dot ${i === idx ? "active" : ""}"></div>`)
-    .join("");
-
-  const nextBtn = document.getElementById("guideNextBtn");
-  nextBtn.textContent =
-    idx === guideSteps.length - 1
-      ? t("guide_finish") || "Готово ✓"
-      : t("guide_next");
-
-  requestAnimationFrame(() => {
-    const targetEl = document.querySelector(step.target);
-    if (targetEl) {
-      const rect = targetEl.getBoundingClientRect();
-      const pad = 8;
-      spotlight.style.left = rect.left - pad + "px";
-      spotlight.style.top = rect.top - pad + "px";
-      spotlight.style.width = rect.width + pad * 2 + "px";
-      spotlight.style.height = rect.height + pad * 2 + "px";
-
-      let tTop, tLeft;
-      const tw = 280,
-        th = 200;
-      const viewH = window.innerHeight,
-        viewW = window.innerWidth;
-
-      if (rect.bottom + th + 20 < viewH) {
-        tTop = rect.bottom + pad + 10;
-      } else if (rect.top - th - 20 > 0) {
-        tTop = rect.top - th - 10;
-      } else {
-        tTop = viewH / 2 - th / 2;
-      }
-
-      tLeft = rect.left + rect.width / 2 - tw / 2;
-      if (tLeft + tw > viewW - 10) tLeft = viewW - tw - 10;
-      if (tLeft < 10) tLeft = 10;
-      if (tTop < 10) tTop = 10;
-
-      tooltip.style.top = tTop + "px";
-      tooltip.style.left = tLeft + "px";
-      tooltip.style.maxWidth = tw + "px";
-    } else {
-      spotlight.style.left = "-100px";
-      spotlight.style.top = "-100px";
-      spotlight.style.width = "0px";
-      spotlight.style.height = "0px";
-      tooltip.style.top = window.innerHeight / 2 - 100 + "px";
-      tooltip.style.left = window.innerWidth / 2 - 140 + "px";
-    }
-  });
-}
-
-function endGuide() {
-  guideActive = false;
-  document.getElementById("guideOverlay").style.display = "none";
-  localStorage.setItem("guide_shown", "1");
-  setActiveTab("home");
-}
-
-// ========== УТИЛИТЫ ==========
-function setDateValue(inputId, value) {
-  const el = document.getElementById(inputId);
-  if (!el) return;
-  if (window._dpSetValue) window._dpSetValue(el, value);
-  else el.value = value;
-}
-
-function sym() {
-  const symbols = {
-    RUB: "₽",
-    USD: "$",
-    EUR: "€",
-    GEL: "₾",
-    GBP: "£",
-    KZT: "₸",
-  };
-  return symbols[displayCurrency] || displayCurrency;
-}
-function toDisp(r) {
-  return r * (exchangeRates[displayCurrency] || 1);
-}
-function toRub(d) {
-  return d / (exchangeRates[displayCurrency] || 1);
-}
-function esc(str) {
-  return String(str || "").replace(
-    /[&<>]/g,
-    (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[m] || m,
-  );
+function toRub(disp) {
+  return disp / (exchangeRates[displayCurrency] || 1);
 }
 function today() {
   return new Date().toISOString().slice(0, 10);
@@ -217,18 +767,22 @@ function today() {
 function fmtDate(d) {
   if (!d) return "";
   try {
-    return new Date(d + "T00:00:00").toLocaleDateString();
+    return new Date(d + "T00:00:00").toLocaleDateString(currentLang);
   } catch (e) {
     return d;
   }
 }
-
-function updateAllCategoriesOrder() {
-  let allSet = new Set([...incomeCategories, ...expenseCategories]);
-  let newOrder = [];
-  for (let cat of allCategoriesOrder) if (allSet.has(cat)) newOrder.push(cat);
-  for (let cat of allSet) if (!newOrder.includes(cat)) newOrder.push(cat);
-  allCategoriesOrder = newOrder;
+function esc(str) {
+  return String(str || "").replace(
+    /[&<>"']/g,
+    (m) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        m
+      ],
+  );
+}
+function fmt(n) {
+  return toDisp(n).toFixed(2) + " " + sym();
 }
 
 function saveAll() {
@@ -237,629 +791,970 @@ function saveAll() {
     JSON.stringify({
       transactions,
       startBalanceRub,
-      incomeCategories,
-      expenseCategories,
-      categoryGroups,
       displayCurrency,
       exchangeRates,
-      lastRateUpdate,
-      allCategoriesOrder,
-      statsResetDate,
+      notebookPages,
+      categories,
+      incomeCategories,
+      calcHistory,
+      convHistory,
     }),
   );
 }
-
 function loadAll() {
-  let raw = localStorage.getItem("budget_pro_full");
-  if (raw) {
-    let d = JSON.parse(raw);
-    transactions = d.transactions || [];
-    startBalanceRub = d.startBalanceRub ?? 70000;
-    incomeCategories = d.incomeCategories || ["Работа", "Аренда"];
-    expenseCategories = d.expenseCategories || [
-      "Продукты",
-      "Транспорт",
-      "Коммуналка",
-      "Кафе",
-    ];
-    categoryGroups = d.categoryGroups || {};
-    displayCurrency = d.displayCurrency || "GEL";
-    if (d.exchangeRates)
-      exchangeRates = { ...exchangeRates, ...d.exchangeRates };
-    lastRateUpdate = d.lastRateUpdate || null;
-    allCategoriesOrder = d.allCategoriesOrder || [];
-    statsResetDate = d.statsResetDate || null;
+  const raw = localStorage.getItem("budget_pro_full");
+  if (!raw) return;
+  const d = JSON.parse(raw);
+  transactions = d.transactions || [];
+  startBalanceRub = d.startBalanceRub ?? 70000;
+  displayCurrency = d.displayCurrency || "GEL";
+  if (d.exchangeRates) exchangeRates = { ...exchangeRates, ...d.exchangeRates };
+  if (d.notebookPages) notebookPages = d.notebookPages;
+  if (d.categories) categories = d.categories;
+  if (d.incomeCategories) {
+    if (Array.isArray(d.incomeCategories)) {
+      incomeCategories = {};
+      d.incomeCategories.forEach((cat) => {
+        incomeCategories[cat] = { subcats: [] };
+      });
+    } else {
+      incomeCategories = d.incomeCategories;
+    }
   }
-  [...incomeCategories, ...expenseCategories].forEach((cat) => {
-    if (!categoryGroups[cat])
-      categoryGroups[cat] = {
-        income: { subcats: [] },
-        expense: { subcats: [] },
-      };
-  });
-  if (!categoryGroups["Продукты"])
-    categoryGroups["Продукты"] = {
-      income: { subcats: [] },
-      expense: { subcats: ["овощи", "фрукты"] },
-    };
-  if (!categoryGroups["Транспорт"])
-    categoryGroups["Транспорт"] = {
-      income: { subcats: [] },
-      expense: { subcats: ["метро", "такси"] },
-    };
-  updateAllCategoriesOrder();
+  calcHistory = d.calcHistory || [];
+  convHistory = d.convHistory || [];
 }
 
-function ensureGroup(cat, type) {
-  if (!categoryGroups[cat])
-    categoryGroups[cat] = { income: { subcats: [] }, expense: { subcats: [] } };
-  if (!categoryGroups[cat][type]) categoryGroups[cat][type] = { subcats: [] };
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer = null;
+function showToast(msg, type = "success") {
+  const el = document.getElementById("toast");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "toast " + type;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2800);
 }
-function getSubcats(cat, type) {
-  return categoryGroups[cat]?.[type]?.subcats || [];
+
+// ============================================================
+// CONFIRM
+// ============================================================
+function askConfirm(
+  msg,
+  onYes,
+  { icon = "⚠️", yesText = null, title = null } = {},
+) {
+  const overlay = document.getElementById("confirmOverlay");
+  document.getElementById("confirmIcon").textContent = icon;
+  document.getElementById("confirmTitle").textContent =
+    title || t("confirmDelete");
+  document.getElementById("confirmMsg").textContent = msg;
+  document.getElementById("confirmOk").textContent =
+    yesText || t("confirmOkBtn");
+  overlay.classList.add("open");
+  const cancelBtn = document.getElementById("confirmCancel");
+  const okBtn = document.getElementById("confirmOk");
+  const close = () => overlay.classList.remove("open");
+  cancelBtn.onclick = close;
+  okBtn.onclick = () => {
+    close();
+    onYes();
+  };
 }
-function addSubcat(cat, type, sub) {
-  ensureGroup(cat, type);
-  let arr = categoryGroups[cat][type].subcats;
-  if (!arr.includes(sub)) arr.push(sub);
-  if (type === "income" && !incomeCategories.includes(cat))
-    incomeCategories.push(cat);
-  if (type === "expense" && !expenseCategories.includes(cat))
-    expenseCategories.push(cat);
-  updateAllCategoriesOrder();
-  saveAll();
-}
-function removeSubcat(cat, type, sub) {
-  if (categoryGroups[cat]?.[type]) {
-    categoryGroups[cat][type].subcats = categoryGroups[cat][
-      type
-    ].subcats.filter((s) => s !== sub);
-    saveAll();
+
+// ============================================================
+// ШАПКА
+// ============================================================
+function updateHeader() {
+  const dateEl = document.getElementById("headerDate");
+  if (dateEl) {
+    const locale = localeMap[currentLang] || currentLang;
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString(locale, {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
   }
 }
 
-// ========== БАЛАНС ==========
-function updateBalance() {
+// ============================================================
+// ОБНОВЛЕНИЕ КАРТОЧЕК
+// ============================================================
+function updateTopBlocks() {
   let inc = 0,
     exp = 0;
   for (let tx of transactions) {
     if (tx.type === "income") inc += tx.amountRub;
     else exp += tx.amountRub;
   }
-  let net = startBalanceRub + inc - exp;
-  let s = sym();
-  document.getElementById("balanceCards").innerHTML = `
-    <div class="bal-card"><div class="bal-label">💰 ${t("salary")}</div><div class="bal-value">${toDisp(startBalanceRub).toFixed(2)} ${s}</div></div>
-    <div class="bal-card"><div class="bal-label">📈 ${t("income")}</div><div class="bal-value positive">${toDisp(inc).toFixed(2)} ${s}</div></div>
-    <div class="bal-card"><div class="bal-label">📉 ${t("expense")}</div><div class="bal-value negative">${toDisp(exp).toFixed(2)} ${s}</div></div>
-    <div class="bal-card"><div class="bal-label">💎 ${t("balance")}</div><div class="bal-value ${net >= 0 ? "positive" : "negative"}">${toDisp(net).toFixed(2)} ${s}</div></div>
-  `;
-  let symSpan = document.getElementById("modalCurSymbol");
-  if (symSpan) symSpan.textContent = s;
-  let editSymSpan = document.getElementById("editModalCurSymbol");
-  if (editSymSpan) editSymSpan.textContent = s;
+  const bal = startBalanceRub + inc - exp;
+  const s = sym();
+  document.getElementById("balanceValue").textContent =
+    toDisp(bal).toFixed(2) + " " + s;
+  document.getElementById("incomeValue").textContent =
+    toDisp(inc).toFixed(2) + " " + s;
+  document.getElementById("expenseValue").textContent =
+    toDisp(exp).toFixed(2) + " " + s;
+  document.getElementById("salaryValue").textContent =
+    toDisp(startBalanceRub).toFixed(2) + " " + s;
 }
 
-// ========== КАРТОЧКИ ОПЕРАЦИЙ ==========
-function buildOpCard(op, idx) {
-  let isIncome = op.type === "income";
-  let amount = toDisp(op.amountRub).toFixed(2);
-  let s = sym();
-  let card = document.createElement("div");
-  card.className = `op-card ${isIncome ? "income-card" : "expense-card"}`;
-  card.dataset.index = idx;
-  let noteHtml = op.note
-    ? `<span title="${esc(op.note)}">📝 ${esc(op.note).substring(0, 28)}${op.note.length > 28 ? "…" : ""}</span>`
-    : "";
-  card.innerHTML = `
-    <div class="op-body">
-      <div class="op-row1">
-        <span class="op-cat">${esc(op.category)}${op.subcategory ? " · " + esc(op.subcategory) : ""}</span>
-        <span class="op-amount ${isIncome ? "income" : "expense"}">${isIncome ? "+" : "−"}${amount} ${s}</span>
+// ============================================================
+// ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК
+// ============================================================
+function setTab(tab) {
+  currentTab = tab;
+  document
+    .querySelectorAll(".nav-btn")
+    .forEach((b) => b.classList.remove("active"));
+  const activeBtn = document.querySelector(`.nav-btn[data-tab="${tab}"]`);
+  if (activeBtn) activeBtn.classList.add("active");
+
+  const content = document.getElementById("mainContent");
+  content.style.opacity = "0";
+  setTimeout(() => {
+    switch (tab) {
+      case "home":
+        renderHome();
+        break;
+      case "stats":
+        renderStats();
+        break;
+      case "tools":
+        renderTools();
+        break;
+      case "notebook":
+        renderNotebook();
+        break;
+      case "categories":
+        renderCategories();
+        break;
+      case "settings":
+        renderSettings();
+        break;
+    }
+    content.style.opacity = "1";
+    content.querySelectorAll(".tab-anim-child").forEach((el, i) => {
+      el.style.animationDelay = i * 0.06 + "s";
+    });
+  }, 160);
+}
+
+// ============================================================
+// ГЛАВНАЯ
+// ============================================================
+let currentListType = "balance";
+
+function renderHome() {
+  const showWelcome =
+    !localStorage.getItem("welcomeSeen") && transactions.length === 0;
+  let html = "";
+
+  if (showWelcome) {
+    html += `<div class="welcome-tip tab-anim-child">
+      <div class="welcome-tip-icon">👋</div>
+      <div class="welcome-tip-text">
+        <h3>${t("welcomeTitle")}</h3>
+        <p>${t("welcomeText")}</p>
+        <button class="welcome-tip-close" id="welcomeClose">${t("welcomeClose")}</button>
       </div>
-      <div class="op-row2">
-        <span>${isIncome ? "💰" : "💸"} ${isIncome ? t("income") : t("expense")}</span>
-        <span>📅 ${fmtDate(op.date)}</span>
-        ${noteHtml}
+    </div>`;
+  }
+
+  html += `
+    <div class="history-btn-wrap tab-anim-child">
+      <button class="history-btn" id="showAllHistoryBtn"> ${t("allHistory")}</button>
+      <div class="history-btn-hint">💡 ${t("historyHint")}</div>
+    </div>`;
+  html += '<div id="opsList"></div>';
+
+  document.getElementById("mainContent").innerHTML = html;
+  document.getElementById("mainContent").classList.add("tab-anim");
+
+  document
+    .getElementById("showAllHistoryBtn")
+    ?.addEventListener("click", showFullHistory);
+  document.getElementById("welcomeClose")?.addEventListener("click", () => {
+    localStorage.setItem("welcomeSeen", "1");
+    renderHome();
+  });
+
+  renderOpsList();
+}
+
+function renderOpsList() {
+  const container = document.getElementById("opsList");
+  if (!container) return;
+
+  let inc = transactions
+    .filter((t) => t.type === "income")
+    .reduce((s, t) => s + t.amountRub, 0);
+  let exp = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((s, t) => s + t.amountRub, 0);
+  let bal = startBalanceRub + inc - exp;
+
+  let html = `<div class="balance-summary tab-anim-child">
+    <div class="balance-row row-salary" id="salaryRowBtn" role="button" tabindex="0">
+      <div class="balance-row-left">
+        <span class="balance-row-dot dot-salary"></span>
+        <span class="balance-row-label"> ${t("salary_label")}</span>
+      </div>
+      <div>
+        <span class="balance-row-value">${fmt(startBalanceRub)}</span>
+        <div class="balance-row-sub">${t("editSalaryHint")}</div>
       </div>
     </div>
-    <button class="op-del" data-idx="${idx}" title="${t("delete")}">✕</button>
-  `;
-  card.querySelector(".op-del").addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (confirm(t("confirm_delete"))) {
-      transactions.splice(idx, 1);
-      saveAll();
-      refreshAll();
-    }
-  });
-  card.addEventListener("click", (e) => {
-    if (e.target.classList.contains("op-del")) return;
-    openEditOpModal(idx);
-  });
-  return card;
-}
+    <div class="balance-row row-income">
+      <div class="balance-row-left">
+        <span class="balance-row-dot dot-income"></span>
+        <span class="balance-row-label">${t("totalIncome")}</span>
+      </div>
+      <span class="balance-row-value income">+${fmt(inc)}</span>
+    </div>
+    <div class="balance-row row-expense">
+      <div class="balance-row-left">
+        <span class="balance-row-dot dot-expense"></span>
+        <span class="balance-row-label">${t("totalExpense")}</span>
+      </div>
+      <span class="balance-row-value expense">−${fmt(exp)}</span>
+    </div>
+    <div class="balance-row row-balance">
+      <div class="balance-row-left">
+        <span class="balance-row-dot dot-balance"></span>
+        <span class="balance-row-label">${t("currentBalance")}</span>
+      </div>
+      <span class="balance-row-value ${bal >= 0 ? "positive" : "negative"}">${fmt(bal)}</span>
+    </div>
+  </div>`;
 
-function renderRecentOps() {
-  let container = document.getElementById("recentOpsList");
-  if (!container) return;
-  container.innerHTML = "";
-  let sorted = [...transactions]
-    .map((tx, i) => ({ ...tx, _i: i }))
+  const recent = [...transactions]
     .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
-    .slice(0, 5);
-  if (sorted.length === 0) {
-    container.innerHTML = `<div class="empty-msg">${t("no_operations")}</div>`;
-    return;
-  }
-  for (let op of sorted) container.appendChild(buildOpCard(op, op._i));
-}
+    .slice(0, 20);
 
-function renderAllOps() {
-  let container = document.getElementById("allOpsList");
-  if (!container) return;
-  container.innerHTML = "";
-  let filtered = transactions.map((tx, i) => ({ ...tx, _i: i }));
-  let search = (
-    document.getElementById("searchText")?.value || ""
-  ).toLowerCase();
-  let from = document.getElementById("searchFrom")?.value;
-  let to = document.getElementById("searchTo")?.value;
-  let type = document.getElementById("searchType")?.value;
-  if (type) filtered = filtered.filter((tx) => tx.type === type);
-  if (from) filtered = filtered.filter((tx) => (tx.date || "") >= from);
-  if (to) filtered = filtered.filter((tx) => (tx.date || "") <= to);
-  if (search)
-    filtered = filtered.filter((tx) =>
-      (tx.category + (tx.subcategory || "") + (tx.note || ""))
-        .toLowerCase()
-        .includes(search),
-    );
-  filtered.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
-  if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-msg">${t("no_operations_criteria")}</div>`;
-    return;
-  }
-  for (let op of filtered) container.appendChild(buildOpCard(op, op._i));
-}
-
-// ========== РЕДАКТИРОВАНИЕ ОПЕРАЦИИ ==========
-function openEditOpModal(index) {
-  let op = transactions[index];
-  if (!op) return;
-  editingOpIndex = index;
-  setDateValue("editModalDate", op.date || today());
-  document.getElementById("editModalAmount").value = toDisp(
-    op.amountRub,
-  ).toFixed(2);
-  document.getElementById("editModalNote").value = op.note || "";
-  let isIncome = op.type === "income";
-  document.getElementById("editTypeExpenseBtn").className =
-    "type-btn" + (isIncome ? "" : " active");
-  document.getElementById("editTypeIncomeBtn").className =
-    "type-btn" + (isIncome ? " active" : "");
-  let cats = isIncome ? incomeCategories : expenseCategories;
-  let catSelect = document.getElementById("editModalCat");
-  catSelect.innerHTML = "";
-  for (let c of cats) catSelect.appendChild(new Option(c, c));
-  catSelect.value = op.category;
-  refreshEditModalSubcats();
-  let subcatField = document.getElementById("editModalSubcatField");
-  let subcatSelect = document.getElementById("editModalSubcat");
-  if (
-    op.subcategory &&
-    getSubcats(op.category, op.type).includes(op.subcategory)
-  ) {
-    subcatField.style.display = "flex";
-    subcatSelect.value = op.subcategory;
+  if (recent.length === 0) {
+    html += `<div class="empty-block tab-anim-child">
+      <div class="empty-emoji">💸</div>
+      <p>${t("noOperations").replace("\n", "<br>")}</p>
+      <p class="empty-hint">👇 ${t("add")}</p>
+    </div>`;
   } else {
-    subcatField.style.display = "none";
-  }
-  openModal("editOpModal");
-}
-
-function refreshEditModalSubcats() {
-  let cat = document.getElementById("editModalCat").value;
-  let type = document
-    .getElementById("editTypeIncomeBtn")
-    .classList.contains("active")
-    ? "income"
-    : "expense";
-  let subs = getSubcats(cat, type);
-  let field = document.getElementById("editModalSubcatField");
-  let sel = document.getElementById("editModalSubcat");
-  if (subs.length) {
-    field.style.display = "flex";
-    sel.innerHTML = '<option value="">— ' + t("not_specified") + " —</option>";
-    subs.forEach((s) => sel.appendChild(new Option(s, s)));
-  } else {
-    field.style.display = "none";
-  }
-}
-
-function saveEditedOp() {
-  if (editingOpIndex === null) return;
-  let type = document
-    .getElementById("editTypeIncomeBtn")
-    .classList.contains("active")
-    ? "income"
-    : "expense";
-  let cat = document.getElementById("editModalCat").value;
-  let subcat =
-    document.getElementById("editModalSubcatField").style.display !== "none"
-      ? document.getElementById("editModalSubcat").value
-      : "";
-  let amount = parseFloat(document.getElementById("editModalAmount").value);
-  let date = document.getElementById("editModalDate").value;
-  let note = document.getElementById("editModalNote").value.trim();
-  if (!cat) {
-    alert(t("select_category"));
-    return;
-  }
-  if (isNaN(amount) || amount <= 0) {
-    alert(t("enter_amount"));
-    return;
-  }
-  let amountRub = toRub(amount);
-  transactions[editingOpIndex] = {
-    type,
-    category: cat,
-    subcategory: subcat || null,
-    amountRub,
-    note: note || null,
-    date,
-  };
-  saveAll();
-  refreshAll();
-  closeModal("editOpModal");
-  editingOpIndex = null;
-}
-
-function deleteEditedOp() {
-  if (editingOpIndex !== null && confirm(t("confirm_delete"))) {
-    transactions.splice(editingOpIndex, 1);
-    saveAll();
-    refreshAll();
-    closeModal("editOpModal");
-    editingOpIndex = null;
-  }
-}
-
-// ========== КАТЕГОРИИ ==========
-function renderCatManager() {
-  let container = document.getElementById("catManager");
-  if (!container) return;
-  container.innerHTML = "";
-  for (let cat of allCategoriesOrder) {
-    let inInc = incomeCategories.includes(cat);
-    let inExp = expenseCategories.includes(cat);
-    if (!inInc && !inExp) continue;
-    let typeLabel =
-      inInc && inExp
-        ? "🔄 " + t("both")
-        : inInc
-          ? "💰 " + t("income")
-          : "💸 " + t("expense");
-    let div = document.createElement("div");
-    div.className = "cat-card";
-    div.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <div><strong style="cursor:pointer;" class="cat-rename" data-cat="${esc(cat)}">📁 ${esc(cat)}</strong> <span style="font-size:0.68rem;color:var(--text-muted);">${typeLabel}</span></div>
-      </div>
-      <div class="cat-actions-row">
-        <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="income">+ ${t("add_subcat_income")}</button>
-        <button class="btn-sm add-sub" data-cat="${esc(cat)}" data-type="expense">+ ${t("add_subcat_expense")}</button>
-        <button class="btn-danger-sm del-cat" data-cat="${esc(cat)}">🗑</button>
-      </div>
-      <div class="subcats-wrap"><div class="subcats-label">💰 ${t("income")}</div><div class="subcats-row" id="subs-inc-${cat.replace(/\s/g, "_")}"></div></div>
-      <div class="subcats-wrap"><div class="subcats-label">💸 ${t("expense")}</div><div class="subcats-row" id="subs-exp-${cat.replace(/\s/g, "_")}"></div></div>
-    `;
-    container.appendChild(div);
-    fillSubcatRow(cat, "income", `subs-inc-${cat.replace(/\s/g, "_")}`);
-    fillSubcatRow(cat, "expense", `subs-exp-${cat.replace(/\s/g, "_")}`);
-    div
-      .querySelector(".cat-rename")
-      .addEventListener("click", () => renameCategory(cat));
-    div.querySelectorAll(".add-sub").forEach((btn) =>
-      btn.addEventListener("click", () => {
-        let btnCat = btn.dataset.cat,
-          btnType = btn.dataset.type;
-        let newSub = prompt(t("enter_subcategory_name"));
-        if (newSub && newSub.trim()) {
-          addSubcat(btnCat, btnType, newSub.trim());
-          renderCatManager();
-          refreshModalCats();
-        }
-      }),
-    );
-    div.querySelector(".del-cat").addEventListener("click", () => {
-      if (confirm(t("confirm_delete_category").replace("%s", cat))) {
-        incomeCategories = incomeCategories.filter((c) => c !== cat);
-        expenseCategories = expenseCategories.filter((c) => c !== cat);
-        delete categoryGroups[cat];
-        updateAllCategoriesOrder();
-        saveAll();
-        renderCatManager();
-        refreshModalCats();
-      }
+    html += `<div class="ops-section-header">
+      <div class="ops-section-label">${t("recentOpsLabel")}</div>
+      <div class="ops-section-hint">💡 ${t("recentOpsHint")}</div>
+    </div>`;
+    html += '<div class="ops-list">';
+    recent.forEach((tx) => {
+      const idx = transactions.indexOf(tx);
+      const emoji = getOpEmoji(tx);
+      const sign = tx.type === "income" ? "+" : "−";
+      html += `<div class="op-card tab-anim-child" data-idx="${idx}" data-type="${tx.type}">
+        <div class="op-emoji">${emoji}</div>
+        <div class="op-info">
+          <div class="op-category">${esc(tx.category)}${tx.subcategory ? ' · <span style="font-weight:400;color:var(--text-muted)">' + esc(tx.subcategory) + "</span>" : ""}</div>
+          <div class="op-date">${fmtDate(tx.date)}</div>
+          ${tx.note ? `<div class="op-note">📝 ${esc(tx.note.substring(0, 50))}</div>` : ""}
+        </div>
+        <div class="op-right">
+  <div class="op-amount ${tx.type}">${sign}${fmt(tx.amountRub)}</div>
+  <button class="op-delete" data-idx="${idx}" aria-label="${t("ariaDeleteOp")}">✕</button>
+</div>
+      </div>`;
     });
+    html += "</div>";
   }
-}
 
-function fillSubcatRow(cat, type, containerId) {
-  let container = document.getElementById(containerId);
-  if (!container) return;
-  let subs = getSubcats(cat, type);
-  container.innerHTML = "";
-  for (let sub of subs) {
-    let chip = document.createElement("span");
-    chip.className = "subcat-chip";
-    chip.innerHTML = `${esc(sub)} <button class="subcat-del" data-cat="${esc(cat)}" data-type="${type}" data-sub="${esc(sub)}">✕</button>`;
-    chip.querySelector(".subcat-del").addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (confirm(t("confirm_delete_subcategory").replace("%s", sub))) {
-        removeSubcat(cat, type, sub);
-        renderCatManager();
-        refreshModalCats();
-      }
-    });
-    chip.addEventListener("click", (e) => {
-      if (!e.target.classList.contains("subcat-del"))
-        openEditSubcatModal(cat, type, sub);
-    });
-    container.appendChild(chip);
-  }
-}
+  container.innerHTML = html;
 
-function renameCategory(oldName) {
-  let newName = prompt(t("enter_new_category_name"), oldName);
-  if (!newName || newName === oldName) return;
-  if ([...incomeCategories, ...expenseCategories].includes(newName)) {
-    alert(t("category_exists"));
-    return;
-  }
-  incomeCategories = incomeCategories.map((c) => (c === oldName ? newName : c));
-  expenseCategories = expenseCategories.map((c) =>
-    c === oldName ? newName : c,
-  );
-  if (categoryGroups[oldName]) {
-    categoryGroups[newName] = categoryGroups[oldName];
-    delete categoryGroups[oldName];
-  }
-  let idx = allCategoriesOrder.indexOf(oldName);
-  if (idx !== -1) allCategoriesOrder[idx] = newName;
-  transactions.forEach((tx) => {
-    if (tx.category === oldName) tx.category = newName;
+  document
+    .getElementById("salaryRowBtn")
+    ?.addEventListener("click", openSalaryModal);
+  document.getElementById("salaryRowBtn")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") openSalaryModal();
   });
-  saveAll();
-  renderCatManager();
-  refreshModalCats();
-  refreshAll();
+
+  container.querySelectorAll(".op-card").forEach((card) => {
+    const idx = parseInt(card.dataset.idx);
+    card.addEventListener("click", () => openEditModal(idx));
+  });
+  container.querySelectorAll(".op-delete").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      askConfirm(
+        t("confirmDelete"),
+        () => {
+          transactions.splice(idx, 1);
+          saveAll();
+          updateTopBlocks();
+          renderOpsList();
+          showToast(t("deleted"));
+        },
+        { icon: "🗑️" },
+      );
+    });
+  });
 }
 
-function openEditSubcatModal(cat, type, sub) {
-  let modal = document.getElementById("editSubcatModal");
-  modal.dataset.cat = cat;
-  modal.dataset.type = type;
-  modal.dataset.oldSub = sub;
-  document.getElementById("editSubcatName").value = sub;
-  openModal("editSubcatModal");
+function getOpEmoji(tx) {
+  const cat = (tx.category || "").toLowerCase();
+  const emojiMap = {
+    коммунал: "💡",
+    продукт: "🛒",
+    заём: "🏦",
+    банк: "🏦",
+    транспорт: "🚌",
+    зарплат: "💼",
+    подарок: "🎁",
+    фриланс: "💻",
+    ежемесячн: "📅",
+    неожидан: "⚡",
+    еда: "🍽️",
+    кафе: "☕",
+    одежда: "👗",
+    здоровь: "💊",
+    аптека: "💊",
+    спорт: "🏃",
+    развлечен: "🎭",
+    путешеств: "✈️",
+    salary: "💼",
+    gift: "🎁",
+  };
+  for (const [k, v] of Object.entries(emojiMap)) {
+    if (cat.includes(k)) return v;
+  }
+  return tx.type === "income" ? "💰" : "💸";
 }
 
-function saveSubcatEdit() {
-  let modal = document.getElementById("editSubcatModal");
-  let cat = modal.dataset.cat,
-    type = modal.dataset.type,
-    oldSub = modal.dataset.oldSub;
-  let newSub = document.getElementById("editSubcatName").value.trim();
-  if (!newSub) {
-    alert(t("subcategory_name_empty"));
+// ============================================================
+// ПОЛНАЯ ИСТОРИЯ
+// ============================================================
+function showFullHistory() {
+  const allOps = [...transactions].sort((a, b) =>
+    (b.date || "").localeCompare(a.date || ""),
+  );
+  if (allOps.length === 0) {
+    showToast(t("noOperations").split("\n")[0]);
     return;
   }
-  if (oldSub !== newSub) {
-    let subs = getSubcats(cat, type);
-    if (subs.includes(newSub)) {
-      alert(t("subcategory_exists"));
+
+  let listHTML = '<div class="history-list">';
+  allOps.forEach((op) => {
+    const realIdx = transactions.indexOf(op);
+    const sign = op.type === "income" ? "+" : "−";
+    listHTML += `<div class="history-item">
+      <div class="history-item-info">
+        <div class="history-item-cat">${getOpEmoji(op)} ${esc(op.category)}${op.subcategory ? ` (${esc(op.subcategory)})` : ""}</div>
+        <div class="history-item-meta">${fmtDate(op.date)}${op.note ? "  📝 " + esc(op.note.substring(0, 30)) : ""}</div>
+      </div>
+      <div class="history-item-amt ${op.type}">${sign}${fmt(op.amountRub)}</div>
+      <div class="history-item-btns">
+        <button class="icon-btn edit"   data-idx="${realIdx}" aria-label="${t("ariaEditOp")}">✏️</button>
+        <button class="icon-btn delete" data-idx="${realIdx}" aria-label="${t("ariaDeleteOp2")}">🗑</button>
+      </div>
+    </div>`;
+  });
+  listHTML += "</div>";
+  listHTML += `<div style="margin-top:16px;"><button class="btn-danger" id="clearAllHistoryBtn" style="width:100%">🗑 ${t("clearAllOps")}</button></div>`;
+
+  const modal = createModal("fullHistoryModal", t("allHistory"), listHTML);
+  document.body.appendChild(modal);
+  openModal("fullHistoryModal");
+
+  modal.querySelectorAll(".icon-btn.edit").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.idx);
+      closeModal("fullHistoryModal");
+      setTimeout(() => openEditModal(idx), 200);
+    });
+  });
+  modal.querySelectorAll(".icon-btn.delete").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.idx);
+      askConfirm(
+        t("confirmDelete"),
+        () => {
+          transactions.splice(idx, 1);
+          saveAll();
+          updateTopBlocks();
+          renderOpsList();
+          closeModal("fullHistoryModal");
+          setTimeout(showFullHistory, 200);
+          showToast(t("deleted"));
+        },
+        { icon: "🗑️" },
+      );
+    });
+  });
+  document
+    .getElementById("clearAllHistoryBtn")
+    ?.addEventListener("click", () => {
+      askConfirm(
+        t("confirmDeleteAll"),
+        () => {
+          transactions = [];
+          saveAll();
+          updateTopBlocks();
+          renderOpsList();
+          closeModal("fullHistoryModal");
+          showToast(t("deleted"));
+        },
+        {
+          icon: "⚠️",
+          title: t("confirmDeleteAll"),
+          yesText: t("yesDeleteAll"),
+        },
+      );
+    });
+}
+
+// ============================================================
+// КАСТОМНЫЙ DATEPICKER
+// ============================================================
+function openDatePicker(initialDate, onSelect) {
+  const date = initialDate ? new Date(initialDate + "T12:00:00") : new Date();
+  let viewYear = date.getFullYear();
+  let viewMonth = date.getMonth();
+
+  const months = t("months");
+  const weekdays = t("weekdaysShort");
+
+  function renderCalendar() {
+    const firstDay = new Date(viewYear, viewMonth, 1);
+    let startDay = firstDay.getDay(); // 0 = воскресенье
+    startDay = startDay === 0 ? 6 : startDay - 1; // Пн = 0
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+
+    let daysHtml = "";
+    for (let i = 0; i < startDay; i++) {
+      daysHtml += `<div class="datepicker-day empty"></div>`;
+    }
+    for (let d = 1; d <= daysInMonth; d++) {
+      const currentDateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const isSelected = initialDate === currentDateStr;
+      daysHtml += `<div class="datepicker-day${isSelected ? " selected" : ""}" data-date="${currentDateStr}">${d}</div>`;
+    }
+
+    const weekdaysHtml = weekdays
+      .map((w) => `<div class="datepicker-weekday">${w}</div>`)
+      .join("");
+
+    return `
+      <div class="datepicker-header">
+        <button class="datepicker-nav" id="dpPrevMonth">←</button>
+        <span class="datepicker-month">${months[viewMonth]} ${viewYear}</span>
+        <button class="datepicker-nav" id="dpNextMonth">→</button>
+      </div>
+      <div class="datepicker-weekdays">${weekdaysHtml}</div>
+      <div class="datepicker-days">${daysHtml}</div>
+    `;
+  }
+
+  const modalHtml = `
+    <div class="datepicker-content">
+      <div id="datepickerCalendar">${renderCalendar()}</div>
+      <div class="datepicker-actions">
+        <button class="btn-secondary" id="dpCancel">${t("cancel")}</button>
+      </div>
+    </div>
+  `;
+
+  const modal = createModal("datepickerModal", t("pickDate"), modalHtml);
+  document.body.appendChild(modal);
+  openModal("datepickerModal");
+
+  const calendarDiv = document.getElementById("datepickerCalendar");
+
+  function updateCalendar() {
+    calendarDiv.innerHTML = renderCalendar();
+    attachDayEvents();
+    document.getElementById("dpPrevMonth").addEventListener("click", () => {
+      viewMonth--;
+      if (viewMonth < 0) {
+        viewMonth = 11;
+        viewYear--;
+      }
+      updateCalendar();
+    });
+    document.getElementById("dpNextMonth").addEventListener("click", () => {
+      viewMonth++;
+      if (viewMonth > 11) {
+        viewMonth = 0;
+        viewYear++;
+      }
+      updateCalendar();
+    });
+  }
+
+  function attachDayEvents() {
+    calendarDiv
+      .querySelectorAll(".datepicker-day[data-date]")
+      .forEach((day) => {
+        day.addEventListener("click", () => {
+          const selectedDate = day.dataset.date;
+          closeModal("datepickerModal");
+          onSelect(selectedDate);
+        });
+      });
+  }
+
+  updateCalendar();
+
+  document.getElementById("dpCancel").addEventListener("click", () => {
+    closeModal("datepickerModal");
+  });
+}
+
+// ============================================================
+// МОДАЛКА РЕДАКТИРОВАНИЯ
+// ============================================================
+function openEditModal(idx) {
+  const op = transactions[idx];
+  if (!op) return;
+  editingOpIndex = idx;
+
+  const html = `
+    <div class="field-group">
+      <label class="field-label">${t("category")}</label>
+      <div class="field-desc">${t("catFieldDesc")}</div>
+      <input type="text" id="editCategory" class="modal-input" value="${esc(op.category)}" placeholder="${t("category")}">
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("amount")} (${sym()})</label>
+      <div class="field-desc">${t("amountHint")}</div>
+      <input type="number" id="editAmount" class="modal-input" step="any" min="0.01"
+             value="${toDisp(op.amountRub).toFixed(2)}" placeholder="0.00" inputmode="decimal">
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("date")}</label>
+      <div class="field-desc">${t("dateHint")}</div>
+      <div class="date-input-wrapper" id="editDateWrapper">
+        <input type="text" id="editDateDisplay" class="modal-input" readonly value="${fmtDate(op.date || today())}">
+        <input type="hidden" id="editDate" value="${op.date || today()}">
+        <button type="button" class="datepicker-btn" id="editDateBtn">📅</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("note")}</label>
+      <div class="field-desc">${t("noteHint")}</div>
+      <textarea id="editNote" class="modal-textarea" rows="2" placeholder="${t("noteHint")}">${esc(op.note || "")}</textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger" id="deleteItemBtn">🗑 ${t("delete")}</button>
+      <button class="btn-primary" id="saveEditBtn">💾 ${t("save")}</button>
+    </div>`;
+
+  const modal = createModal("editModal", t("editOperation"), html);
+  document.body.appendChild(modal);
+  openModal("editModal");
+
+  const editDateDisplay = document.getElementById("editDateDisplay");
+  const editDateHidden = document.getElementById("editDate");
+  document.getElementById("editDateBtn").addEventListener("click", () => {
+    openDatePicker(editDateHidden.value, (newDate) => {
+      editDateHidden.value = newDate;
+      editDateDisplay.value = fmtDate(newDate);
+    });
+  });
+
+  document.getElementById("saveEditBtn")?.addEventListener("click", () => {
+    const newAmt = parseFloat(document.getElementById("editAmount").value);
+    if (isNaN(newAmt) || newAmt <= 0) {
+      showToast(t("enterPositive"), "error");
       return;
     }
-    let idx2 = subs.indexOf(oldSub);
-    if (idx2 !== -1) {
-      subs[idx2] = newSub;
-      categoryGroups[cat][type].subcats = subs;
-      saveAll();
-      renderCatManager();
-      refreshModalCats();
-    }
-  }
-  closeModal("editSubcatModal");
-}
-
-function deleteSubcatFromModal() {
-  let modal = document.getElementById("editSubcatModal");
-  let cat = modal.dataset.cat,
-    type = modal.dataset.type,
-    sub = modal.dataset.oldSub;
-  if (confirm(t("confirm_delete_subcategory").replace("%s", sub))) {
-    removeSubcat(cat, type, sub);
-    renderCatManager();
-    refreshModalCats();
-    closeModal("editSubcatModal");
-  }
-}
-
-// ========== КОНВЕРТЕР ==========
-function updateConversionDisplay() {
-  let amount = parseFloat(document.getElementById("convAmount").value);
-  let from = document.getElementById("convFrom").value;
-  let to = document.getElementById("convTo").value;
-  if (isNaN(amount)) {
-    document.getElementById("convResult").textContent = "";
-    return;
-  }
-  let rub = from === "RUB" ? amount : amount / (exchangeRates[from] || 1);
-  let result = rub * (exchangeRates[to] || 1);
-  document.getElementById("convResult").textContent =
-    `${amount} ${from} = ${result.toFixed(4)} ${to}`;
-}
-
-function doConvert() {
-  let amount = parseFloat(document.getElementById("convAmount").value);
-  let from = document.getElementById("convFrom").value;
-  let to = document.getElementById("convTo").value;
-  if (isNaN(amount)) {
-    document.getElementById("convResult").textContent = "";
-    return;
-  }
-  let rub = from === "RUB" ? amount : amount / (exchangeRates[from] || 1);
-  let result = rub * (exchangeRates[to] || 1);
-  document.getElementById("convResult").textContent =
-    `${amount} ${from} = ${result.toFixed(4)} ${to}`;
-  convHistory.unshift({
-    from,
-    to,
-    amount,
-    result,
-    ts: new Date().toLocaleString(),
+    transactions[editingOpIndex].category =
+      document.getElementById("editCategory").value.trim() || "—";
+    transactions[editingOpIndex].amountRub = toRub(newAmt);
+    transactions[editingOpIndex].date = editDateHidden.value;
+    transactions[editingOpIndex].note = document
+      .getElementById("editNote")
+      .value.trim();
+    saveAll();
+    updateTopBlocks();
+    renderOpsList();
+    closeModal("editModal");
+    showToast(t("saved"));
   });
-  if (convHistory.length > 200) convHistory.pop();
-  localStorage.setItem("conv_hist_full", JSON.stringify(convHistory));
-  renderConvHistory();
+  document.getElementById("deleteItemBtn")?.addEventListener("click", () => {
+    askConfirm(
+      t("confirmDelete"),
+      () => {
+        transactions.splice(editingOpIndex, 1);
+        saveAll();
+        updateTopBlocks();
+        renderOpsList();
+        closeModal("editModal");
+        showToast(t("deleted"));
+      },
+      { icon: "🗑️" },
+    );
+  });
 }
 
-function renderConvHistory() {
-  let el = document.getElementById("convHistoryList");
-  if (!el) return;
-  if (convHistory.length === 0) {
-    el.innerHTML = `<div class="empty-msg">${t("no_history")}</div>`;
-    return;
-  }
-  let last5 = convHistory.slice(0, 5);
-  el.innerHTML = last5
-    .map(
-      (h, i) =>
-        `<div class="conv-hist-item"><span>${h.amount} ${h.from} → ${h.result.toFixed(4)} ${h.to}</span><button class="hist-del" data-idx="${i}">✕</button></div>`,
-    )
-    .join("");
-  el.querySelectorAll(".hist-del").forEach((btn) =>
-    btn.addEventListener("click", () => {
-      let idx = parseInt(btn.dataset.idx);
-      convHistory.splice(idx, 1);
-      localStorage.setItem("conv_hist_full", JSON.stringify(convHistory));
-      renderConvHistory();
-      if (
-        document.getElementById("convHistoryModal").classList.contains("open")
-      )
-        renderFullConvHistoryModal();
-    }),
-  );
+// ============================================================
+// МОДАЛКА ЗАРПЛАТЫ
+// ============================================================
+function openSalaryModal() {
+  const html = `
+    <div class="section-hint">${t("salaryModalHint")}</div>
+    <div class="field-group">
+      <label class="field-label">${t("salary_label")} (${sym()})</label>
+      <div class="field-desc">${t("amountHint")}</div>
+      <input type="number" id="salaryAmount" class="modal-input" step="any" min="0"
+             value="${toDisp(startBalanceRub).toFixed(2)}" inputmode="decimal" autofocus>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveSalaryBtn">💾 ${t("save")}</button>
+    </div>`;
+
+  const modal = createModal("salaryModal", t("editBalance"), html);
+  document.body.appendChild(modal);
+  openModal("salaryModal");
+
+  document.getElementById("saveSalaryBtn")?.addEventListener("click", () => {
+    const val = parseFloat(document.getElementById("salaryAmount").value);
+    if (isNaN(val) || val < 0) {
+      showToast(t("enterPositive"), "error");
+      return;
+    }
+    startBalanceRub = toRub(val);
+    saveAll();
+    updateTopBlocks();
+    if (currentTab === "home") renderOpsList();
+    closeModal("salaryModal");
+    showToast(t("saved"));
+  });
 }
 
-function renderFullConvHistoryModal() {
-  let container = document.getElementById("convHistoryFullList");
-  if (!container) return;
-  container.innerHTML = "";
-  if (convHistory.length === 0) {
-    container.innerHTML = `<div class="empty-msg">${t("no_history")}</div>`;
-    return;
-  }
-  convHistory.forEach((h, idx) => {
-    let card = document.createElement("div");
-    card.className = "op-card";
-    card.innerHTML = `<div class="op-body"><div>${h.amount} ${h.from} → ${h.to} = ${h.result.toFixed(4)} ${h.to}</div><div style="font-size:0.68rem;color:var(--text-muted);">🕒 ${esc(h.ts)}</div></div><button class="hist-del" data-idx="${idx}">✕</button>`;
-    card.querySelector(".hist-del").addEventListener("click", () => {
-      convHistory.splice(idx, 1);
-      localStorage.setItem("conv_hist_full", JSON.stringify(convHistory));
-      renderFullConvHistoryModal();
-      renderConvHistory();
+// ============================================================
+// МОДАЛКА ДОБАВЛЕНИЯ
+// ============================================================
+function openAddModal() {
+  const allExpCats = Object.keys(categories);
+  const catOptionsExp =
+    `<option value="">${t("selectCategory")}</option>` +
+    allExpCats.map((c) => `<option value="${c}">${c}</option>`).join("");
+  const catOptionsInc =
+    `<option value="">${t("selectCategory")}</option>` +
+    Object.keys(incomeCategories)
+      .map((c) => `<option value="${c}">${c}</option>`)
+      .join("");
+
+  const html = `
+    <div class="field-group">
+      <label class="field-label">${t("type")}</label>
+      <div class="type-toggle">
+        <button class="type-btn expense active" data-type="expense">${t("expenseType")}</button>
+        <button class="type-btn income"         data-type="income">${t("incomeType")}</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" id="catLabel">${t("expCategory")}</label>
+      <div class="field-desc">${t("addOpTypeDesc")}</div>
+      <select id="addCategorySelect" class="modal-select">${catOptionsExp}</select>
+    </div>
+    <div class="field-group" id="addSubcatDiv" style="display:none">
+      <label class="field-label">${t("subcategory")}</label>
+      <div class="field-desc">${t("addSubHint")}</div>
+      <select id="addSubcatSelect" class="modal-select"></select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("amount")} (${sym()})</label>
+      <div class="field-desc">${t("amountHint")}</div>
+      <input type="number" id="addAmount" class="modal-input" step="any" min="0.01"
+             placeholder="0.00" inputmode="decimal" autofocus>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("date")}</label>
+      <div class="field-desc">${t("dateHint")}</div>
+      <div class="date-input-wrapper" id="addDateWrapper">
+        <input type="text" id="addDateDisplay" class="modal-input" readonly value="${fmtDate(today())}">
+        <input type="hidden" id="addDate" value="${today()}">
+        <button type="button" class="datepicker-btn" id="addDateBtn">📅</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("note")}</label>
+      <div class="field-desc">${t("noteHint")}</div>
+      <textarea id="addNote" class="modal-textarea" rows="2" placeholder="${t("noteHint")}"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveAddBtn" style="font-size:18px">✓ ${t("add")}</button>
+    </div>`;
+
+  const modal = createModal("addModal", t("newOperation"), html);
+  document.body.appendChild(modal);
+  openModal("addModal");
+
+  addType = "expense";
+
+  const addDateDisplay = document.getElementById("addDateDisplay");
+  const addDateHidden = document.getElementById("addDate");
+  document.getElementById("addDateBtn").addEventListener("click", () => {
+    openDatePicker(addDateHidden.value, (newDate) => {
+      addDateHidden.value = newDate;
+      addDateDisplay.value = fmtDate(newDate);
     });
-    container.appendChild(card);
+  });
+
+  modal.querySelectorAll(".type-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      addType = btn.dataset.type;
+      modal
+        .querySelectorAll(".type-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const catSelect = document.getElementById("addCategorySelect");
+      const catLabel = document.getElementById("catLabel");
+      catLabel.textContent =
+        addType === "expense" ? t("expCategory") : t("incCategory");
+      catSelect.innerHTML =
+        addType === "expense" ? catOptionsExp : catOptionsInc;
+      document.getElementById("addSubcatDiv").style.display = "none";
+    });
+  });
+
+  document.getElementById("addCategorySelect").onchange = () => {
+    const subDiv = document.getElementById("addSubcatDiv");
+    const subSel = document.getElementById("addSubcatSelect");
+    const cat = document.getElementById("addCategorySelect").value;
+    let subcats = [];
+    if (addType === "expense" && categories[cat])
+      subcats = categories[cat].subcats;
+    else if (addType === "income" && incomeCategories[cat])
+      subcats = incomeCategories[cat].subcats;
+    if (subcats.length) {
+      subSel.innerHTML =
+        `<option value="">${t("noSubcategory")}</option>` +
+        subcats.map((s) => `<option value="${s}">${s}</option>`).join("");
+      subDiv.style.display = "block";
+    } else {
+      subDiv.style.display = "none";
+    }
+  };
+
+  document.getElementById("saveAddBtn")?.addEventListener("click", () => {
+    const cat = document.getElementById("addCategorySelect").value;
+    const subcat = document.getElementById("addSubcatSelect")?.value || "";
+    const amount = parseFloat(document.getElementById("addAmount").value);
+    const date = addDateHidden.value;
+    const note = document.getElementById("addNote").value.trim();
+    if (!cat) {
+      showToast(t("selectCategoryFirst"), "error");
+      return;
+    }
+    if (isNaN(amount) || amount <= 0) {
+      showToast(t("enterPositive"), "error");
+      return;
+    }
+    transactions.push({
+      type: addType,
+      category: cat,
+      subcategory: subcat || null,
+      amountRub: toRub(amount),
+      date,
+      note: note || null,
+    });
+    saveAll();
+    updateTopBlocks();
+    renderOpsList();
+    closeModal("addModal");
+    showToast(addType === "income" ? t("incomeAdded") : t("expenseAdded"));
   });
 }
 
-function clearConvHistory() {
-  convHistory = [];
-  localStorage.setItem("conv_hist_full", "[]");
-  renderConvHistory();
-  if (document.getElementById("convHistoryModal").classList.contains("open"))
-    renderFullConvHistoryModal();
-}
-
-// ========== КАЛЬКУЛЯТОР ==========
-let calcExpr = "",
-  calcJustEvaled = false;
-function renderCalcDisplay() {
-  document.getElementById("calcDisplay").textContent = calcExpr || "0";
-}
-function calcEval() {
-  try {
-    let res = Function('"use strict"; return (' + calcExpr + ")")();
-    if (isFinite(res)) {
-      calcHistory.unshift({
-        expr: calcExpr,
-        result: res,
-        ts: new Date().toLocaleString(),
-      });
-      if (calcHistory.length > 50) calcHistory.pop();
-      localStorage.setItem("calc_hist_full", JSON.stringify(calcHistory));
-      calcExpr = String(res);
-      calcJustEvaled = true;
-    } else calcExpr = t("error");
-  } catch (e) {
-    calcExpr = t("error");
-  }
-  renderCalcDisplay();
-  renderCalcPreview();
-}
-
-function handleCalc(action) {
-  if (calcExpr === t("error")) {
-    calcExpr = "";
-    calcJustEvaled = false;
-  }
-  if (action === "clear") {
-    calcExpr = "";
-    calcJustEvaled = false;
-  } else if (action === "back") {
-    if (calcJustEvaled) {
-      calcExpr = "";
-      calcJustEvaled = false;
-    } else calcExpr = calcExpr.slice(0, -1);
-  } else if (action === "sign") {
-    if (calcExpr && calcExpr !== "0") {
-      if (calcExpr.startsWith("-")) calcExpr = calcExpr.slice(1);
-      else calcExpr = "-" + calcExpr;
+// ============================================================
+// СТАТИСТИКА
+// ============================================================
+function renderStats() {
+  let inc = 0,
+    exp = 0;
+  const catExp = {},
+    catInc = {};
+  for (const tx of transactions) {
+    if (tx.type === "income") {
+      inc += tx.amountRub;
+      catInc[tx.category] = (catInc[tx.category] || 0) + tx.amountRub;
+    } else {
+      exp += tx.amountRub;
+      catExp[tx.category] = (catExp[tx.category] || 0) + tx.amountRub;
     }
-  } else if (action === "=") {
-    calcEval();
-    return;
-  } else {
-    if (calcJustEvaled && !"+-*/".includes(action)) calcExpr = "";
-    calcJustEvaled = false;
-    if (
-      "+-*/".includes(action) &&
-      calcExpr &&
-      "+-*/".includes(calcExpr.slice(-1))
-    )
-      calcExpr = calcExpr.slice(0, -1);
-    calcExpr += action;
   }
-  renderCalcDisplay();
+  const bal = startBalanceRub + inc - exp;
+  const totalIncome = startBalanceRub + inc;
+  const spentPct =
+    totalIncome > 0 ? Math.min(100, Math.round((exp / totalIncome) * 100)) : 0;
+  const savedAmt = totalIncome - exp;
+  const nInc = transactions.filter((t) => t.type === "income").length;
+  const nExp = transactions.filter((t) => t.type === "expense").length;
+  const topExp = Object.entries(catExp)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  const topInc = Object.entries(catInc)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
+  let healthHTML = "";
+  if (transactions.length > 0) {
+    if (exp <= totalIncome * 0.85)
+      healthHTML = `<div class="stats-health healthy">${t("statsHealthy")}</div>`;
+    else if (exp <= totalIncome)
+      healthHTML = `<div class="stats-health warning">${t("statsBreakeven")}</div>`;
+    else
+      healthHTML = `<div class="stats-health danger">${t("statsWarning")}</div>`;
+  }
+
+  let topExpHTML = "";
+  topExp.forEach(([cat, amt]) => {
+    const pct = exp > 0 ? Math.round((amt / exp) * 100) : 0;
+    topExpHTML += `<div class="cat-stat-row">
+      <div class="cat-stat-left">
+        <span class="cat-stat-emoji">${getOpEmoji({ type: "expense", category: cat })}</span>
+        <div style="flex:1; min-width:0;">
+          <div class="cat-stat-name">${esc(cat)}</div>
+          <div class="stat-bar-wrap"><div class="stat-bar expense" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div class="cat-stat-right">
+        <div class="cat-stat-amount expense">−${fmt(amt)}</div>
+        <div class="cat-stat-pct">${pct}%</div>
+      </div>
+    </div>`;
+  });
+
+  let topIncHTML = "";
+  topInc.forEach(([cat, amt]) => {
+    const pct = inc > 0 ? Math.round((amt / inc) * 100) : 0;
+    topIncHTML += `<div class="cat-stat-row">
+      <div class="cat-stat-left">
+        <span class="cat-stat-emoji">${getOpEmoji({ type: "income", category: cat })}</span>
+        <div style="flex:1; min-width:0;">
+          <div class="cat-stat-name">${esc(cat)}</div>
+          <div class="stat-bar-wrap"><div class="stat-bar income" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div class="cat-stat-right">
+        <div class="cat-stat-amount income">+${fmt(amt)}</div>
+        <div class="cat-stat-pct">${pct}%</div>
+      </div>
+    </div>`;
+  });
+
+  const html =
+    transactions.length === 0
+      ? `<div class="empty-block tab-anim"><div class="empty-emoji">📊</div><p>${t("noStatsYet").replace("\n", "<br>")}</p></div>`
+      : `<div class="stats-grid tab-anim">
+      <div class="stat-card stat-balance tab-anim-child">
+        <div class="stats-main-inner">
+          <div class="stats-donut-wrap">
+            <div class="stats-donut" style="--exp-pct:${spentPct * 3.6}deg">
+              <div class="stats-donut-hole">
+                <div class="stats-donut-pct">${spentPct}%</div>
+                <div class="stats-donut-label">${t("statsSpentOf")}</div>
+              </div>
+            </div>
+            <div class="stats-donut-legend">
+              <span class="stats-legend-dot income-dot"></span><span>${t("income")}</span>
+              <span class="stats-legend-dot expense-dot"></span><span>${t("expense")}</span>
+            </div>
+          </div>
+          <div class="stats-main-numbers">
+            <div class="stat-main-row"><span>${t("currentBalance")}</span><span class="stat-main-val ${bal >= 0 ? "balance" : "expense"}">${fmt(bal)}</span></div>
+            <div class="stat-main-row"><span>${t("salary_label")}</span><span class="stat-main-val">${fmt(startBalanceRub)}</span></div>
+            <div class="stat-main-row"><span>${t("statsSaved")}</span><span class="stat-main-val ${savedAmt >= 0 ? "income" : "expense"}">${savedAmt >= 0 ? "+" : ""}${fmt(savedAmt)}</span></div>
+            <div class="stat-main-row"><span>${t("statsTotalOps")}</span><span class="stat-main-val">${transactions.length} ${t("statsTransCount")}</span></div>
+          </div>
+        </div>
+        ${healthHTML}
+      </div>
+      <div class="stats-two-col tab-anim-child">
+        <div class="stat-card stat-income"><div class="stat-card-title">${t("totalIncome")}</div><div class="stat-card-value income">+${fmt(inc)}</div><div class="stat-card-sub">${nInc} ${t("statsTransCount")}</div></div>
+        <div class="stat-card stat-expense"><div class="stat-card-title">${t("totalExpense")}</div><div class="stat-card-value expense">−${fmt(exp)}</div><div class="stat-card-sub">${nExp} ${t("statsTransCount")}</div></div>
+      </div>
+      ${topExp.length ? `<div class="stat-card stat-top-exp tab-anim-child"><div class="stat-card-title">${t("statsExpSection")}</div>${topExpHTML}</div>` : ""}
+      ${topInc.length ? `<div class="stat-card stat-top-inc tab-anim-child"><div class="stat-card-title">${t("statsIncomeSection")}</div>${topIncHTML}</div>` : ""}
+    </div>`;
+
+  document.getElementById("mainContent").innerHTML = html;
 }
 
-function renderCalcPreview() {
-  let el = document.getElementById("calcHistoryPreview");
-  if (el)
-    el.innerHTML =
-      calcHistory
-        .slice(0, 3)
-        .map((h) => `${h.expr}=${h.result}`)
-        .join(" · ") || t("no_history");
+// ============================================================
+// ИНСТРУМЕНТЫ
+// ============================================================
+function renderTools() {
+  const currencies = ["RUB", "USD", "EUR", "GEL", "GBP", "KZT"];
+  const opts = currencies.map((c) => `<option>${c}</option>`).join("");
+
+  const html = `
+    <div class="tool-card tab-anim">
+      <div class="tool-card-header">
+        <div class="tool-card-title">${t("calculator")}</div>
+        <button class="btn-secondary" id="showCalcHistoryBtn" style="padding:8px 14px;">📜 ${t("history")}</button>
+      </div>
+      <div class="section-hint">${t("calcHint")}</div>
+      <div class="calc-display" id="calcDisplay">0</div>
+      <div class="calc-grid" id="calcGrid"></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-card-header">
+        <div class="tool-card-title">${t("converter")}</div>
+        <button class="btn-secondary" id="showConvHistoryBtn" style="padding:8px 14px;">📜 ${t("history")}</button>
+      </div>
+      <div class="section-hint">${t("convHint")}</div>
+      <div class="field-group"><label class="field-label">${t("sumLabel")}</label><input type="number" id="convAmount" class="modal-input" value="100"></div>
+      <div class="conv-row">
+        <div><label>${t("fromCurrency")}</label><select id="convFrom" class="modal-select">${opts}</select></div>
+        <div class="conv-arrow">→</div>
+        <div><label>${t("toCurrency")}</label><select id="convTo" class="modal-select">${currencies.map((c, i) => `<option${i === 3 ? " selected" : ""}>${c}</option>`).join("")}</select></div>
+      </div>
+      <button class="btn-primary" id="convBtn" style="width:100%">${t("convert")}</button>
+      <div id="convResult" style="display:none" class="conv-result"></div>
+    </div>`;
+
+  document.getElementById("mainContent").innerHTML = html;
+  buildCalcGrid();
+
+  document.getElementById("convBtn").addEventListener("click", () => {
+    const amt = parseFloat(document.getElementById("convAmount").value);
+    const from = document.getElementById("convFrom").value;
+    const to = document.getElementById("convTo").value;
+    if (isNaN(amt)) {
+      showToast(t("enterAmount"), "error");
+      return;
+    }
+    const rub = from === "RUB" ? amt : amt / (exchangeRates[from] || 1);
+    const res = rub * (exchangeRates[to] || 1);
+    const resultEl = document.getElementById("convResult");
+    resultEl.style.display = "block";
+    resultEl.textContent = `${amt} ${from} = ${res.toFixed(4)} ${to}`;
+    convHistory.unshift({
+      from,
+      to,
+      amt,
+      res,
+      ts: new Date().toLocaleString(),
+    });
+    if (convHistory.length > 50) convHistory.pop();
+    saveAll();
+  });
+
+  document
+    .getElementById("showCalcHistoryBtn")
+    .addEventListener("click", showCalcHistoryModal);
+  document
+    .getElementById("showConvHistoryBtn")
+    .addEventListener("click", showConvHistoryModal);
 }
 
 function buildCalcGrid() {
-  let grid = document.getElementById("calcGrid");
+  const grid = document.getElementById("calcGrid");
   if (!grid) return;
-  let keys = [
+  const keys = [
     ["C", "clear"],
     ["⌫", "back"],
     ["%", "%"],
@@ -883,984 +1778,612 @@ function buildCalcGrid() {
   ];
   grid.innerHTML = "";
   keys.forEach(([label, action]) => {
-    let btn = document.createElement("button");
+    const btn = document.createElement("button");
     btn.textContent = label;
     btn.className = "calc-btn";
     if (action === "clear" || action === "back") btn.classList.add("clear");
-    if (["/", "*", "-", "+", "="].includes(action)) btn.classList.add("op");
-    btn.onclick = () => handleCalc(action);
+    if (["/", "*", "-", "+", "%"].includes(action)) btn.classList.add("op");
+    if (action === "=") {
+      btn.classList.remove("op");
+      btn.classList.add("equals");
+    }
+    btn.addEventListener("click", () => handleCalc(action));
     grid.appendChild(btn);
   });
 }
 
-function renderFullCalcHistory() {
-  let container = document.getElementById("calcHistoryFullList");
-  if (!container) return;
-  container.innerHTML = "";
-  if (calcHistory.length === 0) {
-    container.innerHTML = `<div class="empty-msg">${t("no_history")}</div>`;
-    return;
+function handleCalc(action) {
+  if ([t("calcError"), "Error", "Ошибка"].includes(calcExpr)) calcExpr = "";
+  if (action === "clear") calcExpr = "";
+  else if (action === "back") calcExpr = calcExpr.slice(0, -1);
+  else if (action === "sign")
+    calcExpr = calcExpr.startsWith("-") ? calcExpr.slice(1) : "-" + calcExpr;
+  else if (action === "=") {
+    try {
+      const res = Function('"use strict"; return (' + calcExpr + ")")();
+      if (isFinite(res)) {
+        calcHistory.unshift({
+          expr: calcExpr,
+          res,
+          ts: new Date().toLocaleString(),
+        });
+        if (calcHistory.length > 50) calcHistory.pop();
+        calcExpr = String(res);
+        saveAll();
+      } else calcExpr = t("calcError");
+    } catch (e) {
+      calcExpr = t("calcError");
+    }
+  } else {
+    if (
+      "+-*/".includes(action) &&
+      calcExpr &&
+      "+-*/".includes(calcExpr.slice(-1))
+    )
+      calcExpr = calcExpr.slice(0, -1);
+    calcExpr += action;
   }
-  calcHistory.forEach((h, idx) => {
-    let card = document.createElement("div");
-    card.className = "calc-hist-item";
-    card.innerHTML = `<span>${h.expr} = ${h.result}</span><div><span style="font-size:0.65rem;color:var(--text-muted);">${h.ts}</span><button class="hist-del" data-idx="${idx}" style="margin-left:8px;">✕</button></div>`;
-    card.querySelector(".hist-del").addEventListener("click", () => {
-      calcHistory.splice(idx, 1);
-      localStorage.setItem("calc_hist_full", JSON.stringify(calcHistory));
-      renderFullCalcHistory();
-      renderCalcPreview();
-    });
-    container.appendChild(card);
-  });
+  document.getElementById("calcDisplay").textContent = calcExpr || "0";
 }
 
-function clearCalcHistory() {
-  calcHistory = [];
-  localStorage.setItem("calc_hist_full", "[]");
-  renderCalcPreview();
-  if (document.getElementById("calcHistoryModal").classList.contains("open"))
-    renderFullCalcHistory();
-}
-
-// ========== БЛОКНОТ ==========
-function loadNotebook() {
-  let saved = localStorage.getItem("notebook_pages");
-  if (saved) notebookPages = JSON.parse(saved);
+function showCalcHistoryModal() {
+  let html = '<div class="history-list">';
+  if (calcHistory.length === 0)
+    html += `<p style="padding:20px;color:var(--text-muted);">${t("historyEmpty")}</p>`;
   else
-    notebookPages = [
-      {
-        id: Date.now(),
-        title: t("example"),
-        date: today(),
-        content: t("example_content"),
-      },
-    ];
-  saveNotebook();
-}
-function saveNotebook() {
-  localStorage.setItem("notebook_pages", JSON.stringify(notebookPages));
-}
-
-function renderNotebookList() {
-  let container = document.getElementById("notebookList");
-  if (!container) return;
-  container.innerHTML = "";
-  if (notebookPages.length === 0) {
-    container.innerHTML = `<div class="empty-msg">${t("no_pages")}</div>`;
-    return;
-  }
-  let sorted = [...notebookPages].sort((a, b) =>
-    (b.date || "").localeCompare(a.date || ""),
+    calcHistory.forEach((item, idx) => {
+      html += `<div class="history-item"><div class="history-item-info"><div class="history-item-cat">${esc(item.expr)} = <strong>${item.res}</strong></div><div class="history-item-meta">${item.ts}</div></div><button class="icon-btn delete" data-idx="${idx}">✕</button></div>`;
+    });
+  html += `</div><div style="margin-top:16px;"><button class="btn-danger" id="clearCalcHist" style="width:100%">🗑 ${t("clearHistory")}</button></div>`;
+  const modal = createModal("calcHistoryModal", t("history"), html);
+  document.body.appendChild(modal);
+  openModal("calcHistoryModal");
+  modal.querySelectorAll(".icon-btn.delete").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      calcHistory.splice(parseInt(btn.dataset.idx), 1);
+      saveAll();
+      closeModal("calcHistoryModal");
+      setTimeout(showCalcHistoryModal, 200);
+    }),
   );
-  for (let page of sorted) {
-    let card = document.createElement("div");
-    card.className = "nb-card";
-    let preview = (page.content || "").replace(/\n/g, " ").substring(0, 60);
-    card.innerHTML = `<div class="nb-card-top"><span class="nb-title">📄 ${esc(page.title)}</span><span class="nb-date">${fmtDate(page.date)}</span></div><div class="nb-preview">${esc(preview) || "(пусто)"}</div>`;
-    card.addEventListener("click", () => openNotebookEdit(page.id));
-    container.appendChild(card);
-  }
-}
-
-function openNotebookEdit(id) {
-  let page = notebookPages.find((p) => p.id === id);
-  if (!page) return;
-  currentNbId = id;
-  document.getElementById("nbTitle").value = page.title;
-  setDateValue("nbDate", page.date);
-  document.getElementById("nbContent").value = page.content;
-  openModal("notebookModal");
-}
-
-function saveNotebookPage() {
-  if (currentNbId === null) return;
-  let title = document.getElementById("nbTitle").value.trim();
-  let date = document.getElementById("nbDate").value;
-  let content = document.getElementById("nbContent").value;
-  if (!title) {
-    alert(t("title_empty"));
-    return;
-  }
-  let conflict = notebookPages.some(
-    (p) =>
-      p.id !== currentNbId && p.title.toLowerCase() === title.toLowerCase(),
-  );
-  if (conflict) {
-    alert(t("page_exists").replace("%s", title));
-    return;
-  }
-  let page = notebookPages.find((p) => p.id === currentNbId);
-  if (page) {
-    page.title = title;
-    page.date = date;
-    page.content = content;
-  }
-  saveNotebook();
-  renderNotebookList();
-  closeModal("notebookModal");
-}
-
-function deleteNotebookPage() {
-  if (currentNbId === null) return;
-  if (confirm(t("confirm_delete_page"))) {
-    notebookPages = notebookPages.filter((p) => p.id !== currentNbId);
-    saveNotebook();
-    renderNotebookList();
-    closeModal("notebookModal");
-    currentNbId = null;
-  }
-}
-
-function createNotebookPage() {
-  let maxNum = 0;
-  notebookPages.forEach((p) => {
-    let m = p.title.match(/\d+/);
-    if (m && parseInt(m[0]) > maxNum) maxNum = parseInt(m[0]);
-  });
-  let title = `${t("page")} ${maxNum + 1}`;
-  let newPage = { id: Date.now(), title, date: today(), content: "" };
-  notebookPages.push(newPage);
-  saveNotebook();
-  renderNotebookList();
-  openNotebookEdit(newPage.id);
-}
-
-// ========== СТАТИСТИКА ==========
-function showTemporaryMessage(text, duration = 15000) {
-  const msgDiv = document.getElementById("statsTempMessageInline");
-  if (!msgDiv) return;
-  msgDiv.textContent = text;
-  msgDiv.style.opacity = "1";
-  setTimeout(() => {
-    msgDiv.style.opacity = "0";
-  }, duration);
-}
-
-function getStartDateForPeriod(period) {
-  const now = new Date();
-  if (period === "day") return today();
-  if (period === "week") {
-    let start = new Date(now);
-    start.setDate(now.getDate() - 7);
-    return start.toISOString().slice(0, 10);
-  }
-  let start = new Date(now);
-  start.setDate(now.getDate() - 30);
-  return start.toISOString().slice(0, 10);
-}
-
-function getStatsForPeriod(period) {
-  let startPeriod = getStartDateForPeriod(period);
-  let resetDate = statsResetDate || "1970-01-01";
-  let effectiveStart = startPeriod > resetDate ? startPeriod : resetDate;
-  let totalIncomeRub = 0,
-    totalExpenseRub = 0;
-  for (let tx of transactions) {
-    if (!tx.date) continue;
-    if (tx.date >= effectiveStart) {
-      if (tx.type === "income") totalIncomeRub += tx.amountRub;
-      else totalExpenseRub += tx.amountRub;
-    }
-  }
-  totalIncomeRub += startBalanceRub;
-  return { incomeRub: totalIncomeRub, expenseRub: totalExpenseRub };
-}
-
-function getChartColors() {
-  const isDark = document.body.classList.contains("dark");
-  return {
-    expense: isDark ? "#f07060" : "#d94f3d",
-    income: isDark ? "#4db87e" : "#2a9d60",
-    bg: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
-    stroke: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
-    gridLine: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-    text: isDark ? "rgba(232,237,233,0.5)" : "rgba(26,31,28,0.4)",
-  };
-}
-
-// Кольцевая диаграмма с анимацией
-function drawChartAnimated(
-  targetExpensePercent,
-  targetIncomePercent,
-  duration = 700,
-) {
-  const canvas = document.getElementById("statsChart");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  const parent = canvas.parentElement;
-  if (!parent) return;
-
-  let w = parent.clientWidth;
-  if (w < 20) w = 220;
-  canvas.width = w;
-  canvas.height = w;
-  const cx = w / 2,
-    cy = w / 2;
-  let outerR = w / 2 - 4;
-  let innerR = outerR * 0.55;
-  if (outerR < 5) outerR = 5;
-  if (innerR < 5) innerR = 5;
-
-  const startAngle = -Math.PI / 2;
-  const colors = getChartColors();
-  let startTime = null;
-  let startExpense = currentDisplayPercentExpense;
-  let startIncome = currentDisplayPercentIncome;
-  let diffExpense = targetExpensePercent - startExpense;
-  let diffIncome = targetIncomePercent - startIncome;
-
-  if (statsAnimationFrame) cancelAnimationFrame(statsAnimationFrame);
-
-  function drawDonut(expPct, incPct) {
-    ctx.clearRect(0, 0, w, w);
-    ctx.beginPath();
-    ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
-    ctx.arc(cx, cy, innerR, 0, 2 * Math.PI, true);
-    ctx.fillStyle = colors.bg;
-    ctx.fill();
-
-    const total = expPct + incPct;
-    if (total > 0) {
-      let expAngle = (expPct / 100) * 2 * Math.PI;
-      let incAngle = (incPct / 100) * 2 * Math.PI;
-
-      if (expAngle > 0.01) {
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, outerR, startAngle, startAngle + expAngle);
-        ctx.arc(cx, cy, innerR, startAngle + expAngle, startAngle, true);
-        ctx.closePath();
-        ctx.fillStyle = colors.expense;
-        ctx.shadowColor = colors.expense + "60";
-        ctx.shadowBlur = 8;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-
-      if (incAngle > 0.01) {
-        ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(
-          cx,
-          cy,
-          outerR,
-          startAngle + expAngle,
-          startAngle + expAngle + incAngle,
-        );
-        ctx.arc(
-          cx,
-          cy,
-          innerR,
-          startAngle + expAngle + incAngle,
-          startAngle + expAngle,
-          true,
-        );
-        ctx.closePath();
-        ctx.fillStyle = colors.income;
-        ctx.shadowColor = colors.income + "60";
-        ctx.shadowBlur = 8;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-
-      ctx.strokeStyle = colors.stroke;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
-      ctx.stroke();
-    } else {
-      ctx.beginPath();
-      ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
-      ctx.arc(cx, cy, innerR, 0, 2 * Math.PI, true);
-      ctx.fillStyle = isDarkMode()
-        ? "rgba(255,255,255,0.05)"
-        : "rgba(0,0,0,0.04)";
-      ctx.fill();
-    }
-  }
-
-  function animate(timestamp) {
-    if (!startTime) startTime = timestamp;
-    let progress = Math.min(1, (timestamp - startTime) / duration);
-    let eased = 1 - Math.pow(1 - progress, 3);
-    let curExp = startExpense + diffExpense * eased;
-    let curInc = startIncome + diffIncome * eased;
-    if (curExp < 0) curExp = 0;
-    if (curInc < 0) curInc = 0;
-    currentDisplayPercentExpense = curExp;
-    currentDisplayPercentIncome = curInc;
-    drawDonut(curExp, curInc);
-    const pEl = document.getElementById("statsPercent");
-    if (pEl)
-      pEl.textContent = `${Math.round(curExp)}% / ${Math.round(curInc)}%`;
-    if (progress < 1) statsAnimationFrame = requestAnimationFrame(animate);
-    else {
-      statsAnimationFrame = null;
-      currentDisplayPercentExpense = targetExpensePercent;
-      currentDisplayPercentIncome = targetIncomePercent;
-      drawDonut(targetExpensePercent, targetIncomePercent);
-      if (pEl)
-        pEl.textContent = `${Math.round(targetExpensePercent)}% / ${Math.round(targetIncomePercent)}%`;
-    }
-  }
-  statsAnimationFrame = requestAnimationFrame(animate);
-}
-
-function isDarkMode() {
-  return document.body.classList.contains("dark");
-}
-
-// Трендовая диаграмма с плавным рисованием линии
-function drawTrendChart(animate = true, animationDuration = 1500) {
-  const canvas = document.getElementById("trendChart");
-  if (!canvas) return;
-  const container = canvas.parentElement;
-  const W = container.clientWidth - 32;
-  const H = 100;
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext("2d");
-  ctx.imageSmoothingEnabled = true;
-  ctx.translate(0.5, 0.5);
-  const colors = getChartColors();
-
-  const days = 7;
-  const now = new Date();
-  const dailyData = [];
-  for (let i = days - 1; i >= 0; i--) {
-    let d = new Date(now);
-    d.setDate(now.getDate() - i);
-    let dateStr = d.toISOString().slice(0, 10);
-    let inc = 0,
-      exp = 0;
-    for (let tx of transactions) {
-      if (tx.date === dateStr) {
-        if (tx.type === "income") inc += toDisp(tx.amountRub);
-        else exp += toDisp(tx.amountRub);
-      }
-    }
-    dailyData.push({ date: dateStr, inc, exp });
-  }
-
-  const maxVal = Math.max(...dailyData.map((d) => Math.max(d.inc, d.exp)), 1);
-  const padX = 8,
-    padY = 12;
-  const chartW = W - padX * 2;
-  const chartH = H - padY * 2;
-  const xStep = chartW / Math.max(dailyData.length - 1, 1);
-
-  function getPoints(arr, key) {
-    return arr.map((d, i) => ({
-      x: padX + i * xStep,
-      y: padY + chartH - (d[key] / maxVal) * chartH,
-    }));
-  }
-  const incPoints = getPoints(dailyData, "inc");
-  const expPoints = getPoints(dailyData, "exp");
-
-  function drawFullArea(points, color) {
-    if (points.length < 2) return;
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, padY + chartH);
-    ctx.lineTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      const prev = points[i - 1],
-        curr = points[i];
-      const cpx = (prev.x + curr.x) / 2;
-      ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
-    }
-    ctx.lineTo(points[points.length - 1].x, padY + chartH);
-    ctx.closePath();
-    const grad = ctx.createLinearGradient(0, padY, 0, padY + chartH);
-    grad.addColorStop(0, color + "40");
-    grad.addColorStop(1, color + "00");
-    ctx.fillStyle = grad;
-    ctx.fill();
-  }
-
-  function drawLineAndPoints(points, color, progress) {
-    if (points.length < 2) return;
-    let totalLength = 0;
-    for (let i = 1; i < points.length; i++) {
-      const dx = points[i].x - points[i - 1].x;
-      const dy = points[i].y - points[i - 1].y;
-      totalLength += Math.hypot(dx, dy);
-    }
-    const targetLength = totalLength * progress;
-    let accumulated = 0;
-    let endIdx = 0,
-      t = 0;
-    for (let i = 1; i < points.length; i++) {
-      const dx = points[i].x - points[i - 1].x;
-      const dy = points[i].y - points[i - 1].y;
-      const segLen = Math.hypot(dx, dy);
-      if (accumulated + segLen >= targetLength) {
-        endIdx = i;
-        t = (targetLength - accumulated) / segLen;
-        break;
-      }
-      accumulated += segLen;
-      endIdx = i;
-    }
-    if (endIdx === 0) {
-      endIdx = 1;
-      t = 0;
-    }
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < endIdx; i++) {
-      const prev = points[i - 1],
-        curr = points[i];
-      const cpx = (prev.x + curr.x) / 2;
-      ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
-    }
-    if (endIdx < points.length) {
-      const prev = points[endIdx - 1],
-        curr = points[endIdx];
-      const interpX = prev.x + (curr.x - prev.x) * t;
-      const interpY = prev.y + (curr.y - prev.y) * t;
-      const cpx = (prev.x + interpX) / 2;
-      ctx.bezierCurveTo(cpx, prev.y, cpx, interpY, interpX, interpY);
-    }
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.lineJoin = "round";
-    ctx.lineCap = "round";
-    ctx.shadowColor = color + "80";
-    ctx.shadowBlur = 6;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-    for (let i = 0; i < endIdx; i++) {
-      ctx.beginPath();
-      ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
-    if (endIdx < points.length && t > 0) {
-      const interpX =
-        points[endIdx - 1].x + (points[endIdx].x - points[endIdx - 1].x) * t;
-      const interpY =
-        points[endIdx - 1].y + (points[endIdx].y - points[endIdx - 1].y) * t;
-      ctx.beginPath();
-      ctx.arc(interpX, interpY, 3, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
-  }
-
-  function drawGrid() {
-    ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = colors.gridLine;
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 2; i++) {
-      let y = padY + chartH * (i / 2);
-      ctx.beginPath();
-      ctx.moveTo(padX, y);
-      ctx.lineTo(W - padX, y);
-      ctx.stroke();
-    }
-  }
-
-  if (animate) {
-    drawGrid();
-    drawFullArea(incPoints, colors.income);
-    drawFullArea(expPoints, colors.expense);
-    const startTime = performance.now();
-    if (trendAnimationId) cancelAnimationFrame(trendAnimationId);
-    function animateTrend(nowTime) {
-      const elapsed = nowTime - startTime;
-      let progress = Math.min(1, elapsed / animationDuration);
-      let eased = 1 - Math.pow(1 - progress, 3);
-      drawGrid();
-      drawFullArea(incPoints, colors.income);
-      drawFullArea(expPoints, colors.expense);
-      drawLineAndPoints(incPoints, colors.income, eased);
-      drawLineAndPoints(expPoints, colors.expense, eased);
-      if (progress < 1) trendAnimationId = requestAnimationFrame(animateTrend);
-      else trendAnimationId = null;
-    }
-    trendAnimationId = requestAnimationFrame(animateTrend);
-  } else {
-    drawGrid();
-    drawFullArea(incPoints, colors.income);
-    drawFullArea(expPoints, colors.expense);
-    drawLineAndPoints(incPoints, colors.income, 1);
-    drawLineAndPoints(expPoints, colors.expense, 1);
-  }
-}
-
-function updateStats(animate = true, animationDuration = 1500) {
-  let { incomeRub, expenseRub } = getStatsForPeriod(currentStatsPeriod);
-  let total = incomeRub + expenseRub;
-  let targetPercentIncome = total === 0 ? 0 : (incomeRub / total) * 100;
-  let targetPercentExpense = total === 0 ? 0 : (expenseRub / total) * 100;
-  let s = sym();
-  let incomeDisp = toDisp(incomeRub);
-  let expenseDisp = toDisp(expenseRub);
-  let balanceDisp = incomeDisp - expenseDisp;
-  let periodLabel =
-    currentStatsPeriod === "day"
-      ? t("today")
-      : currentStatsPeriod === "week"
-        ? t("last_7_days")
-        : t("last_30_days");
-  let resetInfo = statsResetDate
-    ? `${t("since")} ${statsResetDate}`
-    : t("since_beginning");
-  document.getElementById("statsPeriodLabel").textContent =
-    `📊 ${periodLabel} (${resetInfo})`;
-  const inc = document.getElementById("statsIncomeAmount");
-  const exp = document.getElementById("statsExpenseAmount");
-  const bal = document.getElementById("statsBalance");
-  if (inc)
-    inc.innerHTML = `<span>💰 ${t("income")}</span><span style="font-family:'DM Mono',monospace;color:var(--accent)">${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)</span>`;
-  if (exp)
-    exp.innerHTML = `<span>💸 ${t("expense")}</span><span style="font-family:'DM Mono',monospace;color:var(--red-text)">${expenseDisp.toFixed(2)} ${s} (${Math.round(targetPercentExpense)}%)</span>`;
-  if (bal)
-    bal.innerHTML = `<span>💎 ${t("balance")}</span><span style="font-family:'DM Mono',monospace;color:${balanceDisp >= 0 ? "var(--accent)" : "var(--red-text)"}">${balanceDisp.toFixed(2)} ${s}</span>`;
-  if (animate) {
-    currentDisplayPercentExpense = 0;
-    currentDisplayPercentIncome = 0;
-    drawChartAnimated(targetPercentExpense, targetPercentIncome, 700);
-  } else {
-    currentDisplayPercentExpense = targetPercentExpense;
-    currentDisplayPercentIncome = targetIncomePercent;
-    const pEl = document.getElementById("statsPercent");
-    if (pEl)
-      pEl.textContent = `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
-    drawChartAnimated(targetPercentExpense, targetPercentIncome, 0);
-  }
-  drawTrendChart(animate, animationDuration);
-}
-
-function resetStats() {
-  if (confirm(t("confirm_reset_stats"))) {
-    statsResetDate = today();
+  document.getElementById("clearCalcHist").addEventListener("click", () => {
+    calcHistory = [];
     saveAll();
-    currentDisplayPercentExpense = 0;
-    currentDisplayPercentIncome = 0;
-    updateStats(true);
-    showTemporaryMessage(
-      `${t("stats_reset_message")} ${statsResetDate}`,
-      12000,
+    closeModal("calcHistoryModal");
+  });
+}
+
+function showConvHistoryModal() {
+  let html = '<div class="history-list">';
+  if (convHistory.length === 0)
+    html += `<p style="padding:20px;color:var(--text-muted);">${t("historyEmpty")}</p>`;
+  else
+    convHistory.forEach((item, idx) => {
+      html += `<div class="history-item"><div class="history-item-info"><div class="history-item-cat">${item.amt} ${item.from} → ${item.res.toFixed(4)} ${item.to}</div><div class="history-item-meta">${item.ts}</div></div><button class="icon-btn delete" data-idx="${idx}">✕</button></div>`;
+    });
+  html += `</div><div style="margin-top:16px;"><button class="btn-danger" id="clearConvHist" style="width:100%">🗑 ${t("clearHistory")}</button></div>`;
+  const modal = createModal("convHistoryModal", t("history"), html);
+  document.body.appendChild(modal);
+  openModal("convHistoryModal");
+  modal.querySelectorAll(".icon-btn.delete").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      convHistory.splice(parseInt(btn.dataset.idx), 1);
+      saveAll();
+      closeModal("convHistoryModal");
+      setTimeout(showConvHistoryModal, 200);
+    }),
+  );
+  document.getElementById("clearConvHist").addEventListener("click", () => {
+    convHistory = [];
+    saveAll();
+    closeModal("convHistoryModal");
+  });
+}
+
+// ============================================================
+// БЛОКНОТ
+// ============================================================
+function renderNotebook() {
+  const html = `
+    <div class="section-hint tab-anim-child">💡 ${t("notebookHint")}</div>
+    <button class="btn-primary tab-anim-child" id="newNotebookBtn" style="width:100%; margin-bottom:16px; padding:16px;">✚ ${t("newPage")}</button>
+    <div id="notebookList" class="notebook-grid tab-anim"></div>`;
+  document.getElementById("mainContent").innerHTML = html;
+
+  document.getElementById("newNotebookBtn").addEventListener("click", () => {
+    notebookPages.push({
+      id: Date.now(),
+      title: t("newNotebookTitle"),
+      date: today(),
+      content: "",
+    });
+    saveAll();
+    renderNotebook();
+  });
+
+  const container = document.getElementById("notebookList");
+  if (notebookPages.length === 0) {
+    container.innerHTML = `<div class="empty-block"><div class="empty-emoji">📓</div><p>${t("noPages").replace("\n", "<br>")}</p></div>`;
+    return;
+  }
+  [...notebookPages].reverse().forEach((p) => {
+    const div = document.createElement("div");
+    div.className = "note-card tab-anim-child";
+    div.innerHTML = `<div class="note-title">${esc(p.title)}</div><div class="note-date">📅 ${fmtDate(p.date)}</div><div class="note-preview">${esc(p.content.substring(0, 100))}${p.content.length > 100 ? "…" : ""}</div>`;
+    div.addEventListener("click", () => openNotebookModal(p.id));
+    container.appendChild(div);
+  });
+}
+
+function openNotebookModal(id) {
+  const page = notebookPages.find((p) => p.id === id);
+  if (!page) return;
+  editingNoteId = id;
+
+  const html = `
+    <div class="field-group">
+      <label class="field-label">${t("pageTitle")}</label>
+      <input type="text" id="nbTitle" class="modal-input" value="${esc(page.title)}" placeholder="${t("pageTitle")}">
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("date")}</label>
+      <div class="date-input-wrapper" id="nbDateWrapper">
+        <input type="text" id="nbDateDisplay" class="modal-input" readonly value="${fmtDate(page.date)}">
+        <input type="hidden" id="nbDate" value="${page.date}">
+        <button type="button" class="datepicker-btn" id="nbDateBtn">📅</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("content")}</label>
+      <textarea id="nbContent" class="modal-textarea" rows="8" placeholder="${t("notebookPlaceholder")}">${esc(page.content)}</textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-danger"  id="deleteNbBtn">🗑 ${t("delete")}</button>
+      <button class="btn-primary" id="saveNbBtn">💾 ${t("save")}</button>
+    </div>`;
+
+  const modal = createModal("notebookModal", t("editNote"), html);
+  document.body.appendChild(modal);
+  openModal("notebookModal");
+
+  const nbDateDisplay = document.getElementById("nbDateDisplay");
+  const nbDateHidden = document.getElementById("nbDate");
+  document.getElementById("nbDateBtn").addEventListener("click", () => {
+    openDatePicker(nbDateHidden.value, (newDate) => {
+      nbDateHidden.value = newDate;
+      nbDateDisplay.value = fmtDate(newDate);
+    });
+  });
+
+  document.getElementById("saveNbBtn").addEventListener("click", () => {
+    const p = notebookPages.find((p) => p.id === editingNoteId);
+    if (p) {
+      p.title =
+        document.getElementById("nbTitle").value.trim() || t("defaultNotePage");
+      p.date = nbDateHidden.value;
+      p.content = document.getElementById("nbContent").value;
+      saveAll();
+      renderNotebook();
+      closeModal("notebookModal");
+      showToast(t("saved"));
+    }
+  });
+  document.getElementById("deleteNbBtn").addEventListener("click", () => {
+    askConfirm(
+      t("confirmDelete"),
+      () => {
+        notebookPages = notebookPages.filter((p) => p.id !== editingNoteId);
+        saveAll();
+        renderNotebook();
+        closeModal("notebookModal");
+        showToast(t("deleted"));
+      },
+      { icon: "🗑️" },
     );
+  });
+}
+
+// ============================================================
+// КАТЕГОРИИ
+// ============================================================
+function openAddCategoryModal(defaultType = "expense") {
+  let selectedType = defaultType;
+  const html = `
+    <div class="field-group">
+      <label class="field-label">${t("catTypeLabel")}</label>
+      <div class="cat-type-toggle">
+        <button class="cat-type-btn expense ${defaultType === "expense" ? "active" : ""}" data-type="expense"><div class="cat-type-icon">💸</div><div class="cat-type-title">${t("catTypeExpenseTitle")}</div><div class="cat-type-desc">${t("catTypeExpenseDesc")}</div></button>
+        <button class="cat-type-btn income ${defaultType === "income" ? "active" : ""}" data-type="income"><div class="cat-type-icon">💰</div><div class="cat-type-title">${t("catTypeIncomeTitle")}</div><div class="cat-type-desc">${t("catTypeIncomeDesc")}</div></button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("catNameLabel")}</label>
+      <input type="text" id="newCatName" class="modal-input" placeholder="${t("catNamePlaceholder")}" autofocus>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="addCatCancel">${t("cancel")}</button>
+      <button class="btn-primary" id="addCatSave">✚ ${t("save")}</button>
+    </div>`;
+  const modal = createModal("addCatModal", t("addCatModalTitle"), html);
+  document.body.appendChild(modal);
+  openModal("addCatModal");
+
+  modal.querySelectorAll(".cat-type-btn").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      selectedType = btn.dataset.type;
+      modal
+        .querySelectorAll(".cat-type-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+    }),
+  );
+  document
+    .getElementById("addCatCancel")
+    .addEventListener("click", () => closeModal("addCatModal"));
+  document.getElementById("addCatSave").addEventListener("click", () => {
+    const name = document.getElementById("newCatName").value.trim();
+    if (!name) {
+      showToast(t("enterAmount"), "error");
+      return;
+    }
+    if (selectedType === "expense") {
+      if (categories[name]) {
+        showToast("⚠️ " + name, "error");
+        return;
+      }
+      categories[name] = { subcats: [] };
+    } else {
+      if (incomeCategories[name]) {
+        showToast("⚠️ " + name, "error");
+        return;
+      }
+      incomeCategories[name] = { subcats: [] };
+    }
+    saveAll();
+    renderCategories();
+    closeModal("addCatModal");
+    showToast(t("saved"));
+  });
+}
+
+function renderCategories() {
+  let html = `
+    <div class="section-hint tab-anim-child">💡 ${t("catHint")}</div>
+    <button class="cat-unified-add-btn tab-anim-child" id="addCatUnifiedBtn"><span class="cat-unified-icon">✚</span><div><div class="cat-unified-title">${t("addCatModalTitle")}</div><div class="cat-unified-sub">${t("catTypeExpenseTitle")} · ${t("catTypeIncomeTitle")}</div></div></button>
+    <div class="cat-section"><div class="cat-section-header"><div class="cat-section-title">${t("expCatsTitle")}</div></div><div id="categoriesList"></div></div>
+    <div class="cat-section"><div class="cat-section-header"><div class="cat-section-title">${t("incomeCats")}</div></div><div id="incomeList"></div></div>`;
+  document.getElementById("mainContent").innerHTML = html;
+  document
+    .getElementById("addCatUnifiedBtn")
+    .addEventListener("click", () => openAddCategoryModal("expense"));
+
+  const container = document.getElementById("categoriesList");
+  for (const [cat, data] of Object.entries(categories)) {
+    const div = document.createElement("div");
+    div.className = "cat-item tab-anim-child";
+    div.innerHTML = `<div class="cat-item-header"><div class="cat-item-name" data-cat="${esc(cat)}">📁 ${esc(cat)}</div><button class="icon-btn delete" data-delcat="${esc(cat)}">✕</button></div><div class="chips-row" id="chips-${esc(cat).replace(/\s/g, "_")}"></div><button class="cat-add-sub-btn add-sub" data-cat="${esc(cat)}">＋ ${t("addSubcategory")}</button>`;
+    container.appendChild(div);
+    const chips = document.getElementById(`chips-${cat.replace(/\s/g, "_")}`);
+    data.subcats.forEach((sub) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.innerHTML = `${esc(sub)} <button class="chip-del" data-cat="${esc(cat)}" data-sub="${esc(sub)}">✕</button>`;
+      chip.addEventListener("click", (e) => {
+        if (e.target.classList.contains("chip-del")) return;
+        openInputModal(t("editSubcatTitle"), t("newName"), sub, (newName) => {
+          if (newName?.trim()) {
+            const idx = categories[cat].subcats.indexOf(sub);
+            if (idx !== -1) {
+              categories[cat].subcats[idx] = newName.trim();
+              saveAll();
+              renderCategories();
+            }
+          }
+        });
+      });
+      chip.querySelector(".chip-del").addEventListener("click", (e) => {
+        e.stopPropagation();
+        askConfirm(
+          `${t("delete")}: «${sub}»?`,
+          () => {
+            categories[cat].subcats = categories[cat].subcats.filter(
+              (s) => s !== sub,
+            );
+            saveAll();
+            renderCategories();
+          },
+          { icon: "🗑️" },
+        );
+      });
+      chips.appendChild(chip);
+    });
+    div.querySelector(".cat-item-name").addEventListener("click", () => {
+      openInputModal(t("editCatTitle"), t("newName"), cat, (newName) => {
+        if (newName?.trim() && !categories[newName]) {
+          categories[newName] = categories[cat];
+          delete categories[cat];
+          saveAll();
+          renderCategories();
+        }
+      });
+    });
+    div.querySelector("[data-delcat]").addEventListener("click", () => {
+      askConfirm(
+        `${t("delete")}: «${cat}»?`,
+        () => {
+          delete categories[cat];
+          saveAll();
+          renderCategories();
+        },
+        { icon: "🗑️" },
+      );
+    });
+    div.querySelector(".add-sub").addEventListener("click", () => {
+      openInputModal(
+        t("newSubcatTitle"),
+        `${t("inCategoryLabel")} «${cat}»`,
+        "",
+        (sub) => {
+          if (sub?.trim()) {
+            categories[cat].subcats.push(sub.trim());
+            saveAll();
+            renderCategories();
+          }
+        },
+      );
+    });
+  }
+
+  const incList = document.getElementById("incomeList");
+  incList.innerHTML = "";
+  for (const [cat, data] of Object.entries(incomeCategories)) {
+    const div = document.createElement("div");
+    div.className = "cat-item tab-anim-child";
+    div.innerHTML = `<div class="cat-item-header"><div class="cat-item-name" data-cat="${esc(cat)}">📁 ${esc(cat)}</div><button class="icon-btn delete" data-delcat="${esc(cat)}">✕</button></div><div class="chips-row" id="chips-inc-${esc(cat).replace(/\s/g, "_")}"></div><button class="cat-add-sub-btn add-sub" data-cat="${esc(cat)}">＋ ${t("addSubcategory")}</button>`;
+    incList.appendChild(div);
+    const chips = document.getElementById(
+      `chips-inc-${cat.replace(/\s/g, "_")}`,
+    );
+    data.subcats.forEach((sub) => {
+      const chip = document.createElement("span");
+      chip.className = "chip";
+      chip.innerHTML = `${esc(sub)} <button class="chip-del" data-cat="${esc(cat)}" data-sub="${esc(sub)}">✕</button>`;
+      chip.addEventListener("click", (e) => {
+        if (e.target.classList.contains("chip-del")) return;
+        openInputModal(t("editSubcatTitle"), t("newName"), sub, (newName) => {
+          if (newName?.trim()) {
+            const idx = incomeCategories[cat].subcats.indexOf(sub);
+            if (idx !== -1) {
+              incomeCategories[cat].subcats[idx] = newName.trim();
+              saveAll();
+              renderCategories();
+            }
+          }
+        });
+      });
+      chip.querySelector(".chip-del").addEventListener("click", (e) => {
+        e.stopPropagation();
+        askConfirm(
+          `${t("delete")}: «${sub}»?`,
+          () => {
+            incomeCategories[cat].subcats = incomeCategories[
+              cat
+            ].subcats.filter((s) => s !== sub);
+            saveAll();
+            renderCategories();
+          },
+          { icon: "🗑️" },
+        );
+      });
+      chips.appendChild(chip);
+    });
+    div.querySelector(".cat-item-name").addEventListener("click", () => {
+      openInputModal(t("editCatTitle"), t("newName"), cat, (newName) => {
+        if (newName?.trim() && !incomeCategories[newName]) {
+          incomeCategories[newName] = incomeCategories[cat];
+          delete incomeCategories[cat];
+          saveAll();
+          renderCategories();
+        }
+      });
+    });
+    div.querySelector("[data-delcat]").addEventListener("click", () => {
+      askConfirm(
+        `${t("delete")}: «${cat}»?`,
+        () => {
+          delete incomeCategories[cat];
+          saveAll();
+          renderCategories();
+        },
+        { icon: "🗑️" },
+      );
+    });
+    div.querySelector(".add-sub").addEventListener("click", () => {
+      openInputModal(
+        t("newSubcatTitle"),
+        `${t("inCategoryLabel")} «${cat}»`,
+        "",
+        (sub) => {
+          if (sub?.trim()) {
+            incomeCategories[cat].subcats.push(sub.trim());
+            saveAll();
+            renderCategories();
+          }
+        },
+      );
+    });
   }
 }
 
-function setPeriod(period) {
-  currentStatsPeriod = period;
-  document.querySelectorAll(".period-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.period === period);
-  });
-  updateStats(true);
+// ============================================================
+// НАСТРОЙКИ
+// ============================================================
+function renderSettings() {
+  const html = `
+    <div class="settings-card"><div class="settings-card-title">${t("currency")}</div><div class="settings-card-desc">${t("explanationCurrency")}</div><div class="settings-card-body"><select id="currencySelect" class="settings-select"><option value="RUB">🇷🇺 ${t("currRUB")}</option><option value="USD">🇺🇸 ${t("currUSD")}</option><option value="EUR">🇪🇺 ${t("currEUR")}</option><option value="GEL">🇬🇪 ${t("currGEL")}</option><option value="GBP">🇬🇧 ${t("currGBP")}</option><option value="KZT">🇰🇿 ${t("currKZT")}</option></select></div></div>
+    <div class="settings-card"><div class="settings-card-title">${t("theme")}</div><div class="settings-card-desc">${t("explanationTheme")}</div><div class="settings-card-body"><select id="themeSelect" class="settings-select"><option value="light">${t("light")}</option><option value="dark">${t("dark")}</option></select></div></div>
+    <div class="settings-card"><div class="settings-card-title">${t("language")}</div><div class="settings-card-desc">${t("explanationLanguage")}</div><div class="settings-card-body"><select id="langSelect" class="settings-select"><option value="ru">🇷🇺 Русский</option><option value="en">🇬🇧 English</option><option value="ka">🇬🇪 ქართული</option></select></div></div>
+    <div class="settings-card"><div class="settings-card-title">${t("data")}</div><div class="settings-card-desc">${t("explanationRates")}</div><div class="settings-card-body"><button class="settings-btn primary" id="refreshRatesBtn">${t("updateRates")}</button><button class="settings-btn danger" id="clearAllBtn">${t("resetAll")}</button></div></div>
+    <div class="settings-card" style="border-color:var(--gold-border);"><div class="settings-card-title">🌟 Pro <span class="pro-badge">SOON</span></div><div class="settings-card-desc">${t("explanationPro")}</div><div class="settings-card-body"><button class="settings-btn pro" id="proVersionBtn">${t("proVersion")}</button></div></div>
+    <div style="text-align:center;padding:20px;color:var(--text-muted);">${t("appFooter").replace("\n", "<br>")}</div>`;
+  document.getElementById("mainContent").innerHTML = html;
+
+  document.getElementById("currencySelect").value = displayCurrency;
+  document.getElementById("currencySelect").onchange = (e) => {
+    displayCurrency = e.target.value;
+    saveAll();
+    updateTopBlocks();
+    if (currentTab === "home") renderOpsList();
+    showToast(t("currencyChanged"));
+  };
+  const savedTheme = localStorage.getItem("theme") || "light";
+  document.getElementById("themeSelect").value = savedTheme;
+  document.getElementById("themeSelect").onchange = (e) => {
+    document.body.className = e.target.value;
+    localStorage.setItem("theme", e.target.value);
+    showToast(t("themeChanged"));
+  };
+  document.getElementById("langSelect").value = currentLang;
+  document.getElementById("langSelect").onchange = (e) =>
+    setLanguage(e.target.value);
+  document.getElementById("refreshRatesBtn").onclick = async () => {
+    document.getElementById("refreshRatesBtn").textContent = t("loading");
+    try {
+      const res = await fetch("https://api.exchangerate-api.com/v4/latest/RUB");
+      const data = await res.json();
+      for (const c of ["USD", "EUR", "GEL", "GBP", "KZT"])
+        exchangeRates[c] = data.rates[c] || exchangeRates[c];
+      saveAll();
+      updateTopBlocks();
+      showToast(t("ratesUpdated"));
+    } catch (e) {
+      showToast(t("error"), "error");
+    }
+    document.getElementById("refreshRatesBtn").textContent =
+      "🔄 " + t("updateRates");
+  };
+  document.getElementById("clearAllBtn").onclick = () => {
+    askConfirm(
+      t("resetConfirmMsg"),
+      () => {
+        transactions = [];
+        startBalanceRub = 70000;
+        notebookPages = [];
+        categories = JSON.parse(JSON.stringify(window.initialCategories));
+        incomeCategories = {
+          Зарплата: { subcats: [] },
+          Подарок: { subcats: [] },
+          Фриланс: { subcats: [] },
+        };
+        calcHistory = [];
+        convHistory = [];
+        localStorage.removeItem("welcomeSeen");
+        saveAll();
+        updateTopBlocks();
+        showToast(t("resetDone"));
+        setTimeout(() => setTab("home"), 500);
+      },
+      { icon: "⚠️", title: t("resetConfirmTitle"), yesText: t("yesDeleteAll") },
+    );
+  };
+  document.getElementById("proVersionBtn").onclick = () =>
+    showToast(t("proComingSoon"));
 }
 
-// ========== МОДАЛКИ ==========
+// ============================================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ============================================================
+function openInputModal(title, label, defaultVal, onSave) {
+  const html = `<div class="field-group"><label class="field-label">${esc(label)}</label><input type="text" id="inputModalVal" class="modal-input" value="${esc(defaultVal)}" placeholder="${esc(label)}" autofocus></div><div class="modal-actions"><button class="btn-secondary" id="inputModalCancel">${t("cancel")}</button><button class="btn-primary" id="inputModalSave">${t("save")}</button></div>`;
+  const modal = createModal("inputModal", title, html);
+  document.body.appendChild(modal);
+  openModal("inputModal");
+  setTimeout(() => document.getElementById("inputModalVal")?.focus(), 300);
+  document.getElementById("inputModalSave").addEventListener("click", () => {
+    const val = document.getElementById("inputModalVal").value.trim();
+    closeModal("inputModal");
+    onSave(val);
+  });
+  document
+    .getElementById("inputModalCancel")
+    .addEventListener("click", () => closeModal("inputModal"));
+  document.getElementById("inputModalVal").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("inputModalSave").click();
+  });
+}
+
+function createModal(id, title, bodyHtml) {
+  document.getElementById(id)?.remove();
+  const overlay = document.createElement("div");
+  overlay.className = "modal-overlay";
+  overlay.id = id;
+  overlay.innerHTML = `<div class="modal"><div class="modal-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close" aria-label="${t("cancel")}">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
+  overlay
+    .querySelector(".modal-close")
+    .addEventListener("click", () => closeModal(id));
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) closeModal(id);
+  });
+  return overlay;
+}
 function openModal(id) {
-  document.getElementById(id).classList.add("open");
+  const m = document.getElementById(id);
+  if (m) {
+    m.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
 }
 function closeModal(id) {
-  document.getElementById(id).classList.remove("open");
-}
-
-// ========== ТЕМА ==========
-function initTheme() {
-  let dark = localStorage.getItem("budget_theme") === "dark";
-  document.body.classList.toggle("dark", dark);
-  let chk = document.getElementById("themeToggleCheckbox");
-  if (chk) {
-    chk.checked = dark;
-    chk.onchange = (e) => {
-      document.body.classList.toggle("dark", e.target.checked);
-      localStorage.setItem("budget_theme", e.target.checked ? "dark" : "light");
-      updateStats(true);
-    };
+  const m = document.getElementById(id);
+  if (m) {
+    m.classList.remove("open");
+    setTimeout(() => m.remove(), 350);
+    document.body.style.overflow = "";
   }
 }
 
-// ========== НАВИГАЦИЯ ==========
-function setActiveTab(tabId) {
-  document
-    .querySelectorAll(".tab-pane")
-    .forEach((p) => p.classList.remove("active"));
-  const tabEl = document.getElementById(
-    `tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`,
-  );
-  if (tabEl) tabEl.classList.add("active");
-  document
-    .querySelectorAll(".nav-item")
-    .forEach((btn) => btn.classList.remove("active"));
-  const navEl = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
-  if (navEl) navEl.classList.add("active");
-  let panel = document.getElementById("balancePanel");
-  if (tabId === "home") panel.classList.remove("compact");
-  else panel.classList.add("compact");
-  if (tabId === "operations") renderAllOps();
-  if (tabId === "categories") renderCatManager();
-  if (tabId === "notebook") renderNotebookList();
-  if (tabId === "stats") updateStats(true);
-}
+// ============================================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================================
+loadAll();
+applyTranslations();
+updateTopBlocks();
+updateHeader();
+document.documentElement.lang = currentLang;
 
-function refreshAll() {
-  updateBalance();
-  renderRecentOps();
-  if (document.getElementById("tabOperations")?.classList.contains("active"))
-    renderAllOps();
-  if (document.getElementById("tabCategories")?.classList.contains("active"))
-    renderCatManager();
-  if (document.getElementById("tabNotebook")?.classList.contains("active"))
-    renderNotebookList();
-  if (document.getElementById("tabStats")?.classList.contains("active"))
-    updateStats(true);
-  updateConversionDisplay();
-}
+const savedTheme = localStorage.getItem("theme") || "light";
+document.body.className = savedTheme;
+document.getElementById("themeToggle").textContent =
+  savedTheme === "dark" ? "☀️" : "🌙";
 
-function refreshModalCats() {
-  let sel = document.getElementById("modalCat");
-  if (!sel) return;
-  let cats = currentOpType === "income" ? incomeCategories : expenseCategories;
-  sel.innerHTML = "";
-  for (let c of cats) sel.appendChild(new Option(c, c));
-  refreshModalSubcats();
-}
-
-function refreshModalSubcats() {
-  let field = document.getElementById("modalSubcatField");
-  let sel = document.getElementById("modalSubcat");
-  let cat = document.getElementById("modalCat").value;
-  let subs = getSubcats(cat, currentOpType);
-  if (subs.length) {
-    field.style.display = "flex";
-    sel.innerHTML = '<option value="">— ' + t("not_specified") + " —</option>";
-    subs.forEach((s) => sel.appendChild(new Option(s, s)));
-  } else {
-    field.style.display = "none";
-  }
-}
-
-// ========== ИНИЦИАЛИЗАЦИЯ ==========
-document.addEventListener("DOMContentLoaded", () => {
-  loadAll();
-  initTheme();
-  buildCalcGrid();
-  loadNotebook();
-
-  let savedConv = localStorage.getItem("conv_hist_full");
-  convHistory = savedConv ? JSON.parse(savedConv) : [];
-  let savedCalc = localStorage.getItem("calc_hist_full");
-  calcHistory = savedCalc ? JSON.parse(savedCalc) : [];
-
-  renderConvHistory();
-  renderCalcPreview();
-  updateBalance();
-  renderRecentOps();
-  renderAllOps();
-  renderCatManager();
-  renderNotebookList();
-  refreshModalCats();
-
-  document.getElementById("fabBtn").onclick = () => {
-    setDateValue("modalDate", today());
-    openModal("addOpModal");
-  };
-  document.getElementById("homeQuickAddBtn").onclick = () => {
-    setDateValue("modalDate", today());
-    openModal("addOpModal");
-  };
-
-  const collapsible = document.getElementById("quickActionBlock");
-  collapsible
-    .querySelector(".collapsible-header")
-    .addEventListener("click", () => {
-      collapsible.classList.toggle("collapsed");
-    });
-
-  document.getElementById("helpBtn").onclick = () => {
-    const helpBody = document.getElementById("helpModalBody");
-    if (helpBody) {
-      helpBody.innerHTML = `
-        <p style="color:var(--text-secondary);font-size:0.88rem;line-height:1.7;">${t("help_intro")}</p><br>
-        <div style="font-weight:600;margin-bottom:10px;">${t("help_features")}</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_balance")}</div>
-          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_operations")}</div>
-          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_categories")}</div>
-          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_tools")}</div>
-          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_notebook")}</div>
-          <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_stats")}</div>
-        </div><br>
-        <div style="text-align:center;"><button class="btn-sm guide-restart-btn" id="restartGuideBtn">${t("guide_restart")}</button></div>
-      `;
-      document
-        .getElementById("restartGuideBtn")
-        ?.addEventListener("click", () => {
-          closeModal("helpModal");
-          startGuide();
-        });
-    }
-    openModal("helpModal");
-  };
-
-  document.getElementById("closeHelpModal").onclick = () =>
-    closeModal("helpModal");
-  document.getElementById("closeAddOpModal").onclick = () =>
-    closeModal("addOpModal");
-  document.getElementById("closeEditOpModal").onclick = () =>
-    closeModal("editOpModal");
-
-  document.getElementById("modalAddBtn").onclick = () => {
-    let cat = document.getElementById("modalCat").value;
-    let amount = parseFloat(document.getElementById("modalAmount").value);
-    let date = document.getElementById("modalDate").value || today();
-    if (cat && amount > 0) {
-      transactions.push({
-        type: currentOpType,
-        category: cat,
-        subcategory:
-          document.getElementById("modalSubcatField").style.display !== "none"
-            ? document.getElementById("modalSubcat").value
-            : null,
-        amountRub: toRub(amount),
-        note: document.getElementById("modalNote").value.trim() || null,
-        date,
-      });
-      saveAll();
-      refreshAll();
-      closeModal("addOpModal");
-      document.getElementById("modalAmount").value = "";
-      document.getElementById("modalNote").value = "";
-    } else alert(t("fill_fields"));
-  };
-
-  document.getElementById("typeExpenseBtn").onclick = () => {
-    currentOpType = "expense";
-    document.getElementById("typeExpenseBtn").classList.add("active");
-    document.getElementById("typeIncomeBtn").classList.remove("active");
-    refreshModalCats();
-  };
-  document.getElementById("typeIncomeBtn").onclick = () => {
-    currentOpType = "income";
-    document.getElementById("typeIncomeBtn").classList.add("active");
-    document.getElementById("typeExpenseBtn").classList.remove("active");
-    refreshModalCats();
-  };
-  document
-    .getElementById("modalCat")
-    .addEventListener("change", refreshModalSubcats);
-  document.getElementById("modalAddCatBtn").onclick = () => {
-    let newCat = prompt(t("enter_category_name"));
-    if (
-      newCat &&
-      !incomeCategories.includes(newCat) &&
-      !expenseCategories.includes(newCat)
-    ) {
-      if (currentOpType === "income") incomeCategories.push(newCat);
-      else expenseCategories.push(newCat);
-      ensureGroup(newCat, currentOpType);
-      updateAllCategoriesOrder();
-      saveAll();
-      refreshModalCats();
-      renderCatManager();
-    }
-  };
-  document.getElementById("modalDelCatBtn").onclick = () => {
-    let cat = document.getElementById("modalCat").value;
-    if (confirm(t("confirm_delete_category").replace("%s", cat))) {
-      if (currentOpType === "income")
-        incomeCategories = incomeCategories.filter((c) => c !== cat);
-      else expenseCategories = expenseCategories.filter((c) => c !== cat);
-      delete categoryGroups[cat];
-      updateAllCategoriesOrder();
-      saveAll();
-      refreshModalCats();
-      renderCatManager();
-    }
-  };
-
-  document.getElementById("clearAllBtn").onclick = () => {
-    if (confirm(t("confirm_clear_all"))) {
-      transactions = [];
-      saveAll();
-      refreshAll();
-    }
-  };
-  document.getElementById("viewAllOpsBtn").onclick = () =>
-    setActiveTab("operations");
-
-  document.getElementById("editStartBtn").onclick = () => {
-    let val = prompt(
-      `${t("enter_salary")} (${sym()}):`,
-      toDisp(startBalanceRub).toFixed(2),
-    );
-    if (val && !isNaN(parseFloat(val))) {
-      startBalanceRub = toRub(parseFloat(val));
-      saveAll();
-      updateBalance();
-      if (document.getElementById("tabStats").classList.contains("active"))
-        updateStats(true);
-    }
-  };
-
-  document.getElementById("displayCurrencySelect").onchange = () => {
-    displayCurrency = document.getElementById("displayCurrencySelect").value;
-    saveAll();
-    refreshAll();
-  };
-  document.getElementById("refreshRatesBtn").onclick = async () => {
-    try {
-      let res = await fetch("https://api.exchangerate-api.com/v4/latest/RUB");
-      let data = await res.json();
-      exchangeRates = { RUB: 1 };
-      for (let c of ["USD", "EUR", "GEL", "GBP", "KZT"])
-        exchangeRates[c] = data.rates[c] || exchangeRates[c];
-      lastRateUpdate = new Date().toLocaleString();
-      document.getElementById("rateStatus").textContent =
-        `✅ ${t("updated")}: ${lastRateUpdate}`;
-      saveAll();
-      refreshAll();
-    } catch (e) {
-      document.getElementById("rateStatus").textContent =
-        `⚠️ ${t("update_error")}`;
-    }
-  };
-
-  document.getElementById("convBtn").onclick = doConvert;
-  document.getElementById("convAmount").oninput = updateConversionDisplay;
-  document.getElementById("convFrom").onchange = updateConversionDisplay;
-  document.getElementById("convTo").onchange = updateConversionDisplay;
-  document.getElementById("openConvHistoryBtn").onclick = () => {
-    renderFullConvHistoryModal();
-    openModal("convHistoryModal");
-  };
-  document.getElementById("closeConvHistoryModal").onclick = () =>
-    closeModal("convHistoryModal");
-  document.getElementById("clearConvHistoryBtn").onclick = () => {
-    if (confirm(t("confirm_clear_conv_history"))) clearConvHistory();
-  };
-  document.getElementById("clearFullConvHistoryBtn").onclick = () => {
-    if (confirm(t("confirm_clear_conv_history"))) clearConvHistory();
-  };
-
-  document.getElementById("openCalcHistoryBtn").onclick = () => {
-    renderFullCalcHistory();
-    openModal("calcHistoryModal");
-  };
-  document.getElementById("closeCalcHistoryModal").onclick = () =>
-    closeModal("calcHistoryModal");
-  document.getElementById("clearCalcHistoryBtn").onclick = () => {
-    if (confirm(t("confirm_clear_calc_history"))) clearCalcHistory();
-  };
-
-  document.getElementById("applySearchBtn").onclick = () => renderAllOps();
-  document.getElementById("resetSearchBtn").onclick = () => {
-    document.getElementById("searchText").value = "";
-    setDateValue("searchFrom", "");
-    setDateValue("searchTo", "");
-    document.getElementById("searchType").value = "";
-    renderAllOps();
-  };
-  document
-    .getElementById("searchText")
-    .addEventListener("input", () => renderAllOps());
-  document
-    .getElementById("searchFrom")
-    .addEventListener("change", () => renderAllOps());
-  document
-    .getElementById("searchTo")
-    .addEventListener("change", () => renderAllOps());
-  document
-    .getElementById("searchType")
-    .addEventListener("change", () => renderAllOps());
-
-  document.getElementById("addCatGroupBtn").onclick = () => {
-    let newCat = prompt(t("enter_category_name"));
-    if (
-      newCat &&
-      !incomeCategories.includes(newCat) &&
-      !expenseCategories.includes(newCat)
-    ) {
-      expenseCategories.push(newCat);
-      ensureGroup(newCat, "expense");
-      updateAllCategoriesOrder();
-      saveAll();
-      renderCatManager();
-      refreshModalCats();
-    }
-  };
-
-  document.getElementById("newPageBtn").onclick = createNotebookPage;
-  document.getElementById("saveNbPageBtn").onclick = saveNotebookPage;
-  document.getElementById("deleteNbPageBtn").onclick = deleteNotebookPage;
-  document.getElementById("closeNotebookModal").onclick = () =>
-    closeModal("notebookModal");
-
-  document.getElementById("saveSubcatBtn").onclick = saveSubcatEdit;
-  document.getElementById("deleteSubcatBtn").onclick = deleteSubcatFromModal;
-  document.getElementById("closeEditSubcatModal").onclick = () =>
-    closeModal("editSubcatModal");
-
-  document.getElementById("editTypeExpenseBtn").onclick = () => {
-    document.getElementById("editTypeExpenseBtn").classList.add("active");
-    document.getElementById("editTypeIncomeBtn").classList.remove("active");
-    refreshEditModalSubcats();
-  };
-  document.getElementById("editTypeIncomeBtn").onclick = () => {
-    document.getElementById("editTypeIncomeBtn").classList.add("active");
-    document.getElementById("editTypeExpenseBtn").classList.remove("active");
-    refreshEditModalSubcats();
-  };
-  document
-    .getElementById("editModalCat")
-    .addEventListener("change", refreshEditModalSubcats);
-  document.getElementById("saveOpBtn").onclick = saveEditedOp;
-  document.getElementById("deleteOpBtn").onclick = deleteEditedOp;
-
-  document.getElementById("resetStatsBtn").onclick = resetStats;
-  document
-    .querySelectorAll(".period-btn")
-    .forEach((btn) =>
-      btn.addEventListener("click", () => setPeriod(btn.dataset.period)),
-    );
-
-  document
-    .querySelectorAll(".nav-item")
-    .forEach((btn) => (btn.onclick = () => setActiveTab(btn.dataset.tab)));
-
-  window.addEventListener("resize", () => {
-    if (document.getElementById("tabStats")?.classList.contains("active"))
-      updateStats(false);
-  });
-
-  const observer = new MutationObserver(() => {
-    if (document.getElementById("tabStats")?.classList.contains("active"))
-      updateStats(false);
-  });
-  observer.observe(document.body, {
-    attributes: true,
-    attributeFilter: ["class"],
-  });
-
-  document.getElementById("guideNextBtn").onclick = () => {
-    currentGuideStep++;
-    if (currentGuideStep >= guideSteps.length) endGuide();
-    else showGuideStep(currentGuideStep);
-  };
-  document.getElementById("guideSkipBtn").onclick = endGuide;
-
-  if (!localStorage.getItem("guide_shown")) {
-    setTimeout(() => startGuide(), 800);
-  }
-
-  window._appReady = true;
-  if (window.setLanguage)
-    window.setLanguage(localStorage.getItem("app_lang") || "ru");
-  updateConversionDisplay();
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const isDark = document.body.classList.contains("dark");
+  document.body.className = isDark ? "light" : "dark";
+  localStorage.setItem("theme", document.body.className);
+  document.getElementById("themeToggle").textContent = isDark ? "🌙" : "☀️";
+  showToast(isDark ? t("themeLight") : t("themeDark"));
 });
 
-window.refreshAll = refreshAll;
-window.updateStats = updateStats;
-window.startGuide = startGuide;
+document.querySelectorAll(".summary-card").forEach((card) => {
+  card.addEventListener("click", () => {
+    const type = card.dataset.type;
+    if (type === "salary") {
+      openSalaryModal();
+      return;
+    }
+    if (currentTab !== "home") setTab("home");
+    currentListType = type;
+    renderOpsList();
+  });
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") card.click();
+  });
+});
+
+document
+  .querySelectorAll(".nav-btn")
+  .forEach((btn) =>
+    btn.addEventListener("click", () => setTab(btn.dataset.tab)),
+  );
+document.getElementById("fabBtn").addEventListener("click", openAddModal);
+setTab("home");
