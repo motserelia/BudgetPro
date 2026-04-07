@@ -26,7 +26,7 @@ let currentStatsPeriod = "month";
 let statsAnimationFrame = null;
 let currentDisplayPercentExpense = 0,
   currentDisplayPercentIncome = 0;
-let trendAnimationId = null; // для анимации линейного графика
+let trendAnimationId = null;
 
 // ========== ГАЙД ==========
 const guideSteps = [
@@ -93,7 +93,6 @@ function startGuide() {
   guideActive = true;
   currentGuideStep = 0;
   document.getElementById("guideOverlay").style.display = "block";
-  // Переходим на главную
   setActiveTab("home");
   showGuideStep(0);
 }
@@ -105,7 +104,6 @@ function showGuideStep(idx) {
     return;
   }
 
-  // Навигация если нужна
   if (step.navTo) setActiveTab(step.navTo);
 
   const overlay = document.getElementById("guideOverlay");
@@ -115,24 +113,23 @@ function showGuideStep(idx) {
   overlay.style.pointerEvents = "none";
   tooltip.style.pointerEvents = "all";
 
-  // Текст с переводом
   document.getElementById("guideCounter").textContent =
     `Шаг ${idx + 1} из ${guideSteps.length}`;
   document.getElementById("guideTitle").textContent = t(step.titleKey);
   document.getElementById("guideDesc").textContent = t(step.descKey);
+  document.getElementById("guideSkipBtn").textContent = t("guide_skip");
 
-  // Прогресс
   const prog = document.getElementById("guideProgress");
   prog.innerHTML = guideSteps
     .map((_, i) => `<div class="guide-dot ${i === idx ? "active" : ""}"></div>`)
     .join("");
 
-  // Кнопка
   const nextBtn = document.getElementById("guideNextBtn");
   nextBtn.textContent =
-    idx === guideSteps.length - 1 ? t("guide_finish") || "Готово ✓" : "Далее →";
+    idx === guideSteps.length - 1
+      ? t("guide_finish") || "Готово ✓"
+      : t("guide_next");
 
-  // Позиционирование спотлайта
   requestAnimationFrame(() => {
     const targetEl = document.querySelector(step.target);
     if (targetEl) {
@@ -143,14 +140,12 @@ function showGuideStep(idx) {
       spotlight.style.width = rect.width + pad * 2 + "px";
       spotlight.style.height = rect.height + pad * 2 + "px";
 
-      // Позиционирование тултипа
       let tTop, tLeft;
       const tw = 280,
         th = 200;
       const viewH = window.innerHeight,
         viewW = window.innerWidth;
 
-      // Пробуем снизу
       if (rect.bottom + th + 20 < viewH) {
         tTop = rect.bottom + pad + 10;
       } else if (rect.top - th - 20 > 0) {
@@ -168,7 +163,6 @@ function showGuideStep(idx) {
       tooltip.style.left = tLeft + "px";
       tooltip.style.maxWidth = tw + "px";
     } else {
-      // Нет элемента — центр экрана
       spotlight.style.left = "-100px";
       spotlight.style.top = "-100px";
       spotlight.style.width = "0px";
@@ -183,7 +177,6 @@ function endGuide() {
   guideActive = false;
   document.getElementById("guideOverlay").style.display = "none";
   localStorage.setItem("guide_shown", "1");
-  // Возвращаемся на главную
   setActiveTab("home");
 }
 
@@ -1121,8 +1114,6 @@ function drawChartAnimated(
 
   function drawDonut(expPct, incPct) {
     ctx.clearRect(0, 0, w, w);
-
-    // Фон
     ctx.beginPath();
     ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
     ctx.arc(cx, cy, innerR, 0, 2 * Math.PI, true);
@@ -1134,7 +1125,6 @@ function drawChartAnimated(
       let expAngle = (expPct / 100) * 2 * Math.PI;
       let incAngle = (incPct / 100) * 2 * Math.PI;
 
-      // Расходы
       if (expAngle > 0.01) {
         ctx.beginPath();
         ctx.moveTo(cx, cy);
@@ -1142,14 +1132,12 @@ function drawChartAnimated(
         ctx.arc(cx, cy, innerR, startAngle + expAngle, startAngle, true);
         ctx.closePath();
         ctx.fillStyle = colors.expense;
-        // Тень
         ctx.shadowColor = colors.expense + "60";
         ctx.shadowBlur = 8;
         ctx.fill();
         ctx.shadowBlur = 0;
       }
 
-      // Доходы
       if (incAngle > 0.01) {
         ctx.beginPath();
         ctx.moveTo(cx, cy);
@@ -1176,7 +1164,6 @@ function drawChartAnimated(
         ctx.shadowBlur = 0;
       }
 
-      // Разделитель (тонкие линии)
       ctx.strokeStyle = colors.stroke;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -1186,7 +1173,6 @@ function drawChartAnimated(
       ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
       ctx.stroke();
     } else {
-      // Пустое кольцо
       ctx.beginPath();
       ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
       ctx.arc(cx, cy, innerR, 0, 2 * Math.PI, true);
@@ -1200,22 +1186,17 @@ function drawChartAnimated(
   function animate(timestamp) {
     if (!startTime) startTime = timestamp;
     let progress = Math.min(1, (timestamp - startTime) / duration);
-    let eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-
+    let eased = 1 - Math.pow(1 - progress, 3);
     let curExp = startExpense + diffExpense * eased;
     let curInc = startIncome + diffIncome * eased;
     if (curExp < 0) curExp = 0;
     if (curInc < 0) curInc = 0;
     currentDisplayPercentExpense = curExp;
     currentDisplayPercentIncome = curInc;
-
     drawDonut(curExp, curInc);
-
-    // Обновляем текст в центре
     const pEl = document.getElementById("statsPercent");
     if (pEl)
       pEl.textContent = `${Math.round(curExp)}% / ${Math.round(curInc)}%`;
-
     if (progress < 1) statsAnimationFrame = requestAnimationFrame(animate);
     else {
       statsAnimationFrame = null;
@@ -1226,7 +1207,6 @@ function drawChartAnimated(
         pEl.textContent = `${Math.round(targetExpensePercent)}% / ${Math.round(targetIncomePercent)}%`;
     }
   }
-
   statsAnimationFrame = requestAnimationFrame(animate);
 }
 
@@ -1234,8 +1214,8 @@ function isDarkMode() {
   return document.body.classList.contains("dark");
 }
 
-// Трендовая диаграмма с анимацией
-function drawTrendChart(animate = true) {
+// Трендовая диаграмма с плавным рисованием линии
+function drawTrendChart(animate = true, animationDuration = 1500) {
   const canvas = document.getElementById("trendChart");
   if (!canvas) return;
   const container = canvas.parentElement;
@@ -1244,9 +1224,10 @@ function drawTrendChart(animate = true) {
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.translate(0.5, 0.5);
   const colors = getChartColors();
 
-  // Берём последние 7 дней
   const days = 7;
   const now = new Date();
   const dailyData = [];
@@ -1278,42 +1259,72 @@ function drawTrendChart(animate = true) {
       y: padY + chartH - (d[key] / maxVal) * chartH,
     }));
   }
-
   const incPoints = getPoints(dailyData, "inc");
   const expPoints = getPoints(dailyData, "exp");
 
-  function drawLineAndArea(points, color, progress = 1) {
+  function drawFullArea(points, color) {
     if (points.length < 2) return;
-    // Рисуем площадь только если progress > 0
-    if (progress > 0) {
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, padY + chartH);
-      ctx.lineTo(points[0].x, points[0].y);
-      for (let i = 1; i < points.length; i++) {
-        const prev = points[i - 1],
-          curr = points[i];
-        const cpx = (prev.x + curr.x) / 2;
-        ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
-      }
-      ctx.lineTo(points[points.length - 1].x, padY + chartH);
-      ctx.closePath();
-      const grad = ctx.createLinearGradient(0, padY, 0, padY + chartH);
-      grad.addColorStop(0, color + "40");
-      grad.addColorStop(1, color + "00");
-      ctx.fillStyle = grad;
-      ctx.fill();
-    }
-    // Линия (обрезаем по progress)
     ctx.beginPath();
-    let maxIndex = Math.floor((points.length - 1) * progress);
-    if (maxIndex < 1) maxIndex = 1;
-    const limitedPoints = points.slice(0, maxIndex + 1);
-    ctx.moveTo(limitedPoints[0].x, limitedPoints[0].y);
-    for (let i = 1; i < limitedPoints.length; i++) {
-      const prev = limitedPoints[i - 1],
-        curr = limitedPoints[i];
+    ctx.moveTo(points[0].x, padY + chartH);
+    ctx.lineTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      const prev = points[i - 1],
+        curr = points[i];
       const cpx = (prev.x + curr.x) / 2;
       ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
+    }
+    ctx.lineTo(points[points.length - 1].x, padY + chartH);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, padY, 0, padY + chartH);
+    grad.addColorStop(0, color + "40");
+    grad.addColorStop(1, color + "00");
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  function drawLineAndPoints(points, color, progress) {
+    if (points.length < 2) return;
+    let totalLength = 0;
+    for (let i = 1; i < points.length; i++) {
+      const dx = points[i].x - points[i - 1].x;
+      const dy = points[i].y - points[i - 1].y;
+      totalLength += Math.hypot(dx, dy);
+    }
+    const targetLength = totalLength * progress;
+    let accumulated = 0;
+    let endIdx = 0,
+      t = 0;
+    for (let i = 1; i < points.length; i++) {
+      const dx = points[i].x - points[i - 1].x;
+      const dy = points[i].y - points[i - 1].y;
+      const segLen = Math.hypot(dx, dy);
+      if (accumulated + segLen >= targetLength) {
+        endIdx = i;
+        t = (targetLength - accumulated) / segLen;
+        break;
+      }
+      accumulated += segLen;
+      endIdx = i;
+    }
+    if (endIdx === 0) {
+      endIdx = 1;
+      t = 0;
+    }
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < endIdx; i++) {
+      const prev = points[i - 1],
+        curr = points[i];
+      const cpx = (prev.x + curr.x) / 2;
+      ctx.bezierCurveTo(cpx, prev.y, cpx, curr.y, curr.x, curr.y);
+    }
+    if (endIdx < points.length) {
+      const prev = points[endIdx - 1],
+        curr = points[endIdx];
+      const interpX = prev.x + (curr.x - prev.x) * t;
+      const interpY = prev.y + (curr.y - prev.y) * t;
+      const cpx = (prev.x + interpX) / 2;
+      ctx.bezierCurveTo(cpx, prev.y, cpx, interpY, interpX, interpY);
     }
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
@@ -1323,10 +1334,19 @@ function drawTrendChart(animate = true) {
     ctx.shadowBlur = 6;
     ctx.stroke();
     ctx.shadowBlur = 0;
-    // Точки (только для отрисованных сегментов)
-    for (let i = 0; i <= maxIndex; i++) {
+    for (let i = 0; i < endIdx; i++) {
       ctx.beginPath();
       ctx.arc(points[i].x, points[i].y, 3, 0, 2 * Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    if (endIdx < points.length && t > 0) {
+      const interpX =
+        points[endIdx - 1].x + (points[endIdx].x - points[endIdx - 1].x) * t;
+      const interpY =
+        points[endIdx - 1].y + (points[endIdx].y - points[endIdx - 1].y) * t;
+      ctx.beginPath();
+      ctx.arc(interpX, interpY, 3, 0, 2 * Math.PI);
       ctx.fillStyle = color;
       ctx.fill();
     }
@@ -1346,31 +1366,34 @@ function drawTrendChart(animate = true) {
   }
 
   if (animate) {
+    drawGrid();
+    drawFullArea(incPoints, colors.income);
+    drawFullArea(expPoints, colors.expense);
     const startTime = performance.now();
-    const duration = 700;
     if (trendAnimationId) cancelAnimationFrame(trendAnimationId);
     function animateTrend(nowTime) {
       const elapsed = nowTime - startTime;
-      let progress = Math.min(1, elapsed / duration);
-      progress = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      let progress = Math.min(1, elapsed / animationDuration);
+      let eased = 1 - Math.pow(1 - progress, 3);
       drawGrid();
-      drawLineAndArea(incPoints, colors.income, progress);
-      drawLineAndArea(expPoints, colors.expense, progress);
-      if (progress < 1) {
-        trendAnimationId = requestAnimationFrame(animateTrend);
-      } else {
-        trendAnimationId = null;
-      }
+      drawFullArea(incPoints, colors.income);
+      drawFullArea(expPoints, colors.expense);
+      drawLineAndPoints(incPoints, colors.income, eased);
+      drawLineAndPoints(expPoints, colors.expense, eased);
+      if (progress < 1) trendAnimationId = requestAnimationFrame(animateTrend);
+      else trendAnimationId = null;
     }
     trendAnimationId = requestAnimationFrame(animateTrend);
   } else {
     drawGrid();
-    drawLineAndArea(incPoints, colors.income, 1);
-    drawLineAndArea(expPoints, colors.expense, 1);
+    drawFullArea(incPoints, colors.income);
+    drawFullArea(expPoints, colors.expense);
+    drawLineAndPoints(incPoints, colors.income, 1);
+    drawLineAndPoints(expPoints, colors.expense, 1);
   }
 }
 
-function updateStats(animate = true) {
+function updateStats(animate = true, animationDuration = 1500) {
   let { incomeRub, expenseRub } = getStatsForPeriod(currentStatsPeriod);
   let total = incomeRub + expenseRub;
   let targetPercentIncome = total === 0 ? 0 : (incomeRub / total) * 100;
@@ -1388,21 +1411,17 @@ function updateStats(animate = true) {
   let resetInfo = statsResetDate
     ? `${t("since")} ${statsResetDate}`
     : t("since_beginning");
-
   document.getElementById("statsPeriodLabel").textContent =
     `📊 ${periodLabel} (${resetInfo})`;
-
   const inc = document.getElementById("statsIncomeAmount");
   const exp = document.getElementById("statsExpenseAmount");
   const bal = document.getElementById("statsBalance");
-
   if (inc)
     inc.innerHTML = `<span>💰 ${t("income")}</span><span style="font-family:'DM Mono',monospace;color:var(--accent)">${incomeDisp.toFixed(2)} ${s} (${Math.round(targetPercentIncome)}%)</span>`;
   if (exp)
     exp.innerHTML = `<span>💸 ${t("expense")}</span><span style="font-family:'DM Mono',monospace;color:var(--red-text)">${expenseDisp.toFixed(2)} ${s} (${Math.round(targetPercentExpense)}%)</span>`;
   if (bal)
     bal.innerHTML = `<span>💎 ${t("balance")}</span><span style="font-family:'DM Mono',monospace;color:${balanceDisp >= 0 ? "var(--accent)" : "var(--red-text)"}">${balanceDisp.toFixed(2)} ${s}</span>`;
-
   if (animate) {
     currentDisplayPercentExpense = 0;
     currentDisplayPercentIncome = 0;
@@ -1415,8 +1434,7 @@ function updateStats(animate = true) {
       pEl.textContent = `${Math.round(targetPercentExpense)}% / ${Math.round(targetPercentIncome)}%`;
     drawChartAnimated(targetPercentExpense, targetPercentIncome, 0);
   }
-
-  drawTrendChart(animate);
+  drawTrendChart(animate, animationDuration);
 }
 
 function resetStats() {
@@ -1478,11 +1496,9 @@ function setActiveTab(tabId) {
     .forEach((btn) => btn.classList.remove("active"));
   const navEl = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
   if (navEl) navEl.classList.add("active");
-
   let panel = document.getElementById("balancePanel");
   if (tabId === "home") panel.classList.remove("compact");
   else panel.classList.add("compact");
-
   if (tabId === "operations") renderAllOps();
   if (tabId === "categories") renderCatManager();
   if (tabId === "notebook") renderNotebookList();
@@ -1547,7 +1563,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderNotebookList();
   refreshModalCats();
 
-  // ===== FAB =====
   document.getElementById("fabBtn").onclick = () => {
     setDateValue("modalDate", today());
     openModal("addOpModal");
@@ -1557,7 +1572,6 @@ document.addEventListener("DOMContentLoaded", () => {
     openModal("addOpModal");
   };
 
-  // ===== КОЛЛАПС =====
   const collapsible = document.getElementById("quickActionBlock");
   collapsible
     .querySelector(".collapsible-header")
@@ -1565,13 +1579,11 @@ document.addEventListener("DOMContentLoaded", () => {
       collapsible.classList.toggle("collapsed");
     });
 
-  // ===== ПОМОЩЬ =====
   document.getElementById("helpBtn").onclick = () => {
     const helpBody = document.getElementById("helpModalBody");
     if (helpBody) {
       helpBody.innerHTML = `
-        <p style="color:var(--text-secondary);font-size:0.88rem;line-height:1.7;">${t("help_intro")}</p>
-        <br>
+        <p style="color:var(--text-secondary);font-size:0.88rem;line-height:1.7;">${t("help_intro")}</p><br>
         <div style="font-weight:600;margin-bottom:10px;">${t("help_features")}</div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_balance")}</div>
@@ -1580,11 +1592,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_tools")}</div>
           <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_notebook")}</div>
           <div style="background:var(--surface-2);border-radius:var(--radius-md);padding:12px 14px;font-size:0.82rem;line-height:1.6;">${t("help_stats")}</div>
-        </div>
-        <br>
-        <div style="text-align:center;">
-          <button class="btn-sm guide-restart-btn" id="restartGuideBtn">🎯 Повторить гайд</button>
-        </div>
+        </div><br>
+        <div style="text-align:center;"><button class="btn-sm guide-restart-btn" id="restartGuideBtn">${t("guide_restart")}</button></div>
       `;
       document
         .getElementById("restartGuideBtn")
@@ -1603,7 +1612,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("closeEditOpModal").onclick = () =>
     closeModal("editOpModal");
 
-  // ===== ДОБАВЛЕНИЕ ОПЕРАЦИИ =====
   document.getElementById("modalAddBtn").onclick = () => {
     let cat = document.getElementById("modalCat").value;
     let amount = parseFloat(document.getElementById("modalAmount").value);
@@ -1623,7 +1631,6 @@ document.addEventListener("DOMContentLoaded", () => {
       saveAll();
       refreshAll();
       closeModal("addOpModal");
-      // Сброс формы
       document.getElementById("modalAmount").value = "";
       document.getElementById("modalNote").value = "";
     } else alert(t("fill_fields"));
@@ -1641,7 +1648,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("typeExpenseBtn").classList.remove("active");
     refreshModalCats();
   };
-
   document
     .getElementById("modalCat")
     .addEventListener("change", refreshModalSubcats);
@@ -1685,7 +1691,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("viewAllOpsBtn").onclick = () =>
     setActiveTab("operations");
 
-  // ===== ЗАРПЛАТА =====
   document.getElementById("editStartBtn").onclick = () => {
     let val = prompt(
       `${t("enter_salary")} (${sym()}):`,
@@ -1700,7 +1705,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // ===== ВАЛЮТА =====
   document.getElementById("displayCurrencySelect").onchange = () => {
     displayCurrency = document.getElementById("displayCurrencySelect").value;
     saveAll();
@@ -1724,7 +1728,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // ===== КОНВЕРТЕР =====
   document.getElementById("convBtn").onclick = doConvert;
   document.getElementById("convAmount").oninput = updateConversionDisplay;
   document.getElementById("convFrom").onchange = updateConversionDisplay;
@@ -1742,7 +1745,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (confirm(t("confirm_clear_conv_history"))) clearConvHistory();
   };
 
-  // ===== КАЛЬКУЛЯТОР =====
   document.getElementById("openCalcHistoryBtn").onclick = () => {
     renderFullCalcHistory();
     openModal("calcHistoryModal");
@@ -1753,7 +1755,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (confirm(t("confirm_clear_calc_history"))) clearCalcHistory();
   };
 
-  // ===== ПОИСК =====
   document.getElementById("applySearchBtn").onclick = () => renderAllOps();
   document.getElementById("resetSearchBtn").onclick = () => {
     document.getElementById("searchText").value = "";
@@ -1775,7 +1776,6 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("searchType")
     .addEventListener("change", () => renderAllOps());
 
-  // ===== КАТЕГОРИИ =====
   document.getElementById("addCatGroupBtn").onclick = () => {
     let newCat = prompt(t("enter_category_name"));
     if (
@@ -1792,20 +1792,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // ===== БЛОКНОТ =====
   document.getElementById("newPageBtn").onclick = createNotebookPage;
   document.getElementById("saveNbPageBtn").onclick = saveNotebookPage;
   document.getElementById("deleteNbPageBtn").onclick = deleteNotebookPage;
   document.getElementById("closeNotebookModal").onclick = () =>
     closeModal("notebookModal");
 
-  // ===== ПОДКАТЕГОРИИ =====
   document.getElementById("saveSubcatBtn").onclick = saveSubcatEdit;
   document.getElementById("deleteSubcatBtn").onclick = deleteSubcatFromModal;
   document.getElementById("closeEditSubcatModal").onclick = () =>
     closeModal("editSubcatModal");
 
-  // ===== РЕДАКТИРОВАНИЕ ОПЕРАЦИИ =====
   document.getElementById("editTypeExpenseBtn").onclick = () => {
     document.getElementById("editTypeExpenseBtn").classList.add("active");
     document.getElementById("editTypeIncomeBtn").classList.remove("active");
@@ -1822,7 +1819,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("saveOpBtn").onclick = saveEditedOp;
   document.getElementById("deleteOpBtn").onclick = deleteEditedOp;
 
-  // ===== СТАТИСТИКА =====
   document.getElementById("resetStatsBtn").onclick = resetStats;
   document
     .querySelectorAll(".period-btn")
@@ -1830,18 +1826,15 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.addEventListener("click", () => setPeriod(btn.dataset.period)),
     );
 
-  // ===== НАВИГАЦИЯ =====
   document
     .querySelectorAll(".nav-item")
     .forEach((btn) => (btn.onclick = () => setActiveTab(btn.dataset.tab)));
 
-  // ===== РЕСАЙЗ =====
   window.addEventListener("resize", () => {
     if (document.getElementById("tabStats")?.classList.contains("active"))
       updateStats(false);
   });
 
-  // ===== НАБЛЮДАТЕЛЬ ЗА ТЕМОЙ =====
   const observer = new MutationObserver(() => {
     if (document.getElementById("tabStats")?.classList.contains("active"))
       updateStats(false);
@@ -1851,7 +1844,6 @@ document.addEventListener("DOMContentLoaded", () => {
     attributeFilter: ["class"],
   });
 
-  // ===== ГАЙД =====
   document.getElementById("guideNextBtn").onclick = () => {
     currentGuideStep++;
     if (currentGuideStep >= guideSteps.length) endGuide();
@@ -1859,7 +1851,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   document.getElementById("guideSkipBtn").onclick = endGuide;
 
-  // Показываем гайд первый раз
   if (!localStorage.getItem("guide_shown")) {
     setTimeout(() => startGuide(), 800);
   }
