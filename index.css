@@ -1724,3 +1724,67 @@ body.dark .history-item { background: var(--cream-dark); }
 body.dark .stat-gauge-svg text {
   fill: #b8c0b0;  /* светлый для тёмной темы */
 }
+/* ============================================================
+   ШАПКА — ЛОГОТИП И СЛОГАН С ИКОНКАМИ
+   ============================================================ */
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.app-slogan {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slogan-icon-left,
+.slogan-icon-right {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* Адаптация для маленьких экранов */
+@media (max-width: 480px) {
+  .app-logo {
+    font-size: 16px;
+  }
+  .app-slogan {
+    font-size: 9px;
+    white-space: normal;
+    max-width: 160px;
+    line-height: 1.3;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+  .slogan-icon-left,
+  .slogan-icon-right {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-logo {
+    font-size: 14px;
+  }
+  .app-slogan {
+    font-size: 8px;
+    max-width: 140px;
+  }
+}
