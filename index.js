@@ -10,7 +10,8 @@
 // ============================================================
 const translations = {
   ru: {
-    appName: "🌿 Мой Бюджет",
+    appName: "🌿 БюджетPRO",
+    slogan: "Твой капитал — Твои правила",
     balance: "Мой баланс / Остаток",
     income: "Доходы",
     expense: "Расходы",
@@ -330,7 +331,8 @@ const translations = {
     statsExp2: "расх.",
   },
   en: {
-    appName: "🌿 My Budget",
+    appName: "🌿 BudgetPRO",
+    slogan: "Your capital — Your rules",
     balance: "My balance / Remaining",
     income: "Income",
     expense: "Expenses",
@@ -644,7 +646,8 @@ const translations = {
     statsExp2: "exp.",
   },
   ka: {
-    appName: "🌿 ჩემი ბიუჯეტი",
+    appName: "🌿 ბიუჯეტPRO",
+    slogan: "შენი კაპიტალი — შენი წესები",
     balance: "ჩემი ბალანსი / ნაშტი",
     income: "შემოსავალი",
     expense: "ხარჯი",
