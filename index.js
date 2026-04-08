@@ -1132,26 +1132,30 @@ function loadAll() {
 
 // Синхронизация начальной суммы с транзакцией "Начальная сумма" (с переводами)
 function syncStartBalanceTransaction() {
+  // Ищем существующую транзакцию "Начальная сумма"
   const existingIdx = transactions.findIndex(
     (tx) => tx.category === t("initialCategory") && tx.type === "income",
   );
+
   if (existingIdx !== -1) {
-    if (transactions[existingIdx].amountRub !== startBalanceRub) {
-      transactions[existingIdx].amountRub = startBalanceRub;
-      transactions[existingIdx].note = t("initialCapital");
-    }
+    // Если транзакция существует, обновляем её сумму и заметку
+    transactions[existingIdx].amountRub = startBalanceRub;
+    transactions[existingIdx].note = t("initialCapital");
   } else {
+    // Если транзакции нет, создаём новую (только при первом запуске)
     if (startBalanceRub > 0) {
       transactions.push({
         type: "income",
         category: t("initialCategory"),
         subcategory: null,
         amountRub: startBalanceRub,
-        date: "2000-01-01",
+        date: "2000-01-01", // фиксированная дата, чтобы не мешалась
         note: t("initialCapital"),
       });
     }
   }
+
+  // Сортировка транзакций по дате (необязательно)
   transactions.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
 }
 // ============================================================
@@ -1183,6 +1187,13 @@ function askConfirm(
   document.getElementById("confirmMsg").textContent = msg;
   document.getElementById("confirmOk").textContent =
     yesText || t("confirmOkBtn");
+
+  // ПЕРЕВОД КНОПКИ ОТМЕНЫ
+  const cancelBtn = document.getElementById("confirmCancel");
+  if (cancelBtn) {
+    cancelBtn.innerHTML = `✕ ${t("cancel")}`;
+  }
+
   overlay.classList.add("open");
   const close = () => overlay.classList.remove("open");
   document.getElementById("confirmCancel").onclick = close;
@@ -1258,7 +1269,8 @@ function updateTopBlocks() {
     if (tx.type === "income") inc += tx.amountRub;
     else exp += tx.amountRub;
   }
-  const bal = startBalanceRub + inc - exp;
+  // Баланс = доходы - расходы (начальная сумма уже в доходах)
+  const bal = inc - exp;
   const s = sym();
   document.getElementById("balanceValue").textContent =
     toDisp(bal).toFixed(2) + " " + s;
@@ -2023,7 +2035,23 @@ function renderStats() {
       document.head.appendChild(stylePie);
     }
   } else {
-    pieSvg = `<circle cx="50" cy="50" r="40" fill="var(--cream-dark)" stroke="var(--cream-border)"/><text x="50" y="55" text-anchor="middle" fill="var(--text-muted)" font-size="12">${t("noStatsYet")}</text>`;
+    const noStatsText = t("noStatsYet");
+    // Разбиваем текст на строки (если в переводе есть \n, используем его, иначе разбиваем по запятой)
+    let lines = noStatsText.split("\n");
+    if (lines.length === 1 && noStatsText.length > 20) {
+      // Если нет переноса, но текст длинный, разбиваем примерно посередине
+      const mid = Math.floor(noStatsText.length / 2);
+      let splitPoint = noStatsText.lastIndexOf(" ", mid);
+      if (splitPoint === -1) splitPoint = mid;
+      lines = [
+        noStatsText.substring(0, splitPoint),
+        noStatsText.substring(splitPoint + 1),
+      ];
+    }
+
+    pieSvg = `<circle cx="50" cy="50" r="40" fill="var(--cream-dark)" stroke="var(--cream-border)"/>
+    <text x="50" y="44" text-anchor="middle" fill="var(--text-muted)" font-size="6">${lines[0] || ""}</text>
+    <text x="50" y="56" text-anchor="middle" fill="var(--text-muted)" font-size="6">${lines[1] || ""}</text>`;
     legendHtml = `<div class="pie-legend-item">${t("noStatsYet")}</div>`;
   }
 
