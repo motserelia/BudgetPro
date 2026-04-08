@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>Мой Бюджет</title>
+    <title>My BudgetPro</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -25,30 +25,25 @@
   </head>
   <body>
     <div class="app">
-      <!-- ===== ШАПКА ===== -->
       <header class="app-header">
         <div class="header-left">
           <div class="app-logo">🌿 Мой Бюджет</div>
-          <div class="header-date" id="headerDate"></div>
         </div>
         <button
           class="theme-toggle"
           id="themeToggle"
-          data-i18n-aria="toggleTheme"
           aria-label="Переключить тему"
         >
           🌙
         </button>
       </header>
 
-      <!-- ===== КАРТОЧКИ СВЕРХУ ===== -->
       <div class="top-cards">
         <div
           class="summary-card balance-card"
           data-type="balance"
           role="button"
           tabindex="0"
-          data-i18n-aria="ariaBalance"
         >
           <div class="card-icon">💰</div>
           <div class="card-body">
@@ -59,13 +54,11 @@
             </div>
           </div>
         </div>
-
         <div
           class="summary-card income-card"
           data-type="income"
           role="button"
           tabindex="0"
-          data-i18n-aria="ariaIncome"
         >
           <div class="card-icon">📈</div>
           <div class="card-body">
@@ -76,13 +69,11 @@
             </div>
           </div>
         </div>
-
         <div
           class="summary-card expense-card"
           data-type="expense"
           role="button"
           tabindex="0"
-          data-i18n-aria="ariaExpense"
         >
           <div class="card-icon">📉</div>
           <div class="card-body">
@@ -93,13 +84,11 @@
             </div>
           </div>
         </div>
-
         <div
           class="summary-card salary-card"
           data-type="salary"
           role="button"
           tabindex="0"
-          data-i18n-aria="ariaSalary"
         >
           <div class="card-icon">💼</div>
           <div class="card-body">
@@ -112,7 +101,6 @@
         </div>
       </div>
 
-      <!-- ===== ОСНОВНОЙ КОНТЕНТ ===== -->
       <main
         class="main-content"
         id="mainContent"
@@ -121,94 +109,48 @@
         style="margin-bottom: 80px"
       ></main>
 
-      <!-- ===== НИЖНЯЯ НАВИГАЦИЯ ===== -->
-      <nav
-        class="bottom-nav"
-        role="navigation"
-        data-i18n-aria="ariaNav"
-        aria-label="Основное меню"
-      >
-        <button
-          class="nav-btn"
-          data-tab="home"
-          data-i18n-aria="ariaNavHome"
-          aria-label="Главная страница"
-        >
-          <span class="nav-icon" aria-hidden="true">🏠</span>
+      <nav class="bottom-nav" role="navigation" aria-label="Основное меню">
+        <button class="nav-btn" data-tab="home" aria-label="Главная">
+          <span class="nav-icon">🏠</span>
           <span class="nav-label" data-i18n="home">Главная</span>
         </button>
-        <button
-          class="nav-btn"
-          data-tab="stats"
-          data-i18n-aria="ariaNavStats"
-          aria-label="Статистика"
-        >
-          <span class="nav-icon" aria-hidden="true">📊</span>
+        <button class="nav-btn" data-tab="stats" aria-label="Статистика">
+          <span class="nav-icon">📊</span>
           <span class="nav-label" data-i18n="stats">Статистика</span>
         </button>
-        <button
-          class="nav-btn"
-          data-tab="tools"
-          data-i18n-aria="ariaNavTools"
-          aria-label="Инструменты"
-        >
-          <span class="nav-icon" aria-hidden="true">🧮</span>
+        <button class="nav-btn" data-tab="tools" aria-label="Инструменты">
+          <span class="nav-icon">🧮</span>
           <span class="nav-label" data-i18n="tools">Инструменты</span>
         </button>
-        <button
-          class="nav-btn"
-          data-tab="notebook"
-          data-i18n-aria="ariaNavNotebook"
-          aria-label="Блокнот"
-        >
-          <span class="nav-icon" aria-hidden="true">📓</span>
+        <button class="nav-btn" data-tab="notebook" aria-label="Блокнот">
+          <span class="nav-icon">📓</span>
           <span class="nav-label" data-i18n="notebook">Блокнот</span>
         </button>
-        <button
-          class="nav-btn"
-          data-tab="categories"
-          data-i18n-aria="ariaNavCategories"
-          aria-label="Категории"
-        >
-          <span class="nav-icon" aria-hidden="true">🗂️</span>
+        <button class="nav-btn" data-tab="categories" aria-label="Категории">
+          <span class="nav-icon">🗂️</span>
           <span class="nav-label" data-i18n="categories">Категории</span>
         </button>
-        <button
-          class="nav-btn"
-          data-tab="settings"
-          data-i18n-aria="ariaNavSettings"
-          aria-label="Настройки"
-        >
-          <span class="nav-icon" aria-hidden="true">⚙️</span>
+        <button class="nav-btn" data-tab="settings" aria-label="Настройки">
+          <span class="nav-icon">⚙️</span>
           <span class="nav-label" data-i18n="settings">Настройки</span>
         </button>
       </nav>
 
-      <!-- ===== КНОПКА ДОБАВИТЬ ===== -->
-      <button
-        class="fab"
-        id="fabBtn"
-        data-i18n-aria="ariaFab"
-        aria-label="Добавить доход или расход"
-      >
-        <span class="fab-plus" aria-hidden="true">+</span>
+      <button class="fab" id="fabBtn" aria-label="Добавить доход или расход">
+        <span class="fab-plus">+</span>
         <span class="fab-text">Добавить</span>
       </button>
     </div>
 
-    <!-- ===== УВЕДОМЛЕНИЕ (TOAST) ===== -->
     <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
-    <!-- ===== ПОДТВЕРЖДЕНИЕ (вместо alert/confirm) ===== -->
     <div class="confirm-overlay" id="confirmOverlay">
       <div class="confirm-box">
         <div class="confirm-icon" id="confirmIcon">⚠️</div>
         <div class="confirm-title" id="confirmTitle">Вы уверены?</div>
         <div class="confirm-msg" id="confirmMsg"></div>
         <div class="confirm-actions">
-          <button class="confirm-cancel" id="confirmCancel">
-            ✕ <span data-i18n="cancel">Отмена</span>
-          </button>
+          <button class="confirm-cancel" id="confirmCancel">✕ Отмена</button>
           <button class="confirm-ok" id="confirmOk">✓ Да, удалить</button>
         </div>
       </div>
