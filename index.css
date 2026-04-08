@@ -1613,56 +1613,86 @@ body.dark .history-item { background: var(--cream-dark); }
   justify-content: flex-end;
 }
 
-/* ===== ГАЙД (ONBOARDING) ===== */
+/* ============================================================
+   ГАЙД (ТУР) – затемнение и подсказки
+   ============================================================ */
 .guide-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+/*  background: rgba(0, 0, 0, 0.75); */
   z-index: 1000;
-  backdrop-filter: blur(4px);
-  clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%);
-  transition: clip-path 0.3s ease;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+}
+.guide-highlight {
+  position: absolute;
+  background: transparent;
+  border-radius: 16px;
+  box-shadow: 0 0 0 4px var(--primary), 0 0 0 9999px rgba(0, 0, 0, 0.75);
+  transition: all 0.3s ease;
+  z-index: 1001;
   pointer-events: none;
 }
-
 .guide-tooltip {
   position: fixed;
   background: var(--card-bg);
+  color: var(--text);
   border-radius: var(--radius-lg);
-  padding: 20px;
-  max-width: 320px;
+  padding: 18px 20px;
+  max-width: 280px;
   box-shadow: var(--shadow-lg);
-  z-index: 1001;
-  border: 1.5px solid var(--cream-border);
-  animation: fadeUp 0.3s ease;
+  border: 1.5px solid var(--primary);
+  z-index: 1002;
+  font-size: 15px;
+  line-height: 1.5;
+  animation: fadeUp 0.25s ease;
 }
-
 .guide-tooltip-title {
   font-size: 18px;
   font-weight: 800;
-  margin-bottom: 8px;
   color: var(--primary);
+  margin-bottom: 8px;
 }
-
 .guide-tooltip-desc {
-  font-size: 15px;
   color: var(--text-soft);
   margin-bottom: 16px;
-  line-height: 1.5;
 }
-
 .guide-tooltip-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   justify-content: flex-end;
 }
-
-.guide-tooltip-actions .btn-primary,
-.guide-tooltip-actions .btn-secondary {
-  padding: 10px 16px;
+.guide-tooltip-actions button {
+  padding: 8px 16px;
+  border-radius: 40px;
   font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
 }
-.theme-toggle {
+.guide-btn-next {
+  background: var(--primary);
+  color: white;
+}
+#headerGuideBtn:hover {
+  background: var(--primary-pale);
+  transform: scale(1.05);
+}
+.guide-btn-next:hover {
+  background: var(--primary-med);
+  transform: translateY(-1px);
+}
+.guide-btn-skip {
+  background: var(--cream-dark);
+  color: var(--text-soft);
+  border: 1px solid var(--cream-border);
+}
+.guide-btn-skip:hover {
+  background: var(--cream-border);
+}
+#headerGuideBtn, #headerHelpBtn, #headerLangBtn, #themeToggle {
   background: var(--card-bg);
   border: 1.5px solid var(--cream-border);
   width: 48px;
@@ -1670,12 +1700,21 @@ body.dark .history-item { background: var(--cream-dark); }
   border-radius: 50%;
   font-size: 22px;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-  display: flex;
+  color: var(--text);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--text); /* <-- ЭТА СТРОКА ИСПРАВЛЯЕТ ВИДИМОСТЬ */
+  transition: var(--transition);
+}
+@media (max-width: 480px) {
+  .header-buttons {
+    gap: 4px;
+  }
+  #headerGuideBtn, #headerHelpBtn, #headerLangBtn, #themeToggle {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
 }
 /* Улучшаем контрастность процентов на спидометре */
 .stat-gauge-svg text {
