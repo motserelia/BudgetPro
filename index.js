@@ -1370,7 +1370,7 @@ function renderOpsList() {
   let exp = filtered
     .filter((t) => t.type === "expense")
     .reduce((s, t) => s + t.amountRub, 0);
-  let bal = startBalanceRub + inc - exp;
+  let bal = inc - exp;
 
   let html = `<div class="balance-summary">
     <div class="balance-row row-salary" id="salaryRowBtn" role="button" tabindex="0">
@@ -1738,14 +1738,36 @@ function openSalaryModal() {
   const modal = createModal("salaryModal", t("editBalance"), html);
   document.body.appendChild(modal);
   openModal("salaryModal");
+
   document.getElementById("saveSalaryBtn")?.addEventListener("click", () => {
     const val = parseFloat(document.getElementById("salaryAmount").value);
     if (isNaN(val) || val < 0) {
       showToast(t("enterPositive"), "error");
       return;
     }
-    startBalanceRub = toRub(val);
-    syncStartBalanceTransaction();
+    const newStartBalanceRub = toRub(val);
+    startBalanceRub = newStartBalanceRub;
+
+    // ОБНОВЛЯЕМ существующую транзакцию "Начальная сумма" (НЕ создаём новую)
+    const existingIdx = transactions.findIndex(
+      (tx) => tx.category === t("initialCategory") && tx.type === "income",
+    );
+    if (existingIdx !== -1) {
+      // Обновляем сумму в существующей транзакции
+      transactions[existingIdx].amountRub = startBalanceRub;
+      transactions[existingIdx].note = t("initialCapital");
+    } else {
+      // Создаём только если нет ни одной
+      transactions.push({
+        type: "income",
+        category: t("initialCategory"),
+        subcategory: null,
+        amountRub: startBalanceRub,
+        date: "2000-01-01",
+        note: t("initialCapital"),
+      });
+    }
+
     saveAll();
     updateTopBlocks();
     if (currentTab === "home") renderOpsList();
@@ -1898,8 +1920,8 @@ function renderStats() {
       monthlyData[month].exp += tx.amountRub;
     }
   }
-  const bal = startBalanceRub + inc - exp;
-  const totalFlow = startBalanceRub + inc;
+  const bal = inc - exp;
+  const totalFlow = inc;
   const spentPct =
     totalFlow > 0 ? Math.min(100, Math.round((exp / totalFlow) * 100)) : 0;
   const savedAmt = totalFlow - exp;
