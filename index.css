@@ -140,6 +140,7 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--text); /* фикс для тёмной темы */
 }
 .theme-toggle:hover { transform: scale(1.08); box-shadow: var(--shadow-md); }
 .theme-toggle:active { transform: scale(0.94); }
@@ -310,7 +311,6 @@ body.dark .section-hint {
 
 /* ---- Список операций ---- */
 .ops-list { display: flex; flex-direction: column; gap: 10px; }
-
 
 .op-emoji {
   font-size: 30px;
@@ -838,120 +838,204 @@ body.dark .modal-select:focus { background: var(--card-bg); }
 .btn-secondary:hover { background: var(--cream-border); }
 
 /* ============================================================
-   СТАТИСТИКА — полный редизайн
+   СТАТИСТИКА — НОВЫЙ ДИЗАЙН + КРУГОВАЯ ДИАГРАММА
    ============================================================ */
-.stats-grid { display: flex; flex-direction: column; gap: 14px; }
+.stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
 
-.stat-card {
+/* Новая круговая диаграмма */
+.pie-chart-card {
   background: var(--card-bg);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 16px;
   box-shadow: var(--shadow-sm);
   border: 1.5px solid var(--cream-border);
-  border-left: 5px solid var(--cream-border);
-  transition: var(--transition);
+  margin-top: 8px;
 }
-.stat-balance { border-left-color: #2563eb; box-shadow: 0 4px 20px rgba(37,99,235,0.10); background: linear-gradient(135deg,var(--card-bg) 60%,#eef3fd); }
-.stat-income  { border-left-color: var(--income-color); box-shadow: 0 4px 20px rgba(26,115,64,0.10); background: linear-gradient(135deg,var(--card-bg) 60%,var(--income-pale)); }
-.stat-expense { border-left-color: var(--expense-color); box-shadow: 0 4px 20px rgba(193,53,21,0.10); background: linear-gradient(135deg,var(--card-bg) 60%,var(--expense-pale)); }
-.stat-top-exp { border-left-color: var(--expense-color); }
-.stat-top-inc { border-left-color: var(--income-color); }
-
-body.dark .stat-balance { box-shadow: 0 4px 24px rgba(59,130,246,0.2); background: linear-gradient(135deg,var(--card-bg) 60%,#0f1e3a); }
-body.dark .stat-income  { box-shadow: 0 4px 24px rgba(74,222,128,0.15); background: linear-gradient(135deg,var(--card-bg) 60%,#0a1f12); }
-body.dark .stat-expense { box-shadow: 0 4px 24px rgba(248,113,113,0.15); background: linear-gradient(135deg,var(--card-bg) 60%,#1f0a0a); }
-
-/* Два столбца рядом */
-.stats-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.stats-two-col .stat-card { border-radius: var(--radius-md); padding: 16px; }
-@media (max-width: 360px) { .stats-two-col { grid-template-columns: 1fr; } }
-
-.stat-card-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
-.stat-card-value { font-size: 28px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
-.stat-card-value.income  { color: var(--income-color); }
-.stat-card-value.expense { color: var(--expense-color); }
-.stat-card-value.balance { color: #2563eb; }
-.stat-card-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
-
-/* Главный блок статистики с donut */
-.stats-main-inner {
+.pie-chart-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 16px;
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.pie-chart-wrapper {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
-@media (max-width: 400px) {
-  .stats-main-inner { flex-direction: column; align-items: center; }
-  .stats-main-numbers { width: 100%; }
+.pie-svg-container {
+  flex-shrink: 0;
+  width: 180px;
+  height: 180px;
 }
-
-/* Donut chart — CSS conic-gradient */
-.stats-donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; flex-shrink: 0; }
-.stats-donut {
-  width: 120px; height: 120px; border-radius: 50%;
-  background: conic-gradient(
-    var(--expense-color) 0deg var(--exp-pct, 0deg),
-    var(--income-color) var(--exp-pct, 0deg) 360deg
-  );
-  position: relative;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+.pie-legend {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-soft);
+}
+.pie-legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
   flex-shrink: 0;
 }
-.stats-donut-hole {
-  width: 76px; height: 76px; border-radius: 50%;
+.pie-legend-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pie-legend-value {
+  font-weight: 800;
+  color: var(--text);
+}
+.pie-note {
+  margin-top: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+.stats-status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--radius-lg);
   background: var(--card-bg);
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.08);
+  border: 1.5px solid var(--cream-border);
+  box-shadow: var(--shadow-sm);
 }
-.stats-donut-pct  { font-size: 20px; font-weight: 900; color: var(--expense-color); line-height: 1; }
-.stats-donut-label { font-size: 9px; color: var(--text-muted); font-weight: 700; text-align: center; line-height: 1.2; margin-top: 2px; }
+.stats-status.healthy { background: var(--income-pale); border-color: var(--income-color); }
+.stats-status.warning { background: #fef9e7; border-color: #f5d47a; }
+.stats-status.danger  { background: var(--expense-pale); border-color: var(--expense-color); }
+.stats-status-icon { font-size: 40px; }
+.stats-status-content { flex: 1; }
+.stats-status-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.stats-status-text  { font-size: 16px; color: var(--text-soft); }
 
-.stats-donut-legend { display: flex; gap: 12px; }
-.stats-legend-dot  { width: 10px; height: 10px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 4px; }
-.income-dot  { background: var(--income-color); }
-.expense-dot { background: var(--expense-color); }
-.stats-legend-text { font-size: 12px; font-weight: 700; color: var(--text-muted); }
-
-/* Правые числа */
-.stats-main-numbers { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: 8px; }
-.stat-main-row { display: flex; justify-content: space-between; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--cream-border); }
-.stat-main-row:last-child { border-bottom: none; }
-.stat-main-label { font-size: 13px; color: var(--text-muted); font-weight: 600; }
-.stat-main-val { font-size: 16px; font-weight: 900; color: var(--text); }
-.stat-main-val.income  { color: var(--income-color); }
-.stat-main-val.expense { color: var(--expense-color); }
-.stat-main-val.balance { color: #2563eb; }
-
-/* Статус бюджета */
-.stats-health {
-  margin-top: 16px; padding: 12px 16px; border-radius: var(--radius-md);
-  font-size: 14px; font-weight: 700; line-height: 1.4;
+.stats-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
-.stats-health.healthy  { background: var(--income-pale); color: var(--income-color); border: 1.5px solid rgba(26,115,64,0.25); }
-.stats-health.warning  { background: #fef9e7; color: #92610a; border: 1.5px solid #f5d47a; }
-.stats-health.danger   { background: var(--expense-pale); color: var(--expense-color); border: 1.5px solid rgba(193,53,21,0.25); }
-body.dark .stats-health.warning { background: #2a2010; color: #e6a020; }
-
-.stat-bar-wrap { background: var(--cream-dark); border-radius: 99px; height: 8px; overflow: hidden; flex: 1; }
-.stat-bar { height: 100%; border-radius: 99px; transition: width 0.9s cubic-bezier(0.34,1.3,0.64,1); }
-.stat-bar.income  { background: var(--income-color); }
-.stat-bar.expense { background: var(--expense-color); }
-
-/* Строки по категориям */
-.cat-stat-row {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 12px 0; border-bottom: 1px solid var(--cream-border); gap: 12px;
+.stats-kpi-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--cream-border);
 }
-.cat-stat-row:last-child { border-bottom: none; }
-.cat-stat-left { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.cat-stat-emoji { font-size: 22px; flex-shrink: 0; }
-.cat-stat-name { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cat-stat-right { text-align: right; flex-shrink: 0; }
-.cat-stat-amount { font-weight: 900; font-size: 16px; }
-.cat-stat-pct { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+.stats-kpi-card.balance { border-top: 4px solid #2563eb; }
+.stats-kpi-card.income  { border-top: 4px solid var(--income-color); }
+.stats-kpi-card.expense { border-top: 4px solid var(--expense-color); }
+.stats-kpi-card.salary  { border-top: 4px solid var(--gold); }
+.stats-kpi-label { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.stats-kpi-value { font-size: 24px; font-weight: 900; }
+.stats-kpi-hint  { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+.stats-analysis-card {
+  background: var(--cream-dark);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stats-analysis-icon { font-size: 24px; }
+.stats-analysis-text { font-size: 15px; color: var(--text-soft); line-height: 1.5; }
+.stats-analysis-details {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.stats-section {
+  background: var(--card-bg);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--cream-border);
+}
+.stats-section-title {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+.stats-cat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.stats-cat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stats-cat-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.stats-cat-emoji { font-size: 22px; width: 28px; }
+.stats-cat-name { flex: 1; font-weight: 700; color: var(--text); }
+.stats-cat-amount { font-weight: 900; font-size: 16px; }
+.stats-cat-bar-wrap {
+  height: 6px;
+  background: var(--cream-border);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-left: 38px;
+}
+.stats-cat-bar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+.stats-cat-bar.expense { background: var(--expense-color); }
+.stats-cat-bar.income  { background: var(--income-color); }
+.stats-cat-pct {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-left: 38px;
+}
+
+.stats-note {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  text-align: right;
+  font-style: italic;
+}
+.stats-footer {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 8px;
+}
 
 /* ============================================================
    ИНСТРУМЕНТЫ
@@ -1428,6 +1512,7 @@ body.dark .history-item { background: var(--cream-dark); }
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
+
 /* ===== КАСТОМНЫЙ DATEPICKER ===== */
 .date-input-wrapper {
   display: flex;
@@ -1526,4 +1611,77 @@ body.dark .history-item { background: var(--cream-dark); }
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* ===== ГАЙД (ONBOARDING) ===== */
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%);
+  transition: clip-path 0.3s ease;
+  pointer-events: none;
+}
+
+.guide-tooltip {
+  position: fixed;
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  max-width: 320px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1001;
+  border: 1.5px solid var(--cream-border);
+  animation: fadeUp 0.3s ease;
+}
+
+.guide-tooltip-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--primary);
+}
+
+.guide-tooltip-desc {
+  font-size: 15px;
+  color: var(--text-soft);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.guide-tooltip-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.guide-tooltip-actions .btn-primary,
+.guide-tooltip-actions .btn-secondary {
+  padding: 10px 16px;
+  font-size: 14px;
+}
+.theme-toggle {
+  background: var(--card-bg);
+  border: 1.5px solid var(--cream-border);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text); /* <-- ЭТА СТРОКА ИСПРАВЛЯЕТ ВИДИМОСТЬ */
+}
+/* Улучшаем контрастность процентов на спидометре */
+.stat-gauge-svg text {
+  fill: #ff0000;  /* тёмно-серый для светлой темы */
+  font-weight: 700;
+}
+body.dark .stat-gauge-svg text {
+  fill: #b8c0b0;  /* светлый для тёмной темы */
 }
