@@ -208,7 +208,66 @@ const translations = {
     ],
     pickDate: "Выберите дату",
     helpTitle: "📘 Как пользоваться",
-    helpContent: `<p><strong>🌿 Мой Бюджет</strong> — простой и удобный учёт личных финансов.</p><p><strong>📊 Главный экран:</strong> показывает ваш текущий баланс, доходы, расходы и начальную сумму.</p><p><strong>➕ Добавление операции:</strong> зелёная кнопка внизу.</p><p><strong>📈 Статистика:</strong> анализируйте свои траты и доходы по категориям.</p><p>Все данные хранятся только на вашем устройстве.</p>`,
+    helpContent: `
+<div style="font-family: inherit;">
+  <h3>🌿 Добро пожаловать в «Мой Бюджет»!</h3>
+  <p>Это приложение помогает вести учёт личных финансов — записывать доходы и расходы, анализировать траты, планировать бюджет. Все данные хранятся только на вашем устройстве и никуда не передаются.</p>
+
+  <h4>📌 Главный экран</h4>
+  <ul>
+    <li><strong>Карточки сверху:</strong> показывают ваш текущий баланс, общую сумму доходов, расходов и начальную сумму (стартовый капитал). Нажмите на карточку «Начальная сумма», чтобы изменить её. Нажмите на «Доходы» или «Расходы» – увидите только операции этого типа.</li>
+    <li><strong>Кнопка «📜 Вся история операций»</strong> – открывает полный список всех ваших записей с возможностью редактирования и удаления.</li>
+    <li><strong>Список последних операций</strong> – вы видите до 50 последних записей. Каждую можно отредактировать (нажав на неё) или удалить (крестик справа).</li>
+  </ul>
+
+  <h4>➕ Добавление новой операции</h4>
+  <p>Нажмите на зелёную круглую кнопку с плюсом внизу экрана. Выберите тип (расход или доход), категорию (и подкатегорию, если нужно), укажите сумму, дату и необязательную заметку. Нажмите «Добавить» – запись сохранится.</p>
+
+  <h4>📊 Статистика</h4>
+  <ul>
+    <li><strong>Статус бюджета</strong> – оценка вашего финансового здоровья (хорошо, предупреждение, критично).</li>
+    <li><strong>Ключевые показатели</strong> – баланс, начальная сумма, доходы, расходы.</li>
+    <li><strong>Сбережения и соотношение</strong> – наглядный спидометр и круговая диаграмма.</li>
+    <li><strong>Динамика по месяцам</strong> – столбчатый график доходов и расходов за последние 6 месяцев (только те месяцы, где есть операции).</li>
+    <li><strong>Круговая диаграмма расходов</strong> – топ-5 категорий трат.</li>
+    <li><strong>Детальный разбор по категориям</strong> – сколько и на что потрачено/получено, процент от общего объёма.</li>
+    <li><strong>Советы по бюджету</strong> – персональные рекомендации на основе ваших данных.</li>
+  </ul>
+
+  <h4>🧮 Инструменты</h4>
+  <ul>
+    <li><strong>Калькулятор</strong> – простой калькулятор с историей вычислений.</li>
+    <li><strong>Конвертер валют</strong> – пересчёт между рублями, долларами, евро, лари, фунтами, тенге. Курсы можно обновить в настройках.</li>
+  </ul>
+
+  <h4>📓 Блокнот</h4>
+  <p>Храните важные заметки: планы, напоминания, списки покупок. Создавайте, редактируйте, удаляйте страницы.</p>
+
+  <h4>🗂️ Категории</h4>
+  <p>Управляйте категориями расходов и доходов. Добавляйте новые, переименовывайте, удаляйте. Также можно создавать подкатегории для более детальной группировки.</p>
+
+  <h4>⚙️ Настройки</h4>
+  <ul>
+    <li><strong>Валюта</strong> – выберите, в какой валюте отображать суммы (рубли, доллары, евро, лари, фунты, тенге).</li>
+    <li><strong>Тема</strong> – светлая или тёмная.</li>
+    <li><strong>Язык</strong> – русский, английский, грузинский.</li>
+    <li><strong>Обновить курсы валют</strong> – загрузить свежие курсы из интернета.</li>
+    <li><strong>Сбросить всё</strong> – удалить все ваши данные и начать с чистого листа.</li>
+  </ul>
+
+  <h4>🎓 Интерактивный гайд</h4>
+  <p>Если вы видите эту справку через кнопку «?», то для запуска пошагового тура с подсветкой элементов нажмите на соседнюю кнопку с иконкой 🎓. Гайд покажет вам основные элементы интерфейса.</p>
+
+  <h4>💡 Полезные советы</h4>
+  <ul>
+    <li>Регулярно записывайте траты – так вы лучше контролируете бюджет.</li>
+    <li>Используйте категории и подкатегории для удобного анализа.</li>
+    <li>Следите за динамикой в статистике, чтобы видеть прогресс.</li>
+    <li>Приложение работает полностью офлайн – интернет нужен только для обновления курсов валют.</li>
+  </ul>
+  <p style="margin-top: 12px;"><strong>🌿 Приятного использования!</strong></p>
+</div>
+`,
     guideNext: "Далее",
     guideSkip: "Пропустить",
     guideFinish: "Готово",
@@ -465,7 +524,66 @@ const translations = {
     ],
     pickDate: "Pick a date",
     helpTitle: "📘 How to use",
-    helpContent: `<p><strong>🌿 My Budget</strong> — simple personal finance tracker.</p><p>All data is stored only on your device.</p>`,
+    helpContent: `
+<div style="font-family: inherit;">
+  <h3>🌿 Welcome to My Budget!</h3>
+  <p>This app helps you track personal finances – record income and expenses, analyze spending, plan your budget. All data is stored only on your device and never leaves it.</p>
+
+  <h4>📌 Home Screen</h4>
+  <ul>
+    <li><strong>Top cards:</strong> show your current balance, total income, total expenses, and starting amount (initial capital). Tap the “Starting amount” card to change it. Tap “Income” or “Expenses” to filter operations by type.</li>
+    <li><strong>“📜 Full transaction history” button</strong> – opens a complete list of all your records with edit and delete options.</li>
+    <li><strong>Recent operations list</strong> – you see up to 50 latest entries. Tap any record to edit it, or tap the cross to delete.</li>
+  </ul>
+
+  <h4>➕ Adding a new transaction</h4>
+  <p>Tap the green round button with a plus sign at the bottom. Choose type (expense or income), category (and subcategory if needed), enter amount, date, and an optional note. Tap “Add” – the record is saved.</p>
+
+  <h4>📊 Statistics</h4>
+  <ul>
+    <li><strong>Budget status</strong> – evaluation of your financial health (good, warning, critical).</li>
+    <li><strong>Key metrics</strong> – balance, starting amount, income, expenses.</li>
+    <li><strong>Savings & ratio</strong> – a speedometer gauge and a donut chart.</li>
+    <li><strong>Monthly dynamics</strong> – bar chart of income and expenses for the last 6 months (only months with transactions).</li>
+    <li><strong>Expense pie chart</strong> – top 5 spending categories.</li>
+    <li><strong>Detailed category breakdown</strong> – how much spent/received in each category, percentage of total.</li>
+    <li><strong>Budget tips</strong> – personalized recommendations based on your data.</li>
+  </ul>
+
+  <h4>🧮 Tools</h4>
+  <ul>
+    <li><strong>Calculator</strong> – simple calculator with history.</li>
+    <li><strong>Currency converter</strong> – convert between rubles, dollars, euros, lari, pounds, tenge. Rates can be updated in settings.</li>
+  </ul>
+
+  <h4>📓 Notebook</h4>
+  <p>Store important notes: plans, reminders, shopping lists. Create, edit, and delete pages.</p>
+
+  <h4>🗂️ Categories</h4>
+  <p>Manage expense and income categories. Add new, rename, delete. You can also create subcategories for more detailed grouping.</p>
+
+  <h4>⚙️ Settings</h4>
+  <ul>
+    <li><strong>Currency</strong> – choose display currency (RUB, USD, EUR, GEL, GBP, KZT).</li>
+    <li><strong>Theme</strong> – light or dark.</li>
+    <li><strong>Language</strong> – Russian, English, Georgian.</li>
+    <li><strong>Update exchange rates</strong> – fetch latest rates from the internet.</li>
+    <li><strong>Reset all data</strong> – delete all your records and start fresh.</li>
+  </ul>
+
+  <h4>🎓 Interactive guide</h4>
+  <p>If you see this help via the “?” button, to launch a step‑by‑step tour with element highlighting, press the adjacent button with the 🎓 icon. The guide will show you the main interface elements.</p>
+
+  <h4>💡 Useful tips</h4>
+  <ul>
+    <li>Record your expenses regularly – it helps you stay in control.</li>
+    <li>Use categories and subcategories for convenient analysis.</li>
+    <li>Watch the monthly dynamics to see your progress.</li>
+    <li>The app works completely offline – internet is only needed to update exchange rates.</li>
+  </ul>
+  <p style="margin-top: 12px;"><strong>🌿 Enjoy using My Budget!</strong></p>
+</div>
+`,
     guideNext: "Next",
     guideSkip: "Skip",
     guideFinish: "Finish",
@@ -716,7 +834,66 @@ const translations = {
     ],
     pickDate: "აირჩიეთ თარიღი",
     helpTitle: "📘 როგორ გამოვიყენოთ",
-    helpContent: `<p><strong>🌿 ჩემი ბიუჯეტი</strong> — მარტივი პირადი ფინანსების აღრიცხვა.</p><p>ყველა მონაცემი ინახება მხოლოდ თქვენს მოწყობილობაზე.</p>`,
+    helpContent: `
+<div style="font-family: inherit;">
+  <h3>🌿 კეთილი იყოს თქვენი მობრძანება „ჩემი ბიუჯეტი“-ში!</h3>
+  <p>ეს აპლიკაცია გეხმარებათ პირადი ფინანსების აღრიცხვაში – ჩაწეროთ შემოსავლები და ხარჯები, გააანალიზოთ ხარჯები, დაგეგმოთ ბიუჯეტი. ყველა მონაცემი ინახება მხოლოდ თქვენს მოწყობილობაზე და არსად გადაიცემა.</p>
+
+  <h4>📌 მთავარი ეკრანი</h4>
+  <ul>
+    <li><strong>ზედა ბარათები:</strong> გაჩვენებთ მიმდინარე ნაშთს, მთლიან შემოსავალს, მთლიან ხარჯს და საწყის თანხას. „საწყისი თანხის“ ბარათზე დაჭერით შეგიძლიათ მისი შეცვლა. „შემოსავლებზე“ ან „ხარჯებზე“ დაჭერით – ნახავთ მხოლოდ ამ ტიპის ოპერაციებს.</li>
+    <li><strong>ღილაკი „📜 ოპერაციების სრული ისტორია“</strong> – ხსნის ყველა ჩანაწერის სრულ სიას, რედაქტირებისა და წაშლის შესაძლებლობით.</li>
+    <li><strong>ბოლო ოპერაციების სია</strong> – ნახავთ ბოლო 50 ჩანაწერს. ნებისმიერ ჩანაწერზე დაჭერით შეგიძლიათ მისი რედაქტირება, ან გვერდით ჯვარზე – წაშლა.</li>
+  </ul>
+
+  <h4>➕ ახალი ოპერაციის დამატება</h4>
+  <p>დააჭირეთ მწვანე მრგვალ ღილაკს პლიუსით ეკრანის ქვედა ნაწილში. აირჩიეთ ტიპი (ხარჯი ან შემოსავალი), კატეგორია (და ქვეკატეგორია საჭიროების შემთხვევაში), შეიყვანეთ თანხა, თარიღი და სურვილისამებრ შენიშვნა. დააჭირეთ „დამატებას“ – ჩანაწერი შეინახება.</p>
+
+  <h4>📊 სტატისტიკა</h4>
+  <ul>
+    <li><strong>ბიუჯეტის სტატუსი</strong> – თქვენი ფინანსური მდგომარეობის შეფასება (კარგი, გაფრთხილება, კრიტიკული).</li>
+    <li><strong>ძირითადი მაჩვენებლები</strong> – ნაშთი, საწყისი თანხა, შემოსავალი, ხარჯი.</li>
+    <li><strong>დანაზოგი და თანაფარდობა</strong> – სპიდომეტრი და წრიული დიაგრამა.</li>
+    <li><strong>ყოველთვიური დინამიკა</strong> – შემოსავლებისა და ხარჯების სვეტოვანი დიაგრამა ბოლო 6 თვის განმავლობაში (მხოლოდ ის თვეები, სადაც ოპერაციებია).</li>
+    <li><strong>ხარჯების წრიული დიაგრამა</strong> – ტოპ-5 კატეგორია.</li>
+    <li><strong>კატეგორიების დეტალური ანალიზი</strong> – რამდენი დაიხარჯა/მიიღო თითოეულ კატეგორიაში, პროცენტი მთლიანთან შედარებით.</li>
+    <li><strong>რჩევები ბიუჯეტისთვის</strong> – პერსონალური რეკომენდაციები თქვენი მონაცემების მიხედვით.</li>
+  </ul>
+
+  <h4>🧮 ინსტრუმენტები</h4>
+  <ul>
+    <li><strong>კალკულატორი</strong> – მარტივი კალკულატორი ისტორიით.</li>
+    <li><strong>ვალუტის გადამყვანი</strong> – კონვერტაცია რუბლებს, დოლარებს, ევროს, ლარს, ფუნტებს, ტენგეს შორის. კურსების განახლება შეგიძლიათ პარამეტრებში.</li>
+  </ul>
+
+  <h4>📓 ბლოკნოტი</h4>
+  <p>შეინახეთ მნიშვნელოვანი შენიშვნები: გეგმები, შეხსენებები, სავაჭრო სიები. შექმენით, დაარედაქტირეთ, წაშალეთ გვერდები.</p>
+
+  <h4>🗂️ კატეგორიები</h4>
+  <p>მართეთ ხარჯებისა და შემოსავლების კატეგორიები. დაამატეთ ახალი, გადაარქვით სახელი, წაშალეთ. ასევე შეგიძლიათ შექმნათ ქვეკატეგორიები უფრო დეტალური დაჯგუფებისთვის.</p>
+
+  <h4>⚙️ პარამეტრები</h4>
+  <ul>
+    <li><strong>ვალუტა</strong> – აირჩიეთ, რომელ ვალუტაში იყოს ნაჩვენები თანხები (RUB, USD, EUR, GEL, GBP, KZT).</li>
+    <li><strong>თემა</strong> – ღია ან მუქი.</li>
+    <li><strong>ენა</strong> – ქართული, ინგლისური, რუსული.</li>
+    <li><strong>ვალუტის კურსების განახლება</strong> – უახლესი კურსების ჩამოტვირთვა ინტერნეტიდან.</li>
+    <li><strong>ყველა მონაცემის გადატვირთვა</strong> – წაშალოს ყველა თქვენი ჩანაწერი და დაიწყოს თავიდან.</li>
+  </ul>
+
+  <h4>🎓 ინტერაქტიული გიდი</h4>
+  <p>თუ თქვენ ხედავთ ამ დახმარებას „?“ ღილაკით, ნაბიჯ-ნაბიჯ ტურის გასაშვებად ელემენტების მონიშვნით, დააჭირეთ მეზობელ ღილაკს 🎓 ხატულით. გიდი გაჩვენებთ ინტერფეისის ძირითად ელემენტებს.</p>
+
+  <h4>💡 სასარგებლო რჩევები</h4>
+  <ul>
+    <li>რეგულარულად ჩაწერეთ ხარჯები – ეს გეხმარებათ კონტროლში.</li>
+    <li>გამოიყენეთ კატეგორიები და ქვეკატეგორიები მოსახერხებელი ანალიზისთვის.</li>
+    <li>თვალყური ადევნეთ ყოველთვიურ დინამიკას, რომ ნახოთ პროგრესი.</li>
+    <li>აპლიკაცია მუშაობს სრულად ოფლაინ – ინტერნეტი საჭიროა მხოლოდ ვალუტის კურსების განახლებისთვის.</li>
+  </ul>
+  <p style="margin-top: 12px;"><strong>🌿 გისურვებთ სასიამოვნო გამოყენებას!</strong></p>
+</div>
+`,
     guideNext: "შემდეგი",
     guideSkip: "გამოტოვება",
     guideFinish: "დასრულება",
@@ -1033,27 +1210,35 @@ function updateHeader() {
 function addHeaderButtons() {
   const header = document.querySelector(".app-header");
   if (!header) return;
-  if (!document.getElementById("headerHelpBtn")) {
-    const helpBtn = document.createElement("button");
-    helpBtn.id = "headerHelpBtn";
-    helpBtn.className = "theme-toggle";
-    helpBtn.textContent = "?";
-    helpBtn.setAttribute("aria-label", t("helpTitle"));
-    helpBtn.style.marginRight = "6px";
-    helpBtn.addEventListener("click", showHelpModal);
-    header.insertBefore(helpBtn, document.getElementById("themeToggle"));
+
+  // Кнопка гайда (уже есть в HTML)
+  const guideBtn = document.getElementById("headerGuideBtn");
+  if (guideBtn) {
+    // Удаляем старые обработчики, клонируем и добавляем новый
+    const newGuideBtn = guideBtn.cloneNode(true);
+    guideBtn.parentNode.replaceChild(newGuideBtn, guideBtn);
+    newGuideBtn.addEventListener("click", () => startGuide());
   }
-  if (!document.getElementById("headerLangBtn")) {
-    const langBtn = document.createElement("button");
-    langBtn.id = "headerLangBtn";
-    langBtn.className = "theme-toggle";
-    langBtn.style.marginRight = "6px";
-    langBtn.addEventListener("click", () => {
+
+  // Кнопка справки (уже есть в HTML)
+  const helpBtn = document.getElementById("headerHelpBtn");
+  if (helpBtn) {
+    const newHelpBtn = helpBtn.cloneNode(true);
+    helpBtn.parentNode.replaceChild(newHelpBtn, helpBtn);
+    newHelpBtn.addEventListener("click", showHelpModal);
+  }
+
+  // Кнопка языка (уже есть в HTML)
+  const langBtn = document.getElementById("headerLangBtn");
+  if (langBtn) {
+    const newLangBtn = langBtn.cloneNode(true);
+    langBtn.parentNode.replaceChild(newLangBtn, langBtn);
+    newLangBtn.addEventListener("click", () => {
       const langs = ["ru", "en", "ka"];
       setLanguage(langs[(langs.indexOf(currentLang) + 1) % langs.length]);
     });
-    header.insertBefore(langBtn, document.getElementById("headerHelpBtn"));
   }
+
   updateHeaderButtons();
 }
 
@@ -2588,6 +2773,125 @@ document.querySelectorAll(".summary-card").forEach((card) => {
     if (e.key === "Enter" || e.key === " ") card.click();
   });
 });
+
+// ============================================================
+// ИНТЕРАКТИВНЫЙ ГАЙД (ТУР) С ПОДСВЕТКОЙ
+// ============================================================
+let currentGuideStep = 0;
+let guideSteps = [];
+
+function getGuideSteps() {
+  return t("guideSteps");
+}
+
+function startGuide() {
+  guideSteps = getGuideSteps();
+  if (!guideSteps || guideSteps.length === 0) return;
+  currentGuideStep = 0;
+  showGuideStep(currentGuideStep);
+}
+
+function showGuideStep(stepIndex) {
+  if (stepIndex >= guideSteps.length) {
+    finishGuide();
+    return;
+  }
+  const step = guideSteps[stepIndex];
+  const targetElement = document.querySelector(step.element);
+  if (!targetElement) {
+    currentGuideStep++;
+    showGuideStep(currentGuideStep);
+    return;
+  }
+
+  // Удаляем старые элементы
+  document
+    .querySelectorAll(".guide-overlay, .guide-highlight, .guide-tooltip")
+    .forEach((el) => el.remove());
+
+  // Оверлей
+  const overlay = document.createElement("div");
+  overlay.className = "guide-overlay";
+  document.body.appendChild(overlay);
+
+  // Подсветка
+  const rect = targetElement.getBoundingClientRect();
+  const highlight = document.createElement("div");
+  highlight.className = "guide-highlight";
+  highlight.style.left = rect.left + "px";
+  highlight.style.top = rect.top + "px";
+  highlight.style.width = rect.width + "px";
+  highlight.style.height = rect.height + "px";
+  document.body.appendChild(highlight);
+
+  // Подсказка
+  const tooltip = document.createElement("div");
+  tooltip.className = "guide-tooltip";
+  tooltip.innerHTML = `
+    <div class="guide-tooltip-title">${esc(step.title)}</div>
+    <div class="guide-tooltip-desc">${esc(step.desc)}</div>
+    <div class="guide-tooltip-actions">
+      <button class="guide-btn-skip">${t("guideSkip")}</button>
+      <button class="guide-btn-next">${stepIndex === guideSteps.length - 1 ? t("guideFinish") : t("guideNext")}</button>
+    </div>
+  `;
+  document.body.appendChild(tooltip);
+
+  // Позиционирование подсказки
+  const tooltipRect = tooltip.getBoundingClientRect();
+  let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+  let top = rect.bottom + 10;
+  if (top + tooltipRect.height > window.innerHeight) {
+    top = rect.top - tooltipRect.height - 10;
+  }
+  left = Math.max(
+    10,
+    Math.min(left, window.innerWidth - tooltipRect.width - 10),
+  );
+  tooltip.style.left = left + "px";
+  tooltip.style.top = top + "px";
+
+  // Кнопки
+  const nextBtn = tooltip.querySelector(".guide-btn-next");
+  const skipBtn = tooltip.querySelector(".guide-btn-skip");
+  const closeGuide = () => {
+    overlay.remove();
+    highlight.remove();
+    tooltip.remove();
+  };
+  nextBtn.addEventListener("click", () => {
+    closeGuide();
+    currentGuideStep++;
+    showGuideStep(currentGuideStep);
+  });
+  skipBtn.addEventListener("click", () => {
+    closeGuide();
+    finishGuide();
+  });
+}
+
+function finishGuide() {
+  localStorage.setItem("guideShown", "true");
+  currentGuideStep = 0;
+  document
+    .querySelectorAll(".guide-overlay, .guide-highlight, .guide-tooltip")
+    .forEach((el) => el.remove());
+}
+
+function showHelpWithGuide() {
+  if (!localStorage.getItem("guideShown")) {
+    startGuide();
+  } else {
+    showHelpModal();
+  }
+}
+
+// Автозапуск при первом визите
+setTimeout(() => {
+  if (!localStorage.getItem("guideShown") && transactions.length === 0) {
+    startGuide();
+  }
+}, 1000);
 
 document
   .querySelectorAll(".nav-btn")
