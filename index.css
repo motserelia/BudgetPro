@@ -3723,3 +3723,417 @@ body.dark.theme-gold .summary-card::after {
 }
 @keyframes goldPulse { 0%,100%{opacity:.5;} 50%{opacity:1;} }
 @keyframes sunsetGlow { 0%,100%{opacity:.5;} 50%{opacity:.9;} }
+
+/* ============================================================
+   ВИЗУАЛЬНЫЕ УЛУЧШЕНИЯ v2.3
+   Анимации, эффекты, упрощённый режим, размеры шрифтов
+   ============================================================ */
+
+/* ============================================================
+   FAB — ПУЛЬСИРУЮЩАЯ КНОПКА (когда нет записей)
+   ============================================================ */
+@keyframes fabPulse {
+  0%   { box-shadow: 0 6px 24px var(--primary)60, 0 0 0 0 var(--primary)50; }
+  50%  { box-shadow: 0 8px 32px var(--primary)80, 0 0 0 16px var(--primary)00; }
+  100% { box-shadow: 0 6px 24px var(--primary)60, 0 0 0 0 var(--primary)00; }
+}
+@keyframes fabBounce {
+  0%,100% { transform: translateY(0) scale(1); }
+  30%      { transform: translateY(-6px) scale(1.05); }
+  60%      { transform: translateY(-2px) scale(1.02); }
+}
+.fab-pulse .fab {
+  animation: fabPulse 2s ease-in-out infinite, fabBounce 3s ease-in-out infinite !important;
+}
+
+/* ============================================================
+   КАРТОЧКИ — ПЛАВНОЕ ПОЯВЛЕНИЕ
+   ============================================================ */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.op-card {
+  animation: slideUpFade 0.35s cubic-bezier(0.34,1.3,0.64,1) both;
+}
+.op-card:nth-child(1)  { animation-delay: 0.03s; }
+.op-card:nth-child(2)  { animation-delay: 0.07s; }
+.op-card:nth-child(3)  { animation-delay: 0.11s; }
+.op-card:nth-child(4)  { animation-delay: 0.15s; }
+.op-card:nth-child(5)  { animation-delay: 0.18s; }
+.op-card:nth-child(n+6){ animation-delay: 0.20s; }
+
+.summary-card {
+  animation: slideUpFade 0.4s cubic-bezier(0.34,1.3,0.64,1) both;
+}
+.summary-card:nth-child(1){ animation-delay: 0.05s; }
+.summary-card:nth-child(2){ animation-delay: 0.10s; }
+.summary-card:nth-child(3){ animation-delay: 0.15s; }
+.summary-card:nth-child(4){ animation-delay: 0.20s; }
+
+/* ============================================================
+   КАРТОЧКИ ОПЕРАЦИЙ — ЭФФЕКТ НАЖАТИЯ
+   ============================================================ */
+.op-card {
+  transition: transform 0.15s cubic-bezier(0.34,1.3,0.64,1),
+              box-shadow 0.15s ease;
+  cursor: pointer;
+}
+.op-card:active {
+  transform: scale(0.97);
+  box-shadow: none !important;
+}
+
+/* ============================================================
+   КНОПКИ — ТАКТИЛЬНЫЙ ОТКЛИК
+   ============================================================ */
+.btn-primary:active, .btn-secondary:active,
+.settings-btn:active, .fab:active {
+  transform: scale(0.95) !important;
+  opacity: 0.85;
+}
+
+/* ============================================================
+   БЛОК БАЛАНСА — АНИМИРОВАННЫЙ СЧЁТЧИК
+   ============================================================ */
+@keyframes numberPop {
+  0%   { transform: scale(0.9); opacity: 0.5; }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.balance-row-value {
+  animation: numberPop 0.5s cubic-bezier(0.34,1.3,0.64,1) both;
+}
+
+/* ============================================================
+   МОДАЛЬНЫЕ ОКНА — УЛУЧШЕННАЯ АНИМАЦИЯ
+   ============================================================ */
+@keyframes modalSlideUp {
+  from { transform: translateY(60px) scale(0.95); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.modal-overlay.open .modal {
+  animation: modalSlideUp 0.38s cubic-bezier(0.34,1.3,0.64,1) both !important;
+}
+
+/* ============================================================
+   TOAST — ЖИВАЯ АНИМАЦИЯ
+   ============================================================ */
+@keyframes toastIn {
+  from { transform: translateX(-50%) translateY(30px) scale(0.9); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+.toast.show {
+  animation: toastIn 0.35s cubic-bezier(0.34,1.3,0.64,1) both !important;
+}
+
+/* ============================================================
+   НАВИГАЦИЯ — АКТИВНЫЙ ЭЛЕМЕНТ
+   ============================================================ */
+@keyframes navPop {
+  0%   { transform: scale(0.85) translateY(3px); }
+  60%  { transform: scale(1.1) translateY(-2px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.nav-btn.active .nav-icon {
+  animation: navPop 0.4s cubic-bezier(0.34,1.3,0.64,1) both;
+}
+.nav-btn {
+  transition: color 0.2s ease;
+}
+.nav-btn.active {
+  color: var(--primary) !important;
+}
+
+/* ============================================================
+   УПРОЩЁННЫЙ РЕЖИМ — LARGE UI
+   ============================================================ */
+body.simple-mode {
+  font-size: 19px !important;
+}
+body.simple-mode .op-card {
+  padding: 18px 16px !important;
+  margin-bottom: 14px !important;
+  border-radius: 20px !important;
+}
+body.simple-mode .op-emoji {
+  width: 54px !important;
+  height: 54px !important;
+  font-size: 28px !important;
+  border-radius: 16px !important;
+}
+body.simple-mode .op-category {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+}
+body.simple-mode .op-amount {
+  font-size: 20px !important;
+  font-weight: 900 !important;
+}
+body.simple-mode .op-delete {
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 18px !important;
+}
+body.simple-mode .fab {
+  width: 72px !important;
+  height: 72px !important;
+  font-size: 32px !important;
+  bottom: 80px !important;
+}
+body.simple-mode .nav-btn {
+  font-size: 11px !important;
+  padding: 10px 6px 12px !important;
+}
+body.simple-mode .nav-icon {
+  font-size: 28px !important;
+  margin-bottom: 5px !important;
+}
+body.simple-mode .summary-card {
+  padding: 20px 16px !important;
+  border-radius: 20px !important;
+}
+body.simple-mode .card-value {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+}
+body.simple-mode .card-label {
+  font-size: 13px !important;
+}
+body.simple-mode .modal-input,
+body.simple-mode .modal-select,
+body.simple-mode .modal-textarea {
+  font-size: 18px !important;
+  padding: 16px !important;
+  border-radius: 16px !important;
+}
+body.simple-mode .btn-primary,
+body.simple-mode .btn-secondary,
+body.simple-mode .btn-danger {
+  padding: 18px 24px !important;
+  font-size: 18px !important;
+  border-radius: 18px !important;
+}
+body.simple-mode .settings-card-title {
+  font-size: 18px !important;
+}
+body.simple-mode .htf-btn {
+  padding: 10px 16px !important;
+  font-size: 15px !important;
+}
+/* Скрываем второстепенные элементы в упрощённом режиме */
+body.simple-mode .history-time-filter { display: none !important; }
+body.simple-mode #showAllHistoryBtn { display: none !important; }
+body.simple-mode .balance-row-sub { display: none !important; }
+body.simple-mode .ops-section-hint { display: none !important; }
+
+/* ============================================================
+   РАЗМЕРЫ ШРИФТОВ
+   ============================================================ */
+[data-font-size="small"]  { font-size: 14px !important; }
+[data-font-size="normal"] { font-size: 16px !important; }
+[data-font-size="large"]  { font-size: 19px !important; }
+[data-font-size="xl"]     { font-size: 22px !important; }
+
+/* ============================================================
+   ГЛАВНЫЙ ЭКРАН — ПУСТОЕ СОСТОЯНИЕ
+   ============================================================ */
+@keyframes emptyBounce {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.empty-block .empty-emoji {
+  animation: emptyBounce 2.5s ease-in-out infinite;
+  display: inline-block;
+}
+.empty-block p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ============================================================
+   КАРТОЧКА ПРОФИЛЯ В ШАПКЕ — СТИЛЬНАЯ
+   ============================================================ */
+#profileSwitcherBar {
+  transition: all 0.3s cubic-bezier(0.34,1.3,0.64,1);
+}
+#profileSwitcherBar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* ============================================================
+   СВАЙП УДАЛЕНИЯ — КРАСНЫЙ ФОН ПРИ СВАЙПЕ
+   ============================================================ */
+.op-card {
+  position: relative;
+  overflow: hidden;
+}
+.op-card::after {
+  content: "🗑";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.op-card.swiping::after { opacity: 1; }
+
+/* ============================================================
+   ШАПКА ПРИЛОЖЕНИЯ — GLASSMORPHISM
+   ============================================================ */
+.app-header {
+  backdrop-filter: blur(20px) saturate(1.8) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.8) !important;
+  background: rgba(var(--cream-rgb, 250,248,242), 0.85) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.3) !important;
+}
+body.dark .app-header {
+  background: rgba(20,31,26,0.85) !important;
+}
+
+/* ============================================================
+   НИЖНЯЯ НАВИГАЦИЯ — GLASSMORPHISM
+   ============================================================ */
+.bottom-nav {
+  backdrop-filter: blur(24px) saturate(1.6) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.6) !important;
+  background: rgba(var(--cream-rgb, 250,248,242), 0.88) !important;
+  border-top: 1px solid rgba(255,255,255,0.4) !important;
+  box-shadow: 0 -4px 32px rgba(0,0,0,0.06) !important;
+}
+body.dark .bottom-nav {
+  background: rgba(20,31,26,0.88) !important;
+  border-top-color: rgba(255,255,255,0.08) !important;
+}
+
+/* ============================================================
+   КНОПКА FAB — PREMIUM ЭФФЕКТ
+   ============================================================ */
+.fab {
+  background: linear-gradient(135deg, var(--primary-med), var(--primary)) !important;
+  box-shadow: 0 8px 28px var(--primary)50, 0 2px 8px var(--primary)30 !important;
+  transition: all 0.25s cubic-bezier(0.34,1.3,0.64,1) !important;
+}
+.fab:hover {
+  transform: scale(1.08) translateY(-2px) !important;
+  box-shadow: 0 12px 36px var(--primary)60 !important;
+}
+
+/* ============================================================
+   SETTINGS CARD — HOVER ЭФФЕКТ
+   ============================================================ */
+.settings-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.settings-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ============================================================
+   ТЕМА ПЕРЕКЛЮЧАТЕЛЬ — БОЛЕЕ ЗАМЕТНЫЙ
+   ============================================================ */
+.theme-swatch-btn {
+  transition: all 0.25s cubic-bezier(0.34,1.3,0.64,1) !important;
+}
+.theme-swatch-btn:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+}
+.theme-swatch-btn:active {
+  transform: scale(0.97) !important;
+}
+
+/* ============================================================
+   СТАТУС БЮДЖЕТА — ПУЛЬС ДЛЯ ПРЕДУПРЕЖДЕНИЙ
+   ============================================================ */
+@keyframes warningPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(193,53,21,0.25); }
+  50%      { box-shadow: 0 0 0 8px rgba(193,53,21,0); }
+}
+.stat-status-card.danger {
+  animation: warningPulse 2.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   GUIDE TOOLTIP — СТИЛЬНЫЙ
+   ============================================================ */
+.guide-tooltip {
+  background: var(--primary) !important;
+  color: white !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25) !important;
+  animation: slideUpFade 0.3s cubic-bezier(0.34,1.3,0.64,1) both;
+}
+.guide-tooltip-title { font-size: 16px !important; font-weight: 900 !important; }
+.guide-tooltip-desc  { font-size: 13px !important; opacity: 0.9; }
+.guide-btn-next {
+  background: white !important;
+  color: var(--primary) !important;
+  border-radius: 99px !important;
+  font-weight: 800 !important;
+}
+.guide-btn-skip {
+  background: transparent !important;
+  color: rgba(255,255,255,0.7) !important;
+  font-weight: 700 !important;
+}
+
+/* ============================================================
+   ТЁМНАЯ ТЕМА — ДОПОЛНИТЕЛЬНЫЙ ЛОСК
+   ============================================================ */
+body.dark .op-card {
+  border: 1px solid rgba(255,255,255,0.05);
+}
+body.dark .settings-card {
+  border: 1px solid rgba(255,255,255,0.06);
+}
+body.dark .summary-card {
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ============================================================
+   CHIP — ПОДКАТЕГОРИИ
+   ============================================================ */
+.chip {
+  transition: all 0.15s ease;
+}
+.chip:hover {
+  transform: scale(1.04);
+  filter: brightness(1.05);
+}
+
+/* ============================================================
+   NOTEBOOK — АНИМАЦИЯ КАРТОЧЕК
+   ============================================================ */
+.note-card {
+  animation: slideUpFade 0.3s cubic-bezier(0.34,1.3,0.64,1) both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.note-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ============================================================
+   СКРОЛЛБАР — КАСТОМНЫЙ
+   ============================================================ */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--cream-border);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
