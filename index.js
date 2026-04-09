@@ -561,6 +561,34 @@ const translations = {
     statsTipNoIncome: "Добавьте источники дохода для полной картины.",
     statsTipGoodSaving: "Отличный показатель! Подумайте об инвестировании.",
     statsMoreCats: "ещё",
+    simpleMode: "🔤 Упрощённый режим",
+    normalMode: "✨ Обычный режим",
+    simpleModeDesc: "Крупный текст, минимум кнопок — легко для всех",
+    simpleModeOn: "Упрощённый режим включён",
+    simpleModeOff: "Обычный режим включён",
+    accessibilityTitle: "♿ Доступность",
+    accessibilityDesc: "Настройки для комфортного использования",
+    fontSizeLabel: "Размер текста",
+    fontSmall: "Маленький",
+    fontNormal: "Обычный",
+    fontLarge: "Крупный",
+    fontXL: "Очень крупный",
+    animationsLabel: "Анимации и эффекты",
+    hapticLabel: "Вибрация при действиях",
+    supportTitle: "💬 Поддержка",
+    supportDesc: "Напишите нам — мы отвечаем в течение 24 часов",
+    supportName: "Ваше имя",
+    supportEmail: "Email (необязательно)",
+    supportCategory: "Тема обращения",
+    supportCatBug: "🐛 Нашёл ошибку",
+    supportCatIdea: "💡 Предложение",
+    supportCatHelp: "❓ Нужна помощь",
+    supportCatOther: "💬 Другое",
+    supportMessage: "Сообщение",
+    supportSend: "📤 Отправить",
+    supportSent: "✅ Сообщение отправлено! Спасибо.",
+    supportRequired: "Заполните обязательные поля",
+    supportPlaceholder: "Опишите вашу проблему или идею подробно...",
   },
   en: {
     appName: "🌿 BudgetPRO",
@@ -1055,6 +1083,34 @@ const translations = {
     statsTipNoIncome: "Add income sources for full picture.",
     statsTipGoodSaving: "Great! Consider investing part of savings.",
     statsMoreCats: "more",
+    simpleMode: "🔤 Simple mode",
+    normalMode: "✨ Normal mode",
+    simpleModeDesc: "Large text, fewer buttons — easy for everyone",
+    simpleModeOn: "Simple mode enabled",
+    simpleModeOff: "Normal mode enabled",
+    accessibilityTitle: "♿ Accessibility",
+    accessibilityDesc: "Settings for comfortable use",
+    fontSizeLabel: "Text size",
+    fontSmall: "Small",
+    fontNormal: "Normal",
+    fontLarge: "Large",
+    fontXL: "Extra large",
+    animationsLabel: "Animations & effects",
+    hapticLabel: "Vibration on actions",
+    supportTitle: "💬 Support",
+    supportDesc: "Write to us — we reply within 24 hours",
+    supportName: "Your name",
+    supportEmail: "Email (optional)",
+    supportCategory: "Topic",
+    supportCatBug: "🐛 Found a bug",
+    supportCatIdea: "💡 Suggestion",
+    supportCatHelp: "❓ Need help",
+    supportCatOther: "💬 Other",
+    supportMessage: "Message",
+    supportSend: "📤 Send",
+    supportSent: "✅ Message sent! Thank you.",
+    supportRequired: "Please fill required fields",
+    supportPlaceholder: "Describe your issue or idea in detail...",
   },
   ka: {
     appName: "🌿 ბიუჯეტPRO",
@@ -1580,6 +1636,34 @@ const translations = {
     statsTipNoIncome: "დაამატეთ შემოსავლები.",
     statsTipGoodSaving: "შესანიშნავი!",
     statsMoreCats: "კატ.",
+    simpleMode: "🔤 გამარტივებული რეჟიმი",
+    normalMode: "✨ ჩვეულებრივი რეჟიმი",
+    simpleModeDesc: "დიდი ტექსტი, ნაკლები ღილაკები — მოსახერხებელია ყველასთვის",
+    simpleModeOn: "გამარტივებული რეჟიმი ჩართულია",
+    simpleModeOff: "ჩვეულებრივი რეჟიმი ჩართულია",
+    accessibilityTitle: "♿ ხელმისაწვდომობა",
+    accessibilityDesc: "კომფორტული გამოყენების პარამეტრები",
+    fontSizeLabel: "ტექსტის ზომა",
+    fontSmall: "პატარა",
+    fontNormal: "ჩვეულებრივი",
+    fontLarge: "დიდი",
+    fontXL: "ძალიან დიდი",
+    animationsLabel: "ანიმაციები და ეფექტები",
+    hapticLabel: "ვიბრაცია მოქმედებებზე",
+    supportTitle: "💬 მხარდაჭერა",
+    supportDesc: "მოგვწერეთ — ვპასუხობთ 24 საათში",
+    supportName: "თქვენი სახელი",
+    supportEmail: "Email (არასავალდებულო)",
+    supportCategory: "თემა",
+    supportCatBug: "🐛 შეცდომა ვიპოვე",
+    supportCatIdea: "💡 წინადადება",
+    supportCatHelp: "❓ დახმარება მჭირდება",
+    supportCatOther: "💬 სხვა",
+    supportMessage: "შეტყობინება",
+    supportSend: "📤 გაგზავნა",
+    supportSent: "✅ შეტყობინება გაიგზავნა! გმადლობთ.",
+    supportRequired: "შეავსეთ სავალდებულო ველები",
+    supportPlaceholder: "დეტალურად აღწერეთ თქვენი პრობლემა ან იდეა...",
   },
 };
 
@@ -1765,6 +1849,14 @@ let colorTheme = "default";
 let userTemplates = [];
 let frequentStats = {};
 // Профили
+// ============================================================
+// РЕЖИМ ОТОБРАЖЕНИЯ
+// ============================================================
+let simpleMode = localStorage.getItem("simpleMode") === "true";
+let fontSize = localStorage.getItem("fontSize") || "normal"; // small|normal|large|xl
+let animationsEnabled = localStorage.getItem("animationsEnabled") !== "false";
+let hapticEnabled = localStorage.getItem("hapticEnabled") !== "false";
+
 let profiles = []; // [{id,name,emoji,color,shareSettings:{...}}]
 let activeProfileId = "default";
 // Shared access: null = owner device; object = guest device with limited perms
@@ -3410,6 +3502,11 @@ function renderHome() {
       ${["allTime", "today", "yesterday", "twoDaysAgo", "thisWeek", "thisMonth"].map((f) => `<button class="htf-btn${historyFilter === f ? " active" : ""}" data-hf="${f}">${t("filter" + f.charAt(0).toUpperCase() + f.slice(1))}</button>`).join("")}
     </div>
   </div>`;
+  if (!transactions.filter((t) => !t._initial).length) {
+    setTimeout(() => startFabPulse(), 800);
+  } else {
+    stopFabPulse();
+  }
   html += `<div class="history-btn-wrap"><button class="history-btn" id="showAllHistoryBtn">${t("allHistory")}</button><div class="history-btn-hint">💡 ${t("historyHint")}</div></div><div id="opsList"></div>`;
   document.getElementById("mainContent").innerHTML = html;
   document.getElementById("mainContent").classList.add("tab-anim");
@@ -3647,6 +3744,7 @@ function addSwipeToDelete(container) {
           updateTopBlocks();
           renderBalanceSummary();
           // Показываем тост с возможностью отмены
+          haptic("medium");
           showToastUndo(t("deleted"), () => {
             transactions.splice(savedIdx, 0, deletedTx);
             saveAll();
@@ -4044,6 +4142,7 @@ function openAddModal() {
     saveAll();
     closeModal("addModal");
     setTimeout(() => refreshAfterChange(), 50);
+    if (tx.type === "income") showCoinAnimation();
     showToast(addType === "income" ? t("incomeAdded") : t("expenseAdded"));
   });
   document
@@ -5345,6 +5444,48 @@ function renderSettings() {
     </div>`
         : ""
     }
+    <!-- ДОСТУПНОСТЬ -->
+    <div class="settings-card" style="border-left-color:#7c3aed;">
+      <div class="settings-card-title">${t("accessibilityTitle")}</div>
+      <div class="settings-card-desc">${t("accessibilityDesc")}</div>
+      <div class="settings-card-body">
+        <!-- Упрощённый режим -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--cream-border);">
+          <div>
+            <div style="font-size:15px;font-weight:700;">${t("simpleMode")}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${t("simpleModeDesc")}</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="simpleModeToggle" ${simpleMode ? "checked" : ""}><span class="slider round"></span></label>
+        </div>
+        <!-- Размер текста -->
+        <div style="padding:12px 0;border-bottom:1px solid var(--cream-border);">
+          <div style="font-size:15px;font-weight:700;margin-bottom:10px;">${t("fontSizeLabel")}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${["small", "normal", "large", "xl"].map((s) => `<button class="font-size-btn" data-size="${s}" style="flex:1;padding:8px;border-radius:12px;border:2px solid ${fontSize === s ? "var(--primary)" : "var(--cream-border)"};background:${fontSize === s ? "var(--primary-pale)" : "var(--cream-dark)"};font-size:${s === "small" ? "13px" : s === "normal" ? "15px" : s === "large" ? "18px" : "21px"};font-weight:700;cursor:pointer;font-family:inherit;color:var(--text);">${t("font" + s.charAt(0).toUpperCase() + s.slice(1))}</button>`).join("")}
+          </div>
+        </div>
+        <!-- Анимации -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--cream-border);">
+          <div style="font-size:15px;font-weight:700;">${t("animationsLabel")}</div>
+          <label class="switch"><input type="checkbox" id="animationsToggle" ${animationsEnabled ? "checked" : ""}><span class="slider round"></span></label>
+        </div>
+        <!-- Вибрация -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+          <div style="font-size:15px;font-weight:700;">${t("hapticLabel")}</div>
+          <label class="switch"><input type="checkbox" id="hapticToggle" ${hapticEnabled ? "checked" : ""}><span class="slider round"></span></label>
+        </div>
+      </div>
+    </div>
+    <!-- ПОДДЕРЖКА -->
+    <div class="settings-card" style="border-left-color:#0ea5e9;">
+      <div class="settings-card-title">${t("supportTitle")}</div>
+      <div class="settings-card-desc">${t("supportDesc")}</div>
+      <div class="settings-card-body">
+        <button class="settings-btn primary" id="openSupportBtn" style="background:#0ea5e9;color:white;justify-content:center;">
+          💬 ${t("supportTitle")}
+        </button>
+      </div>
+    </div>
     <div style="text-align:center;padding:20px;color:var(--text-muted);">${t("versionFooter")}</div>`;
   document.getElementById("mainContent").innerHTML = html;
 
@@ -5662,6 +5803,42 @@ function renderSettings() {
       { icon: "⚠️", title: t("resetConfirmTitle"), yesText: t("yesDeleteAll") },
     );
   };
+
+  // Доступность — простой режим
+  document
+    .getElementById("simpleModeToggle")
+    ?.addEventListener("change", (e) => {
+      applySimpleMode(e.target.checked);
+      showToast(e.target.checked ? t("simpleModeOn") : t("simpleModeOff"));
+      renderSettings();
+    });
+  // Размер шрифта
+  document.querySelectorAll(".font-size-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      applyFontSize(btn.dataset.size);
+      haptic("light");
+      renderSettings();
+    });
+  });
+  // Анимации
+  document
+    .getElementById("animationsToggle")
+    ?.addEventListener("change", (e) => {
+      animationsEnabled = e.target.checked;
+      localStorage.setItem("animationsEnabled", animationsEnabled);
+      showToast(t("saved"));
+    });
+  // Вибрация
+  document.getElementById("hapticToggle")?.addEventListener("change", (e) => {
+    hapticEnabled = e.target.checked;
+    localStorage.setItem("hapticEnabled", hapticEnabled);
+    if (hapticEnabled) haptic("medium");
+    showToast(t("saved"));
+  });
+  // Поддержка
+  document
+    .getElementById("openSupportBtn")
+    ?.addEventListener("click", () => openSupportModal());
 
   // Синхронизация (гость)
   document
@@ -6532,6 +6709,9 @@ function init() {
     "shareTitle:",
     t("shareTitle"),
   );
+  // Применяем сохранённые настройки доступности
+  applyFontSize(fontSize);
+  applySimpleMode(simpleMode);
   applyTranslations();
   updateTopBlocks();
   updateHeader();
@@ -7313,6 +7493,220 @@ function openProfileEditModal(prof) {
       renderSettings();
       showToast(t("saved"));
     }
+  });
+}
+
+// ============================================================
+// ВИЗУАЛЬНЫЕ УТИЛИТЫ — АНИМАЦИИ И ЭФФЕКТЫ
+// ============================================================
+
+// Вибрация (haptic feedback)
+function haptic(type = "light") {
+  if (!hapticEnabled || !navigator.vibrate) return;
+  const patterns = {
+    light: [10],
+    medium: [20],
+    heavy: [30, 10, 30],
+    success: [10, 5, 20],
+  };
+  navigator.vibrate(patterns[type] || patterns.light);
+}
+
+// Применить размер шрифта
+function applyFontSize(size) {
+  fontSize = size || "normal";
+  localStorage.setItem("fontSize", fontSize);
+  const root = document.documentElement;
+  const scales = { small: "14px", normal: "16px", large: "19px", xl: "22px" };
+  root.style.fontSize = scales[fontSize] || "16px";
+  document.body.dataset.fontSize = fontSize;
+}
+
+// Применить простой/обычный режим
+function applySimpleMode(on) {
+  simpleMode = !!on;
+  localStorage.setItem("simpleMode", simpleMode);
+  document.body.classList.toggle("simple-mode", simpleMode);
+  if (simpleMode) {
+    document.body.classList.add("simple-mode");
+  } else {
+    document.body.classList.remove("simple-mode");
+  }
+}
+
+// Конфетти (при достижении цели бюджета)
+function showConfetti(x, y) {
+  if (!animationsEnabled) return;
+  const colors = [
+    "#2d6a4f",
+    "#40916c",
+    "#f59e0b",
+    "#3b82f6",
+    "#ec4899",
+    "#8b5cf6",
+  ];
+  for (let i = 0; i < 28; i++) {
+    const el = document.createElement("div");
+    el.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${6 + Math.random() * 8}px;height:${6 + Math.random() * 8}px;
+      background:${colors[Math.floor(Math.random() * colors.length)]};border-radius:${Math.random() > 0.5 ? "50%" : "3px"};
+      pointer-events:none;z-index:9999;transform-origin:center;`;
+    document.body.appendChild(el);
+    const angle = Math.random() * 360,
+      dist = 80 + Math.random() * 120,
+      dur = 600 + Math.random() * 600;
+    const dx = Math.cos((angle * Math.PI) / 180) * dist,
+      dy = Math.sin((angle * Math.PI) / 180) * dist - 100;
+    el.animate(
+      [
+        { transform: "translate(0,0) scale(1) rotate(0deg)", opacity: 1 },
+        {
+          transform: `translate(${dx}px,${dy}px) scale(0) rotate(${Math.random() * 720}deg)`,
+          opacity: 0,
+        },
+      ],
+      { duration: dur, easing: "cubic-bezier(0,0.9,0.57,1)", fill: "forwards" },
+    );
+    setTimeout(() => el.remove(), dur + 100);
+  }
+}
+
+// Анимация монет при добавлении дохода
+function showCoinAnimation() {
+  if (!animationsEnabled) return;
+  const fab = document.getElementById("fabBtn");
+  if (!fab) return;
+  const r = fab.getBoundingClientRect();
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      const coin = document.createElement("div");
+      coin.textContent = "🪙";
+      coin.style.cssText = `position:fixed;left:${r.left + r.width / 2}px;top:${r.top}px;font-size:22px;
+        pointer-events:none;z-index:9999;transform-origin:center;`;
+      document.body.appendChild(coin);
+      const dx = (Math.random() - 0.5) * 160,
+        dy = -(80 + Math.random() * 120);
+      coin.animate(
+        [
+          { transform: "translate(-50%,-50%) scale(0)", opacity: 0 },
+          {
+            transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(1)`,
+            opacity: 1,
+            offset: 0.3,
+          },
+          {
+            transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy + 30}px)) scale(0.5)`,
+            opacity: 0,
+          },
+        ],
+        {
+          duration: 900,
+          easing: "cubic-bezier(0,0.9,0.57,1)",
+          fill: "forwards",
+        },
+      );
+      setTimeout(() => coin.remove(), 1000);
+    }, i * 60);
+  }
+}
+
+// Пульсирующий FAB когда нет записей
+function startFabPulse() {
+  const fab = document.getElementById("fabBtn");
+  if (!fab || !animationsEnabled) return;
+  fab.classList.add("fab-pulse");
+}
+function stopFabPulse() {
+  document.getElementById("fabBtn")?.classList.remove("fab-pulse");
+}
+
+// Плавный счётчик чисел
+function animateCounter(el, from, to, dur = 800) {
+  if (!animationsEnabled || !el) {
+    el && (el.textContent = to);
+    return;
+  }
+  const start = performance.now();
+  const update = (t) => {
+    const p = Math.min((t - start) / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (to - from) * ease).toLocaleString();
+    if (p < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+// Поддержка — модальное окно
+function openSupportModal() {
+  const html = `
+    <div style="background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:16px;border-left:4px solid var(--primary);font-size:14px;">${t("supportDesc")}</div>
+    <div class="field-group">
+      <label class="field-label">${t("supportName")} *</label>
+      <input type="text" id="supName" class="modal-input" placeholder="${t("supportName")}">
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("supportEmail")}</label>
+      <input type="email" id="supEmail" class="modal-input" placeholder="email@example.com">
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("supportCategory")} *</label>
+      <select id="supCat" class="modal-select">
+        <option value="">${t("selectCategory")}</option>
+        <option value="bug">${t("supportCatBug")}</option>
+        <option value="idea">${t("supportCatIdea")}</option>
+        <option value="help">${t("supportCatHelp")}</option>
+        <option value="other">${t("supportCatOther")}</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("supportMessage")} *</label>
+      <textarea id="supMsg" class="modal-textarea" rows="4" placeholder="${t("supportPlaceholder")}"></textarea>
+    </div>
+    <div id="supResult" style="display:none;padding:12px;background:var(--income-pale);border-radius:12px;margin-bottom:12px;font-weight:700;color:var(--income-color);text-align:center;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="supCancel">${t("cancel")}</button>
+      <button class="btn-primary" id="supSend">${t("supportSend")}</button>
+    </div>`;
+  const modal = createModal("supportModal", t("supportTitle"), html);
+  document.body.appendChild(modal);
+  openModal("supportModal");
+  document
+    .getElementById("supCancel")
+    .addEventListener("click", () => closeModal("supportModal"));
+  document.getElementById("supSend").addEventListener("click", () => {
+    const name = document.getElementById("supName").value.trim();
+    const email = document.getElementById("supEmail").value.trim();
+    const cat = document.getElementById("supCat").value;
+    const msg = document.getElementById("supMsg").value.trim();
+    if (!name || !cat || !msg) {
+      showToast(t("supportRequired"), "error");
+      return;
+    }
+    // Формируем mailto ссылку (работает без сервера)
+    const subject = encodeURIComponent(`[БюджетPRO] ${cat} — ${name}`);
+    const body = encodeURIComponent(
+      `Имя: ${name}\nEmail: ${email || "не указан"}\nТема: ${cat}\n\n${msg}\n\n---\nПриложение: БюджетPRO v2.3\nЯзык: ${currentLang}`,
+    );
+    // Открываем mailto (если есть почтовый клиент) и показываем сообщение
+    const mailLink = `mailto:support@budgetpro.app?subject=${subject}&body=${body}`;
+    window.open(mailLink);
+    const res = document.getElementById("supResult");
+    if (res) {
+      res.style.display = "block";
+      res.textContent = t("supportSent");
+    }
+    setTimeout(() => closeModal("supportModal"), 2500);
+    // Сохраняем в localStorage как резерв
+    const supportLog = JSON.parse(localStorage.getItem("support_log") || "[]");
+    supportLog.push({
+      name,
+      email,
+      cat,
+      msg,
+      ts: new Date().toISOString(),
+      lang: currentLang,
+    });
+    localStorage.setItem("support_log", JSON.stringify(supportLog.slice(-20)));
+    haptic("success");
   });
 }
 
