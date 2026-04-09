@@ -313,15 +313,14 @@ body.dark .section-hint {
 .ops-list { display: flex; flex-direction: column; gap: 10px; }
 
 .op-emoji {
-  font-size: 30px;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--cream-dark);
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 .op-info { flex: 1; min-width: 0; overflow: hidden; }
 .op-category { font-size: 16px; font-weight: 700; color: var(--text); }
@@ -1788,3 +1787,1939 @@ body.dark .stat-gauge-svg text {
     max-width: 140px;
   }
 }
+/* ============================================================
+   БЫСТРАЯ ЦИФРОВАЯ КЛАВИАТУРА
+   ============================================================ */
+.quick-numpad {
+  background: var(--cream-dark);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid var(--cream-border);
+}
+
+.numpad-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.numpad-row:last-child {
+  margin-bottom: 0;
+}
+
+.numpad-btn {
+  flex: 1;
+  padding: 14px 0;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--card-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text);
+  text-align: center;
+}
+
+.numpad-btn:hover {
+  background: var(--primary-pale);
+  transform: scale(0.98);
+}
+
+.numpad-btn:active {
+  transform: scale(0.95);
+}
+
+.numpad-btn.clear {
+  background: var(--expense-pale);
+  color: var(--expense-color);
+}
+
+.numpad-btn.clear:hover {
+  background: var(--expense-color);
+  color: white;
+}
+
+body.dark .numpad-btn {
+  background: var(--cream-dark);
+}
+
+body.dark .numpad-btn:hover {
+  background: var(--primary-pale);
+}
+
+
+/* ============================================================
+   СТИЛИ ДЛЯ ПОИСКА (исправление видимости текста)
+   ============================================================ */
+.search-container {
+  margin-bottom: 16px;
+  position: sticky;
+  top: 0;
+  background: var(--cream);
+  z-index: 10;
+  padding: 8px 0;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: var(--radius-xl);
+  padding: 4px 16px;
+  transition: var(--transition);
+}
+
+.search-input-wrapper:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(64,145,108,0.2);
+}
+
+.search-icon {
+  font-size: 18px;
+  color: var(--text-muted);
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 0;
+  font-size: 16px;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: 50%;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-clear:hover {
+  background: var(--cream-dark);
+  color: var(--text);
+}
+
+.search-results-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 8px;
+}
+
+body.dark .search-container {
+  background: var(--cream);
+}
+
+body.dark .search-input {
+  color: var(--text);
+}
+
+body.dark .search-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Для тёмной темы */
+body.dark .search-input {
+  color: var(--text) !important;
+}
+
+body.dark .search-input::placeholder {
+  color: var(--text-muted) !important;
+}
+/* ============================================================
+   ИСПРАВЛЕНИЕ: Видимость текста в поле поиска
+   ОПИСАНИЕ: Делает текст в поиске видимым в светлой и тёмной теме
+   ============================================================ */
+.search-input {
+  color: var(--text) !important;
+  background: transparent !important;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.7;
+}
+
+.search-input:focus {
+  outline: none;
+  color: var(--text) !important;
+}
+
+/* Стили для тёмной темы */
+body.dark .search-input {
+  color: var(--text) !important;
+}
+
+body.dark .search-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Блок быстрых предложений */
+.suggestions-block {
+  margin: 12px 0;
+  background: var(--cream-dark);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+.suggestions-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+}
+.suggestions-subtitle {
+  font-size: 12px;
+  font-weight: 700;
+  margin: 8px 0 4px;
+  color: var(--text-muted);
+}
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.suggestion-item {
+  background: var(--card-bg);
+  border: 1px solid var(--cream-border);
+  border-radius: 40px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text);
+}
+.suggestion-item:hover {
+  background: var(--primary-pale);
+  border-color: var(--primary);
+  transform: scale(1.02);
+}
+.suggestions-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 8px;
+}
+
+/* ============================================================
+   БЫСТРЫЕ ДАТЫ (кнопки)
+   ============================================================ */
+.quick-dates {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.quick-date-btn {
+  background: var(--cream-dark);
+  border: 1px solid var(--cream-border);
+  border-radius: 40px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-soft);
+}
+.quick-date-btn:hover {
+  background: var(--primary-pale);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.quick-date-btn:active {
+  transform: scale(0.96);
+}
+
+/* ============================================================
+   ЦВЕТНЫЕ ИКОНКИ КАТЕГОРИЙ
+   ============================================================ */
+.op-emoji {
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.op-card:hover .op-emoji {
+  transform: scale(1.05);
+}
+
+/* Переключатель (toggle) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 26px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 34px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: var(--primary);
+}
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+#mainContent {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#mainContent.fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none; /* чтобы нельзя было кликать во время анимации */
+}
+/* Плавное переключение вкладок */
+#mainContent {
+  transition: opacity 0.2s cubic-bezier(0.2, 0.9, 0.4, 1), transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#mainContent.fade-out {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+/* Анимация появления карточек операций (каскад) */
+.op-card {
+  animation: fadeUp 0.25s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Спиннер загрузки для статистики */
+.stats-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  min-height: 200px;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--cream-dark);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Для плавного появления модалок */
+.modal-overlay.open .modal {
+  animation: modalSlide 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+}
+
+@keyframes modalSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   ЛИНЕЙНЫЙ ГРАФИК, СРАВНЕНИЕ И ПРОГНОЗ
+   ============================================================ */
+.line-chart-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--cream-border);
+  margin-top: 8px;
+}
+.line-chart-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.line-chart-container {
+  position: relative;
+  width: 100%;
+  height: 220px;
+}
+.line-chart-note {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+.compare-card, .forecast-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1.5px solid var(--cream-border);
+  margin-top: 8px;
+}
+.compare-title, .forecast-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.compare-row, .forecast-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--cream-border);
+}
+.compare-row:last-child, .forecast-row:last-child {
+  border-bottom: none;
+}
+.forecast-balance {
+  font-weight: 700;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 2px dashed var(--cream-border);
+}
+.forecast-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  text-align: right;
+  font-style: italic;
+}
+.positive {
+  color: var(--income-color);
+  font-weight: 700;
+}
+.negative {
+  color: var(--expense-color);
+  font-weight: 700;
+}
+
+/* ============================================================
+   ФИЛЬТР ПО ПЕРИОДУ (history-time-filter)
+   ============================================================ */
+.history-time-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 8px;
+  margin: 8px 0 16px;
+  padding: 8px 0;
+}
+
+.htf-label {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+.htf-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.htf-btn {
+  background: var(--cream-dark);
+  border: 1.5px solid var(--cream-border);
+  border-radius: 40px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.htf-btn:hover {
+  background: var(--primary-pale);
+  border-color: var(--primary-med);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.htf-btn:active {
+  transform: scale(0.96);
+}
+
+.htf-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(45,106,79,0.3);
+}
+
+body.dark .htf-btn {
+  background: var(--cream-dark);
+  border-color: var(--cream-border);
+  color: var(--text-soft);
+}
+
+body.dark .htf-btn:hover {
+  background: var(--primary-pale);
+  color: var(--primary-med);
+}
+
+body.dark .htf-btn.active {
+  background: var(--primary-med);
+  border-color: var(--primary-med);
+  color: #0a1f12;
+  box-shadow: 0 4px 12px rgba(82,183,136,0.3);
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .history-time-filter {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .htf-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+/* ============================================================
+   КНОПКА УДАЛЕНИЯ ШАБЛОНА (в блоке подсказок)
+   ============================================================ */
+.suggestion-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0 2px;
+  margin-left: 4px;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+  opacity: 0.6;
+  vertical-align: middle;
+}
+
+.suggestion-delete-btn:hover {
+  background: var(--expense-pale);
+  color: var(--expense-color);
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.suggestion-delete-btn:active {
+  transform: scale(0.9);
+}
+
+/* Для тёмной темы */
+body.dark .suggestion-delete-btn {
+  color: var(--text-muted);
+}
+
+body.dark .suggestion-delete-btn:hover {
+  background: var(--expense-pale);
+  color: #fca5a5;
+}
+
+/* ---- Замена фона на money.jpg ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('money.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.18; /* легкая прозрачность, чтобы не перебивать контент */
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity var(--transition);
+}
+
+/* Для тёмной темы делаем фон чуть темнее */
+body.dark::before {
+  opacity: 0.12;
+  filter: brightness(0.7) contrast(1.2);
+}
+
+/* ============================================================
+   ЦВЕТОВЫЕ ТЕМЫ — БюджетPRO v2.2
+   Подключить ПОСЛЕ основного index.css
+   ============================================================ */
+
+/* ============================================================
+   ДЕНЬ 2: 🌸 Розово-песочная (Rose)
+   Тёплая, уютная, домашняя атмосфера
+   ============================================================ */
+body.theme-rose {
+  --cream:         #fdf6f0;
+  --cream-dark:    #f5ebe0;
+  --cream-border:  #e8d5c4;
+  --primary:       #a0402a;
+  --primary-med:   #c05838;
+  --primary-light: #e08060;
+  --primary-pale:  #fdf0ea;
+  --gold:          #b87030;
+  --gold-pale:     #fef4e0;
+  --gold-border:   #e8c080;
+  --income-color:  #257838;
+  --income-pale:   #edf7f0;
+  --expense-color: #a02820;
+  --expense-pale:  #fceae8;
+  --balance-pale:  #eaeef8;
+  --text:          #1e1410;
+  --text-soft:     #5a3c2c;
+  --text-muted:    #a07060;
+  --card-bg:       rgba(255,250,245,0.97);
+  --shadow-sm:     0 2px 12px rgba(160,64,42,0.10);
+  --shadow-md:     0 6px 28px rgba(160,64,42,0.15);
+  --shadow-lg:     0 12px 48px rgba(160,64,42,0.18);
+}
+body.theme-rose .balance-card  {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #eef0fe);
+  border-color: rgba(80,90,200,0.2);
+  box-shadow: 0 4px 20px rgba(80,90,200,0.12);
+}
+body.theme-rose .income-card   {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #edf7f0);
+  border-color: rgba(37,120,56,0.22);
+  box-shadow: 0 4px 20px rgba(37,120,56,0.14);
+}
+body.theme-rose .expense-card  {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #fceae8);
+  border-color: rgba(160,40,32,0.20);
+  box-shadow: 0 4px 20px rgba(160,40,32,0.12);
+}
+body.theme-rose .salary-card   {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #fef4e0);
+  border-color: rgba(184,112,48,0.25);
+  box-shadow: 0 4px 20px rgba(184,112,48,0.14);
+}
+body.theme-rose::before {
+  background-image:
+    radial-gradient(ellipse at 15% 10%, rgba(224,128,96,0.13) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 90%, rgba(184,112,48,0.09) 0%, transparent 55%);
+}
+body.theme-rose .bottom-nav {
+  background: rgba(253,246,240,0.95);
+  border-top-color: var(--cream-border);
+}
+
+/* ============================================================
+   ДЕНЬ 3: 🌊 Океанская синева (Ocean)
+   Свежая, прохладная, профессиональная
+   ============================================================ */
+body.theme-ocean {
+  --cream:         #f0f8ff;
+  --cream-dark:    #e0f0f8;
+  --cream-border:  #c0daf0;
+  --primary:       #1a5f8a;
+  --primary-med:   #2878b0;
+  --primary-light: #60a8d0;
+  --primary-pale:  #e4f2fc;
+  --gold:          #c09030;
+  --gold-pale:     #fef8e0;
+  --gold-border:   #e0c060;
+  --income-color:  #177840;
+  --income-pale:   #e8f6ee;
+  --expense-color: #b83020;
+  --expense-pale:  #fceae6;
+  --balance-pale:  #e4f0fc;
+  --text:          #0a1a28;
+  --text-soft:     #2a4a68;
+  --text-muted:    #5888b0;
+  --card-bg:       rgba(244,251,255,0.97);
+  --shadow-sm:     0 2px 12px rgba(26,95,138,0.10);
+  --shadow-md:     0 6px 28px rgba(26,95,138,0.15);
+  --shadow-lg:     0 12px 48px rgba(26,95,138,0.18);
+}
+body.theme-ocean .balance-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #e0eeff);
+  border-color: rgba(37,99,235,0.20);
+  box-shadow: 0 4px 20px rgba(37,99,235,0.13);
+}
+body.theme-ocean .income-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #e4f5ec);
+  border-color: rgba(23,120,64,0.20);
+  box-shadow: 0 4px 20px rgba(23,120,64,0.12);
+}
+body.theme-ocean .expense-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #fceae6);
+  border-color: rgba(184,48,32,0.18);
+  box-shadow: 0 4px 20px rgba(184,48,32,0.10);
+}
+body.theme-ocean .salary-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #fef6d8);
+  border-color: rgba(192,144,48,0.22);
+  box-shadow: 0 4px 20px rgba(192,144,48,0.12);
+}
+body.theme-ocean::before {
+  background-image:
+    radial-gradient(ellipse at 25% 8%, rgba(96,168,208,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 92%, rgba(26,95,138,0.09) 0%, transparent 55%);
+}
+body.theme-ocean .bottom-nav {
+  background: rgba(240,248,255,0.95);
+}
+
+/* ============================================================
+   НОЧЬ 1: 🌌 Спокойный синий (Navy)
+   Глубокий космос, звёздное небо
+   ============================================================ */
+body.dark.theme-navy {
+  --cream:         #07101c;
+  --cream-dark:    #0d1a2e;
+  --cream-border:  #1a3050;
+  --primary:       #4898e8;
+  --primary-med:   #68b0f8;
+  --primary-light: #90c8ff;
+  --primary-pale:  #0a1828;
+  --gold:          #e0b840;
+  --gold-pale:     #18140a;
+  --gold-border:   #3a3010;
+  --income-color:  #38c878;
+  --income-pale:   #081a10;
+  --expense-color: #f06858;
+  --expense-pale:  #1a0808;
+  --balance-pale:  #081028;
+  --text:          #d0e4f8;
+  --text-soft:     #7aa8cc;
+  --text-muted:    #3c6898;
+  --card-bg:       rgba(10,18,34,0.97);
+  --shadow-sm:     0 2px 14px rgba(0,10,40,0.5);
+  --shadow-md:     0 6px 32px rgba(0,10,40,0.65);
+  --shadow-lg:     0 12px 52px rgba(0,10,40,0.75);
+}
+body.dark.theme-navy .balance-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #050d20);
+  border-color: rgba(72,152,232,0.30);
+  box-shadow: 0 4px 24px rgba(72,152,232,0.20);
+}
+body.dark.theme-navy .income-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #051510);
+  border-color: rgba(56,200,120,0.25);
+  box-shadow: 0 4px 24px rgba(56,200,120,0.15);
+}
+body.dark.theme-navy .expense-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #180808);
+  border-color: rgba(240,104,88,0.25);
+  box-shadow: 0 4px 24px rgba(240,104,88,0.15);
+}
+body.dark.theme-navy .salary-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #141008);
+  border-color: rgba(224,184,64,0.25);
+  box-shadow: 0 4px 24px rgba(224,184,64,0.15);
+}
+body.dark.theme-navy::before {
+  background-image:
+    radial-gradient(ellipse at 20% 15%, rgba(72,152,232,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(56,200,120,0.06) 0%, transparent 55%);
+}
+body.dark.theme-navy .bottom-nav {
+  background: rgba(10,18,34,0.96);
+  border-top-color: var(--cream-border);
+  box-shadow: 0 -4px 24px rgba(0,10,50,0.4);
+}
+/* Кнопки калькулятора в ночной синей теме */
+body.dark.theme-navy .calc-btn     { background: var(--cream-dark); border-color: var(--cream-border); }
+body.dark.theme-navy .calc-btn.op  { background: rgba(72,152,232,0.12); color: var(--primary-med); }
+body.dark.theme-navy .type-btn     { background: var(--cream-dark); }
+body.dark.theme-navy .history-item { background: var(--cream-dark); }
+
+/* ============================================================
+   НОЧЬ 2: ✨ Золотое напыление (Gold)
+   Роскошь, тепло, богатство
+   ============================================================ */
+body.dark.theme-gold {
+  --cream:         #0e0803;
+  --cream-dark:    #1a1006;
+  --cream-border:  #342408;
+  --primary:       #d09830;
+  --primary-med:   #e8b040;
+  --primary-light: #f0cc70;
+  --primary-pale:  #1c1206;
+  --gold:          #e8a820;
+  --gold-pale:     #181008;
+  --gold-border:   #4a3010;
+  --income-color:  #60c050;
+  --income-pale:   #0a1606;
+  --expense-color: #e87050;
+  --expense-pale:  #1c0a06;
+  --balance-pale:  #100c06;
+  --text:          #f4e4b0;
+  --text-soft:     #c8a858;
+  --text-muted:    #887038;
+  --card-bg:       rgba(20,12,4,0.97);
+  --shadow-sm:     0 2px 14px rgba(0,0,0,0.55);
+  --shadow-md:     0 6px 32px rgba(0,0,0,0.70);
+  --shadow-lg:     0 12px 52px rgba(0,0,0,0.80);
+}
+body.dark.theme-gold .balance-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #0c0e18);
+  border-color: rgba(208,152,48,0.35);
+  box-shadow: 0 4px 28px rgba(208,152,48,0.20);
+}
+body.dark.theme-gold .income-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #081006);
+  border-color: rgba(96,192,80,0.25);
+  box-shadow: 0 4px 24px rgba(96,192,80,0.15);
+}
+body.dark.theme-gold .expense-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #180906);
+  border-color: rgba(232,112,80,0.25);
+  box-shadow: 0 4px 24px rgba(232,112,80,0.15);
+}
+body.dark.theme-gold .salary-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #1a1006);
+  border-color: rgba(232,168,32,0.30);
+  box-shadow: 0 4px 28px rgba(232,168,32,0.22);
+}
+/* Золотое мерцание фона */
+body.dark.theme-gold::before {
+  background-image:
+    radial-gradient(ellipse at 25% 20%, rgba(232,168,32,0.09) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 80%, rgba(208,152,48,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(180,120,16,0.05) 0%, transparent 70%);
+}
+/* Золотистые частицы — имитация напыления */
+body.dark.theme-gold::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(circle, rgba(232,184,64,0.18) 1px, transparent 1px),
+    radial-gradient(circle, rgba(208,152,48,0.12) 1px, transparent 1px),
+    radial-gradient(circle, rgba(248,208,80,0.10) 1.5px, transparent 1.5px);
+  background-size: 60px 60px, 90px 90px, 140px 140px;
+  background-position: 0 0, 30px 30px, 70px 70px;
+  animation: goldDust 8s ease-in-out infinite alternate;
+}
+@keyframes goldDust {
+  0%   { opacity: 0.5; background-position: 0 0, 30px 30px, 70px 70px; }
+  50%  { opacity: 0.9; }
+  100% { opacity: 0.5; background-position: 10px 10px, 40px 40px, 80px 80px; }
+}
+body.dark.theme-gold .bottom-nav {
+  background: rgba(20,12,4,0.97);
+  border-top-color: var(--cream-border);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.5);
+}
+/* Кнопки в золотой теме */
+body.dark.theme-gold .calc-btn    { background: var(--cream-dark); border-color: var(--cream-border); color: var(--text); }
+body.dark.theme-gold .calc-btn.op { background: rgba(208,152,48,0.15); color: var(--primary-med); border-color: rgba(208,152,48,0.3); }
+body.dark.theme-gold .calc-btn.equals { background: var(--primary); border-color: var(--primary); color: #1a0c04; }
+body.dark.theme-gold .btn-primary { background: var(--primary); color: #1a0c04; font-weight: 900; }
+body.dark.theme-gold .btn-primary:hover { background: var(--primary-med); }
+body.dark.theme-gold .type-btn    { background: var(--cream-dark); border-color: var(--cream-border); }
+body.dark.theme-gold .history-item { background: var(--cream-dark); }
+body.dark.theme-gold .nav-btn.active .nav-icon {
+  background: linear-gradient(135deg, rgba(208,152,48,0.2), rgba(232,184,64,0.15));
+}
+body.dark.theme-gold .fab {
+  background: linear-gradient(135deg, var(--primary-med), var(--primary));
+  color: #1a0c04;
+  box-shadow: 0 6px 24px rgba(208,152,48,0.50), 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ============================================================
+   ОБЩИЕ СТИЛИ ДЛЯ ПЕРЕКЛЮЧАТЕЛЯ ТЕМ В НАСТРОЙКАХ
+   ============================================================ */
+.theme-swatch-btn {
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1) !important;
+}
+.theme-swatch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+.theme-swatch-btn.active {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+.theme-swatch-btn:active {
+  transform: scale(0.98);
+}
+
+/* ============================================================
+   АДАПТАЦИЯ ДЛЯ ЗВЁЗДНОГО ФОНА (Navy theme)
+   ============================================================ */
+#themeStars {
+  mix-blend-mode: screen;
+}
+
+/* ============================================================
+   АДАПТАЦИЯ ДЛЯ ЗОЛОТОГО НАПЫЛЕНИЯ
+   ============================================================ */
+#themeShimmer {
+  mix-blend-mode: overlay;
+}
+
+/* ============================================================
+   ЭКРАН БИОМЕТРИИ / ПИН — улучшенный стиль
+   ============================================================ */
+.pin-key {
+  transition: all 0.15s ease !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pin-key:hover {
+  background: var(--primary-pale) !important;
+  border-color: var(--primary) !important;
+  transform: scale(1.05);
+}
+.pin-key:active {
+  transform: scale(0.92) !important;
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+/* Кнопка биометрии на экране входа */
+#bioBtn {
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+#bioBtn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25) !important;
+}
+#bioBtn:active {
+  transform: scale(0.96) !important;
+}
+
+
+
+
+/* ============================================================
+   ЦВЕТОВЫЕ ТЕМЫ — БюджетPRO v2.3
+   Подключить ПОСЛЕ основного index.css
+   Все 6 тем: white | default | sunset | dark | navy | gold
+   ============================================================ */
+
+/* ============================================================
+   ТЕМА: ⬜ ЧИСТЫЙ БЕЛЫЙ
+   Чистый, минималистичный, современный
+   ============================================================ */
+body.theme-white {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Фон */
+body.theme-white::before {
+  background-image:
+    radial-gradient(ellipse at 10% 0%, rgba(99,102,241,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 100%, rgba(139,92,246,0.05) 0%, transparent 50%);
+}
+
+/* Карточки */
+body.theme-white .summary-card {
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 1px 8px rgba(15,23,42,0.08), 0 0 0 1px rgba(15,23,42,0.04);
+}
+body.theme-white .balance-card {
+  background: linear-gradient(135deg, #fff 60%, #eef2ff) !important;
+  border-color: rgba(99,102,241,0.3) !important;
+  box-shadow: 0 4px 20px rgba(79,70,229,0.14) !important;
+}
+body.theme-white .income-card {
+  background: linear-gradient(135deg, #fff 60%, #ecfdf5) !important;
+  border-color: rgba(5,150,105,0.25) !important;
+  box-shadow: 0 4px 20px rgba(5,150,105,0.12) !important;
+}
+body.theme-white .expense-card {
+  background: linear-gradient(135deg, #fff 60%, #fef2f2) !important;
+  border-color: rgba(220,38,38,0.22) !important;
+  box-shadow: 0 4px 20px rgba(220,38,38,0.10) !important;
+}
+body.theme-white .salary-card {
+  background: linear-gradient(135deg, #fff 60%, #fffbeb) !important;
+  border-color: rgba(217,119,6,0.28) !important;
+  box-shadow: 0 4px 20px rgba(217,119,6,0.12) !important;
+}
+
+/* Навигация */
+body.theme-white .bottom-nav {
+  background: rgba(255,255,255,0.96);
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -4px 24px rgba(15,23,42,0.08);
+}
+body.theme-white .nav-btn.active .nav-icon {
+  background: #eef2ff;
+  border-radius: 14px;
+}
+
+/* FAB */
+body.theme-white .fab {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  box-shadow: 0 6px 24px rgba(79,70,229,0.45), 0 2px 8px rgba(0,0,0,0.12);
+}
+body.theme-white .fab:hover {
+  box-shadow: 0 10px 32px rgba(79,70,229,0.55);
+}
+
+/* Карточки операций */
+body.theme-white .op-card {
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 6px rgba(15,23,42,0.06);
+}
+body.theme-white .op-card[data-type="income"] {
+  border-left: 4px solid #059669;
+  box-shadow: 0 2px 12px rgba(5,150,105,0.10);
+}
+body.theme-white .op-card[data-type="expense"] {
+  border-left: 4px solid #dc2626;
+  box-shadow: 0 2px 12px rgba(220,38,38,0.08);
+}
+
+/* Поле поиска */
+body.theme-white .search-input-wrapper {
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 4px rgba(15,23,42,0.06);
+}
+
+/* Кнопки */
+body.theme-white .btn-primary { background: #4f46e5; }
+body.theme-white .btn-primary:hover { background: #6366f1; box-shadow: 0 6px 20px rgba(79,70,229,0.35); }
+body.theme-white .settings-btn.primary { background: #eef2ff; color: #4f46e5; border-color: rgba(99,102,241,0.3); }
+body.theme-white .settings-btn.primary:hover { background: #4f46e5; color: white; }
+
+/* Переключатель */
+body.theme-white input:checked + .slider { background-color: #4f46e5; }
+
+/* Dot-акценты */
+body.theme-white .dot-balance { background: #4f46e5; box-shadow: 0 0 6px rgba(79,70,229,0.5); }
+
+/* Баланс-строки */
+body.theme-white .row-balance { background: linear-gradient(90deg, rgba(79,70,229,0.06) 0%, transparent 100%); }
+body.theme-white .balance-row-value.positive { color: #4f46e5; }
+
+/* Модалки */
+body.theme-white .modal { background: #ffffff; }
+body.theme-white .modal-input:focus,
+body.theme-white .modal-textarea:focus,
+body.theme-white .modal-select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+
+/* Статистика */
+body.theme-white .stats-period-btn.active { background: #4f46e5; border-color: #4f46e5; }
+body.theme-white .htf-btn.active { background: #4f46e5; border-color: #4f46e5; }
+
+/* Логотип */
+body.theme-white .app-logo { color: #4f46e5; }
+body.theme-white .nav-btn.active { color: #4f46e5; }
+body.theme-white .history-btn { color: #4f46e5; }
+body.theme-white .section-hint { background: linear-gradient(135deg, #eef2ff, rgba(255,255,255,0.6)); border-left-color: #6366f1; }
+
+/* ============================================================
+   ТЕМА: 🌅 ТЁПЛЫЙ ЗАКАТ
+   Терракота, амбер, уютная атмосфера
+   ============================================================ */
+
+body.theme-sunset::before {
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(251,146,60,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 95%, rgba(194,68,10,0.10) 0%, transparent 55%);
+}
+
+/* Карточки */
+body.theme-sunset .balance-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #fef3e8) !important;
+  border-color: rgba(194,68,10,0.25) !important;
+  box-shadow: 0 4px 20px rgba(194,68,10,0.15) !important;
+}
+body.theme-sunset .income-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #edf7f0) !important;
+  border-color: rgba(29,122,64,0.22) !important;
+  box-shadow: 0 4px 20px rgba(29,122,64,0.12) !important;
+}
+body.theme-sunset .expense-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #fdeae6) !important;
+  border-color: rgba(196,26,10,0.22) !important;
+  box-shadow: 0 4px 20px rgba(196,26,10,0.12) !important;
+}
+body.theme-sunset .salary-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #fff6dc) !important;
+  border-color: rgba(224,140,16,0.28) !important;
+  box-shadow: 0 4px 20px rgba(224,140,16,0.15) !important;
+}
+
+/* FAB — тёплый */
+body.theme-sunset .fab {
+  background: linear-gradient(135deg, #e0581a, #c2440a);
+  box-shadow: 0 6px 24px rgba(194,68,10,0.50), 0 2px 8px rgba(0,0,0,0.15);
+}
+
+/* Навигация */
+body.theme-sunset .bottom-nav { background: rgba(255,253,248,0.95); }
+body.theme-sunset .nav-btn.active .nav-icon {
+  background: linear-gradient(135deg, #fff0e4, rgba(245,144,96,0.15));
+}
+
+/* Кнопки */
+body.theme-sunset .btn-primary { background: #c2440a; }
+body.theme-sunset .btn-primary:hover { background: #e0581a; box-shadow: 0 6px 20px rgba(194,68,10,0.35); }
+body.theme-sunset .settings-btn.primary { background: #fff0e4; color: #c2440a; border-color: rgba(194,68,10,0.3); }
+body.theme-sunset .settings-btn.primary:hover { background: #c2440a; color: white; }
+
+/* Акценты */
+body.theme-sunset .app-logo { color: #c2440a; }
+body.theme-sunset .nav-btn.active { color: #c2440a; }
+body.theme-sunset .history-btn { color: #c2440a; }
+body.theme-sunset .section-hint { background: linear-gradient(135deg, #fff0e4, rgba(255,255,255,0.6)); border-left-color: #e0581a; color: #c2440a; }
+body.theme-sunset input:checked + .slider { background-color: #c2440a; }
+body.theme-sunset .stats-period-btn.active { background: #c2440a; border-color: #c2440a; }
+body.theme-sunset .htf-btn.active { background: #c2440a; border-color: #c2440a; }
+body.theme-sunset .modal-input:focus,
+body.theme-sunset .modal-textarea:focus,
+body.theme-sunset .modal-select:focus { border-color: #e0581a; box-shadow: 0 0 0 3px rgba(194,68,10,0.2); }
+body.theme-sunset .chip { background: #fff0e4; color: #c2440a; border-color: rgba(194,68,10,0.3); }
+body.theme-sunset .chip:hover { background: #c2440a; color: white; }
+
+/* ============================================================
+   ТЕМА: 🌿 ЗЕЛЁНАЯ НОЧЬ (dark)
+   Дефолтная тёмная тема — тёмный лес
+   ============================================================ */
+
+body.dark.theme-dark::before {
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(116,198,157,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(212,160,32,0.05) 0%, transparent 50%);
+}
+body.dark.theme-dark .balance-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #0a1520) !important;
+  border-color: rgba(82,183,136,0.25) !important;
+  box-shadow: 0 4px 24px rgba(82,183,136,0.18) !important;
+}
+body.dark.theme-dark .income-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #091c10) !important;
+  border-color: rgba(82,183,136,0.22) !important;
+  box-shadow: 0 4px 24px rgba(82,183,136,0.15) !important;
+}
+body.dark.theme-dark .expense-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #1f0e0a) !important;
+  border-color: rgba(224,112,96,0.22) !important;
+  box-shadow: 0 4px 24px rgba(224,112,96,0.14) !important;
+}
+body.dark.theme-dark .salary-card {
+  background: linear-gradient(135deg, var(--card-bg) 55%, #1c1408) !important;
+  border-color: rgba(212,160,32,0.22) !important;
+  box-shadow: 0 4px 24px rgba(212,160,32,0.14) !important;
+}
+body.dark.theme-dark .bottom-nav {
+  background: rgba(20,31,26,0.97);
+  border-top-color: #2a3d30;
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.35);
+}
+
+/* ============================================================
+   ТЕМА: 🌌 ПОЛНОЧНЫЙ СИНИЙ (navy)
+   Звёздное небо, электрический синий
+   ============================================================ */
+
+body.dark.theme-navy::before {
+  background-image:
+    radial-gradient(ellipse at 30% 15%, rgba(96,165,250,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 85%, rgba(52,211,153,0.05) 0%, transparent 60%);
+}
+
+/* Карточки */
+body.dark.theme-navy .balance-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #070e20) !important;
+  border-color: rgba(96,165,250,0.30) !important;
+  box-shadow: 0 4px 28px rgba(96,165,250,0.22) !important;
+}
+body.dark.theme-navy .income-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #051812) !important;
+  border-color: rgba(52,211,153,0.25) !important;
+  box-shadow: 0 4px 28px rgba(52,211,153,0.18) !important;
+}
+body.dark.theme-navy .expense-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #180606) !important;
+  border-color: rgba(248,113,113,0.25) !important;
+  box-shadow: 0 4px 28px rgba(248,113,113,0.18) !important;
+}
+body.dark.theme-navy .salary-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #151000) !important;
+  border-color: rgba(251,191,36,0.25) !important;
+  box-shadow: 0 4px 28px rgba(251,191,36,0.18) !important;
+}
+
+/* Навигация */
+body.dark.theme-navy .bottom-nav {
+  background: rgba(6,11,20,0.98);
+  border-top-color: #1a2e50;
+  box-shadow: 0 -4px 32px rgba(0,0,10,0.6);
+}
+body.dark.theme-navy .nav-btn.active { color: #60a5fa; }
+body.dark.theme-navy .nav-btn.active .nav-icon {
+  background: rgba(96,165,250,0.15);
+  box-shadow: 0 2px 8px rgba(96,165,250,0.2);
+}
+
+/* FAB */
+body.dark.theme-navy .fab {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  box-shadow: 0 6px 28px rgba(59,130,246,0.55), 0 2px 8px rgba(0,0,0,0.3);
+}
+body.dark.theme-navy .fab:hover {
+  box-shadow: 0 10px 40px rgba(59,130,246,0.65);
+}
+
+/* Лого и акценты */
+body.dark.theme-navy .app-logo { color: #60a5fa; }
+body.dark.theme-navy .history-btn { color: #60a5fa; border-color: #1a2e50; }
+body.dark.theme-navy .history-btn:hover { background: rgba(96,165,250,0.12); border-color: #60a5fa; }
+body.dark.theme-navy .section-hint { background: linear-gradient(135deg, rgba(96,165,250,0.12), rgba(0,0,0,0.1)); border-left-color: #60a5fa; color: #93c5fd; }
+
+/* Кнопки */
+body.dark.theme-navy .btn-primary { background: #3b82f6; }
+body.dark.theme-navy .btn-primary:hover { background: #60a5fa; box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+body.dark.theme-navy .settings-btn.primary { background: rgba(96,165,250,0.12); color: #60a5fa; border-color: rgba(96,165,250,0.3); }
+body.dark.theme-navy .settings-btn.primary:hover { background: #3b82f6; color: white; }
+body.dark.theme-navy input:checked + .slider { background-color: #3b82f6; }
+
+/* Карточки операций */
+body.dark.theme-navy .op-card {
+  background: rgba(10,16,30,0.95);
+  border-color: #1a2e50;
+}
+body.dark.theme-navy .op-card[data-type="income"] {
+  border-left-color: #34d399;
+  box-shadow: 0 2px 16px rgba(52,211,153,0.15);
+}
+body.dark.theme-navy .op-card[data-type="expense"] {
+  border-left-color: #f87171;
+  box-shadow: 0 2px 16px rgba(248,113,113,0.14);
+}
+body.dark.theme-navy .op-card:hover { box-shadow: 0 6px 28px rgba(96,165,250,0.20); }
+
+/* Баланс строки */
+body.dark.theme-navy .balance-summary { background: rgba(8,14,28,0.98); }
+body.dark.theme-navy .row-balance { background: linear-gradient(90deg, rgba(96,165,250,0.10) 0%, transparent 100%); }
+body.dark.theme-navy .balance-row-value.positive { color: #60a5fa; }
+body.dark.theme-navy .dot-balance { background: #3b82f6; box-shadow: 0 0 8px rgba(59,130,246,0.6); }
+
+/* Поля форм */
+body.dark.theme-navy .modal-input:focus,
+body.dark.theme-navy .modal-textarea:focus,
+body.dark.theme-navy .modal-select:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+
+/* Chips */
+body.dark.theme-navy .chip { background: rgba(96,165,250,0.10); color: #93c5fd; border-color: rgba(96,165,250,0.25); }
+body.dark.theme-navy .chip:hover { background: #3b82f6; color: white; }
+
+/* Калькулятор */
+body.dark.theme-navy .calc-btn { background: rgba(13,20,40,0.9); border-color: #1a2e50; }
+body.dark.theme-navy .calc-btn.op { background: rgba(96,165,250,0.12); color: #93c5fd; border-color: rgba(96,165,250,0.3); }
+body.dark.theme-navy .calc-btn.equals { background: #3b82f6; border-color: #3b82f6; }
+body.dark.theme-navy .calc-display { background: rgba(6,11,20,0.9); border-color: #1a2e50; color: #e2ecff; }
+
+/* Статистика */
+body.dark.theme-navy .stats-period-btn.active { background: #3b82f6; border-color: #3b82f6; }
+body.dark.theme-navy .htf-btn.active { background: #3b82f6; border-color: #3b82f6; }
+body.dark.theme-navy .stat-status-card.healthy { background: rgba(52,211,153,0.10); border-color: rgba(52,211,153,0.25); }
+body.dark.theme-navy .stat-status-card.danger { background: rgba(248,113,113,0.10); border-color: rgba(248,113,113,0.25); }
+
+/* Toast */
+body.dark.theme-navy .toast { background: #0c1628; border: 1px solid #1a2e50; }
+body.dark.theme-navy .toast.success { background: #051812; color: #6ee7b7; }
+body.dark.theme-navy .toast.error { background: #180606; color: #fca5a5; }
+
+/* Модалки */
+body.dark.theme-navy .modal { background: #080e1c; border-top: 1px solid #1a2e50; }
+body.dark.theme-navy .modal-handle { background: #1a2e50; }
+body.dark.theme-navy .modal-header { border-bottom-color: #1a2e50; }
+
+/* ============================================================
+   ТЕМА: ✨ ЗОЛОТОЕ НАПЫЛЕНИЕ (gold)
+   Чёрный бархат + золото + анимированные частицы
+   ============================================================ */
+
+body.dark.theme-gold::before {
+  background-image:
+    radial-gradient(ellipse at 25% 20%, rgba(251,191,36,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse at 75% 80%, rgba(245,158,11,0.08) 0%, transparent 60%);
+}
+
+/* Карточки */
+body.dark.theme-gold .balance-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #100e00) !important;
+  border-color: rgba(245,158,11,0.35) !important;
+  box-shadow: 0 4px 28px rgba(245,158,11,0.22) !important;
+}
+body.dark.theme-gold .income-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #081408) !important;
+  border-color: rgba(74,222,128,0.22) !important;
+  box-shadow: 0 4px 24px rgba(74,222,128,0.16) !important;
+}
+body.dark.theme-gold .expense-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #180408) !important;
+  border-color: rgba(251,113,133,0.22) !important;
+  box-shadow: 0 4px 24px rgba(251,113,133,0.16) !important;
+}
+body.dark.theme-gold .salary-card {
+  background: linear-gradient(135deg, var(--card-bg) 50%, #1c1200) !important;
+  border-color: rgba(251,191,36,0.30) !important;
+  box-shadow: 0 4px 28px rgba(251,191,36,0.20) !important;
+}
+
+/* Навигация */
+body.dark.theme-gold .bottom-nav {
+  background: rgba(12,8,0,0.98);
+  border-top-color: #2e1e00;
+  box-shadow: 0 -4px 32px rgba(0,0,0,0.65);
+}
+body.dark.theme-gold .nav-btn.active { color: #fbbf24; }
+body.dark.theme-gold .nav-btn.active .nav-icon {
+  background: rgba(251,191,36,0.14);
+  box-shadow: 0 2px 8px rgba(245,158,11,0.25);
+}
+
+/* FAB */
+body.dark.theme-gold .fab {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #0c0800;
+  box-shadow: 0 6px 28px rgba(245,158,11,0.55), 0 2px 8px rgba(0,0,0,0.4);
+}
+body.dark.theme-gold .fab:hover {
+  box-shadow: 0 10px 40px rgba(245,158,11,0.65);
+}
+body.dark.theme-gold .fab-plus,
+body.dark.theme-gold .fab-text { color: #0c0800; font-weight: 900; }
+
+/* Лого и акценты */
+body.dark.theme-gold .app-logo { color: #fbbf24; }
+body.dark.theme-gold .nav-btn.active { color: #fbbf24; }
+body.dark.theme-gold .history-btn { color: #fbbf24; border-color: #2e1e00; }
+body.dark.theme-gold .history-btn:hover { background: rgba(251,191,36,0.12); border-color: #fbbf24; }
+body.dark.theme-gold .section-hint { background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(0,0,0,0.1)); border-left-color: #f59e0b; color: #fcd34d; }
+
+/* Кнопки */
+body.dark.theme-gold .btn-primary { background: #d97706; color: #0c0800; }
+body.dark.theme-gold .btn-primary:hover { background: #f59e0b; box-shadow: 0 6px 20px rgba(245,158,11,0.45); }
+body.dark.theme-gold .settings-btn.primary { background: rgba(251,191,36,0.10); color: #fbbf24; border-color: rgba(245,158,11,0.3); }
+body.dark.theme-gold .settings-btn.primary:hover { background: #d97706; color: #0c0800; }
+body.dark.theme-gold input:checked + .slider { background-color: #d97706; }
+
+/* Карточки операций */
+body.dark.theme-gold .op-card { background: rgba(18,12,0,0.97); border-color: #2e1e00; }
+body.dark.theme-gold .op-card[data-type="income"] { border-left-color: #4ade80; box-shadow: 0 2px 16px rgba(74,222,128,0.14); }
+body.dark.theme-gold .op-card[data-type="expense"] { border-left-color: #fb7185; box-shadow: 0 2px 16px rgba(251,113,133,0.13); }
+body.dark.theme-gold .op-card:hover { box-shadow: 0 6px 28px rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.25); }
+
+/* Баланс строки */
+body.dark.theme-gold .balance-summary { background: rgba(14,10,0,0.99); }
+body.dark.theme-gold .row-balance { background: linear-gradient(90deg, rgba(251,191,36,0.10) 0%, transparent 100%); }
+body.dark.theme-gold .balance-row-value.positive { color: #fbbf24; }
+body.dark.theme-gold .dot-balance { background: #d97706; box-shadow: 0 0 8px rgba(245,158,11,0.7); }
+body.dark.theme-gold .dot-salary { background: #f59e0b; box-shadow: 0 0 8px rgba(245,158,11,0.6); }
+
+/* Поля форм */
+body.dark.theme-gold .modal-input:focus,
+body.dark.theme-gold .modal-textarea:focus,
+body.dark.theme-gold .modal-select:focus { border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,0.2); }
+
+/* Chips */
+body.dark.theme-gold .chip { background: rgba(251,191,36,0.10); color: #fcd34d; border-color: rgba(251,191,36,0.25); }
+body.dark.theme-gold .chip:hover { background: #d97706; color: #0c0800; }
+
+/* Калькулятор */
+body.dark.theme-gold .calc-btn { background: rgba(20,14,0,0.9); border-color: #2e1e00; color: #fef3c7; }
+body.dark.theme-gold .calc-btn.op { background: rgba(251,191,36,0.12); color: #fcd34d; border-color: rgba(251,191,36,0.3); }
+body.dark.theme-gold .calc-btn.equals { background: #d97706; border-color: #d97706; color: #0c0800; }
+body.dark.theme-gold .calc-btn.clear { background: rgba(251,113,133,0.12); color: #fb7185; border-color: rgba(251,113,133,0.25); }
+body.dark.theme-gold .calc-display { background: rgba(12,8,0,0.95); border-color: #2e1e00; color: #fef3c7; }
+
+/* Статистика */
+body.dark.theme-gold .stats-period-btn.active { background: #d97706; border-color: #d97706; color: #0c0800; }
+body.dark.theme-gold .htf-btn.active { background: #d97706; border-color: #d97706; color: #0c0800; }
+body.dark.theme-gold .stat-status-card.healthy { background: rgba(74,222,128,0.08); border-color: rgba(74,222,128,0.22); }
+body.dark.theme-gold .stat-status-card.danger { background: rgba(251,113,133,0.08); border-color: rgba(251,113,133,0.22); }
+
+/* Toast */
+body.dark.theme-gold .toast { background: #181000; border: 1px solid #2e1e00; color: #fef3c7; }
+body.dark.theme-gold .toast.success { background: #081408; color: #86efac; }
+body.dark.theme-gold .toast.error { background: #180410; color: #fda4af; }
+
+/* Модалки */
+body.dark.theme-gold .modal { background: #100c00; border-top: 1px solid rgba(245,158,11,0.25); }
+body.dark.theme-gold .modal-handle { background: #2e1e00; }
+body.dark.theme-gold .modal-header { border-bottom-color: #2e1e00; }
+body.dark.theme-gold .confirm-box { background: #141000; border: 1px solid rgba(245,158,11,0.2); }
+
+/* Настройки */
+body.dark.theme-gold .settings-card { background: rgba(20,14,0,0.97); }
+body.dark.theme-gold .settings-btn.danger { background: rgba(251,113,133,0.10); border-color: rgba(251,113,133,0.25); }
+
+/* Блок предложений */
+body.dark.theme-gold .suggestions-block { background: rgba(24,16,0,0.9); border: 1px solid #2e1e00; }
+body.dark.theme-gold .suggestion-item { background: rgba(30,20,0,0.95); border-color: #2e1e00; color: #fef3c7; }
+body.dark.theme-gold .suggestion-item:hover { background: rgba(251,191,36,0.12); border-color: #fbbf24; }
+
+/* ============================================================
+   ОБЩИЕ УТИЛИТЫ ДЛЯ ПЕРЕКЛЮЧАТЕЛЯ В НАСТРОЙКАХ
+   ============================================================ */
+.theme-swatch-btn {
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1) !important;
+  -webkit-tap-highlight-color: transparent;
+}
+.theme-swatch-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+}
+.theme-swatch-btn:active { transform: scale(0.97) !important; }
+
+/* ============================================================
+   ПИН-КЛАВИШИ — общий улучшенный стиль
+   ============================================================ */
+.pin-key {
+  transition: all 0.12s ease !important;
+  user-select: none;
+}
+.pin-key:hover {
+  background: var(--primary-pale) !important;
+  border-color: var(--primary) !important;
+  transform: scale(1.06);
+}
+.pin-key:active {
+  transform: scale(0.90) !important;
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+/* Кнопка биометрии */
+#bioBtn {
+  animation: bioPulse 2.5s ease-in-out infinite;
+}
+@keyframes bioPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 0 rgba(var(--primary),0.4); }
+  50%       { box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 8px rgba(0,0,0,0); }
+}
+#bioBtn:hover { transform: translateY(-2px) !important; }
+#bioBtn:active { transform: scale(0.95) !important; animation: none !important; }
+
+/* ============================================================
+   АНИМАЦИИ ЗВЁЗД И ЧАСТИЦ (используются в JS)
+   ============================================================ */
+@keyframes starsFloat {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-40px); }
+}
+
+@keyframes goldFloat {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 0.7; }
+  100% { transform: translateY(-130px) rotate(360deg); opacity: 0; }
+}
+
+@keyframes goldPulse {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 1.0; }
+}
+
+@keyframes sunsetGlow {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1.0; }
+}
+
+/* ============================================================
+   ЦВЕТОВЫЕ ТЕМЫ — БюджетPRO v2.3
+   Подключить ПОСЛЕ основного index.css
+   ============================================================
+   Темы: white | default | sunset | dark | navy | gold
+   money.jpg фон на всех темах
+   ============================================================ */
+
+/* ============================================================
+   ОБЩЕЕ: money.jpg фон для ВСЕХ тем
+   ============================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Дневные темы — светлый слой поверх money.jpg */
+body:not(.dark)::before {
+  background:
+    var(--theme-overlay, radial-gradient(ellipse at 20% 10%, rgba(116,198,157,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(212,134,10,0.08) 0%, transparent 50%)),
+    url('money.jpg') center/cover no-repeat;
+  opacity: 0.18;
+}
+
+/* Ночные темы — тёмный слой */
+body.dark::before {
+  background:
+    var(--theme-overlay, radial-gradient(ellipse at 20% 10%, rgba(82,183,136,0.08) 0%, transparent 50%)),
+    url('money.jpg') center/cover no-repeat;
+  opacity: 0.09;
+  filter: brightness(0.5) contrast(1.1);
+}
+
+/* ============================================================
+   ТЕМА: ⬜ ЧИСТЫЙ БЕЛЫЙ
+   ============================================================ */
+body.theme-white::before {
+  background:
+    linear-gradient(135deg, rgba(99,102,241,0.06) 0%, transparent 60%),
+    url('money.jpg') center/cover no-repeat;
+  opacity: 0.12;
+}
+body.theme-white {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+body.theme-white .app-logo,
+body.theme-white .nav-btn.active,
+body.theme-white .history-btn { color: #4f46e5; }
+
+body.theme-white .balance-card {
+  background: linear-gradient(135deg, #ffffff 55%, #eef2ff) !important;
+  border-color: rgba(99,102,241,0.30) !important;
+  box-shadow: 0 4px 20px rgba(79,70,229,0.15) !important;
+}
+body.theme-white .income-card {
+  background: linear-gradient(135deg, #ffffff 55%, #ecfdf5) !important;
+  border-color: rgba(5,150,105,0.25) !important;
+  box-shadow: 0 4px 20px rgba(5,150,105,0.12) !important;
+}
+body.theme-white .expense-card {
+  background: linear-gradient(135deg, #ffffff 55%, #fef2f2) !important;
+  border-color: rgba(220,38,38,0.22) !important;
+  box-shadow: 0 4px 20px rgba(220,38,38,0.10) !important;
+}
+body.theme-white .salary-card {
+  background: linear-gradient(135deg, #ffffff 55%, #fffbeb) !important;
+  border-color: rgba(217,119,6,0.28) !important;
+  box-shadow: 0 4px 20px rgba(217,119,6,0.12) !important;
+}
+body.theme-white .op-card[data-type="income"]  { border-left-color: #059669; box-shadow: 0 2px 12px rgba(5,150,105,0.10); }
+body.theme-white .op-card[data-type="expense"] { border-left-color: #dc2626; box-shadow: 0 2px 12px rgba(220,38,38,0.08); }
+body.theme-white .fab { background: linear-gradient(135deg,#6366f1,#4f46e5); box-shadow: 0 6px 24px rgba(79,70,229,0.45),0 2px 8px rgba(0,0,0,0.12); }
+body.theme-white .btn-primary { background: #4f46e5; }
+body.theme-white .btn-primary:hover { background: #6366f1; box-shadow: 0 6px 20px rgba(79,70,229,0.35); }
+body.theme-white .settings-btn.primary { background: #eef2ff; color: #4f46e5; border-color: rgba(99,102,241,0.3); }
+body.theme-white .settings-btn.primary:hover { background: #4f46e5; color: white; }
+body.theme-white input:checked + .slider { background-color: #4f46e5; }
+body.theme-white .dot-balance { background: #4f46e5; box-shadow: 0 0 6px rgba(79,70,229,0.5); }
+body.theme-white .row-balance { background: linear-gradient(90deg,rgba(79,70,229,0.06) 0%,transparent 100%); }
+body.theme-white .balance-row-value.positive { color: #4f46e5; }
+body.theme-white .modal-input:focus,
+body.theme-white .modal-textarea:focus,
+body.theme-white .modal-select:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+body.theme-white .stats-period-btn.active,
+body.theme-white .htf-btn.active { background: #4f46e5; border-color: #4f46e5; }
+body.theme-white .section-hint { background: linear-gradient(135deg,#eef2ff,rgba(255,255,255,0.6)); border-left-color: #6366f1; }
+body.theme-white .bottom-nav { background: rgba(255,255,255,0.97); border-top-color: #e2e8f0; box-shadow: 0 -4px 24px rgba(15,23,42,0.08); }
+body.theme-white .nav-btn.active .nav-icon { background: #eef2ff; box-shadow: 0 2px 8px rgba(79,70,229,0.15); }
+body.theme-white .chip { background: #eef2ff; color: #4f46e5; border-color: rgba(99,102,241,0.3); }
+body.theme-white .chip:hover { background: #4f46e5; color: white; }
+
+/* ============================================================
+   ТЕМА: 🌅 ТЁПЛЫЙ ЗАКАТ
+   ============================================================ */
+body.theme-sunset::before {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(251,146,60,0.12) 0%, transparent 55%),
+    url('money.jpg') center/cover no-repeat;
+  opacity: 0.16;
+}
+body.theme-sunset .app-logo,
+body.theme-sunset .nav-btn.active,
+body.theme-sunset .history-btn { color: #c2440a; }
+body.theme-sunset .balance-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#fef3e8) !important;
+  border-color: rgba(194,68,10,0.25) !important;
+  box-shadow: 0 4px 20px rgba(194,68,10,0.15) !important;
+}
+body.theme-sunset .income-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#edf7f0) !important;
+  border-color: rgba(29,122,64,0.22) !important;
+  box-shadow: 0 4px 20px rgba(29,122,64,0.12) !important;
+}
+body.theme-sunset .expense-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#fdeae6) !important;
+  border-color: rgba(196,26,10,0.22) !important;
+  box-shadow: 0 4px 20px rgba(196,26,10,0.12) !important;
+}
+body.theme-sunset .salary-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#fff6dc) !important;
+  border-color: rgba(224,140,16,0.28) !important;
+  box-shadow: 0 4px 20px rgba(224,140,16,0.15) !important;
+}
+body.theme-sunset .fab { background: linear-gradient(135deg,#e0581a,#c2440a); box-shadow: 0 6px 24px rgba(194,68,10,0.50),0 2px 8px rgba(0,0,0,0.15); }
+body.theme-sunset .btn-primary { background: #c2440a; }
+body.theme-sunset .btn-primary:hover { background: #e0581a; box-shadow: 0 6px 20px rgba(194,68,10,0.35); }
+body.theme-sunset .settings-btn.primary { background: #fff0e4; color: #c2440a; border-color: rgba(194,68,10,0.3); }
+body.theme-sunset .settings-btn.primary:hover { background: #c2440a; color: white; }
+body.theme-sunset input:checked + .slider { background-color: #c2440a; }
+body.theme-sunset .stats-period-btn.active,
+body.theme-sunset .htf-btn.active { background: #c2440a; border-color: #c2440a; }
+body.theme-sunset .section-hint { background: linear-gradient(135deg,#fff0e4,rgba(255,255,255,0.6)); border-left-color: #e0581a; color: #c2440a; }
+body.theme-sunset .nav-btn.active .nav-icon { background: linear-gradient(135deg,#fff0e4,rgba(245,144,96,0.15)); }
+body.theme-sunset .modal-input:focus,
+body.theme-sunset .modal-textarea:focus,
+body.theme-sunset .modal-select:focus { border-color: #e0581a; box-shadow: 0 0 0 3px rgba(194,68,10,0.2); }
+body.theme-sunset .chip { background: #fff0e4; color: #c2440a; border-color: rgba(194,68,10,0.3); }
+body.theme-sunset .chip:hover { background: #c2440a; color: white; }
+body.theme-sunset .bottom-nav { background: rgba(255,253,248,0.95); }
+
+/* ============================================================
+   ТЕМА: 🌿 ЗЕЛЁНАЯ НОЧЬ (dark)
+   ============================================================ */
+body.dark.theme-dark::before {
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(116,198,157,0.08) 0%, transparent 50%),
+    url('money.jpg') center/cover no-repeat;
+  opacity: 0.09;
+  filter: brightness(0.45) contrast(1.1);
+}
+body.dark.theme-dark .balance-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#0a1520) !important;
+  border-color: rgba(82,183,136,0.25) !important;
+  box-shadow: 0 4px 24px rgba(82,183,136,0.18) !important;
+}
+body.dark.theme-dark .income-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#091c10) !important;
+  border-color: rgba(82,183,136,0.22) !important;
+  box-shadow: 0 4px 24px rgba(82,183,136,0.15) !important;
+}
+body.dark.theme-dark .expense-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#1f0e0a) !important;
+  border-color: rgba(224,112,96,0.22) !important;
+  box-shadow: 0 4px 24px rgba(224,112,96,0.14) !important;
+}
+body.dark.theme-dark .salary-card {
+  background: linear-gradient(135deg,var(--card-bg) 55%,#1c1408) !important;
+  border-color: rgba(212,160,32,0.22) !important;
+  box-shadow: 0 4px 24px rgba(212,160,32,0.14) !important;
+}
+body.dark.theme-dark .bottom-nav { background: rgba(20,31,26,0.97); border-top-color: #2a3d30; }
+
+/* ============================================================
+   ТЕМА: 🌌 ПОЛНОЧНЫЙ СИНИЙ (navy)
+   ============================================================ */
+body.dark.theme-navy::before {
+  background:
+    radial-gradient(ellipse at 30% 15%, rgba(96,165,250,0.07) 0%, transparent 60%),
+    url('money.jpg') center/cover no-repeat;
+  opacity: 0.08;
+  filter: brightness(0.35) saturate(0.5) hue-rotate(200deg);
+}
+body.dark.theme-navy .balance-card {
+  background: linear-gradient(135deg,var(--card-bg) 50%,#070e20) !important;
+  border-color: rgba(96,165,250,0.30) !important;
+  box-shadow: 0 4px 28px rgba(96,165,250,0.22) !important;
+}
+body.dark.theme-navy .income-card {
+  background: linear-gradient(135deg,var(--card-bg) 50%,#051812) !important;
+  border-color: rgba(52,211,153,0.25) !important;
+  box-shadow: 0 4px 28px rgba(52,211,153,0.18) !important;
+}
+body.dark.theme-navy .expense-card {
+  background: linear-gradient(135deg,var(--card-bg) 50%,#180606) !important;
+  border-color: rgba(248,113,113,0.25) !important;
+  box-shadow: 0 4px 28px rgba(248,113,113,0.18) !important;
+}
+body.dark.theme-navy .salary-card {
+  background: linear-gradient(135deg,var(--card-bg) 50%,#151000) !important;
+  border-color: rgba(251,191,36,0.25) !important;
+  box-shadow: 0 4px 28px rgba(251,191,36,0.18) !important;
+}
+body.dark.theme-navy .bottom-nav { background: rgba(6,11,20,0.98); border-top-color: #1a2e50; box-shadow: 0 -4px 32px rgba(0,0,10,0.6); }
+body.dark.theme-navy .app-logo,
+body.dark.theme-navy .nav-btn.active,
+body.dark.theme-navy .history-btn { color: #60a5fa; }
+body.dark.theme-navy .nav-btn.active .nav-icon { background: rgba(96,165,250,0.15); box-shadow: 0 2px 8px rgba(96,165,250,0.2); }
+body.dark.theme-navy .fab { background: linear-gradient(135deg,#3b82f6,#1d4ed8); box-shadow: 0 6px 28px rgba(59,130,246,0.55),0 2px 8px rgba(0,0,0,0.3); }
+body.dark.theme-navy .btn-primary { background: #3b82f6; }
+body.dark.theme-navy .btn-primary:hover { background: #60a5fa; box-shadow: 0 6px 20px rgba(59,130,246,0.4); }
+body.dark.theme-navy .settings-btn.primary { background: rgba(96,165,250,0.12); color: #60a5fa; border-color: rgba(96,165,250,0.3); }
+body.dark.theme-navy .settings-btn.primary:hover { background: #3b82f6; color: white; }
+body.dark.theme-navy input:checked + .slider { background-color: #3b82f6; }
+body.dark.theme-navy .op-card[data-type="income"] { border-left-color: #34d399; box-shadow: 0 2px 16px rgba(52,211,153,0.15); }
+body.dark.theme-navy .op-card[data-type="expense"] { border-left-color: #f87171; box-shadow: 0 2px 16px rgba(248,113,113,0.14); }
+body.dark.theme-navy .op-card:hover { box-shadow: 0 6px 28px rgba(96,165,250,0.20); }
+body.dark.theme-navy .balance-summary { background: rgba(8,14,28,0.98); }
+body.dark.theme-navy .row-balance { background: linear-gradient(90deg,rgba(96,165,250,0.10) 0%,transparent 100%); }
+body.dark.theme-navy .balance-row-value.positive { color: #60a5fa; }
+body.dark.theme-navy .dot-balance { background: #3b82f6; box-shadow: 0 0 8px rgba(59,130,246,0.6); }
+body.dark.theme-navy .modal-input:focus,
+body.dark.theme-navy .modal-textarea:focus,
+body.dark.theme-navy .modal-select:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.2); }
+body.dark.theme-navy .stats-period-btn.active,
+body.dark.theme-navy .htf-btn.active { background: #3b82f6; border-color: #3b82f6; }
+body.dark.theme-navy .calc-btn { background: rgba(13,20,40,0.9); border-color: #1a2e50; }
+body.dark.theme-navy .calc-btn.op { background: rgba(96,165,250,0.12); color: #93c5fd; border-color: rgba(96,165,250,0.3); }
+body.dark.theme-navy .calc-btn.equals { background: #3b82f6; border-color: #3b82f6; }
+body.dark.theme-navy .calc-display { background: rgba(6,11,20,0.9); border-color: #1a2e50; color: #e2ecff; }
+body.dark.theme-navy .modal { background: #080e1c; border-top: 1px solid #1a2e50; }
+body.dark.theme-navy .modal-handle { background: #1a2e50; }
+body.dark.theme-navy .modal-header { border-bottom-color: #1a2e50; }
+body.dark.theme-navy .section-hint { background: linear-gradient(135deg,rgba(96,165,250,0.12),rgba(0,0,0,0.1)); border-left-color: #60a5fa; color: #93c5fd; }
+body.dark.theme-navy .chip { background: rgba(96,165,250,0.10); color: #93c5fd; border-color: rgba(96,165,250,0.25); }
+body.dark.theme-navy .chip:hover { background: #3b82f6; color: white; }
+body.dark.theme-navy .toast { background: #0c1628; border: 1px solid #1a2e50; }
+body.dark.theme-navy .toast.success { background: #051812; color: #6ee7b7; }
+body.dark.theme-navy .toast.error { background: #180606; color: #fca5a5; }
+
+/* ============================================================
+   ТЕМА: ✨ ЗОЛОТОЕ НАПЫЛЕНИЕ (gold) — УМЕРЕННАЯ ВЕРСИЯ
+   Тёмно-серый/антрацит фон, золотые акценты на элементах
+   НЕ полностью золотой фон — золото только как подсветка
+   ============================================================ */
+body.dark.theme-gold::before {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(251,191,36,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(245,158,11,0.04) 0%, transparent 55%),
+    url('money.jpg') center/cover no-repeat;
+  opacity: 0.10;
+  filter: brightness(0.4) sepia(0.3);
+}
+/* Фон — тёмно-серый антрацит, НЕ чёрно-коричневый */
+body.dark.theme-gold {
+  /* Переменные переопределены через JS body.style, здесь только доп. правила */
+}
+body.dark.theme-gold .balance-card {
+  background: linear-gradient(135deg,var(--card-bg) 60%,rgba(251,191,36,0.06)) !important;
+  border-color: rgba(251,191,36,0.28) !important;
+  box-shadow: 0 4px 24px rgba(245,158,11,0.15), 0 0 0 1px rgba(251,191,36,0.10) !important;
+}
+body.dark.theme-gold .income-card {
+  background: linear-gradient(135deg,var(--card-bg) 60%,rgba(74,222,128,0.05)) !important;
+  border-color: rgba(74,222,128,0.20) !important;
+  box-shadow: 0 4px 20px rgba(74,222,128,0.12) !important;
+}
+body.dark.theme-gold .expense-card {
+  background: linear-gradient(135deg,var(--card-bg) 60%,rgba(251,113,133,0.05)) !important;
+  border-color: rgba(251,113,133,0.20) !important;
+  box-shadow: 0 4px 20px rgba(251,113,133,0.12) !important;
+}
+body.dark.theme-gold .salary-card {
+  background: linear-gradient(135deg,var(--card-bg) 60%,rgba(251,191,36,0.07)) !important;
+  border-color: rgba(251,191,36,0.25) !important;
+  box-shadow: 0 4px 24px rgba(245,158,11,0.16) !important;
+}
+/* FAB — золотой, но не кричащий */
+body.dark.theme-gold .fab {
+  background: linear-gradient(135deg,#d97706,#92400e);
+  color: #fef3c7;
+  box-shadow: 0 6px 24px rgba(217,119,6,0.40), 0 2px 8px rgba(0,0,0,0.35),
+              0 0 0 1px rgba(251,191,36,0.20);
+}
+body.dark.theme-gold .fab:hover { box-shadow: 0 10px 36px rgba(217,119,6,0.50), 0 2px 8px rgba(0,0,0,0.4); }
+body.dark.theme-gold .fab-plus,
+body.dark.theme-gold .fab-text { color: #fef3c7; }
+/* Акценты */
+body.dark.theme-gold .app-logo { color: #fbbf24; text-shadow: 0 0 20px rgba(251,191,36,0.3); }
+body.dark.theme-gold .nav-btn.active { color: #fbbf24; }
+body.dark.theme-gold .nav-btn.active .nav-icon {
+  background: rgba(251,191,36,0.10);
+  box-shadow: 0 2px 8px rgba(245,158,11,0.20);
+}
+body.dark.theme-gold .history-btn { color: #fbbf24; border-color: rgba(251,191,36,0.2); }
+body.dark.theme-gold .history-btn:hover { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.35); }
+body.dark.theme-gold .section-hint {
+  background: linear-gradient(135deg,rgba(251,191,36,0.10),rgba(0,0,0,0.05));
+  border-left-color: #d97706;
+  color: #fcd34d;
+}
+/* Кнопки */
+body.dark.theme-gold .btn-primary { background: #d97706; color: #fef3c7; }
+body.dark.theme-gold .btn-primary:hover { background: #f59e0b; box-shadow: 0 6px 20px rgba(217,119,6,0.35); }
+body.dark.theme-gold .settings-btn.primary { background: rgba(251,191,36,0.08); color: #fbbf24; border-color: rgba(251,191,36,0.25); }
+body.dark.theme-gold .settings-btn.primary:hover { background: #d97706; color: #fef3c7; }
+body.dark.theme-gold input:checked + .slider { background-color: #d97706; }
+/* Карточки операций */
+body.dark.theme-gold .op-card { background: var(--card-bg); border-color: rgba(251,191,36,0.08); }
+body.dark.theme-gold .op-card[data-type="income"] {
+  border-left-color: #4ade80;
+  box-shadow: 0 2px 12px rgba(74,222,128,0.12);
+}
+body.dark.theme-gold .op-card[data-type="expense"] {
+  border-left-color: #fb7185;
+  box-shadow: 0 2px 12px rgba(251,113,133,0.10);
+}
+body.dark.theme-gold .op-card:hover {
+  border-color: rgba(251,191,36,0.20);
+  box-shadow: 0 4px 20px rgba(217,119,6,0.14);
+}
+/* Баланс */
+body.dark.theme-gold .dot-balance { background: #d97706; box-shadow: 0 0 8px rgba(217,119,6,0.50); }
+body.dark.theme-gold .dot-salary { background: #f59e0b; box-shadow: 0 0 6px rgba(245,158,11,0.45); }
+body.dark.theme-gold .row-balance { background: linear-gradient(90deg,rgba(251,191,36,0.08) 0%,transparent 100%); }
+body.dark.theme-gold .balance-row-value.positive { color: #fbbf24; }
+/* Поля */
+body.dark.theme-gold .modal-input:focus,
+body.dark.theme-gold .modal-textarea:focus,
+body.dark.theme-gold .modal-select:focus { border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,0.18); }
+/* Модалки */
+body.dark.theme-gold .modal { border-top: 1px solid rgba(251,191,36,0.15); }
+body.dark.theme-gold .modal-handle { background: rgba(251,191,36,0.15); }
+body.dark.theme-gold .modal-header { border-bottom-color: rgba(251,191,36,0.12); }
+/* Калькулятор */
+body.dark.theme-gold .calc-btn { background: var(--cream-dark); border-color: var(--cream-border); color: var(--text); }
+body.dark.theme-gold .calc-btn.op { background: rgba(251,191,36,0.10); color: #fcd34d; border-color: rgba(251,191,36,0.25); }
+body.dark.theme-gold .calc-btn.equals { background: #d97706; border-color: #d97706; color: #fef3c7; }
+body.dark.theme-gold .calc-display { border-color: rgba(251,191,36,0.15); }
+/* Статистика */
+body.dark.theme-gold .stats-period-btn.active,
+body.dark.theme-gold .htf-btn.active { background: #d97706; border-color: #d97706; color: #fef3c7; }
+/* Chips */
+body.dark.theme-gold .chip { background: rgba(251,191,36,0.08); color: #fcd34d; border-color: rgba(251,191,36,0.22); }
+body.dark.theme-gold .chip:hover { background: #d97706; color: #fef3c7; }
+/* Toast */
+body.dark.theme-gold .toast { background: var(--cream-dark); border: 1px solid rgba(251,191,36,0.15); color: var(--text); }
+body.dark.theme-gold .toast.success { color: #86efac; }
+body.dark.theme-gold .toast.error { color: #fda4af; }
+/* Навигация */
+body.dark.theme-gold .bottom-nav {
+  background: var(--card-bg);
+  border-top-color: rgba(251,191,36,0.12);
+  box-shadow: 0 -4px 24px rgba(0,0,0,0.4);
+}
+/* Золотой shimmer — тонкий декоративный блеск */
+body.dark.theme-gold .summary-card::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(251,191,36,0.04) 50%,
+    transparent 70%
+  );
+  animation: goldSheen 4s ease-in-out infinite;
+  pointer-events: none;
+  border-radius: inherit;
+}
+@keyframes goldSheen {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(0deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(0deg); }
+}
+
+/* ============================================================
+   ОБЩЕЕ: ПИН-КЛАВИШИ
+   ============================================================ */
+.pin-key {
+  transition: all 0.12s ease !important;
+  user-select: none;
+}
+.pin-key:hover {
+  background: var(--primary-pale) !important;
+  border-color: var(--primary) !important;
+  transform: scale(1.06);
+}
+.pin-key:active {
+  transform: scale(0.90) !important;
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+/* Кнопка биометрии */
+#bioBtn {
+  transition: all 0.2s ease !important;
+}
+#bioBtn:hover { transform: translateY(-2px) !important; }
+#bioBtn:active { transform: scale(0.95) !important; }
+
+/* ============================================================
+   ОБЩЕЕ: ПЕРЕКЛЮЧАТЕЛЬ ТЕМ
+   ============================================================ */
+.theme-swatch-btn {
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1) !important;
+}
+.theme-swatch-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.14) !important;
+}
+.theme-swatch-btn:active { transform: scale(0.97) !important; }
+
+/* ============================================================
+   АНИМАЦИИ ЧАСТИЦ (используются JS-эффектами)
+   ============================================================ */
+@keyframes goldFloat {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  15%  { opacity: 0.8; }
+  85%  { opacity: 0.5; }
+  100% { transform: translateY(-100px) rotate(180deg); opacity: 0; }
+}
+@keyframes goldPulse { 0%,100%{opacity:.5;} 50%{opacity:1;} }
+@keyframes sunsetGlow { 0%,100%{opacity:.5;} 50%{opacity:.9;} }
