@@ -5464,18 +5464,53 @@ function renderSettings() {
           <div style="margin:20px 0; border-top:1px dashed var(--cream-border);"></div>
           <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text);">📅 Точная дата и время</div>
           
-          <!-- DATETIME — label-based native picker, works on all browsers -->
-          <div class="custom-datetime-row" style="gap:14px;">
-            <label for="reminderCustomDate" class="custom-date-wrapper" style="flex:1;min-width:140px;display:flex;align-items:center;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:0 10px;cursor:pointer;transition:all 0.25s ease;user-select:none;" title="${{ ru: "Нажмите чтобы выбрать дату", en: "Tap to pick a date", ka: "დააჭირეთ თარიღის ასარჩევად" }[currentLang]}">
-              <span class="datetime-icon" style="font-size:22px;margin-right:8px;pointer-events:none;transition:transform 0.3s ease;">📅</span>
-              <input type="date" id="reminderCustomDate" class="custom-date-input" value="${customReminderDate || ""}" style="flex:1;min-width:0;padding:13px 0;border:none;background:transparent;font-size:15px;font-family:inherit;color:var(--text);outline:none;cursor:pointer;">
-            </label>
-            <label for="reminderCustomTime" class="custom-time-wrapper" style="flex:1;min-width:130px;display:flex;align-items:center;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:0 10px;cursor:pointer;transition:all 0.25s ease;user-select:none;" title="${{ ru: "Нажмите чтобы выбрать время", en: "Tap to pick time", ka: "დააჭირეთ დროის ასარჩევად" }[currentLang]}">
-              <span class="datetime-icon" style="font-size:22px;margin-right:8px;pointer-events:none;transition:transform 0.3s ease;">⏰</span>
-              <input type="time" id="reminderCustomTime" class="custom-time-input" value="${customReminderTime || ""}" style="flex:1;min-width:0;padding:13px 0;border:none;background:transparent;font-size:15px;font-family:inherit;color:var(--text);outline:none;cursor:pointer;">
-            </label>
+          <!-- DATETIME — JS-triggered native picker (no pointer events on input) -->
+          <div style="display:flex;gap:12px;margin-bottom:4px;">
+
+            <div id="dateCard" style="flex:1;background:var(--card-bg);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);min-height:68px;-webkit-tap-highlight-color:transparent;user-select:none;">
+              <div id="dtDateIcon" style="font-size:28px;flex-shrink:0;transition:transform 0.3s ease;pointer-events:none;">📅</div>
+              <div style="flex:1;min-width:0;pointer-events:none;">
+                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">${{ ru: "Дата", en: "Date", ka: "თარიღი" }[currentLang]}</div>
+                <div id="dateDisplay" style="font-size:14px;font-weight:700;line-height:1.3;color:${customReminderDate ? "var(--text)" : "var(--text-muted)"};">${
+                  customReminderDate
+                    ? (() => {
+                        try {
+                          return new Date(
+                            customReminderDate + "T00:00",
+                          ).toLocaleDateString(
+                            currentLang === "en"
+                              ? "en-US"
+                              : currentLang === "ka"
+                                ? "ka-GE"
+                                : "ru-RU",
+                            { day: "numeric", month: "long", year: "numeric" },
+                          );
+                        } catch (e) {
+                          return customReminderDate;
+                        }
+                      })()
+                    : {
+                        ru: "Нажмите для выбора",
+                        en: "Tap to choose",
+                        ka: "დAAჭირეთ",
+                      }[currentLang]
+                }</div>
+              </div>
+              <div style="font-size:18px;color:var(--primary);flex-shrink:0;pointer-events:none;font-weight:900;">›</div>
+              <input type="date" id="reminderCustomDate" class="custom-date-input" value="${customReminderDate || ""}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;" aria-hidden="true" tabindex="-1">
+            </div>
+
+            <div id="timeCard" style="flex:1;background:var(--card-bg);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);min-height:68px;-webkit-tap-highlight-color:transparent;user-select:none;">
+              <div id="dtTimeIcon" style="font-size:28px;flex-shrink:0;transition:transform 0.3s ease;pointer-events:none;">⏰</div>
+              <div style="flex:1;min-width:0;pointer-events:none;">
+                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">${{ ru: "Время", en: "Time", ka: "დრო" }[currentLang]}</div>
+                <div id="timeDisplay" style="font-size:14px;font-weight:700;line-height:1.3;color:${customReminderTime ? "var(--text)" : "var(--text-muted)"};">${customReminderTime || { ru: "Нажмите для выбора", en: "Tap to choose", ka: "დAAჭირეთ" }[currentLang]}</div>
+              </div>
+              <div style="font-size:18px;color:var(--primary);flex-shrink:0;pointer-events:none;font-weight:900;">›</div>
+              <input type="time" id="reminderCustomTime" class="custom-time-input" value="${customReminderTime || ""}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;" aria-hidden="true" tabindex="-1">
+            </div>
+
           </div>
-          <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:5px;margin-bottom:6px;font-weight:600;">👆 ${{ ru: "Нажмите на поле — откроется выбор даты/времени", en: "Tap the field to open the date/time picker", ka: "დააჭირეთ ველს — გაიხსნება" }[currentLang]}</div>
           
           <div class="field-group">
             <label class="field-label">📝 Текст уведомления</label>
@@ -5494,31 +5529,173 @@ function renderSettings() {
     <div style="text-align:center;padding:20px;color:var(--text-muted);">Мой Бюджет v2.2 · Офлайн 📴</div>`;
   document.getElementById("mainContent").innerHTML = html;
 
-  // === DATETIME PICKERS — label-based, hover animation only ===
-  // Native picker opens automatically via <label for="..."> — no JS needed for click
-  // Just add focus/hover visual effects
-  ["reminderCustomDate", "reminderCustomTime"].forEach((id) => {
-    const inp = document.getElementById(id);
-    if (!inp) return;
-    const wrapper = inp.closest("label");
-    if (!wrapper) return;
-    inp.addEventListener("focus", () => {
-      wrapper.style.borderColor = "var(--primary)";
-      wrapper.style.boxShadow = "0 0 0 4px rgba(45,106,79,0.18)";
-      wrapper.style.background = "var(--card-bg)";
-      wrapper.style.transform = "translateY(-2px) scale(1.01)";
-      const icon = wrapper.querySelector(".datetime-icon");
-      if (icon) icon.style.transform = "scale(1.3) rotate(-12deg)";
-    });
-    inp.addEventListener("blur", () => {
-      wrapper.style.borderColor = "";
-      wrapper.style.boxShadow = "";
-      wrapper.style.background = "";
-      wrapper.style.transform = "";
-      const icon = wrapper.querySelector(".datetime-icon");
+  // === DATETIME CARDS — 100% JS-driven, no pointer-events on input ===
+  function setupDateTimeCards() {
+    const langMap = { ru: "ru-RU", en: "en-US", ka: "ka-GE" };
+    const loc = langMap[currentLang] || "ru-RU";
+    const phDate = {
+      ru: "Нажмите для выбора",
+      en: "Tap to choose",
+      ka: "დAAჭირეთ",
+    }[currentLang];
+    const phTime = {
+      ru: "Нажмите для выбора",
+      en: "Tap to choose",
+      ka: "დAAჭირეთ",
+    }[currentLang];
+
+    function fmtDate(v) {
+      if (!v) return phDate;
+      try {
+        return new Date(v + "T00:00").toLocaleDateString(loc, {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+      } catch (e) {
+        return v;
+      }
+    }
+    function fmtTime(v) {
+      return v || phTime;
+    }
+
+    function activateCard(card, icon) {
+      if (!card) return;
+      card.style.borderColor = "var(--primary)";
+      card.style.boxShadow = "0 0 0 4px rgba(45,106,79,0.2)";
+      card.style.transform = "scale(1.02) translateY(-2px)";
+      card.style.background = "var(--primary-pale)";
+      if (icon) icon.style.transform = "scale(1.3) rotate(-15deg)";
+    }
+    function deactivateCard(card, icon) {
+      if (!card) return;
+      card.style.borderColor = "var(--cream-border)";
+      card.style.boxShadow = "var(--shadow-sm)";
+      card.style.transform = "";
+      card.style.background = "var(--card-bg)";
       if (icon) icon.style.transform = "";
-    });
-  });
+    }
+
+    // The definitive cross-browser picker trigger
+    function openPicker(inp, card, icon) {
+      if (!inp) return;
+      activateCard(card, icon);
+      // Most reliable: temporarily make input visible at card position, call showPicker, then hide again
+      if (typeof inp.showPicker === "function") {
+        inp.style.position = "fixed";
+        inp.style.top = "0";
+        inp.style.left = "0";
+        inp.style.width = "100vw";
+        inp.style.height = "100vh";
+        inp.style.opacity = "0";
+        inp.style.zIndex = "9999";
+        inp.style.pointerEvents = "auto";
+        inp.focus();
+        try {
+          inp.showPicker();
+          // After picker closes, restore
+          const restore = () => {
+            inp.style.position = "absolute";
+            inp.style.width = "0";
+            inp.style.height = "0";
+            inp.style.top = "";
+            inp.style.left = "";
+            inp.style.zIndex = "";
+            inp.style.pointerEvents = "none";
+            deactivateCard(card, icon);
+          };
+          inp.addEventListener("blur", restore, { once: true });
+          inp.addEventListener("change", restore, { once: true });
+          setTimeout(restore, 5000); // safety timeout
+        } catch (e) {
+          // Restore on error
+          inp.style.position = "absolute";
+          inp.style.width = "0";
+          inp.style.height = "0";
+          inp.style.zIndex = "";
+          inp.style.pointerEvents = "none";
+          deactivateCard(card, icon);
+        }
+      } else {
+        // Fallback for older browsers
+        inp.style.position = "fixed";
+        inp.style.top = "50%";
+        inp.style.left = "50%";
+        inp.style.transform = "translate(-50%,-50%)";
+        inp.style.width = "200px";
+        inp.style.height = "50px";
+        inp.style.opacity = "0.01";
+        inp.style.zIndex = "9999";
+        inp.style.pointerEvents = "auto";
+        inp.focus();
+        inp.click();
+        setTimeout(() => {
+          inp.style.position = "absolute";
+          inp.style.width = "0";
+          inp.style.height = "0";
+          inp.style.opacity = "0";
+          inp.style.zIndex = "";
+          inp.style.pointerEvents = "none";
+          inp.style.transform = "";
+          deactivateCard(card, icon);
+        }, 300);
+      }
+    }
+
+    const dateInp = document.getElementById("reminderCustomDate");
+    const timeInp = document.getElementById("reminderCustomTime");
+    const dateCard = document.getElementById("dateCard");
+    const timeCard = document.getElementById("timeCard");
+    const dateDisp = document.getElementById("dateDisplay");
+    const timeDisp = document.getElementById("timeDisplay");
+    const dateIcon = document.getElementById("dtDateIcon");
+    const timeIcon = document.getElementById("dtTimeIcon");
+
+    if (dateCard && dateInp) {
+      dateCard.addEventListener("click", () =>
+        openPicker(dateInp, dateCard, dateIcon),
+      );
+      dateCard.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        openPicker(dateInp, dateCard, dateIcon);
+      });
+      dateInp.addEventListener("change", () => {
+        if (dateDisp) {
+          dateDisp.textContent = fmtDate(dateInp.value);
+          dateDisp.style.color = dateInp.value
+            ? "var(--text)"
+            : "var(--text-muted)";
+        }
+      });
+      if (dateDisp && dateInp.value) {
+        dateDisp.textContent = fmtDate(dateInp.value);
+        dateDisp.style.color = "var(--text)";
+      }
+    }
+    if (timeCard && timeInp) {
+      timeCard.addEventListener("click", () =>
+        openPicker(timeInp, timeCard, timeIcon),
+      );
+      timeCard.addEventListener("touchend", (e) => {
+        e.preventDefault();
+        openPicker(timeInp, timeCard, timeIcon);
+      });
+      timeInp.addEventListener("change", () => {
+        if (timeDisp) {
+          timeDisp.textContent = fmtTime(timeInp.value);
+          timeDisp.style.color = timeInp.value
+            ? "var(--text)"
+            : "var(--text-muted)";
+        }
+      });
+      if (timeDisp && timeInp.value) {
+        timeDisp.textContent = fmtTime(timeInp.value);
+        timeDisp.style.color = "var(--text)";
+      }
+    }
+  }
+  setupDateTimeCards();
 
   // === ОБРАБОТЧИКИ ЧЕКБОКСОВ ИНТЕРВАЛОВ ===
   document.querySelectorAll(".reminder-interval-checkbox").forEach((cb) => {
@@ -6271,9 +6448,30 @@ function renderSettings() {
 function renderBudgetsBody() {
   if (!Object.keys(categoryBudgets).length)
     return `<div style="color:var(--text-muted);font-size:14px;padding:8px 0;">${t("budgetNoBudgets")}</div>`;
-  const now = new Date(),
+  const budgetPeriod = localStorage.getItem("budget_period") || "monthly";
+  const now = new Date();
+  let ms;
+  if (budgetPeriod === "weekly") {
+    const day = now.getDay() === 0 ? 6 : now.getDay() - 1; // Mon=0
+    ms = new Date(now);
+    ms.setDate(now.getDate() - day);
+    ms.setHours(0, 0, 0, 0);
+  } else if (budgetPeriod === "daily") {
+    ms = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  } else {
     ms = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+  const periodL = {
+    monthly: { ru: "Месяц", en: "Month", ka: "თვე" },
+    weekly: { ru: "Неделя", en: "Week", ka: "კვირა" },
+    daily: { ru: "День", en: "Day", ka: "დღე" },
+  };
+  const pl = (periodL[budgetPeriod] || periodL.monthly)[currentLang];
+  const periodHeader = `<div style="display:flex;gap:8px;margin-bottom:14px;background:var(--cream-dark);padding:4px;border-radius:var(--radius-sm);">
+    ${["monthly", "weekly", "daily"].map((p) => `<button data-bp="${p}" style="flex:1;padding:8px 6px;border-radius:calc(var(--radius-sm) - 4px);border:none;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;background:${p === budgetPeriod ? "var(--primary)" : "transparent"};color:${p === budgetPeriod ? "white" : "var(--text-muted)"};">${(periodL[p] || {})[currentLang]}</button>`).join("")}
+  </div>`;
   return (
+    periodHeader +
     Object.entries(categoryBudgets)
       .map(([cat, limit]) => {
         const spent = transactions
@@ -6305,7 +6503,7 @@ function renderBudgetsBody() {
     </div>`;
       })
       .join("") +
-    "<script>document.querySelectorAll('.budget-del-btn').forEach(b=>b.addEventListener('click',()=>{askConfirm(t('budgetDeleteConfirm'),()=>{delete categoryBudgets[b.dataset.cat];saveAll();renderSettings();},{icon:'🗑️'});}));<\/script>"
+    "<script>document.querySelectorAll('.budget-del-btn').forEach(b=>b.addEventListener('click',()=>{askConfirm(t('budgetDeleteConfirm'),()=>{delete categoryBudgets[b.dataset.cat];saveAll();renderSettings();},{icon:'🗑️'})}));document.querySelectorAll('[data-bp]').forEach(b=>b.addEventListener('click',()=>{localStorage.setItem('budget_period',b.dataset.bp);renderSettings();}));<\/script>"
   );
 }
 
@@ -7523,9 +7721,13 @@ function generateShareId() {
 }
 const HARDCODED_APP_URL = "https://motserelia.github.io/BudgetPro/";
 function getAppUrl() {
-  // 1. User override in localStorage
-  const s = localStorage.getItem("budgetpro_app_url") || "";
-  if (s) return s;
+  // 1. User override in localStorage (explicit save wins, including empty = auto)
+  const stored = localStorage.getItem("budgetpro_app_url");
+  if (stored !== null && stored.trim()) return stored.trim();
+  // If stored is empty string, fall through to auto-detect
+  if (stored === null) {
+    // Never saved — auto-set from current location
+  }
   // 2. Auto-detect from current location (works on GitHub Pages / Netlify / etc.)
   if (
     window.location.protocol.startsWith("http") &&
@@ -8546,7 +8748,7 @@ function openSupportModal() {
   }
 
   // === SUPPORT DISABLED ===
-  if (!canContact) {
+  if (canContact === false || cs.contactEnabled === false) {
     const L0 = {
       ru: "Поддержка временно недоступна",
       en: "Support temporarily unavailable",
@@ -9007,7 +9209,14 @@ function updateSupportBadge() {
     const ownerData = JSON.parse(
       localStorage.getItem("budget_profile_" + ownerProf.id) || "{}",
     );
-    const msgs = ownerData.supportMessages || [];
+    const globalMsgsB = JSON.parse(
+      localStorage.getItem("budgetpro_global_messages") || "[]",
+    );
+    const allMsgsMapB = new Map();
+    [...(ownerData.supportMessages || []), ...globalMsgsB].forEach((m) =>
+      allMsgsMapB.set(m.id, m),
+    );
+    const msgs = [...allMsgsMapB.values()];
     let count = 0;
     if (isCreator()) {
       count = msgs.filter((m) => !m.readByCreator && !m.replied).length;
@@ -9160,7 +9369,8 @@ function openEnhancedSupportModal() {
     openCreatorChatPanel();
     return;
   }
-  if (!cs.contactEnabled) {
+  // Default: contactEnabled is TRUE unless explicitly set to false
+  if (cs.contactEnabled === false) {
     const L = {
       ru: "Поддержка временно недоступна",
       en: "Support temporarily unavailable",
@@ -9180,7 +9390,16 @@ function openUserChatPanel() {
   const ownerData = ownerProf
     ? JSON.parse(localStorage.getItem("budget_profile_" + ownerProf.id) || "{}")
     : {};
-  const allMsgs = ownerData.supportMessages || [];
+  // Read from global messages (works cross-session on same device)
+  const globalUserMsgs = JSON.parse(
+    localStorage.getItem("budgetpro_global_messages") || "[]",
+  );
+  const profileUserMsgs = ownerData.supportMessages || [];
+  const allMsgsMapU = new Map();
+  [...profileUserMsgs, ...globalUserMsgs].forEach((m) =>
+    allMsgsMapU.set(m.id, m),
+  );
+  const allMsgs = [...allMsgsMapU.values()];
   const myMsgs = allMsgs.filter((m) => m.fromProfile === activeProfileId);
   const lang = currentLang;
 
@@ -9404,14 +9623,21 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgs) {
     replyDate: null,
   };
 
+  // Save to global messages store (works even without owner profile on same device)
+  allMsgs.push(newMsg);
+  const globalMsgs = JSON.parse(
+    localStorage.getItem("budgetpro_global_messages") || "[]",
+  );
+  globalMsgs.push(newMsg);
+  localStorage.setItem("budgetpro_global_messages", JSON.stringify(globalMsgs));
+  localStorage.setItem("has_new_support_messages", "true");
+
   if (ownerProf) {
     ownerData.supportMessages = allMsgs;
-    allMsgs.push(newMsg);
     localStorage.setItem(
       "budget_profile_" + ownerProf.id,
       JSON.stringify(ownerData),
     );
-    localStorage.setItem("has_new_support_messages", "true");
   }
 
   const feed = document.getElementById("userChatFeed");
@@ -9447,7 +9673,14 @@ function openCreatorChatPanel() {
   const ownerData = JSON.parse(
     localStorage.getItem("budget_profile_" + activeProfileId) || "{}",
   );
-  const msgs = (ownerData.supportMessages || []).sort(
+  // Merge profile messages + global messages (dedup by id)
+  const profileMsgs = ownerData.supportMessages || [];
+  const globalMsgs2 = JSON.parse(
+    localStorage.getItem("budgetpro_global_messages") || "[]",
+  );
+  const allMsgsMap = new Map();
+  [...profileMsgs, ...globalMsgs2].forEach((m) => allMsgsMap.set(m.id, m));
+  const msgs = [...allMsgsMap.values()].sort(
     (a, b) => new Date(b.date) - new Date(a.date),
   );
   const lang = currentLang;
@@ -9697,22 +9930,27 @@ function openCreatorChatPanel() {
   const reattach = () => {
     // Save URL
     document.getElementById("saveCreatorUrl")?.addEventListener("click", () => {
-      const urlVal =
-        document.getElementById("creatorAppUrlInput")?.value.trim() || "";
+      const rawVal = document.getElementById("creatorAppUrlInput")?.value || "";
+      const urlVal = rawVal.trim();
       if (urlVal) {
         localStorage.setItem("budgetpro_app_url", urlVal);
         showToast(
           {
-            ru: "✅ URL сохранён! Ссылки теперь используют этот адрес",
-            en: "✅ URL saved! Links now use this address",
-            ka: "✅ URL შენახულია!",
+            ru: "✅ URL сохранён! Теперь все ссылки используют: " + urlVal,
+            en: "✅ URL saved! All links now use: " + urlVal,
+            ka: "✅ URL შენახულია: " + urlVal,
           }[lang],
           "success",
         );
       } else {
-        localStorage.removeItem("budgetpro_app_url");
+        // Save empty string explicitly so getAppUrl() doesn't auto-detect
+        localStorage.setItem("budgetpro_app_url", "");
         showToast(
-          { ru: "URL сброшен", en: "URL cleared", ka: "URL გასუფთავდა" }[lang],
+          {
+            ru: "🗑 URL удалён — ссылки будут использовать адрес GitHub",
+            en: "🗑 URL cleared — links will use auto-detected address",
+            ka: "🗑 URL წაიშალა",
+          }[lang],
         );
       }
     });
@@ -9800,10 +10038,19 @@ function openCreatorChatPanel() {
         msgObj.replied = true;
         msgObj.replyDate = new Date().toISOString();
         msgObj.replyReadByUser = false;
+        // Save to profile
+        ownerData.supportMessages = [...allMsgsMap.values()];
         localStorage.setItem(
           "budget_profile_" + activeProfileId,
           JSON.stringify(ownerData),
         );
+        // Also save to global key so user can see reply
+        const gm = JSON.parse(
+          localStorage.getItem("budgetpro_global_messages") || "[]",
+        );
+        const gmIdx = gm.findIndex((m) => m.id === id);
+        if (gmIdx >= 0) gm[gmIdx] = msgObj;
+        localStorage.setItem("budgetpro_global_messages", JSON.stringify(gm));
 
         // Update UI in place
         const box = document.getElementById("reply-box-" + id);
@@ -10336,4 +10583,901 @@ setTimeout(ensureSupportButton, 500);
 const _origInit = typeof init === "function" ? init : null;
 if (_origInit) {
   window._initHooked = true;
+}
+
+// ============================================================
+// ██████  НОВЫЕ ФУНКЦИИ — БЛОК v3.0
+// ============================================================
+
+// ──────────────────────────────────────────────────────────────
+// 1. ОНБОРДИНГ — экран приветствия для новых пользователей
+// ──────────────────────────────────────────────────────────────
+function shouldShowOnboarding() {
+  return !localStorage.getItem("onboarding_done");
+}
+
+function showOnboarding() {
+  if (!shouldShowOnboarding()) return;
+  const lang = currentLang;
+  const slides = {
+    ru: [
+      {
+        emoji: "🌿",
+        title: "Добро пожаловать\nв БюджетPRO!",
+        sub: "Личный финансовый трекер\nОфлайн · Без регистрации · Бесплатно",
+        color: "var(--primary)",
+      },
+      {
+        emoji: "💸",
+        title: "Записывайте расходы\nи доходы",
+        sub: "Нажмите «+» в нижней части экрана → выберите категорию → введите сумму. Готово!",
+        color: "var(--expense-color)",
+      },
+      {
+        emoji: "📊",
+        title: "Смотрите статистику",
+        sub: "Вкладка «Статистика» — диаграммы, тренды, прогноз. Отслеживайте куда уходят деньги.",
+        color: "#2563eb",
+      },
+      {
+        emoji: "🎯",
+        title: "Ставьте бюджеты",
+        sub: "Настройки → Бюджеты. Установите лимит по категории — приложение предупредит о превышении.",
+        color: "var(--gold)",
+      },
+    ],
+    en: [
+      {
+        emoji: "🌿",
+        title: "Welcome to BudgetPRO!",
+        sub: "Personal finance tracker\nOffline · No registration · Free",
+        color: "var(--primary)",
+      },
+      {
+        emoji: "💸",
+        title: "Track income\n& expenses",
+        sub: "Tap «+» at the bottom → choose category → enter amount. Done!",
+        color: "var(--expense-color)",
+      },
+      {
+        emoji: "📊",
+        title: "View statistics",
+        sub: "The «Stats» tab — charts, trends, forecast. See where your money goes.",
+        color: "#2563eb",
+      },
+      {
+        emoji: "🎯",
+        title: "Set budgets",
+        sub: "Settings → Budgets. Set a limit per category — the app will warn you.",
+        color: "var(--gold)",
+      },
+    ],
+    ka: [
+      {
+        emoji: "🌿",
+        title: "კეთილი იყოს\nთქვენი მობრძანება!",
+        sub: "პირადი ფინანსური ტრეკერი\nოფლაინ · რეგისტრაციის გარეშე · უფასო",
+        color: "var(--primary)",
+      },
+      {
+        emoji: "💸",
+        title: "ჩაიწერეთ ხარჯები\nდა შემოსავლები",
+        sub: "«+» ქვემოთ → კატეგორია → თანხა. მზადაა!",
+        color: "var(--expense-color)",
+      },
+      {
+        emoji: "📊",
+        title: "ნახეთ სტატისტიკა",
+        sub: "«სტატისტიკა» ჩანართი — დიაგრამები, ტრენდები, პროგნოზი.",
+        color: "#2563eb",
+      },
+      {
+        emoji: "🎯",
+        title: "დაადგინეთ ბიუჯეტები",
+        sub: "პარამეტრები → ბიუჯეტები. ლიმიტი კატეგორიაში.",
+        color: "var(--gold)",
+      },
+    ],
+  };
+  const sl = slides[lang] || slides.ru;
+  let cur = 0;
+
+  const ov = document.createElement("div");
+  ov.id = "onboardingOverlay";
+  ov.style.cssText =
+    "position:fixed;inset:0;z-index:99999;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:40px 28px 48px;animation:fadeIn 0.4s ease both;";
+
+  const skipL = { ru: "Пропустить", en: "Skip", ka: "გამოტოვება" };
+  const nextL = { ru: "Далее →", en: "Next →", ka: "შემდეგი →" };
+  const doneL = { ru: "Начать! 🚀", en: "Start! 🚀", ka: "დაწყება! 🚀" };
+
+  function renderSlide() {
+    const s = sl[cur];
+    ov.innerHTML = `
+      <button id="obSkip" style="align-self:flex-end;background:none;border:none;color:var(--text-muted);font-size:14px;font-weight:700;cursor:pointer;padding:4px 0;">${skipL[lang]}</button>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;max-width:320px;margin:0 auto;">
+        <div style="font-size:80px;line-height:1;animation:bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;">${s.emoji}</div>
+        <div style="font-size:26px;font-weight:900;color:${s.color};line-height:1.25;white-space:pre-line;">${s.title}</div>
+        <div style="font-size:15px;color:var(--text-soft);line-height:1.6;white-space:pre-line;">${s.sub}</div>
+      </div>
+      <div style="width:100%;max-width:320px;">
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:24px;">
+          ${sl.map((_, i) => `<div style="width:${i === cur ? 28 : 8}px;height:8px;border-radius:99px;background:${i === cur ? "var(--primary)" : "var(--cream-border)"};transition:all 0.3s ease;"></div>`).join("")}
+        </div>
+        <button id="obNext" style="width:100%;padding:18px;border-radius:var(--radius-xl);background:${s.color};color:white;border:none;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px ${s.color}44;transition:all 0.2s;">${cur < sl.length - 1 ? nextL[lang] : doneL[lang]}</button>
+      </div>`;
+
+    document.getElementById("obSkip").onclick = finishOnboarding;
+    document.getElementById("obNext").onclick = () => {
+      if (cur < sl.length - 1) {
+        cur++;
+        renderSlide();
+      } else finishOnboarding();
+    };
+  }
+
+  function finishOnboarding() {
+    localStorage.setItem("onboarding_done", "1");
+    ov.style.animation = "fadeOut 0.3s ease forwards";
+    setTimeout(() => ov.remove(), 300);
+  }
+
+  // Add bounceIn animation
+  if (!document.getElementById("obStyle")) {
+    const s = document.createElement("style");
+    s.id = "obStyle";
+    s.textContent =
+      "@keyframes bounceIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}} @keyframes fadeOut{to{opacity:0;transform:scale(1.02)}}";
+    document.head.appendChild(s);
+  }
+
+  document.body.appendChild(ov);
+  renderSlide();
+}
+
+// Show onboarding after first init
+setTimeout(() => {
+  if (shouldShowOnboarding()) showOnboarding();
+}, 600);
+
+// ──────────────────────────────────────────────────────────────
+// 2. СВАЙП СНИЗУ ВВЕРХ — быстрое добавление операции
+// ──────────────────────────────────────────────────────────────
+(function initSwipeToAdd() {
+  let startY = 0,
+    startTime = 0;
+  const THRESHOLD = 90; // px
+  const MAX_DURATION = 350; // ms
+
+  document.addEventListener(
+    "touchstart",
+    (e) => {
+      const touch = e.touches[0];
+      startY = touch.clientY;
+      startTime = Date.now();
+    },
+    { passive: true },
+  );
+
+  document.addEventListener(
+    "touchend",
+    (e) => {
+      const touch = e.changedTouches[0];
+      const dy = startY - touch.clientY; // positive = swipe up
+      const dt = Date.now() - startTime;
+      // Only trigger from bottom 30% of screen, fast upward swipe
+      if (
+        dy > THRESHOLD &&
+        dt < MAX_DURATION &&
+        startY > window.innerHeight * 0.65
+      ) {
+        // Don't trigger if a modal is open or inside a scrollable area
+        if (document.querySelector(".modal-overlay.open")) return;
+        if (
+          e.target.closest(".modal, .modal-overlay, .bottom-nav, #mainContent")
+        )
+          return;
+        // Trigger FAB
+        document.getElementById("fabBtn")?.click();
+      }
+    },
+    { passive: true },
+  );
+})();
+
+// ──────────────────────────────────────────────────────────────
+// 3. ПОДТВЕРЖДЕНИЕ УДАЛЕНИЯ БОЛЬШОЙ СУММЫ (>5000)
+// ──────────────────────────────────────────────────────────────
+const _origDeleteOp = typeof deleteOp === "function" ? deleteOp : null;
+function safeDeleteOp(idx) {
+  const op = transactions[idx];
+  if (!op) {
+    if (_origDeleteOp) _origDeleteOp(idx);
+    return;
+  }
+  const threshold = 5000; // in base currency
+  if (Math.abs(op.amountRub) >= threshold) {
+    const L = {
+      ru: `Удалить операцию на ${fmt(op.amountRub)}?`,
+      en: `Delete transaction for ${fmt(op.amountRub)}?`,
+      ka: `წავშალოთ ${fmt(op.amountRub)}-ის ოპერაცია?`,
+    };
+    askConfirm(
+      L[currentLang] || L.ru,
+      () => {
+        if (_origDeleteOp) _origDeleteOp(idx);
+        else {
+          transactions.splice(idx, 1);
+          saveAll();
+          updateTopBlocks();
+          if (currentTab === "home") renderHome();
+          showToast(t("deleted"));
+        }
+      },
+      { icon: "⚠️", yesText: t("confirmOkBtn") },
+    );
+  } else {
+    if (_origDeleteOp) _origDeleteOp(idx);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// 4. СКАНИРОВАНИЕ ЧЕКОВ — камера + OCR через Tesseract.js
+// ──────────────────────────────────────────────────────────────
+function openReceiptScanner() {
+  const lang = currentLang;
+  const L = {
+    ru: {
+      title: "📸 Сканировать чек",
+      hint: "Сфотографируйте чек — приложение попробует распознать сумму",
+      scan: "Открыть камеру",
+      result: "Распознанная сумма:",
+      confirm: "Использовать",
+      cancel: "Отмена",
+      scanning: "Распознаю...",
+      notFound: "Сумма не найдена. Введите вручную.",
+      noCamera: "Камера недоступна",
+    },
+    en: {
+      title: "📸 Scan receipt",
+      hint: "Take a photo of a receipt — the app will try to recognize the amount",
+      scan: "Open camera",
+      result: "Detected amount:",
+      confirm: "Use this",
+      cancel: "Cancel",
+      scanning: "Recognizing...",
+      notFound: "Amount not found. Enter manually.",
+      noCamera: "Camera unavailable",
+    },
+    ka: {
+      title: "📸 ჩეკის სკანირება",
+      hint: "სფოტოგრაფირეთ ჩეკი — პროგრამა ამოიცნობს თანხას",
+      scan: "კამერის გახსნა",
+      result: "ამოცნობილი თანხა:",
+      confirm: "გამოყენება",
+      cancel: "გაუქმება",
+      scanning: "ამოცნობა...",
+      notFound: "თანხა ვერ მოიძებნა.",
+      noCamera: "კამერა მიუწვდომელია",
+    },
+  };
+  const lc = L[lang] || L.ru;
+
+  const html = `
+    <div style="background:var(--primary-pale);border-radius:14px;padding:12px 14px;margin-bottom:16px;border-left:4px solid var(--primary);font-size:13px;line-height:1.6;">${lc.hint}</div>
+    <div id="scanArea" style="text-align:center;">
+      <div style="width:100%;height:180px;background:var(--cream-dark);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:16px;border:2px dashed var(--cream-border);position:relative;overflow:hidden;" id="scanPreview">
+        <div style="text-align:center;color:var(--text-muted);">
+          <div style="font-size:48px;margin-bottom:8px;">📷</div>
+          <div style="font-size:13px;font-weight:700;">${lc.scan}</div>
+        </div>
+        <input type="file" id="receiptInput" accept="image/*" capture="environment" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+      </div>
+      <div id="scanStatus" style="font-size:14px;color:var(--text-muted);margin-bottom:12px;min-height:20px;"></div>
+      <div id="scanResultArea" style="display:none;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">${lc.result}</div>
+        <div id="scanAmount" style="font-size:32px;font-weight:900;color:var(--primary);margin-bottom:16px;"></div>
+        <button class="btn-primary" id="useAmountBtn" style="width:100%;margin-bottom:10px;">${lc.confirm}</button>
+      </div>
+    </div>
+    <button class="btn-secondary" id="scanCancel" style="width:100%;">${lc.cancel}</button>`;
+
+  const modal = createModal("scanModal", lc.title, html);
+  document.body.appendChild(modal);
+  openModal("scanModal");
+  document
+    .getElementById("scanCancel")
+    .addEventListener("click", () => closeModal("scanModal"));
+
+  document
+    .getElementById("receiptInput")
+    .addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const preview = document.getElementById("scanPreview");
+        preview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:contain;">
+        <input type="file" id="receiptInput2" accept="image/*" capture="environment" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">`;
+
+        const status = document.getElementById("scanStatus");
+        status.textContent = lc.scanning;
+
+        try {
+          // Load Tesseract.js dynamically
+          if (!window.Tesseract) {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement("script");
+              script.src =
+                "https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.3/tesseract.min.js";
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+          const result = await window.Tesseract.recognize(
+            ev.target.result,
+            "rus+eng",
+            {},
+          );
+          const text = result.data.text;
+          // Find largest number in text (likely the total)
+          const numbers = [...text.matchAll(/[\d\s]+[.,]\d{1,2}/g)].map((m) =>
+            parseFloat(m[0].replace(/\s/g, "").replace(",", ".")),
+          );
+          const biggest = numbers.length ? Math.max(...numbers) : null;
+
+          if (biggest && biggest > 0) {
+            status.textContent = "";
+            document.getElementById("scanResultArea").style.display = "block";
+            document.getElementById("scanAmount").textContent = fmt(
+              biggest * (1 / exchangeRates[displayCurrency] || 1),
+            );
+            document.getElementById("useAmountBtn").onclick = () => {
+              closeModal("scanModal");
+              // Open add operation modal with pre-filled amount
+              addType = "expense";
+              openAddModal();
+              setTimeout(() => {
+                const amtInput = document.getElementById("addAmount");
+                if (amtInput) amtInput.value = toDisp(biggest).toFixed(2);
+              }, 400);
+            };
+          } else {
+            status.textContent = lc.notFound;
+          }
+        } catch (err) {
+          status.textContent = lc.notFound;
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+}
+
+// ──────────────────────────────────────────────────────────────
+// 5. ПРАВИЛО 50/30/20 — автоматическое распределение бюджета
+// ──────────────────────────────────────────────────────────────
+function openBudget503020Modal() {
+  const lang = currentLang;
+  const L = {
+    ru: {
+      title: "⚖️ Правило 50/30/20",
+      what: "Что это такое?",
+      whatDesc:
+        "Правило Уоррена Баффета для личных финансов. Ваш доход делится на три части: 50% на нужды, 30% на желания, 20% на сбережения и инвестиции.",
+      income: "Ваш ежемесячный доход",
+      needsTitle: "🏠 50% — Нужды (обязательные расходы)",
+      needsDesc: "Аренда, коммуналка, продукты, транспорт, кредиты",
+      wantsTitle: "🎉 30% — Желания (развлечения)",
+      wantsDesc: "Рестораны, одежда, путешествия, хобби",
+      savingsTitle: "💰 20% — Сбережения",
+      savingsDesc: "Резервный фонд, инвестиции, пенсионный счёт",
+      calc: "Рассчитать",
+      apply: "Применить как лимиты",
+      applied: "✅ Лимиты применены в раздел «Бюджеты»",
+      tip: "💡 Начните с 50/30/20 и корректируйте под себя. Главное — начать откладывать хоть что-то!",
+      currency: "Валюта",
+    },
+    en: {
+      title: "⚖️ 50/30/20 Rule",
+      what: "What is this?",
+      whatDesc:
+        "Warren Buffett's personal finance rule. Your income is split: 50% for needs, 30% for wants, 20% for savings and investments.",
+      income: "Your monthly income",
+      needsTitle: "🏠 50% — Needs (mandatory)",
+      needsDesc: "Rent, utilities, groceries, transport, loans",
+      wantsTitle: "🎉 30% — Wants (entertainment)",
+      wantsDesc: "Restaurants, clothes, travel, hobbies",
+      savingsTitle: "💰 20% — Savings",
+      savingsDesc: "Emergency fund, investments, retirement",
+      calc: "Calculate",
+      apply: "Apply as budget limits",
+      applied: "✅ Limits applied to Budgets",
+      tip: "💡 Start with 50/30/20 and adjust to your lifestyle. The key is to start saving something!",
+      currency: "Currency",
+    },
+    ka: {
+      title: "⚖️ 50/30/20 წესი",
+      what: "რა არის ეს?",
+      whatDesc:
+        "უორენ ბაფეტის პირადი ფინანსების წესი. შემოსავლის 50% — საჭიროებები, 30% — სურვილები, 20% — დანაზოგები.",
+      income: "თქვენი ყოველთვიური შემოსავალი",
+      needsTitle: "🏠 50% — საჭიროებები",
+      needsDesc: "ქირა, კომუნალური, საკვები, ტრანსპორტი, სესხები",
+      wantsTitle: "🎉 30% — სურვილები",
+      wantsDesc: "რესტორნები, ტანსაცმელი, მოგზაურობა, ჰობი",
+      savingsTitle: "💰 20% — დანაზოგები",
+      savingsDesc: "სარეზერვო ფონდი, ინვესტიციები",
+      calc: "გამოანგარიშება",
+      apply: "ლიმიტების გამოყენება",
+      applied: "✅ ლიმიტები გამოყენებულია",
+      tip: "💡 დაიწყეთ 50/30/20-ით და მოარგეთ თქვენს ცხოვრებას!",
+      currency: "ვალუტა",
+    },
+  };
+  const lc = L[lang] || L.ru;
+
+  // Calculate current average income from transactions
+  const incomeTransactions = transactions.filter(
+    (t) => t.type === "income" && !t._initial,
+  );
+  const avgMonthlyIncome =
+    incomeTransactions.length > 0
+      ? incomeTransactions.reduce((s, t) => s + t.amountRub, 0) /
+        Math.max(
+          1,
+          new Set(incomeTransactions.map((t) => (t.date || "").slice(0, 7)))
+            .size,
+        )
+      : 0;
+  const prefillIncome = toDisp(avgMonthlyIncome).toFixed(0);
+
+  const html = `
+    <div style="background:var(--balance-pale);border-radius:14px;padding:12px 14px;margin-bottom:14px;border-left:4px solid #2563eb;">
+      <div style="font-weight:800;font-size:14px;color:#2563eb;margin-bottom:4px;">${lc.what}</div>
+      <div style="font-size:13px;color:var(--text-soft);line-height:1.6;">${lc.whatDesc}</div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">${lc.income} (${sym()})</label>
+      <input type="number" id="ruleIncome" class="modal-input" value="${prefillIncome}" min="0" step="1" placeholder="0" inputmode="numeric">
+    </div>
+
+    <div id="ruleResults" style="display:none;">
+      <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:16px;">
+        <div style="background:var(--expense-pale);border-radius:var(--radius-md);padding:14px;border-left:4px solid var(--expense-color);">
+          <div style="font-weight:800;font-size:13px;margin-bottom:4px;">${lc.needsTitle}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${lc.needsDesc}</div>
+          <div id="needs50" style="font-size:22px;font-weight:900;color:var(--expense-color);"></div>
+        </div>
+        <div style="background:var(--gold-pale);border-radius:var(--radius-md);padding:14px;border-left:4px solid var(--gold);">
+          <div style="font-weight:800;font-size:13px;margin-bottom:4px;">${lc.wantsTitle}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${lc.wantsDesc}</div>
+          <div id="wants30" style="font-size:22px;font-weight:900;color:var(--gold);"></div>
+        </div>
+        <div style="background:var(--income-pale);border-radius:var(--radius-md);padding:14px;border-left:4px solid var(--income-color);">
+          <div style="font-weight:800;font-size:13px;margin-bottom:4px;">${lc.savingsTitle}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">${lc.savingsDesc}</div>
+          <div id="savings20" style="font-size:22px;font-weight:900;color:var(--income-color);"></div>
+        </div>
+      </div>
+      <div style="background:var(--primary-pale);border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;color:var(--text-soft);line-height:1.5;">${lc.tip}</div>
+      <button class="btn-primary" id="applyRuleBtn" style="width:100%;margin-bottom:10px;">${lc.apply}</button>
+    </div>
+
+    <button class="btn-primary" id="calcRuleBtn" style="width:100%;margin-bottom:10px;">${lc.calc} 📊</button>
+    <button class="btn-secondary" id="closeRuleBtn" style="width:100%;">${t("cancel")}</button>`;
+
+  const modal = createModal("rule503020Modal", lc.title, html);
+  document.body.appendChild(modal);
+  openModal("rule503020Modal");
+
+  document
+    .getElementById("closeRuleBtn")
+    .addEventListener("click", () => closeModal("rule503020Modal"));
+
+  const calcBtn = document.getElementById("calcRuleBtn");
+  calcBtn.addEventListener("click", () => {
+    const income = parseFloat(document.getElementById("ruleIncome").value) || 0;
+    if (income <= 0) {
+      showToast(t("enterPositive"), "error");
+      return;
+    }
+    // Convert from display currency to RUB base
+    const incomeRub =
+      (income / (exchangeRates[displayCurrency] || 1)) * exchangeRates["RUB"];
+    const needs = toDisp(incomeRub * 0.5).toFixed(2);
+    const wants = toDisp(incomeRub * 0.3).toFixed(2);
+    const savings = toDisp(incomeRub * 0.2).toFixed(2);
+    document.getElementById("needs50").textContent = needs + " " + sym();
+    document.getElementById("wants30").textContent = wants + " " + sym();
+    document.getElementById("savings20").textContent = savings + " " + sym();
+    document.getElementById("ruleResults").style.display = "block";
+    calcBtn.style.display = "none";
+    haptic("success");
+  });
+
+  document.getElementById("applyRuleBtn")?.addEventListener("click", () => {
+    const income = parseFloat(document.getElementById("ruleIncome").value) || 0;
+    const incomeRub =
+      (income / (exchangeRates[displayCurrency] || 1)) * exchangeRates["RUB"];
+    // Apply as category budgets (split into main expense categories)
+    const needsCats = Object.keys(categories).slice(0, 3);
+    const wantsCats = Object.keys(categories).slice(3);
+    const needsBudget = (incomeRub * 0.5) / Math.max(1, needsCats.length);
+    const wantsBudget = (incomeRub * 0.3) / Math.max(1, wantsCats.length);
+    needsCats.forEach((c) => {
+      categoryBudgets[c] = needsBudget;
+    });
+    wantsCats.forEach((c) => {
+      categoryBudgets[c] = wantsBudget;
+    });
+    saveAll();
+    closeModal("rule503020Modal");
+    showToast(lc.applied, "success");
+    haptic("success");
+    if (currentTab === "settings") renderSettings();
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+// 6. PUSH-УВЕДОМЛЕНИЯ О ПОВТОРЯЮЩИХСЯ ПЛАТЕЖАХ
+// ──────────────────────────────────────────────────────────────
+function checkRecurringNotifications() {
+  if (!recurringOps || !recurringOps.length) return;
+  if (Notification.permission !== "granted") return;
+  const today = new Date();
+  const todayDay = today.getDate();
+  const notifiedKey = "recurring_notified_" + today.toISOString().slice(0, 10);
+  if (localStorage.getItem(notifiedKey)) return;
+
+  const due = recurringOps.filter((op) => {
+    if (!op.enabled) return false;
+    if (op.freq === "monthly" && op.day === todayDay) return true;
+    return false;
+  });
+
+  if (due.length > 0) {
+    localStorage.setItem(notifiedKey, "1");
+    const L = {
+      ru: "повторяющийся платёж",
+      en: "recurring payment",
+      ka: "განმეორებადი გადახდა",
+    };
+    due.forEach((op) => {
+      const title = "🔔 БюджетPRO";
+      const body = `${L[currentLang]}: ${op.category} — ${fmt(op.amountRub)}`;
+      try {
+        new Notification(title, { body, icon: "/favicon-96x96.png" });
+      } catch (e) {}
+    });
+  }
+}
+setTimeout(checkRecurringNotifications, 2000);
+
+// ──────────────────────────────────────────────────────────────
+// 7. ЭКСПОРТ В GOOGLE ТАБЛИЦЫ — инструкция + CSV-ready
+// ──────────────────────────────────────────────────────────────
+function openGoogleSheetsExport() {
+  const lang = currentLang;
+  const L = {
+    ru: {
+      title: "📊 Экспорт в Google Таблицы",
+      step1: "Шаг 1: Скачайте CSV файл",
+      step2: "Шаг 2: Откройте Google Таблицы",
+      step3: "Шаг 3: Файл → Импорт → Загрузить файл → выберите скачанный CSV",
+      step4: "Шаг 4: Разделитель: запятая (,) → Нажмите «Импортировать данные»",
+      download: "⬇️ Скачать CSV для Google Таблиц",
+      open: "🔗 Открыть Google Таблицы",
+      tip: "💡 Google Таблицы бесплатны. После импорта вы можете строить диаграммы, фильтровать, делиться с семьёй.",
+      cancel: "Закрыть",
+    },
+    en: {
+      title: "📊 Export to Google Sheets",
+      step1: "Step 1: Download CSV file",
+      step2: "Step 2: Open Google Sheets",
+      step3: "Step 3: File → Import → Upload file → select the CSV",
+      step4: "Step 4: Separator: comma (,) → Click 'Import data'",
+      download: "⬇️ Download CSV for Google Sheets",
+      open: "🔗 Open Google Sheets",
+      tip: "💡 Google Sheets is free. After importing you can build charts, filter, share with family.",
+      cancel: "Close",
+    },
+    ka: {
+      title: "📊 Google Sheets-ში ექსპორტი",
+      step1: "ნაბიჯი 1: ჩამოტვირთეთ CSV",
+      step2: "ნაბიჯი 2: გახსენით Google Sheets",
+      step3: "ნაბიჯი 3: File → Import → Upload → CSV ფაილი",
+      step4: "ნაბიჯი 4: გამყოფი: მძიმე (,) → Import data",
+      download: "⬇️ CSV ჩამოტვირთვა",
+      open: "🔗 Google Sheets-ის გახსნა",
+      tip: "💡 Google Sheets უფასოა. იმპორტის შემდეგ შექმენით დიაგრამები.",
+      cancel: "დახურვა",
+    },
+  };
+  const lc = L[lang] || L.ru;
+
+  const steps = [lc.step1, lc.step2, lc.step3, lc.step4];
+  const html = `
+    <div style="background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:16px;border-left:4px solid var(--primary);">
+      ${lc.tip}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+      ${steps.map((s, i) => `<div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i + 1}</div><div style="font-size:13px;line-height:1.6;padding-top:4px;">${s}</div></div>`).join("")}
+    </div>
+    <button class="btn-primary" id="gsDownloadBtn" style="width:100%;margin-bottom:10px;">${lc.download}</button>
+    <button class="btn-secondary" id="gsOpenBtn" style="width:100%;margin-bottom:10px;">${lc.open}</button>
+    <button class="btn-secondary" id="gsClose" style="width:100%;">${lc.cancel}</button>`;
+
+  const modal = createModal("gsModal", lc.title, html);
+  document.body.appendChild(modal);
+  openModal("gsModal");
+
+  document
+    .getElementById("gsClose")
+    .addEventListener("click", () => closeModal("gsModal"));
+  document
+    .getElementById("gsOpenBtn")
+    .addEventListener("click", () =>
+      window.open("https://sheets.google.com", "_blank"),
+    );
+  document.getElementById("gsDownloadBtn").addEventListener("click", () => {
+    // Generate Google Sheets-optimized CSV (with BOM for correct encoding)
+    const header = {
+      ru: [
+        "Дата",
+        "Тип",
+        "Категория",
+        "Подкатегория",
+        "Сумма (базовая)",
+        "Сумма (отображ)",
+        "Валюта",
+        "Заметка",
+      ],
+      en: [
+        "Date",
+        "Type",
+        "Category",
+        "Subcategory",
+        "Amount (base)",
+        "Amount (display)",
+        "Currency",
+        "Note",
+      ],
+      ka: [
+        "თარიღი",
+        "ტიპი",
+        "კატეგორია",
+        "ქვეკატეგორია",
+        "თანხა (ბაზა)",
+        "თანხა (ჩვენება)",
+        "ვალუტა",
+        "შენიშვნა",
+      ],
+    };
+    const h = header[lang] || header.ru;
+    const typeL = {
+      income: { ru: "Доход", en: "Income", ka: "შემოსავალი" },
+      expense: { ru: "Расход", en: "Expense", ka: "ხარჯი" },
+    };
+    let csv = "\uFEFF" + h.join(",") + "\n";
+    transactions
+      .filter((t) => !t._initial)
+      .forEach((tx) => {
+        const dispAmt = toDisp(tx.amountRub).toFixed(2);
+        csv +=
+          [
+            tx.date || "",
+            (typeL[tx.type] || {})[lang] || tx.type,
+            `"${(tx.category || "").replace(/"/g, '""')}"`,
+            `"${(tx.subcategory || "").replace(/"/g, '""')}"`,
+            tx.amountRub.toFixed(2),
+            dispAmt,
+            displayCurrency,
+            `"${(tx.note || "").replace(/"/g, '""')}"`,
+          ].join(",") + "\n";
+      });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `BudgetPRO_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    showToast(t("exportSuccess"), "success");
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+// 8. ЕЖЕМЕСЯЧНЫЙ ОТЧЁТ НА EMAIL через EmailJS
+// ──────────────────────────────────────────────────────────────
+function openEmailReportModal() {
+  const lang = currentLang;
+  const L = {
+    ru: {
+      title: "📧 Отчёт на email",
+      email: "Ваш email",
+      send: "📤 Отправить отчёт",
+      sent: "✅ Отчёт отправлен!",
+      hint: "Краткий финансовый отчёт за текущий месяц. Используется EmailJS (бесплатно до 200 отправок/месяц).",
+      noEmail: "Введите email",
+      cancel: "Отмена",
+      setup:
+        "⚠️ Сначала настройте EmailJS в коде (serviceId, templateId, publicKey)",
+      month: "Отчёт за",
+      income: "Доходы:",
+      expense: "Расходы:",
+      balance: "Баланс:",
+    },
+    en: {
+      title: "📧 Email report",
+      email: "Your email",
+      send: "📤 Send report",
+      sent: "✅ Report sent!",
+      hint: "Brief financial report for the current month. Uses EmailJS (free up to 200 sends/month).",
+      noEmail: "Enter email",
+      cancel: "Cancel",
+      setup:
+        "⚠️ Configure EmailJS in code first (serviceId, templateId, publicKey)",
+      month: "Report for",
+      income: "Income:",
+      expense: "Expenses:",
+      balance: "Balance:",
+    },
+    ka: {
+      title: "📧 Email ანგარიში",
+      email: "თქვენი email",
+      send: "📤 ანგარიშის გაგზავნა",
+      sent: "✅ გაიგზავნა!",
+      hint: "მიმდინარე თვის ფინანსური ანგარიში. გამოყენება: EmailJS (200 შეტყობინება/თვე უფასო).",
+      noEmail: "შეიყვანეთ email",
+      cancel: "გაუქმება",
+      setup: "⚠️ გთხოვთ დააყენოთ EmailJS",
+      month: "ანგარიში:",
+      income: "შემოსავალი:",
+      expense: "ხარჯი:",
+      balance: "ნაშთი:",
+    },
+  };
+  const lc = L[lang] || L.ru;
+  // Build report text
+  const now = new Date();
+  const monthName = t("months")[now.getMonth()] + " " + now.getFullYear();
+  const monthStr = now.toISOString().slice(0, 7);
+  const monthTx = transactions.filter((tx) =>
+    (tx.date || "").startsWith(monthStr),
+  );
+  const inc = monthTx
+    .filter((t) => t.type === "income")
+    .reduce((s, t) => s + t.amountRub, 0);
+  const exp = monthTx
+    .filter((t) => t.type === "expense")
+    .reduce((s, t) => s + t.amountRub, 0);
+  const bal = inc - exp;
+  const reportText = `${lc.month} ${monthName}\n${lc.income} ${fmt(inc)}\n${lc.expense} ${fmt(exp)}\n${lc.balance} ${fmt(bal)}\n\n— БюджетPRO`;
+
+  const html = `
+    <div style="background:var(--primary-pale);border-radius:14px;padding:12px 14px;margin-bottom:14px;border-left:4px solid var(--primary);font-size:13px;line-height:1.6;">${lc.hint}</div>
+    <div style="background:var(--cream-dark);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;white-space:pre-line;font-family:monospace;line-height:1.8;">${reportText}</div>
+    <div class="field-group"><label class="field-label">${lc.email}</label><input type="email" id="reportEmail" class="modal-input" placeholder="your@email.com"></div>
+    <div style="background:var(--gold-pale);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:var(--text-muted);">${lc.setup}</div>
+    <button class="btn-primary" id="sendReportBtn" style="width:100%;margin-bottom:10px;">${lc.send}</button>
+    <button class="btn-secondary" id="closeReportBtn" style="width:100%;">${lc.cancel}</button>`;
+
+  const modal = createModal("emailReportModal", lc.title, html);
+  document.body.appendChild(modal);
+  openModal("emailReportModal");
+  document
+    .getElementById("closeReportBtn")
+    .addEventListener("click", () => closeModal("emailReportModal"));
+  document.getElementById("sendReportBtn").addEventListener("click", () => {
+    const email = document.getElementById("reportEmail").value.trim();
+    if (!email || !email.includes("@")) {
+      showToast(lc.noEmail, "error");
+      return;
+    }
+    // EmailJS integration — user needs to configure these values
+    const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
+    const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+    const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
+    if (EMAILJS_SERVICE_ID === "YOUR_SERVICE_ID") {
+      // Open mailto: as fallback
+      const subject = encodeURIComponent(`БюджетPRO — ${monthName}`);
+      const body = encodeURIComponent(reportText);
+      window.open(`mailto:${email}?subject=${subject}&body=${body}`);
+      closeModal("emailReportModal");
+      showToast(lc.sent, "success");
+      return;
+    }
+    // Load EmailJS
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
+    s.onload = () => {
+      window.emailjs.init(EMAILJS_PUBLIC_KEY);
+      window.emailjs
+        .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email: email,
+          report: reportText,
+          month: monthName,
+        })
+        .then(() => {
+          closeModal("emailReportModal");
+          showToast(lc.sent, "success");
+        })
+        .catch(() => showToast(t("error"), "error"));
+    };
+    document.head.appendChild(s);
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+// WIRE: Добавить новые кнопки в Settings и Tools
+// ──────────────────────────────────────────────────────────────
+// Inject new buttons into Tools tab after it renders
+const _origRenderTools = typeof renderTools === "function" ? renderTools : null;
+function injectNewToolButtons() {
+  const content = document.getElementById("mainContent");
+  if (!content || currentTab !== "tools") return;
+  if (document.getElementById("newToolsBlock")) return;
+  const lang = currentLang;
+  const labels = {
+    scanner: {
+      ru: "📸 Сканировать чек",
+      en: "📸 Scan receipt",
+      ka: "📸 ჩეკის სკანირება",
+    },
+    rule: {
+      ru: "⚖️ Правило 50/30/20",
+      en: "⚖️ 50/30/20 Rule",
+      ka: "⚖️ 50/30/20 წესი",
+    },
+    sheets: {
+      ru: "📊 Экспорт в Google Таблицы",
+      en: "📊 Google Sheets export",
+      ka: "📊 Google Sheets-ი",
+    },
+    email: {
+      ru: "📧 Отчёт на email",
+      en: "📧 Email report",
+      ka: "📧 Email ანგარიში",
+    },
+  };
+  const block = document.createElement("div");
+  block.id = "newToolsBlock";
+  block.style.cssText =
+    "padding:0 16px;margin-top:16px;display:flex;flex-direction:column;gap:10px;";
+  block.innerHTML = `
+    <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px;">✨ ${lang === "ru" ? "Новые инструменты" : lang === "en" ? "New tools" : "ახალი ხელსაწყოები"}</div>
+    <button class="settings-btn" id="newScanBtn" style="display:flex;align-items:center;gap:12px;font-size:15px;padding:16px;">${labels.scanner[lang]}</button>
+    <button class="settings-btn" id="newRuleBtn" style="display:flex;align-items:center;gap:12px;font-size:15px;padding:16px;">${labels.rule[lang]}</button>
+    <button class="settings-btn" id="newSheetsBtn" style="display:flex;align-items:center;gap:12px;font-size:15px;padding:16px;">${labels.sheets[lang]}</button>
+    <button class="settings-btn" id="newEmailBtn" style="display:flex;align-items:center;gap:12px;font-size:15px;padding:16px;">${labels.email[lang]}</button>
+  `;
+  content.appendChild(block);
+  document
+    .getElementById("newScanBtn")
+    ?.addEventListener("click", openReceiptScanner);
+  document
+    .getElementById("newRuleBtn")
+    ?.addEventListener("click", openBudget503020Modal);
+  document
+    .getElementById("newSheetsBtn")
+    ?.addEventListener("click", openGoogleSheetsExport);
+  document
+    .getElementById("newEmailBtn")
+    ?.addEventListener("click", openEmailReportModal);
+}
+
+// Hook into setTab to inject buttons when tools tab is shown
+// Use a flag to avoid double-hooking
+if (!window._toolsHookInstalled) {
+  window._toolsHookInstalled = true;
+  const _origSetTabForTools = window.setTab;
+  window.setTab = function (tab) {
+    if (_origSetTabForTools) _origSetTabForTools(tab);
+    if (tab === "tools") setTimeout(injectNewToolButtons, 300);
+    if (tab === "home")
+      setTimeout(() => {
+        if (shouldShowOnboarding()) showOnboarding();
+      }, 100);
+  };
 }
