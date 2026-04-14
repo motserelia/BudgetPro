@@ -56,7 +56,7 @@
         --radius-lg: 32px;
         --radius-xl: 44px;
         --nav-h: 64px;
-        --header-h: 60px;
+        --header-h: auto;
         --tr: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
@@ -224,40 +224,52 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 16px;
-        height: var(--header-h);
+        padding: 10px 14px;
+        gap: 8px;
+        min-height: 68px;
         background: var(--cream);
-        border-bottom: 1px solid var(--cream-border);
+        border-bottom: 1.5px solid var(--cream-border);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
+        flex-wrap: nowrap;
       }
       .header-left {
         display: flex;
         flex-direction: column;
-        gap: 1px;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
       }
       .app-logo {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: 900;
         color: var(--primary);
-        line-height: 1.1;
+        line-height: 1.2;
         letter-spacing: -0.3px;
         cursor: pointer;
         user-select: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       #headerDate {
-        font-size: 11px;
+        font-size: 10px;
         color: var(--text-muted);
         font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .header-actions {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
+        flex-shrink: 0;
       }
       .header-btn {
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
         border-radius: 50%;
         border: 1.5px solid var(--cream-border);
         background: var(--card-bg);
@@ -2740,7 +2752,17 @@
         <div class="app-logo" id="appLogoBtn" title="БюджетPRO">
           🌿 БюджетPRO
         </div>
-        <div id="headerDate"></div>
+        <div
+          id="headerDate"
+          style="
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          "
+        ></div>
       </div>
       <div class="header-actions">
         <button class="header-btn" id="headerGuideBtn" title="Гайд">📖</button>
