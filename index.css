@@ -118,21 +118,43 @@ body.dark::before {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 20px 12px;
+  padding: 12px 14px 10px;
+  gap: 8px;
   animation: fadeDown 0.5s ease both;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 .header-left {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
 }
 .app-logo {
   font-family: "Playfair Display", serif;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--primary);
   letter-spacing: -0.3px;
-  cursor: default;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#headerDate {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .app-slogan {
   font-size: 11px;
@@ -146,13 +168,14 @@ body.dark::before {
 #headerGuideBtn,
 #headerHelpBtn,
 #headerLangBtn,
-#themeToggle {
+#themeToggle,
+#headerSupportBtn {
   background: var(--card-bg);
   border: 1.5px solid var(--cream-border);
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  font-size: 22px;
+  font-size: 18px;
   cursor: pointer;
   color: var(--text);
   display: inline-flex;
@@ -160,6 +183,9 @@ body.dark::before {
   justify-content: center;
   transition: var(--transition);
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  position: relative;
+  overflow: visible;
 }
 #headerGuideBtn:hover,
 #headerHelpBtn:hover,
@@ -880,29 +906,31 @@ body.dark .op-card[data-type="expense"] {
   z-index: 500;
   align-items: flex-end;
   justify-content: center;
+  /* Prevent content behind from scrolling */
+  overflow: hidden;
 }
 .modal-overlay.open {
   display: flex;
   animation: overlayIn 0.25s ease;
 }
 @keyframes overlayIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .modal {
   background: var(--card-bg);
   width: 100%;
   max-width: 680px;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  max-height: 92dvh;
-  overflow-y: auto;
+  /* Key fix: limit height and make scrollable */
+  max-height: 90dvh;
+  max-height: 90vh; /* fallback */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* let modal-body scroll, not the whole modal */
   box-shadow: 0 -8px 48px rgba(0, 0, 0, 0.22);
   animation: modalUp 0.35s cubic-bezier(0.34, 1.3, 0.64, 1) both;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 @keyframes modalUp {
   from {
@@ -920,6 +948,7 @@ body.dark .op-card[data-type="expense"] {
   background: var(--cream-border);
   border-radius: 99px;
   margin: 12px auto 0;
+  flex-shrink: 0;
 }
 .modal-header {
   display: flex;
@@ -927,11 +956,16 @@ body.dark .op-card[data-type="expense"] {
   justify-content: space-between;
   padding: 16px 24px 12px;
   border-bottom: 1.5px solid var(--cream-border);
+  flex-shrink: 0;
 }
 .modal-header h2 {
-  font-size: 22px;
+  font-size: clamp(16px, 4.5vw, 22px);
   font-weight: 800;
   color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: calc(100% - 60px);
 }
 .modal-close {
   background: var(--cream-dark);
@@ -953,6 +987,12 @@ body.dark .op-card[data-type="expense"] {
 }
 .modal-body {
   padding: 20px 24px 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
+  /* Ensure content is reachable on small phones */
+  overscroll-behavior: contain;
 }
 .field-group {
   margin-bottom: 20px;
@@ -1055,6 +1095,7 @@ body.dark .type-btn {
   border-color: var(--cream-border);
 }
 .modal-actions {
+  flex-wrap: wrap;
   display: flex;
   gap: 12px;
   justify-content: stretch;
@@ -2745,12 +2786,45 @@ body.dark .history-item {
     font-size: 18px;
   }
 }
+@media (max-width: 380px) {
+  /* Cards: bigger text on small screens */
+  .card-value {
+    font-size: 16px !important;
+    font-weight: 900 !important;
+  }
+  .card-label {
+    font-size: 10px !important;
+  }
+  .card-hint {
+    font-size: 10px !important;
+  }
+  .card-icon {
+    font-size: 22px !important;
+  }
+  .summary-card {
+    padding: 12px 10px 10px !important;
+  }
+}
+
 @media (max-width: 360px) {
   .nav-label {
-    display: none;
+    font-size: 9px;
+    max-width: 52px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .nav-icon {
-    font-size: 22px;
+    font-size: 20px;
+  }
+  .modal-body {
+    padding: 14px 16px 18px !important;
+  }
+  .modal-header {
+    padding: 12px 16px 10px !important;
+  }
+  .modal-header h2 {
+    font-size: 17px !important;
   }
 }
 
@@ -4008,4 +4082,134 @@ body.dark .help-tooltip-popup {
 }
 .app-logo:active {
   transform: scale(0.96) !important;
+}
+
+
+/* ============================================================
+   НОВЫЕ ФУНКЦИИ v3.0 — СТИЛИ
+   ============================================================ */
+
+/* ── Онбординг ── */
+#onboardingOverlay {
+  font-family: inherit;
+}
+#onboardingOverlay button {
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+#onboardingOverlay #obNext:hover {
+  transform: scale(1.04) translateY(-2px);
+}
+#onboardingOverlay #obNext:active {
+  transform: scale(0.96);
+}
+
+/* ── Блок новых инструментов ── */
+#newToolsBlock .settings-btn {
+  border-radius: var(--radius-md) !important;
+  font-size: 14px !important;
+  padding: 16px 20px !important;
+  font-weight: 700 !important;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
+  background: var(--card-bg) !important;
+  border: 1.5px solid var(--cream-border) !important;
+  text-align: left !important;
+  display: flex !important;
+  align-items: center !important;
+}
+#newToolsBlock .settings-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-color: var(--primary) !important;
+}
+#newToolsBlock .settings-btn:active {
+  transform: scale(0.97) !important;
+}
+
+/* ── Бюджет: переключатель периода ── */
+[data-bp] {
+  transition: all 0.2s ease !important;
+}
+
+/* ── Datetime cards ── */
+#dateCard, #timeCard {
+  position: relative;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#dateCard:hover, #timeCard:hover {
+  border-color: var(--primary) !important;
+  background: var(--primary-pale) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+#dateCard:active, #timeCard:active {
+  transform: scale(0.98) !important;
+}
+
+/* ── Правило 50/30/20 ── */
+#ruleResults {
+  animation: fadeUp 0.3s ease both;
+}
+
+/* ── Сканер чеков ── */
+#scanPreview {
+  transition: all 0.3s ease;
+}
+
+/* ── Маленькие экраны (<360px): компактный header ── */
+@media (max-width: 360px) {
+  .app-logo {
+    font-size: 15px !important;
+  }
+  #headerDate {
+    font-size: 9px !important;
+  }
+  .header-btn,
+  #headerGuideBtn,
+  #headerHelpBtn,
+  #headerLangBtn,
+  #themeToggle,
+  #headerSupportBtn {
+    width: 33px !important;
+    height: 33px !important;
+    font-size: 15px !important;
+  }
+  .header-actions {
+    gap: 3px !important;
+  }
+}
+
+/* ── Маленькие экраны: карточки крупнее ── */
+@media (max-width: 380px) {
+  .top-cards {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    padding: 0 10px 12px !important;
+  }
+  .card-value {
+    font-size: 17px !important;
+    font-weight: 900 !important;
+    word-break: break-all !important;
+  }
+}
+
+/* ── Модалки: никогда не выходят за экран ── */
+.modal-overlay {
+  padding: 0 !important;
+}
+.modal-body {
+  padding: 18px 20px 24px !important;
+}
+@media (max-height: 600px) {
+  .modal {
+    max-height: 98vh !important;
+    max-height: 98dvh !important;
+  }
+}
+
+/* ── Onboarding progress dots animation ── */
+@keyframes dotExpand {
+  from { width: 8px; }
+  to   { width: 28px; }
 }
