@@ -1309,10 +1309,14 @@ input:checked + .slider:before {
   opacity: 0;
   pointer-events: none;
   transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  white-space: nowrap;
-  max-width: 90vw;
+  white-space: normal !important;
+  word-break: break-word !important;
+  max-width: min(340px, calc(100vw - 40px)) !important;
   text-align: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  line-height: 1.5 !important;
+  border-radius: 16px !important;
+  padding: 12px 20px !important;
 }
 .toast.show {
   opacity: 1;
@@ -4635,4 +4639,278 @@ body.dark .cr-tpl {
 }
 .creator-msg-card:last-child {
   margin-bottom: 0 !important;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   REDESIGN v5.0 — "Soft Organic" aesthetic
+   Inspired by Monzo / N26 banking apps
+   Generous whitespace, subtle gradients, rounded softness
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Base refinements ── */
+body {
+  letter-spacing: -0.01em;
+}
+
+/* ── HEADER — tall, gradient, premium ── */
+.app-header {
+  background: linear-gradient(160deg, var(--primary) 0%, #1a5c3a 100%) !important;
+  border-bottom: none !important;
+  min-height: 90px !important;
+  padding: 14px 16px !important;
+  box-shadow: 0 4px 24px rgba(45,106,79,0.25) !important;
+}
+.app-logo {
+  color: white !important;
+  font-size: 18px !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.2) !important;
+}
+.app-slogan {
+  color: rgba(255,255,255,0.75) !important;
+  font-size: 11px !important;
+}
+#headerDate {
+  color: rgba(255,255,255,0.65) !important;
+}
+.header-btn,
+#headerGuideBtn,
+#headerHelpBtn,
+#headerLangBtn,
+#themeToggle,
+#headerSupportBtn {
+  background: rgba(255,255,255,0.18) !important;
+  border: 1.5px solid rgba(255,255,255,0.25) !important;
+  color: white !important;
+  backdrop-filter: blur(8px) !important;
+}
+.header-btn:hover,
+#headerGuideBtn:hover,
+#headerHelpBtn:hover,
+#headerLangBtn:hover,
+#themeToggle:hover,
+#headerSupportBtn:hover {
+  background: rgba(255,255,255,0.28) !important;
+  transform: scale(1.08) !important;
+}
+
+/* ── TOP CARDS — full-width premium feel ── */
+.top-cards {
+  padding: 14px 14px 0 !important;
+  gap: 8px !important;
+}
+.summary-card {
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07) !important;
+  padding: 16px 14px 14px !important;
+  position: relative;
+  overflow: hidden;
+}
+.summary-card::before {
+  content: '';
+  position: absolute;
+  top: -20px; right: -20px;
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  pointer-events: none;
+}
+.card-value {
+  font-weight: 900 !important;
+  font-size: 16px !important;
+  letter-spacing: -0.3px;
+}
+
+/* ── BALANCE ROWS — clean cards ── */
+.balance-summary {
+  margin: 10px 14px 0 !important;
+  background: var(--card-bg);
+  border-radius: 20px !important;
+  border: 1px solid var(--cream-border);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.balance-row {
+  border-radius: 0 !important;
+  border-bottom: 1px solid var(--cream-border);
+  padding: 14px 16px !important;
+  margin: 0 !important;
+}
+.balance-row:last-child {
+  border-bottom: none;
+}
+.balance-row:hover {
+  background: var(--primary-pale) !important;
+  transform: none !important;
+}
+
+/* ── OPERATION ITEMS — card-per-item ── */
+.op-item {
+  border-radius: 16px !important;
+  border: 1px solid var(--cream-border) !important;
+  margin: 6px 14px !important;
+  background: var(--card-bg) !important;
+  padding: 12px 14px !important;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04) !important;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+.op-item:hover,
+.op-item:active {
+  border-color: var(--primary) !important;
+  transform: scale(1.01) !important;
+  box-shadow: 0 4px 20px rgba(45,106,79,0.12) !important;
+}
+
+/* ── NAVIGATION — floating pill style ── */
+.bottom-nav {
+  margin: 8px 12px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 -2px 0 transparent, 0 4px 28px rgba(0,0,0,0.14) !important;
+  border-top: none !important;
+  background: var(--card-bg) !important;
+  padding: 6px 4px !important;
+  border: 1px solid var(--cream-border) !important;
+  bottom: 8px !important;
+  left: 12px !important;
+  right: 12px !important;
+  width: calc(100% - 24px) !important;
+}
+.nav-btn {
+  border-radius: 18px !important;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1) !important;
+  padding: 6px 4px !important;
+}
+.nav-btn.active {
+  background: var(--primary-pale) !important;
+}
+.nav-btn.active .nav-icon {
+  color: var(--primary) !important;
+}
+.nav-btn.active .nav-label {
+  color: var(--primary) !important;
+  font-weight: 800 !important;
+}
+
+/* ── FAB — centered, prominent ── */
+.fab {
+  border-radius: 20px !important;
+  width: 56px !important;
+  height: 56px !important;
+  box-shadow: 0 6px 24px rgba(45,106,79,0.4), 0 2px 8px rgba(45,106,79,0.2) !important;
+  font-size: 26px !important;
+}
+
+/* ── MODALS — softer, more spacious ── */
+.modal {
+  border-radius: 32px 32px 0 0 !important;
+}
+.modal-header {
+  padding: 14px 20px 12px !important;
+}
+.modal-header h2 {
+  font-size: 17px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.3px !important;
+}
+
+/* ── SETTINGS CARDS — clean sections ── */
+.settings-card {
+  margin: 0 14px 10px !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--cream-border) !important;
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  background: var(--card-bg);
+}
+.settings-card-title {
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.2px;
+  padding: 14px 16px 4px !important;
+}
+.settings-card-body {
+  padding: 0 16px 16px !important;
+}
+.settings-card-desc {
+  padding: 0 16px 8px !important;
+  font-size: 12px !important;
+}
+
+/* ── BUTTONS — softer, more approachable ── */
+.btn-primary {
+  border-radius: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.2px !important;
+  box-shadow: 0 4px 16px rgba(45,106,79,0.3) !important;
+}
+.btn-secondary {
+  border-radius: 16px !important;
+  font-weight: 700 !important;
+}
+
+/* ── SEARCH BAR ── */
+.search-container {
+  margin: 10px 14px 0 !important;
+}
+.search-input-wrapper {
+  border-radius: 16px !important;
+  border: 1px solid var(--cream-border) !important;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04) !important;
+}
+
+/* ── STATS CARDS ── */
+.stats-card,
+.chart-card {
+  margin: 8px 14px !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--cream-border) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05) !important;
+}
+
+/* ── HISTORY TIME FILTER ── */
+.history-time-filter {
+  margin: 10px 14px 0 !important;
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--cream-border);
+  padding: 10px 12px !important;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+.htf-btn {
+  border-radius: 12px !important;
+  font-size: 12px !important;
+  padding: 6px 10px !important;
+  font-weight: 700 !important;
+}
+.htf-btn.active {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+/* ── DARK MODE — matching gradient header ── */
+body.dark .app-header {
+  background: linear-gradient(160deg, #1a4731 0%, #0f2318 100%) !important;
+}
+
+/* ── FLOATING BUTTONS — cleaner ── */
+#voiceInputBtn, #goalsNavBtn {
+  bottom: 80px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2) !important;
+  animation: none !important;
+}
+#voiceInputBtn { right: 16px !important; bottom: 85px !important; }
+#goalsNavBtn   { left: 16px !important; bottom: 85px !important; }
+
+/* ── TOAST — final override ── */
+#toast, .toast {
+  white-space: normal !important;
+  word-break: break-word !important;
+  max-width: min(320px, calc(100vw - 48px)) !important;
+  border-radius: 16px !important;
+  line-height: 1.5 !important;
+  font-size: 13px !important;
+  padding: 12px 18px !important;
+  text-align: center !important;
 }
