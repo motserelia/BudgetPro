@@ -4344,3 +4344,156 @@ body.dark .help-tooltip-popup {
   position: relative !important;
   overflow: visible !important;
 }
+
+/* ============================================================
+   НОВЫЕ ИНСТРУМЕНТЫ — полная адаптация светлый/тёмный режим
+   ============================================================ */
+.new-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--cream-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: var(--shadow-sm);
+}
+.new-tool-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary);
+}
+.new-tool-btn:active { transform: scale(0.97); }
+.ntb-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-pale);
+  border-radius: 12px;
+}
+.ntb-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ntb-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  display: block;
+}
+.ntb-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+  line-height: 1.4;
+  white-space: normal;
+}
+.ntb-arrow {
+  font-size: 20px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  font-weight: 700;
+}
+body.dark .new-tool-btn {
+  background: var(--card-bg);
+  border-color: var(--cream-border);
+}
+body.dark .ntb-title { color: var(--text); }
+body.dark .ntb-sub   { color: var(--text-muted); }
+body.dark .ntb-icon  { background: var(--primary-pale); }
+
+
+/* ============================================================
+   WOW FEATURES v4.0
+   ============================================================ */
+
+/* ── Voice button & goals button (floating) ── */
+#voiceInputBtn, #goalsNavBtn {
+  position: fixed;
+  bottom: 80px;
+  z-index: 200;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: floatBtn 3s ease-in-out infinite;
+}
+#voiceInputBtn { right: 20px; background: var(--primary-pale); border: 2px solid var(--primary); }
+#goalsNavBtn   { left: 20px;  background: var(--gold-pale);    border: 2px solid var(--gold); }
+#voiceInputBtn:hover, #goalsNavBtn:hover { transform: scale(1.15) translateY(-3px) !important; }
+#voiceInputBtn:active, #goalsNavBtn:active { transform: scale(0.92) !important; }
+@keyframes floatBtn {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+/* ── Weekly insight card ── */
+#weeklyInsightCard {
+  animation: slideDown 0.4s cubic-bezier(0.34, 1.3, 0.64, 1) both;
+}
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+#weeklyInsightCard b { font-weight: 900; }
+
+/* ── Goals modal ── */
+.goal-card-bar {
+  transition: width 1s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+/* ── Voice overlay ── */
+#voiceOverlay {
+  animation: fadeIn 0.2s ease;
+}
+
+/* ── Confetti particles ── */
+.confetti-particle {
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  z-index: 99999;
+}
+
+/* ── Partner mode ── */
+#sharedTxList::-webkit-scrollbar { width: 4px; }
+#sharedTxList::-webkit-scrollbar-thumb { background: var(--cream-border); border-radius: 99px; }
+
+/* ── Splash screen ── */
+#splashScreen * { pointer-events: none; }
+
+/* ── Smart suggestion toast ── */
+.toast.info {
+  background: #2563eb;
+  color: white;
+}
+.toast.warning {
+  background: var(--gold);
+  color: white;
+}
+
+/* ── Dark mode compatibility ── */
+body.dark #voiceInputBtn { background: rgba(45, 106, 79, 0.3); }
+body.dark #goalsNavBtn   { background: rgba(212, 167, 60, 0.2); }
+
+/* ── Toast types: info & warning ── */
+.toast.info    { background: #2563eb !important; }
+.toast.warning { background: var(--gold, #d97706) !important; color: white !important; }
