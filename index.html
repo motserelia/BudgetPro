@@ -221,7 +221,7 @@
       .app-header {
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 200;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -361,28 +361,42 @@
         font-weight: 600;
       }
       .balance-card {
-        border-top: 3px solid #2563eb;
+        background: linear-gradient(145deg, #1b4332, #2d6a4f);
+        border: 1.5px solid rgba(201, 168, 76, 0.4);
+        color: white;
+        border-top: none;
+        box-shadow: 0 4px 20px rgba(27, 67, 50, 0.35);
       }
-      .balance-card .card-value {
-        color: #2563eb;
+      .balance-card .card-value,
+      .balance-card .card-label {
+        color: rgba(255, 255, 255, 0.95);
       }
       .income-card {
-        border-top: 3px solid var(--income-color);
-      }
-      .income-card .card-value {
-        color: var(--income-color);
+        background: linear-gradient(145deg, #e8f5ee, #d1ede0);
+        border: 1px solid rgba(45, 106, 79, 0.15);
+        border-top: none;
       }
       .expense-card {
-        border-top: 3px solid var(--expense-color);
-      }
-      .expense-card .card-value {
-        color: var(--expense-color);
+        background: linear-gradient(145deg, #fef2f2, #fce8e8);
+        border: 1px solid rgba(220, 38, 38, 0.1);
+        border-top: none;
       }
       .salary-card {
-        border-top: 3px solid var(--gold);
+        background: linear-gradient(145deg, #fefce8, #fef3c7);
+        border: 1px solid rgba(201, 168, 76, 0.2);
+        border-top: none;
       }
-      .salary-card .card-value {
-        color: var(--gold);
+      body.dark .income-card {
+        background: linear-gradient(145deg, #0d2a1a, #1a4731);
+        border-color: rgba(64, 145, 108, 0.25);
+      }
+      body.dark .expense-card {
+        background: linear-gradient(145deg, #2a0d0d, #3d1515);
+        border-color: rgba(252, 165, 165, 0.15);
+      }
+      body.dark .salary-card {
+        background: linear-gradient(145deg, #1c1600, #2a2000);
+        border-color: rgba(201, 168, 76, 0.2);
       }
 
       /* =====================================================================
@@ -401,22 +415,23 @@
    ===================================================================== */
       .fab {
         position: fixed;
-        bottom: calc(var(--nav-h) + 16px);
-        right: 18px;
-        z-index: 200;
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--primary-med));
+        bottom: 72px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 299;
+        height: 52px;
+        min-width: 140px;
+        padding: 0 28px;
+        border-radius: 26px;
+        background: linear-gradient(135deg, #2d6a4f, #1b4332);
         color: #fff;
-        border: none;
-        box-shadow:
-          0 6px 24px rgba(45, 106, 79, 0.42),
-          0 2px 8px rgba(45, 106, 79, 0.25);
+        border: 1px solid rgba(201, 168, 76, 0.35);
+        box-shadow: 0 6px 28px rgba(27, 67, 50, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column;
+        flex-direction: row;
+        gap: 8px;
         cursor: pointer;
         transition: var(--tr);
       }
@@ -2900,9 +2915,25 @@
         }
       }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
+    <canvas
+      id="luxBg"
+      style="
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: 0.45;
+      "
+    ></canvas>
     <!-- =========================================================
      ШАПКА
      ========================================================= -->
@@ -3116,5 +3147,478 @@
         });
       }
     </script>
+
+    <!-- ✨ LUXURY THEME OVERRIDE — loads last, wins over all CSS ✨ -->
+    <style id="luxuryTheme">
+      /* ── Fonts ── */
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap");
+      body,
+      * {
+        font-family:
+          "Plus Jakarta Sans",
+          -apple-system,
+          sans-serif !important;
+      }
+
+      /* ── CSS Vars ── */
+      :root {
+        --lux-em: #1b4332;
+        --lux-em2: #2d6a4f;
+        --lux-em3: #40916c;
+        --lux-gold: #c9a84c;
+        --lux-gold2: #e8c97a;
+        --sp: cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      /* ── BODY backgrounds ── */
+      body:not(.dark) {
+        background: #f0fdf7 !important;
+      }
+      body.dark {
+        background: #060f0a !important;
+      }
+
+      /* ── HEADER ── */
+      .app-header {
+        background: linear-gradient(
+          150deg,
+          #1b4332 0%,
+          #0d2118 60%,
+          #060f0a 100%
+        ) !important;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.2) !important;
+        box-shadow: 0 4px 32px rgba(6, 15, 10, 0.5) !important;
+        min-height: 76px !important;
+        padding: 12px 18px !important;
+      }
+      .app-header::after {
+        content: "" !important;
+        position: absolute !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 1px !important;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          #c9a84c 50%,
+          transparent
+        ) !important;
+      }
+      .app-logo {
+        color: #fff !important;
+        font-size: 18px !important;
+        font-weight: 800 !important;
+      }
+      .app-slogan {
+        color: rgba(201, 168, 76, 0.85) !important;
+        font-size: 10px !important;
+      }
+      #headerDate {
+        color: rgba(255, 255, 255, 0.45) !important;
+        font-size: 10px !important;
+      }
+      .header-btn,
+      #headerSupportBtn,
+      #headerGuideBtn,
+      #headerHelpBtn,
+      #headerLangBtn,
+      #themeToggle {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 1px solid rgba(201, 168, 76, 0.3) !important;
+        color: #fff !important;
+        transition:
+          transform 0.2s var(--sp),
+          background 0.15s !important;
+      }
+      .header-btn:active,
+      #headerSupportBtn:active,
+      #headerGuideBtn:active,
+      #headerHelpBtn:active,
+      #headerLangBtn:active,
+      #themeToggle:active {
+        transform: scale(0.86) !important;
+        background: rgba(201, 168, 76, 0.2) !important;
+      }
+
+      /* ── SUMMARY CARDS ── */
+      .summary-card {
+        border-top: none !important;
+        border-radius: 20px !important;
+        padding: 16px 14px 14px !important;
+        transition:
+          transform 0.28s var(--sp),
+          box-shadow 0.2s !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+      .summary-card:active {
+        transform: scale(0.95) !important;
+      }
+
+      .balance-card {
+        background: linear-gradient(
+          145deg,
+          #1b4332 0%,
+          #2d6a4f 100%
+        ) !important;
+        border: 1.5px solid rgba(201, 168, 76, 0.45) !important;
+        box-shadow: 0 6px 28px rgba(27, 67, 50, 0.45) !important;
+        color: white !important;
+      }
+      .balance-card .card-value,
+      .balance-card .card-label,
+      .balance-card .card-hint,
+      .balance-card .card-icon {
+        color: white !important;
+        opacity: 1 !important;
+      }
+      /* Spinning gold ring on balance card */
+      .balance-card::before {
+        content: "" !important;
+        position: absolute !important;
+        inset: -3px !important;
+        border-radius: 23px !important;
+        background: conic-gradient(
+          from 0deg,
+          transparent 70%,
+          #c9a84c 85%,
+          #e8c97a 92%,
+          transparent 100%
+        ) !important;
+        animation: spinRing 3s linear infinite !important;
+        z-index: -1 !important;
+      }
+      @keyframes spinRing {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      /* Shimmer */
+      .balance-card::after {
+        content: "" !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 60% !important;
+        height: 100% !important;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.12),
+          transparent
+        ) !important;
+        animation: shimCard 4s ease-in-out 1s infinite !important;
+        pointer-events: none !important;
+      }
+      @keyframes shimCard {
+        0%,
+        65% {
+          left: -100%;
+        }
+        100% {
+          left: 200%;
+        }
+      }
+
+      .income-card {
+        background: linear-gradient(145deg, #ecfdf5, #d1fae5) !important;
+        border: 1.5px solid rgba(16, 185, 129, 0.18) !important;
+        border-top: none !important;
+      }
+      .expense-card {
+        background: linear-gradient(145deg, #fff1f2, #ffe4e6) !important;
+        border: 1.5px solid rgba(239, 68, 68, 0.15) !important;
+        border-top: none !important;
+      }
+      .salary-card {
+        background: linear-gradient(145deg, #fefce8, #fef9c3) !important;
+        border: 1.5px solid rgba(201, 168, 76, 0.2) !important;
+        border-top: none !important;
+      }
+      body.dark .income-card {
+        background: linear-gradient(145deg, #022c1e, #064e3b) !important;
+        border-color: rgba(52, 211, 153, 0.15) !important;
+      }
+      body.dark .expense-card {
+        background: linear-gradient(145deg, #1f0a0a, #2d0d0d) !important;
+        border-color: rgba(252, 165, 165, 0.12) !important;
+      }
+      body.dark .salary-card {
+        background: linear-gradient(145deg, #1c1100, #2a1a00) !important;
+        border-color: rgba(201, 168, 76, 0.18) !important;
+      }
+
+      /* ── BALANCE ROWS ── */
+      .balance-summary {
+        border-radius: 18px !important;
+        border: 1.5px solid var(--cream-border) !important;
+        overflow: hidden !important;
+        margin: 12px 14px 0 !important;
+      }
+      body.dark .balance-summary {
+        border-color: rgba(201, 168, 76, 0.12) !important;
+      }
+
+      /* ── OP ITEMS ── */
+      .op-item {
+        margin: 0 14px 7px !important;
+        border-radius: 15px !important;
+        border: 1.5px solid var(--cream-border) !important;
+        padding: 12px 14px !important;
+        transition:
+          transform 0.22s var(--sp),
+          border-color 0.15s !important;
+      }
+      .op-item:active {
+        transform: scale(0.978) !important;
+        border-color: var(--lux-em2) !important;
+      }
+
+      /* ── FAB — Centered gold-rimmed pill ── */
+      .fab {
+        position: fixed !important;
+        bottom: 74px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        z-index: 299 !important;
+        height: 52px !important;
+        min-width: 148px !important;
+        padding: 0 28px !important;
+        border-radius: 26px !important;
+        background: linear-gradient(
+          135deg,
+          #2d6a4f 0%,
+          #1b4332 100%
+        ) !important;
+        color: #fff !important;
+        border: 1.5px solid rgba(201, 168, 76, 0.5) !important;
+        box-shadow:
+          0 8px 32px rgba(27, 67, 50, 0.5),
+          0 1px 0 rgba(201, 168, 76, 0.3) inset !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 8px !important;
+        font-size: 14px !important;
+        font-weight: 800 !important;
+        transition:
+          transform 0.25s var(--sp),
+          box-shadow 0.2s !important;
+        cursor: pointer !important;
+      }
+      .fab:active {
+        transform: translateX(-50%) scale(0.92) !important;
+      }
+      .fab .fab-icon {
+        font-size: 20px !important;
+      }
+
+      /* ── BOTTOM NAV ── */
+      .bottom-nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 100% !important;
+        max-width: 680px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        border-top: 1px solid rgba(201, 168, 76, 0.15) !important;
+        padding: 5px 8px calc(5px + env(safe-area-inset-bottom, 0px)) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        box-shadow: 0 -2px 30px rgba(0, 0, 0, 0.08) !important;
+        z-index: 300 !important;
+      }
+      body.dark .bottom-nav {
+        background: rgba(8, 16, 12, 0.95) !important;
+        border-top-color: rgba(201, 168, 76, 0.1) !important;
+      }
+      .nav-btn {
+        border-radius: 12px !important;
+        transition: transform 0.2s var(--sp) !important;
+      }
+      .nav-btn:active {
+        transform: scale(0.86) !important;
+      }
+      .nav-btn.active {
+        background: rgba(27, 67, 50, 0.08) !important;
+      }
+      body.dark .nav-btn.active {
+        background: rgba(45, 106, 79, 0.18) !important;
+      }
+      .nav-btn.active .nav-label {
+        color: var(--lux-em2) !important;
+        font-weight: 800 !important;
+      }
+      body.dark .nav-btn.active .nav-label {
+        color: #52b788 !important;
+      }
+
+      /* ── MODALS ── */
+      .modal {
+        border-radius: 28px 28px 0 0 !important;
+        border-top: 1px solid rgba(201, 168, 76, 0.2) !important;
+      }
+      .modal-handle {
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--lux-gold),
+          transparent
+        ) !important;
+        opacity: 0.5 !important;
+      }
+      .modal-overlay {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+      }
+
+      /* ── BUTTONS ── */
+      .btn-primary {
+        background: linear-gradient(135deg, #2d6a4f, #1b4332) !important;
+        border: 1px solid rgba(201, 168, 76, 0.3) !important;
+        border-radius: 14px !important;
+        box-shadow: 0 4px 20px rgba(27, 67, 50, 0.35) !important;
+        transition:
+          transform 0.2s var(--sp),
+          box-shadow 0.15s !important;
+      }
+      .btn-primary:active {
+        transform: scale(0.94) !important;
+      }
+      .btn-secondary {
+        border-radius: 14px !important;
+        transition: transform 0.2s var(--sp) !important;
+      }
+      .btn-secondary:active {
+        transform: scale(0.94) !important;
+      }
+
+      /* ── SETTINGS CARDS ── */
+      .settings-card {
+        border-radius: 18px !important;
+        border: 1.5px solid var(--cream-border) !important;
+        margin: 0 14px 10px !important;
+        overflow: hidden !important;
+      }
+      body.dark .settings-card {
+        border-color: rgba(255, 255, 255, 0.07) !important;
+      }
+
+      /* ── NUMPAD ── */
+      .quick-numpad,
+      body.simple-mode .quick-numpad {
+        display: block !important;
+      }
+      .numpad-btn {
+        height: 54px !important;
+        border-radius: 14px !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        transition:
+          transform 0.18s var(--sp),
+          background 0.12s !important;
+      }
+      .numpad-btn:active {
+        transform: scale(0.86) !important;
+        background: rgba(45, 106, 79, 0.1) !important;
+      }
+
+      /* ── TOAST ── */
+      #toast,
+      .toast {
+        white-space: normal !important;
+        word-break: break-word !important;
+        max-width: min(300px, calc(100vw - 40px)) !important;
+        text-align: center !important;
+        line-height: 1.5 !important;
+        border-radius: 18px !important;
+        font-size: 13px !important;
+        border: 1px solid rgba(201, 168, 76, 0.15) !important;
+      }
+
+      /* ── ANIMATIONS ── */
+      @keyframes revealCard {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.94);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .summary-card {
+        animation: revealCard 0.4s var(--sp) both !important;
+      }
+      .summary-card:nth-child(1) {
+        animation-delay: 0.05s !important;
+      }
+      .summary-card:nth-child(2) {
+        animation-delay: 0.1s !important;
+      }
+      .summary-card:nth-child(3) {
+        animation-delay: 0.14s !important;
+      }
+      .summary-card:nth-child(4) {
+        animation-delay: 0.18s !important;
+      }
+      .op-item {
+        animation: slideUp 0.25s ease both !important;
+      }
+      .op-item:nth-child(1) {
+        animation-delay: 0.02s !important;
+      }
+      .op-item:nth-child(2) {
+        animation-delay: 0.05s !important;
+      }
+      .op-item:nth-child(3) {
+        animation-delay: 0.08s !important;
+      }
+      .op-item:nth-child(n + 4) {
+        animation-delay: 0.11s !important;
+      }
+      .settings-card {
+        animation: slideUp 0.28s ease both !important;
+      }
+      .settings-card:nth-child(1) {
+        animation-delay: 0.04s !important;
+      }
+      .settings-card:nth-child(2) {
+        animation-delay: 0.08s !important;
+      }
+      .settings-card:nth-child(3) {
+        animation-delay: 0.12s !important;
+      }
+      .settings-card:nth-child(n + 4) {
+        animation-delay: 0.16s !important;
+      }
+
+      /* ── FLOATING BTNS ── */
+      #voiceInputBtn {
+        bottom: 132px !important;
+        right: 14px !important;
+        position: fixed !important;
+        z-index: 200 !important;
+      }
+      #goalsNavBtn {
+        bottom: 132px !important;
+        left: 14px !important;
+        position: fixed !important;
+        z-index: 200 !important;
+      }
+    </style>
   </body>
 </html>
