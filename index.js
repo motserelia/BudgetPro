@@ -5415,7 +5415,48 @@ function renderSettings() {
         <button class="settings-btn danger" id="clearAllBtn" style="margin-top:8px;">${t("resetAll")}</button>
       </div>
     </div>
-         <div class="settings-card">
+    <!-- WOW FEATURES SETTINGS -->
+    <div class="settings-card">
+      <div class="settings-card-title">✨ ${ {ru:"Расширенные функции",en:"Advanced features",ka:"გაფართოებული ფუნქციები"}[currentLang] }</div>
+      <div class="settings-card-desc">${ {ru:"Голосовой ввод, цели, плавающие кнопки",en:"Voice input, goals, floating buttons",ka:"ხმოვანი შეყვანა, მიზნები, მცოცავი ღილაკები"}[currentLang] }</div>
+      <div class="settings-card-body">
+        <!-- Voice input -->
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div>
+              <div style="font-weight:800;font-size:14px;">🎤 ${ {ru:"Голосовой ввод",en:"Voice input",ka:"ხმოვანი შეყვანა"}[currentLang] }</div>
+              <div style="font-size:12px;color:var(--text-muted);">${ {ru:"Кнопка на экране (Chrome)",en:"On-screen button (Chrome)",ka:"ეკრანზე ღილაკი (Chrome)"}[currentLang] }</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="showVoiceBtnToggle" ${localStorage.getItem("showVoiceBtn")!=="false"?"checked":""}><span class="slider round"></span></label>
+          </div>
+          <button class="settings-btn primary" id="voiceDirectBtn" style="width:100%;margin-top:4px;">🎤 ${ {ru:"Использовать голосовой ввод сейчас",en:"Use voice input now",ka:"ხმოვანი შეყვანის გამოყენება"}[currentLang] }</button>
+        </div>
+        <!-- Goals -->
+        <div style="border-top:1px solid var(--cream-border);padding-top:14px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div>
+              <div style="font-weight:800;font-size:14px;">🎯 ${ {ru:"Кнопка целей на экране",en:"Goals button on screen",ka:"მიზნების ღილაკი ეკრანზე"}[currentLang] }</div>
+              <div style="font-size:12px;color:var(--text-muted);">${ {ru:"Плавающая кнопка для быстрого доступа",en:"Floating button for quick access",ka:"სწრაფი წვდომის ღილაკი"}[currentLang] }</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="showGoalsBtnToggle" ${localStorage.getItem("showGoalsBtn")!=="false"?"checked":""}><span class="slider round"></span></label>
+          </div>
+          <button class="settings-btn primary" id="goalsDirectBtn" style="width:100%;margin-top:4px;">🎯 ${ {ru:"Открыть мои цели",en:"Open my goals",ka:"ჩემი მიზნების გახსნა"}[currentLang] }</button>
+        </div>
+        <!-- 12/24hr format -->
+        <div style="border-top:1px solid var(--cream-border);padding-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-weight:800;font-size:14px;">🕐 ${ {ru:"12-часовой формат времени",en:"12-hour time format",ka:"12-საათიანი ფორმატი"}[currentLang] }</div>
+              <div style="font-size:12px;color:var(--text-muted);">${ {ru:"AM/PM вместо 24-часового",en:"AM/PM instead of 24-hour",ka:"AM/PM 24-საათიანის მაგივრად"}[currentLang] }</div>
+            </div>
+            <label class="switch"><input type="checkbox" id="time12hToggle" ${localStorage.getItem("timeFormat12h")==="true"?"checked":""}><span class="slider round"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REMINDERS -->
+    <div class="settings-card">
       <div class="settings-card-title">${t("reminders")}</div>
       <div class="settings-card-desc">${t("remindersDesc")}</div>
       <div class="settings-card-body">
@@ -5626,31 +5667,58 @@ function renderSettings() {
             </div>
           </div>`;
         } else {
-          // Time picker: hour + minute wheels
-          const hrs = Array.from({length:24},(_,i)=>i);
-          const mins = Array.from({length:12},(_,i)=>i*5);
-          pkOv.innerHTML = `<div style="background:var(--card-bg);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:20px 16px 28px;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUpBounce 0.35s cubic-bezier(0.34,1.3,0.64,1) both;max-height:85vh;max-height:85dvh;overflow-y:auto;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          // Time picker — all 60 minutes, 12/24hr toggle
+          const use12h = localStorage.getItem("timeFormat12h") === "true";
+          const hrs = use12h ? Array.from({length:12},(_,i)=>i===0?12:i) : Array.from({length:24},(_,i)=>i);
+          const mins = Array.from({length:60},(_,i)=>i); // ALL 60 minutes
+          const ampm = use12h ? (selHour < 12 ? "AM" : "PM") : null;
+          const dispH = use12h ? (selHour % 12 === 0 ? 12 : selHour % 12) : selHour;
+          const fmtDisp = use12h
+            ? `${dispH}:${String(selMin).padStart(2,"0")} ${ampm}`
+            : `${String(selHour).padStart(2,"0")}:${String(selMin).padStart(2,"0")}`;
+
+          pkOv.innerHTML = `<div style="background:var(--card-bg);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:18px 14px 24px;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUpBounce 0.35s cubic-bezier(0.34,1.3,0.64,1) both;max-height:88vh;max-height:88dvh;overflow-y:auto;">
+            <!-- Header row -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
               <button id="pkCancel" style="padding:8px 14px;border-radius:20px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:13px;font-weight:700;cursor:pointer;">${lc.cancel}</button>
-              <div style="text-align:center;font-size:16px;font-weight:800;">${lc.title}</div>
+              <div style="text-align:center;font-size:15px;font-weight:800;">${lc.title}</div>
               <button id="pkOk" style="padding:8px 14px;border-radius:20px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;">${lc.ok}</button>
             </div>
-            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;">
-              <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
-                <div style="font-size:11px;font-weight:700;color:var(--text-muted);">${{ru:"Часы",en:"Hours",ka:"საათი"}[currentLang]}</div>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;height:160px;overflow-y:auto;width:68px;border-radius:16px;background:var(--cream-dark);padding:6px 0;" id="hrWheel">
-                  ${hrs.map(h=>`<div class="pk-hr" data-h="${h}" style="min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:18px;font-weight:${h===selHour?"900":"400"};background:${h===selHour?"var(--primary)":"transparent"};color:${h===selHour?"white":"var(--text)"};width:56px;transition:all 0.15s;">${String(h).padStart(2,"0")}</div>`).join("")}
-                </div>
-              </div>
-              <div style="font-size:28px;font-weight:900;color:var(--primary);margin-top:20px;">:</div>
-              <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
-                <div style="font-size:11px;font-weight:700;color:var(--text-muted);">${{ru:"Минуты",en:"Minutes",ka:"წუთი"}[currentLang]}</div>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;height:160px;overflow-y:auto;width:68px;border-radius:16px;background:var(--cream-dark);padding:6px 0;" id="minWheel">
-                  ${mins.map(mn=>`<div class="pk-min" data-m="${mn}" style="min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:18px;font-weight:${mn===selMin?"900":"400"};background:${mn===selMin?"var(--primary)":"transparent"};color:${mn===selMin?"white":"var(--text)"};width:56px;transition:all 0.15s;">${String(mn).padStart(2,"0")}</div>`).join("")}
-                </div>
+            <!-- 12/24hr toggle -->
+            <div style="display:flex;justify-content:center;margin-bottom:14px;">
+              <div style="display:flex;background:var(--cream-dark);border-radius:20px;padding:3px;gap:2px;">
+                <button id="fmt24btn" style="padding:6px 16px;border-radius:17px;border:none;font-size:12px;font-weight:800;cursor:pointer;background:${!use12h?"var(--primary)":"transparent"};color:${!use12h?"white":"var(--text-muted)"};">24ч</button>
+                <button id="fmt12btn" style="padding:6px 16px;border-radius:17px;border:none;font-size:12px;font-weight:800;cursor:pointer;background:${use12h?"var(--primary)":"transparent"};color:${use12h?"white":"var(--text-muted)"};">12ч AM/PM</button>
               </div>
             </div>
-            <div style="text-align:center;font-size:32px;font-weight:900;color:var(--primary);background:var(--primary-pale);border-radius:16px;padding:12px;">${String(selHour).padStart(2,"0")}:${String(selMin).padStart(2,"0")}</div>
+            <!-- Wheels -->
+            <div style="display:flex;align-items:flex-start;justify-content:center;gap:8px;margin-bottom:14px;">
+              <!-- Hours -->
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">${{ru:"Часы",en:"Hours",ka:"სთ"}[currentLang]}</div>
+                <div style="height:168px;overflow-y:auto;width:62px;border-radius:16px;background:var(--cream-dark);padding:4px 0;scroll-snap-type:y mandatory;" id="hrWheel">
+                  ${hrs.map(h=>{const isS=use12h?(h===dispH):(h===selHour);return`<div class="pk-hr" data-h="${h}" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:17px;font-weight:${isS?"900":"400"};background:${isS?"var(--primary)":"transparent"};color:${isS?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">${String(h).padStart(2,"0")}</div>`;}).join("")}
+                </div>
+              </div>
+              <div style="font-size:26px;font-weight:900;color:var(--primary);margin-top:46px;flex-shrink:0;">:</div>
+              <!-- Minutes — ALL 60 -->
+              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">${{ru:"Минуты",en:"Min",ka:"წთ"}[currentLang]}</div>
+                <div style="height:168px;overflow-y:auto;width:62px;border-radius:16px;background:var(--cream-dark);padding:4px 0;scroll-snap-type:y mandatory;" id="minWheel">
+                  ${mins.map(mn=>`<div class="pk-min" data-m="${mn}" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:17px;font-weight:${mn===selMin?"900":"400"};background:${mn===selMin?"var(--primary)":"transparent"};color:${mn===selMin?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">${String(mn).padStart(2,"0")}</div>`).join("")}
+                </div>
+              </div>
+              <!-- AM/PM (12h only) -->
+              ${use12h ? `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">AM/PM</div>
+                <div style="height:168px;overflow-y:auto;width:62px;border-radius:16px;background:var(--cream-dark);padding:4px 0;scroll-snap-type:y mandatory;" id="ampmWheel">
+                  <div class="pk-ampm" data-ap="AM" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:15px;font-weight:${selHour<12?"900":"400"};background:${selHour<12?"var(--primary)":"transparent"};color:${selHour<12?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">AM</div>
+                  <div class="pk-ampm" data-ap="PM" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:15px;font-weight:${selHour>=12?"900":"400"};background:${selHour>=12?"var(--primary)":"transparent"};color:${selHour>=12?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">PM</div>
+                </div>
+              </div>` : ""}
+            </div>
+            <!-- Preview -->
+            <div style="text-align:center;font-size:36px;font-weight:900;color:var(--primary);background:var(--primary-pale);border-radius:16px;padding:12px;letter-spacing:1px;">${fmtDisp}</div>
           </div>`;
           // Scroll to selected hour/min
           setTimeout(() => {
@@ -5671,10 +5739,18 @@ function renderSettings() {
             if (disp) { disp.textContent = selDate.toLocaleDateString(currentLang==="en"?"en-US":currentLang==="ka"?"ka-GE":"ru-RU",{day:"numeric",month:"long",year:"numeric"}); disp.style.color="var(--text)"; }
             customReminderDate = val;
           } else {
-            const val = `${String(selHour).padStart(2,"0")}:${String(selMin).padStart(2,"0")}`;
-            if (inp) inp.value = val;
-            if (disp) { disp.textContent = val; disp.style.color="var(--text)"; }
-            customReminderTime = val;
+            const val24 = `${String(selHour).padStart(2,"0")}:${String(selMin).padStart(2,"0")}`;
+            if (inp) inp.value = val24;
+            // Display format based on preference
+            const use12hDisp = localStorage.getItem("timeFormat12h") === "true";
+            let dispVal = val24;
+            if (use12hDisp) {
+              const ampm2 = selHour < 12 ? "AM" : "PM";
+              const h12 = selHour % 12 === 0 ? 12 : selHour % 12;
+              dispVal = `${h12}:${String(selMin).padStart(2,"00")} ${ampm2}`;
+            }
+            if (disp) { disp.textContent = dispVal; disp.style.color="var(--text)"; }
+            customReminderTime = val24; // always store 24h internally
           }
           deactivateCard(card,icon);
           pkOv.remove();
@@ -5690,11 +5766,39 @@ function renderSettings() {
           pkOv.querySelector("#pkPrevM")?.addEventListener("click", () => { selDate = new Date(selDate.getFullYear(), selDate.getMonth()-1, 1); renderPicker(); });
           pkOv.querySelector("#pkNextM")?.addEventListener("click", () => { selDate = new Date(selDate.getFullYear(), selDate.getMonth()+1, 1); renderPicker(); });
         } else {
+          const use12hEvt = localStorage.getItem("timeFormat12h") === "true";
+          // 12/24h toggle buttons
+          pkOv.querySelector("#fmt24btn")?.addEventListener("click", () => {
+            localStorage.setItem("timeFormat12h", "false");
+            renderPicker();
+          });
+          pkOv.querySelector("#fmt12btn")?.addEventListener("click", () => {
+            localStorage.setItem("timeFormat12h", "true");
+            renderPicker();
+          });
           pkOv.querySelectorAll(".pk-hr").forEach(el => {
-            el.addEventListener("click", () => { selHour = parseInt(el.dataset.h); renderPicker(); });
+            el.addEventListener("click", () => {
+              if (use12hEvt) {
+                // Convert 12h display to 24h internal
+                const h12 = parseInt(el.dataset.h);
+                const isPM = selHour >= 12;
+                selHour = isPM ? (h12 === 12 ? 12 : h12 + 12) : (h12 === 12 ? 0 : h12);
+              } else {
+                selHour = parseInt(el.dataset.h);
+              }
+              renderPicker();
+            });
           });
           pkOv.querySelectorAll(".pk-min").forEach(el => {
             el.addEventListener("click", () => { selMin = parseInt(el.dataset.m); renderPicker(); });
+          });
+          pkOv.querySelectorAll(".pk-ampm").forEach(el => {
+            el.addEventListener("click", () => {
+              const isPM = el.dataset.ap === "PM";
+              if (isPM && selHour < 12) selHour += 12;
+              else if (!isPM && selHour >= 12) selHour -= 12;
+              renderPicker();
+            });
           });
         }
       }
@@ -5998,56 +6102,96 @@ function renderSettings() {
     rid = document.getElementById("remindersIntervalDiv"),
     ris = document.getElementById("remindersIntervalSelect");
   if (rt) {
-    rt.addEventListener("change", (e) => {
-      remindersEnabled = e.target.checked;
-      saveReminderSettings();
-      if (remindersEnabled) {
-        // Check if Notification API is available
-        if (!("Notification" in window)) {
-          const L = {ru:"Ваш браузер не поддерживает уведомления. Используйте Chrome.",en:"Your browser doesn't support notifications. Use Chrome.",ka:"ბრაუზერი არ უჭერს მხარს შეტყობინებებს. გამოიყენეთ Chrome."};
-          showToast(L[currentLang]||L.ru, "error");
-          rt.checked = false; remindersEnabled = false; saveReminderSettings();
-          return;
-        }
-        if (Notification.permission === "granted") {
-          startReminderTimer();
-          showToast(t("remindersPermissionGranted"));
-          rid.style.display = "block";
-        } else if (Notification.permission === "denied") {
-          // Permission was previously denied — show instructions
-          const L = {
-            ru:"Уведомления заблокированы. Разрешите их в настройках браузера: 🔒 → Разрешения → Уведомления → Разрешить",
-            en:"Notifications blocked. Allow them in browser settings: 🔒 → Permissions → Notifications → Allow",
-            ka:"შეტყობინებები დაბლოკილია. ბრაუზერის პარამეტრებში გახსენით: 🔒 → ნებართვები → შეტყობინებები → ნება"
-          };
-          showToast(L[currentLang]||L.ru, "error");
-          rt.checked = false; remindersEnabled = false; saveReminderSettings();
-          // Show detailed instructions modal
+    rt.addEventListener("change", function() {
+      // CRITICAL: must be called synchronously from user gesture on mobile
+      const checked = this.checked;
+
+      function onPermGranted() {
+        remindersEnabled = true;
+        saveReminderSettings();
+        startReminderTimer();
+        if (rid) rid.style.display = "block";
+        // Test notification
+        try { new Notification("🔔 БюджетPRO", { body: { ru:"Уведомления включены!",en:"Notifications enabled!",ka:"შეტყობინებები ჩართულია!" }[currentLang]||"Notifications enabled!", icon:"/BudgetPro/favicon-96x96.png" }); } catch(e){}
+        showToast(t("remindersPermissionGranted"), "success");
+      }
+
+      function onPermDenied(reason) {
+        remindersEnabled = false;
+        saveReminderSettings();
+        rt.checked = false;
+        if (rid) rid.style.display = "none";
+        if (reason === "denied") {
           openNotificationHelpModal();
         } else {
-          // permission === "default" — must request from user gesture
-          Notification.requestPermission().then((p) => {
-            if (p === "granted") {
-              startReminderTimer();
-              showToast(t("remindersPermissionGranted"));
-              rid.style.display = "block";
-            } else {
-              const L = {ru:"Разрешите уведомления в браузере — нажмите «Разрешить» в появившемся запросе",en:"Please allow notifications — tap 'Allow' in the browser prompt",ka:"ნება დართეთ შეტყობინებებს — 'Allow' ბრაუზერის მოთხოვნაში"};
-              showToast(L[currentLang]||L.ru, "error");
-              rt.checked = false; remindersEnabled = false; saveReminderSettings();
-            }
-          }).catch(() => {
-            // Some mobile browsers don't support the promise — try callback style
-            Notification.requestPermission(function(p) {
-              if (p === "granted") { startReminderTimer(); showToast(t("remindersPermissionGranted")); rid.style.display = "block"; }
-              else { rt.checked = false; remindersEnabled = false; saveReminderSettings(); }
-            });
+          const L = {ru:"Нажмите «Разрешить» в запросе браузера",en:"Tap 'Allow' in the browser prompt",ka:"ბრაუზერის მოთხოვნაში 'Allow' დააჭირეთ"};
+          showToast(L[currentLang]||L.ru, "error");
+        }
+      }
+
+      if (!checked) {
+        remindersEnabled = false;
+        saveReminderSettings();
+        stopReminderTimer();
+        if (rid) rid.style.display = "none";
+        showToast(t("remindersDisabled"));
+        return;
+      }
+
+      // Check API support
+      if (!("Notification" in window)) {
+        const L = {ru:"Используйте Chrome для уведомлений",en:"Use Chrome for notifications",ka:"Chrome გამოიყენეთ შეტყობინებებისთვის"};
+        showToast(L[currentLang]||L.ru, "error");
+        rt.checked = false;
+        return;
+      }
+
+      if (Notification.permission === "granted") {
+        onPermGranted();
+        return;
+      }
+
+      if (Notification.permission === "denied") {
+        onPermDenied("denied");
+        return;
+      }
+
+      // "default" — request permission DIRECTLY from user gesture (synchronous call)
+      // This is the only way that works on mobile browsers
+      try {
+        const result = Notification.requestPermission();
+        // If it returns a Promise (modern browsers)
+        if (result && typeof result.then === "function") {
+          result.then(p => {
+            if (p === "granted") onPermGranted();
+            else onPermDenied(p);
+          }).catch(() => onPermDenied("error"));
+        } else {
+          // Old callback style (some mobile Safari)
+          Notification.requestPermission(function(p) {
+            if (p === "granted") onPermGranted();
+            else onPermDenied(p);
           });
         }
-      } else {
-        stopReminderTimer();
-        rid.style.display = "none";
-        showToast(t("remindersDisabled"));
+      } catch(err) {
+        // Absolute fallback — show button that user must tap
+        rt.checked = false;
+        const L = {ru:"Нажмите кнопку ниже для включения уведомлений",en:"Tap the button below to enable notifications",ka:"ქვემოთ ღილაკს დააჭირეთ"};
+        showToast(L[currentLang]||L.ru, "info");
+        // Show a standalone button that explicitly triggers permission
+        const permBtn = document.createElement("button");
+        permBtn.className = "btn-primary";
+        permBtn.style.cssText = "position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 28px;border-radius:24px;font-size:15px;font-weight:800;box-shadow:0 8px 24px rgba(45,106,79,0.4);white-space:nowrap;";
+        permBtn.textContent = "🔔 " + ({ru:"Разрешить уведомления",en:"Allow Notifications",ka:"ნება მიეცი"}[currentLang]||"Allow Notifications");
+        permBtn.addEventListener("click", () => {
+          permBtn.remove();
+          Notification.requestPermission().then(p => {
+            if (p === "granted") { rt.checked = true; onPermGranted(); }
+            else onPermDenied(p);
+          });
+        });
+        document.body.appendChild(permBtn);
+        setTimeout(() => permBtn.remove(), 8000);
       }
     });
   }
@@ -6110,6 +6254,30 @@ function renderSettings() {
     localStorage.setItem("hapticEnabled", hapticEnabled);
     if (hapticEnabled) haptic("medium");
     showToast(t("saved"));
+  });
+  // ── Advanced features toggles ──
+  document.getElementById("showVoiceBtnToggle")?.addEventListener("change", function() {
+    localStorage.setItem("showVoiceBtn", this.checked ? "true" : "false");
+    addVoiceButton();
+    haptic("light");
+    showToast(t("saved"));
+  });
+  document.getElementById("showGoalsBtnToggle")?.addEventListener("change", function() {
+    localStorage.setItem("showGoalsBtn", this.checked ? "true" : "false");
+    addGoalsNavButton();
+    haptic("light");
+    showToast(t("saved"));
+  });
+  document.getElementById("time12hToggle")?.addEventListener("change", function() {
+    localStorage.setItem("timeFormat12h", this.checked ? "true" : "false");
+    haptic("light");
+    showToast({ru:"Формат времени изменён",en:"Time format changed",ka:"დროის ფორმატი შეიცვალა"}[currentLang], "success");
+  });
+  document.getElementById("voiceDirectBtn")?.addEventListener("click", () => {
+    haptic("medium"); startVoiceInput();
+  });
+  document.getElementById("goalsDirectBtn")?.addEventListener("click", () => {
+    haptic("medium"); openGoalsModal();
   });
   document
     .getElementById("suggestionsToggle")
@@ -11444,15 +11612,19 @@ function parseVoiceInput(text) {
 }
 
 // Add voice button to FAB area after init
+function getFloatingBtnSetting(key) {
+  return localStorage.getItem(key) !== "false"; // default ON
+}
+
 function addVoiceButton() {
-  if (document.getElementById("voiceInputBtn")) return;
-  const fab = document.getElementById("fabBtn");
-  if (!fab) return;
+  document.getElementById("voiceInputBtn")?.remove();
+  if (!getFloatingBtnSetting("showVoiceBtn")) return;
   const voiceBtn = document.createElement("button");
   voiceBtn.id = "voiceInputBtn";
   voiceBtn.innerHTML = "🎤";
   voiceBtn.title = {ru:"Голосовой ввод",en:"Voice input",ka:"ხმოვანი შეყვანა"}[currentLang]||"Voice";
-  voiceBtn.style.cssText = "position:fixed;bottom:80px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--primary-pale);border:2px solid var(--primary);font-size:22px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
+  // Position: right side, above the nav bar, offset up so doesn't overlap FAB
+  voiceBtn.style.cssText = "position:fixed;bottom:140px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--primary-pale);border:2px solid var(--primary);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
   voiceBtn.addEventListener("click", () => { haptic("medium"); startVoiceInput(); });
   voiceBtn.addEventListener("mouseenter", () => voiceBtn.style.transform = "scale(1.12)");
   voiceBtn.addEventListener("mouseleave", () => voiceBtn.style.transform = "");
@@ -11634,14 +11806,14 @@ function openGoalsModal() {
 
 // Add Goals button to nav or tools
 function addGoalsNavButton() {
-  if (document.getElementById("goalsNavBtn")) return;
-  const fab = document.getElementById("fabBtn");
-  if (!fab) return;
+  document.getElementById("goalsNavBtn")?.remove();
+  if (!getFloatingBtnSetting("showGoalsBtn")) return;
   const btn = document.createElement("button");
   btn.id = "goalsNavBtn";
   btn.innerHTML = "🎯";
   btn.title = {ru:"Мои цели",en:"My Goals",ka:"მიზნები"}[currentLang]||"Goals";
-  btn.style.cssText = "position:fixed;bottom:80px;left:20px;width:48px;height:48px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold);font-size:22px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
+  // Position: left side, above the nav bar, offset up
+  btn.style.cssText = "position:fixed;bottom:140px;left:14px;width:44px;height:44px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
   btn.addEventListener("click", () => { haptic("medium"); openGoalsModal(); });
   btn.addEventListener("mouseenter", () => btn.style.transform = "scale(1.12)");
   btn.addEventListener("mouseleave", () => btn.style.transform = "");
