@@ -4547,3 +4547,92 @@ body.dark .cr-tpl {
   color: var(--text) !important;
   border-color: var(--cream-border) !important;
 }
+
+
+/* ============================================================
+   UI IMPROVEMENTS v4.1 — Collapsible sections, cleaner layout
+   ============================================================ */
+
+/* Settings cards — collapsible */
+.settings-card {
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.settings-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  padding: 4px 0;
+}
+.settings-card-header:active { opacity: 0.7; }
+.settings-card-chevron {
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+.settings-card.collapsed .settings-card-chevron {
+  transform: rotate(-90deg);
+}
+.settings-card.collapsed .settings-card-body {
+  display: none !important;
+}
+.settings-card.collapsed .settings-card-desc {
+  display: none;
+}
+
+/* Toast — wraps properly */
+#toast {
+  white-space: normal !important;
+  word-break: break-word !important;
+  text-align: center !important;
+  line-height: 1.4 !important;
+  border-radius: 16px !important;
+  max-width: calc(100vw - 40px) !important;
+  padding: 12px 18px !important;
+}
+
+/* Balance rows — cleaner */
+.balance-row {
+  border-radius: 16px;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1);
+}
+.balance-row:hover {
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Operation items — better visual */
+.op-item {
+  border-radius: 14px !important;
+  margin-bottom: 6px !important;
+  border: 1.5px solid var(--cream-border) !important;
+  transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1) !important;
+}
+.op-item:hover {
+  border-color: var(--primary) !important;
+  transform: translateX(2px) !important;
+}
+
+/* Guide overlay full-screen */
+#guideOverlay {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Beacon pulse */
+@keyframes beaconPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.8); opacity: 0.15; }
+}
+
+/* Creator panel — improved layout */
+.creator-msg-card {
+  border-radius: 18px;
+  transition: all 0.2s ease;
+}
+.creator-msg-card:last-child {
+  margin-bottom: 0 !important;
+}
