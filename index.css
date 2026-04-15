@@ -3548,7 +3548,12 @@ body.simple-mode #suggestionsBlock {
   display: none !important;
 }
 body.simple-mode .quick-numpad {
-  display: none !important;
+  display: block !important; /* Show numpad in simple mode — easier input */
+}
+body.simple-mode .numpad-btn {
+  min-height: 52px !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
 }
 body.simple-mode .ops-date-group {
   font-size: 15px !important;
@@ -4497,3 +4502,48 @@ body.dark #goalsNavBtn   { background: rgba(212, 167, 60, 0.2); }
 /* ── Toast types: info & warning ── */
 .toast.info    { background: #2563eb !important; }
 .toast.warning { background: var(--gold, #d97706) !important; color: white !important; }
+
+/* ============================================================
+   CREATOR PANEL — Dark mode compatibility
+   ============================================================ */
+body.dark .creator-msg-card {
+  background: var(--card-bg) !important;
+  border-color: var(--cream-border) !important;
+  color: var(--text) !important;
+}
+body.dark .creator-msg-card * {
+  color: inherit;
+}
+body.dark #creatorChatModal .modal,
+body.dark [id^="creatorChatModal"] .modal {
+  background: var(--card-bg) !important;
+}
+body.dark #creatorMsgList > div {
+  background: var(--card-bg) !important;
+  border-color: var(--cream-border) !important;
+}
+body.dark .cr-existing-reply-* {
+  background: var(--primary-pale) !important;
+}
+/* Creator panel settings grid */
+body.dark [style*="background:var(--gold-pale)"],
+body.dark [style*="background:var(--cream-dark)"] {
+  background: var(--cream-dark) !important;
+}
+/* Make all modal content use CSS vars properly */
+body.dark .modal-body [style*="background:#"],
+body.dark .modal-body [style*="color:#"] {
+  /* CSS vars override inline hex colors in dark mode */
+}
+/* Creator panel textarea */
+body.dark #creatorChatModal textarea {
+  background: var(--cream-dark) !important;
+  color: var(--text) !important;
+  border-color: var(--cream-border) !important;
+}
+/* Template pills in dark mode */
+body.dark .cr-tpl {
+  background: var(--cream-dark) !important;
+  color: var(--text) !important;
+  border-color: var(--cream-border) !important;
+}
