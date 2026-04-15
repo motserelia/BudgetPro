@@ -5463,7 +5463,7 @@ function renderSettings() {
         <!-- Notification status block -->
         <div id="notifStatusBlock" style="border-radius:14px;padding:14px;margin-bottom:14px;background:${remindersEnabled ? "var(--income-pale)" : "var(--cream-dark)"};border:1.5px solid ${remindersEnabled ? "var(--income-color)" : "var(--cream-border)"};">
           <div style="display:flex;align-items:center;gap:12px;">
-            <div style="font-size:28px;">${remindersEnabled ? "🔔" : "🔕"}</div>
+            <div class="notif-icon" style="font-size:28px;">${remindersEnabled ? "🔔" : "🔕"}</div>
             <div style="flex:1;">
               <div data-notif-title style="font-weight:800;font-size:14px;color:${remindersEnabled ? "var(--income-color)" : "var(--text)"};">${remindersEnabled ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang] : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang]}</div>
               <div style="font-size:12px;color:var(--text-muted);">${"Notification" in window ? Notification.permission === "granted" ? {ru:"✅ Разрешение получено",en:"✅ Permission granted",ka:"✅ ნებართვა მიღებულია"}[currentLang] : Notification.permission === "denied" ? {ru:"⛔ Заблокировано в браузере",en:"⛔ Blocked in browser",ka:"⛔ ბრაუზერში დაბლოკილია"}[currentLang] : {ru:"Нажмите кнопку чтобы разрешить",en:"Tap button to allow",ka:"ღილაკზე დააჭირეთ"}[currentLang] : {ru:"⚠️ Браузер не поддерживает",en:"⚠️ Browser not supported",ka:"⚠️ ბრაუზერი არ უჭერს მხარს"}[currentLang]}</div>
@@ -6119,110 +6119,7 @@ function renderSettings() {
     ris = document.getElementById("remindersIntervalSelect");
   // ── Notification enable/disable button (mobile-safe) ──
   document.getElementById("notifHelpBtn")?.addEventListener("click", openNotificationHelpModal);
-
-  document.getElementById("notifEnableBtn")?.addEventListener("click", function() {
-    // ── Update DOM in-place (no renderSettings() — avoids scroll reset) ──
-    function updateNotifUI(enabled) {
-      remindersEnabled = enabled;
-      saveReminderSettings();
-      // Update interval div visibility immediately
-      const ridEl = document.getElementById("remindersIntervalDiv");
-      if (ridEl) ridEl.style.display = enabled ? "block" : "none";
-      // Update button text in-place
-      const btn = document.getElementById("notifEnableBtn");
-      if (btn) {
-        const L = { ru:["Включить напоминания","Выключить напоминания"], en:["Enable reminders","Disable reminders"], ka:["შეხსენებების ჩართვა","შეხსენებების გამორთვა"] }[currentLang]||["Enable","Disable"];
-        btn.textContent = "🔔 " + (enabled ? L[1] : L[0]);
-        btn.style.background = enabled ? "var(--expense-color)" : "";
-      }
-      // Update status block
-      const statusEl = document.getElementById("notifStatusBlock");
-      if (statusEl) {
-        statusEl.style.background = enabled ? "var(--income-pale)" : "var(--cream-dark)";
-        statusEl.style.border = "1.5px solid " + (enabled ? "var(--income-color)" : "var(--cream-border)");
-        const iconEl = statusEl.querySelector("div:first-child");
-        if (iconEl) iconEl.textContent = enabled ? "🔔" : "🔕";
-        const titleEl = statusEl.querySelector("[data-notif-title]");
-        if (titleEl) titleEl.textContent = enabled ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang] : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang];
-      }
-    }
-
-    if (!("Notification" in window)) {
-      const L = {ru:"Используйте Chrome для уведомлений. Откройте сайт в Google Chrome.",en:"Use Chrome for notifications. Open the site in Google Chrome.",ka:"Chrome გამოიყენეთ. გახსენით Google Chrome-ში."};
-      showToast(L[currentLang]||L.ru, "error");
-      return;
-    }
-    // Toggle off
-    if (remindersEnabled) {
-      stopReminderTimer();
-      updateNotifUI(false);
-      showToast(t("remindersDisabled"));
-      return;
-    }
-    // Already granted
-    if (Notification.permission === "granted") {
-      startReminderTimer();
-      updateNotifUI(true);
-      try { new Notification("🔔 БюджетPRO", { body: {ru:"Напоминания включены!",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]||"OK", icon:"/BudgetPro/favicon-96x96.png" }); } catch(e){}
-      showToast(t("remindersPermissionGranted"), "success");
-      return;
-    }
-    // Blocked
-    if (Notification.permission === "denied") {
-      openNotificationHelpModal();
-      return;
-    }
-    // Show pending state on button
-    const pendingBtn = document.getElementById("notifEnableBtn");
-    if (pendingBtn) { pendingBtn.textContent = "⏳ " + {ru:"Ожидайте запроса...",en:"Waiting for prompt...",ka:"დაელოდეთ..."}[currentLang]; pendingBtn.disabled = true; }
-
-    // Request permission — MUST be called synchronously from click handler
-    // Use callback API first (broadest mobile support), fall back to Promise
-    let requested = false;
-    try {
-      // Modern browsers return Promise
-      const result = Notification.requestPermission();
-      if (result && typeof result.then === "function") {
-        requested = true;
-        result.then(p => {
-          if (pendingBtn) { pendingBtn.disabled = false; }
-          if (p === "granted") {
-            startReminderTimer();
-            updateNotifUI(true);
-            try { new Notification("🔔 БюджетPRO", { body: {ru:"Отлично! Напоминания работают.",en:"Great! Reminders are working.",ka:"მშვენიერია! შეხსენებები მუშაობს."}[currentLang], icon:"/BudgetPro/favicon-96x96.png" }); } catch(e){}
-            showToast(t("remindersPermissionGranted"), "success");
-          } else if (p === "denied") {
-            openNotificationHelpModal();
-          } else {
-            showToast({ru:"Запрос отклонён. Попробуйте снова.",en:"Request dismissed. Try again.",ka:"უარყოფილია. სცადეთ ხელახლა."}[currentLang], "error");
-            if (pendingBtn) { pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
-          }
-        }).catch(() => {
-          if (pendingBtn) { pendingBtn.disabled = false; pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
-          showToast({ru:"Ошибка. Обновите страницу и попробуйте снова.",en:"Error. Refresh the page and try again.",ka:"შეცდომა. გვერდი განაახლეთ."}[currentLang], "error");
-        });
-      }
-    } catch(e) {}
-
-    if (!requested) {
-      // Older browsers — callback API
-      try {
-        Notification.requestPermission(function(p) {
-          if (pendingBtn) pendingBtn.disabled = false;
-          if (p === "granted") {
-            startReminderTimer(); updateNotifUI(true);
-            showToast(t("remindersPermissionGranted"), "success");
-          } else {
-            if (p === "denied") openNotificationHelpModal();
-            if (pendingBtn) pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang];
-          }
-        });
-      } catch(e2) {
-        if (pendingBtn) { pendingBtn.disabled = false; pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
-        showToast({ru:"Уведомления не поддерживаются",en:"Notifications not supported",ka:"შეტყობინებები მხარდაუჭერელია"}[currentLang], "error");
-      }
-    }
-  });
+  document.getElementById("notifEnableBtn")?.addEventListener("click", handleNotifBtnClick);
 
   if (rt) {
     rt.addEventListener("change", function() {
@@ -6372,6 +6269,29 @@ function renderSettings() {
       localStorage.setItem("animationsEnabled", animationsEnabled);
       showToast(t("saved"));
     });
+  // ── Collapsible settings cards ──
+  document.querySelectorAll(".settings-card").forEach(card => {
+    const header = card.querySelector(".settings-card-title");
+    if (!header) return;
+    // Wrap title + chevron in clickable header div
+    const chevron = document.createElement("span");
+    chevron.className = "settings-card-chevron";
+    chevron.textContent = "›";
+    const wrapper = document.createElement("div");
+    wrapper.className = "settings-card-header";
+    header.parentNode.insertBefore(wrapper, header);
+    wrapper.appendChild(header);
+    wrapper.appendChild(chevron);
+
+    // Start collapsed for non-critical cards (user can expand)
+    const alwaysOpen = ["reminders","appData","budgets"];
+    const cardId = card.querySelector("[id]")?.id || "";
+    // Use title text to decide
+    wrapper.addEventListener("click", () => {
+      card.classList.toggle("collapsed");
+    });
+  });
+
   document.getElementById("hapticToggle")?.addEventListener("change", (e) => {
     hapticEnabled = e.target.checked;
     localStorage.setItem("hapticEnabled", hapticEnabled);
@@ -9218,6 +9138,78 @@ function openSupportModal() {
 // ============================================================
 
 
+// ── Notification button handler — module-level for reliable Chrome PWA ──
+function updateNotifUI(enabled) {
+  remindersEnabled = enabled;
+  saveReminderSettings();
+  const ridEl = document.getElementById("remindersIntervalDiv");
+  if (ridEl) ridEl.style.display = enabled ? "block" : "none";
+  const btn = document.getElementById("notifEnableBtn");
+  if (btn) {
+    const L = {
+      ru: ["🔔 Включить напоминания", "🔕 Выключить напоминания"],
+      en: ["🔔 Enable reminders",     "🔕 Disable reminders"],
+      ka: ["🔔 შეხსენებების ჩართვა",  "🔕 შეხსენებების გამორთვა"],
+    }[currentLang] || ["🔔 Enable", "🔕 Disable"];
+    btn.textContent = enabled ? L[1] : L[0];
+    btn.style.background = enabled ? "var(--expense-color)" : "";
+    btn.disabled = false;
+  }
+  const statusEl = document.getElementById("notifStatusBlock");
+  if (statusEl) {
+    statusEl.style.background  = enabled ? "var(--income-pale)" : "var(--cream-dark)";
+    statusEl.style.borderColor = enabled ? "var(--income-color)" : "var(--cream-border)";
+    const iconEl  = statusEl.querySelector(".notif-icon");
+    const titleEl = statusEl.querySelector("[data-notif-title]");
+    if (iconEl)  iconEl.textContent  = enabled ? "🔔" : "🔕";
+    if (titleEl) titleEl.textContent = enabled
+      ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang]
+      : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang];
+  }
+}
+
+function handleNotifBtnClick() {
+  if (!("Notification" in window)) {
+    showToast({ru:"Уведомления недоступны. Используйте Chrome на Android или компьютере.",en:"Notifications unavailable. Use Chrome on Android or desktop.",ka:"Chrome გამოიყენეთ Android-ზე ან კომპიუტერზე."}[currentLang], "error");
+    return;
+  }
+  if (remindersEnabled) {
+    stopReminderTimer();
+    updateNotifUI(false);
+    showToast(t("remindersDisabled"));
+    return;
+  }
+  if (Notification.permission === "granted") {
+    startReminderTimer();
+    updateNotifUI(true);
+    try { new Notification("🔔 БюджетPRO", {body:{ru:"Напоминания включены!",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]||"OK"}); } catch(e){}
+    showToast(t("remindersPermissionGranted"), "success");
+    return;
+  }
+  if (Notification.permission === "denied") {
+    openNotificationHelpModal();
+    return;
+  }
+  // permission === "default" — show pending and request
+  const btn = document.getElementById("notifEnableBtn");
+  if (btn) { btn.textContent = "⏳"; btn.disabled = true; }
+
+  Notification.requestPermission().then(p => {
+    if (p === "granted") {
+      startReminderTimer();
+      updateNotifUI(true);
+      try { new Notification("🔔 БюджетPRO", {body:{ru:"Готово! Напоминания работают.",en:"Done! Reminders are working.",ka:"მზადაა! შეხსენებები მუშაობს."}[currentLang]}); } catch(e){}
+      showToast(t("remindersPermissionGranted"), "success");
+    } else if (p === "denied") {
+      if (btn) { btn.disabled = false; btn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
+      openNotificationHelpModal();
+    } else {
+      if (btn) { btn.disabled = false; btn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
+      showToast({ru:"Нажмите «Разрешить» в запросе и повторите",en:"Tap 'Allow' in the prompt then try again",ka:"'Allow' დააჭირეთ და კვლავ სცადეთ"}[currentLang], "error");
+    }
+  });
+}
+
 function openNotificationHelpModal() {
   const lang = currentLang;
   const steps = {
@@ -10301,10 +10293,13 @@ function openCreatorChatPanel() {
         box.style.display = isOpen ? "none" : "block";
         if (!isOpen) {
           const ta = document.getElementById("reply-ta-" + id);
-          const msgObj = (ownerData.supportMessages||[]).find(m=>m.id===id);
+          // Use central store (not stale ownerData)
+          const msgObj = getAllMessages().find(m => m.id === id);
           if (ta && msgObj?.creatorReply && !ta.value) ta.value = msgObj.creatorReply;
           ta?.focus();
           box.scrollIntoView({ behavior:"smooth", block:"nearest" });
+          // CRITICAL: rewire send/cancel now that box is visible
+          setTimeout(() => reattach(), 50);
         }
       };
     });
