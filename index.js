@@ -1656,6 +1656,9 @@ function applyTranslations() {
   });
   const logo = document.querySelector(".app-logo");
   if (logo) logo.textContent = t("appName");
+  // Update slogan
+  const slogan = document.getElementById("appSlogan");
+  if (slogan) slogan.textContent = t("slogan");
   const fab = document.querySelector(".fab-text");
   if (fab) fab.textContent = t("add");
   const hintKeys = {
@@ -5577,70 +5580,227 @@ function renderSettings() {
       if (icon) icon.style.transform = "";
     }
 
-    // The definitive cross-browser picker trigger
-    function openPicker(inp, card, icon) {
-      if (!inp) return;
+    // Open a custom date/time picker modal — works on ALL browsers/devices
+    function openPicker(type, card, icon) {
       activateCard(card, icon);
-      // Most reliable: temporarily make input visible at card position, call showPicker, then hide again
-      if (typeof inp.showPicker === "function") {
-        inp.style.position = "fixed";
-        inp.style.top = "0";
-        inp.style.left = "0";
-        inp.style.width = "100vw";
-        inp.style.height = "100vh";
-        inp.style.opacity = "0";
-        inp.style.zIndex = "9999";
-        inp.style.pointerEvents = "auto";
-        inp.focus();
-        try {
-          inp.showPicker();
-          // After picker closes, restore
-          const restore = () => {
-            inp.style.position = "absolute";
-            inp.style.width = "0";
-            inp.style.height = "0";
-            inp.style.top = "";
-            inp.style.left = "";
-            inp.style.zIndex = "";
-            inp.style.pointerEvents = "none";
-            deactivateCard(card, icon);
-          };
-          inp.addEventListener("blur", restore, { once: true });
-          inp.addEventListener("change", restore, { once: true });
-          setTimeout(restore, 5000); // safety timeout
-        } catch (e) {
-          // Restore on error
-          inp.style.position = "absolute";
-          inp.style.width = "0";
-          inp.style.height = "0";
-          inp.style.zIndex = "";
-          inp.style.pointerEvents = "none";
-          deactivateCard(card, icon);
+      const isDate = type === "date";
+      const inp = document.getElementById(
+        isDate ? "reminderCustomDate" : "reminderCustomTime",
+      );
+      const disp = document.getElementById(
+        isDate ? "dateDisplay" : "timeDisplay",
+      );
+
+      // For date: show custom calendar modal
+      // For time: show custom time wheel
+      const pkL = {
+        ru: {
+          title: isDate ? "📅 Выберите дату" : "⏰ Выберите время",
+          ok: "Выбрать",
+          cancel: "Отмена",
+        },
+        en: {
+          title: isDate ? "📅 Choose date" : "⏰ Choose time",
+          ok: "Select",
+          cancel: "Cancel",
+        },
+        ka: {
+          title: isDate ? "📅 თარიღის არჩევა" : "⏰ დროის არჩევა",
+          ok: "არჩევა",
+          cancel: "გაუქმება",
+        },
+      };
+      const lc = pkL[currentLang] || pkL.ru;
+
+      const today = new Date();
+      let selDate = inp?.value ? new Date(inp.value + "T00:00") : new Date();
+      let selHour = inp?.value
+        ? parseInt(inp.value.split(":")[0])
+        : today.getHours();
+      let selMin = inp?.value ? parseInt(inp.value.split(":")[1]) : 0;
+
+      const pkOv = document.createElement("div");
+      pkOv.id = "dtPickerOverlay";
+      pkOv.style.cssText =
+        "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99998;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.2s ease;";
+
+      function renderPicker() {
+        if (isDate) {
+          const y = selDate.getFullYear(),
+            m = selDate.getMonth();
+          const firstDay = (new Date(y, m, 1).getDay() + 6) % 7; // Mon=0
+          const daysInMonth = new Date(y, m + 1, 0).getDate();
+          const monthNames = t("months");
+          const dayNames = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+          const dayNamesEn = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+          const dayNamesKa = ["ო", "ს", "ოთ", "ხ", "პ", "შ", "კ"]; // ორშ,სამ,ოთხ,ხუთ,პარ,შაბ,კვ
+          const dn =
+            currentLang === "en"
+              ? dayNamesEn
+              : currentLang === "ka"
+                ? dayNamesKa
+                : dayNames;
+          let cells = "";
+          for (let i = 0; i < firstDay; i++) cells += `<div></div>`;
+          for (let d = 1; d <= daysInMonth; d++) {
+            const isToday =
+              d === today.getDate() &&
+              m === today.getMonth() &&
+              y === today.getFullYear();
+            const isSel =
+              d === selDate.getDate() &&
+              m === selDate.getMonth() &&
+              y === selDate.getFullYear();
+            cells += `<div class="pk-day" data-d="${d}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;font-size:14px;font-weight:${isSel || isToday ? "800" : "400"};background:${isSel ? "var(--primary)" : "isToday" ? "var(--primary-pale)" : "transparent"};color:${isSel ? "white" : isToday ? "var(--primary)" : "var(--text)"};transition:all 0.15s;">${d}</div>`;
+            cells = cells.replace(
+              '"isToday"?"var(--primary-pale)":"transparent"',
+              isToday && !isSel ? '"var(--primary-pale)"' : '"transparent"',
+            );
+          }
+          pkOv.innerHTML = `<div style="background:var(--card-bg);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:20px 16px 24px;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUpBounce 0.35s cubic-bezier(0.34,1.3,0.64,1) both;max-height:85vh;max-height:85dvh;overflow-y:auto;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <button id="pkCancel" style="padding:8px 14px;border-radius:20px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:13px;font-weight:700;cursor:pointer;">${lc.cancel}</button>
+              <div style="text-align:center;font-size:16px;font-weight:800;">${lc.title}</div>
+              <button id="pkOk" style="padding:8px 14px;border-radius:20px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;">${lc.ok}</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 4px;">
+              <button id="pkPrevM" style="width:36px;height:36px;border-radius:50%;background:var(--cream-dark);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
+              <div style="font-size:15px;font-weight:800;">${monthNames[m]} ${y}</div>
+              <button id="pkNextM" style="width:36px;height:36px;border-radius:50%;background:var(--cream-dark);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px;">
+              ${dn.map((d) => `<div style="text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);padding:3px 0;">${d}</div>`).join("")}
+              ${cells}
+            </div>
+          </div>`;
+        } else {
+          // Time picker: hour + minute wheels
+          const hrs = Array.from({ length: 24 }, (_, i) => i);
+          const mins = Array.from({ length: 12 }, (_, i) => i * 5);
+          pkOv.innerHTML = `<div style="background:var(--card-bg);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:20px 16px 28px;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUpBounce 0.35s cubic-bezier(0.34,1.3,0.64,1) both;max-height:85vh;max-height:85dvh;overflow-y:auto;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <button id="pkCancel" style="padding:8px 14px;border-radius:20px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:13px;font-weight:700;cursor:pointer;">${lc.cancel}</button>
+              <div style="text-align:center;font-size:16px;font-weight:800;">${lc.title}</div>
+              <button id="pkOk" style="padding:8px 14px;border-radius:20px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;">${lc.ok}</button>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;">
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                <div style="font-size:11px;font-weight:700;color:var(--text-muted);">${{ ru: "Часы", en: "Hours", ka: "საათი" }[currentLang]}</div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;height:160px;overflow-y:auto;width:68px;border-radius:16px;background:var(--cream-dark);padding:6px 0;" id="hrWheel">
+                  ${hrs.map((h) => `<div class="pk-hr" data-h="${h}" style="min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:18px;font-weight:${h === selHour ? "900" : "400"};background:${h === selHour ? "var(--primary)" : "transparent"};color:${h === selHour ? "white" : "var(--text)"};width:56px;transition:all 0.15s;">${String(h).padStart(2, "0")}</div>`).join("")}
+                </div>
+              </div>
+              <div style="font-size:28px;font-weight:900;color:var(--primary);margin-top:20px;">:</div>
+              <div style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                <div style="font-size:11px;font-weight:700;color:var(--text-muted);">${{ ru: "Минуты", en: "Minutes", ka: "წუთი" }[currentLang]}</div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:3px;height:160px;overflow-y:auto;width:68px;border-radius:16px;background:var(--cream-dark);padding:6px 0;" id="minWheel">
+                  ${mins.map((mn) => `<div class="pk-min" data-m="${mn}" style="min-height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:18px;font-weight:${mn === selMin ? "900" : "400"};background:${mn === selMin ? "var(--primary)" : "transparent"};color:${mn === selMin ? "white" : "var(--text)"};width:56px;transition:all 0.15s;">${String(mn).padStart(2, "0")}</div>`).join("")}
+                </div>
+              </div>
+            </div>
+            <div style="text-align:center;font-size:32px;font-weight:900;color:var(--primary);background:var(--primary-pale);border-radius:16px;padding:12px;">${String(selHour).padStart(2, "0")}:${String(selMin).padStart(2, "0")}</div>
+          </div>`;
+          // Scroll to selected hour/min
+          setTimeout(() => {
+            const hw = document.getElementById("hrWheel");
+            const mw = document.getElementById("minWheel");
+            if (hw) {
+              const sel = hw.querySelector(`[data-h="${selHour}"]`);
+              if (sel) sel.scrollIntoView({ block: "center" });
+            }
+            if (mw) {
+              const sel = mw.querySelector(`[data-m="${selMin}"]`);
+              if (sel) sel.scrollIntoView({ block: "center" });
+            }
+          }, 100);
         }
-      } else {
-        // Fallback for older browsers
-        inp.style.position = "fixed";
-        inp.style.top = "50%";
-        inp.style.left = "50%";
-        inp.style.transform = "translate(-50%,-50%)";
-        inp.style.width = "200px";
-        inp.style.height = "50px";
-        inp.style.opacity = "0.01";
-        inp.style.zIndex = "9999";
-        inp.style.pointerEvents = "auto";
-        inp.focus();
-        inp.click();
-        setTimeout(() => {
-          inp.style.position = "absolute";
-          inp.style.width = "0";
-          inp.style.height = "0";
-          inp.style.opacity = "0";
-          inp.style.zIndex = "";
-          inp.style.pointerEvents = "none";
-          inp.style.transform = "";
+
+        // Event handlers
+        pkOv.querySelector("#pkCancel")?.addEventListener("click", () => {
           deactivateCard(card, icon);
-        }, 300);
+          pkOv.remove();
+        });
+        pkOv.addEventListener("click", (e) => {
+          if (e.target === pkOv) {
+            deactivateCard(card, icon);
+            pkOv.remove();
+          }
+        });
+        pkOv.querySelector("#pkOk")?.addEventListener("click", () => {
+          if (isDate) {
+            const val = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, "0")}-${String(selDate.getDate()).padStart(2, "0")}`;
+            if (inp) inp.value = val;
+            if (disp) {
+              disp.textContent = selDate.toLocaleDateString(
+                currentLang === "en"
+                  ? "en-US"
+                  : currentLang === "ka"
+                    ? "ka-GE"
+                    : "ru-RU",
+                { day: "numeric", month: "long", year: "numeric" },
+              );
+              disp.style.color = "var(--text)";
+            }
+            customReminderDate = val;
+          } else {
+            const val = `${String(selHour).padStart(2, "0")}:${String(selMin).padStart(2, "0")}`;
+            if (inp) inp.value = val;
+            if (disp) {
+              disp.textContent = val;
+              disp.style.color = "var(--text)";
+            }
+            customReminderTime = val;
+          }
+          deactivateCard(card, icon);
+          pkOv.remove();
+        });
+
+        if (isDate) {
+          pkOv.querySelectorAll(".pk-day").forEach((el) => {
+            el.addEventListener("click", () => {
+              selDate = new Date(
+                selDate.getFullYear(),
+                selDate.getMonth(),
+                parseInt(el.dataset.d),
+              );
+              renderPicker();
+            });
+          });
+          pkOv.querySelector("#pkPrevM")?.addEventListener("click", () => {
+            selDate = new Date(
+              selDate.getFullYear(),
+              selDate.getMonth() - 1,
+              1,
+            );
+            renderPicker();
+          });
+          pkOv.querySelector("#pkNextM")?.addEventListener("click", () => {
+            selDate = new Date(
+              selDate.getFullYear(),
+              selDate.getMonth() + 1,
+              1,
+            );
+            renderPicker();
+          });
+        } else {
+          pkOv.querySelectorAll(".pk-hr").forEach((el) => {
+            el.addEventListener("click", () => {
+              selHour = parseInt(el.dataset.h);
+              renderPicker();
+            });
+          });
+          pkOv.querySelectorAll(".pk-min").forEach((el) => {
+            el.addEventListener("click", () => {
+              selMin = parseInt(el.dataset.m);
+              renderPicker();
+            });
+          });
+        }
       }
+
+      renderPicker();
+      if (!document.getElementById("dtPickerOverlay"))
+        document.body.appendChild(pkOv);
     }
 
     const dateInp = document.getElementById("reminderCustomDate");
@@ -5654,11 +5814,11 @@ function renderSettings() {
 
     if (dateCard && dateInp) {
       dateCard.addEventListener("click", () =>
-        openPicker(dateInp, dateCard, dateIcon),
+        openPicker("date", dateCard, dateIcon),
       );
       dateCard.addEventListener("touchend", (e) => {
         e.preventDefault();
-        openPicker(dateInp, dateCard, dateIcon);
+        openPicker("date", dateCard, dateIcon);
       });
       dateInp.addEventListener("change", () => {
         if (dateDisp) {
@@ -5675,11 +5835,11 @@ function renderSettings() {
     }
     if (timeCard && timeInp) {
       timeCard.addEventListener("click", () =>
-        openPicker(timeInp, timeCard, timeIcon),
+        openPicker("time", timeCard, timeIcon),
       );
       timeCard.addEventListener("touchend", (e) => {
         e.preventDefault();
-        openPicker(timeInp, timeCard, timeIcon);
+        openPicker("time", timeCard, timeIcon);
       });
       timeInp.addEventListener("change", () => {
         if (timeDisp) {
@@ -7562,8 +7722,14 @@ function applyFontSize(size) {
 }
 
 function isCreator() {
+  // If we're in a shared/guest session, NEVER consider as creator
+  // regardless of what's stored in profiles
+  if (sharedAccessProfile) return false;
   const prof = profiles.find((p) => p.id === activeProfileId);
-  return prof?.role === "owner";
+  if (!prof || prof.role !== "owner") return false;
+  // Extra check: shared profiles cannot be creator
+  if (prof.isShared) return false;
+  return true;
 }
 function getCreatorSettings() {
   return JSON.parse(localStorage.getItem("budgetpro_creator_settings") || "{}");
@@ -8294,7 +8460,10 @@ async function showShareWelcomeScreen(pkg) {
       };
       profiles.push(prof);
     }
+    // SECURITY: Force role to "guest" — never allow owner/creator role via share link
     prof.role = "guest";
+    // Clear any creator settings from localStorage for this session context
+    // (creator settings are device-local, not transferred via link)
     const empty = {
       transactions: [],
       startBalanceRub: 0,
@@ -8320,6 +8489,10 @@ async function showShareWelcomeScreen(pkg) {
       perms: pkg.perms || { ...DEFAULT_PERMS },
     };
     activeProfileId = newId;
+    // Ensure no creator role leaks through
+    profiles.forEach((p) => {
+      if (p.id === newId) p.role = "guest";
+    });
     saveGlobal();
     loadProfileData(newId);
     syncStartBalanceTransaction();
@@ -9206,17 +9379,7 @@ function updateSupportBadge() {
       badge.style.display = "none";
       return;
     }
-    const ownerData = JSON.parse(
-      localStorage.getItem("budget_profile_" + ownerProf.id) || "{}",
-    );
-    const globalMsgsB = JSON.parse(
-      localStorage.getItem("budgetpro_global_messages") || "[]",
-    );
-    const allMsgsMapB = new Map();
-    [...(ownerData.supportMessages || []), ...globalMsgsB].forEach((m) =>
-      allMsgsMapB.set(m.id, m),
-    );
-    const msgs = [...allMsgsMapB.values()];
+    const msgs = getAllMessages();
     let count = 0;
     if (isCreator()) {
       count = msgs.filter((m) => !m.readByCreator && !m.replied).length;
@@ -9390,16 +9553,8 @@ function openUserChatPanel() {
   const ownerData = ownerProf
     ? JSON.parse(localStorage.getItem("budget_profile_" + ownerProf.id) || "{}")
     : {};
-  // Read from global messages (works cross-session on same device)
-  const globalUserMsgs = JSON.parse(
-    localStorage.getItem("budgetpro_global_messages") || "[]",
-  );
-  const profileUserMsgs = ownerData.supportMessages || [];
-  const allMsgsMapU = new Map();
-  [...profileUserMsgs, ...globalUserMsgs].forEach((m) =>
-    allMsgsMapU.set(m.id, m),
-  );
-  const allMsgs = [...allMsgsMapU.values()];
+  // Use central message store
+  const allMsgs = getAllMessages();
   const myMsgs = allMsgs.filter((m) => m.fromProfile === activeProfileId);
   const lang = currentLang;
 
@@ -9451,17 +9606,20 @@ function openUserChatPanel() {
   const lc = L[lang] || L.ru;
   const tpl = USER_TEMPLATES[lang] || USER_TEMPLATES.ru;
 
-  // Mark creator replies as read
-  if (ownerProf) {
-    myMsgs.forEach((m) => {
-      if (m.creatorReply) m.replyReadByUser = true;
-    });
-    localStorage.setItem(
-      "budget_profile_" + ownerProf.id,
-      JSON.stringify(ownerData),
-    );
-    updateSupportBadge();
-  }
+  // Mark creator replies as read in central store
+  let changed = false;
+  const centralMsgs = getAllMessages();
+  centralMsgs.forEach((m) => {
+    if (
+      m.fromProfile === activeProfileId &&
+      m.creatorReply &&
+      !m.replyReadByUser
+    ) {
+      m.replyReadByUser = true;
+      changed = true;
+    }
+  });
+  if (changed) saveAllMessages(centralMsgs);
 
   const makeTplGroup = (catLabel, items) =>
     `<div style="margin-bottom:10px;">
@@ -9487,11 +9645,11 @@ function openUserChatPanel() {
       <!-- Developer info bar -->
       <div style="background:var(--primary-pale);border-radius:16px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;border:1px solid rgba(45,106,79,0.15);">
         <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-light));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:var(--shadow-sm);">👨‍💻</div>
-        <div>
+        <div style="flex:1;min-width:0;">
           <div style="font-weight:900;font-size:14px;color:var(--primary);">${lc.dev}</div>
           <div style="font-size:11px;color:var(--text-muted);">⏱ ${lc.status}</div>
         </div>
-        <div style="margin-left:auto;width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.25);"></div>
+        <div id="userChatOnline" style="width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.25);flex-shrink:0;"></div>
       </div>
 
       <!-- Chat feed -->
@@ -9584,7 +9742,336 @@ function renderChatBubble(m, lc) {
   return html;
 }
 
-function sendUserMessage(lc, ownerProf, ownerData, allMsgs) {
+// ════════════════════════════════════════════════════════════
+// CENTRAL MESSAGE STORE
+// localStorage + storage events for real-time same-browser sync
+// Telegram Bot API for cross-device notifications
+// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════
+// REAL-TIME MESSAGING — Firebase Realtime Database
+// Free tier: 1GB, 10GB/month — sufficient for this app
+// Works across ALL devices instantly, no server needed
+// Setup: see creator panel → Telegram section for instructions
+// ════════════════════════════════════════════════════════════
+
+const MSG_KEY = "budgetpro_messages"; // local fallback
+
+// Firebase config — creator fills these in creator panel
+function getFirebaseConfig() {
+  try {
+    return JSON.parse(localStorage.getItem("budgetpro_firebase") || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+
+let _fbDB = null; // Firebase database reference
+let _fbListener = null; // Active listener
+
+// Initialize Firebase if configured
+async function initFirebase() {
+  const cfg = getFirebaseConfig();
+  if (!cfg.databaseURL || _fbDB) return !!_fbDB;
+  try {
+    if (!window.firebase) {
+      // Load Firebase SDK dynamically
+      await loadScript(
+        "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js",
+      );
+      await loadScript(
+        "https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js",
+      );
+    }
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: cfg.apiKey || "demo",
+        databaseURL: cfg.databaseURL,
+        projectId: cfg.projectId || "budgetpro",
+      });
+    }
+    _fbDB = firebase.database();
+    console.log("✅ Firebase connected:", cfg.databaseURL);
+    return true;
+  } catch (e) {
+    console.warn("Firebase init failed:", e.message);
+    return false;
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+// Start real-time listener for new messages
+async function startRealtimeListener() {
+  const ok = await initFirebase();
+  if (!ok || _fbListener) return;
+  try {
+    const ref = _fbDB.ref("budgetpro_messages");
+    _fbListener = ref.on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      const msgs = Object.values(data).sort(
+        (a, b) => new Date(a.date) - new Date(b.date),
+      );
+      // Save to localStorage as cache
+      try {
+        localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+      } catch (e) {}
+      updateSupportBadge();
+      refreshCreatorPanelIfOpen();
+      refreshUserPanelIfOpen();
+    });
+    console.log("✅ Real-time listener active");
+  } catch (e) {
+    console.warn("Listener failed:", e.message);
+  }
+}
+
+// Start listener when page loads
+setTimeout(startRealtimeListener, 1000);
+
+// ── Local fallback (same device) ──────────────────────────────
+let _msgChannel = null;
+try {
+  _msgChannel = new BroadcastChannel("budgetpro_channel");
+  _msgChannel.onmessage = () => {
+    updateSupportBadge();
+    refreshCreatorPanelIfOpen();
+    refreshUserPanelIfOpen();
+  };
+} catch (e) {}
+
+function getAllMessages() {
+  try {
+    return JSON.parse(localStorage.getItem(MSG_KEY) || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+async function saveAllMessages(msgs) {
+  // 1. Always save locally first (instant)
+  try {
+    localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+  } catch (e) {}
+  updateSupportBadge();
+  refreshCreatorPanelIfOpen();
+  refreshUserPanelIfOpen();
+  // Broadcast to same-browser tabs
+  try {
+    _msgChannel?.postMessage({ type: "msg_update" });
+  } catch (e) {}
+
+  // 2. Save to Firebase (cross-device real-time)
+  const ok = await initFirebase();
+  if (ok && _fbDB) {
+    try {
+      const ref = _fbDB.ref("budgetpro_messages");
+      // Write as object keyed by id
+      const obj = {};
+      msgs.forEach((m) => {
+        obj[m.id.replace(/\./g, "_")] = m;
+      });
+      await ref.set(obj);
+    } catch (e) {
+      console.warn("Firebase write failed:", e.message);
+    }
+  }
+}
+
+// storage event (other tab, same device, same browser)
+window.addEventListener("storage", (e) => {
+  if (e.key === MSG_KEY) {
+    updateSupportBadge();
+    refreshCreatorPanelIfOpen();
+    refreshUserPanelIfOpen();
+  }
+});
+
+// Polling fallback: every 5s
+setInterval(() => {
+  updateSupportBadge();
+  refreshCreatorPanelIfOpen();
+  refreshUserPanelIfOpen();
+}, 5000);
+
+// Refresh creator panel messages list without closing the modal
+function refreshCreatorPanelIfOpen() {
+  const list = document.getElementById("creatorMsgList");
+  if (!list) return;
+  const msgs = getAllMessages().sort(
+    (a, b) => new Date(b.date) - new Date(a.date),
+  );
+  const lang = currentLang;
+  const lc = {
+    ru: { empty: "Нет сообщений", new: "🆕", del: "🗑" },
+    en: { empty: "No messages", new: "🆕", del: "🗑" },
+    ka: { empty: "შეტყობინება არ არის", new: "🆕", del: "🗑" },
+  }[lang] || { empty: "No messages", new: "🆕", del: "🗑" };
+
+  // Count actual message cards already shown
+  const currentCards = list.querySelectorAll(".creator-msg-card");
+  const currentIds = new Set([...currentCards].map((c) => c.dataset.msgid));
+
+  // Find new messages not yet shown
+  const newMsgs = msgs.filter((m) => !currentIds.has(m.id));
+  if (newMsgs.length === 0) return; // Nothing new
+
+  // Remove "empty" placeholder if present
+  const emptyEl = list.querySelector("[data-empty='1']");
+  if (emptyEl) emptyEl.remove();
+
+  newMsgs.forEach((m) => {
+    const dt = new Date(m.date).toLocaleString(
+      lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+      { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
+    );
+    const card = document.createElement("div");
+    card.className = "creator-msg-card";
+    card.dataset.msgid = m.id;
+    card.style.cssText =
+      "background:var(--card-bg);border-radius:18px;padding:16px;border:2px solid var(--primary);box-shadow:var(--shadow-md);animation:fadeUp 0.4s ease both;margin-bottom:12px;";
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👤</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:900;font-size:14px;">${esc(m.name)} <span style="background:var(--primary);color:white;padding:1px 7px;border-radius:10px;font-size:10px;">${lc.new}</span></div>
+          <div style="font-size:11px;color:var(--text-muted);">${dt}</div>
+        </div>
+        <button class="cr-del-inline" data-mid="${m.id}" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-muted);padding:4px;">${lc.del}</button>
+      </div>
+      <div style="background:var(--cream-dark);border-radius:12px;padding:12px;font-size:14px;line-height:1.6;word-break:break-word;">${esc(m.message)}</div>
+      ${m.creatorReply ? `<div style="margin-top:10px;border-left:3px solid var(--primary);padding:8px 12px;background:var(--primary-pale);border-radius:0 12px 12px 0;font-size:13px;">${esc(m.creatorReply)}</div>` : ""}
+    `;
+    list.insertBefore(card, list.firstChild);
+
+    card.querySelector(".cr-del-inline")?.addEventListener("click", () => {
+      const all = getAllMessages();
+      saveAllMessages(all.filter((x) => x.id !== m.id));
+      card.remove();
+    });
+
+    // Mark as read
+    const all = getAllMessages();
+    const idx = all.findIndex((x) => x.id === m.id);
+    if (idx >= 0 && !all[idx].readByCreator) {
+      all[idx].readByCreator = true;
+      saveAllMessages(all);
+    }
+  });
+
+  // Update count
+  const countEl = document.getElementById("crMsgCount");
+  if (countEl)
+    countEl.textContent =
+      msgs.length +
+      " " +
+      { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
+}
+
+// Refresh user chat feed with new replies from creator
+function refreshUserPanelIfOpen() {
+  const feed = document.getElementById("userChatFeed");
+  if (!feed) return;
+  const msgs = getAllMessages().filter(
+    (m) => m.fromProfile === activeProfileId,
+  );
+  msgs.forEach((m) => {
+    if (m.creatorReply && !m.replyReadByUser) {
+      // Check if reply bubble already shown
+      const existingReply = feed.querySelector(`[data-reply-for="${m.id}"]`);
+      if (!existingReply) {
+        const lang = currentLang;
+        const devLabel = {
+          ru: "Разработчик",
+          en: "Developer",
+          ka: "შემქმნელი",
+        }[lang];
+        const dt = new Date(m.replyDate || m.date).toLocaleString(
+          lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+          { hour: "2-digit", minute: "2-digit" },
+        );
+        const bubble = document.createElement("div");
+        bubble.dataset.replyFor = m.id;
+        bubble.style.cssText =
+          "display:flex;gap:8px;align-items:flex-end;animation:fadeUp 0.3s ease both;";
+        bubble.innerHTML = `
+          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f59e0b);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👨‍💻</div>
+          <div style="max-width:85%;background:var(--card-bg);border:1.5px solid var(--cream-border);padding:10px 14px;border-radius:18px 18px 18px 4px;box-shadow:var(--shadow-sm);">
+            <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${devLabel}</div>
+            <div style="font-size:14px;line-height:1.5;color:var(--text);">${esc(m.creatorReply)}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${dt}</div>
+          </div>`;
+        feed.appendChild(bubble);
+        feed.scrollTop = feed.scrollHeight;
+        // Mark as read
+        m.replyReadByUser = true;
+        const all = getAllMessages();
+        const idx = all.findIndex((x) => x.id === m.id);
+        if (idx >= 0) {
+          all[idx].replyReadByUser = true;
+          saveAllMessages(all);
+        }
+      }
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// TELEGRAM BOT INTEGRATION — cross-device notifications
+// ─────────────────────────────────────────────────────────────
+function getTelegramConfig() {
+  try {
+    return JSON.parse(localStorage.getItem("budgetpro_telegram") || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+
+async function sendTelegramMessage(text) {
+  const cfg = getTelegramConfig();
+  if (!cfg.token || !cfg.chatId) return false;
+  try {
+    const r = await fetch(
+      `https://api.telegram.org/bot${cfg.token}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: cfg.chatId, text, parse_mode: "HTML" }),
+      },
+    );
+    return r.ok;
+  } catch (e) {
+    return false;
+  }
+}
+// ─────────────────────────────────────────────────────────────
+
+function sendUserMessage(lc, ownerProf, ownerData, allMsgsDep) {
+  // Block if creator disabled messages
+  const _cs = getCreatorSettings();
+  if (_cs.contactEnabled === false) {
+    showToast(
+      {
+        ru: "Создатель временно отключил приём сообщений",
+        en: "Creator has disabled messages temporarily",
+        ka: "შემქმნელმა შეტყობინებები გამორთო",
+      }[currentLang],
+      "error",
+    );
+    return;
+  }
   const nameEl = document.getElementById("chatUserName");
   const msgEl = document.getElementById("chatMsgInput");
   const name = nameEl?.value.trim() || "";
@@ -9619,32 +10106,21 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgs) {
     readByCreator: false,
     replyReadByUser: false,
     fromProfile: activeProfileId,
+    fromProfileName:
+      profiles.find((p) => p.id === activeProfileId)?.name || name,
     creatorReply: null,
     replyDate: null,
   };
 
-  // Save to global messages store (works even without owner profile on same device)
+  // Single global store — always works on same device
+  const allMsgs = getAllMessages();
   allMsgs.push(newMsg);
-  const globalMsgs = JSON.parse(
-    localStorage.getItem("budgetpro_global_messages") || "[]",
-  );
-  globalMsgs.push(newMsg);
-  localStorage.setItem("budgetpro_global_messages", JSON.stringify(globalMsgs));
-  localStorage.setItem("has_new_support_messages", "true");
+  saveAllMessages(allMsgs);
 
-  if (ownerProf) {
-    ownerData.supportMessages = allMsgs;
-    localStorage.setItem(
-      "budget_profile_" + ownerProf.id,
-      JSON.stringify(ownerData),
-    );
-  }
-
+  // Also save in feed for immediate UI update
   const feed = document.getElementById("userChatFeed");
   if (feed) {
-    document
-      .querySelector("#userChatFeed [style*='text-align:center']")
-      ?.remove();
+    feed.querySelector("[data-empty]")?.remove();
     feed.insertAdjacentHTML("beforeend", renderChatBubble(newMsg, lc));
     feed.scrollTop = feed.scrollHeight;
   }
@@ -9655,15 +10131,12 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgs) {
   });
   showToast(lc.sent, "success");
   haptic("success");
-  updateSupportBadge();
-  if (Notification.permission === "granted")
-    new Notification(
-      "📬 " +
-        { ru: "Сообщение отправлено", en: "Message sent", ka: "გაიგზავნა" }[
-          currentLang
-        ],
-      { body: msg },
-    );
+  // Send Telegram notification to creator (if configured)
+  sendTelegramMessage(
+    `📬 <b>БюджетPRO</b>\nОт: ${name}\nСообщение: ${msg}`,
+  ).then((ok) => {
+    if (ok) console.log("✅ Telegram notified");
+  });
 }
 
 // ================================================================
@@ -9673,16 +10146,27 @@ function openCreatorChatPanel() {
   const ownerData = JSON.parse(
     localStorage.getItem("budget_profile_" + activeProfileId) || "{}",
   );
-  // Merge profile messages + global messages (dedup by id)
-  const profileMsgs = ownerData.supportMessages || [];
-  const globalMsgs2 = JSON.parse(
-    localStorage.getItem("budgetpro_global_messages") || "[]",
-  );
-  const allMsgsMap = new Map();
-  [...profileMsgs, ...globalMsgs2].forEach((m) => allMsgsMap.set(m.id, m));
-  const msgs = [...allMsgsMap.values()].sort(
+  // Use central message store (single source of truth)
+  const msgs = getAllMessages().sort(
     (a, b) => new Date(b.date) - new Date(a.date),
   );
+  // Backwards compat: also check old profile-based messages
+  const oldProfileMsgs = ownerData.supportMessages || [];
+  if (oldProfileMsgs.length > 0) {
+    const existingIds = new Set(msgs.map((m) => m.id));
+    const merged = getAllMessages();
+    oldProfileMsgs.forEach((m) => {
+      if (!existingIds.has(m.id)) merged.push(m);
+    });
+    if (merged.length > msgs.length) {
+      saveAllMessages(merged);
+      msgs.splice(
+        0,
+        msgs.length,
+        ...merged.sort((a, b) => new Date(b.date) - new Date(a.date)),
+      );
+    }
+  }
   const lang = currentLang;
   const cs = getCreatorSettings();
   const unread = msgs.filter((m) => !m.readByCreator).length;
@@ -9853,26 +10337,62 @@ function openCreatorChatPanel() {
     </div>
 
     <!-- App URL field -->
-    <div style="margin-bottom:14px;">
-      <label style="font-size:12px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:6px;">🔗 ${{ ru: "URL приложения для ссылок", en: "App URL for share links", ka: "აპის URL ბმულებისთვის" }[lang]}</label>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:12px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:5px;">🔗 ${{ ru: "URL приложения для ссылок", en: "App URL for share links", ka: "აპის URL ბმულებისთვის" }[lang]}</label>
       <div style="display:flex;gap:8px;">
         <input type="url" id="creatorAppUrlInput" class="modal-input" value="${getAppUrl()}" placeholder="https://motserelia.github.io/BudgetPro/" style="flex:1;font-size:13px;">
         <button id="saveCreatorUrl" style="padding:0 14px;border-radius:14px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${{ ru: "Эта ссылка прикрепляется к каждому приглашению", en: "This URL is attached to every share invitation", ka: "ეს URL ემატება ყველა მოწვევას" }[lang]}</div>
+    </div>
+
+    <!-- Firebase Realtime Database — CROSS-DEVICE REAL-TIME SYNC -->
+    <div style="background:var(--balance-pale);border-radius:14px;padding:12px 14px;margin-bottom:10px;border-left:4px solid #ea4335;">
+      <div style="font-size:12px;font-weight:900;color:#ea4335;margin-bottom:8px;">🔥 Firebase — ${{ ru: "мгновенный чат с любого устройства (бесплатно!)", en: "instant chat from any device (free!)", ka: "მომენტური ჩატი ნებისმიერი მოწყობილობიდან (უფასო!)" }[lang]}</div>
+      <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px;line-height:1.6;background:var(--cream-dark);border-radius:10px;padding:8px 10px;">
+        <b>${{ ru: "Как настроить (5 минут):", en: "Setup (5 min):", ka: "დაყენება (5 წთ):" }[lang]}</b><br>
+        ${
+          {
+            ru: "1. console.firebase.google.com → Создать проект<br>2. Realtime Database → Создать → Тестовый режим<br>3. Скопируйте URL: <code>https://ВАШ-ПРОЕКТ.firebaseio.com</code><br>4. Вставьте ниже и нажмите 💾",
+            en: "1. console.firebase.google.com → Create project<br>2. Realtime Database → Create → Test mode<br>3. Copy URL: <code>https://YOUR-PROJECT.firebaseio.com</code><br>4. Paste below and tap 💾",
+            ka: "1. console.firebase.google.com → პროექტის შექმნა<br>2. Realtime Database → შექმნა → სატესტო რეჟიმი<br>3. URL კოპირება: <code>https://...</code><br>4. ჩასვით ქვემოთ და &#x1F4BE;",
+          }[lang]
+        }
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <input type="url" id="fbUrlInput" class="modal-input" value="${getFirebaseConfig().databaseURL || ""}" placeholder="https://your-project-default-rtdb.firebaseio.com" style="font-size:11px;flex:1;">
+        <button id="saveFbBtn" style="padding:8px 12px;border-radius:12px;background:#ea4335;color:white;border:none;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
+        <button id="testFbBtn" style="padding:8px 10px;border-radius:12px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🧪</button>
+      </div>
+      <div id="fbStatus" style="font-size:11px;color:var(--text-muted);min-height:16px;">${_fbDB ? "✅ " + { ru: "Firebase подключён", en: "Firebase connected", ka: "Firebase დაკავშირებულია" }[lang] : "⚠️ " + { ru: "Не настроен", en: "Not configured", ka: "არ არის კონფიგურირებული" }[lang]}</div>
+    </div>
+
+    <!-- Telegram Bot integration -->
+    <div style="background:var(--cream-dark);border-radius:14px;padding:12px 14px;margin-bottom:14px;border-left:4px solid #2ca5e0;">
+      <div style="font-size:12px;font-weight:800;color:#2ca5e0;margin-bottom:8px;">✈️ Telegram — ${{ ru: "push-уведомления (дополнительно)", en: "push notifications (optional)", ka: "push შეტყობინებები (სურვილისამებრ)" }[lang]}</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <input type="text" id="tgTokenInput" class="modal-input" value="${getTelegramConfig().token || ""}" placeholder="Bot token: 1234567890:AAF..." style="font-size:11px;">
+        <div style="display:flex;gap:6px;">
+          <input type="text" id="tgChatInput" class="modal-input" value="${getTelegramConfig().chatId || ""}" placeholder="Chat ID" style="font-size:11px;flex:1;">
+          <button id="saveTgBtn" style="padding:8px 12px;border-radius:12px;background:#2ca5e0;color:white;border:none;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
+          <button id="testTgBtn" style="padding:8px 10px;border-radius:12px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🧪</button>
+        </div>
+      </div>
     </div>
 
     <!-- Stats bar -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-      <div style="font-size:13px;font-weight:700;color:var(--text-muted);">${msgs.length} ${{ ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang]}</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <div id="crMsgCount" style="font-size:13px;font-weight:700;color:var(--text-muted);">${msgs.length} ${{ ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang]}</div>
       ${unread > 0 ? `<span style="background:var(--expense-color);color:white;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;">${unread} ${lc.unreadBadge}</span>` : `<span style="background:var(--income-pale);color:var(--income-color);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">✓ All read</span>`}
+      <button id="crRefreshBtn" title="${{ ru: "Обновить", en: "Refresh", ka: "განახლება" }[lang]}" style="margin-left:auto;background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">🔄 ${{ ru: "Обновить", en: "Refresh", ka: "განახლება" }[lang]}</button>
     </div>
+    <!-- Auto-refresh notice -->
+    <div id="crAutoRefresh" style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">⚡ ${{ ru: "Автообновление каждые 4 секунды", en: "Auto-refresh every 4 seconds", ka: "ავტო-განახლება 4 წამში" }[lang]}</div>
 
     <!-- Messages list -->
     <div id="creatorMsgList" style="display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;padding:2px 2px 2px 0;">
       ${
         msgs.length === 0
-          ? `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div></div>`
+          ? `<div data-empty="1" style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div><div style="font-size:13px;margin-top:8px;color:var(--text-muted);">${{ ru: "Сообщения обновляются автоматически каждые 4 секунды", en: "Messages refresh automatically every 4 seconds", ka: "შეტყობინებები განახლდება ავტომატურად 4 წამში" }[lang]}</div></div>`
           : msgs.map(renderMsg).join("")
       }
     </div>
@@ -9888,7 +10408,33 @@ function openCreatorChatPanel() {
   openModal("creatorChatModal");
 
   // Save settings
-  document.getElementById("saveCS").addEventListener("click", () => {
+  // Refresh messages in creator panel
+  document.getElementById("crRefreshBtn")?.addEventListener("click", () => {
+    const freshMsgs = getAllMessages().sort(
+      (a, b) => new Date(b.date) - new Date(a.date),
+    );
+    const list = document.getElementById("creatorMsgList");
+    const countEl = document.getElementById("crMsgCount");
+    if (countEl)
+      countEl.textContent =
+        freshMsgs.length +
+        " " +
+        { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
+    if (list) {
+      if (freshMsgs.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div></div>`;
+      } else {
+        list.innerHTML = freshMsgs.map(renderMsg).join("");
+        reattach();
+      }
+    }
+    showToast(
+      { ru: "✅ Обновлено", en: "✅ Refreshed", ka: "✅ განახლდა" }[lang],
+      "success",
+    );
+  });
+
+  document.getElementById("saveCS")?.addEventListener("click", () => {
     const en = document.getElementById("csToggle")?.checked;
     const inApp = document.getElementById("inAppToggle")?.checked;
     localStorage.setItem(
@@ -9928,6 +10474,114 @@ function openCreatorChatPanel() {
 
   // Wire up per-message reply toggle, templates, send, delete
   const reattach = () => {
+    // Save Firebase config
+    document
+      .getElementById("saveFbBtn")
+      ?.addEventListener("click", async () => {
+        const url = document.getElementById("fbUrlInput")?.value.trim() || "";
+        if (url) {
+          const cfg = { databaseURL: url };
+          localStorage.setItem("budgetpro_firebase", JSON.stringify(cfg));
+          _fbDB = null;
+          _fbListener = null; // reset to force re-init
+          const ok = await initFirebase();
+          const statusEl = document.getElementById("fbStatus");
+          if (ok) {
+            if (statusEl)
+              statusEl.textContent =
+                "✅ " +
+                {
+                  ru: "Firebase подключён! Чат работает в реальном времени",
+                  en: "Firebase connected! Chat works in real-time",
+                  ka: "Firebase დაკავშირებულია! ჩატი მუშაობს",
+                }[lang];
+            startRealtimeListener();
+            showToast(
+              {
+                ru: "🔥 Firebase настроен! Теперь сообщения доходят мгновенно",
+                en: "🔥 Firebase ready! Messages now arrive instantly",
+                ka: "🔥 Firebase მზადაა! შეტყობინებები მყისიერია",
+              }[lang],
+              "success",
+            );
+          } else {
+            if (statusEl)
+              statusEl.textContent =
+                "❌ " +
+                {
+                  ru: "Ошибка. Проверьте URL",
+                  en: "Error. Check the URL",
+                  ka: "შეცდომა. URL შეამოწმეთ",
+                }[lang];
+            showToast(
+              {
+                ru: "❌ Не удалось подключить Firebase",
+                en: "❌ Firebase connection failed",
+                ka: "❌ Firebase კავშირი ვერ მოხერხდა",
+              }[lang],
+              "error",
+            );
+          }
+        }
+      });
+    document
+      .getElementById("testFbBtn")
+      ?.addEventListener("click", async () => {
+        const ok = await initFirebase();
+        showToast(
+          ok
+            ? {
+                ru: "✅ Firebase работает!",
+                en: "✅ Firebase works!",
+                ka: "✅ Firebase მუშაობს!",
+              }[lang]
+            : {
+                ru: "❌ Firebase не подключён",
+                en: "❌ Firebase not connected",
+                ka: "❌ Firebase არ არის",
+              }[lang],
+          ok ? "success" : "error",
+        );
+      });
+
+    // Save Telegram config
+    document.getElementById("saveTgBtn")?.addEventListener("click", () => {
+      const token = document.getElementById("tgTokenInput")?.value.trim() || "";
+      const chatId = document.getElementById("tgChatInput")?.value.trim() || "";
+      localStorage.setItem(
+        "budgetpro_telegram",
+        JSON.stringify({ token, chatId }),
+      );
+      showToast(
+        {
+          ru: "✅ Telegram настроен",
+          en: "✅ Telegram configured",
+          ka: "✅ Telegram კონფიგურირებულია",
+        }[lang],
+        "success",
+      );
+    });
+    document
+      .getElementById("testTgBtn")
+      ?.addEventListener("click", async () => {
+        const ok = await sendTelegramMessage(
+          "🧪 БюджетPRO: тест / test / ტესტი ✅",
+        );
+        showToast(
+          ok
+            ? {
+                ru: "✅ Telegram работает!",
+                en: "✅ Telegram works!",
+                ka: "✅ Telegram მუშაობს!",
+              }[lang]
+            : {
+                ru: "❌ Проверьте токен и Chat ID",
+                en: "❌ Check token and Chat ID",
+                ka: "❌ შეამოწმეთ ტოკენი",
+              }[lang],
+          ok ? "success" : "error",
+        );
+      });
     // Save URL
     document.getElementById("saveCreatorUrl")?.addEventListener("click", () => {
       const rawVal = document.getElementById("creatorAppUrlInput")?.value || "";
@@ -10038,19 +10692,12 @@ function openCreatorChatPanel() {
         msgObj.replied = true;
         msgObj.replyDate = new Date().toISOString();
         msgObj.replyReadByUser = false;
-        // Save to profile
-        ownerData.supportMessages = [...allMsgsMap.values()];
-        localStorage.setItem(
-          "budget_profile_" + activeProfileId,
-          JSON.stringify(ownerData),
-        );
-        // Also save to global key so user can see reply
-        const gm = JSON.parse(
-          localStorage.getItem("budgetpro_global_messages") || "[]",
-        );
-        const gmIdx = gm.findIndex((m) => m.id === id);
-        if (gmIdx >= 0) gm[gmIdx] = msgObj;
-        localStorage.setItem("budgetpro_global_messages", JSON.stringify(gm));
+        // Save to central store
+        const centralAll = getAllMessages();
+        const centralIdx = centralAll.findIndex((m) => m.id === id);
+        if (centralIdx >= 0) centralAll[centralIdx] = msgObj;
+        else centralAll.push(msgObj);
+        saveAllMessages(centralAll);
 
         // Update UI in place
         const box = document.getElementById("reply-box-" + id);
@@ -10555,7 +11202,17 @@ injectDatetimeEnhancement();
 function ensureSupportButton() {
   const hdrActions = document.querySelector(".header-actions");
   if (!hdrActions) return;
-  if (document.getElementById("headerSupportBtn")) {
+
+  // Hide/show based on contactEnabled setting
+  const _cs2 = getCreatorSettings();
+  const existingBtn = document.getElementById("headerSupportBtn");
+  if (_cs2.contactEnabled === false && !isCreator()) {
+    // Creator disabled — hide button for users
+    if (existingBtn) existingBtn.style.display = "none";
+    return;
+  }
+  if (existingBtn) {
+    existingBtn.style.display = "";
     updateSupportBadge();
     return;
   }
@@ -10598,31 +11255,34 @@ function shouldShowOnboarding() {
 
 function showOnboarding() {
   if (!shouldShowOnboarding()) return;
+  // Remove any existing overlay
+  document.getElementById("onboardingOverlay")?.remove();
+
   const lang = currentLang;
   const slides = {
     ru: [
       {
         emoji: "🌿",
-        title: "Добро пожаловать\nв БюджетPRO!",
-        sub: "Личный финансовый трекер\nОфлайн · Без регистрации · Бесплатно",
+        title: "Добро пожаловать в БюджетPRO!",
+        sub: "Личный финансовый трекер. Офлайн · Без регистрации · Бесплатно",
         color: "var(--primary)",
       },
       {
         emoji: "💸",
-        title: "Записывайте расходы\nи доходы",
-        sub: "Нажмите «+» в нижней части экрана → выберите категорию → введите сумму. Готово!",
+        title: "Записывайте расходы и доходы",
+        sub: "Нажмите кнопку «+» внизу → выберите категорию → введите сумму. Готово!",
         color: "var(--expense-color)",
       },
       {
         emoji: "📊",
         title: "Смотрите статистику",
-        sub: "Вкладка «Статистика» — диаграммы, тренды, прогноз. Отслеживайте куда уходят деньги.",
+        sub: "Вкладка «Статистика» — диаграммы, тренды, прогноз на месяц.",
         color: "#2563eb",
       },
       {
         emoji: "🎯",
         title: "Ставьте бюджеты",
-        sub: "Настройки → Бюджеты. Установите лимит по категории — приложение предупредит о превышении.",
+        sub: "Настройки → Бюджеты. Лимит по категории — приложение предупредит о превышении.",
         color: "var(--gold)",
       },
     ],
@@ -10630,24 +11290,24 @@ function showOnboarding() {
       {
         emoji: "🌿",
         title: "Welcome to BudgetPRO!",
-        sub: "Personal finance tracker\nOffline · No registration · Free",
+        sub: "Personal finance tracker. Offline · No registration · Free",
         color: "var(--primary)",
       },
       {
         emoji: "💸",
-        title: "Track income\n& expenses",
-        sub: "Tap «+» at the bottom → choose category → enter amount. Done!",
+        title: "Track your income & expenses",
+        sub: "Tap the «+» button at the bottom → choose category → enter amount. Done!",
         color: "var(--expense-color)",
       },
       {
         emoji: "📊",
-        title: "View statistics",
-        sub: "The «Stats» tab — charts, trends, forecast. See where your money goes.",
+        title: "View your statistics",
+        sub: "The «Stats» tab — charts, trends, monthly forecast.",
         color: "#2563eb",
       },
       {
         emoji: "🎯",
-        title: "Set budgets",
+        title: "Set spending budgets",
         sub: "Settings → Budgets. Set a limit per category — the app will warn you.",
         color: "var(--gold)",
       },
@@ -10655,26 +11315,26 @@ function showOnboarding() {
     ka: [
       {
         emoji: "🌿",
-        title: "კეთილი იყოს\nთქვენი მობრძანება!",
-        sub: "პირადი ფინანსური ტრეკერი\nოფლაინ · რეგისტრაციის გარეშე · უფასო",
+        title: "კეთილი იყოს თქვენი მობრძანება!",
+        sub: "პირადი ფინანსური ტრეკერი. ოფლაინ · რეგისტრაციის გარეშე · უფასო",
         color: "var(--primary)",
       },
       {
         emoji: "💸",
-        title: "ჩაიწერეთ ხარჯები\nდა შემოსავლები",
-        sub: "«+» ქვემოთ → კატეგორია → თანხა. მზადაა!",
+        title: "ჩაიწერეთ ხარჯები და შემოსავლები",
+        sub: "«+» ღილაკი ქვემოთ → კატეგორია → თანხა. მზადაა!",
         color: "var(--expense-color)",
       },
       {
         emoji: "📊",
         title: "ნახეთ სტატისტიკა",
-        sub: "«სტატისტიკა» ჩანართი — დიაგრამები, ტრენდები, პროგნოზი.",
+        sub: "«სტატისტიკა» — დიაგრამები, ტრენდები, ყოველთვიური პროგნოზი.",
         color: "#2563eb",
       },
       {
         emoji: "🎯",
         title: "დაადგინეთ ბიუჯეტები",
-        sub: "პარამეტრები → ბიუჯეტები. ლიმიტი კატეგორიაში.",
+        sub: "პარამეტრები → ბიუჯეტები. ლიმიტი კატეგორიაში — გაფრთხილება გადაჭარბებისას.",
         color: "var(--gold)",
       },
     ],
@@ -10682,53 +11342,110 @@ function showOnboarding() {
   const sl = slides[lang] || slides.ru;
   let cur = 0;
 
+  // Add keyframe styles
+  if (!document.getElementById("obStyle")) {
+    const st = document.createElement("style");
+    st.id = "obStyle";
+    st.textContent = [
+      "@keyframes obBounce{from{transform:scale(0.4) translateY(20px);opacity:0}60%{transform:scale(1.08);opacity:1}to{transform:scale(1) translateY(0);opacity:1}}",
+      "@keyframes obFadeOut{to{opacity:0;pointer-events:none}}",
+      "@keyframes obSlideIn{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}",
+      ".ob-lang-btn{font-family:inherit;cursor:pointer;transition:all 0.2s;}",
+      ".ob-lang-btn:hover{transform:scale(1.15);}",
+      "#obNext{font-family:inherit;cursor:pointer;transition:transform 0.15s;}",
+      "#obNext:active{transform:scale(0.96)!important;}",
+      "#obSkip{font-family:inherit;cursor:pointer;}",
+    ].join("");
+    document.head.appendChild(st);
+  }
+
   const ov = document.createElement("div");
   ov.id = "onboardingOverlay";
-  ov.style.cssText =
-    "position:fixed;inset:0;z-index:99999;background:var(--cream);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:40px 28px 48px;animation:fadeIn 0.4s ease both;";
-
-  const skipL = { ru: "Пропустить", en: "Skip", ka: "გამოტოვება" };
-  const nextL = { ru: "Далее →", en: "Next →", ka: "შემდეგი →" };
-  const doneL = { ru: "Начать! 🚀", en: "Start! 🚀", ka: "დაწყება! 🚀" };
+  // KEY FIX: overflow-y:auto so content never goes off-screen
+  // No justify-content:space-between — use normal flow with padding
+  ov.style.cssText = [
+    "position:fixed;inset:0;z-index:99999;",
+    "background:var(--cream);",
+    "display:flex;flex-direction:column;",
+    "overflow-y:auto;-webkit-overflow-scrolling:touch;",
+    "padding:env(safe-area-inset-top,16px) 24px env(safe-area-inset-bottom,24px);",
+    "animation:fadeIn 0.35s ease both;",
+    "min-height:100vh;min-height:100dvh;",
+  ].join("");
 
   function renderSlide() {
     const s = sl[cur];
+    const dots = sl
+      .map(
+        (_, i) =>
+          `<div style="width:${i === cur ? 28 : 8}px;height:8px;border-radius:99px;background:${i === cur ? "var(--primary)" : "var(--cream-border)"};transition:all 0.3s ease;flex-shrink:0;"></div>`,
+      )
+      .join("");
+    const langBtns = ["ru", "en", "ka"]
+      .map(
+        (l) =>
+          `<button class="ob-lang-btn" data-l="${l}" style="width:32px;height:32px;border-radius:50%;border:2px solid ${l === lang ? "var(--primary)" : "var(--cream-border)"};background:${l === lang ? "var(--primary)" : "var(--cream-dark)"};color:${l === lang ? "white" : "var(--text-muted)"};font-size:15px;">${l === "ru" ? "🇷🇺" : l === "en" ? "🇬🇧" : "🇬🇪"}</button>`,
+      )
+      .join("");
+
     ov.innerHTML = `
-      <button id="obSkip" style="align-self:flex-end;background:none;border:none;color:var(--text-muted);font-size:14px;font-weight:700;cursor:pointer;padding:4px 0;">${skipL[lang]}</button>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:20px;max-width:320px;margin:0 auto;">
-        <div style="font-size:80px;line-height:1;animation:bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;">${s.emoji}</div>
-        <div style="font-size:26px;font-weight:900;color:${s.color};line-height:1.25;white-space:pre-line;">${s.title}</div>
-        <div style="font-size:15px;color:var(--text-soft);line-height:1.6;white-space:pre-line;">${s.sub}</div>
+      <!-- Top bar -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;padding-bottom:8px;flex-shrink:0;">
+        <div style="display:flex;gap:8px;align-items:center;">${langBtns}</div>
+        <button id="obSkip" style="background:none;border:none;color:var(--text-muted);font-size:14px;font-weight:700;padding:8px 4px;min-width:60px;text-align:right;">
+          ${{ ru: "Пропустить", en: "Skip", ka: "გამოტოვება" }[lang]}
+        </button>
       </div>
-      <div style="width:100%;max-width:320px;">
-        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:24px;">
-          ${sl.map((_, i) => `<div style="width:${i === cur ? 28 : 8}px;height:8px;border-radius:99px;background:${i === cur ? "var(--primary)" : "var(--cream-border)"};transition:all 0.3s ease;"></div>`).join("")}
-        </div>
-        <button id="obNext" style="width:100%;padding:18px;border-radius:var(--radius-xl);background:${s.color};color:white;border:none;font-size:17px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px ${s.color}44;transition:all 0.2s;">${cur < sl.length - 1 ? nextL[lang] : doneL[lang]}</button>
+
+      <!-- Main content — vertically centered, flexible -->
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 0 16px;min-height:240px;">
+        <div style="font-size:72px;line-height:1;margin-bottom:20px;animation:obBounce 0.5s cubic-bezier(0.34,1.56,0.64,1) both;">${s.emoji}</div>
+        <div style="font-size:22px;font-weight:900;color:${s.color};line-height:1.3;margin-bottom:14px;max-width:290px;">${s.title}</div>
+        <div style="font-size:14px;color:var(--text-soft);line-height:1.65;max-width:280px;">${s.sub}</div>
+      </div>
+
+      <!-- Bottom section — always at natural position, never off-screen -->
+      <div style="flex-shrink:0;padding-bottom:16px;">
+        <!-- Dots -->
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px;">${dots}</div>
+        <!-- Next / Start button -->
+        <button id="obNext" style="width:100%;padding:17px;border-radius:var(--radius-xl);background:${s.color};color:white;border:none;font-size:16px;font-weight:900;box-shadow:0 8px 24px ${s.color}33;margin-bottom:10px;">
+          ${cur < sl.length - 1 ? { ru: "Далее →", en: "Next →", ka: "შემდეგი →" }[lang] : { ru: "Начать! 🚀", en: "Start! 🚀", ka: "დაწყება! 🚀" }[lang]}
+        </button>
+        <!-- Slide counter -->
+        <div style="text-align:center;font-size:12px;color:var(--text-muted);font-weight:600;">${cur + 1} / ${sl.length}</div>
       </div>`;
 
-    document.getElementById("obSkip").onclick = finishOnboarding;
-    document.getElementById("obNext").onclick = () => {
+    // Wire buttons — use querySelector within ov, not document.getElementById
+    // to avoid conflicts with other page elements
+    ov.querySelector("#obSkip").addEventListener("click", finishOnboarding);
+    ov.querySelector("#obNext").addEventListener("click", () => {
       if (cur < sl.length - 1) {
         cur++;
         renderSlide();
       } else finishOnboarding();
-    };
+    });
+    ov.querySelectorAll(".ob-lang-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        try {
+          setLanguage(btn.dataset.l);
+        } catch (e) {}
+        ov.remove();
+        showOnboarding();
+      });
+    });
   }
 
   function finishOnboarding() {
-    localStorage.setItem("onboarding_done", "1");
-    ov.style.animation = "fadeOut 0.3s ease forwards";
-    setTimeout(() => ov.remove(), 300);
-  }
-
-  // Add bounceIn animation
-  if (!document.getElementById("obStyle")) {
-    const s = document.createElement("style");
-    s.id = "obStyle";
-    s.textContent =
-      "@keyframes bounceIn{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}} @keyframes fadeOut{to{opacity:0;transform:scale(1.02)}}";
-    document.head.appendChild(s);
+    try {
+      localStorage.setItem("onboarding_done", "1");
+    } catch (e) {}
+    ov.style.animation = "obFadeOut 0.25s ease forwards";
+    setTimeout(() => {
+      try {
+        ov.remove();
+      } catch (e) {}
+    }, 280);
   }
 
   document.body.appendChild(ov);
@@ -11416,8 +12133,10 @@ function openEmailReportModal() {
 const _origRenderTools = typeof renderTools === "function" ? renderTools : null;
 function injectNewToolButtons() {
   const content = document.getElementById("mainContent");
-  if (!content || currentTab !== "tools") return;
-  if (document.getElementById("newToolsBlock")) return;
+  if (!content) return;
+  // Remove stale block before re-inserting
+  document.getElementById("newToolsBlock")?.remove();
+  if (currentTab !== "tools") return;
   const lang = currentLang;
   const labels = {
     scanner: {
