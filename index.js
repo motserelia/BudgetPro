@@ -5465,7 +5465,7 @@ function renderSettings() {
           <div style="display:flex;align-items:center;gap:12px;">
             <div style="font-size:28px;">${remindersEnabled ? "🔔" : "🔕"}</div>
             <div style="flex:1;">
-              <div style="font-weight:800;font-size:14px;color:${remindersEnabled ? "var(--income-color)" : "var(--text)"};">${remindersEnabled ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang] : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang]}</div>
+              <div data-notif-title style="font-weight:800;font-size:14px;color:${remindersEnabled ? "var(--income-color)" : "var(--text)"};">${remindersEnabled ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang] : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang]}</div>
               <div style="font-size:12px;color:var(--text-muted);">${"Notification" in window ? Notification.permission === "granted" ? {ru:"✅ Разрешение получено",en:"✅ Permission granted",ka:"✅ ნებართვა მიღებულია"}[currentLang] : Notification.permission === "denied" ? {ru:"⛔ Заблокировано в браузере",en:"⛔ Blocked in browser",ka:"⛔ ბრაუზერში დაბლოკილია"}[currentLang] : {ru:"Нажмите кнопку чтобы разрешить",en:"Tap button to allow",ka:"ღილაკზე დააჭირეთ"}[currentLang] : {ru:"⚠️ Браузер не поддерживает",en:"⚠️ Browser not supported",ka:"⚠️ ბრაუზერი არ უჭერს მხარს"}[currentLang]}</div>
             </div>
           </div>
@@ -6118,76 +6118,111 @@ function renderSettings() {
     rid = document.getElementById("remindersIntervalDiv"),
     ris = document.getElementById("remindersIntervalSelect");
   // ── Notification enable/disable button (mobile-safe) ──
+  document.getElementById("notifHelpBtn")?.addEventListener("click", openNotificationHelpModal);
+
   document.getElementById("notifEnableBtn")?.addEventListener("click", function() {
-    // This is directly inside a click handler — works on ALL mobile browsers
+    // ── Update DOM in-place (no renderSettings() — avoids scroll reset) ──
+    function updateNotifUI(enabled) {
+      remindersEnabled = enabled;
+      saveReminderSettings();
+      // Update interval div visibility immediately
+      const ridEl = document.getElementById("remindersIntervalDiv");
+      if (ridEl) ridEl.style.display = enabled ? "block" : "none";
+      // Update button text in-place
+      const btn = document.getElementById("notifEnableBtn");
+      if (btn) {
+        const L = { ru:["Включить напоминания","Выключить напоминания"], en:["Enable reminders","Disable reminders"], ka:["შეხსენებების ჩართვა","შეხსენებების გამორთვა"] }[currentLang]||["Enable","Disable"];
+        btn.textContent = "🔔 " + (enabled ? L[1] : L[0]);
+        btn.style.background = enabled ? "var(--expense-color)" : "";
+      }
+      // Update status block
+      const statusEl = document.getElementById("notifStatusBlock");
+      if (statusEl) {
+        statusEl.style.background = enabled ? "var(--income-pale)" : "var(--cream-dark)";
+        statusEl.style.border = "1.5px solid " + (enabled ? "var(--income-color)" : "var(--cream-border)");
+        const iconEl = statusEl.querySelector("div:first-child");
+        if (iconEl) iconEl.textContent = enabled ? "🔔" : "🔕";
+        const titleEl = statusEl.querySelector("[data-notif-title]");
+        if (titleEl) titleEl.textContent = enabled ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang] : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang];
+      }
+    }
+
     if (!("Notification" in window)) {
-      showToast({ru:"Ваш браузер не поддерживает уведомления. Попробуйте Chrome.",en:"Your browser doesn't support notifications. Try Chrome.",ka:"ბრაუზერი არ უჭერს. სცადეთ Chrome."}[currentLang], "error");
+      const L = {ru:"Используйте Chrome для уведомлений. Откройте сайт в Google Chrome.",en:"Use Chrome for notifications. Open the site in Google Chrome.",ka:"Chrome გამოიყენეთ. გახსენით Google Chrome-ში."};
+      showToast(L[currentLang]||L.ru, "error");
       return;
     }
-    // If currently enabled — just disable
+    // Toggle off
     if (remindersEnabled) {
-      remindersEnabled = false;
-      saveReminderSettings();
       stopReminderTimer();
-      const rid = document.getElementById("remindersIntervalDiv");
-      if (rid) rid.style.display = "none";
-      const rt = document.getElementById("remindersToggle");
-      if (rt) rt.checked = false;
+      updateNotifUI(false);
       showToast(t("remindersDisabled"));
-      renderSettings(); // refresh button text
       return;
     }
-    // Already granted — just enable
+    // Already granted
     if (Notification.permission === "granted") {
-      remindersEnabled = true;
-      saveReminderSettings();
       startReminderTimer();
-      const rid = document.getElementById("remindersIntervalDiv");
-      if (rid) rid.style.display = "block";
-      const rt = document.getElementById("remindersToggle");
-      if (rt) rt.checked = true;
-      try { new Notification("🔔 БюджетPRO", {body:{ru:"Напоминания включены!",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]||"Reminders enabled!"}); } catch(e){}
+      updateNotifUI(true);
+      try { new Notification("🔔 БюджетPRO", { body: {ru:"Напоминания включены!",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]||"OK", icon:"/BudgetPro/favicon-96x96.png" }); } catch(e){}
       showToast(t("remindersPermissionGranted"), "success");
-      renderSettings();
       return;
     }
+    // Blocked
     if (Notification.permission === "denied") {
       openNotificationHelpModal();
       return;
     }
-    // "default" — request NOW from this direct click handler
-    Notification.requestPermission().then(p => {
-      if (p === "granted") {
-        remindersEnabled = true;
-        saveReminderSettings();
-        startReminderTimer();
-        const rid = document.getElementById("remindersIntervalDiv");
-        if (rid) rid.style.display = "block";
-        const rt = document.getElementById("remindersToggle");
-        if (rt) rt.checked = true;
-        try { new Notification("🔔 БюджетPRO", {body:{ru:"Напоминания включены! Теперь приложение будет напоминать вам о записях.",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]}); } catch(e){}
-        showToast(t("remindersPermissionGranted"), "success");
-        renderSettings();
-      } else {
-        showToast({ru:"Нажмите «Разрешить» в запросе браузера и попробуйте снова",en:"Tap 'Allow' in the browser prompt and try again",ka:"ბრაუზერში 'Allow' და ხელახლა სცადეთ"}[currentLang], "error");
-        renderSettings();
+    // Show pending state on button
+    const pendingBtn = document.getElementById("notifEnableBtn");
+    if (pendingBtn) { pendingBtn.textContent = "⏳ " + {ru:"Ожидайте запроса...",en:"Waiting for prompt...",ka:"დაელოდეთ..."}[currentLang]; pendingBtn.disabled = true; }
+
+    // Request permission — MUST be called synchronously from click handler
+    // Use callback API first (broadest mobile support), fall back to Promise
+    let requested = false;
+    try {
+      // Modern browsers return Promise
+      const result = Notification.requestPermission();
+      if (result && typeof result.then === "function") {
+        requested = true;
+        result.then(p => {
+          if (pendingBtn) { pendingBtn.disabled = false; }
+          if (p === "granted") {
+            startReminderTimer();
+            updateNotifUI(true);
+            try { new Notification("🔔 БюджетPRO", { body: {ru:"Отлично! Напоминания работают.",en:"Great! Reminders are working.",ka:"მშვენიერია! შეხსენებები მუშაობს."}[currentLang], icon:"/BudgetPro/favicon-96x96.png" }); } catch(e){}
+            showToast(t("remindersPermissionGranted"), "success");
+          } else if (p === "denied") {
+            openNotificationHelpModal();
+          } else {
+            showToast({ru:"Запрос отклонён. Попробуйте снова.",en:"Request dismissed. Try again.",ka:"უარყოფილია. სცადეთ ხელახლა."}[currentLang], "error");
+            if (pendingBtn) { pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
+          }
+        }).catch(() => {
+          if (pendingBtn) { pendingBtn.disabled = false; pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
+          showToast({ru:"Ошибка. Обновите страницу и попробуйте снова.",en:"Error. Refresh the page and try again.",ka:"შეცდომა. გვერდი განაახლეთ."}[currentLang], "error");
+        });
       }
-    }).catch(() => {
-      // Callback fallback for older mobile browsers
+    } catch(e) {}
+
+    if (!requested) {
+      // Older browsers — callback API
       try {
         Notification.requestPermission(function(p) {
+          if (pendingBtn) pendingBtn.disabled = false;
           if (p === "granted") {
-            remindersEnabled = true; saveReminderSettings(); startReminderTimer();
+            startReminderTimer(); updateNotifUI(true);
             showToast(t("remindersPermissionGranted"), "success");
+          } else {
+            if (p === "denied") openNotificationHelpModal();
+            if (pendingBtn) pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang];
           }
-          renderSettings();
         });
       } catch(e2) {
-        showToast({ru:"Уведомления недоступны в этом браузере",en:"Notifications unavailable in this browser",ka:"შეტყობინებები მიუწვდომელია"}[currentLang], "error");
+        if (pendingBtn) { pendingBtn.disabled = false; pendingBtn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
+        showToast({ru:"Уведомления не поддерживаются",en:"Notifications not supported",ka:"შეტყობინებები მხარდაუჭერელია"}[currentLang], "error");
       }
-    });
+    }
   });
-  document.getElementById("notifHelpBtn")?.addEventListener("click", openNotificationHelpModal);
 
   if (rt) {
     rt.addEventListener("change", function() {
@@ -12336,6 +12371,20 @@ const GUIDE_TOPICS = {
         { emoji:"✨", title:"Простой режим", text:"Настройки → «Простой режим» — упрощённый интерфейс для тех кто хочет только записывать расходы без лишних деталей.", action:null },
       ]
     },
+    {
+      id: "newtools",
+      icon: "✨",
+      title: "Новые инструменты",
+      nav: "tools",
+      steps: [
+        { emoji:"✨", title:"Новые инструменты", text:"Вкладка «🧮 Инструменты» → прокрутите вниз до блока «✨ Новые инструменты». Там 6 дополнительных функций которые делают приложение незаменимым!", action:null, nav:"tools" },
+        { emoji:"📸", title:"Сканер чеков", text:"Сфотографируйте бумажный чек — приложение автоматически распознает итоговую сумму с помощью технологии OCR и предложит добавить её как расход. Не нужно вводить цифры вручную!", action:"newScanBtn", nav:"tools" },
+        { emoji:"⚖️", title:"Правило 50/30/20", text:"Знаменитое правило финансов: 50% дохода — на необходимые расходы (еда, аренда), 30% — на желания (рестораны, развлечения), 20% — на сбережения. Кнопка «Рассчитать» автоматически установит лимиты!", action:"newRuleBtn", nav:"tools" },
+        { emoji:"📊", title:"Google Таблицы", text:"Нажмите → скачайте CSV файл → откройте Google Таблицы на компьютере → Файл → Импорт → выберите файл. Все ваши операции появятся в красивой таблице!", action:"newSheetsBtn", nav:"tools" },
+        { emoji:"📧", title:"Отчёт на email", text:"Введите ваш email и нажмите «Отправить» — получите красивый финансовый отчёт за текущий месяц: доходы, расходы, баланс.", action:"newEmailBtn", nav:"tools" },
+        { emoji:"💑", title:"Партнёрский режим", text:"Создайте «комнату» → поделитесь кодом с партнёром → оба видите общий бюджет в реальном времени. Идеально для пар и семей! Требует настроенный Firebase.", action:"partnerModeBtn", nav:"tools" },
+      ]
+    },
   ],
   en: [
     { id:"basics", icon:"🏠", title:"Basics: Getting Started", steps:[
@@ -12393,6 +12442,14 @@ const GUIDE_TOPICS = {
       { emoji:"🎨", title:"Color themes", text:"Settings → 'Color theme' → choose from 6 options: Forest Green (default), White, Gold, Sunset, Navy, Dark Gold.", action:null },
       { emoji:"📝", title:"Font size", text:"Settings → 'Font size' → choose Small, Normal, or Large. Useful for easy reading on any screen size.", action:null },
       { emoji:"✨", title:"Simple mode", text:"Settings → 'Simple mode' — a stripped-down interface for users who just want to record expenses without extra details.", action:null },
+    ]},
+    { id:"newtools", icon:"✨", title:"New Tools", nav:"tools", steps:[
+      { emoji:"✨", title:"New Tools section", text:"Go to the '🧮 Tools' tab → scroll down to the '✨ New Tools' block. There are 6 extra features that make the app indispensable!", action:null, nav:"tools" },
+      { emoji:"📸", title:"Receipt Scanner", text:"Take a photo of a paper receipt — the app automatically recognizes the total amount using OCR technology and offers to add it as an expense. No manual typing needed!", action:"newScanBtn", nav:"tools" },
+      { emoji:"⚖️", title:"50/30/20 Rule", text:"The famous finance rule: 50% of income on needs (food, rent), 30% on wants (restaurants, entertainment), 20% on savings. The 'Calculate' button sets limits automatically!", action:"newRuleBtn", nav:"tools" },
+      { emoji:"📊", title:"Google Sheets Export", text:"Tap → download the CSV file → open Google Sheets on your computer → File → Import → select the file. All your transactions appear in a beautiful spreadsheet!", action:"newSheetsBtn", nav:"tools" },
+      { emoji:"📧", title:"Email Report", text:"Enter your email and tap 'Send' — receive a beautiful financial report for the current month: income, expenses, balance.", action:"newEmailBtn", nav:"tools" },
+      { emoji:"💑", title:"Partner Mode", text:"Create a 'room' → share the code with your partner → both of you see the shared budget in real time. Perfect for couples and families! Requires Firebase setup.", action:"partnerModeBtn", nav:"tools" },
     ]},
   ],
   ka: [
@@ -12452,6 +12509,14 @@ const GUIDE_TOPICS = {
       { emoji:"📝", title:"შრიფტის ზომა", text:"პარამეტრები → 'შრიფტის ზომა' → მცირე, ნორმალური ან დიდი. სასარგებლოა ნებისმიერ ეკრანზე კითხვისთვის.", action:null },
       { emoji:"✨", title:"მარტივი რეჟიმი", text:"პარამეტრები → 'მარტივი რეჟიმი' — გამარტივებული ინტერფეისი მათთვის ვისაც მხოლოდ ხარჯების ჩაწერა სჭირდება.", action:null },
     ]},
+    { id:"newtools", icon:"✨", title:"ახალი ხელსაწყოები", nav:"tools", steps:[
+      { emoji:"✨", title:"ახალი ხელსაწყოების განყოფილება", text:"'🧮 ხელსაწყოები' ჩანართი → გადაახვიეთ ქვემოთ '✨ ახალი ხელსაწყოები' ბლოკამდე. 6 დამატებითი ფუნქცია!", action:null, nav:"tools" },
+      { emoji:"📸", title:"ჩეკის სკანერი", text:"ფოტოგრაფირეთ ქაღალდის ჩეკი — პროგრამა ავტომატურად ამოიცნობს ჯამს OCR ტექნოლოგიით და შესთავაზებს ხარჯის დამატებას. ხელით შეყვანა არ სჭირდება!", action:"newScanBtn", nav:"tools" },
+      { emoji:"⚖️", title:"50/30/20 წესი", text:"ცნობილი ფინანსური წესი: შემოსავლის 50% — საჭიროებებზე, 30% — სურვილებზე, 20% — დანაზოგებზე. 'გამოანგარიშება' ღილაკი ავტომატურად ადგენს ლიმიტებს!", action:"newRuleBtn", nav:"tools" },
+      { emoji:"📊", title:"Google Sheets-ის ექსპორტი", text:"ჩამოტვირთეთ CSV → Google Sheets → ფაილი → იმპორტი. ყველა ოპერაცია ლამაზ ცხრილში!", action:"newSheetsBtn", nav:"tools" },
+      { emoji:"📧", title:"Email ანგარიში", text:"ჩაწერეთ email და დააჭირეთ 'გაგზავნა' — მიიღებთ ამ თვის ფინანსურ ანგარიშს: შემოსავლები, ხარჯები, ბალანსი.", action:"newEmailBtn", nav:"tools" },
+      { emoji:"💑", title:"პარტნიორის რეჟიმი", text:"შექმენით 'ოთახი' → გაუზიარეთ კოდი პარტნიორს → ორივე ხედავთ საერთო ბიუჯეტს რეალურ დროში. Firebase-ის კონფიგურაცია საჭიროა.", action:"partnerModeBtn", nav:"tools" },
+    ]},
   ],
 };
 
@@ -12476,11 +12541,11 @@ function openInteractiveGuide() {
     ov.innerHTML = `
       <div style="max-width:480px;margin:0 auto;padding:24px 20px 40px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-          <div>
-            <div style="font-size:22px;font-weight:900;color:var(--text);">${L.title}</div>
-            <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">${L.sub}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:20px;font-weight:900;color:var(--text);">${L.title}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${L.sub}</div>
           </div>
-          <button id="guideClose" style="background:var(--cream-dark);border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+          <button id="guideClose" style="background:var(--cream-dark);border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:10px;">✕</button>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
           ${topics.map((t,i) => `<button class="guide-topic-btn" data-ti="${i}" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;width:100%;">
@@ -12494,7 +12559,7 @@ function openInteractiveGuide() {
         </div>
       </div>`;
 
-    ov.querySelector("#guideClose")?.addEventListener("click", () => ov.remove());
+    ov.querySelector("#guideClose")?.addEventListener("click", () => { clearSpotlight(); ov.remove(); });
     ov.querySelectorAll(".guide-topic-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         currentTopic = parseInt(btn.dataset.ti);
@@ -12511,53 +12576,76 @@ function openInteractiveGuide() {
     const step = topic.steps[currentStep];
     const isLast = currentStep === topic.steps.length - 1;
     const L = {
-      ru:{ back:"← Назад к темам", prev:"← Назад", next:"Далее →", done:"✅ Понятно!", step:"Шаг" },
-      en:{ back:"← Back to topics", prev:"← Back", next:"Next →", done:"✅ Got it!", step:"Step" },
-      ka:{ back:"← თემებზე დაბრუნება", prev:"← უკან", next:"შემდეგი →", done:"✅ გასაგებია!", step:"ნაბიჯი" },
-    }[lang]||{back:"← Back",prev:"← Back",next:"Next →",done:"✅ Got it!",step:"Step"};
+      ru:{ back:"← Темы", prev:"← Назад", next:"Далее →", done:"✅ Понятно!", step:"Шаг", skip:"✕ Пропустить", show:"👆 Показать на экране" },
+      en:{ back:"← Topics", prev:"← Back", next:"Next →", done:"✅ Got it!", step:"Step", skip:"✕ Skip guide", show:"👆 Show on screen" },
+      ka:{ back:"← თემები", prev:"← უკან", next:"შემდეგი →", done:"✅ გასაგებია!", step:"ნაბიჯი", skip:"✕ გამოტოვება", show:"👆 ეკრანზე ჩვენება" },
+    }[lang]||{back:"← Topics",prev:"← Back",next:"Next →",done:"✅ Got it!",step:"Step",skip:"✕ Skip",show:"👆 Show"};
 
-    // Highlight action element if specified
-    if (step.action) {
-      const el = document.getElementById(step.action);
-      if (el) {
-        el.style.outline = "3px solid var(--gold)";
-        el.style.outlineOffset = "3px";
-        setTimeout(() => { el.style.outline = ""; el.style.outlineOffset = ""; }, 3000);
-      }
+    // Navigate to correct tab first, then highlight element
+    if (step.nav && typeof setTab === "function") {
+      setTab(step.nav);
+      if (step.action) setTimeout(() => highlightElement(step.action), 600);
+    } else if (step.action) {
+      setTimeout(() => highlightElement(step.action), 250);
     }
 
     ov.innerHTML = `
-      <div style="max-width:480px;margin:0 auto;padding:24px 20px 40px;">
-        <!-- Progress -->
-        <div style="display:flex;gap:4px;margin-bottom:20px;">
-          ${topic.steps.map((_,i) => `<div style="height:4px;flex:1;border-radius:99px;background:${i<=currentStep?"var(--primary)":"var(--cream-border)"};transition:background 0.3s;"></div>`).join("")}
+      <div style="max-width:480px;margin:0 auto;padding:18px 16px 36px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <button id="guideBack" style="background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:20px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);">${L.back}</button>
+          <div style="font-size:12px;font-weight:700;color:var(--text-muted);">${topic.icon} ${L.step} ${currentStep+1}/${topic.steps.length}</div>
+          <button id="guideSkip" style="background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;padding:8px;">${L.skip}</button>
         </div>
-        <!-- Back link -->
-        <button id="guideBack" style="background:none;border:none;color:var(--text-muted);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;padding:0;">${L.back}</button>
-        <!-- Topic + step info -->
-        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px;">${topic.icon} ${topic.title} · ${L.step} ${currentStep+1}/${topic.steps.length}</div>
-        <!-- Step card -->
-        <div style="background:var(--card-bg);border-radius:20px;padding:24px;border:1.5px solid var(--cream-border);margin-bottom:20px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;">
-          <div style="font-size:60px;animation:bounceIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;">${step.emoji}</div>
-          <div style="font-size:18px;font-weight:900;color:var(--text);">${step.title}</div>
-          <div style="font-size:14px;line-height:1.7;color:var(--text-soft);white-space:pre-line;">${step.text}</div>
-          ${step.action ? `<div style="font-size:12px;color:var(--primary);font-weight:700;margin-top:4px;">👆 ${lang==="ru"?"Элемент выделен на экране":lang==="en"?"Element highlighted on screen":"ელემენტი გამოყოფილია ეკრანზე"}</div>` : ""}
+        <div style="height:5px;background:var(--cream-dark);border-radius:99px;overflow:hidden;margin-bottom:18px;">
+          <div style="width:${Math.round(((currentStep+1)/topic.steps.length)*100)}%;height:100%;background:var(--primary);border-radius:99px;transition:width 0.35s ease;"></div>
         </div>
-        <!-- Navigation -->
+        <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px;">${topic.icon} ${topic.title}</div>
+        <div style="background:var(--card-bg);border-radius:20px;padding:22px 18px;border:1.5px solid var(--cream-border);margin-bottom:16px;text-align:center;">
+          <div style="font-size:52px;line-height:1;margin-bottom:12px;">${step.emoji}</div>
+          <div style="font-size:17px;font-weight:900;color:var(--text);margin-bottom:10px;line-height:1.3;">${step.title}</div>
+          <div style="font-size:13px;line-height:1.75;color:var(--text-soft);text-align:left;white-space:pre-line;">${step.text}</div>
+          ${step.action ? `<button id="guideShowBtn" style="margin-top:14px;padding:10px 18px;border-radius:20px;background:var(--gold-pale);border:2px solid var(--gold);color:var(--text);font-size:13px;font-weight:800;cursor:pointer;">${L.show}</button>` : ""}
+        </div>
         <div style="display:flex;gap:10px;">
-          ${currentStep > 0 ? `<button id="guidePrev" class="btn-secondary" style="flex:1;">${L.prev}</button>` : ""}
-          <button id="guideNext" class="btn-primary" style="flex:2;">${isLast ? L.done : L.next}</button>
+          ${currentStep > 0 ? `<button id="guidePrev" class="btn-secondary" style="flex:1;padding:14px;">${L.prev}</button>` : ""}
+          <button id="guideNext" class="btn-primary" style="flex:2;padding:14px;font-size:15px;font-weight:800;">${isLast ? L.done : L.next}</button>
         </div>
       </div>`;
 
-    ov.querySelector("#guideBack")?.addEventListener("click", () => { currentTopic = null; renderTopicList(); });
+    ov.querySelector("#guideBack")?.addEventListener("click", () => { clearSpotlight(); currentTopic = null; renderTopicList(); });
+    ov.querySelector("#guideSkip")?.addEventListener("click", () => { clearSpotlight(); ov.remove(); haptic("light"); });
     ov.querySelector("#guidePrev")?.addEventListener("click", () => { currentStep--; renderStep(); haptic("light"); });
     ov.querySelector("#guideNext")?.addEventListener("click", () => {
-      if (isLast) { currentTopic = null; renderTopicList(); }
+      if (isLast) { clearSpotlight(); currentTopic = null; renderTopicList(); }
       else { currentStep++; renderStep(); }
       haptic("light");
     });
+    ov.querySelector("#guideShowBtn")?.addEventListener("click", () => { highlightElement(step.action); haptic("medium"); });
   }
+
+  // ── Spotlight system ──
+  let spotlightEl = null;
+  function clearSpotlight() {
+    document.getElementById("guideBeacon")?.remove();
+    if (spotlightEl) { spotlightEl.style.outline = ""; spotlightEl.style.outlineOffset = ""; spotlightEl = null; }
+  }
+  function highlightElement(id) {
+    clearSpotlight();
+    const el = document.getElementById(id);
+    if (!el) return;
+    spotlightEl = el;
+    el.scrollIntoView({ behavior:"smooth", block:"center" });
+    el.style.outline = "3px solid var(--gold)";
+    el.style.outlineOffset = "4px";
+    const beacon = document.createElement("div");
+    beacon.id = "guideBeacon";
+    const rect = el.getBoundingClientRect();
+    beacon.style.cssText = `position:fixed;left:${rect.left+rect.width/2-18}px;top:${rect.top+rect.height/2-18}px;width:36px;height:36px;border-radius:50%;border:3px solid var(--gold);z-index:99997;pointer-events:none;background:rgba(212,167,60,0.2);animation:beaconPulse 1s ease infinite;`;
+    if (!document.getElementById("beaconStyle")) { const s=document.createElement("style"); s.id="beaconStyle"; s.textContent="@keyframes beaconPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:0.2}}"; document.head.appendChild(s); }
+    document.body.appendChild(beacon);
+    setTimeout(clearSpotlight, 5000);
+  }
+
 
   document.body.appendChild(ov);
   renderTopicList();
