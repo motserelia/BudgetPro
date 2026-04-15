@@ -8,6 +8,7 @@
     />
     <meta name="theme-color" content="#2d6a4f" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="БюджетPRO" />
     <meta
@@ -16,8 +17,8 @@
     />
     <title>🌿 БюджетPRO</title>
     <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
-    <link rel="icon" type="image/png" href="icon-192.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" href="favicon-96x96.png" />
     <link rel="stylesheet" href="index.css" />
     <script
       src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
@@ -226,7 +227,8 @@
         justify-content: space-between;
         padding: 10px 14px;
         gap: 8px;
-        min-height: 68px;
+        /* TALL HEADER: enough room for logo + slogan + date */
+        min-height: 80px;
         background: var(--cream);
         border-bottom: 1.5px solid var(--cream-border);
         backdrop-filter: blur(16px);
@@ -236,44 +238,50 @@
       .header-left {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 1px;
         flex: 1;
         min-width: 0;
-        overflow: hidden;
+        /* Don't hide overflow — let text breathe */
+        overflow: visible;
       }
       .app-logo {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 900;
         color: var(--primary);
         line-height: 1.2;
         letter-spacing: -0.3px;
         cursor: pointer;
         user-select: none;
+        /* Don't clip logo text */
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+      }
+      .app-slogan {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+        margin-bottom: 1px;
       }
       #headerDate {
         font-size: 10px;
         color: var(--text-muted);
-        font-weight: 600;
+        font-weight: 500;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
       .header-actions {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
         flex-shrink: 0;
       }
       .header-btn {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         border: 1.5px solid var(--cream-border);
         background: var(--card-bg);
-        font-size: 17px;
+        font-size: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -281,9 +289,12 @@
         transition: var(--tr);
         color: var(--text);
         box-shadow: var(--shadow-sm);
+        flex-shrink: 0;
+        position: relative;
+        overflow: visible;
       }
       .header-btn:active {
-        transform: scale(0.91);
+        transform: scale(0.88);
       }
 
       /* =====================================================================
@@ -594,13 +605,17 @@
       }
       .modal {
         width: 100%;
-        max-height: 92vh;
-        overflow-y: auto;
-        background: var(--cream);
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        padding: 8px 18px 40px;
+        display: flex;
+        flex-direction: column;
+        /* Limit height strictly — never overflow screen */
+        max-height: min(92dvh, 92vh);
+        overflow: hidden;
+        background: var(--card-bg);
+        border-radius: 28px 28px 0 0;
+        padding-bottom: env(safe-area-inset-bottom, 16px);
         transform: translateY(100%);
         transition: transform 0.32s cubic-bezier(0.34, 1.4, 0.64, 1);
+        box-shadow: 0 -8px 48px rgba(0, 0, 0, 0.22);
       }
       .modal-overlay.open .modal {
         transform: translateY(0);
@@ -610,16 +625,50 @@
         height: 5px;
         background: var(--cream-border);
         border-radius: 99px;
-        margin: 10px auto 16px;
+        margin: 10px auto 8px;
         cursor: pointer;
+        flex-shrink: 0;
       }
       .modal-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 18px;
+        flex-shrink: 0;
+        padding: 12px 20px 10px;
+        border-bottom: 1.5px solid var(--cream-border);
         padding-bottom: 14px;
         border-bottom: 1.5px solid var(--cream-border);
+      }
+      .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding: 14px 16px 20px;
+        min-height: 0;
+        /* Small phone: tighter padding */
+      }
+      @media (max-height: 650px) {
+        .modal-body {
+          padding: 10px 14px 16px;
+        }
+        .modal-header {
+          padding: 8px 16px 8px;
+        }
+        .modal-handle {
+          margin: 6px auto 4px;
+        }
+        .field-group {
+          margin-bottom: 10px;
+        }
+      }
+      @media (max-width: 360px) {
+        .modal-body {
+          padding: 10px 12px 16px;
+        }
+        .modal-header h2 {
+          font-size: 16px;
+        }
       }
       .modal-header h2 {
         font-size: 19px;
@@ -720,7 +769,7 @@
         line-height: 1.6;
         background: var(--primary-pale);
         border-radius: 12px;
-        padding: 10px 14px;
+        padding: 12px 14px 14px;
         margin-bottom: 14px;
         border-left: 3px solid var(--primary);
       }
@@ -964,7 +1013,7 @@
         border: 2px solid var(--cream-border);
         border-radius: var(--radius-sm);
         background: var(--cream-dark);
-        font-size: 18px;
+        font-size: 19px;
         cursor: pointer;
         transition: var(--tr);
       }
@@ -1383,7 +1432,7 @@
         background: var(--card-bg);
         border-radius: var(--radius-sm);
         border: 1.5px solid var(--cream-border);
-        padding: 10px 14px;
+        padding: 12px 14px 14px;
         box-shadow: var(--shadow-sm);
       }
       .search-icon {
@@ -1499,7 +1548,7 @@
         margin-bottom: 6px;
       }
       .stat-kpi-val {
-        font-size: 18px;
+        font-size: 19px;
         font-weight: 900;
         color: var(--text);
         word-break: break-all;
@@ -1717,7 +1766,7 @@
         pointer-events: none;
       }
       .stat-gauge-amount {
-        font-size: 18px;
+        font-size: 19px;
         font-weight: 900;
         color: var(--text);
       }
@@ -1756,7 +1805,7 @@
         border-bottom: none;
       }
       .forecast-balance {
-        font-size: 18px;
+        font-size: 19px;
         font-weight: 900;
         color: var(--income-color);
         text-align: center;
@@ -2216,7 +2265,7 @@
         background: var(--primary-pale);
         border-radius: 12px;
         padding: 14px;
-        font-size: 18px;
+        font-size: 19px;
         font-weight: 900;
         color: var(--primary);
         text-align: center;
@@ -2621,7 +2670,7 @@
         font-size: 17px;
       }
       body.simple-mode .op-amount {
-        font-size: 18px;
+        font-size: 19px;
       }
       body.simple-mode .fab {
         width: 66px;
@@ -2752,17 +2801,10 @@
         <div class="app-logo" id="appLogoBtn" title="БюджетPRO">
           🌿 БюджетPRO
         </div>
-        <div
-          id="headerDate"
-          style="
-            font-size: 10px;
-            color: var(--text-muted);
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          "
-        ></div>
+        <div class="app-slogan" id="appSlogan" data-i18n="slogan">
+          Твой капитал — Твои правила
+        </div>
+        <div id="headerDate"></div>
       </div>
       <div class="header-actions">
         <button class="header-btn" id="headerGuideBtn" title="Гайд">📖</button>
@@ -2953,12 +2995,14 @@
      SERVICE WORKER (только на HTTPS — Netlify, GitHub Pages)
      ========================================================= -->
     <script>
-      if ("serviceWorker" in navigator) {
+      // Service Worker only on HTTPS (GitHub Pages, Netlify)
+      // On file:// protocol it causes errors — this is normal for local testing
+      if ("serviceWorker" in navigator && location.protocol === "https:") {
         window.addEventListener("load", () => {
           navigator.serviceWorker
             .register("sw.js")
             .then((r) => console.log("✅ SW:", r.scope))
-            .catch((e) => console.warn("SW error:", e));
+            .catch((e) => console.warn("SW:", e));
         });
       }
     </script>
