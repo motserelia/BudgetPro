@@ -5460,10 +5460,26 @@ function renderSettings() {
       <div class="settings-card-title">${t("reminders")}</div>
       <div class="settings-card-desc">${t("remindersDesc")}</div>
       <div class="settings-card-body">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <span>${t("remindersEnable")}</span>
-          <label class="switch"><input type="checkbox" id="remindersToggle" ${remindersEnabled ? "checked" : ""}><span class="slider round"></span></label>
+        <!-- Notification status block -->
+        <div id="notifStatusBlock" style="border-radius:14px;padding:14px;margin-bottom:14px;background:${remindersEnabled ? "var(--income-pale)" : "var(--cream-dark)"};border:1.5px solid ${remindersEnabled ? "var(--income-color)" : "var(--cream-border)"};">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:28px;">${remindersEnabled ? "🔔" : "🔕"}</div>
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:14px;color:${remindersEnabled ? "var(--income-color)" : "var(--text)"};">${remindersEnabled ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang] : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang]}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${"Notification" in window ? Notification.permission === "granted" ? {ru:"✅ Разрешение получено",en:"✅ Permission granted",ka:"✅ ნებართვა მიღებულია"}[currentLang] : Notification.permission === "denied" ? {ru:"⛔ Заблокировано в браузере",en:"⛔ Blocked in browser",ka:"⛔ ბრაუზერში დაბლოკილია"}[currentLang] : {ru:"Нажмите кнопку чтобы разрешить",en:"Tap button to allow",ka:"ღილაკზე დააჭირეთ"}[currentLang] : {ru:"⚠️ Браузер не поддерживает",en:"⚠️ Browser not supported",ka:"⚠️ ბრაუზერი არ უჭერს მხარს"}[currentLang]}</div>
+            </div>
+          </div>
         </div>
+        <!-- BUTTON approach — guaranteed user gesture on all mobile browsers -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button id="notifEnableBtn" class="btn-primary" style="flex:1;padding:14px;font-size:14px;font-weight:800;"
+            ${!("Notification" in window) || Notification.permission === "denied" ? "disabled style='opacity:0.5;'" : ""}>
+            🔔 ${remindersEnabled ? {ru:"Выключить напоминания",en:"Disable reminders",ka:"შეხსენებების გამორთვა"}[currentLang] : {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]}
+          </button>
+          ${Notification.permission === "denied" ? `<button id="notifHelpBtn" class="btn-secondary" style="padding:14px;font-size:13px;">❓ ${currentLang==="ru"?"Как разрешить":currentLang==="en"?"How to allow":"როგორ"}</button>` : ""}
+        </div>
+        <!-- Hidden checkbox for compatibility -->
+        <input type="checkbox" id="remindersToggle" ${remindersEnabled ? "checked" : ""} style="display:none;">
         <div id="remindersIntervalDiv" style="display:${remindersEnabled ? "block" : "none"};">
           <div style="font-size:14px;font-weight:700;color:var(--text-muted);margin-bottom:12px;">🔔 Выберите интервалы напоминаний</div>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;" id="reminderIntervalCheckboxes">
@@ -6101,6 +6117,78 @@ function renderSettings() {
   const rt = document.getElementById("remindersToggle"),
     rid = document.getElementById("remindersIntervalDiv"),
     ris = document.getElementById("remindersIntervalSelect");
+  // ── Notification enable/disable button (mobile-safe) ──
+  document.getElementById("notifEnableBtn")?.addEventListener("click", function() {
+    // This is directly inside a click handler — works on ALL mobile browsers
+    if (!("Notification" in window)) {
+      showToast({ru:"Ваш браузер не поддерживает уведомления. Попробуйте Chrome.",en:"Your browser doesn't support notifications. Try Chrome.",ka:"ბრაუზერი არ უჭერს. სცადეთ Chrome."}[currentLang], "error");
+      return;
+    }
+    // If currently enabled — just disable
+    if (remindersEnabled) {
+      remindersEnabled = false;
+      saveReminderSettings();
+      stopReminderTimer();
+      const rid = document.getElementById("remindersIntervalDiv");
+      if (rid) rid.style.display = "none";
+      const rt = document.getElementById("remindersToggle");
+      if (rt) rt.checked = false;
+      showToast(t("remindersDisabled"));
+      renderSettings(); // refresh button text
+      return;
+    }
+    // Already granted — just enable
+    if (Notification.permission === "granted") {
+      remindersEnabled = true;
+      saveReminderSettings();
+      startReminderTimer();
+      const rid = document.getElementById("remindersIntervalDiv");
+      if (rid) rid.style.display = "block";
+      const rt = document.getElementById("remindersToggle");
+      if (rt) rt.checked = true;
+      try { new Notification("🔔 БюджетPRO", {body:{ru:"Напоминания включены!",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]||"Reminders enabled!"}); } catch(e){}
+      showToast(t("remindersPermissionGranted"), "success");
+      renderSettings();
+      return;
+    }
+    if (Notification.permission === "denied") {
+      openNotificationHelpModal();
+      return;
+    }
+    // "default" — request NOW from this direct click handler
+    Notification.requestPermission().then(p => {
+      if (p === "granted") {
+        remindersEnabled = true;
+        saveReminderSettings();
+        startReminderTimer();
+        const rid = document.getElementById("remindersIntervalDiv");
+        if (rid) rid.style.display = "block";
+        const rt = document.getElementById("remindersToggle");
+        if (rt) rt.checked = true;
+        try { new Notification("🔔 БюджетPRO", {body:{ru:"Напоминания включены! Теперь приложение будет напоминать вам о записях.",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]}); } catch(e){}
+        showToast(t("remindersPermissionGranted"), "success");
+        renderSettings();
+      } else {
+        showToast({ru:"Нажмите «Разрешить» в запросе браузера и попробуйте снова",en:"Tap 'Allow' in the browser prompt and try again",ka:"ბრაუზერში 'Allow' და ხელახლა სცადეთ"}[currentLang], "error");
+        renderSettings();
+      }
+    }).catch(() => {
+      // Callback fallback for older mobile browsers
+      try {
+        Notification.requestPermission(function(p) {
+          if (p === "granted") {
+            remindersEnabled = true; saveReminderSettings(); startReminderTimer();
+            showToast(t("remindersPermissionGranted"), "success");
+          }
+          renderSettings();
+        });
+      } catch(e2) {
+        showToast({ru:"Уведомления недоступны в этом браузере",en:"Notifications unavailable in this browser",ka:"შეტყობინებები მიუწვდომელია"}[currentLang], "error");
+      }
+    });
+  });
+  document.getElementById("notifHelpBtn")?.addEventListener("click", openNotificationHelpModal);
+
   if (rt) {
     rt.addEventListener("change", function() {
       // CRITICAL: must be called synchronously from user gesture on mobile
@@ -9297,7 +9385,7 @@ function updateSupportBadge() {
     const msgs = getAllMessages();
     let count = 0;
     if (isCreator()) {
-      count = msgs.filter(m => !m.readByCreator && !m.replied).length;
+      count = msgs.filter(m => !m.readByCreator).length; // ALL unread, not just unreplied
     } else {
       count = msgs.filter(m => m.fromProfile === activeProfileId && m.creatorReply && !m.replyReadByUser).length;
     }
@@ -9465,10 +9553,15 @@ function openUserChatPanel() {
   const tpl = USER_TEMPLATES[lang] || USER_TEMPLATES.ru;
 
   // Mark creator replies as read in central store
+  // Mark creator replies as read for this user
   let changed = false;
-  const centralMsgs = getAllMessages();
-  centralMsgs.forEach(m => { if (m.fromProfile === activeProfileId && m.creatorReply && !m.replyReadByUser) { m.replyReadByUser = true; changed = true; } });
-  if (changed) saveAllMessages(centralMsgs);
+  const centralMsgsRead = getAllMessages();
+  centralMsgsRead.forEach(m => {
+    if (m.fromProfile === activeProfileId && m.creatorReply && !m.replyReadByUser) {
+      m.replyReadByUser = true; changed = true;
+    }
+  });
+  if (changed) { saveAllMessages(centralMsgsRead); updateSupportBadge(); }
 
   const makeTplGroup = (catLabel, items) =>
     `<div style="margin-bottom:10px;">
@@ -9901,8 +9994,11 @@ function openCreatorChatPanel() {
   const lang = currentLang;
   const cs = getCreatorSettings();
   const unread = msgs.filter(m => !m.readByCreator).length;
-  msgs.forEach(m => { m.readByCreator = true; });
-  localStorage.setItem("budget_profile_" + activeProfileId, JSON.stringify(ownerData));
+  if (unread > 0) {
+    // Mark all as read in central store
+    msgs.forEach(m => { m.readByCreator = true; });
+    saveAllMessages(msgs); // saves to localStorage + triggers real-time sync
+  }
   updateSupportBadge();
 
   const TT = CREATOR_TEMPLATES[lang] || CREATOR_TEMPLATES.ru;
@@ -10199,17 +10295,19 @@ function openCreatorChatPanel() {
         const replyText = ta?.value.trim() || "";
         if (!replyText) { showToast({ru:"Введите текст ответа",en:"Enter reply text",ka:"შეიყვანეთ პასუხი"}[lang],"error"); return; }
 
-        const msgObj = (ownerData.supportMessages||[]).find(m=>m.id===id);
-        if (!msgObj) return;
+        // Get message from central store (not ownerData which may be stale)
+        const centralAll = getAllMessages();
+        const centralIdx = centralAll.findIndex(m => m.id === id);
+        if (centralIdx < 0) {
+          showToast({ru:"Сообщение не найдено",en:"Message not found",ka:"შეტყობინება ვერ მოიძებნა"}[lang],"error");
+          return;
+        }
+        const msgObj = centralAll[centralIdx];
         msgObj.creatorReply = replyText;
         msgObj.replied = true;
         msgObj.replyDate = new Date().toISOString();
         msgObj.replyReadByUser = false;
-        // Save to central store
-        const centralAll = getAllMessages();
-        const centralIdx = centralAll.findIndex(m => m.id === id);
-        if (centralIdx >= 0) centralAll[centralIdx] = msgObj;
-        else centralAll.push(msgObj);
+        // Save back — this triggers real-time sync to user
         saveAllMessages(centralAll);
 
         // Update UI in place
@@ -12005,3 +12103,474 @@ injectNewToolButtons = function() {
     block.appendChild(gb);
   }
 };
+
+
+// ██████████████████████████████████████████████████████████████
+// 🎓 СИСТЕМА ПОДСКАЗОК И ИНТЕРАКТИВНЫЙ ГИД
+// ██████████████████████████████████████████████████████████████
+
+// ── Tooltip на долгое нажатие / ПКМ ──────────────────────────
+const TOOLTIPS = {
+  ru: {
+    // Навигация
+    "home":          { icon:"🏠", title:"Главная", text:"Здесь отображается ваш баланс, история операций и быстрая сводка доходов и расходов." },
+    "stats":         { icon:"📊", title:"Статистика", text:"Диаграммы расходов по категориям, тренды и прогноз на следующий месяц. Нажмите чтобы увидеть куда уходят деньги." },
+    "tools":         { icon:"🧮", title:"Инструменты", text:"Калькулятор, конвертер валют, сканер чеков, экспорт данных и другие полезные функции." },
+    "notebook":      { icon:"📔", title:"Блокнот", text:"Личные заметки и записи которые не связаны с операциями. Храните здесь что угодно." },
+    "settings":      { icon:"⚙️", title:"Настройки", text:"Управление профилями, темы оформления, валюта, напоминания, бюджеты и многое другое." },
+    // Кнопки шапки
+    "headerSupportBtn": { icon:"💬", title:"Поддержка", text:"Напишите создателю приложения. Задайте вопрос, сообщите об ошибке или оставьте отзыв." },
+    "headerGuideBtn":   { icon:"📖", title:"Обучение", text:"Пошаговый тур по приложению. Нажмите чтобы узнать как пользоваться всеми функциями." },
+    "headerLangBtn":    { icon:"🌐", title:"Язык", text:"Переключение между тремя языками: Русский 🇷🇺, English 🇬🇧, ქართული 🇬🇪." },
+    "themeToggle":      { icon:"🎨", title:"Тема", text:"Переключение между светлой и тёмной темой. Или включите автоматическую смену по времени суток в настройках." },
+    "appLogoBtn":       { icon:"🌿", title:"БюджетPRO", text:"Нажмите 4 раза чтобы войти в режим создателя (только для создателя приложения)." },
+    // Карточки
+    "balanceCard":   { icon:"💎", title:"Баланс", text:"Текущий баланс = начальная сумма + доходы − расходы. Нажмите чтобы фильтровать историю." },
+    "incomeCard":    { icon:"📈", title:"Доходы", text:"Сумма всех поступлений за выбранный период. Нажмите чтобы показать только доходы в истории." },
+    "expenseCard":   { icon:"📉", title:"Расходы", text:"Сумма всех трат за выбранный период. Нажмите чтобы показать только расходы в истории." },
+    "salaryCard":    { icon:"💼", title:"Начальная сумма", text:"Деньги с которых вы начали учёт (наличные, сбережения). Нажмите чтобы изменить." },
+    // FAB
+    "fabBtn":        { icon:"➕", title:"Добавить операцию", text:"Главная кнопка приложения! Нажмите чтобы добавить расход или доход. Также можно свайпнуть снизу вверх." },
+    // Плавающие кнопки
+    "voiceInputBtn": { icon:"🎤", title:"Голосовой ввод", text:"Скажите «потратил 50 лари на продукты» — приложение само добавит расход. Работает в Chrome." },
+    "goalsNavBtn":   { icon:"🎯", title:"Мои цели", text:"Накопления на мечты с прогресс-баром. Добавьте цель, пополняйте её и получите конфетти при достижении!" },
+  },
+  en: {
+    "home":          { icon:"🏠", title:"Home", text:"Shows your balance, transaction history, and a quick income/expense summary." },
+    "stats":         { icon:"📊", title:"Stats", text:"Expense charts by category, trends, and monthly forecast. See where your money goes." },
+    "tools":         { icon:"🧮", title:"Tools", text:"Calculator, currency converter, receipt scanner, data export and other useful features." },
+    "notebook":      { icon:"📔", title:"Notebook", text:"Personal notes not linked to transactions. Store anything you want here." },
+    "settings":      { icon:"⚙️", title:"Settings", text:"Manage profiles, themes, currency, reminders, budgets and more." },
+    "headerSupportBtn": { icon:"💬", title:"Support", text:"Write to the app creator. Ask a question, report a bug, or leave feedback." },
+    "headerGuideBtn":   { icon:"📖", title:"Guide", text:"Step-by-step tour of the app. Learn how to use all features." },
+    "headerLangBtn":    { icon:"🌐", title:"Language", text:"Switch between three languages: Russian 🇷🇺, English 🇬🇧, Georgian 🇬🇪." },
+    "themeToggle":      { icon:"🎨", title:"Theme", text:"Switch between light and dark theme. Or enable automatic time-based switching in Settings." },
+    "appLogoBtn":       { icon:"🌿", title:"BudgetPRO", text:"Tap 4 times to enter creator mode (only for the app creator)." },
+    "balanceCard":   { icon:"💎", title:"Balance", text:"Current balance = starting amount + income − expenses. Tap to filter history." },
+    "incomeCard":    { icon:"📈", title:"Income", text:"Total income for selected period. Tap to show only income in history." },
+    "expenseCard":   { icon:"📉", title:"Expenses", text:"Total expenses for selected period. Tap to show only expenses in history." },
+    "salaryCard":    { icon:"💼", title:"Starting amount", text:"Money you started tracking from (cash, savings). Tap to change." },
+    "fabBtn":        { icon:"➕", title:"Add transaction", text:"The main app button! Tap to add an expense or income. Or swipe up from the bottom." },
+    "voiceInputBtn": { icon:"🎤", title:"Voice input", text:"Say 'spent 50 on groceries' — app adds it automatically. Works in Chrome." },
+    "goalsNavBtn":   { icon:"🎯", title:"My Goals", text:"Save for dreams with a progress bar. Add a goal, fund it, get confetti on completion!" },
+  },
+  ka: {
+    "home":          { icon:"🏠", title:"მთავარი", text:"ბალანსი, ოპერაციების ისტორია და შემოსავლების/ხარჯების მოკლე სახე." },
+    "stats":         { icon:"📊", title:"სტატისტიკა", text:"ხარჯების დიაგრამები კატეგორიების მიხედვით, ტრენდები და პროგნოზი." },
+    "tools":         { icon:"🧮", title:"ხელსაწყოები", text:"კალკულატორი, ვალუტის კონვერტერი, ჩეკის სკანერი და სხვა." },
+    "settings":      { icon:"⚙️", title:"პარამეტრები", text:"პროფილები, თემები, ვალუტა, შეხსენებები, ბიუჯეტები." },
+    "headerSupportBtn": { icon:"💬", title:"მხარდაჭერა", text:"დაუკავშირდით შემქმნელს. შეკითხვა, შეცდომა ან შეფასება." },
+    "headerGuideBtn":   { icon:"📖", title:"სახელმძღვანელო", text:"ნაბიჯ-ნაბიჯ ტური პროგრამაში." },
+    "headerLangBtn":    { icon:"🌐", title:"ენა", text:"სამ ენას შორის გადართვა: რუსული, ინგლისური, ქართული." },
+    "themeToggle":      { icon:"🎨", title:"თემა", text:"მსუბუქი და ბნელი თემის გადართვა." },
+    "fabBtn":           { icon:"➕", title:"ოპერაციის დამატება", text:"მთავარი ღილაკი! დააჭირეთ ხარჯის ან შემოსავლის დასამატებლად." },
+    "balanceCard":      { icon:"💎", title:"ბალანსი", text:"მიმდინარე ბალანსი = საწყისი + შემოსავლები − ხარჯები." },
+  },
+};
+
+function showTooltip(elementId) {
+  const lang = currentLang;
+  const tips = (TOOLTIPS[lang] || TOOLTIPS.ru);
+  const tip = tips[elementId];
+  if (!tip) return;
+
+  // Remove existing tooltip
+  document.getElementById("appTooltip")?.remove();
+
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+
+  const ov = document.createElement("div");
+  ov.id = "appTooltip";
+  ov.style.cssText = "position:fixed;inset:0;z-index:99998;display:flex;align-items:flex-end;padding:20px;pointer-events:none;";
+
+  const box = document.createElement("div");
+  box.style.cssText = "background:var(--card-bg);border-radius:20px;padding:18px 20px;box-shadow:0 -4px 40px rgba(0,0,0,0.2);border:1.5px solid var(--cream-border);max-width:360px;width:100%;margin:auto;pointer-events:auto;animation:slideUpBounce 0.3s cubic-bezier(0.34,1.3,0.64,1) both;";
+  box.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <div style="font-size:28px;flex-shrink:0;">${tip.icon}</div>
+      <div style="font-weight:900;font-size:17px;flex:1;">${tip.title}</div>
+      <button id="ttClose" style="background:var(--cream-dark);border:none;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+    </div>
+    <div style="font-size:14px;line-height:1.65;color:var(--text-soft);">${tip.text}</div>
+  `;
+
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+
+  box.querySelector("#ttClose").addEventListener("click", () => ov.remove());
+  ov.addEventListener("click", e => { if (e.target === ov) ov.remove(); });
+  // Auto-close
+  setTimeout(() => ov?.remove(), 6000);
+}
+
+function initTooltips() {
+  const tooltipIds = Object.keys(TOOLTIPS.ru);
+  tooltipIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    let pressTimer = null;
+    // Long press on mobile
+    el.addEventListener("touchstart", e => {
+      pressTimer = setTimeout(() => { e.preventDefault(); showTooltip(id); haptic("medium"); }, 600);
+    }, { passive: true });
+    el.addEventListener("touchend",  () => clearTimeout(pressTimer));
+    el.addEventListener("touchmove", () => clearTimeout(pressTimer));
+    // Right-click on desktop
+    el.addEventListener("contextmenu", e => { e.preventDefault(); showTooltip(id); });
+  });
+
+  // Add ? badges to nav buttons
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    const map = { home:"home", stats:"stats", tools:"tools", notebook:"notebook", settings:"settings" };
+    const id = Object.keys(map).find(k => btn.dataset.tab === k || btn.id === k+"Btn");
+    if (!id) return;
+    let pressTimer2 = null;
+    btn.addEventListener("touchstart", () => { pressTimer2 = setTimeout(() => showTooltip(id), 600); }, { passive: true });
+    btn.addEventListener("touchend",  () => clearTimeout(pressTimer2));
+    btn.addEventListener("contextmenu", e => { e.preventDefault(); showTooltip(id); });
+  });
+}
+setTimeout(initTooltips, 1000);
+
+// ══════════════════════════════════════════════════════════════
+// 📚 ИНТЕРАКТИВНЫЙ ГИД — пошаговое обучение
+// ══════════════════════════════════════════════════════════════
+const GUIDE_TOPICS = {
+  ru: [
+    {
+      id: "basics",
+      icon: "🏠",
+      title: "Основы: как начать",
+      steps: [
+        { emoji:"👋", title:"Добро пожаловать!", text:"БюджетPRO — личный финансовый трекер. Помогает понять куда уходят деньги и планировать бюджет.", action:null },
+        { emoji:"💼", title:"Шаг 1: Начальная сумма", text:"Нажмите на карточку «Нач. сумма» вверху → введите сумму наличных/сбережений с которых начинаете учёт.", action:"salaryCard" },
+        { emoji:"➕", title:"Шаг 2: Добавьте первый расход", text:"Нажмите большую зелёную кнопку «+» внизу → выберите «Расход» → выберите категорию (например, Продукты) → введите сумму → нажмите «Добавить».", action:"fabBtn" },
+        { emoji:"💰", title:"Шаг 3: Добавьте доход", text:"Нажмите «+» → выберите «Доход» → категорию «Зарплата» → введите сумму → «Добавить». Баланс автоматически пересчитается.", action:"fabBtn" },
+        { emoji:"📊", title:"Шаг 4: Смотрите статистику", text:"Перейдите во вкладку «Статистика» — там диаграммы, тренды и прогноз. Чем больше данных, тем точнее анализ.", action:null },
+      ]
+    },
+    {
+      id: "budget",
+      icon: "🎯",
+      title: "Бюджеты и лимиты",
+      steps: [
+        { emoji:"🎯", title:"Что такое бюджет?", text:"Бюджет — это лимит трат на категорию в месяц. Например: «Рестораны — не более 200₾ в месяц».", action:null },
+        { emoji:"⚙️", title:"Шаг 1: Откройте настройки", text:"Нажмите «⚙️ Настройки» в нижней навигации.", action:null },
+        { emoji:"📋", title:"Шаг 2: Найдите раздел «Бюджеты»", text:"Прокрутите вниз до раздела «💰 Бюджеты». Нажмите «+ Добавить бюджет».", action:null },
+        { emoji:"✍️", title:"Шаг 3: Установите лимит", text:"Выберите категорию (например, «Продукты»), введите лимит в месяц (например, 300₾). Нажмите «Сохранить».", action:null },
+        { emoji:"🔔", title:"Результат", text:"Теперь когда вы добавляете расход в эту категорию, приложение показывает сколько лимита осталось. При превышении — предупреждение!", action:null },
+      ]
+    },
+    {
+      id: "profiles",
+      icon: "👥",
+      title: "Профили и семья",
+      steps: [
+        { emoji:"👥", title:"Зачем нужны профили?", text:"Профили позволяют вести отдельный учёт для каждого члена семьи. Папа, мама, дети — у каждого свой баланс.", action:null },
+        { emoji:"⚙️", title:"Шаг 1: Откройте настройки", text:"Перейдите в «Настройки» → раздел «Профили».", action:null },
+        { emoji:"➕", title:"Шаг 2: Добавьте профиль", text:"Нажмите «+ Добавить профиль» → введите имя → выберите цвет → нажмите «Сохранить».", action:null },
+        { emoji:"🔄", title:"Шаг 3: Переключайтесь", text:"Нажмите на имя профиля вверху → выберите другой профиль. Все данные хранятся отдельно.", action:null },
+        { emoji:"🔗", title:"Общий доступ", text:"В разделе профиля нажмите «Поделиться» — сгенерируется ссылка. Отправьте её члену семьи — они увидят общие данные.", action:null },
+      ]
+    },
+    {
+      id: "voice",
+      icon: "🎤",
+      title: "Голосовой ввод",
+      steps: [
+        { emoji:"🎤", title:"Что это?", text:"Голосовой ввод позволяет добавлять расходы голосом без касания экрана. Очень удобно когда руки заняты.", action:null },
+        { emoji:"📱", title:"Требования", text:"Нужен браузер Google Chrome на Android или компьютере. Safari на iPhone не поддерживает эту функцию.", action:null },
+        { emoji:"🔘", title:"Шаг 1: Найдите кнопку", text:"Зелёная кнопка 🎤 справа внизу над навигацией. Или: Настройки → Расширенные функции → «Использовать голосовой ввод».", action:"voiceInputBtn" },
+        { emoji:"🗣️", title:"Шаг 2: Говорите", text:"Нажмите 🎤 → дождитесь «Говорите...» → скажите фразу.", action:null },
+        { emoji:"✅", title:"Примеры фраз:", text:"• «Потратил 50 лари на продукты»\n• «Купил кофе за 8 лари»\n• «Заплатил за такси 15»\n• «Получил зарплату 1000»", action:null },
+      ]
+    },
+    {
+      id: "goals",
+      icon: "🎯",
+      title: "Цели и мечты",
+      steps: [
+        { emoji:"🌟", title:"Что такое цели?", text:"Раздел «Цели» позволяет откладывать деньги на конкретные мечты с наглядным прогресс-баром.", action:null },
+        { emoji:"🔘", title:"Шаг 1: Откройте цели", text:"Жёлтая кнопка 🎯 слева внизу. Или: Настройки → Расширенные функции → «Открыть мои цели».", action:"goalsNavBtn" },
+        { emoji:"➕", title:"Шаг 2: Создайте цель", text:"Введите emoji, название (например: «iPhone 15 🍎»), целевую сумму (например: 1200₾) и уже накопленную сумму.", action:null },
+        { emoji:"💰", title:"Шаг 3: Пополняйте", text:"Нажмите «💰 Пополнить» рядом с целью → введите сумму которую откладываете.", action:null },
+        { emoji:"🎊", title:"Достижение цели", text:"Когда накопленная сумма достигнет цели — приложение покажет конфетти и сообщение «Цель достигнута!» 🏆", action:null },
+      ]
+    },
+    {
+      id: "notifications",
+      icon: "🔔",
+      title: "Напоминания",
+      steps: [
+        { emoji:"🔔", title:"Что такое напоминания?", text:"Приложение будет присылать уведомления чтобы напоминать записывать расходы регулярно.", action:null },
+        { emoji:"⚙️", title:"Шаг 1: Откройте настройки", text:"Перейдите в «⚙️ Настройки» → прокрутите до раздела «🔔 Напоминания».", action:null },
+        { emoji:"🔘", title:"Шаг 2: Нажмите кнопку", text:"Нажмите большую кнопку «🔔 Включить напоминания». Браузер спросит разрешение — нажмите «Разрешить».", action:null },
+        { emoji:"⏰", title:"Шаг 3: Выберите интервал", text:"Выберите как часто получать напоминания: каждые 30 минут, 1 час, раз в день и т.д.", action:null },
+        { emoji:"📅", title:"Точное время", text:"Можно также установить конкретное время напоминания — нажмите на карточку 📅 или ⏰ и выберите дату/время.", action:null },
+      ]
+    },
+    {
+      id: "export",
+      icon: "📊",
+      title: "Экспорт данных",
+      steps: [
+        { emoji:"📊", title:"Экспорт данных", text:"Вы можете выгрузить все ваши операции в разные форматы для хранения или анализа.", action:null },
+        { emoji:"🧮", title:"Шаг 1: Откройте Инструменты", text:"Перейдите во вкладку «Инструменты» в навигации.", action:null },
+        { emoji:"📊", title:"Google Таблицы", text:"«📊 Google Таблицы» → скачайте CSV → откройте Google Sheets → Файл → Импорт. Все операции в таблице!", action:null },
+        { emoji:"📧", title:"Отчёт на email", text:"«📧 Отчёт на email» → введите ваш email → получите ежемесячный отчёт о доходах и расходах.", action:null },
+        { emoji:"⚙️", title:"Другие форматы", text:"Настройки → раздел «Данные»: экспорт в JSON (для переноса на другое устройство), CSV, PDF.", action:null },
+      ]
+    },
+    {
+      id: "themes",
+      icon: "🎨",
+      title: "Темы и внешний вид",
+      steps: [
+        { emoji:"🎨", title:"Настройка внешнего вида", text:"Приложение поддерживает 6 цветовых тем и тёмный режим для комфортного использования.", action:null },
+        { emoji:"🌙", title:"Тёмный режим", text:"Нажмите кнопку 🌙 в верхнем правом углу. Или включите автоматическую смену по времени в Настройках.", action:"themeToggle" },
+        { emoji:"🎨", title:"Цветовые темы", text:"Настройки → «Цветовая тема» → выберите из 6 вариантов: Лесной зелёный (по умолчанию), Белый, Золотой, Закат, Тёмно-синий, Золото на тёмном.", action:null },
+        { emoji:"📝", title:"Размер шрифта", text:"Настройки → «Размер шрифта» → выберите: Маленький, Нормальный, Большой. Полезно для удобного чтения.", action:null },
+        { emoji:"✨", title:"Простой режим", text:"Настройки → «Простой режим» — упрощённый интерфейс для тех кто хочет только записывать расходы без лишних деталей.", action:null },
+      ]
+    },
+  ],
+  en: [
+    { id:"basics", icon:"🏠", title:"Basics: Getting Started", steps:[
+      { emoji:"👋", title:"Welcome to BudgetPRO!", text:"BudgetPRO is your personal finance tracker. It shows where your money goes and helps you plan a budget. No registration required — all data stored only on your device.", action:null },
+      { emoji:"💼", title:"Step 1: Set your starting amount", text:"Tap the 'Starting amount' card at the top of the screen → enter how much cash or savings you currently have. This is your starting balance.", action:"salaryCard" },
+      { emoji:"➕", title:"Step 2: Add your first expense", text:"Tap the big green «+» button at the bottom → choose 'Expense' → select a category (e.g. Groceries) → enter the amount → tap 'Add'.", action:"fabBtn" },
+      { emoji:"💰", title:"Step 3: Add income", text:"Tap «+» → choose 'Income' → select 'Salary' → enter the amount → tap 'Add'. Your balance will update automatically.", action:"fabBtn" },
+      { emoji:"📊", title:"Step 4: Check your stats", text:"Go to the 'Stats' tab in the bottom navigation — you'll see pie charts, spending trends and a monthly forecast. The more data you enter, the more accurate the analysis.", action:null },
+    ]},
+    { id:"budget", icon:"🎯", title:"Budgets & Spending Limits", steps:[
+      { emoji:"🎯", title:"What is a budget?", text:"A budget is a monthly spending limit for a category. For example: 'Restaurants — no more than $200 per month'. The app warns you when you're getting close.", action:null },
+      { emoji:"⚙️", title:"Step 1: Open Settings", text:"Tap '⚙️ Settings' in the bottom navigation bar.", action:null },
+      { emoji:"📋", title:"Step 2: Find the Budgets section", text:"Scroll down to the '💰 Budgets' section. Tap '+ Add budget'.", action:null },
+      { emoji:"✍️", title:"Step 3: Set your limit", text:"Choose a category (e.g. 'Groceries'), enter your monthly limit (e.g. $300), tap 'Save'.", action:null },
+      { emoji:"🔔", title:"Result", text:"Now when you add an expense in that category, the app shows how much of the limit remains. If you exceed it — you get a warning!", action:null },
+    ]},
+    { id:"profiles", icon:"👥", title:"Profiles & Family", steps:[
+      { emoji:"👥", title:"Why use profiles?", text:"Profiles let each family member have their own separate budget tracking. Dad, Mom, Kids — each with their own balance and history.", action:null },
+      { emoji:"⚙️", title:"Step 1: Open Settings", text:"Go to 'Settings' → scroll to the 'Profiles' section.", action:null },
+      { emoji:"➕", title:"Step 2: Add a profile", text:"Tap '+ Add profile' → enter a name → choose a color → tap 'Save'.", action:null },
+      { emoji:"🔄", title:"Step 3: Switch between profiles", text:"Tap the profile name at the top → choose a different profile. All data is stored separately per profile.", action:null },
+      { emoji:"🔗", title:"Shared access", text:"In the profile section tap 'Share' — a link is generated. Send it to a family member — they'll see the shared data in real time.", action:null },
+    ]},
+    { id:"voice", icon:"🎤", title:"Voice Input", steps:[
+      { emoji:"🎤", title:"What is voice input?", text:"Voice input lets you add expenses just by speaking — no typing needed. Perfect when your hands are full.", action:null },
+      { emoji:"📱", title:"Requirements", text:"You need Google Chrome on Android or desktop. Safari on iPhone does not support this feature yet.", action:null },
+      { emoji:"🔘", title:"Step 1: Find the button", text:"Look for the green 🎤 button on the right side, just above the navigation bar. Or go to: Settings → Advanced features → 'Use voice input now'.", action:"voiceInputBtn" },
+      { emoji:"🗣️", title:"Step 2: Speak clearly", text:"Tap 🎤 → wait for 'Listening...' → say your phrase naturally.", action:null },
+      { emoji:"✅", title:"Example phrases:", text:"• 'Spent 50 on groceries'\n• 'Bought coffee for 8'\n• 'Paid 15 for a taxi'\n• 'Got salary 1000'\n• 'Received gift 200'", action:null },
+    ]},
+    { id:"goals", icon:"🌟", title:"Goals & Dreams", steps:[
+      { emoji:"🌟", title:"What are goals?", text:"The Goals section lets you save money toward specific dreams — like a new phone, vacation, or car — with a visual progress bar.", action:null },
+      { emoji:"🔘", title:"Step 1: Open goals", text:"Tap the yellow 🎯 button on the left side above the navigation. Or: Settings → Advanced features → 'Open my goals'.", action:"goalsNavBtn" },
+      { emoji:"➕", title:"Step 2: Create a goal", text:"Enter an emoji, a goal name (e.g. 'iPhone 15 🍎'), the target amount (e.g. $1200), and how much you've already saved.", action:null },
+      { emoji:"💰", title:"Step 3: Add savings", text:"Tap '💰 Add savings' next to your goal → enter the amount you're adding. The progress bar fills up!", action:null },
+      { emoji:"🎊", title:"Goal achieved!", text:"When your savings reach the target — the app shows confetti and a 'Goal achieved!' message. 🏆 Share the moment!", action:null },
+    ]},
+    { id:"notifications", icon:"🔔", title:"Reminders & Notifications", steps:[
+      { emoji:"🔔", title:"What are reminders?", text:"The app sends you notifications to remind you to record your expenses regularly — so you don't forget.", action:null },
+      { emoji:"⚙️", title:"Step 1: Open Settings", text:"Go to '⚙️ Settings' in the bottom navigation → scroll down to the '🔔 Reminders' section.", action:null },
+      { emoji:"🔘", title:"Step 2: Tap the button", text:"Tap the big '🔔 Enable reminders' button. Your browser will ask for permission — tap 'Allow'.", action:null },
+      { emoji:"⏰", title:"Step 3: Choose frequency", text:"Select how often you want reminders: every 30 minutes, every hour, once a day, etc.", action:null },
+      { emoji:"📅", title:"Exact time", text:"You can also set a specific date and time for a reminder — tap the 📅 or ⏰ card and pick your date/time.", action:null },
+    ]},
+    { id:"export", icon:"📊", title:"Exporting Your Data", steps:[
+      { emoji:"📊", title:"Export your data", text:"You can export all your transactions in different formats for backup, sharing, or detailed analysis.", action:null },
+      { emoji:"🧮", title:"Step 1: Open Tools", text:"Tap 'Tools' in the bottom navigation bar.", action:null },
+      { emoji:"📊", title:"Google Sheets", text:"Tap '📊 Google Sheets export' → download the CSV file → open Google Sheets → File → Import. Your full history in a spreadsheet!", action:null },
+      { emoji:"📧", title:"Email report", text:"Tap '📧 Email report' → enter your email → receive a monthly financial summary.", action:null },
+      { emoji:"⚙️", title:"Other formats", text:"Settings → Data section: export as JSON (to transfer to another device), CSV, or PDF.", action:null },
+    ]},
+    { id:"themes", icon:"🎨", title:"Themes & Appearance", steps:[
+      { emoji:"🎨", title:"Customize your look", text:"BudgetPRO supports 6 color themes and a dark mode for comfortable use in any lighting.", action:null },
+      { emoji:"🌙", title:"Dark mode", text:"Tap the 🌙 button in the top right corner to toggle dark mode. Or enable automatic time-based switching in Settings.", action:"themeToggle" },
+      { emoji:"🎨", title:"Color themes", text:"Settings → 'Color theme' → choose from 6 options: Forest Green (default), White, Gold, Sunset, Navy, Dark Gold.", action:null },
+      { emoji:"📝", title:"Font size", text:"Settings → 'Font size' → choose Small, Normal, or Large. Useful for easy reading on any screen size.", action:null },
+      { emoji:"✨", title:"Simple mode", text:"Settings → 'Simple mode' — a stripped-down interface for users who just want to record expenses without extra details.", action:null },
+    ]},
+  ],
+  ka: [
+    { id:"basics", icon:"🏠", title:"საფუძვლები: როგორ დაიწყოთ", steps:[
+      { emoji:"👋", title:"კეთილი იყოს BudgetPRO-ში!", text:"BudgetPRO არის პირადი ფინანსური ტრეკერი. ის გეხმარებათ გაიგოთ სად მიდის ფული და დაგეგმოთ ბიუჯეტი. რეგისტრაცია არ არის საჭირო — ყველა მონაცემი ინახება მხოლოდ თქვენს მოწყობილობაზე.", action:null },
+      { emoji:"💼", title:"ნაბიჯი 1: საწყისი თანხის დაყენება", text:"ეკრანის ზედა ნაწილში 'საწ. თანხა' ბარათს დააჭირეთ → შეიყვანეთ რამდენი ნაღდი ფული ან დანაზოგი გაქვთ ახლა. ეს იქნება თქვენი საწყისი ბალანსი.", action:"salaryCard" },
+      { emoji:"➕", title:"ნაბიჯი 2: პირველი ხარჯის დამატება", text:"ქვემოთ დიდ მწვანე «+» ღილაკს დააჭირეთ → 'ხარჯი' → კატეგორია (მაგ. საყიდლები) → თანხა → 'დამატება'.", action:"fabBtn" },
+      { emoji:"💰", title:"ნაბიჯი 3: შემოსავლის დამატება", text:"«+» → 'შემოსავალი' → 'ხელფასი' → თანხა → 'დამატება'. ბალანსი ავტომატურად განახლდება.", action:"fabBtn" },
+      { emoji:"📊", title:"ნაბიჯი 4: სტატისტიკის ნახვა", text:"'სტატისტიკა' ჩანართზე გადადით — დიაგრამები, ტრენდები, თვიური პროგნოზი. რაც მეტი მონაცემი, მით ზუსტი ანალიზი.", action:null },
+    ]},
+    { id:"budget", icon:"🎯", title:"ბიუჯეტი და ლიმიტები", steps:[
+      { emoji:"🎯", title:"რა არის ბიუჯეტი?", text:"ბიუჯეტი არის ყოველთვიური ხარჯვის ლიმიტი კატეგორიაში. მაგ.: 'რესტორნები — არა უმეტეს 200₾ თვეში'. პროგრამა გაფრთხილებს გადაჭარბებისას.", action:null },
+      { emoji:"⚙️", title:"ნაბიჯი 1: პარამეტრების გახსნა", text:"'⚙️ პარამეტრები' ჩანართი ქვემოთ.", action:null },
+      { emoji:"📋", title:"ნაბიჯი 2: 'ბიუჯეტების' განყოფილება", text:"გადაახვიეთ ქვემოთ '💰 ბიუჯეტები' განყოფილებამდე. '+ ბიუჯეტის დამატება' დააჭირეთ.", action:null },
+      { emoji:"✍️", title:"ნაბიჯი 3: ლიმიტის დაყენება", text:"კატეგორია (მაგ. 'საყიდლები'), ყოველთვიური ლიმიტი (მაგ. 300₾), 'შენახვა'.", action:null },
+      { emoji:"🔔", title:"შედეგი", text:"ახლა ამ კატეგორიაში ხარჯის დამატებისას პროგრამა გვიჩვენებს ლიმიტის ნაშთს. გადაჭარბებისას — გაფრთხილება!", action:null },
+    ]},
+    { id:"profiles", icon:"👥", title:"პროფილები და ოჯახი", steps:[
+      { emoji:"👥", title:"რატომ გჭირდებათ პროფილები?", text:"პროფილები საშუალებას გაძლევთ ოჯახის თითოეული წევრისთვის ცალკე ბუღალტერია აწარმოოთ. მამა, დედა, შვილები — თითოეულს საკუთარი ბალანსი.", action:null },
+      { emoji:"⚙️", title:"ნაბიჯი 1: პარამეტრების გახსნა", text:"'პარამეტრები' → 'პროფილები' განყოფილება.", action:null },
+      { emoji:"➕", title:"ნაბიჯი 2: პროფილის დამატება", text:"'+ პროფილის დამატება' → სახელი → ფერი → 'შენახვა'.", action:null },
+      { emoji:"🔄", title:"ნაბიჯი 3: პროფილებს შორის გადართვა", text:"ზევით პროფილის სახელზე დააჭირეთ → სხვა პროფილი. ყველა მონაცემი ცალ-ცალკე ინახება.", action:null },
+      { emoji:"🔗", title:"საერთო წვდომა", text:"პროფილის განყოფილებაში 'გაზიარება' → ბმული გენერირდება. გაუგზავნეთ ოჯახის წევრს — ის ნახავს საერთო მონაცემებს.", action:null },
+    ]},
+    { id:"voice", icon:"🎤", title:"ხმოვანი შეყვანა", steps:[
+      { emoji:"🎤", title:"რა არის ხმოვანი შეყვანა?", text:"ხმოვანი შეყვანა საშუალებას გაძლევთ ხარჯები ხმით დაამატოთ — ეკრანის შეხების გარეშე. ძალიან მოსახერხებელია როცა ხელები დაკავებულია.", action:null },
+      { emoji:"📱", title:"მოთხოვნები", text:"საჭიროა Google Chrome ბრაუზერი Android-ზე ან კომპიუტერზე. iPhone-ზე Safari ამ ფუნქციას არ უჭერს მხარს.", action:null },
+      { emoji:"🔘", title:"ნაბიჯი 1: ღილაკის პოვნა", text:"მწვანე 🎤 ღილაკი მარჯვნივ ქვემოთ, ნავიგაციის ზევით. ან: პარამეტრები → გაფართოებული ფუნქციები → 'ხმოვანი შეყვანის გამოყენება'.", action:"voiceInputBtn" },
+      { emoji:"🗣️", title:"ნაბიჯი 2: ილაპარაკეთ", text:"🎤 დააჭირეთ → 'ილაპარაკეთ...' → თქვით თქვენი ფრაზა.", action:null },
+      { emoji:"✅", title:"ფრაზების მაგალითები:", text:"• «50 ლარი დავხარჯე საყიდლებზე»\n• «ყავა ვიყიდე 8 ლარად»\n• «ტაქსი გადავიხადე 15»\n• «ხელფასი მივიღე 1000»", action:null },
+    ]},
+    { id:"goals", icon:"🌟", title:"მიზნები და ოცნებები", steps:[
+      { emoji:"🌟", title:"რა არის მიზნები?", text:"'მიზნების' განყოფილება საშუალებას გაძლევთ ფული კონკრეტული ოცნებებისთვის დაზოგოთ — ვიზუალური პროგრეს-ბარით.", action:null },
+      { emoji:"🔘", title:"ნაბიჯი 1: მიზნების გახსნა", text:"ყვითელი 🎯 ღილაკი მარცხნივ ქვემოთ. ან: პარამეტრები → გაფართოებული ფუნქციები → 'ჩემი მიზნების გახსნა'.", action:"goalsNavBtn" },
+      { emoji:"➕", title:"ნაბიჯი 2: მიზნის შექმნა", text:"emoji, სახელი (მაგ. 'iPhone 15 🍎'), სამიზნე თანხა (მაგ. 1200₾), უკვე დაზოგილი თანხა.", action:null },
+      { emoji:"💰", title:"ნაბიჯი 3: შევსება", text:"'💰 შევსება' → შეიყვანეთ თქვენ მიერ დამატებული თანხა. პროგრეს-ბარი ივსება!", action:null },
+      { emoji:"🎊", title:"მიზნის მიღწევა!", text:"როცა დანაზოგი სამიზნეს მიაღწევს — პროგრამა კონფეტს აჩვენებს და 'მიზანი მიღწეულია!' 🏆", action:null },
+    ]},
+    { id:"notifications", icon:"🔔", title:"შეხსენებები", steps:[
+      { emoji:"🔔", title:"რა არის შეხსენებები?", text:"პროგრამა გამოგიგზავნით შეტყობინებებს, რომ გაგახსენოთ ხარჯების რეგულარულად ჩაწერა.", action:null },
+      { emoji:"⚙️", title:"ნაბიჯი 1: პარამეტრების გახსნა", text:"'⚙️ პარამეტრები' → ქვემოთ '🔔 შეხსენებები' განყოფილება.", action:null },
+      { emoji:"🔘", title:"ნაბიჯი 2: ღილაკზე დაჭერა", text:"დიდ '🔔 შეხსენებების ჩართვა' ღილაკს დააჭირეთ. ბრაუზერი ნებართვას ითხოვს — 'Allow' დააჭირეთ.", action:null },
+      { emoji:"⏰", title:"ნაბიჯი 3: ინტერვალის არჩევა", text:"აირჩიეთ რამდენად ხშირად გინდათ შეხსენებები: ყოველ 30 წუთში, ყოველ საათში, დღეში ერთხელ და ა.შ.", action:null },
+      { emoji:"📅", title:"ზუსტი დრო", text:"შეგიძლიათ ასევე კონკრეტული დრო დააყენოთ — 📅 ან ⏰ ბარათს დააჭირეთ და თარიღი/დრო აირჩიეთ.", action:null },
+    ]},
+    { id:"export", icon:"📊", title:"მონაცემების ექსპორტი", steps:[
+      { emoji:"📊", title:"მონაცემების ექსპორტი", text:"შეგიძლიათ ყველა ოპერაცია სხვადასხვა ფორმატში გამოიყვანოთ შენახვის ან ანალიზისთვის.", action:null },
+      { emoji:"🧮", title:"ნაბიჯი 1: ხელსაწყოების გახსნა", text:"'ხელსაწყოები' ჩანართი ნავიგაციაში.", action:null },
+      { emoji:"📊", title:"Google Sheets", text:"'📊 Google Sheets-ში ექსპორტი' → CSV-ის ჩამოტვირთვა → Google Sheets → ფაილი → იმპორტი. ყველა ოპერაცია ცხრილში!", action:null },
+      { emoji:"📧", title:"Email ანგარიში", text:"'📧 Email ანგარიში' → email → მიიღეთ ყოველთვიური ფინანსური ანგარიში.", action:null },
+      { emoji:"⚙️", title:"სხვა ფორმატები", text:"პარამეტრები → 'მონაცემები': JSON (სხვა მოწყობილობაზე გადასატანად), CSV, PDF.", action:null },
+    ]},
+    { id:"themes", icon:"🎨", title:"თემები და გარეგნობა", steps:[
+      { emoji:"🎨", title:"გარეგნობის მორგება", text:"BudgetPRO-ს აქვს 6 ფერადი თემა და ბნელი რეჟიმი კომფორტული გამოყენებისთვის.", action:null },
+      { emoji:"🌙", title:"ბნელი რეჟიმი", text:"ზედა მარჯვენა კუთხეში 🌙 ღილაკს დააჭირეთ. ან ჩართეთ ავტომატური გადართვა დროის მიხედვით პარამეტრებში.", action:"themeToggle" },
+      { emoji:"🎨", title:"ფერადი თემები", text:"პარამეტრები → 'ფერადი თემა' → 6 ვარიანტიდან: ტყის მწვანე (ნაგულისხმევი), თეთრი, ოქროსფერი, მზის ჩასვლა, მუქი ლურჯი, მუქი ოქრო.", action:null },
+      { emoji:"📝", title:"შრიფტის ზომა", text:"პარამეტრები → 'შრიფტის ზომა' → მცირე, ნორმალური ან დიდი. სასარგებლოა ნებისმიერ ეკრანზე კითხვისთვის.", action:null },
+      { emoji:"✨", title:"მარტივი რეჟიმი", text:"პარამეტრები → 'მარტივი რეჟიმი' — გამარტივებული ინტერფეისი მათთვის ვისაც მხოლოდ ხარჯების ჩაწერა სჭირდება.", action:null },
+    ]},
+  ],
+};
+
+function openInteractiveGuide() {
+  const lang = currentLang;
+  const topics = GUIDE_TOPICS[lang] || GUIDE_TOPICS.ru;
+
+  let currentTopic = null;
+  let currentStep = 0;
+
+  const ov = document.createElement("div");
+  ov.id = "guideOverlay";
+  ov.style.cssText = "position:fixed;inset:0;z-index:99998;overflow-y:auto;background:var(--cream);animation:fadeIn 0.3s ease both;";
+
+  function renderTopicList() {
+    const L = {
+      ru:{ title:"📚 Интерактивный гид", sub:"Выберите тему которую хотите изучить", close:"✕ Закрыть" },
+      en:{ title:"📚 Interactive Guide", sub:"Choose the topic you want to learn", close:"✕ Close" },
+      ka:{ title:"📚 ინტერაქტიული სახელმძღვანელო", sub:"აირჩიეთ სასწავლი თემა", close:"✕ დახურვა" },
+    }[lang]||{title:"📚 Guide",sub:"Choose a topic",close:"✕ Close"};
+
+    ov.innerHTML = `
+      <div style="max-width:480px;margin:0 auto;padding:24px 20px 40px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div>
+            <div style="font-size:22px;font-weight:900;color:var(--text);">${L.title}</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:2px;">${L.sub}</div>
+          </div>
+          <button id="guideClose" style="background:var(--cream-dark);border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${topics.map((t,i) => `<button class="guide-topic-btn" data-ti="${i}" style="display:flex;align-items:center;gap:14px;padding:16px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:18px;cursor:pointer;font-family:inherit;text-align:left;transition:all 0.2s;width:100%;">
+            <div style="font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--primary-pale);border-radius:12px;flex-shrink:0;">${t.icon}</div>
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:15px;color:var(--text);">${t.title}</div>
+              <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${t.steps.length} ${lang==="ru"?"шагов":lang==="en"?"steps":"ნაბიჯი"}</div>
+            </div>
+            <div style="font-size:20px;color:var(--text-muted);">›</div>
+          </button>`).join("")}
+        </div>
+      </div>`;
+
+    ov.querySelector("#guideClose")?.addEventListener("click", () => ov.remove());
+    ov.querySelectorAll(".guide-topic-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentTopic = parseInt(btn.dataset.ti);
+        currentStep = 0;
+        renderStep();
+      });
+      btn.addEventListener("mouseenter", () => btn.style.transform = "translateY(-2px)");
+      btn.addEventListener("mouseleave", () => btn.style.transform = "");
+    });
+  }
+
+  function renderStep() {
+    const topic = topics[currentTopic];
+    const step = topic.steps[currentStep];
+    const isLast = currentStep === topic.steps.length - 1;
+    const L = {
+      ru:{ back:"← Назад к темам", prev:"← Назад", next:"Далее →", done:"✅ Понятно!", step:"Шаг" },
+      en:{ back:"← Back to topics", prev:"← Back", next:"Next →", done:"✅ Got it!", step:"Step" },
+      ka:{ back:"← თემებზე დაბრუნება", prev:"← უკან", next:"შემდეგი →", done:"✅ გასაგებია!", step:"ნაბიჯი" },
+    }[lang]||{back:"← Back",prev:"← Back",next:"Next →",done:"✅ Got it!",step:"Step"};
+
+    // Highlight action element if specified
+    if (step.action) {
+      const el = document.getElementById(step.action);
+      if (el) {
+        el.style.outline = "3px solid var(--gold)";
+        el.style.outlineOffset = "3px";
+        setTimeout(() => { el.style.outline = ""; el.style.outlineOffset = ""; }, 3000);
+      }
+    }
+
+    ov.innerHTML = `
+      <div style="max-width:480px;margin:0 auto;padding:24px 20px 40px;">
+        <!-- Progress -->
+        <div style="display:flex;gap:4px;margin-bottom:20px;">
+          ${topic.steps.map((_,i) => `<div style="height:4px;flex:1;border-radius:99px;background:${i<=currentStep?"var(--primary)":"var(--cream-border)"};transition:background 0.3s;"></div>`).join("")}
+        </div>
+        <!-- Back link -->
+        <button id="guideBack" style="background:none;border:none;color:var(--text-muted);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;padding:0;">${L.back}</button>
+        <!-- Topic + step info -->
+        <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:8px;">${topic.icon} ${topic.title} · ${L.step} ${currentStep+1}/${topic.steps.length}</div>
+        <!-- Step card -->
+        <div style="background:var(--card-bg);border-radius:20px;padding:24px;border:1.5px solid var(--cream-border);margin-bottom:20px;min-height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;">
+          <div style="font-size:60px;animation:bounceIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;">${step.emoji}</div>
+          <div style="font-size:18px;font-weight:900;color:var(--text);">${step.title}</div>
+          <div style="font-size:14px;line-height:1.7;color:var(--text-soft);white-space:pre-line;">${step.text}</div>
+          ${step.action ? `<div style="font-size:12px;color:var(--primary);font-weight:700;margin-top:4px;">👆 ${lang==="ru"?"Элемент выделен на экране":lang==="en"?"Element highlighted on screen":"ელემენტი გამოყოფილია ეკრანზე"}</div>` : ""}
+        </div>
+        <!-- Navigation -->
+        <div style="display:flex;gap:10px;">
+          ${currentStep > 0 ? `<button id="guidePrev" class="btn-secondary" style="flex:1;">${L.prev}</button>` : ""}
+          <button id="guideNext" class="btn-primary" style="flex:2;">${isLast ? L.done : L.next}</button>
+        </div>
+      </div>`;
+
+    ov.querySelector("#guideBack")?.addEventListener("click", () => { currentTopic = null; renderTopicList(); });
+    ov.querySelector("#guidePrev")?.addEventListener("click", () => { currentStep--; renderStep(); haptic("light"); });
+    ov.querySelector("#guideNext")?.addEventListener("click", () => {
+      if (isLast) { currentTopic = null; renderTopicList(); }
+      else { currentStep++; renderStep(); }
+      haptic("light");
+    });
+  }
+
+  document.body.appendChild(ov);
+  renderTopicList();
+}
+
+// Wire guide button in header
+const _origStartGuide = typeof startGuide === "function" ? startGuide : null;
+function startGuide() {
+  openInteractiveGuide();
+}
+
+// Add guide to settings (already there via button, now also openable from here)
+// Wire it globally
+setTimeout(() => {
+  initTooltips();
+}, 1200);
