@@ -277,7 +277,6 @@ const translations = {
     light: "Светлая",
     recurringDay: "День месяца",
     recurringFreq: "Частота",
-    themeChanged: "Тема изменена",
     guideSkip: "Пропустить",
     guideNext: "Далее →",
     guideFinish: "Готово",
@@ -544,6 +543,11 @@ const translations = {
     supportSent: "✅ Сообщение отправлено! Спасибо.",
     supportRequired: "Заполните обязательные поля",
     supportPlaceholder: "Опишите вашу проблему или идею подробно...",
+    budgetWarning80: "⚠️ 80% лимита исчерпано",
+    offlineMode: "📴 Офлайн",
+    onlineMode: "✅ Снова онлайн",
+    budgetWarning80Desc: "Осталось",
+    budgetWarning80Of: "от лимита",
     themeLabels: {
       white: "⬜ Чистый белый",
       default: "🌿 Лесной зелёный",
@@ -799,7 +803,6 @@ const translations = {
     light: "Light",
     recurringDay: "Day of month",
     recurringFreq: "Frequency",
-    themeChanged: "Theme changed",
     guideSkip: "Skip",
     guideNext: "Next →",
     guideFinish: "Done",
@@ -1065,6 +1068,11 @@ const translations = {
     supportSent: "✅ Message sent! Thank you.",
     supportRequired: "Please fill required fields",
     supportPlaceholder: "Describe your issue or idea in detail...",
+    budgetWarning80: "⚠️ 80% of limit used",
+    offlineMode: "📴 Offline",
+    onlineMode: "✅ Back online",
+    budgetWarning80Desc: "Remaining",
+    budgetWarning80Of: "of limit",
     themeLabels: {
       white: "⬜ Pure white",
       default: "🌿 Forest green",
@@ -1320,7 +1328,6 @@ const translations = {
     light: "ღია",
     recurringDay: "თვის დღე",
     recurringFreq: "სიხშირე",
-    themeChanged: "თემა შეიცვალა",
     guideSkip: "გამოტოვება",
     guideNext: "შემდეგი →",
     guideFinish: "მზადაა",
@@ -1581,6 +1588,11 @@ const translations = {
     supportSent: "✅ შეტყობინება გაიგზავნა! გმადლობთ.",
     supportRequired: "შეავსეთ სავალდებულო ველები",
     supportPlaceholder: "დეტალურად აღწერეთ თქვენი პრობლემა ან იდეა...",
+    budgetWarning80: "⚠️ ლიმიტის 80% ამოწურულია",
+    offlineMode: "📴 ოფლაინი",
+    onlineMode: "✅ ისევ ონლაინ",
+    budgetWarning80Desc: "დარჩენილია",
+    budgetWarning80Of: "ლიმიტიდან",
     themeLabels: {
       white: "⬜ სუფთა თეთრი",
       default: "🌿 ტყის მწვანე",
@@ -1631,6 +1643,7 @@ function setLanguage(lang) {
   if (lse) lse.value = currentLang;
   setTab(currentTab);
   updateHeaderButtons();
+  if (typeof updateOfflineBar === "function") setTimeout(updateOfflineBar, 100);
 }
 
 const localeMap = { ru: "ru-RU", en: "en-US", ka: "ka-GE" };
@@ -1654,6 +1667,8 @@ function applyTranslations() {
     if (translations[currentLang][k])
       el.textContent = translations[currentLang][k];
   });
+  // Update offline bar text in current language
+  if (typeof updateOfflineBar === "function") updateOfflineBar();
   const logo = document.querySelector(".app-logo");
   if (logo) logo.textContent = t("appName");
   // Update slogan
@@ -2477,7 +2492,16 @@ function loadProfileData(pid) {
     isCreator()
   ) {
     setTimeout(() => {
-      showToast("📬 У вас новые сообщения от пользователей", "success", 3000);
+      showToast(
+        "📬 " +
+          (currentLang === "en"
+            ? "New messages from users"
+            : currentLang === "ka"
+              ? "მომხმარებლებიდან ახალი შეტყობინებები"
+              : "У вас новые сообщения от пользователей"),
+        "success",
+        3000,
+      );
       localStorage.removeItem("has_new_support_messages");
     }, 500);
   }
@@ -2808,26 +2832,53 @@ function updateHeader() {
   // ── ПЕРСОНАЛИЗИРОВАННОЕ ПРИВЕТСТВИЕ ──
   const logo = document.getElementById("appLogoBtn");
   if (logo) {
-    const prof = profiles.find(p => p.id === activeProfileId);
+    const prof = profiles.find((p) => p.id === activeProfileId);
     const userName = prof?.name || "";
     const hour = new Date().getHours();
     let greetEmoji = "🌿";
     let greetWord = "";
     if (currentLang === "ru") {
-      if (hour >= 5 && hour < 12)  { greetWord = "Доброе утро"; greetEmoji = "🌅"; }
-      else if (hour < 18)           { greetWord = "Добрый день"; greetEmoji = "☀️"; }
-      else if (hour < 22)           { greetWord = "Добрый вечер"; greetEmoji = "🌆"; }
-      else                          { greetWord = "Доброй ночи"; greetEmoji = "🌙"; }
+      if (hour >= 5 && hour < 12) {
+        greetWord = "Доброе утро";
+        greetEmoji = "🌅";
+      } else if (hour < 18) {
+        greetWord = "Добрый день";
+        greetEmoji = "☀️";
+      } else if (hour < 22) {
+        greetWord = "Добрый вечер";
+        greetEmoji = "🌆";
+      } else {
+        greetWord = "Доброй ночи";
+        greetEmoji = "🌙";
+      }
     } else if (currentLang === "en") {
-      if (hour >= 5 && hour < 12)  { greetWord = "Good morning"; greetEmoji = "🌅"; }
-      else if (hour < 18)           { greetWord = "Good afternoon"; greetEmoji = "☀️"; }
-      else if (hour < 22)           { greetWord = "Good evening"; greetEmoji = "🌆"; }
-      else                          { greetWord = "Good night"; greetEmoji = "🌙"; }
+      if (hour >= 5 && hour < 12) {
+        greetWord = "Good morning";
+        greetEmoji = "🌅";
+      } else if (hour < 18) {
+        greetWord = "Good afternoon";
+        greetEmoji = "☀️";
+      } else if (hour < 22) {
+        greetWord = "Good evening";
+        greetEmoji = "🌆";
+      } else {
+        greetWord = "Good night";
+        greetEmoji = "🌙";
+      }
     } else {
-      if (hour >= 5 && hour < 12)  { greetWord = "დილა მშვიდობისა"; greetEmoji = "🌅"; }
-      else if (hour < 18)           { greetWord = "მშვიდობისა"; greetEmoji = "☀️"; }
-      else if (hour < 22)           { greetWord = "საღამო მშვიდობისა"; greetEmoji = "🌆"; }
-      else                          { greetWord = "ღამე მშვიდობისა"; greetEmoji = "🌙"; }
+      if (hour >= 5 && hour < 12) {
+        greetWord = "დილა მშვიდობისა";
+        greetEmoji = "🌅";
+      } else if (hour < 18) {
+        greetWord = "მშვიდობისა";
+        greetEmoji = "☀️";
+      } else if (hour < 22) {
+        greetWord = "საღამო მშვიდობისა";
+        greetEmoji = "🌆";
+      } else {
+        greetWord = "ღამე მშვიდობისა";
+        greetEmoji = "🌙";
+      }
     }
     if (userName && greetWord) {
       logo.textContent = `${greetEmoji} ${greetWord}, ${userName}!`;
@@ -2862,7 +2913,10 @@ function addHeaderButtons() {
           localStorage.setItem("themeManualOverride", "1");
           applyColorTheme(isDark ? "default" : "navy");
           const b = document.getElementById("themeToggle");
-          if (b) b.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+          if (b)
+            b.textContent = document.body.classList.contains("dark")
+              ? "☀️"
+              : "🌙";
           showToast("🎨 " + t("themeChanged"));
           haptic("light");
         });
@@ -2877,6 +2931,26 @@ function updateHeaderButtons() {
   if (lb)
     lb.textContent = { ru: "🇷🇺", en: "🇬🇧", ka: "🇬🇪" }[currentLang] || "🌐";
 }
+function animateValue(el, from, to, suffix, duration) {
+  if (!el || from === to) {
+    el && (el.textContent = to.toFixed(2) + " " + suffix);
+    return;
+  }
+  const start = performance.now();
+  const diff = to - from;
+  const step = (now) => {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const current = from + diff * eased;
+    el.textContent = current.toFixed(2) + " " + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+let _lastBalVals = { bal: null, inc: null, exp: null, sal: null };
+
 function updateTopBlocks() {
   let inc = 0,
     exp = 0;
@@ -2886,20 +2960,42 @@ function updateTopBlocks() {
   }
   const bal = inc - exp,
     s = sym();
-  const setV = (id, v) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = v;
+  const balD = toDisp(bal),
+    incD = toDisp(inc),
+    expD = toDisp(exp),
+    salD = toDisp(startBalanceRub);
+  const els = {
+    balanceValue: { val: balD, prev: _lastBalVals.bal },
+    incomeValue: { val: incD, prev: _lastBalVals.inc },
+    expenseValue: { val: expD, prev: _lastBalVals.exp },
+    salaryValue: { val: salD, prev: _lastBalVals.sal },
   };
-  setV("balanceValue", toDisp(bal).toFixed(2) + " " + s);
-  setV("incomeValue", toDisp(inc).toFixed(2) + " " + s);
-  setV("expenseValue", toDisp(exp).toFixed(2) + " " + s);
-  setV("salaryValue", toDisp(startBalanceRub).toFixed(2) + " " + s);
+  const shouldAnimate = Object.values(els).some(
+    (e) => e.prev !== null && e.prev !== e.val,
+  );
+  Object.entries(els).forEach(([id, { val, prev }]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (shouldAnimate && prev !== null && prev !== val) {
+      animateValue(el, prev, val, s, 600);
+      // Pop animation on balance card
+      if (id === "balanceValue") {
+        el.classList.remove("updated");
+        void el.offsetWidth; // reflow
+        el.classList.add("updated");
+        setTimeout(() => el.classList.remove("updated"), 400);
+      }
+    } else {
+      el.textContent = val.toFixed(2) + " " + s;
+    }
+  });
+  _lastBalVals = { bal: balD, inc: incD, exp: expD, sal: salD };
 }
 
 // ============================================================
 // ВКЛАДКИ
 // ============================================================
-function setTab(tab) {
+function setTab(tab, onRendered) {
   currentTab = tab;
   document
     .querySelectorAll(".nav-btn")
@@ -2907,8 +3003,11 @@ function setTab(tab) {
   document
     .querySelector(`.nav-btn[data-tab="${tab}"]`)
     ?.classList.add("active");
+  // Scroll to top smoothly on tab switch
+  window.scrollTo({ top: 0, behavior: "instant" });
   const content = document.getElementById("mainContent");
   content.style.opacity = "0";
+  content.style.transform = "translateY(8px)";
   setTimeout(() => {
     switch (tab) {
       case "home":
@@ -2930,7 +3029,15 @@ function setTab(tab) {
         renderSettings();
         break;
     }
+    content.style.transition = "opacity 0.22s ease, transform 0.22s ease";
     content.style.opacity = "1";
+    content.style.transform = "translateY(0)";
+    // Clear transition after animation completes so it doesn't interfere with JS updates
+    setTimeout(() => {
+      content.style.transition = "";
+      content.style.transform = "";
+    }, 280);
+    if (typeof onRendered === "function") setTimeout(onRendered, 60);
   }, 160);
 }
 
@@ -3234,7 +3341,21 @@ function renderOpsList() {
   if (!recent.length) {
     html += sq
       ? `<div class="empty-block"><div class="empty-emoji">🔍</div><p>Ничего не найдено «${esc(sq)}»</p></div>`
-      : `<div class="empty-block"><div class="empty-emoji">💸</div><p>${t("noOperations").replace("\n", "<br>")}</p></div>`;
+      : `<div class="empty-block" style="padding:56px 24px;text-align:center;">
+      <div style="font-size:64px;margin-bottom:14px;opacity:0.6;">💸</div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:8px;">${
+        { ru: "Пока пусто", en: "Nothing here yet", ka: "ჯერ ცარიელია" }[
+          currentLang
+        ] || "No records yet"
+      }</div>
+      <div style="font-size:14px;color:var(--text-muted);line-height:1.6;">${
+        {
+          ru: "Нажмите <b style='color:var(--primary)'>+</b> внизу чтобы добавить первую операцию",
+          en: "Tap <b style='color:var(--primary)'>+</b> below to add your first transaction",
+          ka: "<b style='color:var(--primary)'>+</b> ღილაკი ქვემოთ",
+        }[currentLang] || ""
+      }</div>
+    </div>`;
   } else {
     let lastDate = null;
     html += '<div class="ops-list">';
@@ -3303,7 +3424,14 @@ function addSwipeToDelete(container) {
   let sX = 0,
     sY = 0,
     aC = null,
-    aI = null;
+    aI = null,
+    revealEl = null;
+
+  function clearReveal() {
+    revealEl?.remove();
+    revealEl = null;
+  }
+
   container.querySelectorAll(".op-card").forEach((card) => {
     card.addEventListener(
       "touchstart",
@@ -3312,40 +3440,67 @@ function addSwipeToDelete(container) {
         sY = e.touches[0].clientY;
         aC = card;
         aI = parseInt(card.dataset.idx);
+        clearReveal();
       },
       { passive: true },
     );
+
     card.addEventListener(
       "touchmove",
       (e) => {
         if (!aC) return;
-        const dx = e.touches[0].clientX - sX,
-          dy = e.touches[0].clientY - sY;
-        if (Math.abs(dy) > Math.abs(dx)) {
+        const dx = e.touches[0].clientX - sX;
+        const dy = e.touches[0].clientY - sY;
+        if (Math.abs(dy) > Math.abs(dx) + 4) {
           aC = null;
+          clearReveal();
           return;
         }
-        if (dx < 0) {
-          aC.style.transform = `translateX(${Math.max(dx, -120)}px)`;
-          aC.style.opacity = Math.max(0.4, 1 + dx / 240);
+        if (dx < -6) {
+          const pull = Math.min(Math.abs(dx), 130);
+          const pct = Math.min(pull / 100, 1);
+          aC.style.transform = `translateX(${-pull}px)`;
+          aC.style.transition = "none";
+          // Create/update reveal background
+          if (!revealEl) {
+            revealEl = document.createElement("div");
+            revealEl.style.cssText = [
+              "position:absolute;top:0;right:0;bottom:0;",
+              "border-radius:inherit;",
+              "display:flex;align-items:center;justify-content:flex-end;",
+              "padding-right:20px;",
+              "background:linear-gradient(135deg,#ef4444,#dc2626);",
+              "color:#fff;font-size:20px;pointer-events:none;",
+              "transition:opacity 0.1s;",
+            ].join("");
+            revealEl.textContent = "🗑️";
+            aC.parentElement.style.position = "relative";
+            aC.parentElement.insertBefore(revealEl, aC);
+          }
+          revealEl.style.width = pull + "px";
+          revealEl.style.opacity = pct;
         }
       },
       { passive: true },
     );
+
     card.addEventListener(
       "touchend",
       (e) => {
         if (!aC) return;
         const dx = e.changedTouches[0].clientX - sX;
         if (dx < -80) {
-          aC.style.transform = "translateX(-100%)";
+          aC.style.transform = "translateX(-110%)";
           aC.style.opacity = "0";
-          aC.style.transition = "transform .3s,opacity .3s";
+          aC.style.transition = "transform .28s ease,opacity .28s ease";
+          const cardRef = aC,
+            idxRef = aI;
+          clearReveal();
           setTimeout(() => {
             askConfirm(
               t("confirmDelete"),
               () => {
-                transactions.splice(aI, 1);
+                transactions.splice(idxRef, 1);
                 saveAll();
                 updateTopBlocks();
                 renderBalanceSummary();
@@ -3354,17 +3509,19 @@ function addSwipeToDelete(container) {
               },
               { icon: "🗑️" },
             );
-            if (aC) {
-              aC.style.transform = "";
-              aC.style.opacity = "1";
-              aC.style.transition = "";
-            }
+            cardRef.style.transform = "";
+            cardRef.style.opacity = "1";
+            cardRef.style.transition = "";
             aC = null;
-          }, 300);
+          }, 280);
         } else {
+          clearReveal();
           if (aC) {
             aC.style.transform = "";
-            aC.style.opacity = "1";
+            aC.style.transition = "transform .2s ease";
+            setTimeout(() => {
+              if (aC) aC.style.transition = "";
+            }, 200);
           }
           aC = null;
         }
@@ -3859,9 +4016,25 @@ function openAddModal(defaultType = "expense") {
         )
         .reduce((s, tx) => s + tx.amountRub, 0);
       const limit = categoryBudgets[cat];
-      if (spent + toRub(amt) > limit) {
-        if (!confirm(`⚠️ Превысит лимит бюджета (${fmt(limit)}). Продолжить?`))
+      const newSpent = spent + toRub(amt);
+      if (newSpent > limit) {
+        const msg =
+          { ru: "Продолжить?", en: "Continue?", ka: "გაგრძელება?" }[
+            currentLang
+          ] || "Continue?";
+        if (!confirm(t("budgetOverLimit") + " " + fmt(limit) + ". " + msg))
           return;
+      } else if (newSpent / limit >= 0.8) {
+        const remaining = limit - newSpent;
+        showToast(
+          t("budgetWarning80") +
+            " · " +
+            fmt(remaining) +
+            " " +
+            t("budgetWarning80Desc"),
+          "error",
+          3500,
+        );
       }
     }
     const tx = {
@@ -5417,39 +5590,39 @@ function renderSettings() {
     </div>
     <!-- WOW FEATURES SETTINGS -->
     <div class="settings-card">
-      <div class="settings-card-title">✨ ${ {ru:"Расширенные функции",en:"Advanced features",ka:"გაფართოებული ფუნქციები"}[currentLang] }</div>
-      <div class="settings-card-desc">${ {ru:"Голосовой ввод, цели, плавающие кнопки",en:"Voice input, goals, floating buttons",ka:"ხმოვანი შეყვანა, მიზნები, მცოცავი ღილაკები"}[currentLang] }</div>
+      <div class="settings-card-title">✨ ${{ ru: "Расширенные функции", en: "Advanced features", ka: "გაფართოებული ფუნქციები" }[currentLang]}</div>
+      <div class="settings-card-desc">${{ ru: "Голосовой ввод, цели, плавающие кнопки", en: "Voice input, goals, floating buttons", ka: "ხმოვანი შეყვანა, მიზნები, მცოცავი ღილაკები" }[currentLang]}</div>
       <div class="settings-card-body">
         <!-- Voice input -->
         <div style="margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
             <div>
-              <div style="font-weight:800;font-size:14px;">🎤 ${ {ru:"Голосовой ввод",en:"Voice input",ka:"ხმოვანი შეყვანა"}[currentLang] }</div>
-              <div style="font-size:12px;color:var(--text-muted);">${ {ru:"Кнопка на экране (Chrome)",en:"On-screen button (Chrome)",ka:"ეკრანზე ღილაკი (Chrome)"}[currentLang] }</div>
+              <div style="font-weight:800;font-size:14px;">🎤 ${{ ru: "Голосовой ввод", en: "Voice input", ka: "ხმოვანი შეყვანა" }[currentLang]}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${{ ru: "Кнопка на экране (Chrome)", en: "On-screen button (Chrome)", ka: "ეკრანზე ღილაკი (Chrome)" }[currentLang]}</div>
             </div>
-            <label class="switch"><input type="checkbox" id="showVoiceBtnToggle" ${localStorage.getItem("showVoiceBtn")!=="false"?"checked":""}><span class="slider round"></span></label>
+            <label class="switch"><input type="checkbox" id="showVoiceBtnToggle" ${localStorage.getItem("showVoiceBtn") !== "false" ? "checked" : ""}><span class="slider round"></span></label>
           </div>
-          <button class="settings-btn primary" id="voiceDirectBtn" style="width:100%;margin-top:4px;">🎤 ${ {ru:"Использовать голосовой ввод сейчас",en:"Use voice input now",ka:"ხმოვანი შეყვანის გამოყენება"}[currentLang] }</button>
+          <button class="settings-btn primary" id="voiceDirectBtn" style="width:100%;margin-top:4px;">🎤 ${{ ru: "Использовать голосовой ввод сейчас", en: "Use voice input now", ka: "ხმოვანი შეყვანის გამოყენება" }[currentLang]}</button>
         </div>
         <!-- Goals -->
         <div style="border-top:1px solid var(--cream-border);padding-top:14px;margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
             <div>
-              <div style="font-weight:800;font-size:14px;">🎯 ${ {ru:"Кнопка целей на экране",en:"Goals button on screen",ka:"მიზნების ღილაკი ეკრანზე"}[currentLang] }</div>
-              <div style="font-size:12px;color:var(--text-muted);">${ {ru:"Плавающая кнопка для быстрого доступа",en:"Floating button for quick access",ka:"სწრაფი წვდომის ღილაკი"}[currentLang] }</div>
+              <div style="font-weight:800;font-size:14px;">🎯 ${{ ru: "Кнопка целей на экране", en: "Goals button on screen", ka: "მიზნების ღილაკი ეკრანზე" }[currentLang]}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${{ ru: "Плавающая кнопка для быстрого доступа", en: "Floating button for quick access", ka: "სწრაფი წვდომის ღილაკი" }[currentLang]}</div>
             </div>
-            <label class="switch"><input type="checkbox" id="showGoalsBtnToggle" ${localStorage.getItem("showGoalsBtn")!=="false"?"checked":""}><span class="slider round"></span></label>
+            <label class="switch"><input type="checkbox" id="showGoalsBtnToggle" ${localStorage.getItem("showGoalsBtn") !== "false" ? "checked" : ""}><span class="slider round"></span></label>
           </div>
-          <button class="settings-btn primary" id="goalsDirectBtn" style="width:100%;margin-top:4px;">🎯 ${ {ru:"Открыть мои цели",en:"Open my goals",ka:"ჩემი მიზნების გახსნა"}[currentLang] }</button>
+          <button class="settings-btn primary" id="goalsDirectBtn" style="width:100%;margin-top:4px;">🎯 ${{ ru: "Открыть мои цели", en: "Open my goals", ka: "ჩემი მიზნების გახსნა" }[currentLang]}</button>
         </div>
         <!-- 12/24hr format -->
         <div style="border-top:1px solid var(--cream-border);padding-top:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;">
             <div>
-              <div style="font-weight:800;font-size:14px;">🕐 ${ {ru:"12-часовой формат времени",en:"12-hour time format",ka:"12-საათიანი ფორმატი"}[currentLang] }</div>
-              <div style="font-size:12px;color:var(--text-muted);">${ {ru:"AM/PM вместо 24-часового",en:"AM/PM instead of 24-hour",ka:"AM/PM 24-საათიანის მაგივრად"}[currentLang] }</div>
+              <div style="font-weight:800;font-size:14px;">🕐 ${{ ru: "12-часовой формат времени", en: "12-hour time format", ka: "12-საათიანი ფორმატი" }[currentLang]}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${{ ru: "AM/PM вместо 24-часового", en: "AM/PM instead of 24-hour", ka: "AM/PM 24-საათიანის მაგივრად" }[currentLang]}</div>
             </div>
-            <label class="switch"><input type="checkbox" id="time12hToggle" ${localStorage.getItem("timeFormat12h")==="true"?"checked":""}><span class="slider round"></span></label>
+            <label class="switch"><input type="checkbox" id="time12hToggle" ${localStorage.getItem("timeFormat12h") === "true" ? "checked" : ""}><span class="slider round"></span></label>
           </div>
         </div>
       </div>
@@ -5460,131 +5633,188 @@ function renderSettings() {
       <div class="settings-card-title">${t("reminders")}</div>
       <div class="settings-card-desc">${t("remindersDesc")}</div>
       <div class="settings-card-body">
-        <!-- Notification status block -->
-        <div id="notifStatusBlock" style="border-radius:14px;padding:14px;margin-bottom:14px;background:${remindersEnabled ? "var(--income-pale)" : "var(--cream-dark)"};border:1.5px solid ${remindersEnabled ? "var(--income-color)" : "var(--cream-border)"};">
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div class="notif-icon" style="font-size:28px;">${remindersEnabled ? "🔔" : "🔕"}</div>
-            <div style="flex:1;">
-              <div data-notif-title style="font-weight:800;font-size:14px;color:${remindersEnabled ? "var(--income-color)" : "var(--text)"};">${remindersEnabled ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang] : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang]}</div>
-              <div style="font-size:12px;color:var(--text-muted);">${"Notification" in window ? Notification.permission === "granted" ? {ru:"✅ Разрешение получено",en:"✅ Permission granted",ka:"✅ ნებართვა მიღებულია"}[currentLang] : Notification.permission === "denied" ? {ru:"⛔ Заблокировано в браузере",en:"⛔ Blocked in browser",ka:"⛔ ბრაუზერში დაბლოკილია"}[currentLang] : {ru:"Нажмите кнопку чтобы разрешить",en:"Tap button to allow",ka:"ღილაკზე დააჭირეთ"}[currentLang] : {ru:"⚠️ Браузер не поддерживает",en:"⚠️ Browser not supported",ka:"⚠️ ბრაუზერი არ უჭერს მხარს"}[currentLang]}</div>
+        <!-- Permission status -->
+        <div style="border-radius:12px;padding:12px 14px;margin-bottom:14px;background:${
+          typeof Notification !== "undefined" &&
+          Notification.permission === "granted"
+            ? "var(--income-pale)"
+            : "var(--cream-dark)"
+        };border:1.5px solid ${
+          typeof Notification !== "undefined" &&
+          Notification.permission === "granted"
+            ? "var(--income-color)"
+            : "var(--cream-border)"
+        };">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:22px;">${
+              typeof Notification !== "undefined" &&
+              Notification.permission === "granted"
+                ? "🔔"
+                : "🔕"
+            }</span>
+            <div>
+              <div style="font-weight:800;font-size:13px;">${
+                typeof Notification === "undefined"
+                  ? {
+                      ru: "⚠️ Браузер не поддерживает",
+                      en: "⚠️ Not supported",
+                      ka: "⚠️ არ უჭერს",
+                    }[currentLang]
+                  : Notification.permission === "granted"
+                    ? {
+                        ru: "✅ Уведомления разрешены",
+                        en: "✅ Notifications allowed",
+                        ka: "✅ ნებართვა მიღებულია",
+                      }[currentLang]
+                    : Notification.permission === "denied"
+                      ? {
+                          ru: "⛔ Заблокировано — откройте настройки браузера",
+                          en: "⛔ Blocked — open browser settings",
+                          ka: "⛔ დაბლოკილია — ბრაუზერის პარამეტრები",
+                        }[currentLang]
+                      : {
+                          ru: "Нажмите «Разрешить» чтобы получать уведомления",
+                          en: "Tap 'Allow' to receive notifications",
+                          ka: "'ნება' დაჭირეთ",
+                        }[currentLang]
+              }</div>
             </div>
           </div>
         </div>
-        <!-- BUTTON approach — guaranteed user gesture on all mobile browsers -->
-        <div style="display:flex;gap:8px;margin-bottom:16px;">
-          <button id="notifEnableBtn" class="btn-primary" style="flex:1;padding:14px;font-size:14px;font-weight:800;"
-            ${!("Notification" in window) || Notification.permission === "denied" ? "disabled style='opacity:0.5;'" : ""}>
-            🔔 ${remindersEnabled ? {ru:"Выключить напоминания",en:"Disable reminders",ka:"შეხსენებების გამორთვა"}[currentLang] : {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]}
+        <div style="display:flex;gap:8px;margin-bottom:20px;">
+          <button id="notifEnableBtn" class="btn-primary" style="flex:1;padding:12px;">
+            🔔 ${
+              remindersEnabled
+                ? {
+                    ru: "Выключить напоминания",
+                    en: "Disable reminders",
+                    ka: "გამორთვა",
+                  }[currentLang]
+                : {
+                    ru: "Включить напоминания",
+                    en: "Enable reminders",
+                    ka: "ჩართვა",
+                  }[currentLang]
+            }
           </button>
-          ${Notification.permission === "denied" ? `<button id="notifHelpBtn" class="btn-secondary" style="padding:14px;font-size:13px;">❓ ${currentLang==="ru"?"Как разрешить":currentLang==="en"?"How to allow":"როგორ"}</button>` : ""}
+          ${
+            typeof Notification !== "undefined" &&
+            Notification.permission === "denied"
+              ? `<button id="notifHelpBtn" class="btn-secondary" style="padding:12px;font-size:13px;">❓</button>`
+              : ""
+          }
         </div>
-        <!-- Hidden checkbox for compatibility -->
-        <input type="checkbox" id="remindersToggle" ${remindersEnabled ? "checked" : ""} style="display:none;">
-        <div id="remindersIntervalDiv" style="display:${remindersEnabled ? "block" : "none"};">
-          <div style="font-size:14px;font-weight:700;color:var(--text-muted);margin-bottom:12px;">🔔 Выберите интервалы напоминаний</div>
-          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;" id="reminderIntervalCheckboxes">
-            ${[
-              {
-                val: "30min",
-                label: {
-                  ru: "Каждые 30 минут",
-                  en: "Every 30 minutes",
-                  ka: "ყოველ 30 წუთში",
-                },
-              },
-              {
-                val: "1h",
-                label: {
-                  ru: "Каждый час",
-                  en: "Every hour",
-                  ka: "ყოველ საათში",
-                },
-              },
-              {
-                val: "2h",
-                label: {
-                  ru: "Каждые 2 часа",
-                  en: "Every 2 hours",
-                  ka: "ყოველ 2 საათში",
-                },
-              },
-              {
-                val: "5h",
-                label: {
-                  ru: "Каждые 5 часов",
-                  en: "Every 5 hours",
-                  ka: "ყოველ 5 საათში",
-                },
-              },
-              {
-                val: "daily",
-                label: { ru: "Каждый день", en: "Every day", ka: "ყოველდღე" },
-              },
-              {
-                val: "every3days",
-                label: {
-                  ru: "Каждые 3 дня",
-                  en: "Every 3 days",
-                  ka: "ყოველ 3 დღეში",
-                },
-              },
-              {
-                val: "weekly",
-                label: {
-                  ru: "Каждую неделю",
-                  en: "Every week",
-                  ka: "ყოველ კვირას",
-                },
-              },
-            ]
-              .map((opt) => {
-                const checked = reminderIntervals?.[opt.val] || false;
-                return `<label style="display:flex;align-items:center;gap:12px;padding:8px 0;cursor:pointer;">
-                <input type="checkbox" class="reminder-interval-checkbox" data-val="${opt.val}" ${checked ? "checked" : ""} style="width:20px;height:20px;accent-color:var(--primary);">
-                <span style="font-size:15px;font-weight:600;color:var(--text);">${opt.label[currentLang] || opt.label.ru}</span>
-              </label>`;
-              })
-              .join("")}
-          </div>
-          
-          <div style="margin:20px 0; border-top:1px dashed var(--cream-border);"></div>
-          <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text);">📅 Точная дата и время</div>
-          
-          <!-- DATETIME — JS-triggered native picker (no pointer events on input) -->
-          <div style="display:flex;gap:12px;margin-bottom:4px;">
 
-            <div id="dateCard" style="flex:1;background:var(--card-bg);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);min-height:68px;-webkit-tap-highlight-color:transparent;user-select:none;">
-              <div id="dtDateIcon" style="font-size:28px;flex-shrink:0;transition:transform 0.3s ease;pointer-events:none;">📅</div>
-              <div style="flex:1;min-width:0;pointer-events:none;">
-                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">${ {ru:"Дата",en:"Date",ka:"თარიღი"}[currentLang] }</div>
-                <div id="dateDisplay" style="font-size:14px;font-weight:700;line-height:1.3;color:${customReminderDate?"var(--text)":"var(--text-muted)"};">${ customReminderDate ? (() => { try { return new Date(customReminderDate+"T00:00").toLocaleDateString(currentLang==="en"?"en-US":currentLang==="ka"?"ka-GE":"ru-RU",{day:"numeric",month:"long",year:"numeric"}); } catch(e){ return customReminderDate; } })() : {ru:"Нажмите для выбора",en:"Tap to choose",ka:"დAAჭირეთ"}[currentLang] }</div>
-              </div>
-              <div style="font-size:18px;color:var(--primary);flex-shrink:0;pointer-events:none;font-weight:900;">›</div>
-              <input type="date" id="reminderCustomDate" class="custom-date-input" value="${customReminderDate||""}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;" aria-hidden="true" tabindex="-1">
-            </div>
+        <!-- Named reminders list -->
+        <div id="namedRemindersList">
+          ${(() => {
+            const list = JSON.parse(
+              localStorage.getItem("namedReminders") || "[]",
+            );
+            if (!list.length)
+              return `<div style="font-size:13px;color:var(--text-muted);padding:8px 0 16px;">
+              ${{ ru: "Нет запланированных напоминаний", en: "No scheduled reminders", ka: "შეხსენებები არ არის" }[currentLang]}
+            </div>`;
+            return list
+              .map(
+                (r, i) => `
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${
+                r.fired ? "var(--cream-dark)" : "var(--income-pale)"
+              };border:1.5px solid ${r.fired ? "var(--cream-border)" : "var(--income-color)"};border-radius:12px;margin-bottom:8px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.name || "🔔")}</div>
+                  <div style="font-size:11px;color:var(--text-muted);">${new Date(r.ts).toLocaleString(currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU")}</div>
+                </div>
+                <span style="font-size:12px;color:${r.fired ? "var(--text-muted)" : "var(--income-color)"};font-weight:700;">${
+                  r.fired
+                    ? { ru: "✓ Выполнено", en: "✓ Done", ka: "✓ შესრულდა" }[
+                        currentLang
+                      ]
+                    : { ru: "⏰ Ждёт", en: "⏰ Pending", ka: "⏰ ელოდება" }[
+                        currentLang
+                      ]
+                }</span>
+                <button class="named-reminder-del" data-idx="${i}" style="background:var(--expense-pale);border:none;border-radius:8px;width:28px;height:28px;color:var(--expense-color);cursor:pointer;font-size:14px;flex-shrink:0;">✕</button>
+              </div>`,
+              )
+              .join("");
+          })()}
+        </div>
 
-            <div id="timeCard" style="flex:1;background:var(--card-bg);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow-sm);transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);min-height:68px;-webkit-tap-highlight-color:transparent;user-select:none;">
-              <div id="dtTimeIcon" style="font-size:28px;flex-shrink:0;transition:transform 0.3s ease;pointer-events:none;">⏰</div>
-              <div style="flex:1;min-width:0;pointer-events:none;">
-                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">${ {ru:"Время",en:"Time",ka:"დრო"}[currentLang] }</div>
-                <div id="timeDisplay" style="font-size:14px;font-weight:700;line-height:1.3;color:${customReminderTime?"var(--text)":"var(--text-muted)"};">${ customReminderTime||{ru:"Нажмите для выбора",en:"Tap to choose",ka:"დAAჭირეთ"}[currentLang] }</div>
-              </div>
-              <div style="font-size:18px;color:var(--primary);flex-shrink:0;pointer-events:none;font-weight:900;">›</div>
-              <input type="time" id="reminderCustomTime" class="custom-time-input" value="${customReminderTime||""}" style="position:absolute;width:0;height:0;opacity:0;pointer-events:none;" aria-hidden="true" tabindex="-1">
-            </div>
+        <!-- Add new reminder -->
+        <div style="background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);">
+          <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;">
+            ➕ ${{ ru: "Добавить напоминание", en: "Add reminder", ka: "შეხსენების დამატება" }[currentLang]}
+          </div>
+          <div class="field-group" style="margin-bottom:10px;">
+            <label class="field-label">${{ ru: "Название", en: "Name", ka: "სახელი" }[currentLang]}</label>
+            <input type="text" id="newReminderName" class="modal-input"
+              placeholder="${{ ru: "Например: Оплата аренды", en: "E.g. Pay rent", ka: "მაგ: ქირის გადახდა" }[currentLang]}">
+          </div>
+          <div class="field-group" style="margin-bottom:12px;">
+            <label class="field-label">${{ ru: "Дата и время", en: "Date and time", ka: "თარიღი და დრო" }[currentLang]}</label>
+            <input type="datetime-local" id="newReminderDatetime" class="modal-input"
+              min="${new Date(Date.now() - 1000).toISOString().slice(0, 16)}"
+              style="color-scheme:light dark;">
+          </div>
+          <button id="addNamedReminderBtn" class="btn-primary" style="width:100%;padding:13px;">
+            ⏰ ${{ ru: "Запланировать", en: "Schedule", ka: "დაგეგმვა" }[currentLang]}
+          </button>
+        </div>
 
+        <!-- Interval reminders -->
+        <div style="margin-top:20px;">
+          <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px;">
+            🔁 ${{ ru: "Повторяющиеся напоминания", en: "Recurring reminders", ka: "განმეორებადი შეხსენებები" }[currentLang]}
           </div>
-          
-          <div class="field-group">
-            <label class="field-label">📝 Текст уведомления</label>
-            <input type="text" id="reminderCustomText" class="modal-input" placeholder="${t("remindersDesc")}" value="${esc(customReminderText || "")}">
-          </div>
-          <div style="display:flex;gap:10px;margin-top:12px;">
-            <button class="btn-primary" id="setCustomReminderBtn" style="flex:2;">⏰ Установить</button>
-            <button class="btn-secondary" id="clearCustomReminderBtn" style="flex:1;">🗑 Сброс</button>
-          </div>
-          <div id="customReminderInfo" style="margin-top:12px;font-size:13px;color:var(--text-muted);">
-            ${customReminderTimestamp ? `⏰ Запланировано: ${new Date(customReminderTimestamp).toLocaleString(currentLang)}` : "Нет активного напоминания"}
+          <div style="display:flex;flex-direction:column;gap:6px;">
+          ${[
+            {
+              val: "1h",
+              label: { ru: "Каждый час", en: "Every hour", ka: "ყოველ საათში" },
+            },
+            {
+              val: "2h",
+              label: {
+                ru: "Каждые 2 часа",
+                en: "Every 2 hours",
+                ka: "ყოველ 2 საათში",
+              },
+            },
+            {
+              val: "5h",
+              label: {
+                ru: "Каждые 5 часов",
+                en: "Every 5 hours",
+                ka: "ყოველ 5 საათში",
+              },
+            },
+            {
+              val: "daily",
+              label: { ru: "Каждый день", en: "Daily", ka: "ყოველდღე" },
+            },
+            {
+              val: "every3days",
+              label: {
+                ru: "Каждые 3 дня",
+                en: "Every 3 days",
+                ka: "ყოველ 3 დღეში",
+              },
+            },
+            {
+              val: "weekly",
+              label: { ru: "Каждую неделю", en: "Weekly", ka: "ყოველ კვირას" },
+            },
+          ]
+            .map((opt) => {
+              const checked = reminderIntervals?.[opt.val] || false;
+              return `<label style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:10px;cursor:pointer;">
+              <input type="checkbox" class="reminder-interval-checkbox" data-val="${opt.val}" ${checked ? "checked" : ""}
+                style="width:18px;height:18px;accent-color:var(--primary);flex-shrink:0;">
+              <span style="font-size:14px;font-weight:600;color:var(--text);">${opt.label[currentLang] || opt.label.ru}</span>
+            </label>`;
+            })
+            .join("")}
           </div>
         </div>
       </div>
@@ -5592,266 +5822,76 @@ function renderSettings() {
     <div style="text-align:center;padding:20px;color:var(--text-muted);">Мой Бюджет v2.2 · Офлайн 📴</div>`;
   document.getElementById("mainContent").innerHTML = html;
 
-  // === DATETIME CARDS — 100% JS-driven, no pointer-events on input ===
-  function setupDateTimeCards() {
-    const langMap = { ru:"ru-RU", en:"en-US", ka:"ka-GE" };
-    const loc = langMap[currentLang] || "ru-RU";
-    const phDate = { ru:"Нажмите для выбора", en:"Tap to choose", ka:"დAAჭირეთ" }[currentLang];
-    const phTime = { ru:"Нажмите для выбора", en:"Tap to choose", ka:"დAAჭირეთ" }[currentLang];
+  // === NEW REMINDER HANDLERS ===
 
-    function fmtDate(v) {
-      if (!v) return phDate;
-      try { return new Date(v + "T00:00").toLocaleDateString(loc, {day:"numeric",month:"long",year:"numeric"}); }
-      catch(e) { return v; }
-    }
-    function fmtTime(v) { return v || phTime; }
-
-    function activateCard(card, icon) {
-      if (!card) return;
-      card.style.borderColor = "var(--primary)";
-      card.style.boxShadow = "0 0 0 4px rgba(45,106,79,0.2)";
-      card.style.transform = "scale(1.02) translateY(-2px)";
-      card.style.background = "var(--primary-pale)";
-      if (icon) icon.style.transform = "scale(1.3) rotate(-15deg)";
-    }
-    function deactivateCard(card, icon) {
-      if (!card) return;
-      card.style.borderColor = "var(--cream-border)";
-      card.style.boxShadow = "var(--shadow-sm)";
-      card.style.transform = "";
-      card.style.background = "var(--card-bg)";
-      if (icon) icon.style.transform = "";
-    }
-
-    // Open a custom date/time picker modal — works on ALL browsers/devices
-    function openPicker(type, card, icon) {
-      activateCard(card, icon);
-      const isDate = type === "date";
-      const inp = document.getElementById(isDate ? "reminderCustomDate" : "reminderCustomTime");
-      const disp = document.getElementById(isDate ? "dateDisplay" : "timeDisplay");
-
-      // For date: show custom calendar modal
-      // For time: show custom time wheel
-      const pkL = {
-        ru: { title: isDate ? "📅 Выберите дату" : "⏰ Выберите время", ok:"Выбрать", cancel:"Отмена" },
-        en: { title: isDate ? "📅 Choose date" : "⏰ Choose time", ok:"Select", cancel:"Cancel" },
-        ka: { title: isDate ? "📅 თარიღის არჩევა" : "⏰ დროის არჩევა", ok:"არჩევა", cancel:"გაუქმება" },
-      };
-      const lc = pkL[currentLang] || pkL.ru;
-
-      const today = new Date();
-      let selDate = inp?.value ? new Date(inp.value + "T00:00") : new Date();
-      let selHour = inp?.value ? parseInt(inp.value.split(":")[0]) : today.getHours();
-      let selMin  = inp?.value ? parseInt(inp.value.split(":")[1]) : 0;
-
-      const pkOv = document.createElement("div");
-      pkOv.id = "dtPickerOverlay";
-      pkOv.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99998;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.2s ease;";
-
-      function renderPicker() {
-        if (isDate) {
-          const y = selDate.getFullYear(), m = selDate.getMonth();
-          const firstDay = (new Date(y,m,1).getDay()+6)%7; // Mon=0
-          const daysInMonth = new Date(y,m+1,0).getDate();
-          const monthNames = t("months");
-          const dayNames = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-          const dayNamesEn = ["Mo","Tu","We","Th","Fr","Sa","Su"];
-          const dayNamesKa = ["ო","ს","ოთ","ხ","პ","შ","კ"]; // ორშ,სამ,ოთხ,ხუთ,პარ,შაბ,კვ
-          const dn = currentLang==="en" ? dayNamesEn : currentLang==="ka" ? dayNamesKa : dayNames;
-          let cells = "";
-          for (let i=0; i<firstDay; i++) cells += `<div></div>`;
-          for (let d=1; d<=daysInMonth; d++) {
-            const isToday = d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
-            const isSel = d===selDate.getDate()&&m===selDate.getMonth()&&y===selDate.getFullYear();
-            cells += `<div class="pk-day" data-d="${d}" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;font-size:14px;font-weight:${isSel||isToday?"800":"400"};background:${isSel?"var(--primary)":"isToday"?"var(--primary-pale)":"transparent"};color:${isSel?"white":isToday?"var(--primary)":"var(--text)"};transition:all 0.15s;">${d}</div>`;
-            cells = cells.replace('"isToday"?"var(--primary-pale)":"transparent"', isToday&&!isSel ? '"var(--primary-pale)"' : '"transparent"');
-          }
-          pkOv.innerHTML = `<div style="background:var(--card-bg);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:20px 16px 24px;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUpBounce 0.35s cubic-bezier(0.34,1.3,0.64,1) both;max-height:85vh;max-height:85dvh;overflow-y:auto;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-              <button id="pkCancel" style="padding:8px 14px;border-radius:20px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:13px;font-weight:700;cursor:pointer;">${lc.cancel}</button>
-              <div style="text-align:center;font-size:16px;font-weight:800;">${lc.title}</div>
-              <button id="pkOk" style="padding:8px 14px;border-radius:20px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;">${lc.ok}</button>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 4px;">
-              <button id="pkPrevM" style="width:36px;height:36px;border-radius:50%;background:var(--cream-dark);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
-              <div style="font-size:15px;font-weight:800;">${monthNames[m]} ${y}</div>
-              <button id="pkNextM" style="width:36px;height:36px;border-radius:50%;background:var(--cream-dark);border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">›</button>
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:6px;">
-              ${dn.map(d=>`<div style="text-align:center;font-size:10px;font-weight:700;color:var(--text-muted);padding:3px 0;">${d}</div>`).join("")}
-              ${cells}
-            </div>
-          </div>`;
-        } else {
-          // Time picker — all 60 minutes, 12/24hr toggle
-          const use12h = localStorage.getItem("timeFormat12h") === "true";
-          const hrs = use12h ? Array.from({length:12},(_,i)=>i===0?12:i) : Array.from({length:24},(_,i)=>i);
-          const mins = Array.from({length:60},(_,i)=>i); // ALL 60 minutes
-          const ampm = use12h ? (selHour < 12 ? "AM" : "PM") : null;
-          const dispH = use12h ? (selHour % 12 === 0 ? 12 : selHour % 12) : selHour;
-          const fmtDisp = use12h
-            ? `${dispH}:${String(selMin).padStart(2,"0")} ${ampm}`
-            : `${String(selHour).padStart(2,"0")}:${String(selMin).padStart(2,"0")}`;
-
-          pkOv.innerHTML = `<div style="background:var(--card-bg);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:18px 14px 24px;box-shadow:0 -8px 40px rgba(0,0,0,0.2);animation:slideUpBounce 0.35s cubic-bezier(0.34,1.3,0.64,1) both;max-height:88vh;max-height:88dvh;overflow-y:auto;">
-            <!-- Header row -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-              <button id="pkCancel" style="padding:8px 14px;border-radius:20px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:13px;font-weight:700;cursor:pointer;">${lc.cancel}</button>
-              <div style="text-align:center;font-size:15px;font-weight:800;">${lc.title}</div>
-              <button id="pkOk" style="padding:8px 14px;border-radius:20px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;">${lc.ok}</button>
-            </div>
-            <!-- 12/24hr toggle -->
-            <div style="display:flex;justify-content:center;margin-bottom:14px;">
-              <div style="display:flex;background:var(--cream-dark);border-radius:20px;padding:3px;gap:2px;">
-                <button id="fmt24btn" style="padding:6px 16px;border-radius:17px;border:none;font-size:12px;font-weight:800;cursor:pointer;background:${!use12h?"var(--primary)":"transparent"};color:${!use12h?"white":"var(--text-muted)"};">24ч</button>
-                <button id="fmt12btn" style="padding:6px 16px;border-radius:17px;border:none;font-size:12px;font-weight:800;cursor:pointer;background:${use12h?"var(--primary)":"transparent"};color:${use12h?"white":"var(--text-muted)"};">12ч AM/PM</button>
-              </div>
-            </div>
-            <!-- Wheels -->
-            <div style="display:flex;align-items:flex-start;justify-content:center;gap:8px;margin-bottom:14px;">
-              <!-- Hours -->
-              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">${{ru:"Часы",en:"Hours",ka:"სთ"}[currentLang]}</div>
-                <div style="height:168px;overflow-y:auto;width:62px;border-radius:16px;background:var(--cream-dark);padding:4px 0;scroll-snap-type:y mandatory;" id="hrWheel">
-                  ${hrs.map(h=>{const isS=use12h?(h===dispH):(h===selHour);return`<div class="pk-hr" data-h="${h}" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:17px;font-weight:${isS?"900":"400"};background:${isS?"var(--primary)":"transparent"};color:${isS?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">${String(h).padStart(2,"0")}</div>`;}).join("")}
-                </div>
-              </div>
-              <div style="font-size:26px;font-weight:900;color:var(--primary);margin-top:46px;flex-shrink:0;">:</div>
-              <!-- Minutes — ALL 60 -->
-              <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">${{ru:"Минуты",en:"Min",ka:"წთ"}[currentLang]}</div>
-                <div style="height:168px;overflow-y:auto;width:62px;border-radius:16px;background:var(--cream-dark);padding:4px 0;scroll-snap-type:y mandatory;" id="minWheel">
-                  ${mins.map(mn=>`<div class="pk-min" data-m="${mn}" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:17px;font-weight:${mn===selMin?"900":"400"};background:${mn===selMin?"var(--primary)":"transparent"};color:${mn===selMin?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">${String(mn).padStart(2,"0")}</div>`).join("")}
-                </div>
-              </div>
-              <!-- AM/PM (12h only) -->
-              ${use12h ? `<div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-                <div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;">AM/PM</div>
-                <div style="height:168px;overflow-y:auto;width:62px;border-radius:16px;background:var(--cream-dark);padding:4px 0;scroll-snap-type:y mandatory;" id="ampmWheel">
-                  <div class="pk-ampm" data-ap="AM" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:15px;font-weight:${selHour<12?"900":"400"};background:${selHour<12?"var(--primary)":"transparent"};color:${selHour<12?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">AM</div>
-                  <div class="pk-ampm" data-ap="PM" style="min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;font-size:15px;font-weight:${selHour>=12?"900":"400"};background:${selHour>=12?"var(--primary)":"transparent"};color:${selHour>=12?"white":"var(--text)"};width:54px;transition:all 0.12s;scroll-snap-align:center;">PM</div>
-                </div>
-              </div>` : ""}
-            </div>
-            <!-- Preview -->
-            <div style="text-align:center;font-size:36px;font-weight:900;color:var(--primary);background:var(--primary-pale);border-radius:16px;padding:12px;letter-spacing:1px;">${fmtDisp}</div>
-          </div>`;
-          // Scroll to selected hour/min
-          setTimeout(() => {
-            const hw = document.getElementById("hrWheel");
-            const mw = document.getElementById("minWheel");
-            if (hw) { const sel = hw.querySelector(`[data-h="${selHour}"]`); if(sel) sel.scrollIntoView({block:"center"}); }
-            if (mw) { const sel = mw.querySelector(`[data-m="${selMin}"]`); if(sel) sel.scrollIntoView({block:"center"}); }
-          }, 100);
-        }
-
-        // Event handlers
-        pkOv.querySelector("#pkCancel")?.addEventListener("click", () => { deactivateCard(card,icon); pkOv.remove(); });
-        pkOv.addEventListener("click", e => { if (e.target===pkOv) { deactivateCard(card,icon); pkOv.remove(); } });
-        pkOv.querySelector("#pkOk")?.addEventListener("click", () => {
-          if (isDate) {
-            const val = `${selDate.getFullYear()}-${String(selDate.getMonth()+1).padStart(2,"0")}-${String(selDate.getDate()).padStart(2,"0")}`;
-            if (inp) inp.value = val;
-            if (disp) { disp.textContent = selDate.toLocaleDateString(currentLang==="en"?"en-US":currentLang==="ka"?"ka-GE":"ru-RU",{day:"numeric",month:"long",year:"numeric"}); disp.style.color="var(--text)"; }
-            customReminderDate = val;
-          } else {
-            const val24 = `${String(selHour).padStart(2,"0")}:${String(selMin).padStart(2,"0")}`;
-            if (inp) inp.value = val24;
-            // Display format based on preference
-            const use12hDisp = localStorage.getItem("timeFormat12h") === "true";
-            let dispVal = val24;
-            if (use12hDisp) {
-              const ampm2 = selHour < 12 ? "AM" : "PM";
-              const h12 = selHour % 12 === 0 ? 12 : selHour % 12;
-              dispVal = `${h12}:${String(selMin).padStart(2,"00")} ${ampm2}`;
-            }
-            if (disp) { disp.textContent = dispVal; disp.style.color="var(--text)"; }
-            customReminderTime = val24; // always store 24h internally
-          }
-          deactivateCard(card,icon);
-          pkOv.remove();
-        });
-
-        if (isDate) {
-          pkOv.querySelectorAll(".pk-day").forEach(el => {
-            el.addEventListener("click", () => {
-              selDate = new Date(selDate.getFullYear(), selDate.getMonth(), parseInt(el.dataset.d));
-              renderPicker();
-            });
-          });
-          pkOv.querySelector("#pkPrevM")?.addEventListener("click", () => { selDate = new Date(selDate.getFullYear(), selDate.getMonth()-1, 1); renderPicker(); });
-          pkOv.querySelector("#pkNextM")?.addEventListener("click", () => { selDate = new Date(selDate.getFullYear(), selDate.getMonth()+1, 1); renderPicker(); });
-        } else {
-          const use12hEvt = localStorage.getItem("timeFormat12h") === "true";
-          // 12/24h toggle buttons
-          pkOv.querySelector("#fmt24btn")?.addEventListener("click", () => {
-            localStorage.setItem("timeFormat12h", "false");
-            renderPicker();
-          });
-          pkOv.querySelector("#fmt12btn")?.addEventListener("click", () => {
-            localStorage.setItem("timeFormat12h", "true");
-            renderPicker();
-          });
-          pkOv.querySelectorAll(".pk-hr").forEach(el => {
-            el.addEventListener("click", () => {
-              if (use12hEvt) {
-                // Convert 12h display to 24h internal
-                const h12 = parseInt(el.dataset.h);
-                const isPM = selHour >= 12;
-                selHour = isPM ? (h12 === 12 ? 12 : h12 + 12) : (h12 === 12 ? 0 : h12);
-              } else {
-                selHour = parseInt(el.dataset.h);
-              }
-              renderPicker();
-            });
-          });
-          pkOv.querySelectorAll(".pk-min").forEach(el => {
-            el.addEventListener("click", () => { selMin = parseInt(el.dataset.m); renderPicker(); });
-          });
-          pkOv.querySelectorAll(".pk-ampm").forEach(el => {
-            el.addEventListener("click", () => {
-              const isPM = el.dataset.ap === "PM";
-              if (isPM && selHour < 12) selHour += 12;
-              else if (!isPM && selHour >= 12) selHour -= 12;
-              renderPicker();
-            });
-          });
-        }
+  // Add named reminder
+  document
+    .getElementById("addNamedReminderBtn")
+    ?.addEventListener("click", () => {
+      const name = (
+        document.getElementById("newReminderName")?.value || ""
+      ).trim();
+      const dt = document.getElementById("newReminderDatetime")?.value;
+      if (!dt) {
+        showToast(
+          {
+            ru: "Выберите дату и время",
+            en: "Select date and time",
+            ka: "აირჩიეთ თარიღი",
+          }[currentLang] || "Select date/time",
+          "error",
+        );
+        return;
       }
+      const ts = new Date(dt).getTime();
+      if (ts <= Date.now()) {
+        showToast(
+          {
+            ru: "Время должно быть в будущем",
+            en: "Time must be in the future",
+            ka: "დრო მომავალში უნდა იყოს",
+          }[currentLang],
+          "error",
+        );
+        return;
+      }
+      const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+      const newR = {
+        id: Date.now(),
+        name: name || "🔔 Reminder",
+        ts,
+        fired: false,
+      };
+      list.push(newR);
+      list.sort((a, b) => a.ts - b.ts);
+      localStorage.setItem("namedReminders", JSON.stringify(list));
+      // Schedule in-page timeout
+      scheduleNamedReminder(newR);
+      showToast(
+        "✅ " +
+          {
+            ru: "Напоминание запланировано",
+            en: "Reminder scheduled",
+            ka: "შეხსენება დაგეგმილია",
+          }[currentLang],
+      );
+      haptic("success");
+      renderSettings();
+    });
 
-      renderPicker();
-      if (!document.getElementById("dtPickerOverlay")) document.body.appendChild(pkOv);
-    }
+  // Delete named reminder
+  document.querySelectorAll(".named-reminder-del").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const idx = parseInt(btn.dataset.idx);
+      const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+      list.splice(idx, 1);
+      localStorage.setItem("namedReminders", JSON.stringify(list));
+      renderSettings();
+      haptic("light");
+    });
+  });
 
-    const dateInp = document.getElementById("reminderCustomDate");
-    const timeInp = document.getElementById("reminderCustomTime");
-    const dateCard = document.getElementById("dateCard");
-    const timeCard = document.getElementById("timeCard");
-    const dateDisp = document.getElementById("dateDisplay");
-    const timeDisp = document.getElementById("timeDisplay");
-    const dateIcon = document.getElementById("dtDateIcon");
-    const timeIcon = document.getElementById("dtTimeIcon");
-
-    if (dateCard && dateInp) {
-      dateCard.addEventListener("click", () => openPicker("date", dateCard, dateIcon));
-      dateCard.addEventListener("touchend", (e) => { e.preventDefault(); openPicker("date", dateCard, dateIcon); });
-      dateInp.addEventListener("change", () => {
-        if (dateDisp) { dateDisp.textContent = fmtDate(dateInp.value); dateDisp.style.color = dateInp.value ? "var(--text)" : "var(--text-muted)"; }
-      });
-      if (dateDisp && dateInp.value) { dateDisp.textContent = fmtDate(dateInp.value); dateDisp.style.color = "var(--text)"; }
-    }
-    if (timeCard && timeInp) {
-      timeCard.addEventListener("click", () => openPicker("time", timeCard, timeIcon));
-      timeCard.addEventListener("touchend", (e) => { e.preventDefault(); openPicker("time", timeCard, timeIcon); });
-      timeInp.addEventListener("change", () => {
-        if (timeDisp) { timeDisp.textContent = fmtTime(timeInp.value); timeDisp.style.color = timeInp.value ? "var(--text)" : "var(--text-muted)"; }
-      });
-      if (timeDisp && timeInp.value) { timeDisp.textContent = fmtTime(timeInp.value); timeDisp.style.color = "var(--text)"; }
-    }
-  }
-  setupDateTimeCards();
-
-  // === ОБРАБОТЧИКИ ЧЕКБОКСОВ ИНТЕРВАЛОВ ===
   document.querySelectorAll(".reminder-interval-checkbox").forEach((cb) => {
     cb.addEventListener("change", () => {
       const val = cb.dataset.val;
@@ -5867,93 +5907,51 @@ function renderSettings() {
         const activeIntervals = Object.entries(reminderIntervals)
           .filter(([_, v]) => v)
           .map(([k]) => {
-            const labels = {
-              "30min": "30 мин",
-              "1h": "1 час",
-              "2h": "2 часа",
-              "5h": "5 часов",
-              daily: "1 день",
-              every3days: "3 дня",
-              weekly: "1 неделя",
-            };
+            const labels =
+              {
+                ru: {
+                  "30min": "30 мин",
+                  "1h": "1 час",
+                  "2h": "2 часа",
+                  "5h": "5 часов",
+                  daily: "1 день",
+                  every3days: "3 дня",
+                  weekly: "1 неделя",
+                },
+                en: {
+                  "30min": "30 min",
+                  "1h": "1 hr",
+                  "2h": "2 hrs",
+                  "5h": "5 hrs",
+                  daily: "Daily",
+                  every3days: "Every 3 days",
+                  weekly: "Weekly",
+                },
+                ka: {
+                  "30min": "30 წთ",
+                  "1h": "1 სთ",
+                  "2h": "2 სთ",
+                  "5h": "5 სთ",
+                  daily: "ყოველდღ.",
+                  every3days: "3 დღეში",
+                  weekly: "კვირაში",
+                },
+              }[currentLang] || {};
             return labels[k] || k;
           });
         activeListDiv.textContent = activeIntervals.length
           ? activeIntervals.join(", ")
-          : "Нет активных интервалов";
+          : {
+              ru: "Нет активных интервалов",
+              en: "No active intervals",
+              ka: "ინტერვალები არ არის",
+            }[currentLang];
       }
     });
   });
 
   // === ТОЧНОЕ НАПОМИНАНИЕ ===
-  document
-    .getElementById("setCustomReminderBtn")
-    ?.addEventListener("click", () => {
-      const date = document.getElementById("reminderCustomDate").value;
-      const time = document.getElementById("reminderCustomTime").value;
-      const text = document.getElementById("reminderCustomText").value.trim();
-      if (!date || !time) {
-        showToast("Выберите дату и время", "error");
-        return;
-      }
-      const combined = date + "T" + time;
-      const targetTime = new Date(combined).getTime();
-      if (targetTime <= Date.now()) {
-        showToast("Время должно быть в будущем", "error");
-        return;
-      }
-      customReminderDate = date;
-      customReminderTime = time;
-      customReminderText = text;
-      customReminderTimestamp = targetTime;
-      localStorage.setItem("customReminderDate", date);
-      localStorage.setItem("customReminderTime", time);
-      localStorage.setItem("customReminderText", text);
-      localStorage.setItem("customReminderTimestamp", targetTime);
-
-      if (customReminderTimeout) clearTimeout(customReminderTimeout);
-      customReminderTimeout = setTimeout(() => {
-        if (Notification.permission === "granted") {
-          new Notification(text || t("remindersDesc"));
-        } else {
-          showToast("🔔 " + (text || t("remindersDesc")));
-        }
-        customReminderDate = customReminderTime = customReminderText = "";
-        customReminderTimestamp = null;
-        [
-          "customReminderDate",
-          "customReminderTime",
-          "customReminderText",
-          "customReminderTimestamp",
-        ].forEach((k) => localStorage.removeItem(k));
-        customReminderTimeout = null;
-        renderSettings();
-      }, targetTime - Date.now());
-
-      showToast("✅ Напоминание установлено");
-      renderSettings();
-      haptic("success");
-    });
-
-  document
-    .getElementById("clearCustomReminderBtn")
-    ?.addEventListener("click", () => {
-      customReminderDate = customReminderTime = customReminderText = "";
-      customReminderTimestamp = null;
-      [
-        "customReminderDate",
-        "customReminderTime",
-        "customReminderText",
-        "customReminderTimestamp",
-      ].forEach((k) => localStorage.removeItem(k));
-      if (customReminderTimeout) {
-        clearTimeout(customReminderTimeout);
-        customReminderTimeout = null;
-      }
-      showToast("🗑 Напоминание удалено");
-      renderSettings();
-      haptic("light");
-    });
+  // (old custom reminder handlers removed — now handled by addNamedReminderBtn)
 
   // Отображение активных интервалов
   const activeListDiv = document.getElementById("activeRemindersList");
@@ -6118,11 +6116,15 @@ function renderSettings() {
     rid = document.getElementById("remindersIntervalDiv"),
     ris = document.getElementById("remindersIntervalSelect");
   // ── Notification enable/disable button (mobile-safe) ──
-  document.getElementById("notifHelpBtn")?.addEventListener("click", openNotificationHelpModal);
-  document.getElementById("notifEnableBtn")?.addEventListener("click", handleNotifBtnClick);
+  document
+    .getElementById("notifHelpBtn")
+    ?.addEventListener("click", openNotificationHelpModal);
+  document
+    .getElementById("notifEnableBtn")
+    ?.addEventListener("click", handleNotifBtnClick);
 
   if (rt) {
-    rt.addEventListener("change", function() {
+    rt.addEventListener("change", function () {
       // CRITICAL: must be called synchronously from user gesture on mobile
       const checked = this.checked;
 
@@ -6132,7 +6134,17 @@ function renderSettings() {
         startReminderTimer();
         if (rid) rid.style.display = "block";
         // Test notification
-        try { new Notification("🔔 БюджетPRO", { body: { ru:"Уведомления включены!",en:"Notifications enabled!",ka:"შეტყობინებები ჩართულია!" }[currentLang]||"Notifications enabled!", icon:"/BudgetPro/favicon-96x96.png" }); } catch(e){}
+        try {
+          new Notification("🔔 БюджетPRO", {
+            body:
+              {
+                ru: "Уведомления включены!",
+                en: "Notifications enabled!",
+                ka: "შეტყობინებები ჩართულია!",
+              }[currentLang] || "Notifications enabled!",
+            icon: "/BudgetPro/favicon-96x96.png",
+          });
+        } catch (e) {}
         showToast(t("remindersPermissionGranted"), "success");
       }
 
@@ -6144,8 +6156,12 @@ function renderSettings() {
         if (reason === "denied") {
           openNotificationHelpModal();
         } else {
-          const L = {ru:"Нажмите «Разрешить» в запросе браузера",en:"Tap 'Allow' in the browser prompt",ka:"ბრაუზერის მოთხოვნაში 'Allow' დააჭირეთ"};
-          showToast(L[currentLang]||L.ru, "error");
+          const L = {
+            ru: "Нажмите «Разрешить» в запросе браузера",
+            en: "Tap 'Allow' in the browser prompt",
+            ka: "ბრაუზერის მოთხოვნაში 'Allow' დააჭირეთ",
+          };
+          showToast(L[currentLang] || L.ru, "error");
         }
       }
 
@@ -6160,8 +6176,12 @@ function renderSettings() {
 
       // Check API support
       if (!("Notification" in window)) {
-        const L = {ru:"Используйте Chrome для уведомлений",en:"Use Chrome for notifications",ka:"Chrome გამოიყენეთ შეტყობინებებისთვის"};
-        showToast(L[currentLang]||L.ru, "error");
+        const L = {
+          ru: "Используйте Chrome для уведомлений",
+          en: "Use Chrome for notifications",
+          ka: "Chrome გამოიყენეთ შეტყობინებებისთვის",
+        };
+        showToast(L[currentLang] || L.ru, "error");
         rt.checked = false;
         return;
       }
@@ -6182,32 +6202,47 @@ function renderSettings() {
         const result = Notification.requestPermission();
         // If it returns a Promise (modern browsers)
         if (result && typeof result.then === "function") {
-          result.then(p => {
-            if (p === "granted") onPermGranted();
-            else onPermDenied(p);
-          }).catch(() => onPermDenied("error"));
+          result
+            .then((p) => {
+              if (p === "granted") onPermGranted();
+              else onPermDenied(p);
+            })
+            .catch(() => onPermDenied("error"));
         } else {
           // Old callback style (some mobile Safari)
-          Notification.requestPermission(function(p) {
+          Notification.requestPermission(function (p) {
             if (p === "granted") onPermGranted();
             else onPermDenied(p);
           });
         }
-      } catch(err) {
+      } catch (err) {
         // Absolute fallback — show button that user must tap
         rt.checked = false;
-        const L = {ru:"Нажмите кнопку ниже для включения уведомлений",en:"Tap the button below to enable notifications",ka:"ქვემოთ ღილაკს დააჭირეთ"};
-        showToast(L[currentLang]||L.ru, "info");
+        const L = {
+          ru: "Нажмите кнопку ниже для включения уведомлений",
+          en: "Tap the button below to enable notifications",
+          ka: "ქვემოთ ღილაკს დააჭირეთ",
+        };
+        showToast(L[currentLang] || L.ru, "info");
         // Show a standalone button that explicitly triggers permission
         const permBtn = document.createElement("button");
         permBtn.className = "btn-primary";
-        permBtn.style.cssText = "position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 28px;border-radius:24px;font-size:15px;font-weight:800;box-shadow:0 8px 24px rgba(45,106,79,0.4);white-space:nowrap;";
-        permBtn.textContent = "🔔 " + ({ru:"Разрешить уведомления",en:"Allow Notifications",ka:"ნება მიეცი"}[currentLang]||"Allow Notifications");
+        permBtn.style.cssText =
+          "position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:9999;padding:14px 28px;border-radius:24px;font-size:15px;font-weight:800;box-shadow:0 8px 24px rgba(45,106,79,0.4);white-space:nowrap;";
+        permBtn.textContent =
+          "🔔 " +
+          ({
+            ru: "Разрешить уведомления",
+            en: "Allow Notifications",
+            ka: "ნება მიეცი",
+          }[currentLang] || "Allow Notifications");
         permBtn.addEventListener("click", () => {
           permBtn.remove();
-          Notification.requestPermission().then(p => {
-            if (p === "granted") { rt.checked = true; onPermGranted(); }
-            else onPermDenied(p);
+          Notification.requestPermission().then((p) => {
+            if (p === "granted") {
+              rt.checked = true;
+              onPermGranted();
+            } else onPermDenied(p);
           });
         });
         document.body.appendChild(permBtn);
@@ -6270,7 +6305,7 @@ function renderSettings() {
       showToast(t("saved"));
     });
   // ── Collapsible settings cards ──
-  document.querySelectorAll(".settings-card").forEach(card => {
+  document.querySelectorAll(".settings-card").forEach((card) => {
     const header = card.querySelector(".settings-card-title");
     if (!header) return;
     // Wrap title + chevron in clickable header div
@@ -6284,7 +6319,7 @@ function renderSettings() {
     wrapper.appendChild(chevron);
 
     // Start collapsed for non-critical cards (user can expand)
-    const alwaysOpen = ["reminders","appData","budgets"];
+    const alwaysOpen = ["reminders", "appData", "budgets"];
     const cardId = card.querySelector("[id]")?.id || "";
     // Use title text to decide
     wrapper.addEventListener("click", () => {
@@ -6299,28 +6334,43 @@ function renderSettings() {
     showToast(t("saved"));
   });
   // ── Advanced features toggles ──
-  document.getElementById("showVoiceBtnToggle")?.addEventListener("change", function() {
-    localStorage.setItem("showVoiceBtn", this.checked ? "true" : "false");
-    addVoiceButton();
-    haptic("light");
-    showToast(t("saved"));
-  });
-  document.getElementById("showGoalsBtnToggle")?.addEventListener("change", function() {
-    localStorage.setItem("showGoalsBtn", this.checked ? "true" : "false");
-    addGoalsNavButton();
-    haptic("light");
-    showToast(t("saved"));
-  });
-  document.getElementById("time12hToggle")?.addEventListener("change", function() {
-    localStorage.setItem("timeFormat12h", this.checked ? "true" : "false");
-    haptic("light");
-    showToast({ru:"Формат времени изменён",en:"Time format changed",ka:"დროის ფორმატი შეიცვალა"}[currentLang], "success");
-  });
+  document
+    .getElementById("showVoiceBtnToggle")
+    ?.addEventListener("change", function () {
+      localStorage.setItem("showVoiceBtn", this.checked ? "true" : "false");
+      addVoiceButton();
+      haptic("light");
+      showToast(t("saved"));
+    });
+  document
+    .getElementById("showGoalsBtnToggle")
+    ?.addEventListener("change", function () {
+      localStorage.setItem("showGoalsBtn", this.checked ? "true" : "false");
+      addGoalsNavButton();
+      haptic("light");
+      showToast(t("saved"));
+    });
+  document
+    .getElementById("time12hToggle")
+    ?.addEventListener("change", function () {
+      localStorage.setItem("timeFormat12h", this.checked ? "true" : "false");
+      haptic("light");
+      showToast(
+        {
+          ru: "Формат времени изменён",
+          en: "Time format changed",
+          ka: "დროის ფორმატი შეიცვალა",
+        }[currentLang],
+        "success",
+      );
+    });
   document.getElementById("voiceDirectBtn")?.addEventListener("click", () => {
-    haptic("medium"); startVoiceInput();
+    haptic("medium");
+    startVoiceInput();
   });
   document.getElementById("goalsDirectBtn")?.addEventListener("click", () => {
-    haptic("medium"); openGoalsModal();
+    haptic("medium");
+    openGoalsModal();
   });
   document
     .getElementById("suggestionsToggle")
@@ -6723,20 +6773,22 @@ function renderBudgetsBody() {
   let ms;
   if (budgetPeriod === "weekly") {
     const day = now.getDay() === 0 ? 6 : now.getDay() - 1; // Mon=0
-    ms = new Date(now); ms.setDate(now.getDate() - day); ms.setHours(0,0,0,0);
+    ms = new Date(now);
+    ms.setDate(now.getDate() - day);
+    ms.setHours(0, 0, 0, 0);
   } else if (budgetPeriod === "daily") {
     ms = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   } else {
     ms = new Date(now.getFullYear(), now.getMonth(), 1);
   }
   const periodL = {
-    monthly: { ru:"Месяц", en:"Month", ka:"თვე" },
-    weekly:  { ru:"Неделя", en:"Week", ka:"კვირა" },
-    daily:   { ru:"День", en:"Day", ka:"დღე" },
+    monthly: { ru: "Месяц", en: "Month", ka: "თვე" },
+    weekly: { ru: "Неделя", en: "Week", ka: "კვირა" },
+    daily: { ru: "День", en: "Day", ka: "დღე" },
   };
-  const pl = (periodL[budgetPeriod]||periodL.monthly)[currentLang];
+  const pl = (periodL[budgetPeriod] || periodL.monthly)[currentLang];
   const periodHeader = `<div style="display:flex;gap:8px;margin-bottom:14px;background:var(--cream-dark);padding:4px;border-radius:var(--radius-sm);">
-    ${["monthly","weekly","daily"].map(p => `<button data-bp="${p}" style="flex:1;padding:8px 6px;border-radius:calc(var(--radius-sm) - 4px);border:none;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;background:${p===budgetPeriod?"var(--primary)":"transparent"};color:${p===budgetPeriod?"white":"var(--text-muted)"};">${(periodL[p]||{})[currentLang]}</button>`).join("")}
+    ${["monthly", "weekly", "daily"].map((p) => `<button data-bp="${p}" style="flex:1;padding:8px 6px;border-radius:calc(var(--radius-sm) - 4px);border:none;font-size:12px;font-weight:800;cursor:pointer;transition:all 0.2s;background:${p === budgetPeriod ? "var(--primary)" : "transparent"};color:${p === budgetPeriod ? "white" : "var(--text-muted)"};">${(periodL[p] || {})[currentLang]}</button>`).join("")}
   </div>`;
   return (
     periodHeader +
@@ -6767,7 +6819,7 @@ function renderBudgetsBody() {
         </div>
       </div>
       <div style="height:8px;background:var(--cream-dark);border-radius:99px;overflow:hidden;"><div style="height:100%;width:${pct}%;background:${cl};border-radius:99px;transition:width .8s;"></div></div>
-      ${over ? `<div style="font-size:11px;color:var(--expense-color);font-weight:700;margin-top:2px;">${t("budgetOverLimit")}</div>` : ""}
+      ${over ? `<div style="font-size:11px;color:var(--expense-color);font-weight:700;margin-top:2px;">${t("budgetOverLimit")}</div>` : pct >= 80 ? `<div style="font-size:11px;color:var(--gold);font-weight:700;margin-top:2px;">⚠️ ${t("budgetWarning80")} (${pct}%)</div>` : ""}
     </div>`;
       })
       .join("") +
@@ -7235,27 +7287,84 @@ function cloudLoad() {
 // ============================================================
 // НАПОМИНАНИЯ
 // ============================================================
+// ── Schedule a named reminder with setTimeout (best-effort) ──
+function scheduleNamedReminder(r) {
+  const delay = r.ts - Date.now();
+  if (delay <= 0 || delay > 7 * 24 * 3600 * 1000) return; // skip if past or >7 days
+  setTimeout(() => {
+    const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+    const item = list.find((x) => x.id === r.id);
+    if (!item || item.fired) return;
+    fireNamedReminder(item);
+    item.fired = true;
+    localStorage.setItem("namedReminders", JSON.stringify(list));
+    if (currentTab === "settings") renderSettings();
+  }, delay);
+}
+
+function fireNamedReminder(r) {
+  const body =
+    r.name ||
+    {
+      ru: "Не забудьте записать расходы!",
+      en: "Log your expenses!",
+      ka: "ხარჯები ჩაიწერეთ!",
+    }[currentLang];
+  if (
+    typeof Notification !== "undefined" &&
+    Notification.permission === "granted"
+  ) {
+    try {
+      new Notification("🔔 БюджетPRO", {
+        body,
+        icon: "/BudgetPro/favicon-96x96.png",
+        tag: "named-" + r.id,
+      });
+    } catch (e) {}
+  }
+  showToast("🔔 " + body, "success", 5000);
+  haptic && haptic("medium");
+}
+
+// Re-schedule any pending named reminders on page load
+function rescheduleNamedReminders() {
+  const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+  const now = Date.now();
+  let changed = false;
+  list.forEach((r) => {
+    if (!r.fired) {
+      if (r.ts <= now) {
+        // Missed while page was closed - fire now
+        fireNamedReminder(r);
+        r.fired = true;
+        changed = true;
+      } else {
+        scheduleNamedReminder(r);
+      }
+    }
+  });
+  if (changed) localStorage.setItem("namedReminders", JSON.stringify(list));
+}
+setTimeout(rescheduleNamedReminders, 1000);
+
 function sendReminderNotification() {
   if (typeof Notification === "undefined") return;
   const canNotify = Notification.permission === "granted";
   const now = Date.now();
 
-  // ── Check CUSTOM time reminder (toast always works, notification if permitted) ──
-  const savedTs = parseInt(localStorage.getItem("customReminderTimestamp") || "0");
-  if (savedTs && savedTs > 0 && now >= savedTs) {
-    const savedText = localStorage.getItem("customReminderText") || "";
-    const notifText = savedText || {ru:"Не забудьте записать расходы!",en:"Don't forget to log expenses!",ka:"ხარჯები ჩაიწერეთ!"}[currentLang] || "БюджетPRO reminder";
-    // Always show toast — works 100% without any permissions
-    showToast("🔔 " + notifText, "success");
-    // Also try system notification if we have permission
-    if (canNotify) {
-      try { new Notification("🔔 БюджетPRO", { body: notifText, icon: "/BudgetPro/favicon-96x96.png", tag: "custom-reminder" }); } catch(e){}
+  // ── Check named reminders (poller-based fallback) ──
+  const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+  let changed = false;
+  list.forEach((r) => {
+    if (!r.fired && r.ts <= now) {
+      fireNamedReminder(r);
+      r.fired = true;
+      changed = true;
     }
-    // Clear the reminder
-    ["customReminderDate","customReminderTime","customReminderText","customReminderTimestamp"].forEach(k => localStorage.removeItem(k));
-    customReminderTimestamp = null; customReminderDate = ""; customReminderTime = ""; customReminderText = "";
-    if (customReminderTimeout) { clearTimeout(customReminderTimeout); customReminderTimeout = null; }
-    renderSettings();
+  });
+  if (changed) {
+    localStorage.setItem("namedReminders", JSON.stringify(list));
+    if (currentTab === "settings") renderSettings();
   }
 
   // ── Check interval reminders ────────────────────────────────
@@ -7265,13 +7374,15 @@ function sendReminderNotification() {
     const lastKey = `lastReminder_${interval}`;
     const last = localStorage.getItem(lastKey);
     const ms = getIntervalMs(interval);
-    const should = !last || (now - parseInt(last) >= ms);
+    const should = !last || now - parseInt(last) >= ms;
     if (should) {
-      // Toast always works; system notification if permitted
-      showToast("🔔 " + t("remindersDesc"), "info");
-      if (canNotify) {
-        try { new Notification(t("appName"), { body: t("remindersDesc"), icon: "/BudgetPro/favicon-96x96.png", tag: "budget-reminder" }); } catch(e){}
-      }
+      try {
+        new Notification(t("appName"), {
+          body: t("remindersDesc"),
+          icon: "/BudgetPro/favicon-96x96.png",
+          tag: "budget-reminder",
+        });
+      } catch (e) {}
       localStorage.setItem(lastKey, now);
     }
   }
@@ -7665,7 +7776,7 @@ function init() {
   if (tb)
     tb.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
   // ── HAPTIC EVERYWHERE ──
-  document.querySelectorAll(".nav-btn").forEach(btn => {
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => haptic("light"), { passive: true });
   });
   document.querySelectorAll(".summary-card").forEach((card) => {
@@ -7730,7 +7841,16 @@ function init() {
       isCreator()
     ) {
       setTimeout(() => {
-        showToast("📬 У вас новые сообщения от пользователей", "success", 3000);
+        showToast(
+          "📬 " +
+            (currentLang === "en"
+              ? "New messages from users"
+              : currentLang === "ka"
+                ? "მომხმარებლებიდან ახალი შეტყობინებები"
+                : "У вас новые сообщения от пользователей"),
+          "success",
+          3000,
+        );
         localStorage.removeItem("has_new_support_messages");
       }, 300);
     }
@@ -7809,24 +7929,54 @@ function init() {
       localStorage.getItem("has_new_support_messages") === "true"
     ) {
       setTimeout(() => {
-        showToast("📬 У вас новые сообщения от пользователей", "success", 3000);
+        showToast(
+          "📬 " +
+            (currentLang === "en"
+              ? "New messages from users"
+              : currentLang === "ka"
+                ? "მომხმარებლებიდან ახალი შეტყობინებები"
+                : "У вас новые сообщения от пользователей"),
+          "success",
+          3000,
+        );
         localStorage.removeItem("has_new_support_messages");
       }, 300);
     }
   });
 }
 
-if (pinEnabled && pinHash) {
-  showPinScreen(init);
-} else {
-  init();
-}
+// Initialize offline indicator after app loads
+setTimeout(updateOfflineBar, 500);
 
-if (pinEnabled && pinHash) {
-  showPinScreen(init);
-} else {
-  init();
+// ============================================================
+// OFFLINE / ONLINE INDICATOR
+// ============================================================
+function updateOfflineBar() {
+  const bar = document.getElementById("offlineBar");
+  if (!bar) return;
+  if (!navigator.onLine) {
+    bar.textContent =
+      "📴 " + (translations[currentLang]?.offlineMode || "Офлайн");
+    bar.classList.add("visible");
+  } else {
+    bar.classList.remove("visible");
+  }
 }
+window.addEventListener("offline", () => {
+  updateOfflineBar();
+});
+window.addEventListener("online", () => {
+  const bar = document.getElementById("offlineBar");
+  if (bar) {
+    bar.textContent =
+      "✅ " + (translations[currentLang]?.onlineMode || "Снова онлайн");
+    bar.classList.add("visible");
+    setTimeout(() => bar.classList.remove("visible"), 2500);
+  }
+});
+// Check on load
+document.addEventListener("DOMContentLoaded", updateOfflineBar);
+
 function applySimpleMode(on) {
   simpleMode = !!on;
   localStorage.setItem("simpleMode", simpleMode ? "true" : "false");
@@ -8058,8 +8208,16 @@ function getAppUrl() {
     // Never saved — auto-set from current location
   }
   // 2. Auto-detect from current location (works on GitHub Pages / Netlify / etc.)
-  if (window.location.protocol.startsWith("http") && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1") {
-    const u = window.location.origin + window.location.pathname.replace(/\/[^\/]*\.[^\/]*$/, "/").replace(/\/?$/, "/");
+  if (
+    window.location.protocol.startsWith("http") &&
+    window.location.hostname !== "localhost" &&
+    window.location.hostname !== "127.0.0.1"
+  ) {
+    const u =
+      window.location.origin +
+      window.location.pathname
+        .replace(/\/[^\/]*\.[^\/]*$/, "/")
+        .replace(/\/?$/, "/");
     localStorage.setItem("budgetpro_app_url", u);
     return u;
   }
@@ -8473,16 +8631,47 @@ function checkShareLink() {
 }
 async function showShareWelcomeScreen(pkg) {
   // Detect language: use stored lang or browser lang
-  const lang = localStorage.getItem("lang") || (navigator.language || "ru").slice(0,2) || "ru";
+  const lang =
+    localStorage.getItem("lang") ||
+    (navigator.language || "ru").slice(0, 2) ||
+    "ru";
   const LL = {
-    ru: { guestMode:"👤 Гостевой режим", shareWelcome:"Вас приглашают в профиль", join:"Войти в профиль →", cancel:"Отмена", locked:"🔒 Профиль заблокирован владельцем", pwdPh:"Введите пароль", pwdErr:"Неверный пароль", loading:"⏳ Подключение..." },
-    en: { guestMode:"👤 Guest mode", shareWelcome:"You are invited to a profile", join:"Enter profile →", cancel:"Cancel", locked:"🔒 Profile is locked by owner", pwdPh:"Enter password", pwdErr:"Wrong password", loading:"⏳ Connecting..." },
-    ka: { guestMode:"👤 სტუმრის რეჟიმი", shareWelcome:"გიწვევენ პროფილში", join:"პროფილში შესვლა →", cancel:"გაუქმება", locked:"🔒 პროფილი დაბლოკილია მფლობელის მიერ", pwdPh:"შეიყვანეთ პაროლი", pwdErr:"არასწორი პაროლი", loading:"⏳ დაკავშირება..." },
+    ru: {
+      guestMode: "👤 Гостевой режим",
+      shareWelcome: "Вас приглашают в профиль",
+      join: "Войти в профиль →",
+      cancel: "Отмена",
+      locked: "🔒 Профиль заблокирован владельцем",
+      pwdPh: "Введите пароль",
+      pwdErr: "Неверный пароль",
+      loading: "⏳ Подключение...",
+    },
+    en: {
+      guestMode: "👤 Guest mode",
+      shareWelcome: "You are invited to a profile",
+      join: "Enter profile →",
+      cancel: "Cancel",
+      locked: "🔒 Profile is locked by owner",
+      pwdPh: "Enter password",
+      pwdErr: "Wrong password",
+      loading: "⏳ Connecting...",
+    },
+    ka: {
+      guestMode: "👤 სტუმრის რეჟიმი",
+      shareWelcome: "გიწვევენ პროფილში",
+      join: "პროფილში შესვლა →",
+      cancel: "გაუქმება",
+      locked: "🔒 პროფილი დაბლოკილია მფლობელის მიერ",
+      pwdPh: "შეიყვანეთ პაროლი",
+      pwdErr: "არასწორი პაროლი",
+      loading: "⏳ დაკავშირება...",
+    },
   };
   const lc = LL[lang] || LL[currentLang] || LL.ru;
   const ov = document.createElement("div");
   ov.id = "shareWelcomeOverlay";
-  ov.style.cssText = "position:fixed;inset:0;background:var(--cream);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px 24px;animation:fadeIn 0.3s ease both;";
+  ov.style.cssText =
+    "position:fixed;inset:0;background:var(--cream);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px 24px;animation:fadeIn 0.3s ease both;";
   const profileColor = pkg.pcolor || "#2d6a4f";
 
   ov.innerHTML = `
@@ -8491,35 +8680,46 @@ async function showShareWelcomeScreen(pkg) {
     <div style="font-size:22px;font-weight:900;text-align:center;">${lc.shareWelcome}</div>
     <div style="font-size:20px;font-weight:800;color:${profileColor};text-align:center;">«${esc(pkg.pname || "")}»</div>
 
-    ${pkg.locked ? `
+    ${
+      pkg.locked
+        ? `
       <div style="font-size:16px;font-weight:800;color:var(--expense-color);text-align:center;">${lc.locked}</div>
       <button id="shareWelcomeCancel" style="background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:99px;padding:14px 28px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">${lc.cancel}</button>
-    ` : `
-      ${pkg.hasPwd ? `
+    `
+        : `
+      ${
+        pkg.hasPwd
+          ? `
         <div style="max-width:320px;width:100%;">
           <input type="password" id="shareLinkPwdIn" placeholder="${lc.pwdPh}" style="width:100%;padding:16px 18px;border-radius:16px;border:2px solid var(--cream-border);background:var(--card-bg);font-size:20px;text-align:center;letter-spacing:4px;font-family:inherit;outline:none;transition:border-color 0.2s;">
           <div id="sharePwdErrDiv" style="color:var(--expense-color);font-size:13px;text-align:center;margin-top:6px;min-height:18px;font-weight:700;"></div>
         </div>
-      ` : ""}
+      `
+          : ""
+      }
       <button id="joinProfileBtn" style="background:${profileColor};color:white;border:none;border-radius:99px;padding:18px 36px;font-size:18px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px ${profileColor}44;transition:all 0.2s;">${lc.join}</button>
       <button id="shareWelcomeCancel" style="background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:99px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">${lc.cancel}</button>
 
       <!-- Language switcher on welcome screen -->
       <div style="display:flex;gap:8px;margin-top:4px;">
-        ${["ru","en","ka"].map(l => `<button class="sw-lang-btn" data-lang="${l}" style="width:36px;height:36px;border-radius:50%;border:2px solid ${l===lang?"var(--primary)":"var(--cream-border)"};background:${l===lang?"var(--primary)":"var(--cream-dark)"};color:${l===lang?"white":"var(--text-muted)"};cursor:pointer;font-size:16px;transition:all 0.2s;">${l==="ru"?"🇷🇺":l==="en"?"🇬🇧":"🇬🇪"}</button>`).join("")}
+        ${["ru", "en", "ka"].map((l) => `<button class="sw-lang-btn" data-lang="${l}" style="width:36px;height:36px;border-radius:50%;border:2px solid ${l === lang ? "var(--primary)" : "var(--cream-border)"};background:${l === lang ? "var(--primary)" : "var(--cream-dark)"};color:${l === lang ? "white" : "var(--text-muted)"};cursor:pointer;font-size:16px;transition:all 0.2s;">${l === "ru" ? "🇷🇺" : l === "en" ? "🇬🇧" : "🇬🇪"}</button>`).join("")}
       </div>
-    `}
+    `
+    }
   `;
 
   document.body.appendChild(ov);
 
   // Cancel buttons
-  document.querySelectorAll("#shareWelcomeCancel").forEach(btn => {
-    btn.addEventListener("click", () => { ov.remove(); init(); });
+  document.querySelectorAll("#shareWelcomeCancel").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      ov.remove();
+      init();
+    });
   });
 
   // Language switch on welcome screen
-  document.querySelectorAll(".sw-lang-btn").forEach(btn => {
+  document.querySelectorAll(".sw-lang-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       setLanguage(btn.dataset.lang);
       ov.remove();
@@ -8534,15 +8734,27 @@ async function showShareWelcomeScreen(pkg) {
   const joinBtn = document.getElementById("joinProfileBtn");
   if (!joinBtn) return;
 
-  joinBtn.addEventListener("mouseenter", () => { joinBtn.style.transform = "scale(1.04) translateY(-2px)"; });
-  joinBtn.addEventListener("mouseleave", () => { joinBtn.style.transform = ""; });
+  joinBtn.addEventListener("mouseenter", () => {
+    joinBtn.style.transform = "scale(1.04) translateY(-2px)";
+  });
+  joinBtn.addEventListener("mouseleave", () => {
+    joinBtn.style.transform = "";
+  });
 
   joinBtn.addEventListener("click", async () => {
     if (pkg.hasPwd && pkg.pwHash) {
       const entered = pwdIn?.value || "";
-      if (!entered) { document.getElementById("sharePwdErrDiv").textContent = lc.pwdPh; return; }
+      if (!entered) {
+        document.getElementById("sharePwdErrDiv").textContent = lc.pwdPh;
+        return;
+      }
       const h = await hashSharePwd(entered);
-      if (h !== pkg.pwHash) { document.getElementById("sharePwdErrDiv").textContent = lc.pwdErr; pwdIn.style.borderColor="var(--expense-color)"; setTimeout(()=>pwdIn.style.borderColor="",1200); return; }
+      if (h !== pkg.pwHash) {
+        document.getElementById("sharePwdErrDiv").textContent = lc.pwdErr;
+        pwdIn.style.borderColor = "var(--expense-color)";
+        setTimeout(() => (pwdIn.style.borderColor = ""), 1200);
+        return;
+      }
     }
     joinBtn.textContent = lc.loading;
     joinBtn.disabled = true;
@@ -8550,25 +8762,56 @@ async function showShareWelcomeScreen(pkg) {
     const newId = "shared_" + pkg.shareId;
     let prof = profiles.find((p) => p.id === newId);
     if (!prof) {
-      prof = { id: newId, name: pkg.pname || "Shared", emoji: pkg.pemoji || "👤", color: pkg.pcolor || "#2563eb", isShared: true, shareCode: pkg.shareId, sharePerms: pkg.perms || { ...DEFAULT_PERMS } };
+      prof = {
+        id: newId,
+        name: pkg.pname || "Shared",
+        emoji: pkg.pemoji || "👤",
+        color: pkg.pcolor || "#2563eb",
+        isShared: true,
+        shareCode: pkg.shareId,
+        sharePerms: pkg.perms || { ...DEFAULT_PERMS },
+      };
       profiles.push(prof);
     }
     // SECURITY: Force role to "guest" — never allow owner/creator role via share link
     prof.role = "guest";
     // Clear any creator settings from localStorage for this session context
     // (creator settings are device-local, not transferred via link)
-    const empty = { transactions:[], startBalanceRub:0, notebookPages:[], categories:JSON.parse(JSON.stringify(window.initialCategories||{})), incomeCategories:{Зарплата:{subcats:[]},Подарок:{subcats:[]},Фриланс:{subcats:[]}}, calcHistory:[], convHistory:[], userTemplates:[], frequentStats:{}, categoryCustomizations:{}, categoryBudgets:{}, recurringOps:[] };
-    if (!localStorage.getItem("budget_profile_" + newId)) localStorage.setItem("budget_profile_" + newId, JSON.stringify(empty));
-    sharedAccessProfile = { profileId: newId, perms: pkg.perms || { ...DEFAULT_PERMS } };
+    const empty = {
+      transactions: [],
+      startBalanceRub: 0,
+      notebookPages: [],
+      categories: JSON.parse(JSON.stringify(window.initialCategories || {})),
+      incomeCategories: {
+        Зарплата: { subcats: [] },
+        Подарок: { subcats: [] },
+        Фриланс: { subcats: [] },
+      },
+      calcHistory: [],
+      convHistory: [],
+      userTemplates: [],
+      frequentStats: {},
+      categoryCustomizations: {},
+      categoryBudgets: {},
+      recurringOps: [],
+    };
+    if (!localStorage.getItem("budget_profile_" + newId))
+      localStorage.setItem("budget_profile_" + newId, JSON.stringify(empty));
+    sharedAccessProfile = {
+      profileId: newId,
+      perms: pkg.perms || { ...DEFAULT_PERMS },
+    };
     activeProfileId = newId;
     // Ensure no creator role leaks through
-    profiles.forEach(p => { if (p.id === newId) p.role = "guest"; });
+    profiles.forEach((p) => {
+      if (p.id === newId) p.role = "guest";
+    });
     saveGlobal();
     loadProfileData(newId);
     syncStartBalanceTransaction();
     ov.remove();
     init();
-    showToast("✅ " + (LL[currentLang]||LL.ru).guestMode + ": " + pkg.pname);
+    showToast("✅ " + (LL[currentLang] || LL.ru).guestMode + ": " + pkg.pname);
   });
 }
 
@@ -8664,7 +8907,10 @@ function openContactUrl(channel, contact, subject, body) {
 
 function openSupportModal() {
   // Always use the enhanced chat system
-  if (typeof openEnhancedSupportModal === "function") { openEnhancedSupportModal(); return; }
+  if (typeof openEnhancedSupportModal === "function") {
+    openEnhancedSupportModal();
+    return;
+  }
   const cs = getCreatorSettings();
   const canContact = cs.contactEnabled !== false;
   const preferPhone = cs.preferPhone === true;
@@ -9169,7 +9415,6 @@ function openSupportModal() {
 // ТОЧКА ВХОДА
 // ============================================================
 
-
 // ── Notification button handler — module-level for reliable Chrome PWA ──
 function updateNotifUI(enabled) {
   remindersEnabled = enabled;
@@ -9180,8 +9425,8 @@ function updateNotifUI(enabled) {
   if (btn) {
     const L = {
       ru: ["🔔 Включить напоминания", "🔕 Выключить напоминания"],
-      en: ["🔔 Enable reminders",     "🔕 Disable reminders"],
-      ka: ["🔔 შეხსენებების ჩართვა",  "🔕 შეხსენებების გამორთვა"],
+      en: ["🔔 Enable reminders", "🔕 Disable reminders"],
+      ka: ["🔔 შეხსენებების ჩართვა", "🔕 შეხსენებების გამორთვა"],
     }[currentLang] || ["🔔 Enable", "🔕 Disable"];
     btn.textContent = enabled ? L[1] : L[0];
     btn.style.background = enabled ? "var(--expense-color)" : "";
@@ -9189,20 +9434,40 @@ function updateNotifUI(enabled) {
   }
   const statusEl = document.getElementById("notifStatusBlock");
   if (statusEl) {
-    statusEl.style.background  = enabled ? "var(--income-pale)" : "var(--cream-dark)";
-    statusEl.style.borderColor = enabled ? "var(--income-color)" : "var(--cream-border)";
-    const iconEl  = statusEl.querySelector(".notif-icon");
+    statusEl.style.background = enabled
+      ? "var(--income-pale)"
+      : "var(--cream-dark)";
+    statusEl.style.borderColor = enabled
+      ? "var(--income-color)"
+      : "var(--cream-border)";
+    const iconEl = statusEl.querySelector(".notif-icon");
     const titleEl = statusEl.querySelector("[data-notif-title]");
-    if (iconEl)  iconEl.textContent  = enabled ? "🔔" : "🔕";
-    if (titleEl) titleEl.textContent = enabled
-      ? {ru:"Напоминания включены",en:"Reminders enabled",ka:"შეხსენებები ჩართულია"}[currentLang]
-      : {ru:"Напоминания выключены",en:"Reminders disabled",ka:"შეხსენებები გამორთულია"}[currentLang];
+    if (iconEl) iconEl.textContent = enabled ? "🔔" : "🔕";
+    if (titleEl)
+      titleEl.textContent = enabled
+        ? {
+            ru: "Напоминания включены",
+            en: "Reminders enabled",
+            ka: "შეხსენებები ჩართულია",
+          }[currentLang]
+        : {
+            ru: "Напоминания выключены",
+            en: "Reminders disabled",
+            ka: "შეხსენებები გამორთულია",
+          }[currentLang];
   }
 }
 
 function handleNotifBtnClick() {
   if (!("Notification" in window)) {
-    showToast({ru:"Уведомления недоступны. Используйте Chrome на Android или компьютере.",en:"Notifications unavailable. Use Chrome on Android or desktop.",ka:"Chrome გამოიყენეთ Android-ზე ან კომპიუტერზე."}[currentLang], "error");
+    showToast(
+      {
+        ru: "Уведомления недоступны. Используйте Chrome на Android или компьютере.",
+        en: "Notifications unavailable. Use Chrome on Android or desktop.",
+        ka: "Chrome გამოიყენეთ Android-ზე ან კომპიუტერზე.",
+      }[currentLang],
+      "error",
+    );
     return;
   }
   if (remindersEnabled) {
@@ -9214,7 +9479,16 @@ function handleNotifBtnClick() {
   if (Notification.permission === "granted") {
     startReminderTimer();
     updateNotifUI(true);
-    try { new Notification("🔔 БюджетPRO", {body:{ru:"Напоминания включены!",en:"Reminders enabled!",ka:"შეხსენებები ჩართულია!"}[currentLang]||"OK"}); } catch(e){}
+    try {
+      new Notification("🔔 БюджетPRO", {
+        body:
+          {
+            ru: "Напоминания включены!",
+            en: "Reminders enabled!",
+            ka: "შეხსენებები ჩართულია!",
+          }[currentLang] || "OK",
+      });
+    } catch (e) {}
     showToast(t("remindersPermissionGranted"), "success");
     return;
   }
@@ -9224,20 +9498,56 @@ function handleNotifBtnClick() {
   }
   // permission === "default" — show pending and request
   const btn = document.getElementById("notifEnableBtn");
-  if (btn) { btn.textContent = "⏳"; btn.disabled = true; }
+  if (btn) {
+    btn.textContent = "⏳";
+    btn.disabled = true;
+  }
 
-  Notification.requestPermission().then(p => {
+  Notification.requestPermission().then((p) => {
     if (p === "granted") {
       startReminderTimer();
       updateNotifUI(true);
-      try { new Notification("🔔 БюджетPRO", {body:{ru:"Готово! Напоминания работают.",en:"Done! Reminders are working.",ka:"მზადაა! შეხსენებები მუშაობს."}[currentLang]}); } catch(e){}
+      try {
+        new Notification("🔔 БюджетPRO", {
+          body: {
+            ru: "Готово! Напоминания работают.",
+            en: "Done! Reminders are working.",
+            ka: "მზადაა! შეხსენებები მუშაობს.",
+          }[currentLang],
+        });
+      } catch (e) {}
       showToast(t("remindersPermissionGranted"), "success");
     } else if (p === "denied") {
-      if (btn) { btn.disabled = false; btn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent =
+          "🔔 " +
+          {
+            ru: "Включить напоминания",
+            en: "Enable reminders",
+            ka: "შეხსენებების ჩართვა",
+          }[currentLang];
+      }
       openNotificationHelpModal();
     } else {
-      if (btn) { btn.disabled = false; btn.textContent = "🔔 " + {ru:"Включить напоминания",en:"Enable reminders",ka:"შეხსენებების ჩართვა"}[currentLang]; }
-      showToast({ru:"Нажмите «Разрешить» в запросе и повторите",en:"Tap 'Allow' in the prompt then try again",ka:"'Allow' დააჭირეთ და კვლავ სცადეთ"}[currentLang], "error");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent =
+          "🔔 " +
+          {
+            ru: "Включить напоминания",
+            en: "Enable reminders",
+            ka: "შეხსენებების ჩართვა",
+          }[currentLang];
+      }
+      showToast(
+        {
+          ru: "Нажмите «Разрешить» в запросе и повторите",
+          en: "Tap 'Allow' in the prompt then try again",
+          ka: "'Allow' დააჭირეთ და კვლავ სცადეთ",
+        }[currentLang],
+        "error",
+      );
     }
   });
 }
@@ -9246,35 +9556,80 @@ function openNotificationHelpModal() {
   const lang = currentLang;
   const steps = {
     ru: [
-      { browser:"Chrome / Android", steps:"1. Нажмите 🔒 в адресной строке\n2. Уведомления → Разрешить\n3. Перезагрузите страницу" },
-      { browser:"Safari / iPhone", steps:"1. Настройки → Safari → Уведомления\n2. Найдите motserelia.github.io\n3. Включите уведомления" },
-      { browser:"Firefox", steps:"1. Нажмите 🔒 → Разрешения\n2. Уведомления → Разрешить" },
+      {
+        browser: "Chrome / Android",
+        steps:
+          "1. Нажмите 🔒 в адресной строке\n2. Уведомления → Разрешить\n3. Перезагрузите страницу",
+      },
+      {
+        browser: "Safari / iPhone",
+        steps:
+          "1. Настройки → Safari → Уведомления\n2. Найдите motserelia.github.io\n3. Включите уведомления",
+      },
+      {
+        browser: "Firefox",
+        steps: "1. Нажмите 🔒 → Разрешения\n2. Уведомления → Разрешить",
+      },
     ],
     en: [
-      { browser:"Chrome / Android", steps:"1. Tap 🔒 in address bar\n2. Notifications → Allow\n3. Reload the page" },
-      { browser:"Safari / iPhone", steps:"1. Phone Settings → Safari → Notifications\n2. Find motserelia.github.io\n3. Enable notifications" },
-      { browser:"Firefox", steps:"1. Tap 🔒 → Permissions\n2. Notifications → Allow" },
+      {
+        browser: "Chrome / Android",
+        steps:
+          "1. Tap 🔒 in address bar\n2. Notifications → Allow\n3. Reload the page",
+      },
+      {
+        browser: "Safari / iPhone",
+        steps:
+          "1. Phone Settings → Safari → Notifications\n2. Find motserelia.github.io\n3. Enable notifications",
+      },
+      {
+        browser: "Firefox",
+        steps: "1. Tap 🔒 → Permissions\n2. Notifications → Allow",
+      },
     ],
     ka: [
-      { browser:"Chrome / Android", steps:"1. 🔒 მისამართის ველში\n2. შეტყობინებები → ნება\n3. გვერდის განახლება" },
-      { browser:"Safari / iPhone", steps:"1. პარამეტრები → Safari → შეტყობინებები\n2. motserelia.github.io\n3. ჩართვა" },
-      { browser:"Firefox", steps:"1. 🔒 → ნებართვები\n2. შეტყობინებები → ნება" },
+      {
+        browser: "Chrome / Android",
+        steps:
+          "1. 🔒 მისამართის ველში\n2. შეტყობინებები → ნება\n3. გვერდის განახლება",
+      },
+      {
+        browser: "Safari / iPhone",
+        steps:
+          "1. პარამეტრები → Safari → შეტყობინებები\n2. motserelia.github.io\n3. ჩართვა",
+      },
+      {
+        browser: "Firefox",
+        steps: "1. 🔒 → ნებართვები\n2. შეტყობინებები → ნება",
+      },
     ],
   };
   const items = steps[lang] || steps.ru;
-  const title = {ru:"🔔 Как включить уведомления",en:"🔔 How to enable notifications",ka:"🔔 შეტყობინებების ჩართვა"}[lang];
-  const okL = {ru:"Понятно",en:"Got it",ka:"გასაგებია"}[lang];
-  const html = "<div style='display:flex;flex-direction:column;gap:12px;'>" +
-    items.map((item, i) => `<div style="background:${i===0?"var(--primary-pale)":"var(--cream-dark)"};border-radius:14px;padding:14px;border-left:4px solid ${i===0?"var(--primary)":"var(--cream-border)"};">` +
-      `<div style="font-weight:800;font-size:14px;margin-bottom:6px;">${item.browser}</div>` +
-      `<div style="font-size:13px;line-height:1.8;white-space:pre-line;">${item.steps}</div>` +
-    `</div>`).join("") +
+  const title = {
+    ru: "🔔 Как включить уведомления",
+    en: "🔔 How to enable notifications",
+    ka: "🔔 შეტყობინებების ჩართვა",
+  }[lang];
+  const okL = { ru: "Понятно", en: "Got it", ka: "გასაგებია" }[lang];
+  const html =
+    "<div style='display:flex;flex-direction:column;gap:12px;'>" +
+    items
+      .map(
+        (item, i) =>
+          `<div style="background:${i === 0 ? "var(--primary-pale)" : "var(--cream-dark)"};border-radius:14px;padding:14px;border-left:4px solid ${i === 0 ? "var(--primary)" : "var(--cream-border)"};">` +
+          `<div style="font-weight:800;font-size:14px;margin-bottom:6px;">${item.browser}</div>` +
+          `<div style="font-size:13px;line-height:1.8;white-space:pre-line;">${item.steps}</div>` +
+          `</div>`,
+      )
+      .join("") +
     `<button class="btn-primary" id="notifHelpOk" style="width:100%;">${okL}</button>` +
-  "</div>";
+    "</div>";
   const modal = createModal("notifHelpModal", title, html);
   document.body.appendChild(modal);
   openModal("notifHelpModal");
-  document.getElementById("notifHelpOk")?.addEventListener("click", () => closeModal("notifHelpModal"));
+  document
+    .getElementById("notifHelpOk")
+    ?.addEventListener("click", () => closeModal("notifHelpModal"));
 }
 
 if (!checkShareLink()) {
@@ -9284,13 +9639,17 @@ if (!checkShareLink()) {
     init();
   }
 }
+setTimeout(updateOfflineBar, 600);
 
 // 4-click logo → Creator login
-let _logoClickCount = 0, _logoClickTimer = null;
+let _logoClickCount = 0,
+  _logoClickTimer = null;
 document.getElementById("appLogoBtn").addEventListener("click", () => {
   _logoClickCount++;
   clearTimeout(_logoClickTimer);
-  _logoClickTimer = setTimeout(() => { _logoClickCount = 0; }, 1200);
+  _logoClickTimer = setTimeout(() => {
+    _logoClickCount = 0;
+  }, 1200);
   if (_logoClickCount >= 4) {
     _logoClickCount = 0;
     clearTimeout(_logoClickTimer);
@@ -9340,14 +9699,39 @@ if (customReminderTimestamp) {
 // ============================================================
 function showCreatorLoginModal(prof) {
   const L = {
-    ru: { title: "Вход для создателя", hint: "Нажмите на логотип 4 раза, затем введите секретный ключ", label: "Секретный ключ", ph: "Введите ключ...", btn: "Войти", wrong: "❌ Неверный ключ", tip: "Подсказка: ключ хранится у разработчика" },
-    en: { title: "Creator Login", hint: "Tap the logo 4 times, then enter the secret key", label: "Secret key", ph: "Enter key...", btn: "Login", wrong: "❌ Wrong key", tip: "Hint: key is kept by the developer" },
-    ka: { title: "შემქმნელის შესვლა", hint: "დააჭირეთ ლოგოს 4-ჯერ, შემდეგ შეიყვანეთ საიდუმლო გასაღები", label: "საიდუმლო გასაღები", ph: "შეიყვანეთ გასაღები...", btn: "შესვლა", wrong: "❌ არასწორი გასაღები", tip: "მინიშნება: გასაღები ინახება შემქმნელთან" },
+    ru: {
+      title: "Вход для создателя",
+      hint: "Нажмите на логотип 4 раза, затем введите секретный ключ",
+      label: "Секретный ключ",
+      ph: "Введите ключ...",
+      btn: "Войти",
+      wrong: "❌ Неверный ключ",
+      tip: "Подсказка: ключ хранится у разработчика",
+    },
+    en: {
+      title: "Creator Login",
+      hint: "Tap the logo 4 times, then enter the secret key",
+      label: "Secret key",
+      ph: "Enter key...",
+      btn: "Login",
+      wrong: "❌ Wrong key",
+      tip: "Hint: key is kept by the developer",
+    },
+    ka: {
+      title: "შემქმნელის შესვლა",
+      hint: "დააჭირეთ ლოგოს 4-ჯერ, შემდეგ შეიყვანეთ საიდუმლო გასაღები",
+      label: "საიდუმლო გასაღები",
+      ph: "შეიყვანეთ გასაღები...",
+      btn: "შესვლა",
+      wrong: "❌ არასწორი გასაღები",
+      tip: "მინიშნება: გასაღები ინახება შემქმნელთან",
+    },
   };
   const lc = L[currentLang] || L.ru;
   const overlay = document.createElement("div");
   overlay.id = "creatorLoginOverlay";
-  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.2s ease both;";
+  overlay.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.2s ease both;";
   overlay.innerHTML = `
     <div style="background:var(--card-bg);border-radius:32px;padding:32px 28px;max-width:340px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.4);animation:slideUpBounce 0.4s cubic-bezier(0.34,1.56,0.64,1) both;border:2px solid var(--gold-border);">
       <div style="text-align:center;margin-bottom:24px;">
@@ -9364,7 +9748,7 @@ function showCreatorLoginModal(prof) {
       </div>
       <div id="creatorLoginError" style="display:none;background:var(--expense-pale);color:var(--expense-color);padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;margin-bottom:12px;text-align:center;"></div>
       <div style="display:flex;gap:10px;">
-        <button class="btn-secondary" id="creatorLoginCancel" style="flex:1;">${{ ru:"Отмена", en:"Cancel", ka:"გაუქმება" }[currentLang]}</button>
+        <button class="btn-secondary" id="creatorLoginCancel" style="flex:1;">${{ ru: "Отмена", en: "Cancel", ka: "გაუქმება" }[currentLang]}</button>
         <button class="btn-primary" id="creatorLoginBtn" style="flex:2;background:linear-gradient(135deg,var(--gold),#f59e0b);color:white;border:none;">${lc.btn} ✓</button>
       </div>
       <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:14px;">${lc.tip}</div>
@@ -9373,19 +9757,32 @@ function showCreatorLoginModal(prof) {
 
   const input = document.getElementById("creatorKeyInput");
   input.focus();
-  document.getElementById("toggleKeyVisibility").addEventListener("click", () => {
-    input.type = input.type === "password" ? "text" : "password";
+  document
+    .getElementById("toggleKeyVisibility")
+    .addEventListener("click", () => {
+      input.type = input.type === "password" ? "text" : "password";
+    });
+  document
+    .getElementById("creatorLoginCancel")
+    .addEventListener("click", () => overlay.remove());
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.remove();
   });
-  document.getElementById("creatorLoginCancel").addEventListener("click", () => overlay.remove());
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
 
   const tryLogin = () => {
     const val = input.value.trim();
     if (val === CREATOR_SECRET) {
       if (prof) prof.role = "owner";
-      saveGlobal(); updateHeader();
+      saveGlobal();
+      updateHeader();
       overlay.remove();
-      showToast({ ru:"👑 Режим создателя активирован!", en:"👑 Creator mode activated!", ka:"👑 შემქმნელის რეჟიმი ჩართულია!" }[currentLang]);
+      showToast(
+        {
+          ru: "👑 Режим создателя активирован!",
+          en: "👑 Creator mode activated!",
+          ka: "👑 შემქმნელის რეჟიმი ჩართულია!",
+        }[currentLang],
+      );
       haptic("success");
       if (currentTab === "settings") renderSettings();
       openSupportModal();
@@ -9395,23 +9792,31 @@ function showCreatorLoginModal(prof) {
       errDiv.textContent = lc.wrong;
       input.style.borderColor = "var(--expense-color)";
       input.style.animation = "shake 0.4s ease";
-      setTimeout(() => { input.style.borderColor = ""; input.style.animation = ""; }, 1000);
+      setTimeout(() => {
+        input.style.borderColor = "";
+        input.style.animation = "";
+      }, 1000);
       haptic("heavy");
     }
   };
-  document.getElementById("creatorLoginBtn").addEventListener("click", tryLogin);
-  input.addEventListener("keydown", (e) => { if (e.key === "Enter") tryLogin(); });
+  document
+    .getElementById("creatorLoginBtn")
+    .addEventListener("click", tryLogin);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") tryLogin();
+  });
 }
 
 function showCreatorExitModal(prof) {
   const L = {
-    ru: { title:"Выйти из режима создателя?", yes:"Выйти", no:"Остаться" },
-    en: { title:"Exit creator mode?", yes:"Exit", no:"Stay" },
-    ka: { title:"გასვლა შემქმნელის რეჟიმიდან?", yes:"გასვლა", no:"დარჩენა" },
+    ru: { title: "Выйти из режима создателя?", yes: "Выйти", no: "Остаться" },
+    en: { title: "Exit creator mode?", yes: "Exit", no: "Stay" },
+    ka: { title: "გასვლა შემქმნელის რეჟიმიდან?", yes: "გასვლა", no: "დარჩენა" },
   };
   const lc = L[currentLang] || L.ru;
   const overlay = document.createElement("div");
-  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:fadeIn 0.2s ease both;";
+  overlay.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:fadeIn 0.2s ease both;";
   overlay.innerHTML = `<div style="background:var(--card-bg);border-radius:28px;padding:28px;max-width:300px;width:88%;text-align:center;animation:slideUpBounce 0.35s cubic-bezier(0.34,1.56,0.64,1) both;">
     <div style="font-size:48px;margin-bottom:12px;">👑</div>
     <div style="font-size:18px;font-weight:800;margin-bottom:20px;">${lc.title}</div>
@@ -9421,14 +9826,28 @@ function showCreatorExitModal(prof) {
     </div>
   </div>`;
   document.body.appendChild(overlay);
-  document.getElementById("exitCrNo").addEventListener("click", () => overlay.remove());
+  document
+    .getElementById("exitCrNo")
+    .addEventListener("click", () => overlay.remove());
   document.getElementById("exitCrYes").addEventListener("click", () => {
-    if (prof) { prof.role = "user"; saveGlobal(); updateHeader(); }
+    if (prof) {
+      prof.role = "user";
+      saveGlobal();
+      updateHeader();
+    }
     overlay.remove();
-    showToast({ ru:"👋 Режим создателя выключен", en:"👋 Creator mode off", ka:"👋 შემქმნელის რეჟიმი გამორთულია" }[currentLang]);
+    showToast(
+      {
+        ru: "👋 Режим создателя выключен",
+        en: "👋 Creator mode off",
+        ka: "👋 შემქმნელის რეჟიმი გამორთულია",
+      }[currentLang],
+    );
     if (currentTab === "settings") renderSettings();
   });
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
 }
 
 // ============================================================
@@ -9439,14 +9858,22 @@ function updateSupportBadge() {
   if (!badge) return;
   // Count unread: creator sees unreplied msgs, user sees unreplied replies
   try {
-    const ownerProf = profiles.find(p => p.role === "owner");
-    if (!ownerProf) { badge.style.display = "none"; return; }
+    const ownerProf = profiles.find((p) => p.role === "owner");
+    if (!ownerProf) {
+      badge.style.display = "none";
+      return;
+    }
     const msgs = getAllMessages();
     let count = 0;
     if (isCreator()) {
-      count = msgs.filter(m => !m.readByCreator).length; // ALL unread, not just unreplied
+      count = msgs.filter((m) => !m.readByCreator).length; // ALL unread, not just unreplied
     } else {
-      count = msgs.filter(m => m.fromProfile === activeProfileId && m.creatorReply && !m.replyReadByUser).length;
+      count = msgs.filter(
+        (m) =>
+          m.fromProfile === activeProfileId &&
+          m.creatorReply &&
+          !m.replyReadByUser,
+      ).length;
     }
     if (count > 0) {
       badge.style.display = "flex";
@@ -9454,7 +9881,9 @@ function updateSupportBadge() {
     } else {
       badge.style.display = "none";
     }
-  } catch(e) { badge.style.display = "none"; }
+  } catch (e) {
+    badge.style.display = "none";
+  }
 }
 
 // ============================================================
@@ -9583,11 +10012,19 @@ const CREATOR_TEMPLATES = {
 
 function openEnhancedSupportModal() {
   const cs = getCreatorSettings();
-  if (isCreator()) { openCreatorChatPanel(); return; }
+  if (isCreator()) {
+    openCreatorChatPanel();
+    return;
+  }
   // Default: contactEnabled is TRUE unless explicitly set to false
   if (cs.contactEnabled === false) {
-    const L = { ru:"Поддержка временно недоступна", en:"Support temporarily unavailable", ka:"მხარდაჭერა მიუწვდომელია" };
-    showToast(L[currentLang] || L.ru, "error"); return;
+    const L = {
+      ru: "Поддержка временно недоступна",
+      en: "Support temporarily unavailable",
+      ka: "მხარდაჭერა მიუწვდომელია",
+    };
+    showToast(L[currentLang] || L.ru, "error");
+    return;
   }
   openUserChatPanel();
 }
@@ -9596,17 +10033,59 @@ function openEnhancedSupportModal() {
 // USER CHAT PANEL
 // ================================================================
 function openUserChatPanel() {
-  const ownerProf = profiles.find(p => p.role === "owner");
-  const ownerData = ownerProf ? JSON.parse(localStorage.getItem("budget_profile_" + ownerProf.id) || "{}") : {};
+  const ownerProf = profiles.find((p) => p.role === "owner");
+  const ownerData = ownerProf
+    ? JSON.parse(localStorage.getItem("budget_profile_" + ownerProf.id) || "{}")
+    : {};
   // Use central message store
   const allMsgs = getAllMessages();
-  const myMsgs = allMsgs.filter(m => m.fromProfile === activeProfileId);
+  const myMsgs = allMsgs.filter((m) => m.fromProfile === activeProfileId);
   const lang = currentLang;
 
   const L = {
-    ru: { title:"💬 Чат с разработчиком", send:"Отправить", ph:"Напишите сообщение...", empty:"Начните диалог! Выберите шаблон ниже или напишите свой вопрос.", catQ:"❓ Вопросы", catS:"🐛 Проблемы", catR:"💡 Просьбы / Отзывы", you:"Вы", dev:"Разработчик Ираклий", status:"обычно отвечает в течение 24ч", sent:"✅ Сообщение отправлено!", noName:"Введите своё имя" },
-    en: { title:"💬 Chat with developer", send:"Send", ph:"Type your message...", empty:"Start the chat! Choose a template below or write your own question.", catQ:"❓ Questions", catS:"🐛 Bug reports", catR:"💡 Requests / Reviews", you:"You", dev:"Developer Irakli", status:"usually responds within 24h", sent:"✅ Message sent!", noName:"Please enter your name" },
-    ka: { title:"💬 შემქმნელთან ჩატი", send:"გაგზავნა", ph:"დაწერეთ შეტყობინება...", empty:"დაიწყეთ ჩატი! აირჩიეთ შაბლონი ან ჩაწერეთ კითხვა.", catQ:"❓ კითხვები", catS:"🐛 შეცდომები", catR:"💡 თხოვნები / შეფასება", you:"თქვენ", dev:"შემქმნელი ირაკლი", status:"ჩვეულებრივ პასუხობს 24სთ-ში", sent:"✅ გაიგზავნა!", noName:"შეიყვანეთ სახელი" },
+    ru: {
+      title: "💬 Чат с разработчиком",
+      send: "Отправить",
+      ph: "Напишите сообщение...",
+      empty: "Начните диалог! Выберите шаблон ниже или напишите свой вопрос.",
+      catQ: "❓ Вопросы",
+      catS: "🐛 Проблемы",
+      catR: "💡 Просьбы / Отзывы",
+      you: "Вы",
+      dev: "Разработчик Ираклий",
+      status: "обычно отвечает в течение 24ч",
+      sent: "✅ Сообщение отправлено!",
+      noName: "Введите своё имя",
+    },
+    en: {
+      title: "💬 Chat with developer",
+      send: "Send",
+      ph: "Type your message...",
+      empty:
+        "Start the chat! Choose a template below or write your own question.",
+      catQ: "❓ Questions",
+      catS: "🐛 Bug reports",
+      catR: "💡 Requests / Reviews",
+      you: "You",
+      dev: "Developer Irakli",
+      status: "usually responds within 24h",
+      sent: "✅ Message sent!",
+      noName: "Please enter your name",
+    },
+    ka: {
+      title: "💬 შემქმნელთან ჩატი",
+      send: "გაგზავნა",
+      ph: "დაწერეთ შეტყობინება...",
+      empty: "დაიწყეთ ჩატი! აირჩიეთ შაბლონი ან ჩაწერეთ კითხვა.",
+      catQ: "❓ კითხვები",
+      catS: "🐛 შეცდომები",
+      catR: "💡 თხოვნები / შეფასება",
+      you: "თქვენ",
+      dev: "შემქმნელი ირაკლი",
+      status: "ჩვეულებრივ პასუხობს 24სთ-ში",
+      sent: "✅ გაიგზავნა!",
+      noName: "შეიყვანეთ სახელი",
+    },
   };
   const lc = L[lang] || L.ru;
   const tpl = USER_TEMPLATES[lang] || USER_TEMPLATES.ru;
@@ -9615,27 +10094,39 @@ function openUserChatPanel() {
   // Mark creator replies as read for this user
   let changed = false;
   const centralMsgsRead = getAllMessages();
-  centralMsgsRead.forEach(m => {
-    if (m.fromProfile === activeProfileId && m.creatorReply && !m.replyReadByUser) {
-      m.replyReadByUser = true; changed = true;
+  centralMsgsRead.forEach((m) => {
+    if (
+      m.fromProfile === activeProfileId &&
+      m.creatorReply &&
+      !m.replyReadByUser
+    ) {
+      m.replyReadByUser = true;
+      changed = true;
     }
   });
-  if (changed) { saveAllMessages(centralMsgsRead); updateSupportBadge(); }
+  if (changed) {
+    saveAllMessages(centralMsgsRead);
+    updateSupportBadge();
+  }
 
   const makeTplGroup = (catLabel, items) =>
     `<div style="margin-bottom:10px;">
       <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;">${catLabel}</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${items.map((txt, i) =>
-          `<button class="chat-tpl-btn" data-text="${txt.replace(/"/g,'&quot;')}"
-            style="font-size:11px;padding:6px 11px;border-radius:20px;border:1.5px solid var(--cream-border);background:var(--cream-dark);cursor:pointer;transition:all 0.2s;text-align:left;max-width:100%;white-space:normal;line-height:1.4;">${txt}</button>`
-        ).join("")}
+        ${items
+          .map(
+            (txt, i) =>
+              `<button class="chat-tpl-btn" data-text="${txt.replace(/"/g, "&quot;")}"
+            style="font-size:11px;padding:6px 11px;border-radius:20px;border:1.5px solid var(--cream-border);background:var(--cream-dark);cursor:pointer;transition:all 0.2s;text-align:left;max-width:100%;white-space:normal;line-height:1.4;">${txt}</button>`,
+          )
+          .join("")}
       </div>
     </div>`;
 
-  const feedHtml = myMsgs.length === 0
-    ? `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 10px;">${lc.empty}</div>`
-    : myMsgs.map(m => renderChatBubble(m, lc)).join("");
+  const feedHtml =
+    myMsgs.length === 0
+      ? `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 10px;">${lc.empty}</div>`
+      : myMsgs.map((m) => renderChatBubble(m, lc)).join("");
 
   const chatHtml = `
     <div style="display:flex;flex-direction:column;gap:0;">
@@ -9655,12 +10146,12 @@ function openUserChatPanel() {
       </div>
 
       <!-- Name input -->
-      <input type="text" id="chatUserName" class="modal-input" placeholder="${{ ru:'Ваше имя *', en:'Your name *', ka:'თქვენი სახელი *' }[lang]}" style="margin-bottom:10px;" value="${localStorage.getItem('chatUserName') || ''}">
+      <input type="text" id="chatUserName" class="modal-input" placeholder="${{ ru: "Ваше имя *", en: "Your name *", ka: "თქვენი სახელი *" }[lang]}" style="margin-bottom:10px;" value="${localStorage.getItem("chatUserName") || ""}">
 
       <!-- Templates accordion -->
       <details style="margin-bottom:10px;border-radius:14px;border:1.5px solid var(--cream-border);overflow:hidden;">
         <summary style="padding:10px 14px;font-size:12px;font-weight:800;color:var(--text-soft);cursor:pointer;background:var(--cream-dark);list-style:none;display:flex;align-items:center;gap:6px;">
-          <span>📌 ${{ ru:"Шаблоны сообщений", en:"Message templates", ka:"შეტყობინების შაბლონები" }[lang]}</span>
+          <span>📌 ${{ ru: "Шаблоны сообщений", en: "Message templates", ka: "შეტყობინების შაბლონები" }[lang]}</span>
           <span style="margin-left:auto;color:var(--text-muted);">▾</span>
         </summary>
         <div style="padding:12px 14px;background:var(--card-bg);">
@@ -9682,11 +10173,17 @@ function openUserChatPanel() {
   openModal("userChatModal");
 
   // Template click → fill textarea
-  document.querySelectorAll(".chat-tpl-btn").forEach(btn => {
+  document.querySelectorAll(".chat-tpl-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const area = document.getElementById("chatMsgInput");
-      if (area) { area.value = btn.dataset.text; area.focus(); }
-      document.querySelectorAll(".chat-tpl-btn").forEach(b => { b.style.background = "var(--cream-dark)"; b.style.borderColor = "var(--cream-border)"; });
+      if (area) {
+        area.value = btn.dataset.text;
+        area.focus();
+      }
+      document.querySelectorAll(".chat-tpl-btn").forEach((b) => {
+        b.style.background = "var(--cream-dark)";
+        b.style.borderColor = "var(--cream-border)";
+      });
       btn.style.background = "var(--primary-pale)";
       btn.style.borderColor = "var(--primary)";
     });
@@ -9695,8 +10192,11 @@ function openUserChatPanel() {
   // Send button
   const doSend = () => sendUserMessage(lc, ownerProf, ownerData, allMsgs);
   document.getElementById("chatSendBtn").addEventListener("click", doSend);
-  document.getElementById("chatMsgInput").addEventListener("keydown", e => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); doSend(); }
+  document.getElementById("chatMsgInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      doSend();
+    }
   });
 
   const feed = document.getElementById("userChatFeed");
@@ -9704,7 +10204,11 @@ function openUserChatPanel() {
 }
 
 function renderChatBubble(m, lc) {
-  const fmt = d => new Date(d).toLocaleString(currentLang === "ka" ? "ka-GE" : currentLang === "en" ? "en-US" : "ru-RU", { hour:"2-digit", minute:"2-digit", day:"numeric", month:"short" });
+  const fmt = (d) =>
+    new Date(d).toLocaleString(
+      currentLang === "ka" ? "ka-GE" : currentLang === "en" ? "en-US" : "ru-RU",
+      { hour: "2-digit", minute: "2-digit", day: "numeric", month: "short" },
+    );
   let html = `
     <div style="display:flex;justify-content:flex-end;">
       <div style="max-width:85%;background:linear-gradient(135deg,var(--primary),var(--primary-med));color:white;padding:10px 14px;border-radius:18px 18px 4px 18px;box-shadow:var(--shadow-sm);">
@@ -9738,15 +10242,112 @@ function renderChatBubble(m, lc) {
 // Setup: see creator panel → Telegram section for instructions
 // ════════════════════════════════════════════════════════════
 
+// ════════════════════════════════════════════════════════════
+// JSONBIN.IO RELAY — zero-config message transport
+// Creator sets up once: get free API key from jsonbin.io
+// Works across ALL devices without Firebase
+// ════════════════════════════════════════════════════════════
+function getJsonBinConfig() {
+  try {
+    return JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+
+async function jsonBinSaveMessages(msgs) {
+  const cfg = getJsonBinConfig();
+  if (!cfg.key) return false;
+  try {
+    const binId = cfg.binId;
+    if (binId) {
+      // Update existing bin
+      const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": cfg.key,
+        },
+        body: JSON.stringify({ messages: msgs, updated: Date.now() }),
+      });
+      return r.ok;
+    } else {
+      // Create new bin
+      const r = await fetch("https://api.jsonbin.io/v3/b", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Master-Key": cfg.key,
+          "X-Bin-Name": "BudgetPRO-Messages",
+          "X-Bin-Private": "false",
+        },
+        body: JSON.stringify({ messages: msgs, updated: Date.now() }),
+      });
+      if (r.ok) {
+        const data = await r.json();
+        const newBinId = data.metadata?.id;
+        if (newBinId) {
+          const newCfg = { ...cfg, binId: newBinId };
+          localStorage.setItem("budgetpro_jsonbin", JSON.stringify(newCfg));
+          // Share bin ID with users via a known key
+          localStorage.setItem("budgetpro_jsonbin_public_binid", newBinId);
+          console.log("✅ JSONBin created:", newBinId);
+        }
+      }
+      return r.ok;
+    }
+  } catch (e) {
+    console.warn("JSONBin save:", e.message);
+    return false;
+  }
+}
+
+async function jsonBinLoadMessages() {
+  const cfg = getJsonBinConfig();
+  const binId =
+    cfg.binId || localStorage.getItem("budgetpro_jsonbin_public_binid");
+  if (!binId) return null;
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+      headers: cfg.key ? { "X-Master-Key": cfg.key } : {},
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data.record?.messages || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Poll JSONBin every 30 seconds when messages panel is open
+let _jsonBinPoller = null;
+function startJsonBinPoller() {
+  if (_jsonBinPoller) return;
+  _jsonBinPoller = setInterval(async () => {
+    const msgs = await jsonBinLoadMessages();
+    if (msgs) {
+      try {
+        localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+      } catch (e) {}
+      updateSupportBadge();
+      refreshCreatorPanelIfOpen();
+      refreshUserPanelIfOpen();
+    }
+  }, 30000);
+}
+
 const MSG_KEY = "budgetpro_messages"; // local fallback
 
 // Firebase config — creator fills these in creator panel
 function getFirebaseConfig() {
-  try { return JSON.parse(localStorage.getItem("budgetpro_firebase") || "{}"); }
-  catch(e) { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem("budgetpro_firebase") || "{}");
+  } catch (e) {
+    return {};
+  }
 }
 
-let _fbDB = null;       // Firebase database reference
+let _fbDB = null; // Firebase database reference
 let _fbListener = null; // Active listener
 
 // Initialize Firebase if configured
@@ -9756,8 +10357,12 @@ async function initFirebase() {
   try {
     if (!window.firebase) {
       // Load Firebase SDK dynamically
-      await loadScript("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
-      await loadScript("https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js");
+      await loadScript(
+        "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js",
+      );
+      await loadScript(
+        "https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js",
+      );
     }
     if (!firebase.apps.length) {
       firebase.initializeApp({
@@ -9769,7 +10374,7 @@ async function initFirebase() {
     _fbDB = firebase.database();
     console.log("✅ Firebase connected:", cfg.databaseURL);
     return true;
-  } catch(e) {
+  } catch (e) {
     console.warn("Firebase init failed:", e.message);
     return false;
   }
@@ -9777,9 +10382,14 @@ async function initFirebase() {
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
     const s = document.createElement("script");
-    s.src = src; s.onload = resolve; s.onerror = reject;
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
     document.head.appendChild(s);
   });
 }
@@ -9793,21 +10403,50 @@ async function startRealtimeListener() {
     _fbListener = ref.on("value", (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
-      const msgs = Object.values(data).sort((a,b) => new Date(a.date) - new Date(b.date));
+      const msgs = Object.values(data).sort(
+        (a, b) => new Date(a.date) - new Date(b.date),
+      );
       // Save to localStorage as cache
-      try { localStorage.setItem(MSG_KEY, JSON.stringify(msgs)); } catch(e) {}
+      try {
+        localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+      } catch (e) {}
       updateSupportBadge();
       refreshCreatorPanelIfOpen();
       refreshUserPanelIfOpen();
     });
     console.log("✅ Real-time listener active");
-  } catch(e) {
+  } catch (e) {
     console.warn("Listener failed:", e.message);
   }
 }
 
 // Start listener when page loads
 setTimeout(startRealtimeListener, 1000);
+
+// Also pull from JSONBin on load
+setTimeout(async () => {
+  const msgs = await jsonBinLoadMessages();
+  if (msgs && msgs.length > 0) {
+    const localMsgs = getAllMessages();
+    // Merge: keep local + remote, deduplicate by id
+    const idSet = new Set(localMsgs.map((m) => m.id));
+    let changed = false;
+    msgs.forEach((m) => {
+      if (!idSet.has(m.id)) {
+        localMsgs.push(m);
+        changed = true;
+      }
+    });
+    if (changed) {
+      try {
+        localStorage.setItem(MSG_KEY, JSON.stringify(localMsgs));
+      } catch (e) {}
+      updateSupportBadge();
+    }
+  }
+  // Start polling if creator panel may open
+  if (isCreator()) startJsonBinPoller();
+}, 2000);
 
 // ── Local fallback (same device) ──────────────────────────────
 let _msgChannel = null;
@@ -9818,19 +10457,33 @@ try {
     refreshCreatorPanelIfOpen();
     refreshUserPanelIfOpen();
   };
-} catch(e) {}
+} catch (e) {}
 
 // getAllMessages defined above
 
 function saveAllMessages(msgs) {
   // SYNCHRONOUS localStorage save
-  try { localStorage.setItem(MSG_KEY, JSON.stringify(msgs)); } catch(e) { console.error("MSG save failed", e); }
-  console.log("[Messages] Saved", msgs.length, "messages to localStorage. Key:", MSG_KEY);
+  try {
+    localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+  } catch (e) {
+    console.error("MSG save failed", e);
+  }
+  console.log(
+    "[Messages] Saved",
+    msgs.length,
+    "messages to localStorage. Key:",
+    MSG_KEY,
+  );
   updateSupportBadge();
   refreshCreatorPanelIfOpen();
   refreshUserPanelIfOpen();
-  try { _msgChannel?.postMessage({ type: "msg_update", ts: Date.now() }); } catch(e) {}
+  try {
+    _msgChannel?.postMessage({ type: "msg_update", ts: Date.now() });
+  } catch (e) {}
   _saveToFirebase(msgs);
+  // Also sync to JSONBin if configured
+  const _jcfg = getJsonBinConfig();
+  if (_jcfg.key) jsonBinSaveMessages(msgs).catch(() => {});
 }
 
 function getAllMessages() {
@@ -9838,18 +10491,27 @@ function getAllMessages() {
     const raw = localStorage.getItem(MSG_KEY);
     const msgs = JSON.parse(raw || "[]");
     return msgs;
-  } catch(e) { return []; }
+  } catch (e) {
+    return [];
+  }
 }
 function _saveToFirebase(msgs) {
   const cfg = getFirebaseConfig();
   if (!cfg.databaseURL) return;
-  initFirebase().then(ok => {
+  initFirebase().then((ok) => {
     if (!ok || !_fbDB) return;
     try {
       const obj = {};
-      msgs.forEach(m => { obj[String(m.id).replace(/[.#$/\[\]]/g,"_")] = m; });
-      _fbDB.ref("budgetpro_messages").set(obj).catch(e => console.warn("FB write:", e.message));
-    } catch(e) { console.warn("Firebase save failed:", e); }
+      msgs.forEach((m) => {
+        obj[String(m.id).replace(/[.#$/\[\]]/g, "_")] = m;
+      });
+      _fbDB
+        .ref("budgetpro_messages")
+        .set(obj)
+        .catch((e) => console.warn("FB write:", e.message));
+    } catch (e) {
+      console.warn("Firebase save failed:", e);
+    }
   });
 }
 
@@ -9874,23 +10536,35 @@ function refreshCreatorPanelIfOpen() {
   const list = document.getElementById("creatorMsgList");
   if (!list) return;
 
-  const msgs = getAllMessages().sort((a,b) => new Date(b.date) - new Date(a.date));
-  console.log("[Messages] refreshCreatorPanel: total", msgs.length, "msgs in store");
+  const msgs = getAllMessages().sort(
+    (a, b) => new Date(b.date) - new Date(a.date),
+  );
+  console.log(
+    "[Messages] refreshCreatorPanel: total",
+    msgs.length,
+    "msgs in store",
+  );
   const lang = currentLang;
   const lc = {
-    ru:{empty:"Нет сообщений",new:"🆕",del:"🗑"},
-    en:{empty:"No messages",new:"🆕",del:"🗑"},
-    ka:{empty:"შეტყობინება არ არის",new:"🆕",del:"🗑"}
-  }[lang] || {empty:"No messages",new:"🆕",del:"🗑"};
+    ru: { empty: "Нет сообщений", new: "🆕", del: "🗑" },
+    en: { empty: "No messages", new: "🆕", del: "🗑" },
+    ka: { empty: "შეტყობინება არ არის", new: "🆕", del: "🗑" },
+  }[lang] || { empty: "No messages", new: "🆕", del: "🗑" };
 
-  const currentIds = new Set([...list.querySelectorAll(".creator-msg-card")].map(c => c.dataset.msgid));
-  const newMsgs = msgs.filter(m => !currentIds.has(String(m.id)));
+  const currentIds = new Set(
+    [...list.querySelectorAll(".creator-msg-card")].map((c) => c.dataset.msgid),
+  );
+  const newMsgs = msgs.filter((m) => !currentIds.has(String(m.id)));
   console.log("[Messages] New cards to render:", newMsgs.length);
 
   if (newMsgs.length === 0) {
     // Update count even if no new msgs
     const countEl = document.getElementById("crMsgCount");
-    if (countEl) countEl.textContent = msgs.length + " " + {ru:"сообщений",en:"messages",ka:"შეტყობინება"}[lang];
+    if (countEl)
+      countEl.textContent =
+        msgs.length +
+        " " +
+        { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
     return;
   }
 
@@ -9898,15 +10572,16 @@ function refreshCreatorPanelIfOpen() {
   list.querySelector("[data-empty='1']")?.remove();
   list.querySelector("[data-empty]")?.remove();
 
-  newMsgs.forEach(m => {
+  newMsgs.forEach((m) => {
     const dt = new Date(m.date).toLocaleString(
-      lang==="ka"?"ka-GE":lang==="en"?"en-US":"ru-RU",
-      {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}
+      lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+      { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
     );
     const card = document.createElement("div");
     card.className = "creator-msg-card";
     card.dataset.msgid = String(m.id);
-    card.style.cssText = "background:var(--card-bg);border-radius:16px;padding:14px;border:2px solid var(--primary);box-shadow:0 2px 16px rgba(45,106,79,0.12);animation:fadeUp 0.35s ease both;margin-bottom:10px;";
+    card.style.cssText =
+      "background:var(--card-bg);border-radius:16px;padding:14px;border:2px solid var(--primary);box-shadow:0 2px 16px rgba(45,106,79,0.12);animation:fadeUp 0.35s ease both;margin-bottom:10px;";
     card.innerHTML = `
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <div style="width:38px;height:38px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👤</div>
@@ -9923,32 +10598,46 @@ function refreshCreatorPanelIfOpen() {
 
     card.querySelector(".cr-del-inline")?.addEventListener("click", () => {
       const all = getAllMessages();
-      saveAllMessages(all.filter(x => String(x.id) !== String(m.id)));
+      saveAllMessages(all.filter((x) => String(x.id) !== String(m.id)));
       card.remove();
     });
   });
 
   // Update count
   const countEl = document.getElementById("crMsgCount");
-  if (countEl) countEl.textContent = msgs.length + " " + {ru:"сообщений",en:"messages",ka:"შეტყობინება"}[lang];
+  if (countEl)
+    countEl.textContent =
+      msgs.length +
+      " " +
+      { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
 }
 
 // Refresh user chat feed with new replies from creator
 function refreshUserPanelIfOpen() {
   const feed = document.getElementById("userChatFeed");
   if (!feed) return;
-  const msgs = getAllMessages().filter(m => m.fromProfile === activeProfileId);
-  msgs.forEach(m => {
+  const msgs = getAllMessages().filter(
+    (m) => m.fromProfile === activeProfileId,
+  );
+  msgs.forEach((m) => {
     if (m.creatorReply && !m.replyReadByUser) {
       // Check if reply bubble already shown
       const existingReply = feed.querySelector(`[data-reply-for="${m.id}"]`);
       if (!existingReply) {
         const lang = currentLang;
-        const devLabel = {ru:"Разработчик",en:"Developer",ka:"შემქმნელი"}[lang];
-        const dt = new Date(m.replyDate||m.date).toLocaleString(lang==="ka"?"ka-GE":lang==="en"?"en-US":"ru-RU",{hour:"2-digit",minute:"2-digit"});
+        const devLabel = {
+          ru: "Разработчик",
+          en: "Developer",
+          ka: "შემქმნელი",
+        }[lang];
+        const dt = new Date(m.replyDate || m.date).toLocaleString(
+          lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+          { hour: "2-digit", minute: "2-digit" },
+        );
         const bubble = document.createElement("div");
         bubble.dataset.replyFor = m.id;
-        bubble.style.cssText = "display:flex;gap:8px;align-items:flex-end;animation:fadeUp 0.3s ease both;";
+        bubble.style.cssText =
+          "display:flex;gap:8px;align-items:flex-end;animation:fadeUp 0.3s ease both;";
         bubble.innerHTML = `
           <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f59e0b);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👨‍💻</div>
           <div style="max-width:85%;background:var(--card-bg);border:1.5px solid var(--cream-border);padding:10px 14px;border-radius:18px 18px 18px 4px;box-shadow:var(--shadow-sm);">
@@ -9961,8 +10650,11 @@ function refreshUserPanelIfOpen() {
         // Mark as read
         m.replyReadByUser = true;
         const all = getAllMessages();
-        const idx = all.findIndex(x=>x.id===m.id);
-        if (idx>=0) { all[idx].replyReadByUser = true; saveAllMessages(all); }
+        const idx = all.findIndex((x) => x.id === m.id);
+        if (idx >= 0) {
+          all[idx].replyReadByUser = true;
+          saveAllMessages(all);
+        }
       }
     }
   });
@@ -9972,21 +10664,29 @@ function refreshUserPanelIfOpen() {
 // TELEGRAM BOT INTEGRATION — cross-device notifications
 // ─────────────────────────────────────────────────────────────
 function getTelegramConfig() {
-  try { return JSON.parse(localStorage.getItem("budgetpro_telegram") || "{}"); }
-  catch(e) { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem("budgetpro_telegram") || "{}");
+  } catch (e) {
+    return {};
+  }
 }
 
 async function sendTelegramMessage(text) {
   const cfg = getTelegramConfig();
   if (!cfg.token || !cfg.chatId) return false;
   try {
-    const r = await fetch(`https://api.telegram.org/bot${cfg.token}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chat_id: cfg.chatId, text, parse_mode: "HTML" })
-    });
+    const r = await fetch(
+      `https://api.telegram.org/bot${cfg.token}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: cfg.chatId, text, parse_mode: "HTML" }),
+      },
+    );
     return r.ok;
-  } catch(e) { return false; }
+  } catch (e) {
+    return false;
+  }
 }
 // ─────────────────────────────────────────────────────────────
 
@@ -9994,31 +10694,65 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgsDep) {
   // Block if creator disabled messages
   const _cs = getCreatorSettings();
   if (_cs.contactEnabled === false) {
-    showToast({ ru:"Создатель временно отключил приём сообщений", en:"Creator has disabled messages temporarily", ka:"შემქმნელმა შეტყობინებები გამორთო" }[currentLang], "error");
+    showToast(
+      {
+        ru: "Создатель временно отключил приём сообщений",
+        en: "Creator has disabled messages temporarily",
+        ka: "შემქმნელმა შეტყობინებები გამორთო",
+      }[currentLang],
+      "error",
+    );
     return;
   }
   const nameEl = document.getElementById("chatUserName");
-  const msgEl  = document.getElementById("chatMsgInput");
+  const msgEl = document.getElementById("chatMsgInput");
   const name = nameEl?.value.trim() || "";
-  const msg  = msgEl?.value.trim()  || "";
-  if (!name) { showToast(lc.noName, "error"); nameEl?.focus(); return; }
-  if (!msg)  { showToast({ ru:"Введите сообщение", en:"Enter a message", ka:"შეიყვანეთ შეტყობინება" }[currentLang], "error"); return; }
+  const msg = msgEl?.value.trim() || "";
+  if (!name) {
+    showToast(lc.noName, "error");
+    nameEl?.focus();
+    return;
+  }
+  if (!msg) {
+    showToast(
+      {
+        ru: "Введите сообщение",
+        en: "Enter a message",
+        ka: "შეიყვანეთ შეტყობინება",
+      }[currentLang],
+      "error",
+    );
+    return;
+  }
   localStorage.setItem("chatUserName", name);
 
   const newMsg = {
-    id: Date.now()+"_"+Math.random().toString(36).slice(2),
-    name, message: msg, email:"", phone:"", category:"chat",
+    id: Date.now() + "_" + Math.random().toString(36).slice(2),
+    name,
+    message: msg,
+    email: "",
+    phone: "",
+    category: "chat",
     date: new Date().toISOString(),
-    replied: false, readByCreator: false, replyReadByUser: false,
+    replied: false,
+    readByCreator: false,
+    replyReadByUser: false,
     fromProfile: activeProfileId,
-    fromProfileName: profiles.find(p=>p.id===activeProfileId)?.name || name,
-    creatorReply: null, replyDate: null,
+    fromProfileName:
+      profiles.find((p) => p.id === activeProfileId)?.name || name,
+    creatorReply: null,
+    replyDate: null,
   };
 
   // Save to central message store
   const allMsgs = getAllMessages();
   allMsgs.push(newMsg);
-  console.log("[Messages] User sending message:", newMsg.message, "ID:", newMsg.id);
+  console.log(
+    "[Messages] User sending message:",
+    newMsg.message,
+    "ID:",
+    newMsg.id,
+  );
   saveAllMessages(allMsgs);
   // Force immediate badge update
   setTimeout(updateSupportBadge, 100);
@@ -10031,45 +10765,122 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgsDep) {
     feed.scrollTop = feed.scrollHeight;
   }
   if (msgEl) msgEl.value = "";
-  document.querySelectorAll(".chat-tpl-btn").forEach(b => { b.style.background="var(--cream-dark)"; b.style.borderColor="var(--cream-border)"; });
+  document.querySelectorAll(".chat-tpl-btn").forEach((b) => {
+    b.style.background = "var(--cream-dark)";
+    b.style.borderColor = "var(--cream-border)";
+  });
   showToast(lc.sent, "success");
   haptic("success");
   // Send Telegram notification to creator (if configured)
-  sendTelegramMessage(`📬 <b>БюджетPRO</b>\nОт: ${name}\nСообщение: ${msg}`)
-    .then(ok => { if (ok) console.log("✅ Telegram notified"); });
+  sendTelegramMessage(
+    `📬 <b>БюджетPRO</b>\nОт: ${name}\nСообщение: ${msg}`,
+  ).then((ok) => {
+    if (ok) console.log("✅ Telegram notified");
+  });
 }
 
 // ================================================================
 // CREATOR CHAT PANEL — полноценный интерфейс ответов
 // ================================================================
 function openCreatorChatPanel() {
-  const ownerData = JSON.parse(localStorage.getItem("budget_profile_" + activeProfileId) || "{}");
+  const ownerData = JSON.parse(
+    localStorage.getItem("budget_profile_" + activeProfileId) || "{}",
+  );
   // Use central message store (single source of truth)
-  const msgs = getAllMessages().sort((a,b) => new Date(b.date) - new Date(a.date));
+  const msgs = getAllMessages().sort(
+    (a, b) => new Date(b.date) - new Date(a.date),
+  );
   // Backwards compat: also check old profile-based messages
   const oldProfileMsgs = ownerData.supportMessages || [];
   if (oldProfileMsgs.length > 0) {
-    const existingIds = new Set(msgs.map(m=>m.id));
+    const existingIds = new Set(msgs.map((m) => m.id));
     const merged = getAllMessages();
-    oldProfileMsgs.forEach(m => { if (!existingIds.has(m.id)) merged.push(m); });
-    if (merged.length > msgs.length) { saveAllMessages(merged); msgs.splice(0, msgs.length, ...merged.sort((a,b)=>new Date(b.date)-new Date(a.date))); }
+    oldProfileMsgs.forEach((m) => {
+      if (!existingIds.has(m.id)) merged.push(m);
+    });
+    if (merged.length > msgs.length) {
+      saveAllMessages(merged);
+      msgs.splice(
+        0,
+        msgs.length,
+        ...merged.sort((a, b) => new Date(b.date) - new Date(a.date)),
+      );
+    }
   }
   const lang = currentLang;
   const cs = getCreatorSettings();
-  const unread = msgs.filter(m => !m.readByCreator).length;
+  const unread = msgs.filter((m) => !m.readByCreator).length;
   if (unread > 0) {
     // Mark as read in localStorage directly - DON'T call saveAllMessages here
     // (it would trigger refreshCreatorPanelIfOpen on non-existent DOM)
-    msgs.forEach(m => { m.readByCreator = true; });
-    try { localStorage.setItem(MSG_KEY, JSON.stringify(msgs)); } catch(e){}
+    msgs.forEach((m) => {
+      m.readByCreator = true;
+    });
+    try {
+      localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+    } catch (e) {}
   }
   updateSupportBadge();
 
   const TT = CREATOR_TEMPLATES[lang] || CREATOR_TEMPLATES.ru;
   const L = {
-    ru: { title:"👑 Панель создателя", empty:"Нет входящих сообщений", del:"🗑", replyBtn:"💬 Ответить", editReply:"✏️ Изменить ответ", sendReply:"➤ Отправить ответ", cancelReply:"Отмена", replyPh:"Введите ответ...", catA:"✅ Ответы на вопросы", catC:"🔄 Подтверждения / Баги", catF:"💡 Просьбы / Отзывы", toggleLabel:"Приём сообщений", inAppLabel:"Сообщения в приложении", save:"💾 Сохранить настройки", exit:"🚪 Выйти из режима создателя", unreadBadge:"непрочитанных", new:"🆕" },
-    en: { title:"👑 Creator Panel", empty:"No incoming messages", del:"🗑", replyBtn:"💬 Reply", editReply:"✏️ Edit reply", sendReply:"➤ Send reply", cancelReply:"Cancel", replyPh:"Type your reply...", catA:"✅ Answers to questions", catC:"🔄 Bug confirmations", catF:"💡 Requests / Reviews", toggleLabel:"Accept messages", inAppLabel:"In-app messages", save:"💾 Save settings", exit:"🚪 Exit creator mode", unreadBadge:"unread", new:"🆕" },
-    ka: { title:"👑 შემქმნელის პანელი", empty:"შემოსული შეტყობინებები არ არის", del:"🗑", replyBtn:"💬 პასუხი", editReply:"✏️ შეცვლა", sendReply:"➤ გაგზავნა", cancelReply:"გაუქმება", replyPh:"ჩაწერეთ პასუხი...", catA:"✅ კითხვების პასუხები", catC:"🔄 შეცდომის დადასტურება", catF:"💡 თხოვნები / შეფასებები", toggleLabel:"შეტყობინებების მიღება", inAppLabel:"პროგრამაში შეტყობინება", save:"💾 შენახვა", exit:"🚪 რეჟიმიდან გასვლა", unreadBadge:"წაუკითხავი", new:"🆕" },
+    ru: {
+      title: "👑 Панель создателя",
+      empty: "Нет входящих сообщений",
+      del: "🗑",
+      replyBtn: "💬 Ответить",
+      editReply: "✏️ Изменить ответ",
+      sendReply: "➤ Отправить ответ",
+      cancelReply: "Отмена",
+      replyPh: "Введите ответ...",
+      catA: "✅ Ответы на вопросы",
+      catC: "🔄 Подтверждения / Баги",
+      catF: "💡 Просьбы / Отзывы",
+      toggleLabel: "Приём сообщений",
+      inAppLabel: "Сообщения в приложении",
+      save: "💾 Сохранить настройки",
+      exit: "🚪 Выйти из режима создателя",
+      unreadBadge: "непрочитанных",
+      new: "🆕",
+    },
+    en: {
+      title: "👑 Creator Panel",
+      empty: "No incoming messages",
+      del: "🗑",
+      replyBtn: "💬 Reply",
+      editReply: "✏️ Edit reply",
+      sendReply: "➤ Send reply",
+      cancelReply: "Cancel",
+      replyPh: "Type your reply...",
+      catA: "✅ Answers to questions",
+      catC: "🔄 Bug confirmations",
+      catF: "💡 Requests / Reviews",
+      toggleLabel: "Accept messages",
+      inAppLabel: "In-app messages",
+      save: "💾 Save settings",
+      exit: "🚪 Exit creator mode",
+      unreadBadge: "unread",
+      new: "🆕",
+    },
+    ka: {
+      title: "👑 შემქმნელის პანელი",
+      empty: "შემოსული შეტყობინებები არ არის",
+      del: "🗑",
+      replyBtn: "💬 პასუხი",
+      editReply: "✏️ შეცვლა",
+      sendReply: "➤ გაგზავნა",
+      cancelReply: "გაუქმება",
+      replyPh: "ჩაწერეთ პასუხი...",
+      catA: "✅ კითხვების პასუხები",
+      catC: "🔄 შეცდომის დადასტურება",
+      catF: "💡 თხოვნები / შეფასებები",
+      toggleLabel: "შეტყობინებების მიღება",
+      inAppLabel: "პროგრამაში შეტყობინება",
+      save: "💾 შენახვა",
+      exit: "🚪 რეჟიმიდან გასვლა",
+      unreadBadge: "წაუკითხავი",
+      new: "🆕",
+    },
   };
   const lc = L[lang] || L.ru;
 
@@ -10077,22 +10888,28 @@ function openCreatorChatPanel() {
     `<div style="margin-bottom:8px;">
       <div style="font-size:10px;font-weight:800;color:var(--primary);margin-bottom:4px;letter-spacing:0.4px;">${cat}</div>
       <div style="display:flex;flex-wrap:wrap;gap:5px;">
-        ${items.map((txt,i) =>
-          `<button class="cr-tpl cr-tpl-${msgId}" data-text="${txt.replace(/"/g,'&quot;')}"
-            style="font-size:10px;padding:4px 9px;border-radius:14px;border:1px solid var(--cream-border);background:var(--cream-dark);cursor:pointer;transition:all 0.15s;text-align:left;white-space:normal;line-height:1.4;">${txt}</button>`
-        ).join("")}
+        ${items
+          .map(
+            (txt, i) =>
+              `<button class="cr-tpl cr-tpl-${msgId}" data-text="${txt.replace(/"/g, "&quot;")}"
+            style="font-size:10px;padding:4px 9px;border-radius:14px;border:1px solid var(--cream-border);background:var(--cream-dark);cursor:pointer;transition:all 0.15s;text-align:left;white-space:normal;line-height:1.4;">${txt}</button>`,
+          )
+          .join("")}
       </div>
     </div>`;
 
   const renderMsg = (m) => {
     const isNew = !m.readByCreator;
-    const dt = new Date(m.date).toLocaleString(lang==="ka"?"ka-GE":lang==="en"?"en-US":"ru-RU",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+    const dt = new Date(m.date).toLocaleString(
+      lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+      { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
+    );
     const replyBoxId = `reply-box-${m.id}`;
-    const taId       = `reply-ta-${m.id}`;
-    const sendBtnId  = `reply-send-${m.id}`;
-    const cancelId   = `reply-cancel-${m.id}`;
+    const taId = `reply-ta-${m.id}`;
+    const sendBtnId = `reply-send-${m.id}`;
+    const cancelId = `reply-cancel-${m.id}`;
     return `
-      <div class="creator-msg-card" data-msgid="${m.id}" style="background:var(--card-bg);border-radius:18px;padding:16px;border:1.5px solid ${isNew?"var(--primary)":"var(--cream-border)"};box-shadow:${isNew?"var(--shadow-md)":"var(--shadow-sm)"};animation:fadeUp 0.3s ease both;">
+      <div class="creator-msg-card" data-msgid="${m.id}" style="background:var(--card-bg);border-radius:18px;padding:16px;border:1.5px solid ${isNew ? "var(--primary)" : "var(--cream-border)"};box-shadow:${isNew ? "var(--shadow-md)" : "var(--shadow-sm)"};animation:fadeUp 0.3s ease both;">
         <!-- Header row -->
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
           <div style="width:38px;height:38px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">👤</div>
@@ -10107,28 +10924,80 @@ function openCreatorChatPanel() {
         </div>
 
         <!-- User message bubble -->
+        <!-- JSONBin.io setup (easier alternative) -->
+        <div style="background:var(--primary-pale);border-radius:12px;padding:14px;margin-bottom:14px;border-left:4px solid var(--primary);">
+          <div style="font-weight:800;font-size:14px;margin-bottom:6px;">🪣 JSONBin.io — ${lang === "ru" ? "Простой вариант (рекомендуется)" : lang === "ka" ? "მარტივი ვარიანტი (რეკომენდებული)" : "Easy option (recommended)"}</div>
+          <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">
+            ${lang === "ru" ? "1. Зайдите на jsonbin.io → Зарегистрируйтесь бесплатно<br>2. API Keys → Create Access Key (выберите все права)<br>3. Вставьте ключ ниже и нажмите 💾" : lang === "ka" ? "1. jsonbin.io → უფასო რეგისტრაცია<br>2. API Keys → Create Access Key<br>3. ჩასვით გასაღები ქვემოთ" : "1. Go to jsonbin.io → Register free<br>2. API Keys → Create Access Key<br>3. Paste your key below"}
+          </div>
+          <div style="display:flex;gap:8px;">
+            <input id="jbKeyInput" class="modal-input" type="text" style="flex:1;font-size:12px;"
+              placeholder="${lang === "ru" ? "Ваш X-Master-Key из jsonbin.io" : lang === "ka" ? "X-Master-Key jsonbin.io-დან" : "Your X-Master-Key from jsonbin.io"}"
+              value="${(() => {
+                try {
+                  return (
+                    JSON.parse(
+                      localStorage.getItem("budgetpro_jsonbin") || "{}",
+                    ).key || ""
+                  );
+                } catch (e) {
+                  return "";
+                }
+              })()}">
+            <button id="jbSaveBtn" class="btn-primary" style="padding:12px 16px;font-size:13px;">💾</button>
+          </div>
+          <div id="jbStatus" style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+            ${(() => {
+              try {
+                const c = JSON.parse(
+                  localStorage.getItem("budgetpro_jsonbin") || "{}",
+                );
+                return c.binId
+                  ? "✅ Bin: " + c.binId
+                  : c.key
+                    ? lang === "ru"
+                      ? "Ключ сохранён, bin создастся при первом сообщении"
+                      : lang === "ka"
+                        ? "გასაღები შენახულია"
+                        : "Key saved, bin creates on first message"
+                    : lang === "ru"
+                      ? "Не настроено"
+                      : lang === "ka"
+                        ? "არ არის კონფიგურირებული"
+                        : "Not configured";
+              } catch (e) {
+                return "";
+              }
+            })()}
+          </div>
+        </div>
+
         <div style="background:var(--cream-dark);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:12px;">${esc(m.message)}</div>
 
         <!-- Existing reply (if any) -->
-        ${m.creatorReply ? `
+        ${
+          m.creatorReply
+            ? `
           <div class="cr-existing-reply-${m.id}" style="border-left:3px solid var(--primary);padding-left:12px;margin-bottom:10px;background:var(--primary-pale);border-radius:0 12px 12px 0;padding:10px 12px 10px 14px;">
-            <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang==="ru"?"Ваш ответ:":lang==="en"?"Your reply:":"თქვენი პასუხი:"}</div>
+            <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang === "ru" ? "Ваш ответ:" : lang === "en" ? "Your reply:" : "თქვენი პასუხი:"}</div>
             <div style="font-size:13px;color:var(--text);">${esc(m.creatorReply)}</div>
-          </div>` : ""}
+          </div>`
+            : ""
+        }
 
         <!-- Reply button (opens reply box) -->
         <div style="display:flex;gap:8px;align-items:center;">
           <button class="cr-reply-toggle btn-secondary" data-msgid="${m.id}" style="font-size:13px;padding:8px 16px;border-radius:20px;flex-shrink:0;">
             ${m.creatorReply ? lc.editReply : lc.replyBtn}
           </button>
-          ${m.replied ? `<span style="font-size:11px;color:var(--income-color);font-weight:700;">✓ ${ lang==="ru"?"Отвечено":lang==="en"?"Replied":"გაიგზავნა" }</span>` : ""}
+          ${m.replied ? `<span style="font-size:11px;color:var(--income-color);font-weight:700;">✓ ${lang === "ru" ? "Отвечено" : lang === "en" ? "Replied" : "გაიგზავნა"}</span>` : ""}
         </div>
 
         <!-- REPLY BOX (hidden by default, opens on button click) -->
         <div id="${replyBoxId}" style="display:none;margin-top:12px;border-top:1px solid var(--cream-border);padding-top:12px;">
           <!-- Template categories -->
           <div style="margin-bottom:10px;">
-            <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:8px;">📌 ${ lang==="ru"?"Шаблоны ответов":lang==="en"?"Reply templates":"პასუხის შაბლონები" }:</div>
+            <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:8px;">📌 ${lang === "ru" ? "Шаблоны ответов" : lang === "en" ? "Reply templates" : "პასუხის შაბლონები"}:</div>
             ${makeTplPills(m.id, lc.catA, TT.answers)}
             ${makeTplPills(m.id, lc.catC, TT.confirmations)}
             ${makeTplPills(m.id, lc.catF, TT.followups)}
@@ -10150,17 +11019,17 @@ function openCreatorChatPanel() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
       <div style="background:var(--gold-pale);border-radius:14px;padding:12px;border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:12px;font-weight:800;">${lc.toggleLabel}</div>
-        <label class="switch"><input type="checkbox" id="csToggle" ${cs.contactEnabled?"checked":""}><span class="slider"></span></label>
+        <label class="switch"><input type="checkbox" id="csToggle" ${cs.contactEnabled ? "checked" : ""}><span class="slider"></span></label>
       </div>
       <div style="background:var(--cream-dark);border-radius:14px;padding:12px;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:12px;font-weight:800;">${lc.inAppLabel}</div>
-        <label class="switch"><input type="checkbox" id="inAppToggle" ${cs.inAppMessages?"checked":""}><span class="slider"></span></label>
+        <label class="switch"><input type="checkbox" id="inAppToggle" ${cs.inAppMessages ? "checked" : ""}><span class="slider"></span></label>
       </div>
     </div>
 
     <!-- App URL field -->
     <div style="margin-bottom:12px;">
-      <label style="font-size:12px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:5px;">🔗 ${ {ru:"URL приложения для ссылок",en:"App URL for share links",ka:"აპის URL ბმულებისთვის"}[lang] }</label>
+      <label style="font-size:12px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:5px;">🔗 ${{ ru: "URL приложения для ссылок", en: "App URL for share links", ka: "აპის URL ბმულებისთვის" }[lang]}</label>
       <div style="display:flex;gap:8px;">
         <input type="url" id="creatorAppUrlInput" class="modal-input" value="${getAppUrl()}" placeholder="https://motserelia.github.io/BudgetPro/" style="flex:1;font-size:13px;">
         <button id="saveCreatorUrl" style="padding:0 14px;border-radius:14px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
@@ -10169,28 +11038,32 @@ function openCreatorChatPanel() {
 
     <!-- Firebase Realtime Database — CROSS-DEVICE REAL-TIME SYNC -->
     <div style="background:var(--balance-pale);border-radius:14px;padding:12px 14px;margin-bottom:10px;border-left:4px solid #ea4335;">
-      <div style="font-size:12px;font-weight:900;color:#ea4335;margin-bottom:8px;">🔥 Firebase — ${ {ru:"мгновенный чат с любого устройства (бесплатно!)",en:"instant chat from any device (free!)",ka:"მომენტური ჩატი ნებისმიერი მოწყობილობიდან (უფასო!)"}[lang] }</div>
+      <div style="font-size:12px;font-weight:900;color:#ea4335;margin-bottom:8px;">🔥 Firebase — ${{ ru: "мгновенный чат с любого устройства (бесплатно!)", en: "instant chat from any device (free!)", ka: "მომენტური ჩატი ნებისმიერი მოწყობილობიდან (უფასო!)" }[lang]}</div>
       <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px;line-height:1.6;background:var(--cream-dark);border-radius:10px;padding:8px 10px;">
-        <b>${{ru:"Как настроить (5 минут):",en:"Setup (5 min):",ka:"დაყენება (5 წთ):"}[lang]}</b><br>
-        ${ {ru:"1. console.firebase.google.com → Создать проект<br>2. Realtime Database → Создать → Тестовый режим<br>3. Скопируйте URL: <code>https://ВАШ-ПРОЕКТ.firebaseio.com</code><br>4. Вставьте ниже и нажмите 💾",
-            en:"1. console.firebase.google.com → Create project<br>2. Realtime Database → Create → Test mode<br>3. Copy URL: <code>https://YOUR-PROJECT.firebaseio.com</code><br>4. Paste below and tap 💾",
-            ka:"1. console.firebase.google.com → პროექტის შექმნა<br>2. Realtime Database → შექმნა → სატესტო რეჟიმი<br>3. URL კოპირება: <code>https://...</code><br>4. ჩასვით ქვემოთ და &#x1F4BE;"}[lang] }
+        <b>${{ ru: "Как настроить (5 минут):", en: "Setup (5 min):", ka: "დაყენება (5 წთ):" }[lang]}</b><br>
+        ${
+          {
+            ru: "1. console.firebase.google.com → Создать проект<br>2. Realtime Database → Создать → Тестовый режим<br>3. Скопируйте URL: <code>https://ВАШ-ПРОЕКТ.firebaseio.com</code><br>4. Вставьте ниже и нажмите 💾",
+            en: "1. console.firebase.google.com → Create project<br>2. Realtime Database → Create → Test mode<br>3. Copy URL: <code>https://YOUR-PROJECT.firebaseio.com</code><br>4. Paste below and tap 💾",
+            ka: "1. console.firebase.google.com → პროექტის შექმნა<br>2. Realtime Database → შექმნა → სატესტო რეჟიმი<br>3. URL კოპირება: <code>https://...</code><br>4. ჩასვით ქვემოთ და &#x1F4BE;",
+          }[lang]
+        }
       </div>
       <div style="display:flex;gap:6px;margin-bottom:6px;">
-        <input type="url" id="fbUrlInput" class="modal-input" value="${getFirebaseConfig().databaseURL||""}" placeholder="https://your-project-default-rtdb.firebaseio.com" style="font-size:11px;flex:1;">
+        <input type="url" id="fbUrlInput" class="modal-input" value="${getFirebaseConfig().databaseURL || ""}" placeholder="https://your-project-default-rtdb.firebaseio.com" style="font-size:11px;flex:1;">
         <button id="saveFbBtn" style="padding:8px 12px;border-radius:12px;background:#ea4335;color:white;border:none;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
         <button id="testFbBtn" style="padding:8px 10px;border-radius:12px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🧪</button>
       </div>
-      <div id="fbStatus" style="font-size:11px;color:var(--text-muted);min-height:16px;">${ _fbDB ? "✅ " + {ru:"Firebase подключён",en:"Firebase connected",ka:"Firebase დაკავშირებულია"}[lang] : "⚠️ " + {ru:"Не настроен",en:"Not configured",ka:"არ არის კონფიგურირებული"}[lang] }</div>
+      <div id="fbStatus" style="font-size:11px;color:var(--text-muted);min-height:16px;">${_fbDB ? "✅ " + { ru: "Firebase подключён", en: "Firebase connected", ka: "Firebase დაკავშირებულია" }[lang] : "⚠️ " + { ru: "Не настроен", en: "Not configured", ka: "არ არის კონფიგურირებული" }[lang]}</div>
     </div>
 
     <!-- Telegram Bot integration -->
     <div style="background:var(--cream-dark);border-radius:14px;padding:12px 14px;margin-bottom:14px;border-left:4px solid #2ca5e0;">
-      <div style="font-size:12px;font-weight:800;color:#2ca5e0;margin-bottom:8px;">✈️ Telegram — ${ {ru:"push-уведомления (дополнительно)",en:"push notifications (optional)",ka:"push შეტყობინებები (სურვილისამებრ)"}[lang] }</div>
+      <div style="font-size:12px;font-weight:800;color:#2ca5e0;margin-bottom:8px;">✈️ Telegram — ${{ ru: "push-уведомления (дополнительно)", en: "push notifications (optional)", ka: "push შეტყობინებები (სურვილისამებრ)" }[lang]}</div>
       <div style="display:flex;flex-direction:column;gap:6px;">
-        <input type="text" id="tgTokenInput" class="modal-input" value="${getTelegramConfig().token||""}" placeholder="Bot token: 1234567890:AAF..." style="font-size:11px;">
+        <input type="text" id="tgTokenInput" class="modal-input" value="${getTelegramConfig().token || ""}" placeholder="Bot token: 1234567890:AAF..." style="font-size:11px;">
         <div style="display:flex;gap:6px;">
-          <input type="text" id="tgChatInput" class="modal-input" value="${getTelegramConfig().chatId||""}" placeholder="Chat ID" style="font-size:11px;flex:1;">
+          <input type="text" id="tgChatInput" class="modal-input" value="${getTelegramConfig().chatId || ""}" placeholder="Chat ID" style="font-size:11px;flex:1;">
           <button id="saveTgBtn" style="padding:8px 12px;border-radius:12px;background:#2ca5e0;color:white;border:none;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
           <button id="testTgBtn" style="padding:8px 10px;border-radius:12px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🧪</button>
         </div>
@@ -10198,23 +11071,21 @@ function openCreatorChatPanel() {
     </div>
 
     <!-- Stats bar -->
-    <!-- Header bar -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-      <div id="crMsgCount" style="font-size:13px;font-weight:700;color:var(--text-muted);">${msgs.length} ${{ru:"сообщений",en:"messages",ka:"შეტყობინება"}[lang]}</div>
-      ${unread > 0 ? `<span style="background:var(--expense-color);color:white;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;">${unread} ${lc.unreadBadge}</span>` : `<span style="background:var(--income-pale);color:var(--income-color);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">✓</span>`}
-      <button id="crForceLoad" style="margin-left:auto;background:var(--primary);color:white;border:none;border-radius:16px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer;">🔄 ${{ru:"Загрузить",en:"Reload",ka:"განახლება"}[lang]}</button>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <div id="crMsgCount" style="font-size:13px;font-weight:700;color:var(--text-muted);">${msgs.length} ${{ ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang]}</div>
+      ${unread > 0 ? `<span style="background:var(--expense-color);color:white;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;">${unread} ${lc.unreadBadge}</span>` : `<span style="background:var(--income-pale);color:var(--income-color);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">✓ All read</span>`}
+      <button id="crRefreshBtn" title="${{ ru: "Обновить", en: "Refresh", ka: "განახლება" }[lang]}" style="margin-left:auto;background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">🔄 ${{ ru: "Обновить", en: "Refresh", ka: "განახლება" }[lang]}</button>
     </div>
-    <!-- Storage info for debugging -->
-    <div style="background:var(--cream-dark);border-radius:10px;padding:8px 12px;font-size:11px;color:var(--text-muted);margin-bottom:10px;border-left:3px solid var(--primary);">
-      ⚡ ${{ru:"Сообщения из этого браузера (localStorage). Другие устройства — только через Firebase",en:"Messages from this browser (localStorage). Other devices — Firebase only",ka:"ამ ბრაუზერიდან შეტყობინებები (localStorage). სხვა მოწყობილობები — Firebase"}[lang]}<br>
-      🔑 Key: <code style="font-family:monospace;background:var(--cream-border);padding:1px 4px;border-radius:4px;">budgetpro_messages</code> · <span id="crRawCount" style="font-weight:700;color:var(--primary);">${msgs.length}</span> items
-    </div>
+    <!-- Auto-refresh notice -->
+    <div id="crAutoRefresh" style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">⚡ ${{ ru: "Автообновление каждые 4 секунды", en: "Auto-refresh every 4 seconds", ka: "ავტო-განახლება 4 წამში" }[lang]}</div>
 
     <!-- Messages list -->
     <div id="creatorMsgList" style="display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;padding:2px 2px 2px 0;">
-      ${msgs.length === 0
-        ? `<div data-empty="1" style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div><div style="font-size:13px;margin-top:8px;color:var(--text-muted);">${{ru:"Сообщения обновляются автоматически каждые 4 секунды",en:"Messages refresh automatically every 4 seconds",ka:"შეტყობინებები განახლდება ავტომატურად 4 წამში"}[lang]}</div></div>`
-        : msgs.map(renderMsg).join("")}
+      ${
+        msgs.length === 0
+          ? `<div data-empty="1" style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div><div style="font-size:13px;margin-top:8px;color:var(--text-muted);">${{ ru: "Сообщения обновляются автоматически каждые 4 секунды", en: "Messages refresh automatically every 4 seconds", ka: "შეტყობინებები განახლდება ავტომატურად 4 წამში" }[lang]}</div></div>`
+          : msgs.map(renderMsg).join("")
+      }
     </div>
 
     <!-- Bottom actions -->
@@ -10230,14 +11101,27 @@ function openCreatorChatPanel() {
   // Auto-refresh every 2 seconds while panel is open
   const _creatorAutoRefresh = setInterval(() => {
     const list2 = document.getElementById("creatorMsgList");
-    if (!list2) { clearInterval(_creatorAutoRefresh); return; }
-    const freshMsgs2 = getAllMessages().sort((a,b) => new Date(b.date)-new Date(a.date));
-    const curIds2 = new Set([...list2.querySelectorAll(".creator-msg-card")].map(c=>c.dataset.msgid));
-    const newOnes = freshMsgs2.filter(m => !curIds2.has(String(m.id)));
+    if (!list2) {
+      clearInterval(_creatorAutoRefresh);
+      return;
+    }
+    const freshMsgs2 = getAllMessages().sort(
+      (a, b) => new Date(b.date) - new Date(a.date),
+    );
+    const curIds2 = new Set(
+      [...list2.querySelectorAll(".creator-msg-card")].map(
+        (c) => c.dataset.msgid,
+      ),
+    );
+    const newOnes = freshMsgs2.filter((m) => !curIds2.has(String(m.id)));
     if (newOnes.length > 0) {
       // New messages arrived — full re-render
       const cntEl = document.getElementById("crMsgCount");
-      if (cntEl) cntEl.textContent = freshMsgs2.length + " " + {ru:"сообщений",en:"messages",ka:"შეტყობინება"}[lang];
+      if (cntEl)
+        cntEl.textContent =
+          freshMsgs2.length +
+          " " +
+          { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
       list2.innerHTML = freshMsgs2.map(renderMsg).join("");
       reattach();
     }
@@ -10246,109 +11130,231 @@ function openCreatorChatPanel() {
 
   // Clean up interval when modal closes
   const origClose = window._closeCreatorModal;
-  modal.querySelector(".modal-close")?.addEventListener("click", () => clearInterval(_creatorAutoRefresh));
+  modal
+    .querySelector(".modal-close")
+    ?.addEventListener("click", () => clearInterval(_creatorAutoRefresh));
 
   // Save settings
   // Refresh messages in creator panel
-  // Force reload — reads fresh from localStorage
-  document.getElementById("crForceLoad")?.addEventListener("click", () => {
-    const freshMsgs = getAllMessages().sort((a,b) => new Date(b.date) - new Date(a.date));
-    console.log("[Creator] Force load:", freshMsgs.length, "messages from", MSG_KEY);
+  document.getElementById("crRefreshBtn")?.addEventListener("click", () => {
+    const freshMsgs = getAllMessages().sort(
+      (a, b) => new Date(b.date) - new Date(a.date),
+    );
     const list = document.getElementById("creatorMsgList");
     const countEl = document.getElementById("crMsgCount");
-    const rawEl = document.getElementById("crRawCount");
-    if (countEl) countEl.textContent = freshMsgs.length + " " + {ru:"сообщений",en:"messages",ka:"შეტყობინება"}[lang];
-    if (rawEl) rawEl.textContent = freshMsgs.length;
+    if (countEl)
+      countEl.textContent =
+        freshMsgs.length +
+        " " +
+        { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
     if (list) {
-      list.innerHTML = freshMsgs.length === 0
-        ? `<div data-empty="1" style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div></div>`
-        : freshMsgs.map(renderMsg).join("");
-      if (freshMsgs.length > 0) reattach();
+      if (freshMsgs.length === 0) {
+        list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div></div>`;
+      } else {
+        list.innerHTML = freshMsgs.map(renderMsg).join("");
+        reattach();
+      }
     }
-    showToast({ru:"✅ Загружено: " + freshMsgs.length + " сообщений",en:"✅ Loaded: " + freshMsgs.length + " messages",ka:"✅ ჩაიტვირთა: " + freshMsgs.length}[lang], "success");
+    showToast(
+      { ru: "✅ Обновлено", en: "✅ Refreshed", ka: "✅ განახლდა" }[lang],
+      "success",
+    );
   });
 
   document.getElementById("saveCS")?.addEventListener("click", () => {
     const en = document.getElementById("csToggle")?.checked;
     const inApp = document.getElementById("inAppToggle")?.checked;
-    localStorage.setItem("budgetpro_creator_settings", JSON.stringify({ ...cs, contactEnabled:en, inAppMessages:inApp }));
-    showToast({ ru:"✅ Настройки сохранены", en:"✅ Settings saved", ka:"✅ შენახულია" }[lang], "success");
+    localStorage.setItem(
+      "budgetpro_creator_settings",
+      JSON.stringify({ ...cs, contactEnabled: en, inAppMessages: inApp }),
+    );
+    showToast(
+      {
+        ru: "✅ Настройки сохранены",
+        en: "✅ Settings saved",
+        ka: "✅ შენახულია",
+      }[lang],
+      "success",
+    );
     closeModal("creatorChatModal");
     updateSupportBadge();
   });
 
   // Exit creator mode
   document.getElementById("exitCrMode").addEventListener("click", () => {
-    const prof = profiles.find(p => p.id === activeProfileId);
-    if (prof) { prof.role="user"; saveGlobal(); updateHeader(); }
+    const prof = profiles.find((p) => p.id === activeProfileId);
+    if (prof) {
+      prof.role = "user";
+      saveGlobal();
+      updateHeader();
+    }
     closeModal("creatorChatModal");
-    showToast({ ru:"👋 Режим создателя выключен", en:"👋 Creator mode off", ka:"👋 გამორთულია" }[lang]);
-    if (currentTab==="settings") renderSettings();
+    showToast(
+      {
+        ru: "👋 Режим создателя выключен",
+        en: "👋 Creator mode off",
+        ka: "👋 გამორთულია",
+      }[lang],
+    );
+    if (currentTab === "settings") renderSettings();
   });
 
   // Wire up per-message reply toggle, templates, send, delete
   const reattach = () => {
     // Save Firebase config
-    document.getElementById("saveFbBtn")?.addEventListener("click", async () => {
-      const url = document.getElementById("fbUrlInput")?.value.trim() || "";
-      if (url) {
-        const cfg = { databaseURL: url };
-        localStorage.setItem("budgetpro_firebase", JSON.stringify(cfg));
-        _fbDB = null; _fbListener = null; // reset to force re-init
-        const ok = await initFirebase();
-        const statusEl = document.getElementById("fbStatus");
-        if (ok) {
-          if (statusEl) statusEl.textContent = "✅ " + {ru:"Firebase подключён! Чат работает в реальном времени",en:"Firebase connected! Chat works in real-time",ka:"Firebase დაკავშირებულია! ჩატი მუშაობს"}[lang];
-          startRealtimeListener();
-          showToast({ru:"🔥 Firebase настроен! Теперь сообщения доходят мгновенно",en:"🔥 Firebase ready! Messages now arrive instantly",ka:"🔥 Firebase მზადაა! შეტყობინებები მყისიერია"}[lang], "success");
-        } else {
-          if (statusEl) statusEl.textContent = "❌ " + {ru:"Ошибка. Проверьте URL",en:"Error. Check the URL",ka:"შეცდომა. URL შეამოწმეთ"}[lang];
-          showToast({ru:"❌ Не удалось подключить Firebase",en:"❌ Firebase connection failed",ka:"❌ Firebase კავშირი ვერ მოხერხდა"}[lang], "error");
+    document
+      .getElementById("saveFbBtn")
+      ?.addEventListener("click", async () => {
+        const url = document.getElementById("fbUrlInput")?.value.trim() || "";
+        if (url) {
+          const cfg = { databaseURL: url };
+          localStorage.setItem("budgetpro_firebase", JSON.stringify(cfg));
+          _fbDB = null;
+          _fbListener = null; // reset to force re-init
+          const ok = await initFirebase();
+          const statusEl = document.getElementById("fbStatus");
+          if (ok) {
+            if (statusEl)
+              statusEl.textContent =
+                "✅ " +
+                {
+                  ru: "Firebase подключён! Чат работает в реальном времени",
+                  en: "Firebase connected! Chat works in real-time",
+                  ka: "Firebase დაკავშირებულია! ჩატი მუშაობს",
+                }[lang];
+            startRealtimeListener();
+            showToast(
+              {
+                ru: "🔥 Firebase настроен! Теперь сообщения доходят мгновенно",
+                en: "🔥 Firebase ready! Messages now arrive instantly",
+                ka: "🔥 Firebase მზადაა! შეტყობინებები მყისიერია",
+              }[lang],
+              "success",
+            );
+          } else {
+            if (statusEl)
+              statusEl.textContent =
+                "❌ " +
+                {
+                  ru: "Ошибка. Проверьте URL",
+                  en: "Error. Check the URL",
+                  ka: "შეცდომა. URL შეამოწმეთ",
+                }[lang];
+            showToast(
+              {
+                ru: "❌ Не удалось подключить Firebase",
+                en: "❌ Firebase connection failed",
+                ka: "❌ Firebase კავშირი ვერ მოხერხდა",
+              }[lang],
+              "error",
+            );
+          }
         }
-      }
-    });
-    document.getElementById("testFbBtn")?.addEventListener("click", async () => {
-      const ok = await initFirebase();
-      showToast(ok ? {ru:"✅ Firebase работает!",en:"✅ Firebase works!",ka:"✅ Firebase მუშაობს!"}[lang] : {ru:"❌ Firebase не подключён",en:"❌ Firebase not connected",ka:"❌ Firebase არ არის"}[lang], ok ? "success" : "error");
-    });
+      });
+    document
+      .getElementById("testFbBtn")
+      ?.addEventListener("click", async () => {
+        const ok = await initFirebase();
+        showToast(
+          ok
+            ? {
+                ru: "✅ Firebase работает!",
+                en: "✅ Firebase works!",
+                ka: "✅ Firebase მუშაობს!",
+              }[lang]
+            : {
+                ru: "❌ Firebase не подключён",
+                en: "❌ Firebase not connected",
+                ka: "❌ Firebase არ არის",
+              }[lang],
+          ok ? "success" : "error",
+        );
+      });
 
     // Save Telegram config
     document.getElementById("saveTgBtn")?.addEventListener("click", () => {
       const token = document.getElementById("tgTokenInput")?.value.trim() || "";
       const chatId = document.getElementById("tgChatInput")?.value.trim() || "";
-      localStorage.setItem("budgetpro_telegram", JSON.stringify({ token, chatId }));
-      showToast({ ru:"✅ Telegram настроен", en:"✅ Telegram configured", ka:"✅ Telegram კონფიგურირებულია" }[lang], "success");
+      localStorage.setItem(
+        "budgetpro_telegram",
+        JSON.stringify({ token, chatId }),
+      );
+      showToast(
+        {
+          ru: "✅ Telegram настроен",
+          en: "✅ Telegram configured",
+          ka: "✅ Telegram კონფიგურირებულია",
+        }[lang],
+        "success",
+      );
     });
-    document.getElementById("testTgBtn")?.addEventListener("click", async () => {
-      const ok = await sendTelegramMessage("🧪 БюджетPRO: тест / test / ტესტი ✅");
-      showToast(ok ? {ru:"✅ Telegram работает!",en:"✅ Telegram works!",ka:"✅ Telegram მუშაობს!"}[lang] : {ru:"❌ Проверьте токен и Chat ID",en:"❌ Check token and Chat ID",ka:"❌ შეამოწმეთ ტოკენი"}[lang], ok ? "success" : "error");
-    });
+    document
+      .getElementById("testTgBtn")
+      ?.addEventListener("click", async () => {
+        const ok = await sendTelegramMessage(
+          "🧪 БюджетPRO: тест / test / ტესტი ✅",
+        );
+        showToast(
+          ok
+            ? {
+                ru: "✅ Telegram работает!",
+                en: "✅ Telegram works!",
+                ka: "✅ Telegram მუშაობს!",
+              }[lang]
+            : {
+                ru: "❌ Проверьте токен и Chat ID",
+                en: "❌ Check token and Chat ID",
+                ka: "❌ შეამოწმეთ ტოკენი",
+              }[lang],
+          ok ? "success" : "error",
+        );
+      });
     // Save URL
     document.getElementById("saveCreatorUrl")?.addEventListener("click", () => {
       const rawVal = document.getElementById("creatorAppUrlInput")?.value || "";
       const urlVal = rawVal.trim();
       if (urlVal) {
         localStorage.setItem("budgetpro_app_url", urlVal);
-        showToast({ ru:"✅ URL сохранён! Теперь все ссылки используют: " + urlVal, en:"✅ URL saved! All links now use: " + urlVal, ka:"✅ URL შენახულია: " + urlVal }[lang], "success");
+        showToast(
+          {
+            ru: "✅ URL сохранён! Теперь все ссылки используют: " + urlVal,
+            en: "✅ URL saved! All links now use: " + urlVal,
+            ka: "✅ URL შენახულია: " + urlVal,
+          }[lang],
+          "success",
+        );
       } else {
         // Save empty string explicitly so getAppUrl() doesn't auto-detect
         localStorage.setItem("budgetpro_app_url", "");
-        showToast({ ru:"🗑 URL удалён — ссылки будут использовать адрес GitHub", en:"🗑 URL cleared — links will use auto-detected address", ka:"🗑 URL წაიშალა" }[lang]);
+        showToast(
+          {
+            ru: "🗑 URL удалён — ссылки будут использовать адрес GitHub",
+            en: "🗑 URL cleared — links will use auto-detected address",
+            ka: "🗑 URL წაიშალა",
+          }[lang],
+        );
       }
     });
     // Delete
-    document.querySelectorAll(".cr-del-btn").forEach(btn => {
+    document.querySelectorAll(".cr-del-btn").forEach((btn) => {
       btn.onclick = () => {
         const id = btn.dataset.msgid;
-        ownerData.supportMessages = (ownerData.supportMessages||[]).filter(m=>m.id!==id);
-        localStorage.setItem("budget_profile_" + activeProfileId, JSON.stringify(ownerData));
+        ownerData.supportMessages = (ownerData.supportMessages || []).filter(
+          (m) => m.id !== id,
+        );
+        localStorage.setItem(
+          "budget_profile_" + activeProfileId,
+          JSON.stringify(ownerData),
+        );
         btn.closest(".creator-msg-card")?.remove();
-        showToast("🗑 " + {ru:"Удалено",en:"Deleted",ka:"წაიშალა"}[lang]);
+        showToast(
+          "🗑 " + { ru: "Удалено", en: "Deleted", ka: "წაიშალა" }[lang],
+        );
       };
     });
 
     // Reply toggle (show/hide reply box)
-    document.querySelectorAll(".cr-reply-toggle").forEach(btn => {
+    document.querySelectorAll(".cr-reply-toggle").forEach((btn) => {
       btn.onclick = () => {
         const id = btn.dataset.msgid;
         const box = document.getElementById("reply-box-" + id);
@@ -10358,10 +11364,11 @@ function openCreatorChatPanel() {
         if (!isOpen) {
           const ta = document.getElementById("reply-ta-" + id);
           // Use central store (not stale ownerData)
-          const msgObj = getAllMessages().find(m => m.id === id);
-          if (ta && msgObj?.creatorReply && !ta.value) ta.value = msgObj.creatorReply;
+          const msgObj = getAllMessages().find((m) => m.id === id);
+          if (ta && msgObj?.creatorReply && !ta.value)
+            ta.value = msgObj.creatorReply;
           ta?.focus();
-          box.scrollIntoView({ behavior:"smooth", block:"nearest" });
+          box.scrollIntoView({ behavior: "smooth", block: "nearest" });
           // CRITICAL: rewire send/cancel now that box is visible
           setTimeout(() => reattach(), 50);
         }
@@ -10369,31 +11376,54 @@ function openCreatorChatPanel() {
     });
 
     // Template pills → fill textarea
-    document.querySelectorAll(".cr-tpl").forEach(btn => {
+    document.querySelectorAll(".cr-tpl").forEach((btn) => {
       btn.onclick = () => {
         const id = btn.className.match(/cr-tpl-([^\s]+)/)?.[1];
         if (!id) return;
         const ta = document.getElementById("reply-ta-" + id);
-        if (ta) { ta.value = btn.dataset.text; ta.focus(); }
-        document.querySelectorAll(`.cr-tpl-${id}`).forEach(b => { b.style.background="var(--cream-dark)"; b.style.borderColor="var(--cream-border)"; });
+        if (ta) {
+          ta.value = btn.dataset.text;
+          ta.focus();
+        }
+        document.querySelectorAll(`.cr-tpl-${id}`).forEach((b) => {
+          b.style.background = "var(--cream-dark)";
+          b.style.borderColor = "var(--cream-border)";
+        });
         btn.style.background = "var(--primary-pale)";
         btn.style.borderColor = "var(--primary)";
       };
     });
 
     // Send reply buttons
-    document.querySelectorAll("[id^='reply-send-']").forEach(sendBtn => {
+    document.querySelectorAll("[id^='reply-send-']").forEach((sendBtn) => {
       sendBtn.onclick = () => {
-        const id = sendBtn.id.replace("reply-send-","");
+        const id = sendBtn.id.replace("reply-send-", "");
         const ta = document.getElementById("reply-ta-" + id);
         const replyText = ta?.value.trim() || "";
-        if (!replyText) { showToast({ru:"Введите текст ответа",en:"Enter reply text",ka:"შეიყვანეთ პასუხი"}[lang],"error"); return; }
+        if (!replyText) {
+          showToast(
+            {
+              ru: "Введите текст ответа",
+              en: "Enter reply text",
+              ka: "შეიყვანეთ პასუხი",
+            }[lang],
+            "error",
+          );
+          return;
+        }
 
         // Get message from central store (not ownerData which may be stale)
         const centralAll = getAllMessages();
-        const centralIdx = centralAll.findIndex(m => m.id === id);
+        const centralIdx = centralAll.findIndex((m) => m.id === id);
         if (centralIdx < 0) {
-          showToast({ru:"Сообщение не найдено",en:"Message not found",ka:"შეტყობინება ვერ მოიძებნა"}[lang],"error");
+          showToast(
+            {
+              ru: "Сообщение не найдено",
+              en: "Message not found",
+              ka: "შეტყობინება ვერ მოიძებნა",
+            }[lang],
+            "error",
+          );
           return;
         }
         const msgObj = centralAll[centralIdx];
@@ -10410,28 +11440,81 @@ function openCreatorChatPanel() {
         const card = document.querySelector(`[data-msgid="${id}"]`);
         if (card) {
           const existingDiv = card.querySelector(`.cr-existing-reply-${id}`);
-          const newReplyHtml = `<div class="cr-existing-reply-${id}" style="border-left:3px solid var(--primary);margin-bottom:10px;background:var(--primary-pale);border-radius:0 12px 12px 0;padding:10px 12px 10px 14px;"><div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang==="ru"?"Ваш ответ:":lang==="en"?"Your reply:":"თქვენი პასუხი:"}</div><div style="font-size:13px;color:var(--text);">${esc(replyText)}</div></div>`;
+          const newReplyHtml = `<div class="cr-existing-reply-${id}" style="border-left:3px solid var(--primary);margin-bottom:10px;background:var(--primary-pale);border-radius:0 12px 12px 0;padding:10px 12px 10px 14px;"><div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang === "ru" ? "Ваш ответ:" : lang === "en" ? "Your reply:" : "თქვენი პასუხი:"}</div><div style="font-size:13px;color:var(--text);">${esc(replyText)}</div></div>`;
           if (existingDiv) existingDiv.outerHTML = newReplyHtml;
-          else card.querySelector(".cr-reply-toggle")?.insertAdjacentHTML("beforebegin", newReplyHtml);
+          else
+            card
+              .querySelector(".cr-reply-toggle")
+              ?.insertAdjacentHTML("beforebegin", newReplyHtml);
           const toggleBtn2 = card.querySelector(".cr-reply-toggle");
           if (toggleBtn2) toggleBtn2.textContent = lc.editReply;
         }
 
-        showToast({ru:"✅ Ответ отправлен!",en:"✅ Reply sent!",ka:"✅ გაიგზავნა!"}[lang],"success");
+        showToast(
+          {
+            ru: "✅ Ответ отправлен!",
+            en: "✅ Reply sent!",
+            ka: "✅ გაიგზავნა!",
+          }[lang],
+          "success",
+        );
         haptic("success");
         updateSupportBadge();
-        if (Notification.permission==="granted") new Notification("💬 " + {ru:`Ответ для ${msgObj.name}`,en:`Reply for ${msgObj.name}`,ka:`პასუხი ${msgObj.name}-სთვის`}[lang]);
+        if (Notification.permission === "granted")
+          new Notification(
+            "💬 " +
+              {
+                ru: `Ответ для ${msgObj.name}`,
+                en: `Reply for ${msgObj.name}`,
+                ka: `პასუხი ${msgObj.name}-სთვის`,
+              }[lang],
+          );
       };
     });
 
     // Cancel buttons
-    document.querySelectorAll("[id^='reply-cancel-']").forEach(btn => {
+    document.querySelectorAll("[id^='reply-cancel-']").forEach((btn) => {
       btn.onclick = () => {
-        const id = btn.id.replace("reply-cancel-","");
+        const id = btn.id.replace("reply-cancel-", "");
         const box = document.getElementById("reply-box-" + id);
         if (box) box.style.display = "none";
       };
     });
+
+    // JSONBin save button
+    document
+      .getElementById("jbSaveBtn")
+      ?.addEventListener("click", async () => {
+        const key = (document.getElementById("jbKeyInput")?.value || "").trim();
+        if (!key) {
+          showToast(lang === "ru" ? "Введите ключ" : "Enter key", "error");
+          return;
+        }
+        const cfg = { key };
+        localStorage.setItem("budgetpro_jsonbin", JSON.stringify(cfg));
+        showToast(
+          lang === "ru"
+            ? "✅ JSONBin ключ сохранён"
+            : lang === "ka"
+              ? "✅ გასაღები შენახულია"
+              : "✅ JSONBin key saved",
+        );
+        startJsonBinPoller();
+        const msgs = getAllMessages();
+        const ok = await jsonBinSaveMessages(msgs);
+        const cfg2 = JSON.parse(
+          localStorage.getItem("budgetpro_jsonbin") || "{}",
+        );
+        const stEl = document.getElementById("jbStatus");
+        if (stEl)
+          stEl.textContent = ok
+            ? "✅ Bin: " + (cfg2.binId || "created")
+            : lang === "ru"
+              ? "⚠️ Ошибка — проверьте ключ"
+              : lang === "ka"
+                ? "⚠️ შეცდომა"
+                : "⚠️ Error — check your key";
+      });
   };
   reattach();
 }
@@ -10443,56 +11526,83 @@ function openCreatorChatPanel() {
 // ============================================================
 const HELP_TIPS = {
   ru: {
-    balance: "💰 Баланс — это разница между всеми вашими доходами и расходами плюс начальная сумма.",
-    income: "📈 Доходы — все поступления денег: зарплата, фриланс, подарки и другие источники.",
-    expense: "📉 Расходы — все ваши траты: продукты, транспорт, коммуналка и прочее.",
-    salary: "💼 Начальная сумма — деньги, с которых вы начинаете учёт. Нажмите чтобы изменить.",
+    balance:
+      "💰 Баланс — это разница между всеми вашими доходами и расходами плюс начальная сумма.",
+    income:
+      "📈 Доходы — все поступления денег: зарплата, фриланс, подарки и другие источники.",
+    expense:
+      "📉 Расходы — все ваши траты: продукты, транспорт, коммуналка и прочее.",
+    salary:
+      "💼 Начальная сумма — деньги, с которых вы начинаете учёт. Нажмите чтобы изменить.",
     add: "➕ Нажмите чтобы добавить новую операцию — доход или расход.",
-    stats: "📊 Статистика показывает диаграммы расходов и доходов за выбранный период.",
-    tools: "🧮 Инструменты: калькулятор и конвертер валют с актуальными курсами.",
-    notebook: "📓 Блокнот — сохраняйте заметки, номера телефонов, планы и списки.",
-    categories: "🗂 Категории — управляйте списком категорий расходов и доходов.",
+    stats:
+      "📊 Статистика показывает диаграммы расходов и доходов за выбранный период.",
+    tools:
+      "🧮 Инструменты: калькулятор и конвертер валют с актуальными курсами.",
+    notebook:
+      "📓 Блокнот — сохраняйте заметки, номера телефонов, планы и списки.",
+    categories:
+      "🗂 Категории — управляйте списком категорий расходов и доходов.",
     settings: "⚙️ Настройки: тема, язык, валюта, PIN-защита, экспорт данных.",
-    datetime: "📅 Выберите дату и время для напоминания. Нажмите на поле чтобы открыть выбор.",
-    reminder: "🔔 Напоминания помогут не забыть записать траты. Выберите удобный интервал.",
+    datetime:
+      "📅 Выберите дату и время для напоминания. Нажмите на поле чтобы открыть выбор.",
+    reminder:
+      "🔔 Напоминания помогут не забыть записать траты. Выберите удобный интервал.",
     budget: "💰 Бюджеты — установите лимит расходов по категории на месяц.",
-    recurring: "🔄 Повторяющиеся операции добавляются автоматически (аренда, кредит и т.д.).",
+    recurring:
+      "🔄 Повторяющиеся операции добавляются автоматически (аренда, кредит и т.д.).",
     pin: "🔒 PIN-код защищает приложение от посторонних. Установите 4-значный код.",
     theme: "🎨 Выберите цветовую тему оформления из 6 вариантов.",
     currency: "💱 Выберите валюту для отображения сумм в интерфейсе.",
     export: "📤 Экспортируйте данные в CSV, JSON или PDF для архивирования.",
     profiles: "👥 Профили — отдельные бюджеты для каждого члена семьи.",
-    share: "🔗 Поделитесь профилем с другим человеком — он получит доступ к вашим данным.",
-    support: "💬 Напишите нам — создатель приложения лично ответит на ваш вопрос.",
+    share:
+      "🔗 Поделитесь профилем с другим человеком — он получит доступ к вашим данным.",
+    support:
+      "💬 Напишите нам — создатель приложения лично ответит на ваш вопрос.",
   },
   en: {
-    balance: "💰 Balance is the difference between all income and expenses plus your starting amount.",
-    income: "📈 Income — all money received: salary, freelance, gifts and other sources.",
-    expense: "📉 Expenses — all your spending: groceries, transport, utilities, etc.",
-    salary: "💼 Starting amount — money you begin tracking from. Tap to change.",
+    balance:
+      "💰 Balance is the difference between all income and expenses plus your starting amount.",
+    income:
+      "📈 Income — all money received: salary, freelance, gifts and other sources.",
+    expense:
+      "📉 Expenses — all your spending: groceries, transport, utilities, etc.",
+    salary:
+      "💼 Starting amount — money you begin tracking from. Tap to change.",
     add: "➕ Tap to add a new transaction — income or expense.",
-    stats: "📊 Statistics shows charts of expenses and income for the selected period.",
+    stats:
+      "📊 Statistics shows charts of expenses and income for the selected period.",
     tools: "🧮 Tools: calculator and currency converter with live rates.",
     notebook: "📓 Notebook — save notes, phone numbers, plans and lists.",
     categories: "🗂 Categories — manage your income and expense categories.",
-    settings: "⚙️ Settings: theme, language, currency, PIN protection, data export.",
-    datetime: "📅 Select a date and time for a reminder. Tap the field to open the picker.",
-    reminder: "🔔 Reminders help you remember to log expenses. Choose a convenient interval.",
+    settings:
+      "⚙️ Settings: theme, language, currency, PIN protection, data export.",
+    datetime:
+      "📅 Select a date and time for a reminder. Tap the field to open the picker.",
+    reminder:
+      "🔔 Reminders help you remember to log expenses. Choose a convenient interval.",
     budget: "💰 Budgets — set a monthly spending limit per category.",
-    recurring: "🔄 Recurring transactions are added automatically (rent, loan, etc.).",
+    recurring:
+      "🔄 Recurring transactions are added automatically (rent, loan, etc.).",
     pin: "🔒 PIN code protects the app from others. Set a 4-digit code.",
     theme: "🎨 Choose a color theme from 6 options.",
     currency: "💱 Choose the currency for displaying amounts in the interface.",
     export: "📤 Export data to CSV, JSON or PDF for archiving.",
     profiles: "👥 Profiles — separate budgets for each family member.",
     share: "🔗 Share your profile — another person gets access to your data.",
-    support: "💬 Contact us — the app creator will personally answer your question.",
+    support:
+      "💬 Contact us — the app creator will personally answer your question.",
   },
   ka: {
-    balance: "💰 ბალანსი — სხვაობა ყველა შემოსავალსა და ხარჯს შორის, პლუს საწყისი თანხა.",
-    income: "📈 შემოსავალი — ყველა შემოსული თანხა: ხელფასი, ფრილანსი, საჩუქრები.",
-    expense: "📉 ხარჯი — ყველა დახარჯული: საკვები, ტრანსპორტი, კომუნალური და სხვა.",
-    salary: "💼 საწყისი თანხა — ფული, საიდანაც იწყება თვლა. შეეხეთ შესაცვლელად.",
+    balance:
+      "💰 ბალანსი — სხვაობა ყველა შემოსავალსა და ხარჯს შორის, პლუს საწყისი თანხა.",
+    income:
+      "📈 შემოსავალი — ყველა შემოსული თანხა: ხელფასი, ფრილანსი, საჩუქრები.",
+    expense:
+      "📉 ხარჯი — ყველა დახარჯული: საკვები, ტრანსპორტი, კომუნალური და სხვა.",
+    salary:
+      "💼 საწყისი თანხა — ფული, საიდანაც იწყება თვლა. შეეხეთ შესაცვლელად.",
     add: "➕ შეეხეთ ახალი ოპერაციის დასამატებლად — შემოსავალი ან ხარჯი.",
     stats: "📊 სტატისტიკა — ხარჯების და შემოსავლების დიაგრამები.",
     tools: "🧮 ხელსაწყოები: კალკულატორი და ვალუტის კონვერტერი.",
@@ -10518,7 +11628,7 @@ function showHelpTooltip(key, targetEl) {
   if (!tip) return;
 
   // Remove existing
-  document.querySelectorAll(".help-tooltip-popup").forEach(e => e.remove());
+  document.querySelectorAll(".help-tooltip-popup").forEach((e) => e.remove());
 
   const rect = targetEl.getBoundingClientRect();
   const popup = document.createElement("div");
@@ -10535,19 +11645,35 @@ function showHelpTooltip(key, targetEl) {
   popup.style.left = left + "px";
 
   document.body.appendChild(popup);
-  document.getElementById("closeTipBtn")?.addEventListener("click", () => popup.remove());
-  setTimeout(() => { if (popup.parentNode) popup.remove(); }, 5000);
+  document
+    .getElementById("closeTipBtn")
+    ?.addEventListener("click", () => popup.remove());
+  setTimeout(() => {
+    if (popup.parentNode) popup.remove();
+  }, 5000);
 }
 
 function createHelpBtn(key, small = false) {
   const btn = document.createElement("button");
   btn.className = "help-q-btn";
   btn.innerHTML = "?";
-  btn.title = { ru:"Справка", en:"Help", ka:"დახმარება" }[currentLang] || "Help";
-  btn.style.cssText = `width:${small?18:22}px;height:${small?18:22}px;border-radius:50%;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:${small?10:12}px;font-weight:900;color:var(--text-muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;vertical-align:middle;margin-left:4px;`;
-  btn.addEventListener("click", (e) => { e.stopPropagation(); showHelpTooltip(key, btn); });
-  btn.addEventListener("mouseenter", () => { btn.style.background = "var(--primary)"; btn.style.color = "white"; btn.style.borderColor = "var(--primary)"; });
-  btn.addEventListener("mouseleave", () => { btn.style.background = "var(--cream-dark)"; btn.style.color = "var(--text-muted)"; btn.style.borderColor = "var(--cream-border)"; });
+  btn.title =
+    { ru: "Справка", en: "Help", ka: "დახმარება" }[currentLang] || "Help";
+  btn.style.cssText = `width:${small ? 18 : 22}px;height:${small ? 18 : 22}px;border-radius:50%;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:${small ? 10 : 12}px;font-weight:900;color:var(--text-muted);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;vertical-align:middle;margin-left:4px;`;
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    showHelpTooltip(key, btn);
+  });
+  btn.addEventListener("mouseenter", () => {
+    btn.style.background = "var(--primary)";
+    btn.style.color = "white";
+    btn.style.borderColor = "var(--primary)";
+  });
+  btn.addEventListener("mouseleave", () => {
+    btn.style.background = "var(--cream-dark)";
+    btn.style.color = "var(--text-muted)";
+    btn.style.borderColor = "var(--cream-border)";
+  });
   return btn;
 }
 
@@ -10578,7 +11704,9 @@ function injectNavHelpButtons() {
     { tab: "settings", key: "settings" },
   ];
   navMap.forEach(({ tab, key }) => {
-    const btn = document.querySelector(`.nav-btn[data-tab="${tab}"] .nav-label`);
+    const btn = document.querySelector(
+      `.nav-btn[data-tab="${tab}"] .nav-label`,
+    );
     if (btn && !btn.querySelector(".help-q-btn")) {
       btn.appendChild(createHelpBtn(key, true));
     }
@@ -10602,7 +11730,8 @@ function openConnectModal() {
     ru: {
       title: "🔗 Подключиться к чужому профилю",
       what: "Что это такое?",
-      whatDesc: "Эта функция позволяет войти в профиль другого человека (например, члена семьи) и видеть его данные или совместно вести бюджет.",
+      whatDesc:
+        "Эта функция позволяет войти в профиль другого человека (например, члена семьи) и видеть его данные или совместно вести бюджет.",
       howTitle: "Как получить ссылку?",
       steps: [
         "1️⃣ Попросите владельца профиля открыть приложение",
@@ -10616,14 +11745,16 @@ function openConnectModal() {
       codeLabel: "Код доступа (8 символов)",
       codePh: "Например: AB12CD34",
       btn: "Подключиться",
-      notFound: "❌ Профиль с таким кодом не найден. Проверьте код и попробуйте снова.",
+      notFound:
+        "❌ Профиль с таким кодом не найден. Проверьте код и попробуйте снова.",
       success: "✅ Успешно подключено!",
       tip: "💡 Ссылка быстрее и удобнее — просто нажать и войти без ввода кода!",
     },
     en: {
       title: "🔗 Connect to someone's profile",
       what: "What is this?",
-      whatDesc: "This lets you join another person's profile (e.g. a family member) to view their data or manage the budget together.",
+      whatDesc:
+        "This lets you join another person's profile (e.g. a family member) to view their data or manage the budget together.",
       howTitle: "How to get the link?",
       steps: [
         "1️⃣ Ask the profile owner to open the app",
@@ -10644,7 +11775,8 @@ function openConnectModal() {
     ka: {
       title: "🔗 სხვის პროფილთან დაკავშირება",
       what: "რა არის ეს?",
-      whatDesc: "ეს ფუნქცია საშუალებას გაძლევთ შეხვიდეთ სხვა პირის პროფილში (მაგ., ოჯახის წევრის) და ერთობლივად მართოთ ბიუჯეტი.",
+      whatDesc:
+        "ეს ფუნქცია საშუალებას გაძლევთ შეხვიდეთ სხვა პირის პროფილში (მაგ., ოჯახის წევრის) და ერთობლივად მართოთ ბიუჯეტი.",
       howTitle: "როგორ მივიღო ბმული?",
       steps: [
         "1️⃣ სთხოვეთ პროფილის მფლობელს გახსნას აპი",
@@ -10676,7 +11808,7 @@ function openConnectModal() {
     <div style="background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:14px;border-left:4px solid var(--primary);">
       <div style="font-weight:800;font-size:14px;color:var(--primary);margin-bottom:10px;">${lc.howTitle}</div>
       <div style="display:flex;flex-direction:column;gap:7px;">
-        ${lc.steps.map(s => `<div style="font-size:12px;color:var(--text-soft);line-height:1.5;">${s.startsWith("───") ? `<div style="text-align:center;color:var(--text-muted);font-size:11px;margin:2px 0;">${s}</div>` : s}</div>`).join("")}
+        ${lc.steps.map((s) => `<div style="font-size:12px;color:var(--text-soft);line-height:1.5;">${s.startsWith("───") ? `<div style="text-align:center;color:var(--text-muted);font-size:11px;margin:2px 0;">${s}</div>` : s}</div>`).join("")}
       </div>
     </div>
 
@@ -10699,29 +11831,52 @@ function openConnectModal() {
   openModal("connectModal");
 
   const codeInput = document.getElementById("connectCodeInput");
-  codeInput?.addEventListener("input", () => { codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g,""); });
+  codeInput?.addEventListener("input", () => {
+    codeInput.value = codeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  });
 
-  document.getElementById("connectCancel").addEventListener("click", () => closeModal("connectModal"));
+  document
+    .getElementById("connectCancel")
+    .addEventListener("click", () => closeModal("connectModal"));
 
   document.getElementById("connectDoBtn").addEventListener("click", () => {
     const code = codeInput?.value.trim().toUpperCase() || "";
-    if (!code || code.length < 4) { showToast(lc.notFound, "error"); return; }
-    const foundProf = profiles.find(p => {
-      const ss = p.shareSettings || JSON.parse(localStorage.getItem("shareSettings_" + p.id) || "{}");
-      return ss.shareId === code || (p.shareSettings?.shareId === code);
+    if (!code || code.length < 4) {
+      showToast(lc.notFound, "error");
+      return;
+    }
+    const foundProf = profiles.find((p) => {
+      const ss =
+        p.shareSettings ||
+        JSON.parse(localStorage.getItem("shareSettings_" + p.id) || "{}");
+      return ss.shareId === code || p.shareSettings?.shareId === code;
     });
     const errDiv = document.getElementById("connectError");
     if (!foundProf) {
       errDiv.style.display = "block";
       errDiv.textContent = lc.notFound;
       codeInput.style.borderColor = "var(--expense-color)";
-      setTimeout(() => { errDiv.style.display="none"; codeInput.style.borderColor=""; }, 3000);
+      setTimeout(() => {
+        errDiv.style.display = "none";
+        codeInput.style.borderColor = "";
+      }, 3000);
       return;
     }
     closeModal("connectModal");
     showToast(lc.success, "success");
     // Simulate share link entry
-    const fakePkg = { v:3, type:"share_link", shareId:code, pname:foundProf.name||"Profile", pemoji:foundProf.emoji||"👤", pcolor:foundProf.color||"#2d6a4f", perms:foundProf.shareSettings?.perms||{...DEFAULT_PERMS}, hasPwd:!!foundProf.shareSettings?.pwHash, pwHash:foundProf.shareSettings?.pwHash||null, locked:foundProf.shareSettings?.locked||false };
+    const fakePkg = {
+      v: 3,
+      type: "share_link",
+      shareId: code,
+      pname: foundProf.name || "Profile",
+      pemoji: foundProf.emoji || "👤",
+      pcolor: foundProf.color || "#2d6a4f",
+      perms: foundProf.shareSettings?.perms || { ...DEFAULT_PERMS },
+      hasPwd: !!foundProf.shareSettings?.pwHash,
+      pwHash: foundProf.shareSettings?.pwHash || null,
+      locked: foundProf.shareSettings?.locked || false,
+    };
     setTimeout(() => showShareWelcomeScreen(fakePkg), 300);
   });
 }
@@ -10836,7 +11991,9 @@ function ensureSupportButton() {
   btn.id = "headerSupportBtn";
   btn.style.cssText = "position:relative;overflow:visible;";
   btn.innerHTML = `💬<span id="supportBadge" style="position:absolute;top:-5px;right:-5px;background:#e53e3e;color:white;border-radius:50%;min-width:19px;height:19px;font-size:10px;font-weight:900;display:none;align-items:center;justify-content:center;border:2px solid var(--cream);padding:0 3px;line-height:1;z-index:2;"></span>`;
-  btn.title = { ru:"Поддержка", en:"Support", ka:"მხარდაჭერა" }[currentLang] || "Support";
+  btn.title =
+    { ru: "Поддержка", en: "Support", ka: "მხარდაჭერა" }[currentLang] ||
+    "Support";
   btn.setAttribute("aria-label", btn.title);
   btn.addEventListener("click", () => openEnhancedSupportModal());
   // Insert before guide button so it's visible
@@ -10854,7 +12011,6 @@ const _origInit = typeof init === "function" ? init : null;
 if (_origInit) {
   window._initHooked = true;
 }
-
 
 // ============================================================
 // ██████  НОВЫЕ ФУНКЦИИ — БЛОК v3.0
@@ -10875,22 +12031,82 @@ function showOnboarding() {
   const lang = currentLang;
   const slides = {
     ru: [
-      { emoji:"🌿", title:"Добро пожаловать в БюджетPRO!", sub:"Личный финансовый трекер. Офлайн · Без регистрации · Бесплатно", color:"var(--primary)" },
-      { emoji:"💸", title:"Записывайте расходы и доходы", sub:"Нажмите кнопку «+» внизу → выберите категорию → введите сумму. Готово!", color:"var(--expense-color)" },
-      { emoji:"📊", title:"Смотрите статистику", sub:"Вкладка «Статистика» — диаграммы, тренды, прогноз на месяц.", color:"#2563eb" },
-      { emoji:"🎯", title:"Ставьте бюджеты", sub:"Настройки → Бюджеты. Лимит по категории — приложение предупредит о превышении.", color:"var(--gold)" },
+      {
+        emoji: "🌿",
+        title: "Добро пожаловать в БюджетPRO!",
+        sub: "Личный финансовый трекер. Офлайн · Без регистрации · Бесплатно",
+        color: "var(--primary)",
+      },
+      {
+        emoji: "💸",
+        title: "Записывайте расходы и доходы",
+        sub: "Нажмите кнопку «+» внизу → выберите категорию → введите сумму. Готово!",
+        color: "var(--expense-color)",
+      },
+      {
+        emoji: "📊",
+        title: "Смотрите статистику",
+        sub: "Вкладка «Статистика» — диаграммы, тренды, прогноз на месяц.",
+        color: "#2563eb",
+      },
+      {
+        emoji: "🎯",
+        title: "Ставьте бюджеты",
+        sub: "Настройки → Бюджеты. Лимит по категории — приложение предупредит о превышении.",
+        color: "var(--gold)",
+      },
     ],
     en: [
-      { emoji:"🌿", title:"Welcome to BudgetPRO!", sub:"Personal finance tracker. Offline · No registration · Free", color:"var(--primary)" },
-      { emoji:"💸", title:"Track your income & expenses", sub:"Tap the «+» button at the bottom → choose category → enter amount. Done!", color:"var(--expense-color)" },
-      { emoji:"📊", title:"View your statistics", sub:"The «Stats» tab — charts, trends, monthly forecast.", color:"#2563eb" },
-      { emoji:"🎯", title:"Set spending budgets", sub:"Settings → Budgets. Set a limit per category — the app will warn you.", color:"var(--gold)" },
+      {
+        emoji: "🌿",
+        title: "Welcome to BudgetPRO!",
+        sub: "Personal finance tracker. Offline · No registration · Free",
+        color: "var(--primary)",
+      },
+      {
+        emoji: "💸",
+        title: "Track your income & expenses",
+        sub: "Tap the «+» button at the bottom → choose category → enter amount. Done!",
+        color: "var(--expense-color)",
+      },
+      {
+        emoji: "📊",
+        title: "View your statistics",
+        sub: "The «Stats» tab — charts, trends, monthly forecast.",
+        color: "#2563eb",
+      },
+      {
+        emoji: "🎯",
+        title: "Set spending budgets",
+        sub: "Settings → Budgets. Set a limit per category — the app will warn you.",
+        color: "var(--gold)",
+      },
     ],
     ka: [
-      { emoji:"🌿", title:"კეთილი იყოს თქვენი მობრძანება!", sub:"პირადი ფინანსური ტრეკერი. ოფლაინ · რეგისტრაციის გარეშე · უფასო", color:"var(--primary)" },
-      { emoji:"💸", title:"ჩაიწერეთ ხარჯები და შემოსავლები", sub:"«+» ღილაკი ქვემოთ → კატეგორია → თანხა. მზადაა!", color:"var(--expense-color)" },
-      { emoji:"📊", title:"ნახეთ სტატისტიკა", sub:"«სტატისტიკა» — დიაგრამები, ტრენდები, ყოველთვიური პროგნოზი.", color:"#2563eb" },
-      { emoji:"🎯", title:"დაადგინეთ ბიუჯეტები", sub:"პარამეტრები → ბიუჯეტები. ლიმიტი კატეგორიაში — გაფრთხილება გადაჭარბებისას.", color:"var(--gold)" },
+      {
+        emoji: "🌿",
+        title: "კეთილი იყოს თქვენი მობრძანება!",
+        sub: "პირადი ფინანსური ტრეკერი. ოფლაინ · რეგისტრაციის გარეშე · უფასო",
+        color: "var(--primary)",
+      },
+      {
+        emoji: "💸",
+        title: "ჩაიწერეთ ხარჯები და შემოსავლები",
+        sub: "«+» ღილაკი ქვემოთ → კატეგორია → თანხა. მზადაა!",
+        color: "var(--expense-color)",
+      },
+      {
+        emoji: "📊",
+        title: "ნახეთ სტატისტიკა",
+        sub: "«სტატისტიკა» — დიაგრამები, ტრენდები, ყოველთვიური პროგნოზი.",
+        color: "#2563eb",
+      },
+      {
+        emoji: "🎯",
+        title: "დაადგინეთ ბიუჯეტები",
+        sub: "პარამეტრები → ბიუჯეტები. ლიმიტი კატეგორიაში — გაფრთხილება გადაჭარბებისას.",
+        color: "var(--gold)",
+      },
     ],
   };
   const sl = slides[lang] || slides.ru;
@@ -10929,15 +12145,25 @@ function showOnboarding() {
 
   function renderSlide() {
     const s = sl[cur];
-    const dots = sl.map((_,i) => `<div style="width:${i===cur?28:8}px;height:8px;border-radius:99px;background:${i===cur?"var(--primary)":"var(--cream-border)"};transition:all 0.3s ease;flex-shrink:0;"></div>`).join("");
-    const langBtns = ["ru","en","ka"].map(l => `<button class="ob-lang-btn" data-l="${l}" style="width:32px;height:32px;border-radius:50%;border:2px solid ${l===lang?"var(--primary)":"var(--cream-border)"};background:${l===lang?"var(--primary)":"var(--cream-dark)"};color:${l===lang?"white":"var(--text-muted)"};font-size:15px;">${l==="ru"?"🇷🇺":l==="en"?"🇬🇧":"🇬🇪"}</button>`).join("");
+    const dots = sl
+      .map(
+        (_, i) =>
+          `<div style="width:${i === cur ? 28 : 8}px;height:8px;border-radius:99px;background:${i === cur ? "var(--primary)" : "var(--cream-border)"};transition:all 0.3s ease;flex-shrink:0;"></div>`,
+      )
+      .join("");
+    const langBtns = ["ru", "en", "ka"]
+      .map(
+        (l) =>
+          `<button class="ob-lang-btn" data-l="${l}" style="width:32px;height:32px;border-radius:50%;border:2px solid ${l === lang ? "var(--primary)" : "var(--cream-border)"};background:${l === lang ? "var(--primary)" : "var(--cream-dark)"};color:${l === lang ? "white" : "var(--text-muted)"};font-size:15px;">${l === "ru" ? "🇷🇺" : l === "en" ? "🇬🇧" : "🇬🇪"}</button>`,
+      )
+      .join("");
 
     ov.innerHTML = `
       <!-- Top bar -->
       <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;padding-bottom:8px;flex-shrink:0;">
         <div style="display:flex;gap:8px;align-items:center;">${langBtns}</div>
         <button id="obSkip" style="background:none;border:none;color:var(--text-muted);font-size:14px;font-weight:700;padding:8px 4px;min-width:60px;text-align:right;">
-          ${{ru:"Пропустить",en:"Skip",ka:"გამოტოვება"}[lang]}
+          ${{ ru: "Пропустить", en: "Skip", ka: "გამოტოვება" }[lang]}
         </button>
       </div>
 
@@ -10954,22 +12180,26 @@ function showOnboarding() {
         <div style="display:flex;justify-content:center;gap:8px;margin-bottom:20px;">${dots}</div>
         <!-- Next / Start button -->
         <button id="obNext" style="width:100%;padding:17px;border-radius:var(--radius-xl);background:${s.color};color:white;border:none;font-size:16px;font-weight:900;box-shadow:0 8px 24px ${s.color}33;margin-bottom:10px;">
-          ${cur < sl.length-1 ? {ru:"Далее →",en:"Next →",ka:"შემდეგი →"}[lang] : {ru:"Начать! 🚀",en:"Start! 🚀",ka:"დაწყება! 🚀"}[lang]}
+          ${cur < sl.length - 1 ? { ru: "Далее →", en: "Next →", ka: "შემდეგი →" }[lang] : { ru: "Начать! 🚀", en: "Start! 🚀", ka: "დაწყება! 🚀" }[lang]}
         </button>
         <!-- Slide counter -->
-        <div style="text-align:center;font-size:12px;color:var(--text-muted);font-weight:600;">${cur+1} / ${sl.length}</div>
+        <div style="text-align:center;font-size:12px;color:var(--text-muted);font-weight:600;">${cur + 1} / ${sl.length}</div>
       </div>`;
 
     // Wire buttons — use querySelector within ov, not document.getElementById
     // to avoid conflicts with other page elements
     ov.querySelector("#obSkip").addEventListener("click", finishOnboarding);
     ov.querySelector("#obNext").addEventListener("click", () => {
-      if (cur < sl.length - 1) { cur++; renderSlide(); }
-      else finishOnboarding();
+      if (cur < sl.length - 1) {
+        cur++;
+        renderSlide();
+      } else finishOnboarding();
     });
-    ov.querySelectorAll(".ob-lang-btn").forEach(btn => {
+    ov.querySelectorAll(".ob-lang-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        try { setLanguage(btn.dataset.l); } catch(e) {}
+        try {
+          setLanguage(btn.dataset.l);
+        } catch (e) {}
         ov.remove();
         showOnboarding();
       });
@@ -10977,9 +12207,15 @@ function showOnboarding() {
   }
 
   function finishOnboarding() {
-    try { localStorage.setItem("onboarding_done", "1"); } catch(e) {}
+    try {
+      localStorage.setItem("onboarding_done", "1");
+    } catch (e) {}
     ov.style.animation = "obFadeOut 0.25s ease forwards";
-    setTimeout(() => { try { ov.remove(); } catch(e) {} }, 280);
+    setTimeout(() => {
+      try {
+        ov.remove();
+      } catch (e) {}
+    }, 280);
   }
 
   document.body.appendChild(ov);
@@ -10987,35 +12223,53 @@ function showOnboarding() {
 }
 
 // Show onboarding after first init
-setTimeout(() => { if (shouldShowOnboarding()) showOnboarding(); }, 600);
+setTimeout(() => {
+  if (shouldShowOnboarding()) showOnboarding();
+}, 600);
 
 // ──────────────────────────────────────────────────────────────
 // 2. СВАЙП СНИЗУ ВВЕРХ — быстрое добавление операции
 // ──────────────────────────────────────────────────────────────
 (function initSwipeToAdd() {
-  let startY = 0, startTime = 0;
+  let startY = 0,
+    startTime = 0;
   const THRESHOLD = 90; // px
   const MAX_DURATION = 350; // ms
 
-  document.addEventListener("touchstart", (e) => {
-    const touch = e.touches[0];
-    startY = touch.clientY;
-    startTime = Date.now();
-  }, { passive: true });
+  document.addEventListener(
+    "touchstart",
+    (e) => {
+      const touch = e.touches[0];
+      startY = touch.clientY;
+      startTime = Date.now();
+    },
+    { passive: true },
+  );
 
-  document.addEventListener("touchend", (e) => {
-    const touch = e.changedTouches[0];
-    const dy = startY - touch.clientY; // positive = swipe up
-    const dt = Date.now() - startTime;
-    // Only trigger from bottom 30% of screen, fast upward swipe
-    if (dy > THRESHOLD && dt < MAX_DURATION && startY > window.innerHeight * 0.65) {
-      // Don't trigger if a modal is open or inside a scrollable area
-      if (document.querySelector(".modal-overlay.open")) return;
-      if (e.target.closest(".modal, .modal-overlay, .bottom-nav, #mainContent")) return;
-      // Trigger FAB
-      document.getElementById("fabBtn")?.click();
-    }
-  }, { passive: true });
+  document.addEventListener(
+    "touchend",
+    (e) => {
+      const touch = e.changedTouches[0];
+      const dy = startY - touch.clientY; // positive = swipe up
+      const dt = Date.now() - startTime;
+      // Only trigger from bottom 30% of screen, fast upward swipe
+      if (
+        dy > THRESHOLD &&
+        dt < MAX_DURATION &&
+        startY > window.innerHeight * 0.65
+      ) {
+        // Don't trigger if a modal is open or inside a scrollable area
+        if (document.querySelector(".modal-overlay.open")) return;
+        if (
+          e.target.closest(".modal, .modal-overlay, .bottom-nav, #mainContent")
+        )
+          return;
+        // Trigger FAB
+        document.getElementById("fabBtn")?.click();
+      }
+    },
+    { passive: true },
+  );
 })();
 
 // ──────────────────────────────────────────────────────────────
@@ -11024,7 +12278,10 @@ setTimeout(() => { if (shouldShowOnboarding()) showOnboarding(); }, 600);
 const _origDeleteOp = typeof deleteOp === "function" ? deleteOp : null;
 function safeDeleteOp(idx) {
   const op = transactions[idx];
-  if (!op) { if (_origDeleteOp) _origDeleteOp(idx); return; }
+  if (!op) {
+    if (_origDeleteOp) _origDeleteOp(idx);
+    return;
+  }
   const threshold = 5000; // in base currency
   if (Math.abs(op.amountRub) >= threshold) {
     const L = {
@@ -11032,16 +12289,20 @@ function safeDeleteOp(idx) {
       en: `Delete transaction for ${fmt(op.amountRub)}?`,
       ka: `წავშალოთ ${fmt(op.amountRub)}-ის ოპერაცია?`,
     };
-    askConfirm(L[currentLang] || L.ru, () => {
-      if (_origDeleteOp) _origDeleteOp(idx);
-      else {
-        transactions.splice(idx, 1);
-        saveAll();
-        updateTopBlocks();
-        if (currentTab === "home") renderHome();
-        showToast(t("deleted"));
-      }
-    }, { icon: "⚠️", yesText: t("confirmOkBtn") });
+    askConfirm(
+      L[currentLang] || L.ru,
+      () => {
+        if (_origDeleteOp) _origDeleteOp(idx);
+        else {
+          transactions.splice(idx, 1);
+          saveAll();
+          updateTopBlocks();
+          if (currentTab === "home") renderHome();
+          showToast(t("deleted"));
+        }
+      },
+      { icon: "⚠️", yesText: t("confirmOkBtn") },
+    );
   } else {
     if (_origDeleteOp) _origDeleteOp(idx);
   }
@@ -11053,9 +12314,39 @@ function safeDeleteOp(idx) {
 function openReceiptScanner() {
   const lang = currentLang;
   const L = {
-    ru: { title:"📸 Сканировать чек", hint:"Сфотографируйте чек — приложение попробует распознать сумму", scan:"Открыть камеру", result:"Распознанная сумма:", confirm:"Использовать", cancel:"Отмена", scanning:"Распознаю...", notFound:"Сумма не найдена. Введите вручную.", noCamera:"Камера недоступна" },
-    en: { title:"📸 Scan receipt", hint:"Take a photo of a receipt — the app will try to recognize the amount", scan:"Open camera", result:"Detected amount:", confirm:"Use this", cancel:"Cancel", scanning:"Recognizing...", notFound:"Amount not found. Enter manually.", noCamera:"Camera unavailable" },
-    ka: { title:"📸 ჩეკის სკანირება", hint:"სფოტოგრაფირეთ ჩეკი — პროგრამა ამოიცნობს თანხას", scan:"კამერის გახსნა", result:"ამოცნობილი თანხა:", confirm:"გამოყენება", cancel:"გაუქმება", scanning:"ამოცნობა...", notFound:"თანხა ვერ მოიძებნა.", noCamera:"კამერა მიუწვდომელია" },
+    ru: {
+      title: "📸 Сканировать чек",
+      hint: "Сфотографируйте чек — приложение попробует распознать сумму",
+      scan: "Открыть камеру",
+      result: "Распознанная сумма:",
+      confirm: "Использовать",
+      cancel: "Отмена",
+      scanning: "Распознаю...",
+      notFound: "Сумма не найдена. Введите вручную.",
+      noCamera: "Камера недоступна",
+    },
+    en: {
+      title: "📸 Scan receipt",
+      hint: "Take a photo of a receipt — the app will try to recognize the amount",
+      scan: "Open camera",
+      result: "Detected amount:",
+      confirm: "Use this",
+      cancel: "Cancel",
+      scanning: "Recognizing...",
+      notFound: "Amount not found. Enter manually.",
+      noCamera: "Camera unavailable",
+    },
+    ka: {
+      title: "📸 ჩეკის სკანირება",
+      hint: "სფოტოგრაფირეთ ჩეკი — პროგრამა ამოიცნობს თანხას",
+      scan: "კამერის გახსნა",
+      result: "ამოცნობილი თანხა:",
+      confirm: "გამოყენება",
+      cancel: "გაუქმება",
+      scanning: "ამოცნობა...",
+      notFound: "თანხა ვერ მოიძებნა.",
+      noCamera: "კამერა მიუწვდომელია",
+    },
   };
   const lc = L[lang] || L.ru;
 
@@ -11063,7 +12354,7 @@ function openReceiptScanner() {
     <div style="background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:16px;border-left:4px solid var(--primary);">
       <div style="font-weight:800;font-size:14px;color:var(--primary);margin-bottom:8px;">${lc.hint}</div>
       <div style="font-size:12px;color:var(--text-soft);line-height:1.7;">
-        ${ {ru:"<b>Как пользоваться:</b><br>1. Нажмите «Открыть камеру»<br>2. Сфотографируйте чек или квитанцию<br>3. Приложение распознает итоговую сумму<br>4. Нажмите «Использовать» — откроется форма добавления расхода<br><br><b>Советы для лучшего результата:</b><br>• Хорошее освещение, без теней<br>• Держите телефон ровно над чеком<br>• Итоговая строка должна быть видна",en:"<b>How to use:</b><br>1. Tap 'Open camera'<br>2. Photo a receipt or bill<br>3. App detects the total amount<br>4. Tap 'Use this' — expense form opens<br><br><b>Tips for best results:</b><br>• Good lighting, no shadows<br>• Hold phone flat above receipt<br>• Total line must be visible",ka:"<b>გამოყენება:</b><br>1. 'კამერის გახსნა'<br>2. ფოტოგრაფირება<br>3. პროგრამა ამოიცნობს<br>4. 'გამოყენება' → ფორმა"}[currentLang] }
+        ${{ ru: "<b>Как пользоваться:</b><br>1. Нажмите «Открыть камеру»<br>2. Сфотографируйте чек или квитанцию<br>3. Приложение распознает итоговую сумму<br>4. Нажмите «Использовать» — откроется форма добавления расхода<br><br><b>Советы для лучшего результата:</b><br>• Хорошее освещение, без теней<br>• Держите телефон ровно над чеком<br>• Итоговая строка должна быть видна", en: "<b>How to use:</b><br>1. Tap 'Open camera'<br>2. Photo a receipt or bill<br>3. App detects the total amount<br>4. Tap 'Use this' — expense form opens<br><br><b>Tips for best results:</b><br>• Good lighting, no shadows<br>• Hold phone flat above receipt<br>• Total line must be visible", ka: "<b>გამოყენება:</b><br>1. 'კამერის გახსნა'<br>2. ფოტოგრაფირება<br>3. პროგრამა ამოიცნობს<br>4. 'გამოყენება' → ფორმა" }[currentLang]}
       </div>
     </div>
     <div id="scanArea" style="text-align:center;">
@@ -11086,60 +12377,74 @@ function openReceiptScanner() {
   const modal = createModal("scanModal", lc.title, html);
   document.body.appendChild(modal);
   openModal("scanModal");
-  document.getElementById("scanCancel").addEventListener("click", () => closeModal("scanModal"));
+  document
+    .getElementById("scanCancel")
+    .addEventListener("click", () => closeModal("scanModal"));
 
-  document.getElementById("receiptInput").addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    // Show preview
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const preview = document.getElementById("scanPreview");
-      preview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:contain;">
+  document
+    .getElementById("receiptInput")
+    .addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const preview = document.getElementById("scanPreview");
+        preview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:contain;">
         <input type="file" id="receiptInput2" accept="image/*" capture="environment" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">`;
-      
-      const status = document.getElementById("scanStatus");
-      status.textContent = lc.scanning;
 
-      try {
-        // Load Tesseract.js dynamically
-        if (!window.Tesseract) {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement("script");
-            script.src = "https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.3/tesseract.min.js";
-            script.onload = resolve; script.onerror = reject;
-            document.head.appendChild(script);
-          });
-        }
-        const result = await window.Tesseract.recognize(ev.target.result, "rus+eng", {});
-        const text = result.data.text;
-        // Find largest number in text (likely the total)
-        const numbers = [...text.matchAll(/[\d\s]+[.,]\d{1,2}/g)].map(m => parseFloat(m[0].replace(/\s/g,"").replace(",",".")));
-        const biggest = numbers.length ? Math.max(...numbers) : null;
+        const status = document.getElementById("scanStatus");
+        status.textContent = lc.scanning;
 
-        if (biggest && biggest > 0) {
-          status.textContent = "";
-          document.getElementById("scanResultArea").style.display = "block";
-          document.getElementById("scanAmount").textContent = fmt(biggest * (1 / exchangeRates[displayCurrency] || 1));
-          document.getElementById("useAmountBtn").onclick = () => {
-            closeModal("scanModal");
-            // Open add operation modal with pre-filled amount
-            addType = "expense";
-            openAddModal();
-            setTimeout(() => {
-              const amtInput = document.getElementById("addAmount");
-              if (amtInput) amtInput.value = toDisp(biggest).toFixed(2);
-            }, 400);
-          };
-        } else {
+        try {
+          // Load Tesseract.js dynamically
+          if (!window.Tesseract) {
+            await new Promise((resolve, reject) => {
+              const script = document.createElement("script");
+              script.src =
+                "https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/5.0.3/tesseract.min.js";
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+          }
+          const result = await window.Tesseract.recognize(
+            ev.target.result,
+            "rus+eng",
+            {},
+          );
+          const text = result.data.text;
+          // Find largest number in text (likely the total)
+          const numbers = [...text.matchAll(/[\d\s]+[.,]\d{1,2}/g)].map((m) =>
+            parseFloat(m[0].replace(/\s/g, "").replace(",", ".")),
+          );
+          const biggest = numbers.length ? Math.max(...numbers) : null;
+
+          if (biggest && biggest > 0) {
+            status.textContent = "";
+            document.getElementById("scanResultArea").style.display = "block";
+            document.getElementById("scanAmount").textContent = fmt(
+              biggest * (1 / exchangeRates[displayCurrency] || 1),
+            );
+            document.getElementById("useAmountBtn").onclick = () => {
+              closeModal("scanModal");
+              // Open add operation modal with pre-filled amount
+              addType = "expense";
+              openAddModal();
+              setTimeout(() => {
+                const amtInput = document.getElementById("addAmount");
+                if (amtInput) amtInput.value = toDisp(biggest).toFixed(2);
+              }, 400);
+            };
+          } else {
+            status.textContent = lc.notFound;
+          }
+        } catch (err) {
           status.textContent = lc.notFound;
         }
-      } catch(err) {
-        status.textContent = lc.notFound;
-      }
-    };
-    reader.readAsDataURL(file);
-  });
+      };
+      reader.readAsDataURL(file);
+    });
 }
 
 // ──────────────────────────────────────────────────────────────
@@ -11149,64 +12454,75 @@ function openBudget503020Modal() {
   const lang = currentLang;
   const L = {
     ru: {
-      title:"⚖️ Правило 50/30/20",
-      what:"Что это такое?",
-      whatDesc:"Правило Уоррена Баффета для личных финансов. Ваш доход делится на три части: 50% на нужды, 30% на желания, 20% на сбережения и инвестиции.",
-      income:"Ваш ежемесячный доход",
-      needsTitle:"🏠 50% — Нужды (обязательные расходы)",
-      needsDesc:"Аренда, коммуналка, продукты, транспорт, кредиты",
-      wantsTitle:"🎉 30% — Желания (развлечения)",
-      wantsDesc:"Рестораны, одежда, путешествия, хобби",
-      savingsTitle:"💰 20% — Сбережения",
-      savingsDesc:"Резервный фонд, инвестиции, пенсионный счёт",
-      calc:"Рассчитать",
-      apply:"Применить как лимиты",
-      applied:"✅ Лимиты применены в раздел «Бюджеты»",
-      tip:"💡 Начните с 50/30/20 и корректируйте под себя. Главное — начать откладывать хоть что-то!",
-      currency:"Валюта",
+      title: "⚖️ Правило 50/30/20",
+      what: "Что это такое?",
+      whatDesc:
+        "Правило Уоррена Баффета для личных финансов. Ваш доход делится на три части: 50% на нужды, 30% на желания, 20% на сбережения и инвестиции.",
+      income: "Ваш ежемесячный доход",
+      needsTitle: "🏠 50% — Нужды (обязательные расходы)",
+      needsDesc: "Аренда, коммуналка, продукты, транспорт, кредиты",
+      wantsTitle: "🎉 30% — Желания (развлечения)",
+      wantsDesc: "Рестораны, одежда, путешествия, хобби",
+      savingsTitle: "💰 20% — Сбережения",
+      savingsDesc: "Резервный фонд, инвестиции, пенсионный счёт",
+      calc: "Рассчитать",
+      apply: "Применить как лимиты",
+      applied: "✅ Лимиты применены в раздел «Бюджеты»",
+      tip: "💡 Начните с 50/30/20 и корректируйте под себя. Главное — начать откладывать хоть что-то!",
+      currency: "Валюта",
     },
     en: {
-      title:"⚖️ 50/30/20 Rule",
-      what:"What is this?",
-      whatDesc:"Warren Buffett's personal finance rule. Your income is split: 50% for needs, 30% for wants, 20% for savings and investments.",
-      income:"Your monthly income",
-      needsTitle:"🏠 50% — Needs (mandatory)",
-      needsDesc:"Rent, utilities, groceries, transport, loans",
-      wantsTitle:"🎉 30% — Wants (entertainment)",
-      wantsDesc:"Restaurants, clothes, travel, hobbies",
-      savingsTitle:"💰 20% — Savings",
-      savingsDesc:"Emergency fund, investments, retirement",
-      calc:"Calculate",
-      apply:"Apply as budget limits",
-      applied:"✅ Limits applied to Budgets",
-      tip:"💡 Start with 50/30/20 and adjust to your lifestyle. The key is to start saving something!",
-      currency:"Currency",
+      title: "⚖️ 50/30/20 Rule",
+      what: "What is this?",
+      whatDesc:
+        "Warren Buffett's personal finance rule. Your income is split: 50% for needs, 30% for wants, 20% for savings and investments.",
+      income: "Your monthly income",
+      needsTitle: "🏠 50% — Needs (mandatory)",
+      needsDesc: "Rent, utilities, groceries, transport, loans",
+      wantsTitle: "🎉 30% — Wants (entertainment)",
+      wantsDesc: "Restaurants, clothes, travel, hobbies",
+      savingsTitle: "💰 20% — Savings",
+      savingsDesc: "Emergency fund, investments, retirement",
+      calc: "Calculate",
+      apply: "Apply as budget limits",
+      applied: "✅ Limits applied to Budgets",
+      tip: "💡 Start with 50/30/20 and adjust to your lifestyle. The key is to start saving something!",
+      currency: "Currency",
     },
     ka: {
-      title:"⚖️ 50/30/20 წესი",
-      what:"რა არის ეს?",
-      whatDesc:"უორენ ბაფეტის პირადი ფინანსების წესი. შემოსავლის 50% — საჭიროებები, 30% — სურვილები, 20% — დანაზოგები.",
-      income:"თქვენი ყოველთვიური შემოსავალი",
-      needsTitle:"🏠 50% — საჭიროებები",
-      needsDesc:"ქირა, კომუნალური, საკვები, ტრანსპორტი, სესხები",
-      wantsTitle:"🎉 30% — სურვილები",
-      wantsDesc:"რესტორნები, ტანსაცმელი, მოგზაურობა, ჰობი",
-      savingsTitle:"💰 20% — დანაზოგები",
-      savingsDesc:"სარეზერვო ფონდი, ინვესტიციები",
-      calc:"გამოანგარიშება",
-      apply:"ლიმიტების გამოყენება",
-      applied:"✅ ლიმიტები გამოყენებულია",
-      tip:"💡 დაიწყეთ 50/30/20-ით და მოარგეთ თქვენს ცხოვრებას!",
-      currency:"ვალუტა",
+      title: "⚖️ 50/30/20 წესი",
+      what: "რა არის ეს?",
+      whatDesc:
+        "უორენ ბაფეტის პირადი ფინანსების წესი. შემოსავლის 50% — საჭიროებები, 30% — სურვილები, 20% — დანაზოგები.",
+      income: "თქვენი ყოველთვიური შემოსავალი",
+      needsTitle: "🏠 50% — საჭიროებები",
+      needsDesc: "ქირა, კომუნალური, საკვები, ტრანსპორტი, სესხები",
+      wantsTitle: "🎉 30% — სურვილები",
+      wantsDesc: "რესტორნები, ტანსაცმელი, მოგზაურობა, ჰობი",
+      savingsTitle: "💰 20% — დანაზოგები",
+      savingsDesc: "სარეზერვო ფონდი, ინვესტიციები",
+      calc: "გამოანგარიშება",
+      apply: "ლიმიტების გამოყენება",
+      applied: "✅ ლიმიტები გამოყენებულია",
+      tip: "💡 დაიწყეთ 50/30/20-ით და მოარგეთ თქვენს ცხოვრებას!",
+      currency: "ვალუტა",
     },
   };
   const lc = L[lang] || L.ru;
 
   // Calculate current average income from transactions
-  const incomeTransactions = transactions.filter(t => t.type === "income" && !t._initial);
-  const avgMonthlyIncome = incomeTransactions.length > 0
-    ? incomeTransactions.reduce((s,t) => s + t.amountRub, 0) / Math.max(1, new Set(incomeTransactions.map(t => (t.date||"").slice(0,7))).size)
-    : 0;
+  const incomeTransactions = transactions.filter(
+    (t) => t.type === "income" && !t._initial,
+  );
+  const avgMonthlyIncome =
+    incomeTransactions.length > 0
+      ? incomeTransactions.reduce((s, t) => s + t.amountRub, 0) /
+        Math.max(
+          1,
+          new Set(incomeTransactions.map((t) => (t.date || "").slice(0, 7)))
+            .size,
+        )
+      : 0;
   const prefillIncome = toDisp(avgMonthlyIncome).toFixed(0);
 
   const html = `
@@ -11249,14 +12565,20 @@ function openBudget503020Modal() {
   document.body.appendChild(modal);
   openModal("rule503020Modal");
 
-  document.getElementById("closeRuleBtn").addEventListener("click", () => closeModal("rule503020Modal"));
+  document
+    .getElementById("closeRuleBtn")
+    .addEventListener("click", () => closeModal("rule503020Modal"));
 
   const calcBtn = document.getElementById("calcRuleBtn");
   calcBtn.addEventListener("click", () => {
     const income = parseFloat(document.getElementById("ruleIncome").value) || 0;
-    if (income <= 0) { showToast(t("enterPositive"), "error"); return; }
+    if (income <= 0) {
+      showToast(t("enterPositive"), "error");
+      return;
+    }
     // Convert from display currency to RUB base
-    const incomeRub = income / (exchangeRates[displayCurrency] || 1) * exchangeRates["RUB"];
+    const incomeRub =
+      (income / (exchangeRates[displayCurrency] || 1)) * exchangeRates["RUB"];
     const needs = toDisp(incomeRub * 0.5).toFixed(2);
     const wants = toDisp(incomeRub * 0.3).toFixed(2);
     const savings = toDisp(incomeRub * 0.2).toFixed(2);
@@ -11270,14 +12592,19 @@ function openBudget503020Modal() {
 
   document.getElementById("applyRuleBtn")?.addEventListener("click", () => {
     const income = parseFloat(document.getElementById("ruleIncome").value) || 0;
-    const incomeRub = income / (exchangeRates[displayCurrency] || 1) * exchangeRates["RUB"];
+    const incomeRub =
+      (income / (exchangeRates[displayCurrency] || 1)) * exchangeRates["RUB"];
     // Apply as category budgets (split into main expense categories)
     const needsCats = Object.keys(categories).slice(0, 3);
     const wantsCats = Object.keys(categories).slice(3);
     const needsBudget = (incomeRub * 0.5) / Math.max(1, needsCats.length);
     const wantsBudget = (incomeRub * 0.3) / Math.max(1, wantsCats.length);
-    needsCats.forEach(c => { categoryBudgets[c] = needsBudget; });
-    wantsCats.forEach(c => { categoryBudgets[c] = wantsBudget; });
+    needsCats.forEach((c) => {
+      categoryBudgets[c] = needsBudget;
+    });
+    wantsCats.forEach((c) => {
+      categoryBudgets[c] = wantsBudget;
+    });
     saveAll();
     closeModal("rule503020Modal");
     showToast(lc.applied, "success");
@@ -11294,10 +12621,10 @@ function checkRecurringNotifications() {
   if (Notification.permission !== "granted") return;
   const today = new Date();
   const todayDay = today.getDate();
-  const notifiedKey = "recurring_notified_" + today.toISOString().slice(0,10);
+  const notifiedKey = "recurring_notified_" + today.toISOString().slice(0, 10);
   if (localStorage.getItem(notifiedKey)) return;
 
-  const due = recurringOps.filter(op => {
+  const due = recurringOps.filter((op) => {
     if (!op.enabled) return false;
     if (op.freq === "monthly" && op.day === todayDay) return true;
     return false;
@@ -11305,11 +12632,17 @@ function checkRecurringNotifications() {
 
   if (due.length > 0) {
     localStorage.setItem(notifiedKey, "1");
-    const L = { ru:"повторяющийся платёж", en:"recurring payment", ka:"განმეორებადი გადახდა" };
-    due.forEach(op => {
+    const L = {
+      ru: "повторяющийся платёж",
+      en: "recurring payment",
+      ka: "განმეორებადი გადახდა",
+    };
+    due.forEach((op) => {
       const title = "🔔 БюджетPRO";
       const body = `${L[currentLang]}: ${op.category} — ${fmt(op.amountRub)}`;
-      try { new Notification(title, { body, icon: "/favicon-96x96.png" }); } catch(e) {}
+      try {
+        new Notification(title, { body, icon: "/favicon-96x96.png" });
+      } catch (e) {}
     });
   }
 }
@@ -11322,37 +12655,37 @@ function openGoogleSheetsExport() {
   const lang = currentLang;
   const L = {
     ru: {
-      title:"📊 Экспорт в Google Таблицы",
-      step1:"Шаг 1: Скачайте CSV файл",
-      step2:"Шаг 2: Откройте Google Таблицы",
-      step3:'Шаг 3: Файл → Импорт → Загрузить файл → выберите скачанный CSV',
-      step4:"Шаг 4: Разделитель: запятая (,) → Нажмите «Импортировать данные»",
-      download:"⬇️ Скачать CSV для Google Таблиц",
-      open:"🔗 Открыть Google Таблицы",
-      tip:"💡 Google Таблицы бесплатны. После импорта вы можете строить диаграммы, фильтровать, делиться с семьёй.",
-      cancel:"Закрыть",
+      title: "📊 Экспорт в Google Таблицы",
+      step1: "Шаг 1: Скачайте CSV файл",
+      step2: "Шаг 2: Откройте Google Таблицы",
+      step3: "Шаг 3: Файл → Импорт → Загрузить файл → выберите скачанный CSV",
+      step4: "Шаг 4: Разделитель: запятая (,) → Нажмите «Импортировать данные»",
+      download: "⬇️ Скачать CSV для Google Таблиц",
+      open: "🔗 Открыть Google Таблицы",
+      tip: "💡 Google Таблицы бесплатны. После импорта вы можете строить диаграммы, фильтровать, делиться с семьёй.",
+      cancel: "Закрыть",
     },
     en: {
-      title:"📊 Export to Google Sheets",
-      step1:"Step 1: Download CSV file",
-      step2:"Step 2: Open Google Sheets",
-      step3:"Step 3: File → Import → Upload file → select the CSV",
-      step4:"Step 4: Separator: comma (,) → Click 'Import data'",
-      download:"⬇️ Download CSV for Google Sheets",
-      open:"🔗 Open Google Sheets",
-      tip:"💡 Google Sheets is free. After importing you can build charts, filter, share with family.",
-      cancel:"Close",
+      title: "📊 Export to Google Sheets",
+      step1: "Step 1: Download CSV file",
+      step2: "Step 2: Open Google Sheets",
+      step3: "Step 3: File → Import → Upload file → select the CSV",
+      step4: "Step 4: Separator: comma (,) → Click 'Import data'",
+      download: "⬇️ Download CSV for Google Sheets",
+      open: "🔗 Open Google Sheets",
+      tip: "💡 Google Sheets is free. After importing you can build charts, filter, share with family.",
+      cancel: "Close",
     },
     ka: {
-      title:"📊 Google Sheets-ში ექსპორტი",
-      step1:"ნაბიჯი 1: ჩამოტვირთეთ CSV",
-      step2:"ნაბიჯი 2: გახსენით Google Sheets",
-      step3:"ნაბიჯი 3: File → Import → Upload → CSV ფაილი",
-      step4:"ნაბიჯი 4: გამყოფი: მძიმე (,) → Import data",
-      download:"⬇️ CSV ჩამოტვირთვა",
-      open:"🔗 Google Sheets-ის გახსნა",
-      tip:"💡 Google Sheets უფასოა. იმპორტის შემდეგ შექმენით დიაგრამები.",
-      cancel:"დახურვა",
+      title: "📊 Google Sheets-ში ექსპორტი",
+      step1: "ნაბიჯი 1: ჩამოტვირთეთ CSV",
+      step2: "ნაბიჯი 2: გახსენით Google Sheets",
+      step3: "ნაბიჯი 3: File → Import → Upload → CSV ფაილი",
+      step4: "ნაბიჯი 4: გამყოფი: მძიმე (,) → Import data",
+      download: "⬇️ CSV ჩამოტვირთვა",
+      open: "🔗 Google Sheets-ის გახსნა",
+      tip: "💡 Google Sheets უფასოა. იმპორტის შემდეგ შექმენით დიაგრამები.",
+      cancel: "დახურვა",
     },
   };
   const lc = L[lang] || L.ru;
@@ -11363,7 +12696,7 @@ function openGoogleSheetsExport() {
       ${lc.tip}
     </div>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
-      ${steps.map((s,i) => `<div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div><div style="font-size:13px;line-height:1.6;padding-top:4px;">${s}</div></div>`).join("")}
+      ${steps.map((s, i) => `<div style="display:flex;align-items:flex-start;gap:10px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i + 1}</div><div style="font-size:13px;line-height:1.6;padding-top:4px;">${s}</div></div>`).join("")}
     </div>
     <button class="btn-primary" id="gsDownloadBtn" style="width:100%;margin-bottom:10px;">${lc.download}</button>
     <button class="btn-secondary" id="gsOpenBtn" style="width:100%;margin-bottom:10px;">${lc.open}</button>
@@ -11373,33 +12706,74 @@ function openGoogleSheetsExport() {
   document.body.appendChild(modal);
   openModal("gsModal");
 
-  document.getElementById("gsClose").addEventListener("click", () => closeModal("gsModal"));
-  document.getElementById("gsOpenBtn").addEventListener("click", () => window.open("https://sheets.google.com", "_blank"));
+  document
+    .getElementById("gsClose")
+    .addEventListener("click", () => closeModal("gsModal"));
+  document
+    .getElementById("gsOpenBtn")
+    .addEventListener("click", () =>
+      window.open("https://sheets.google.com", "_blank"),
+    );
   document.getElementById("gsDownloadBtn").addEventListener("click", () => {
     // Generate Google Sheets-optimized CSV (with BOM for correct encoding)
-    const header = { ru:["Дата","Тип","Категория","Подкатегория","Сумма (базовая)","Сумма (отображ)","Валюта","Заметка"],
-                     en:["Date","Type","Category","Subcategory","Amount (base)","Amount (display)","Currency","Note"],
-                     ka:["თარიღი","ტიპი","კატეგორია","ქვეკატეგორია","თანხა (ბაზა)","თანხა (ჩვენება)","ვალუტა","შენიშვნა"] };
+    const header = {
+      ru: [
+        "Дата",
+        "Тип",
+        "Категория",
+        "Подкатегория",
+        "Сумма (базовая)",
+        "Сумма (отображ)",
+        "Валюта",
+        "Заметка",
+      ],
+      en: [
+        "Date",
+        "Type",
+        "Category",
+        "Subcategory",
+        "Amount (base)",
+        "Amount (display)",
+        "Currency",
+        "Note",
+      ],
+      ka: [
+        "თარიღი",
+        "ტიპი",
+        "კატეგორია",
+        "ქვეკატეგორია",
+        "თანხა (ბაზა)",
+        "თანხა (ჩვენება)",
+        "ვალუტა",
+        "შენიშვნა",
+      ],
+    };
     const h = header[lang] || header.ru;
-    const typeL = { income:{ ru:"Доход",en:"Income",ka:"შემოსავალი" }, expense:{ ru:"Расход",en:"Expense",ka:"ხარჯი" } };
+    const typeL = {
+      income: { ru: "Доход", en: "Income", ka: "შემოსავალი" },
+      expense: { ru: "Расход", en: "Expense", ka: "ხარჯი" },
+    };
     let csv = "\uFEFF" + h.join(",") + "\n";
-    transactions.filter(t => !t._initial).forEach(tx => {
-      const dispAmt = toDisp(tx.amountRub).toFixed(2);
-      csv += [
-        tx.date || "",
-        (typeL[tx.type]||{})[lang] || tx.type,
-        `"${(tx.category||"").replace(/"/g,'""')}"`,
-        `"${(tx.subcategory||"").replace(/"/g,'""')}"`,
-        tx.amountRub.toFixed(2),
-        dispAmt,
-        displayCurrency,
-        `"${(tx.note||"").replace(/"/g,'""')}"`,
-      ].join(",") + "\n";
-    });
-    const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
+    transactions
+      .filter((t) => !t._initial)
+      .forEach((tx) => {
+        const dispAmt = toDisp(tx.amountRub).toFixed(2);
+        csv +=
+          [
+            tx.date || "",
+            (typeL[tx.type] || {})[lang] || tx.type,
+            `"${(tx.category || "").replace(/"/g, '""')}"`,
+            `"${(tx.subcategory || "").replace(/"/g, '""')}"`,
+            tx.amountRub.toFixed(2),
+            dispAmt,
+            displayCurrency,
+            `"${(tx.note || "").replace(/"/g, '""')}"`,
+          ].join(",") + "\n";
+      });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `BudgetPRO_${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `BudgetPRO_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     showToast(t("exportSuccess"), "success");
   });
@@ -11411,18 +12785,65 @@ function openGoogleSheetsExport() {
 function openEmailReportModal() {
   const lang = currentLang;
   const L = {
-    ru: { title:"📧 Отчёт на email", email:"Ваш email", send:"📤 Отправить отчёт", sent:"✅ Отчёт отправлен!", hint:"Краткий финансовый отчёт за текущий месяц. Используется EmailJS (бесплатно до 200 отправок/месяц).", noEmail:"Введите email", cancel:"Отмена", setup:"⚠️ Сначала настройте EmailJS в коде (serviceId, templateId, publicKey)", month:"Отчёт за", income:"Доходы:", expense:"Расходы:", balance:"Баланс:" },
-    en: { title:"📧 Email report", email:"Your email", send:"📤 Send report", sent:"✅ Report sent!", hint:"Brief financial report for the current month. Uses EmailJS (free up to 200 sends/month).", noEmail:"Enter email", cancel:"Cancel", setup:"⚠️ Configure EmailJS in code first (serviceId, templateId, publicKey)", month:"Report for", income:"Income:", expense:"Expenses:", balance:"Balance:" },
-    ka: { title:"📧 Email ანგარიში", email:"თქვენი email", send:"📤 ანგარიშის გაგზავნა", sent:"✅ გაიგზავნა!", hint:"მიმდინარე თვის ფინანსური ანგარიში. გამოყენება: EmailJS (200 შეტყობინება/თვე უფასო).", noEmail:"შეიყვანეთ email", cancel:"გაუქმება", setup:"⚠️ გთხოვთ დააყენოთ EmailJS", month:"ანგარიში:", income:"შემოსავალი:", expense:"ხარჯი:", balance:"ნაშთი:" },
+    ru: {
+      title: "📧 Отчёт на email",
+      email: "Ваш email",
+      send: "📤 Отправить отчёт",
+      sent: "✅ Отчёт отправлен!",
+      hint: "Краткий финансовый отчёт за текущий месяц. Используется EmailJS (бесплатно до 200 отправок/месяц).",
+      noEmail: "Введите email",
+      cancel: "Отмена",
+      setup:
+        "⚠️ Сначала настройте EmailJS в коде (serviceId, templateId, publicKey)",
+      month: "Отчёт за",
+      income: "Доходы:",
+      expense: "Расходы:",
+      balance: "Баланс:",
+    },
+    en: {
+      title: "📧 Email report",
+      email: "Your email",
+      send: "📤 Send report",
+      sent: "✅ Report sent!",
+      hint: "Brief financial report for the current month. Uses EmailJS (free up to 200 sends/month).",
+      noEmail: "Enter email",
+      cancel: "Cancel",
+      setup:
+        "⚠️ Configure EmailJS in code first (serviceId, templateId, publicKey)",
+      month: "Report for",
+      income: "Income:",
+      expense: "Expenses:",
+      balance: "Balance:",
+    },
+    ka: {
+      title: "📧 Email ანგარიში",
+      email: "თქვენი email",
+      send: "📤 ანგარიშის გაგზავნა",
+      sent: "✅ გაიგზავნა!",
+      hint: "მიმდინარე თვის ფინანსური ანგარიში. გამოყენება: EmailJS (200 შეტყობინება/თვე უფასო).",
+      noEmail: "შეიყვანეთ email",
+      cancel: "გაუქმება",
+      setup: "⚠️ გთხოვთ დააყენოთ EmailJS",
+      month: "ანგარიში:",
+      income: "შემოსავალი:",
+      expense: "ხარჯი:",
+      balance: "ნაშთი:",
+    },
   };
   const lc = L[lang] || L.ru;
   // Build report text
   const now = new Date();
   const monthName = t("months")[now.getMonth()] + " " + now.getFullYear();
-  const monthStr = now.toISOString().slice(0,7);
-  const monthTx = transactions.filter(tx => (tx.date||"").startsWith(monthStr));
-  const inc = monthTx.filter(t=>t.type==="income").reduce((s,t)=>s+t.amountRub,0);
-  const exp = monthTx.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amountRub,0);
+  const monthStr = now.toISOString().slice(0, 7);
+  const monthTx = transactions.filter((tx) =>
+    (tx.date || "").startsWith(monthStr),
+  );
+  const inc = monthTx
+    .filter((t) => t.type === "income")
+    .reduce((s, t) => s + t.amountRub, 0);
+  const exp = monthTx
+    .filter((t) => t.type === "expense")
+    .reduce((s, t) => s + t.amountRub, 0);
   const bal = inc - exp;
   const reportText = `${lc.month} ${monthName}\n${lc.income} ${fmt(inc)}\n${lc.expense} ${fmt(exp)}\n${lc.balance} ${fmt(bal)}\n\n— БюджетPRO`;
 
@@ -11437,10 +12858,15 @@ function openEmailReportModal() {
   const modal = createModal("emailReportModal", lc.title, html);
   document.body.appendChild(modal);
   openModal("emailReportModal");
-  document.getElementById("closeReportBtn").addEventListener("click", () => closeModal("emailReportModal"));
+  document
+    .getElementById("closeReportBtn")
+    .addEventListener("click", () => closeModal("emailReportModal"));
   document.getElementById("sendReportBtn").addEventListener("click", () => {
     const email = document.getElementById("reportEmail").value.trim();
-    if (!email || !email.includes("@")) { showToast(lc.noEmail, "error"); return; }
+    if (!email || !email.includes("@")) {
+      showToast(lc.noEmail, "error");
+      return;
+    }
     // EmailJS integration — user needs to configure these values
     const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
     const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
@@ -11459,8 +12885,16 @@ function openEmailReportModal() {
     s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
     s.onload = () => {
       window.emailjs.init(EMAILJS_PUBLIC_KEY);
-      window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { to_email:email, report:reportText, month:monthName })
-        .then(() => { closeModal("emailReportModal"); showToast(lc.sent, "success"); })
+      window.emailjs
+        .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_email: email,
+          report: reportText,
+          month: monthName,
+        })
+        .then(() => {
+          closeModal("emailReportModal");
+          showToast(lc.sent, "success");
+        })
         .catch(() => showToast(t("error"), "error"));
     };
     document.head.appendChild(s);
@@ -11480,54 +12914,79 @@ function injectNewToolButtons() {
   if (currentTab !== "tools") return;
   const lang = currentLang;
   const labels = {
-    scanner:{ ru:"📸 Сканировать чек", en:"📸 Scan receipt", ka:"📸 ჩეკის სკანირება" },
-    rule:{ ru:"⚖️ Правило 50/30/20", en:"⚖️ 50/30/20 Rule", ka:"⚖️ 50/30/20 წესი" },
-    sheets:{ ru:"📊 Экспорт в Google Таблицы", en:"📊 Google Sheets export", ka:"📊 Google Sheets-ი" },
-    email:{ ru:"📧 Отчёт на email", en:"📧 Email report", ka:"📧 Email ანგარიში" },
+    scanner: {
+      ru: "📸 Сканировать чек",
+      en: "📸 Scan receipt",
+      ka: "📸 ჩეკის სკანირება",
+    },
+    rule: {
+      ru: "⚖️ Правило 50/30/20",
+      en: "⚖️ 50/30/20 Rule",
+      ka: "⚖️ 50/30/20 წესი",
+    },
+    sheets: {
+      ru: "📊 Экспорт в Google Таблицы",
+      en: "📊 Google Sheets export",
+      ka: "📊 Google Sheets-ი",
+    },
+    email: {
+      ru: "📧 Отчёт на email",
+      en: "📧 Email report",
+      ka: "📧 Email ანგარიში",
+    },
   };
   const block = document.createElement("div");
   block.id = "newToolsBlock";
-  block.style.cssText = "padding:0 16px;margin-top:16px;display:flex;flex-direction:column;gap:10px;";
+  block.style.cssText =
+    "padding:0 16px;margin-top:16px;display:flex;flex-direction:column;gap:10px;";
   block.innerHTML = `
-    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;padding-bottom:8px;border-bottom:1.5px solid var(--cream-border);">✨ ${lang==="ru"?"Новые инструменты":lang==="en"?"New tools":"ახალი ხელსაწყოები"}</div>
+    <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;padding-bottom:8px;border-bottom:1.5px solid var(--cream-border);">✨ ${lang === "ru" ? "Новые инструменты" : lang === "en" ? "New tools" : "ახალი ხელსაწყოები"}</div>
     <button class="new-tool-btn" id="newScanBtn">
       <span class="ntb-icon">📸</span>
       <span class="ntb-text">
-        <span class="ntb-title">${lang==="ru"?"Сканер чеков":lang==="en"?"Receipt Scanner":"ჩეკის სკანერი"}</span>
-        <span class="ntb-sub">${lang==="ru"?"Сфотографируйте чек — сумма заполнится автоматически":lang==="en"?"Photo a receipt — amount fills automatically":"ფოტო ჩეკი — თანხა ავტომატურად"}</span>
+        <span class="ntb-title">${lang === "ru" ? "Сканер чеков" : lang === "en" ? "Receipt Scanner" : "ჩეკის სკანერი"}</span>
+        <span class="ntb-sub">${lang === "ru" ? "Сфотографируйте чек — сумма заполнится автоматически" : lang === "en" ? "Photo a receipt — amount fills automatically" : "ფოტო ჩეკი — თანხა ავტომატურად"}</span>
       </span>
       <span class="ntb-arrow">›</span>
     </button>
     <button class="new-tool-btn" id="newRuleBtn">
       <span class="ntb-icon">⚖️</span>
       <span class="ntb-text">
-        <span class="ntb-title">${lang==="ru"?"Правило 50/30/20":lang==="en"?"50/30/20 Rule":"50/30/20 წესი"}</span>
-        <span class="ntb-sub">${lang==="ru"?"Умное распределение бюджета по Баффету":lang==="en"?"Smart budget split by Buffett":"ბაფეტის ბიუჯეტის განაწილება"}</span>
+        <span class="ntb-title">${lang === "ru" ? "Правило 50/30/20" : lang === "en" ? "50/30/20 Rule" : "50/30/20 წესი"}</span>
+        <span class="ntb-sub">${lang === "ru" ? "Умное распределение бюджета по Баффету" : lang === "en" ? "Smart budget split by Buffett" : "ბაფეტის ბიუჯეტის განაწილება"}</span>
       </span>
       <span class="ntb-arrow">›</span>
     </button>
     <button class="new-tool-btn" id="newSheetsBtn">
       <span class="ntb-icon">📊</span>
       <span class="ntb-text">
-        <span class="ntb-title">${lang==="ru"?"Google Таблицы":lang==="en"?"Google Sheets":"Google Sheets"}</span>
-        <span class="ntb-sub">${lang==="ru"?"Экспорт всей истории в таблицу":lang==="en"?"Export full history to spreadsheet":"ისტორიის ექსპორტი ცხრილში"}</span>
+        <span class="ntb-title">${lang === "ru" ? "Google Таблицы" : lang === "en" ? "Google Sheets" : "Google Sheets"}</span>
+        <span class="ntb-sub">${lang === "ru" ? "Экспорт всей истории в таблицу" : lang === "en" ? "Export full history to spreadsheet" : "ისტორიის ექსპორტი ცხრილში"}</span>
       </span>
       <span class="ntb-arrow">›</span>
     </button>
     <button class="new-tool-btn" id="newEmailBtn">
       <span class="ntb-icon">📧</span>
       <span class="ntb-text">
-        <span class="ntb-title">${lang==="ru"?"Отчёт на email":lang==="en"?"Email Report":"Email ანგარიში"}</span>
-        <span class="ntb-sub">${lang==="ru"?"Ежемесячный финансовый отчёт на почту":lang==="en"?"Monthly financial report by email":"ყოველთვიური ანგარიში"}</span>
+        <span class="ntb-title">${lang === "ru" ? "Отчёт на email" : lang === "en" ? "Email Report" : "Email ანგარიში"}</span>
+        <span class="ntb-sub">${lang === "ru" ? "Ежемесячный финансовый отчёт на почту" : lang === "en" ? "Monthly financial report by email" : "ყოველთვიური ანგარიში"}</span>
       </span>
       <span class="ntb-arrow">›</span>
     </button>
   `;
   content.appendChild(block);
-  document.getElementById("newScanBtn")?.addEventListener("click", openReceiptScanner);
-  document.getElementById("newRuleBtn")?.addEventListener("click", openBudget503020Modal);
-  document.getElementById("newSheetsBtn")?.addEventListener("click", openGoogleSheetsExport);
-  document.getElementById("newEmailBtn")?.addEventListener("click", openEmailReportModal);
+  document
+    .getElementById("newScanBtn")
+    ?.addEventListener("click", openReceiptScanner);
+  document
+    .getElementById("newRuleBtn")
+    ?.addEventListener("click", openBudget503020Modal);
+  document
+    .getElementById("newSheetsBtn")
+    ?.addEventListener("click", openGoogleSheetsExport);
+  document
+    .getElementById("newEmailBtn")
+    ?.addEventListener("click", openEmailReportModal);
 }
 
 // Hook into setTab to inject buttons when tools tab is shown
@@ -11535,13 +12994,15 @@ function injectNewToolButtons() {
 if (!window._toolsHookInstalled) {
   window._toolsHookInstalled = true;
   const _origSetTabForTools = window.setTab;
-  window.setTab = function(tab) {
+  window.setTab = function (tab) {
     if (_origSetTabForTools) _origSetTabForTools(tab);
     if (tab === "tools") setTimeout(injectNewToolButtons, 300);
-    if (tab === "home")   setTimeout(() => { if (shouldShowOnboarding()) showOnboarding(); }, 100);
+    if (tab === "home")
+      setTimeout(() => {
+        if (shouldShowOnboarding()) showOnboarding();
+      }, 100);
   };
 }
-
 
 // ██████████████████████████████████████████████████████████████
 //  НОВЫЕ ФУНКЦИИ v4.0 — WOW-БЛОК
@@ -11608,10 +13069,18 @@ if (!window._toolsHookInstalled) {
 // ═══════════════════════════════════════════════════════════════
 function showConfetti(opts = {}) {
   if (!animationsEnabled) return;
-  const { x = window.innerWidth / 2, y = window.innerHeight / 2, count = 40, type = "confetti" } = opts;
-  const emojis = type === "money" ? ["🪙","💰","💵","✨","💎"] :
-                 type === "goal"  ? ["🎯","⭐","🏆","🥇","✨"] :
-                                    ["🎊","🎉","✨","🌟","💫","❤️","🎈"];
+  const {
+    x = window.innerWidth / 2,
+    y = window.innerHeight / 2,
+    count = 40,
+    type = "confetti",
+  } = opts;
+  const emojis =
+    type === "money"
+      ? ["🪙", "💰", "💵", "✨", "💎"]
+      : type === "goal"
+        ? ["🎯", "⭐", "🏆", "🥇", "✨"]
+        : ["🎊", "🎉", "✨", "🌟", "💫", "❤️", "🎈"];
   for (let i = 0; i < count; i++) {
     setTimeout(() => {
       const el = document.createElement("div");
@@ -11619,15 +13088,32 @@ function showConfetti(opts = {}) {
       const size = 18 + Math.random() * 22;
       el.style.cssText = `position:fixed;left:${x}px;top:${y}px;font-size:${size}px;pointer-events:none;z-index:99999;user-select:none;`;
       document.body.appendChild(el);
-      const angle = (Math.random() * 360) * Math.PI / 180;
+      const angle = (Math.random() * 360 * Math.PI) / 180;
       const dist = 80 + Math.random() * 200;
       const dx = Math.cos(angle) * dist;
       const dy = Math.sin(angle) * dist - 100;
-      el.animate([
-        { transform: "translate(-50%,-50%) scale(0) rotate(0deg)", opacity: 0 },
-        { transform: `translate(calc(-50% + ${dx * 0.4}px),calc(-50% + ${dy * 0.3}px)) scale(1.3) rotate(${Math.random()*360}deg)`, opacity: 1, offset: 0.25 },
-        { transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(0.3) rotate(${Math.random()*720}deg)`, opacity: 0 },
-      ], { duration: 1000 + Math.random() * 600, easing: "cubic-bezier(0,0.9,0.57,1)", fill: "forwards" });
+      el.animate(
+        [
+          {
+            transform: "translate(-50%,-50%) scale(0) rotate(0deg)",
+            opacity: 0,
+          },
+          {
+            transform: `translate(calc(-50% + ${dx * 0.4}px),calc(-50% + ${dy * 0.3}px)) scale(1.3) rotate(${Math.random() * 360}deg)`,
+            opacity: 1,
+            offset: 0.25,
+          },
+          {
+            transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(0.3) rotate(${Math.random() * 720}deg)`,
+            opacity: 0,
+          },
+        ],
+        {
+          duration: 1000 + Math.random() * 600,
+          easing: "cubic-bezier(0,0.9,0.57,1)",
+          fill: "forwards",
+        },
+      );
       setTimeout(() => el.remove(), 1700);
     }, i * 30);
   }
@@ -11639,17 +13125,33 @@ function showBudgetCelebration() {
   const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   if (now.getDate() !== lastDay) return;
   const over = Object.entries(categoryBudgets).some(([cat, limit]) => {
-    const spent = transactions.filter(tx => tx.type === "expense" && tx.category === cat && (tx.date||"").startsWith(now.toISOString().slice(0,7))).reduce((s,tx) => s + tx.amountRub, 0);
+    const spent = transactions
+      .filter(
+        (tx) =>
+          tx.type === "expense" &&
+          tx.category === cat &&
+          (tx.date || "").startsWith(now.toISOString().slice(0, 7)),
+      )
+      .reduce((s, tx) => s + tx.amountRub, 0);
     return spent > limit;
   });
   if (!over && Object.keys(categoryBudgets).length > 0) {
-    const celebKey = "budgetCelebrated_" + now.toISOString().slice(0,7);
+    const celebKey = "budgetCelebrated_" + now.toISOString().slice(0, 7);
     if (localStorage.getItem(celebKey)) return;
     localStorage.setItem(celebKey, "1");
     setTimeout(() => {
-      showConfetti({ x: window.innerWidth/2, y: window.innerHeight/2, count: 60, type: "confetti" });
-      const L = {ru:"🎉 Поздравляем! Вы не превысили ни один бюджет в этом месяце!",en:"🎉 Congratulations! You didn't exceed any budget this month!",ka:"🎉 გილოცავთ! ამ თვეში ბიუჯეტი არ გადააჭარბეთ!"};
-      showToast(L[currentLang]||L.ru, "success");
+      showConfetti({
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+        count: 60,
+        type: "confetti",
+      });
+      const L = {
+        ru: "🎉 Поздравляем! Вы не превысили ни один бюджет в этом месяце!",
+        en: "🎉 Congratulations! You didn't exceed any budget this month!",
+        ka: "🎉 გილოცავთ! ამ თვეში ბიუჯეტი არ გადააჭარბეთ!",
+      };
+      showToast(L[currentLang] || L.ru, "success");
     }, 500);
   }
 }
@@ -11659,14 +13161,20 @@ setTimeout(showBudgetCelebration, 3000);
 // 🎤 3. ГОЛОСОВОЙ ВВОД (Web Speech API)
 // ═══════════════════════════════════════════════════════════════
 function startVoiceInput() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
-    const L = {ru:"Голосовой ввод недоступен. Используйте Chrome на Android.",en:"Voice input not available. Use Chrome on Android.",ka:"ხმოვანი შეყვანა მიუწვდომელია. გამოიყენეთ Chrome."};
-    showToast(L[currentLang]||L.ru, "error");
+    const L = {
+      ru: "Голосовой ввод недоступен. Используйте Chrome на Android.",
+      en: "Voice input not available. Use Chrome on Android.",
+      ka: "ხმოვანი შეყვანა მიუწვდომელია. გამოიყენეთ Chrome.",
+    };
+    showToast(L[currentLang] || L.ru, "error");
     return;
   }
   const rec = new SpeechRecognition();
-  rec.lang = currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
+  rec.lang =
+    currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
   rec.continuous = false;
   rec.interimResults = false;
   rec.maxAlternatives = 1;
@@ -11674,16 +13182,20 @@ function startVoiceInput() {
   // Show listening overlay
   const ov = document.createElement("div");
   ov.id = "voiceOverlay";
-  ov.style.cssText = "position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;";
+  ov.style.cssText =
+    "position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;";
   ov.innerHTML = `
     <div style="font-size:80px;animation:voicePulse 1s ease infinite;">🎤</div>
-    <div style="font-size:20px;font-weight:800;color:white;">${{ru:"Говорите...",en:"Listening...",ka:"ილაპარაკეთ..."}[currentLang]}</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.7);text-align:center;padding:0 24px;">${{ru:"Например: «потратил 50 лари на продукты»",en:"E.g.: «spent 50 on groceries»",ka:"მაგ: «დავხარჯე 50 ლარი საყიდლებზე»"}[currentLang]}</div>
+    <div style="font-size:20px;font-weight:800;color:white;">${{ ru: "Говорите...", en: "Listening...", ka: "ილაპარაკეთ..." }[currentLang]}</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.7);text-align:center;padding:0 24px;">${{ ru: "Например: «потратил 50 лари на продукты»", en: "E.g.: «spent 50 on groceries»", ka: "მაგ: «დავხარჯე 50 ლარი საყიდლებზე»" }[currentLang]}</div>
     <button id="voiceCancel" style="padding:12px 28px;border-radius:20px;background:rgba(255,255,255,0.2);color:white;border:1.5px solid rgba(255,255,255,0.4);font-size:15px;font-weight:700;cursor:pointer;">${t("cancel")}</button>
     <style>@keyframes voicePulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,100,100,0))}50%{transform:scale(1.1);filter:drop-shadow(0 0 20px rgba(255,100,100,0.6))}}</style>
   `;
   document.body.appendChild(ov);
-  document.getElementById("voiceCancel").onclick = () => { rec.stop(); ov.remove(); };
+  document.getElementById("voiceCancel").onclick = () => {
+    rec.stop();
+    ov.remove();
+  };
   haptic("medium");
 
   rec.onresult = (event) => {
@@ -11695,48 +13207,129 @@ function startVoiceInput() {
   };
   rec.onerror = (e) => {
     ov.remove();
-    const L = {ru:"Не удалось распознать. Попробуйте ещё раз.",en:"Couldn't recognize. Please try again.",ka:"ვერ ამოვიცანი. სცადეთ ხელახლა."};
-    showToast(L[currentLang]||L.ru, "error");
+    const L = {
+      ru: "Не удалось распознать. Попробуйте ещё раз.",
+      en: "Couldn't recognize. Please try again.",
+      ka: "ვერ ამოვიცანი. სცადეთ ხელახლა.",
+    };
+    showToast(L[currentLang] || L.ru, "error");
   };
-  rec.onend = () => { const o = document.getElementById("voiceOverlay"); if (o) o.remove(); };
+  rec.onend = () => {
+    const o = document.getElementById("voiceOverlay");
+    if (o) o.remove();
+  };
   rec.start();
 }
 
 function parseVoiceInput(text) {
   // Extract amount: look for numbers (including with decimals)
   const amountMatch = text.match(/(\d+(?:[.,]\d+)?)/);
-  const amount = amountMatch ? parseFloat(amountMatch[1].replace(",", ".")) : null;
+  const amount = amountMatch
+    ? parseFloat(amountMatch[1].replace(",", "."))
+    : null;
 
   // Detect type: income keywords
-  const incomeWords = { ru:["получил","заработал","пришло","доход","зарплата"], en:["received","earned","income","salary","got"], ka:["მივიღე","შემოვიდა"] };
-  const expenseWords = { ru:["потратил","купил","заплатил","расход","потратила"], en:["spent","bought","paid","expense"], ka:["დავხარჯე","ვიყიდე","გადავიხადე"] };
+  const incomeWords = {
+    ru: ["получил", "заработал", "пришло", "доход", "зарплата"],
+    en: ["received", "earned", "income", "salary", "got"],
+    ka: ["მივიღე", "შემოვიდა"],
+  };
+  const expenseWords = {
+    ru: ["потратил", "купил", "заплатил", "расход", "потратила"],
+    en: ["spent", "bought", "paid", "expense"],
+    ka: ["დავხარჯე", "ვიყიდე", "გადავიხადე"],
+  };
   const iWords = incomeWords[currentLang] || incomeWords.ru;
   const eWords = expenseWords[currentLang] || expenseWords.ru;
-  const isIncome = iWords.some(w => text.includes(w));
-  const isExpense = eWords.some(w => text.includes(w)) || !isIncome;
+  const isIncome = iWords.some((w) => text.includes(w));
+  const isExpense = eWords.some((w) => text.includes(w)) || !isIncome;
 
   // Find category from text
   let detectedCat = null;
   const catMap = {
-    ru: { "продукт":"Продукты","еда":"Продукты","магазин":"Продукты","транспорт":"Транспорт","метро":"Транспорт","автобус":"Транспорт","такси":"Транспорт","кафе":"Рестораны","ресторан":"Рестораны","кофе":"Кафе","аренда":"Коммуналка","квартира":"Коммуналка","коммунал":"Коммуналка","одежда":"Одежда","лекарство":"Здоровье","аптека":"Здоровье","интернет":"Коммуналка","телефон":"Телефон","бензин":"Транспорт" },
-    en: { "grocery":"Продукты","food":"Продукты","transport":"Транспорт","metro":"Транспорт","bus":"Транспорт","taxi":"Транспорт","coffee":"Кафе","restaurant":"Рестораны","rent":"Коммуналка","clothes":"Одежда","medicine":"Здоровье","pharmacy":"Здоровье","gas":"Транспорт" },
+    ru: {
+      продукт: "Продукты",
+      еда: "Продукты",
+      магазин: "Продукты",
+      транспорт: "Транспорт",
+      метро: "Транспорт",
+      автобус: "Транспорт",
+      такси: "Транспорт",
+      кафе: "Рестораны",
+      ресторан: "Рестораны",
+      кофе: "Кафе",
+      аренда: "Коммуналка",
+      квартира: "Коммуналка",
+      коммунал: "Коммуналка",
+      одежда: "Одежда",
+      лекарство: "Здоровье",
+      аптека: "Здоровье",
+      интернет: "Коммуналка",
+      телефон: "Телефон",
+      бензин: "Транспорт",
+    },
+    en: {
+      grocery: "Продукты",
+      food: "Продукты",
+      transport: "Транспорт",
+      metro: "Транспорт",
+      bus: "Транспорт",
+      taxi: "Транспорт",
+      coffee: "Кафе",
+      restaurant: "Рестораны",
+      rent: "Коммуналка",
+      clothes: "Одежда",
+      medicine: "Здоровье",
+      pharmacy: "Здоровье",
+      gas: "Транспорт",
+    },
   };
   const cm = catMap[currentLang] || catMap.ru;
   for (const [word, cat] of Object.entries(cm)) {
-    if (text.includes(word)) { detectedCat = cat; break; }
+    if (text.includes(word)) {
+      detectedCat = cat;
+      break;
+    }
   }
   // Check actual category list
   if (!detectedCat) {
     for (const cat of Object.keys(categories)) {
-      if (text.includes(cat.toLowerCase())) { detectedCat = cat; break; }
+      if (text.includes(cat.toLowerCase())) {
+        detectedCat = cat;
+        break;
+      }
     }
   }
 
   // Show result modal
   const L = {
-    ru: { found:"🎤 Распознано:", type:(isIncome?"Доход":"Расход"), amount:"Сумма:", cat:"Категория:", confirm:"✅ Добавить", edit:"✏️ Изменить", notFound:"Сумма не найдена. Попробуйте снова." },
-    en: { found:"🎤 Recognized:", type:(isIncome?"Income":"Expense"), amount:"Amount:", cat:"Category:", confirm:"✅ Add", edit:"✏️ Edit", notFound:"Amount not found. Try again." },
-    ka: { found:"🎤 ამოცნობილია:", type:(isIncome?"შემოსავალი":"ხარჯი"), amount:"თანხა:", cat:"კატეგორია:", confirm:"✅ დამატება", edit:"✏️ შეცვლა", notFound:"თანხა ვერ მოიძებნა." },
+    ru: {
+      found: "🎤 Распознано:",
+      type: isIncome ? "Доход" : "Расход",
+      amount: "Сумма:",
+      cat: "Категория:",
+      confirm: "✅ Добавить",
+      edit: "✏️ Изменить",
+      notFound: "Сумма не найдена. Попробуйте снова.",
+    },
+    en: {
+      found: "🎤 Recognized:",
+      type: isIncome ? "Income" : "Expense",
+      amount: "Amount:",
+      cat: "Category:",
+      confirm: "✅ Add",
+      edit: "✏️ Edit",
+      notFound: "Amount not found. Try again.",
+    },
+    ka: {
+      found: "🎤 ამოცნობილია:",
+      type: isIncome ? "შემოსავალი" : "ხარჯი",
+      amount: "თანხა:",
+      cat: "კატეგორია:",
+      confirm: "✅ დამატება",
+      edit: "✏️ შეცვლა",
+      notFound: "თანხა ვერ მოიძებნა.",
+    },
   };
   const lc = L[currentLang] || L.ru;
 
@@ -11753,7 +13346,7 @@ function parseVoiceInput(text) {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
       <div style="background:var(--cream-dark);border-radius:12px;padding:12px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${lc.type}</div>
-        <div style="font-size:16px;font-weight:900;color:${isIncome?"var(--income-color)":"var(--expense-color)"};">${lc.type}</div>
+        <div style="font-size:16px;font-weight:900;color:${isIncome ? "var(--income-color)" : "var(--expense-color)"};">${lc.type}</div>
       </div>
       <div style="background:var(--cream-dark);border-radius:12px;padding:12px;">
         <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${lc.amount}</div>
@@ -11766,7 +13359,16 @@ function parseVoiceInput(text) {
       <button class="btn-primary" id="voiceConfirm" style="flex:2;">${lc.confirm}</button>
     </div>`;
 
-  const modal = createModal("voiceModal", "🎤 " + (currentLang==="en"?"Voice Input":currentLang==="ka"?"ხმოვანი შეყვანა":"Голосовой ввод"), html);
+  const modal = createModal(
+    "voiceModal",
+    "🎤 " +
+      (currentLang === "en"
+        ? "Voice Input"
+        : currentLang === "ka"
+          ? "ხმოვანი შეყვანა"
+          : "Голосовой ввод"),
+    html,
+  );
   document.body.appendChild(modal);
   openModal("voiceModal");
 
@@ -11776,20 +13378,29 @@ function parseVoiceInput(text) {
     openAddModal();
     setTimeout(() => {
       const af = document.getElementById("addAmount");
-      if (af && amount) af.value = toDisp(amount / (exchangeRates[displayCurrency]||1) * exchangeRates["RUB"]).toFixed(2);
+      if (af && amount)
+        af.value = toDisp(
+          (amount / (exchangeRates[displayCurrency] || 1)) *
+            exchangeRates["RUB"],
+        ).toFixed(2);
     }, 300);
   });
 
   document.getElementById("voiceConfirm")?.addEventListener("click", () => {
     closeModal("voiceModal");
-    const amtRub = amount / (exchangeRates[displayCurrency]||1) * exchangeRates["RUB"];
+    const amtRub =
+      (amount / (exchangeRates[displayCurrency] || 1)) * exchangeRates["RUB"];
     const newTx = {
-      id: Date.now()+"_v",
+      id: Date.now() + "_v",
       type: isIncome ? "income" : "expense",
-      category: detectedCat || (isIncome ? Object.keys(incomeCategories)[0] : Object.keys(categories)[0]),
+      category:
+        detectedCat ||
+        (isIncome
+          ? Object.keys(incomeCategories)[0]
+          : Object.keys(categories)[0]),
       subcategory: "",
       amountRub: amtRub,
-      date: new Date().toISOString().slice(0,10),
+      date: new Date().toISOString().slice(0, 10),
       note: text,
       emoji: isIncome ? "💰" : "💸",
     };
@@ -11797,7 +13408,14 @@ function parseVoiceInput(text) {
     saveAll();
     updateTopBlocks();
     if (currentTab === "home") renderHome();
-    showToast((currentLang==="en"?"✅ Added by voice":currentLang==="ka"?"✅ ხმით დამატებულია":"✅ Добавлено голосом"), "success");
+    showToast(
+      currentLang === "en"
+        ? "✅ Added by voice"
+        : currentLang === "ka"
+          ? "✅ ხმით დამატებულია"
+          : "✅ Добавлено голосом",
+      "success",
+    );
     showCoinAnimation();
     haptic("success");
   });
@@ -11814,12 +13432,25 @@ function addVoiceButton() {
   const voiceBtn = document.createElement("button");
   voiceBtn.id = "voiceInputBtn";
   voiceBtn.innerHTML = "🎤";
-  voiceBtn.title = {ru:"Голосовой ввод",en:"Voice input",ka:"ხმოვანი შეყვანა"}[currentLang]||"Voice";
+  voiceBtn.title =
+    { ru: "Голосовой ввод", en: "Voice input", ka: "ხმოვანი შეყვანა" }[
+      currentLang
+    ] || "Voice";
   // Position: right side, above the nav bar, offset up so doesn't overlap FAB
-  voiceBtn.style.cssText = "position:fixed;bottom:140px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--primary-pale);border:2px solid var(--primary);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
-  voiceBtn.addEventListener("click", () => { haptic("medium"); startVoiceInput(); });
-  voiceBtn.addEventListener("mouseenter", () => voiceBtn.style.transform = "scale(1.12)");
-  voiceBtn.addEventListener("mouseleave", () => voiceBtn.style.transform = "");
+  voiceBtn.style.cssText =
+    "position:fixed;bottom:140px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--primary-pale);border:2px solid var(--primary);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
+  voiceBtn.addEventListener("click", () => {
+    haptic("medium");
+    startVoiceInput();
+  });
+  voiceBtn.addEventListener(
+    "mouseenter",
+    () => (voiceBtn.style.transform = "scale(1.12)"),
+  );
+  voiceBtn.addEventListener(
+    "mouseleave",
+    () => (voiceBtn.style.transform = ""),
+  );
   document.body.appendChild(voiceBtn);
 }
 setTimeout(addVoiceButton, 800);
@@ -11834,46 +13465,88 @@ function checkSmartSuggestions() {
   const todayDate = today.getDate();
   const suggestionKey = "lastSmartSuggestion";
   const lastSug = localStorage.getItem(suggestionKey);
-  if (lastSug === today.toISOString().slice(0,10)) return; // already shown today
+  if (lastSug === today.toISOString().slice(0, 10)) return; // already shown today
 
   // Pattern 1: Weekly spending pattern
   const dayStats = {};
-  transactions.filter(tx => tx.type === "expense" && tx.date).forEach(tx => {
-    const d = new Date(tx.date + "T00:00").getDay();
-    if (!dayStats[d]) dayStats[d] = { count: 0, total: 0, cats: {} };
-    dayStats[d].count++;
-    dayStats[d].total += tx.amountRub;
-    const cat = tx.category || "other";
-    dayStats[d].cats[cat] = (dayStats[d].cats[cat] || 0) + 1;
-  });
+  transactions
+    .filter((tx) => tx.type === "expense" && tx.date)
+    .forEach((tx) => {
+      const d = new Date(tx.date + "T00:00").getDay();
+      if (!dayStats[d]) dayStats[d] = { count: 0, total: 0, cats: {} };
+      dayStats[d].count++;
+      dayStats[d].total += tx.amountRub;
+      const cat = tx.category || "other";
+      dayStats[d].cats[cat] = (dayStats[d].cats[cat] || 0) + 1;
+    });
 
   const todayStats = dayStats[todayDay];
   if (todayStats && todayStats.count >= 3) {
-    const topCat = Object.entries(todayStats.cats).sort((a,b) => b[1]-a[1])[0]?.[0];
-    const dayNames = {ru:["воскресенье","понедельник","вторник","среду","четверг","пятницу","субботу"],en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],ka:["კვირას","ორშაბათს","სამშაბათს","ოთხშაბათს","ხუთშაბათს","პარასკევს","შაბათს"]};
-    const dayName = (dayNames[currentLang]||dayNames.ru)[todayDay];
-    const L = {
-      ru:`💡 Обычно по ${dayName} вы тратите на «${topCat}». Не забыли записать?`,
-      en:`💡 You usually spend on «${topCat}» on ${dayName}. Forgot to record?`,
-      ka:`💡 ჩვეულებრივ ${dayName} «${topCat}»-ს ხარჯავთ. დაავიწყდათ ჩაწერა?`,
+    const topCat = Object.entries(todayStats.cats).sort(
+      (a, b) => b[1] - a[1],
+    )[0]?.[0];
+    const dayNames = {
+      ru: [
+        "воскресенье",
+        "понедельник",
+        "вторник",
+        "среду",
+        "четверг",
+        "пятницу",
+        "субботу",
+      ],
+      en: [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ],
+      ka: [
+        "კვირას",
+        "ორშაბათს",
+        "სამშაბათს",
+        "ოთხშაბათს",
+        "ხუთშაბათს",
+        "პარასკევს",
+        "შაბათს",
+      ],
     };
-    localStorage.setItem(suggestionKey, today.toISOString().slice(0,10));
+    const dayName = (dayNames[currentLang] || dayNames.ru)[todayDay];
+    const L = {
+      ru: `💡 Обычно по ${dayName} вы тратите на «${topCat}». Не забыли записать?`,
+      en: `💡 You usually spend on «${topCat}» on ${dayName}. Forgot to record?`,
+      ka: `💡 ჩვეულებრივ ${dayName} «${topCat}»-ს ხარჯავთ. დაავიწყდათ ჩაწერა?`,
+    };
+    localStorage.setItem(suggestionKey, today.toISOString().slice(0, 10));
     setTimeout(() => {
-      showToast(L[currentLang]||L.ru, "info");
+      showToast(L[currentLang] || L.ru, "info");
     }, 5000);
   }
 
   // Pattern 2: Unusual spending (>2x average day)
-  const days30 = transactions.filter(tx => {
+  const days30 = transactions.filter((tx) => {
     if (tx.type !== "expense" || !tx.date) return false;
     const d = new Date(tx.date + "T00:00");
-    return (today - d) < 30 * 24 * 60 * 60 * 1000;
+    return today - d < 30 * 24 * 60 * 60 * 1000;
   });
-  const avgDay = days30.reduce((s,tx) => s + tx.amountRub, 0) / 30;
-  const todayTotal = transactions.filter(tx => tx.type === "expense" && (tx.date||"") === today.toISOString().slice(0,10)).reduce((s,tx) => s + tx.amountRub, 0);
+  const avgDay = days30.reduce((s, tx) => s + tx.amountRub, 0) / 30;
+  const todayTotal = transactions
+    .filter(
+      (tx) =>
+        tx.type === "expense" &&
+        (tx.date || "") === today.toISOString().slice(0, 10),
+    )
+    .reduce((s, tx) => s + tx.amountRub, 0);
   if (todayTotal > avgDay * 2.5 && todayTotal > 0 && avgDay > 0) {
-    const L = {ru:`⚠️ Сегодня вы потратили ${fmt(todayTotal)} — это больше обычного!`,en:`⚠️ You spent ${fmt(todayTotal)} today — that's above average!`,ka:`⚠️ დღეს ${fmt(todayTotal)} დახარჯეთ — ეს ჩვეულებრივზე მეტია!`};
-    showToast(L[currentLang]||L.ru, "warning");
+    const L = {
+      ru: `⚠️ Сегодня вы потратили ${fmt(todayTotal)} — это больше обычного!`,
+      en: `⚠️ You spent ${fmt(todayTotal)} today — that's above average!`,
+      ka: `⚠️ დღეს ${fmt(todayTotal)} დახარჯეთ — ეს ჩვეულებრივზე მეტია!`,
+    };
+    showToast(L[currentLang] || L.ru, "warning");
   }
 }
 setInterval(checkSmartSuggestions, 30 * 60 * 1000); // check every 30 min
@@ -11883,8 +13556,11 @@ setTimeout(checkSmartSuggestions, 8000); // and on load
 // 🎯 5. ЦЕЛИ И МЕЧТЫ с прогресс-баром
 // ═══════════════════════════════════════════════════════════════
 function getGoals() {
-  try { return JSON.parse(localStorage.getItem("budgetpro_goals") || "[]"); }
-  catch(e) { return []; }
+  try {
+    return JSON.parse(localStorage.getItem("budgetpro_goals") || "[]");
+  } catch (e) {
+    return [];
+  }
 }
 function saveGoals(goals) {
   localStorage.setItem("budgetpro_goals", JSON.stringify(goals));
@@ -11894,24 +13570,71 @@ function openGoalsModal() {
   const lang = currentLang;
   const goals = getGoals();
   const L = {
-    ru:{ title:"🎯 Мои цели и мечты", add:"+ Добавить цель", name:"Название цели", target:"Цель (сумма)", saved:"Уже накоплено", noGoals:"Нет целей. Добавьте первую мечту!", del:"Удалить", edit:"Пополнить", addSaved:"Пополнить", close:"Закрыть", progress:"Прогресс", done:"🏆 Достигнута!" },
-    en:{ title:"🎯 My Goals & Dreams", add:"+ Add goal", name:"Goal name", target:"Target amount", saved:"Already saved", noGoals:"No goals yet. Add your first dream!", del:"Delete", edit:"Add savings", addSaved:"Add savings", close:"Close", progress:"Progress", done:"🏆 Achieved!" },
-    ka:{ title:"🎯 ჩემი მიზნები", add:"+ მიზნის დამატება", name:"მიზნის სახელი", target:"სამიზნე თანხა", saved:"დაზოგილია", noGoals:"მიზნები არ არის. დაამატეთ!", del:"წაშლა", edit:"შევსება", addSaved:"შევსება", close:"დახურვა", progress:"პროგრესი", done:"🏆 მიღწეულია!" },
+    ru: {
+      title: "🎯 Мои цели и мечты",
+      add: "+ Добавить цель",
+      name: "Название цели",
+      target: "Цель (сумма)",
+      saved: "Уже накоплено",
+      noGoals: "Нет целей. Добавьте первую мечту!",
+      del: "Удалить",
+      edit: "Пополнить",
+      addSaved: "Пополнить",
+      close: "Закрыть",
+      progress: "Прогресс",
+      done: "🏆 Достигнута!",
+    },
+    en: {
+      title: "🎯 My Goals & Dreams",
+      add: "+ Add goal",
+      name: "Goal name",
+      target: "Target amount",
+      saved: "Already saved",
+      noGoals: "No goals yet. Add your first dream!",
+      del: "Delete",
+      edit: "Add savings",
+      addSaved: "Add savings",
+      close: "Close",
+      progress: "Progress",
+      done: "🏆 Achieved!",
+    },
+    ka: {
+      title: "🎯 ჩემი მიზნები",
+      add: "+ მიზნის დამატება",
+      name: "მიზნის სახელი",
+      target: "სამიზნე თანხა",
+      saved: "დაზოგილია",
+      noGoals: "მიზნები არ არის. დაამატეთ!",
+      del: "წაშლა",
+      edit: "შევსება",
+      addSaved: "შევსება",
+      close: "დახურვა",
+      progress: "პროგრესი",
+      done: "🏆 მიღწეულია!",
+    },
   };
-  const lc = L[lang]||L.ru;
+  const lc = L[lang] || L.ru;
 
-  const renderGoalCards = (gs) => gs.length === 0
-    ? `<div style="text-align:center;padding:32px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">🌟</div><div style="font-weight:700;">${lc.noGoals}</div></div>`
-    : gs.map((g,i) => {
-        const pct = Math.min(100, Math.round((g.saved / g.target) * 100));
-        const done = g.saved >= g.target;
-        const color = done ? "var(--gold)" : pct > 70 ? "var(--primary)" : pct > 40 ? "#2563eb" : "var(--text-muted)";
-        return `<div style="background:var(--card-bg);border-radius:18px;padding:16px;border:1.5px solid ${done?"var(--gold)":"var(--cream-border)"};margin-bottom:12px;${done?"box-shadow:0 0 0 3px rgba(255,200,0,0.2);":""}">
+  const renderGoalCards = (gs) =>
+    gs.length === 0
+      ? `<div style="text-align:center;padding:32px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">🌟</div><div style="font-weight:700;">${lc.noGoals}</div></div>`
+      : gs
+          .map((g, i) => {
+            const pct = Math.min(100, Math.round((g.saved / g.target) * 100));
+            const done = g.saved >= g.target;
+            const color = done
+              ? "var(--gold)"
+              : pct > 70
+                ? "var(--primary)"
+                : pct > 40
+                  ? "#2563eb"
+                  : "var(--text-muted)";
+            return `<div style="background:var(--card-bg);border-radius:18px;padding:16px;border:1.5px solid ${done ? "var(--gold)" : "var(--cream-border)"};margin-bottom:12px;${done ? "box-shadow:0 0 0 3px rgba(255,200,0,0.2);" : ""}">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <div style="font-size:28px;">${g.emoji||"🎯"}</div>
+            <div style="font-size:28px;">${g.emoji || "🎯"}</div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:900;font-size:15px;color:var(--text);">${esc(g.name)}</div>
-              <div style="font-size:12px;color:var(--text-muted);">${lc.progress}: ${pct}% ${done?"• "+lc.done:""}</div>
+              <div style="font-size:12px;color:var(--text-muted);">${lc.progress}: ${pct}% ${done ? "• " + lc.done : ""}</div>
             </div>
             <button class="goal-del-btn" data-gi="${i}" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-muted);padding:4px;">🗑</button>
           </div>
@@ -11920,13 +13643,14 @@ function openGoalsModal() {
             <span style="color:var(--text-muted);">${fmt(g.target)} цель</span>
           </div>
           <div style="height:12px;background:var(--cream-dark);border-radius:99px;overflow:hidden;margin-bottom:12px;">
-            <div style="height:100%;width:${pct}%;background:${done?"linear-gradient(90deg,var(--gold),#f59e0b)":"linear-gradient(90deg,var(--primary),var(--primary-med))"};border-radius:99px;transition:width 1s ease;"></div>
+            <div style="height:100%;width:${pct}%;background:${done ? "linear-gradient(90deg,var(--gold),#f59e0b)" : "linear-gradient(90deg,var(--primary),var(--primary-med))"};border-radius:99px;transition:width 1s ease;"></div>
           </div>
           <div style="display:flex;gap:8px;">
             <button class="goal-add-btn btn-primary" data-gi="${i}" style="flex:1;padding:10px;font-size:13px;">💰 ${lc.addSaved}</button>
           </div>
         </div>`;
-      }).join("");
+          })
+          .join("");
 
   const addForm = `
     <div style="background:var(--cream-dark);border-radius:16px;padding:14px;margin-bottom:16px;border:1.5px dashed var(--cream-border);">
@@ -11949,11 +13673,35 @@ function openGoalsModal() {
 
   document.getElementById("goalAddBtn")?.addEventListener("click", () => {
     const name = document.getElementById("goalName")?.value.trim();
-    const target = parseFloat(document.getElementById("goalTarget")?.value||"0");
-    const saved = parseFloat(document.getElementById("goalSaved")?.value||"0");
-    const emoji = document.getElementById("goalEmoji")?.value||"🎯";
-    if (!name || target <= 0) { showToast(currentLang==="en"?"Fill name and target":currentLang==="ka"?"შეავსეთ სახელი და მიზანი":"Заполните название и цель","error"); return; }
-    const newGoal = { name, target: target/exchangeRates[displayCurrency]*exchangeRates["RUB"]||target, saved: saved/exchangeRates[displayCurrency]*exchangeRates["RUB"]||saved, emoji, created: new Date().toISOString() };
+    const target = parseFloat(
+      document.getElementById("goalTarget")?.value || "0",
+    );
+    const saved = parseFloat(
+      document.getElementById("goalSaved")?.value || "0",
+    );
+    const emoji = document.getElementById("goalEmoji")?.value || "🎯";
+    if (!name || target <= 0) {
+      showToast(
+        currentLang === "en"
+          ? "Fill name and target"
+          : currentLang === "ka"
+            ? "შეავსეთ სახელი და მიზანი"
+            : "Заполните название и цель",
+        "error",
+      );
+      return;
+    }
+    const newGoal = {
+      name,
+      target:
+        (target / exchangeRates[displayCurrency]) * exchangeRates["RUB"] ||
+        target,
+      saved:
+        (saved / exchangeRates[displayCurrency]) * exchangeRates["RUB"] ||
+        saved,
+      emoji,
+      created: new Date().toISOString(),
+    };
     const gs = getGoals();
     gs.push(newGoal);
     saveGoals(gs);
@@ -11962,32 +13710,60 @@ function openGoalsModal() {
     document.getElementById("goalTarget").value = "";
     document.getElementById("goalSaved").value = "";
     haptic("success");
-    if (newGoal.saved >= newGoal.target) showConfetti({count:50,type:"goal"});
+    if (newGoal.saved >= newGoal.target)
+      showConfetti({ count: 50, type: "goal" });
     reattachGoalBtns(gs);
   });
   reattachGoalBtns(goals);
 
   function reattachGoalBtns(gs) {
-    document.querySelectorAll(".goal-del-btn").forEach(btn => {
+    document.querySelectorAll(".goal-del-btn").forEach((btn) => {
       btn.onclick = () => {
         const i = parseInt(btn.dataset.gi);
-        askConfirm(currentLang==="en"?"Delete this goal?":"Удалить цель?", () => {
-          gs.splice(i,1); saveGoals(gs);
-          document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
-          haptic("medium");
-          reattachGoalBtns(gs);
-        }, {icon:"🎯"});
+        askConfirm(
+          currentLang === "en" ? "Delete this goal?" : "Удалить цель?",
+          () => {
+            gs.splice(i, 1);
+            saveGoals(gs);
+            document.getElementById("goalsList").innerHTML =
+              renderGoalCards(gs);
+            haptic("medium");
+            reattachGoalBtns(gs);
+          },
+          { icon: "🎯" },
+        );
       };
     });
-    document.querySelectorAll(".goal-add-btn").forEach(btn => {
+    document.querySelectorAll(".goal-add-btn").forEach((btn) => {
       btn.onclick = () => {
         const i = parseInt(btn.dataset.gi);
-        const amt = parseFloat(prompt(currentLang==="en"?`Add to "${gs[i].name}" (${sym()}):`:currentLang==="ka"?`დაამატეთ "${gs[i].name}"-ს (${sym()}):`:  `Пополнить «${gs[i].name}» (${sym()}):`)||"0");
+        const amt = parseFloat(
+          prompt(
+            currentLang === "en"
+              ? `Add to "${gs[i].name}" (${sym()}):`
+              : currentLang === "ka"
+                ? `დაამატეთ "${gs[i].name}"-ს (${sym()}):`
+                : `Пополнить «${gs[i].name}» (${sym()}):`,
+          ) || "0",
+        );
         if (amt > 0) {
-          gs[i].saved += amt / (exchangeRates[displayCurrency]||1) * (exchangeRates["RUB"]||1);
+          gs[i].saved +=
+            (amt / (exchangeRates[displayCurrency] || 1)) *
+            (exchangeRates["RUB"] || 1);
           saveGoals(gs);
           document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
-          if (gs[i].saved >= gs[i].target) { showConfetti({count:60,type:"goal"}); showToast("🏆 " + (currentLang==="en"?"Goal achieved!":currentLang==="ka"?"მიზანი მიღწეულია!":"Цель достигнута!"), "success"); }
+          if (gs[i].saved >= gs[i].target) {
+            showConfetti({ count: 60, type: "goal" });
+            showToast(
+              "🏆 " +
+                (currentLang === "en"
+                  ? "Goal achieved!"
+                  : currentLang === "ka"
+                    ? "მიზანი მიღწეულია!"
+                    : "Цель достигнута!"),
+              "success",
+            );
+          }
           haptic("success");
           reattachGoalBtns(gs);
         }
@@ -12003,12 +13779,20 @@ function addGoalsNavButton() {
   const btn = document.createElement("button");
   btn.id = "goalsNavBtn";
   btn.innerHTML = "🎯";
-  btn.title = {ru:"Мои цели",en:"My Goals",ka:"მიზნები"}[currentLang]||"Goals";
+  btn.title =
+    { ru: "Мои цели", en: "My Goals", ka: "მიზნები" }[currentLang] || "Goals";
   // Position: left side, above the nav bar, offset up
-  btn.style.cssText = "position:fixed;bottom:140px;left:14px;width:44px;height:44px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
-  btn.addEventListener("click", () => { haptic("medium"); openGoalsModal(); });
-  btn.addEventListener("mouseenter", () => btn.style.transform = "scale(1.12)");
-  btn.addEventListener("mouseleave", () => btn.style.transform = "");
+  btn.style.cssText =
+    "position:fixed;bottom:140px;left:14px;width:44px;height:44px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
+  btn.addEventListener("click", () => {
+    haptic("medium");
+    openGoalsModal();
+  });
+  btn.addEventListener(
+    "mouseenter",
+    () => (btn.style.transform = "scale(1.12)"),
+  );
+  btn.addEventListener("mouseleave", () => (btn.style.transform = ""));
   document.body.appendChild(btn);
 }
 setTimeout(addGoalsNavButton, 900);
@@ -12019,18 +13803,33 @@ setTimeout(addGoalsNavButton, 900);
 function checkWeeklyInsight() {
   const today = new Date();
   const isMonday = today.getDay() === 1;
-  const insightKey = "weeklyInsight_" + today.toISOString().slice(0,7) + "_w" + Math.floor(today.getDate()/7);
+  const insightKey =
+    "weeklyInsight_" +
+    today.toISOString().slice(0, 7) +
+    "_w" +
+    Math.floor(today.getDate() / 7);
   if (localStorage.getItem(insightKey)) return;
   if (!isMonday && !localStorage.getItem("debugInsight")) return;
 
   const now = today.getTime();
   const msWeek = 7 * 24 * 60 * 60 * 1000;
-  const thisWeekTx = transactions.filter(tx => tx.type==="expense" && tx.date && (now - new Date(tx.date+"T00:00").getTime()) < msWeek);
-  const prevWeekTx = transactions.filter(tx => tx.type==="expense" && tx.date && (now - new Date(tx.date+"T00:00").getTime()) >= msWeek && (now - new Date(tx.date+"T00:00").getTime()) < msWeek*2);
+  const thisWeekTx = transactions.filter(
+    (tx) =>
+      tx.type === "expense" &&
+      tx.date &&
+      now - new Date(tx.date + "T00:00").getTime() < msWeek,
+  );
+  const prevWeekTx = transactions.filter(
+    (tx) =>
+      tx.type === "expense" &&
+      tx.date &&
+      now - new Date(tx.date + "T00:00").getTime() >= msWeek &&
+      now - new Date(tx.date + "T00:00").getTime() < msWeek * 2,
+  );
   if (thisWeekTx.length < 2 || prevWeekTx.length < 2) return;
 
-  const thisTotal = thisWeekTx.reduce((s,tx) => s + tx.amountRub, 0);
-  const prevTotal = prevWeekTx.reduce((s,tx) => s + tx.amountRub, 0);
+  const thisTotal = thisWeekTx.reduce((s, tx) => s + tx.amountRub, 0);
+  const prevTotal = prevWeekTx.reduce((s, tx) => s + tx.amountRub, 0);
   if (prevTotal === 0) return;
   const diff = Math.round(((prevTotal - thisTotal) / prevTotal) * 100);
 
@@ -12038,19 +13837,26 @@ function checkWeeklyInsight() {
   setTimeout(() => {
     const insightEl = document.createElement("div");
     insightEl.id = "weeklyInsightCard";
-    insightEl.style.cssText = "margin:12px 16px 0;border-radius:18px;padding:16px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-med) 100%);color:white;position:relative;animation:fadeUp 0.5s ease both;box-shadow:var(--shadow-md);";
+    insightEl.style.cssText =
+      "margin:12px 16px 0;border-radius:18px;padding:16px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-med) 100%);color:white;position:relative;animation:fadeUp 0.5s ease both;box-shadow:var(--shadow-md);";
     const positive = diff > 0;
     const L = {
-      ru: positive ? `🎉 На прошлой неделе вы потратили на <b>${Math.abs(diff)}%</b> меньше, чем позапрошлой. Отличная работа!` : `📊 На прошлой неделе расходы выросли на <b>${Math.abs(diff)}%</b>. Попробуйте сократить необязательные траты.`,
-      en: positive ? `🎉 Last week you spent <b>${Math.abs(diff)}%</b> less than the week before. Great job!` : `📊 Last week expenses rose by <b>${Math.abs(diff)}%</b>. Try to cut optional spending.`,
-      ka: positive ? `🎉 გასულ კვირას <b>${Math.abs(diff)}%</b>-ით ნაკლები დახარჯეთ. მშვენიერია!` : `📊 გასულ კვირას ხარჯები <b>${Math.abs(diff)}%</b>-ით გაიზარდა.`,
+      ru: positive
+        ? `🎉 На прошлой неделе вы потратили на <b>${Math.abs(diff)}%</b> меньше, чем позапрошлой. Отличная работа!`
+        : `📊 На прошлой неделе расходы выросли на <b>${Math.abs(diff)}%</b>. Попробуйте сократить необязательные траты.`,
+      en: positive
+        ? `🎉 Last week you spent <b>${Math.abs(diff)}%</b> less than the week before. Great job!`
+        : `📊 Last week expenses rose by <b>${Math.abs(diff)}%</b>. Try to cut optional spending.`,
+      ka: positive
+        ? `🎉 გასულ კვირას <b>${Math.abs(diff)}%</b>-ით ნაკლები დახარჯეთ. მშვენიერია!`
+        : `📊 გასულ კვირას ხარჯები <b>${Math.abs(diff)}%</b>-ით გაიზარდა.`,
     };
     insightEl.innerHTML = `
       <button id="dismissInsight" style="position:absolute;top:10px;right:12px;background:rgba(255,255,255,0.2);border:none;color:white;width:28px;height:28px;border-radius:50%;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
-      <div style="font-size:13px;line-height:1.6;">${L[currentLang]||L.ru}</div>
+      <div style="font-size:13px;line-height:1.6;">${L[currentLang] || L.ru}</div>
       <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:12px;opacity:0.8;">
-        <span>${{ru:"Прошлая неделя",en:"Last week",ka:"გასული კვირა"}[currentLang]}: ${fmt(thisTotal)}</span>
-        <span>${{ru:"Позапрошлая",en:"Week before",ka:"მანამდე"}[currentLang]}: ${fmt(prevTotal)}</span>
+        <span>${{ ru: "Прошлая неделя", en: "Last week", ka: "გასული კვირა" }[currentLang]}: ${fmt(thisTotal)}</span>
+        <span>${{ ru: "Позапрошлая", en: "Week before", ka: "მანამდე" }[currentLang]}: ${fmt(prevTotal)}</span>
       </div>`;
     const mainContent = document.getElementById("mainContent");
     if (mainContent && mainContent.firstChild) {
@@ -12061,7 +13867,17 @@ function checkWeeklyInsight() {
       setTimeout(() => insightEl.remove(), 300);
       haptic("light");
     });
-    if (positive) setTimeout(() => showConfetti({x:window.innerWidth/2,y:200,count:30,type:"confetti"}), 300);
+    if (positive)
+      setTimeout(
+        () =>
+          showConfetti({
+            x: window.innerWidth / 2,
+            y: 200,
+            count: 30,
+            type: "confetti",
+          }),
+        300,
+      );
   }, 2000);
 }
 setTimeout(checkWeeklyInsight, 4000);
@@ -12072,25 +13888,81 @@ setTimeout(checkWeeklyInsight, 4000);
 function openPartnerMode() {
   const lang = currentLang;
   const L = {
-    ru: { title:"💑 Партнёрский режим", desc:"Общий бюджет с партнёром в реальном времени через Firebase", firebaseReq:"⚠️ Сначала настройте Firebase в панели создателя", roomLabel:"Код комнаты", createRoom:"🆕 Создать комнату", joinRoom:"🔗 Войти в комнату", yourCode:"Ваш код комнаты:", shareCode:"Поделитесь этим кодом с партнёром", partnerJoined:"✅ Партнёр подключился!", waitPartner:"⏳ Ожидаем партнёра...", liveBalance:"💰 Общий баланс", liveTransactions:"📋 Общие операции", leaveRoom:"🚪 Выйти", addTx:"Добавить операцию", noFirebase:"Для партнёрского режима нужен Firebase. Настройте в панели создателя.", close:"Закрыть" },
-    en: { title:"💑 Partner Mode", desc:"Shared real-time budget with your partner via Firebase", firebaseReq:"⚠️ Configure Firebase in creator panel first", roomLabel:"Room code", createRoom:"🆕 Create room", joinRoom:"🔗 Join room", yourCode:"Your room code:", shareCode:"Share this code with your partner", partnerJoined:"✅ Partner connected!", waitPartner:"⏳ Waiting for partner...", liveBalance:"💰 Shared balance", liveTransactions:"📋 Shared transactions", leaveRoom:"🚪 Leave room", addTx:"Add transaction", noFirebase:"Partner mode needs Firebase. Configure in creator panel.", close:"Close" },
-    ka: { title:"💑 პარტნიორის რეჟიმი", desc:"საერთო ბიუჯეტი პარტნიორთან Firebase-ის გამოყენებით", firebaseReq:"⚠️ ჯერ Firebase-ის კონფიგურაცია გამოიყენეთ", roomLabel:"ოთახის კოდი", createRoom:"🆕 ოთახის შექმნა", joinRoom:"🔗 ოთახში შეერთება", yourCode:"თქვენი ოთახის კოდი:", shareCode:"გაუზიარეთ ეს კოდი პარტნიორს", partnerJoined:"✅ პარტნიორი დაუკავშირდა!", waitPartner:"⏳ ველოდებით...", liveBalance:"💰 საერთო ბალანსი", liveTransactions:"📋 საერთო ოპერაციები", leaveRoom:"🚪 გასვლა", addTx:"ოპერაციის დამატება", noFirebase:"Firebase-ის კონფიგურაცია სჭირდება.", close:"დახურვა" },
+    ru: {
+      title: "💑 Партнёрский режим",
+      desc: "Общий бюджет с партнёром в реальном времени через Firebase",
+      firebaseReq: "⚠️ Сначала настройте Firebase в панели создателя",
+      roomLabel: "Код комнаты",
+      createRoom: "🆕 Создать комнату",
+      joinRoom: "🔗 Войти в комнату",
+      yourCode: "Ваш код комнаты:",
+      shareCode: "Поделитесь этим кодом с партнёром",
+      partnerJoined: "✅ Партнёр подключился!",
+      waitPartner: "⏳ Ожидаем партнёра...",
+      liveBalance: "💰 Общий баланс",
+      liveTransactions: "📋 Общие операции",
+      leaveRoom: "🚪 Выйти",
+      addTx: "Добавить операцию",
+      noFirebase:
+        "Для партнёрского режима нужен Firebase. Настройте в панели создателя.",
+      close: "Закрыть",
+    },
+    en: {
+      title: "💑 Partner Mode",
+      desc: "Shared real-time budget with your partner via Firebase",
+      firebaseReq: "⚠️ Configure Firebase in creator panel first",
+      roomLabel: "Room code",
+      createRoom: "🆕 Create room",
+      joinRoom: "🔗 Join room",
+      yourCode: "Your room code:",
+      shareCode: "Share this code with your partner",
+      partnerJoined: "✅ Partner connected!",
+      waitPartner: "⏳ Waiting for partner...",
+      liveBalance: "💰 Shared balance",
+      liveTransactions: "📋 Shared transactions",
+      leaveRoom: "🚪 Leave room",
+      addTx: "Add transaction",
+      noFirebase: "Partner mode needs Firebase. Configure in creator panel.",
+      close: "Close",
+    },
+    ka: {
+      title: "💑 პარტნიორის რეჟიმი",
+      desc: "საერთო ბიუჯეტი პარტნიორთან Firebase-ის გამოყენებით",
+      firebaseReq: "⚠️ ჯერ Firebase-ის კონფიგურაცია გამოიყენეთ",
+      roomLabel: "ოთახის კოდი",
+      createRoom: "🆕 ოთახის შექმნა",
+      joinRoom: "🔗 ოთახში შეერთება",
+      yourCode: "თქვენი ოთახის კოდი:",
+      shareCode: "გაუზიარეთ ეს კოდი პარტნიორს",
+      partnerJoined: "✅ პარტნიორი დაუკავშირდა!",
+      waitPartner: "⏳ ველოდებით...",
+      liveBalance: "💰 საერთო ბალანსი",
+      liveTransactions: "📋 საერთო ოპერაციები",
+      leaveRoom: "🚪 გასვლა",
+      addTx: "ოპერაციის დამატება",
+      noFirebase: "Firebase-ის კონფიგურაცია სჭირდება.",
+      close: "დახურვა",
+    },
   };
-  const lc = L[lang]||L.ru;
+  const lc = L[lang] || L.ru;
 
   if (!_fbDB) {
     const html = `<div style="background:var(--expense-pale);border-radius:14px;padding:16px;margin-bottom:16px;border-left:4px solid var(--expense-color);font-size:14px;line-height:1.6;">${lc.noFirebase}</div><button class="btn-secondary" id="partnerClose" style="width:100%;">${lc.close}</button>`;
     const m = createModal("partnerModal", lc.title, html);
     document.body.appendChild(m);
     openModal("partnerModal");
-    document.getElementById("partnerClose")?.addEventListener("click", () => closeModal("partnerModal"));
+    document
+      .getElementById("partnerClose")
+      ?.addEventListener("click", () => closeModal("partnerModal"));
     return;
   }
 
   const savedRoom = localStorage.getItem("partnerRoomCode");
   const html = `
     <div style="background:var(--primary-pale);border-radius:14px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.5;border-left:4px solid var(--primary);">${lc.desc}</div>
-    ${savedRoom ? `
+    ${
+      savedRoom
+        ? `
       <div style="text-align:center;margin-bottom:14px;">
         <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${lc.yourCode}</div>
         <div style="font-size:28px;font-weight:900;color:var(--primary);letter-spacing:4px;font-family:monospace;">${savedRoom}</div>
@@ -12100,7 +13972,8 @@ function openPartnerMode() {
       <div id="sharedTxList" style="max-height:200px;overflow-y:auto;margin-bottom:14px;"></div>
       <button class="btn-primary" id="partnerAddTx" style="width:100%;margin-bottom:8px;">💸 ${lc.addTx}</button>
       <button class="btn-secondary" id="partnerLeave" style="width:100%;">🚪 ${lc.leaveRoom}</button>
-    ` : `
+    `
+        : `
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn-primary" id="createRoomBtn" style="width:100%;padding:16px;">${lc.createRoom}</button>
         <div style="text-align:center;color:var(--text-muted);font-size:13px;">— или —</div>
@@ -12109,7 +13982,8 @@ function openPartnerMode() {
           <button class="btn-primary" id="joinRoomBtn" style="padding:0 16px;">${lc.joinRoom}</button>
         </div>
       </div>
-    `}
+    `
+    }
   `;
 
   const modal = createModal("partnerModal", lc.title, html);
@@ -12119,28 +13993,44 @@ function openPartnerMode() {
   if (savedRoom) {
     // Listen for partner's transactions
     try {
-      _fbDB.ref("partner_rooms/" + savedRoom + "/transactions").on("value", snap => {
-        const data = snap.val();
-        const txList = document.getElementById("sharedTxList");
-        const statusEl = document.getElementById("partnerStatus");
-        if (!data) return;
-        const txs = Object.values(data).sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,10);
-        if (statusEl) statusEl.textContent = lc.partnerJoined;
-        if (txList) txList.innerHTML = txs.map(tx => `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--cream-border);font-size:13px;"><span>${esc(tx.category||"?")} ${tx.who?`(${esc(tx.who)})`:""}</span><span style="color:${tx.type==="income"?"var(--income-color)":"var(--expense-color)"};">${tx.type==="income"?"+":"-"}${fmt(tx.amountRub)}</span></div>`).join("");
-      });
-    } catch(e) {}
+      _fbDB
+        .ref("partner_rooms/" + savedRoom + "/transactions")
+        .on("value", (snap) => {
+          const data = snap.val();
+          const txList = document.getElementById("sharedTxList");
+          const statusEl = document.getElementById("partnerStatus");
+          if (!data) return;
+          const txs = Object.values(data)
+            .sort((a, b) => new Date(b.date) - new Date(a.date))
+            .slice(0, 10);
+          if (statusEl) statusEl.textContent = lc.partnerJoined;
+          if (txList)
+            txList.innerHTML = txs
+              .map(
+                (tx) =>
+                  `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--cream-border);font-size:13px;"><span>${esc(tx.category || "?")} ${tx.who ? `(${esc(tx.who)})` : ""}</span><span style="color:${tx.type === "income" ? "var(--income-color)" : "var(--expense-color)"};">${tx.type === "income" ? "+" : "-"}${fmt(tx.amountRub)}</span></div>`,
+              )
+              .join("");
+        });
+    } catch (e) {}
 
     document.getElementById("partnerLeave")?.addEventListener("click", () => {
       localStorage.removeItem("partnerRoomCode");
       closeModal("partnerModal");
-      showToast({ru:"Вы вышли из комнаты",en:"Left the room",ka:"ოთახიდან გამოხვედით"}[lang]);
+      showToast(
+        {
+          ru: "Вы вышли из комнаты",
+          en: "Left the room",
+          ka: "ოთახიდან გამოხვედით",
+        }[lang],
+      );
     });
     document.getElementById("partnerAddTx")?.addEventListener("click", () => {
       closeModal("partnerModal");
       openAddModal();
     });
   } else {
-    const genCode = () => Math.random().toString(36).substr(2,6).toUpperCase();
+    const genCode = () => Math.random().toString(36).substr(2, 6).toUpperCase();
     document.getElementById("createRoomBtn")?.addEventListener("click", () => {
       const code = genCode();
       localStorage.setItem("partnerRoomCode", code);
@@ -12148,8 +14038,20 @@ function openPartnerMode() {
       openPartnerMode();
     });
     document.getElementById("joinRoomBtn")?.addEventListener("click", () => {
-      const code = (document.getElementById("joinRoomInput")?.value||"").trim().toUpperCase();
-      if (code.length < 4) { showToast({ru:"Введите код комнаты",en:"Enter room code",ka:"ჩაწერეთ კოდი"}[lang],"error"); return; }
+      const code = (document.getElementById("joinRoomInput")?.value || "")
+        .trim()
+        .toUpperCase();
+      if (code.length < 4) {
+        showToast(
+          {
+            ru: "Введите код комнаты",
+            en: "Enter room code",
+            ka: "ჩაწერეთ კოდი",
+          }[lang],
+          "error",
+        );
+        return;
+      }
       localStorage.setItem("partnerRoomCode", code);
       closeModal("partnerModal");
       openPartnerMode();
@@ -12159,23 +14061,25 @@ function openPartnerMode() {
 
 // Wire partner mode to shared transactions save
 const _origSaveAll = saveAll;
-saveAll = function() {
+saveAll = function () {
   _origSaveAll();
   const roomCode = localStorage.getItem("partnerRoomCode");
   if (roomCode && _fbDB) {
-    const prof = profiles.find(p => p.id === activeProfileId);
+    const prof = profiles.find((p) => p.id === activeProfileId);
     const txToShare = {};
-    transactions.slice(0,50).forEach((tx,i) => {
-      const key = tx.id || ("tx_"+i);
-      txToShare[key.replace(/\./g,"_")] = { ...tx, who: prof?.name||"?" };
+    transactions.slice(0, 50).forEach((tx, i) => {
+      const key = tx.id || "tx_" + i;
+      txToShare[key.replace(/\./g, "_")] = { ...tx, who: prof?.name || "?" };
     });
-    try { _fbDB.ref("partner_rooms/"+roomCode+"/transactions").set(txToShare); } catch(e) {}
+    try {
+      _fbDB.ref("partner_rooms/" + roomCode + "/transactions").set(txToShare);
+    } catch (e) {}
   }
 };
 
 // Add partner button to new tools block
 const _origInjectTools = injectNewToolButtons;
-injectNewToolButtons = function() {
+injectNewToolButtons = function () {
   _origInjectTools();
   const block = document.getElementById("newToolsBlock");
   if (!block || document.getElementById("partnerModeBtn")) return;
@@ -12183,8 +14087,11 @@ injectNewToolButtons = function() {
   const btn = document.createElement("button");
   btn.className = "new-tool-btn";
   btn.id = "partnerModeBtn";
-  btn.innerHTML = `<span class="ntb-icon">💑</span><span class="ntb-text"><span class="ntb-title">${{ru:"Партнёрский режим",en:"Partner Mode",ka:"პარტნიორის რეჟიმი"}[lang]}</span><span class="ntb-sub">${{ru:"Общий бюджет с партнёром в реальном времени",en:"Shared real-time budget with partner",ka:"საერთო ბიუჯეტი პარტნიორთან"}[lang]}</span></span><span class="ntb-arrow">›</span>`;
-  btn.addEventListener("click", () => { haptic("medium"); openPartnerMode(); });
+  btn.innerHTML = `<span class="ntb-icon">💑</span><span class="ntb-text"><span class="ntb-title">${{ ru: "Партнёрский режим", en: "Partner Mode", ka: "პარტნიორის რეჟიმი" }[lang]}</span><span class="ntb-sub">${{ ru: "Общий бюджет с партнёром в реальном времени", en: "Shared real-time budget with partner", ka: "საერთო ბიუჯეტი პარტნიორთან" }[lang]}</span></span><span class="ntb-arrow">›</span>`;
+  btn.addEventListener("click", () => {
+    haptic("medium");
+    openPartnerMode();
+  });
   block.appendChild(btn);
 
   // Also add goals button
@@ -12192,12 +14099,14 @@ injectNewToolButtons = function() {
     const gb = document.createElement("button");
     gb.className = "new-tool-btn";
     gb.id = "goalsToolBtn";
-    gb.innerHTML = `<span class="ntb-icon">🎯</span><span class="ntb-text"><span class="ntb-title">${{ru:"Мои цели",en:"My Goals",ka:"ჩემი მიზნები"}[lang]}</span><span class="ntb-sub">${{ru:"Откладывайте на мечты с прогресс-баром",en:"Save for dreams with progress bar",ka:"დაზოგეთ ოცნებებისთვის"}[lang]}</span></span><span class="ntb-arrow">›</span>`;
-    gb.addEventListener("click", () => { haptic("medium"); openGoalsModal(); });
+    gb.innerHTML = `<span class="ntb-icon">🎯</span><span class="ntb-text"><span class="ntb-title">${{ ru: "Мои цели", en: "My Goals", ka: "ჩემი მიზნები" }[lang]}</span><span class="ntb-sub">${{ ru: "Откладывайте на мечты с прогресс-баром", en: "Save for dreams with progress bar", ka: "დაზოგეთ ოცნებებისთვის" }[lang]}</span></span><span class="ntb-arrow">›</span>`;
+    gb.addEventListener("click", () => {
+      haptic("medium");
+      openGoalsModal();
+    });
     block.appendChild(gb);
   }
 };
-
 
 // ██████████████████████████████████████████████████████████████
 // 🎓 СИСТЕМА ПОДСКАЗОК И ИНТЕРАКТИВНЫЙ ГИД
@@ -12207,64 +14116,240 @@ injectNewToolButtons = function() {
 const TOOLTIPS = {
   ru: {
     // Навигация
-    "home":          { icon:"🏠", title:"Главная", text:"Здесь отображается ваш баланс, история операций и быстрая сводка доходов и расходов." },
-    "stats":         { icon:"📊", title:"Статистика", text:"Диаграммы расходов по категориям, тренды и прогноз на следующий месяц. Нажмите чтобы увидеть куда уходят деньги." },
-    "tools":         { icon:"🧮", title:"Инструменты", text:"Калькулятор, конвертер валют, сканер чеков, экспорт данных и другие полезные функции." },
-    "notebook":      { icon:"📔", title:"Блокнот", text:"Личные заметки и записи которые не связаны с операциями. Храните здесь что угодно." },
-    "settings":      { icon:"⚙️", title:"Настройки", text:"Управление профилями, темы оформления, валюта, напоминания, бюджеты и многое другое." },
+    home: {
+      icon: "🏠",
+      title: "Главная",
+      text: "Здесь отображается ваш баланс, история операций и быстрая сводка доходов и расходов.",
+    },
+    stats: {
+      icon: "📊",
+      title: "Статистика",
+      text: "Диаграммы расходов по категориям, тренды и прогноз на следующий месяц. Нажмите чтобы увидеть куда уходят деньги.",
+    },
+    tools: {
+      icon: "🧮",
+      title: "Инструменты",
+      text: "Калькулятор, конвертер валют, сканер чеков, экспорт данных и другие полезные функции.",
+    },
+    notebook: {
+      icon: "📔",
+      title: "Блокнот",
+      text: "Личные заметки и записи которые не связаны с операциями. Храните здесь что угодно.",
+    },
+    settings: {
+      icon: "⚙️",
+      title: "Настройки",
+      text: "Управление профилями, темы оформления, валюта, напоминания, бюджеты и многое другое.",
+    },
     // Кнопки шапки
-    "headerSupportBtn": { icon:"💬", title:"Поддержка", text:"Напишите создателю приложения. Задайте вопрос, сообщите об ошибке или оставьте отзыв." },
-    "headerGuideBtn":   { icon:"📖", title:"Обучение", text:"Пошаговый тур по приложению. Нажмите чтобы узнать как пользоваться всеми функциями." },
-    "headerLangBtn":    { icon:"🌐", title:"Язык", text:"Переключение между тремя языками: Русский 🇷🇺, English 🇬🇧, ქართული 🇬🇪." },
-    "themeToggle":      { icon:"🎨", title:"Тема", text:"Переключение между светлой и тёмной темой. Или включите автоматическую смену по времени суток в настройках." },
-    "appLogoBtn":       { icon:"🌿", title:"БюджетPRO", text:"Нажмите 4 раза чтобы войти в режим создателя (только для создателя приложения)." },
+    headerSupportBtn: {
+      icon: "💬",
+      title: "Поддержка",
+      text: "Напишите создателю приложения. Задайте вопрос, сообщите об ошибке или оставьте отзыв.",
+    },
+    headerGuideBtn: {
+      icon: "📖",
+      title: "Обучение",
+      text: "Пошаговый тур по приложению. Нажмите чтобы узнать как пользоваться всеми функциями.",
+    },
+    headerLangBtn: {
+      icon: "🌐",
+      title: "Язык",
+      text: "Переключение между тремя языками: Русский 🇷🇺, English 🇬🇧, ქართული 🇬🇪.",
+    },
+    themeToggle: {
+      icon: "🎨",
+      title: "Тема",
+      text: "Переключение между светлой и тёмной темой. Или включите автоматическую смену по времени суток в настройках.",
+    },
+    appLogoBtn: {
+      icon: "🌿",
+      title: "БюджетPRO",
+      text: "Нажмите 4 раза чтобы войти в режим создателя (только для создателя приложения).",
+    },
     // Карточки
-    "balanceCard":   { icon:"💎", title:"Баланс", text:"Текущий баланс = начальная сумма + доходы − расходы. Нажмите чтобы фильтровать историю." },
-    "incomeCard":    { icon:"📈", title:"Доходы", text:"Сумма всех поступлений за выбранный период. Нажмите чтобы показать только доходы в истории." },
-    "expenseCard":   { icon:"📉", title:"Расходы", text:"Сумма всех трат за выбранный период. Нажмите чтобы показать только расходы в истории." },
-    "salaryCard":    { icon:"💼", title:"Начальная сумма", text:"Деньги с которых вы начали учёт (наличные, сбережения). Нажмите чтобы изменить." },
+    balanceCard: {
+      icon: "💎",
+      title: "Баланс",
+      text: "Текущий баланс = начальная сумма + доходы − расходы. Нажмите чтобы фильтровать историю.",
+    },
+    incomeCard: {
+      icon: "📈",
+      title: "Доходы",
+      text: "Сумма всех поступлений за выбранный период. Нажмите чтобы показать только доходы в истории.",
+    },
+    expenseCard: {
+      icon: "📉",
+      title: "Расходы",
+      text: "Сумма всех трат за выбранный период. Нажмите чтобы показать только расходы в истории.",
+    },
+    salaryCard: {
+      icon: "💼",
+      title: "Начальная сумма",
+      text: "Деньги с которых вы начали учёт (наличные, сбережения). Нажмите чтобы изменить.",
+    },
     // FAB
-    "fabBtn":        { icon:"➕", title:"Добавить операцию", text:"Главная кнопка приложения! Нажмите чтобы добавить расход или доход. Также можно свайпнуть снизу вверх." },
+    fabBtn: {
+      icon: "➕",
+      title: "Добавить операцию",
+      text: "Главная кнопка приложения! Нажмите чтобы добавить расход или доход. Также можно свайпнуть снизу вверх.",
+    },
     // Плавающие кнопки
-    "voiceInputBtn": { icon:"🎤", title:"Голосовой ввод", text:"Скажите «потратил 50 лари на продукты» — приложение само добавит расход. Работает в Chrome." },
-    "goalsNavBtn":   { icon:"🎯", title:"Мои цели", text:"Накопления на мечты с прогресс-баром. Добавьте цель, пополняйте её и получите конфетти при достижении!" },
+    voiceInputBtn: {
+      icon: "🎤",
+      title: "Голосовой ввод",
+      text: "Скажите «потратил 50 лари на продукты» — приложение само добавит расход. Работает в Chrome.",
+    },
+    goalsNavBtn: {
+      icon: "🎯",
+      title: "Мои цели",
+      text: "Накопления на мечты с прогресс-баром. Добавьте цель, пополняйте её и получите конфетти при достижении!",
+    },
   },
   en: {
-    "home":          { icon:"🏠", title:"Home", text:"Shows your balance, transaction history, and a quick income/expense summary." },
-    "stats":         { icon:"📊", title:"Stats", text:"Expense charts by category, trends, and monthly forecast. See where your money goes." },
-    "tools":         { icon:"🧮", title:"Tools", text:"Calculator, currency converter, receipt scanner, data export and other useful features." },
-    "notebook":      { icon:"📔", title:"Notebook", text:"Personal notes not linked to transactions. Store anything you want here." },
-    "settings":      { icon:"⚙️", title:"Settings", text:"Manage profiles, themes, currency, reminders, budgets and more." },
-    "headerSupportBtn": { icon:"💬", title:"Support", text:"Write to the app creator. Ask a question, report a bug, or leave feedback." },
-    "headerGuideBtn":   { icon:"📖", title:"Guide", text:"Step-by-step tour of the app. Learn how to use all features." },
-    "headerLangBtn":    { icon:"🌐", title:"Language", text:"Switch between three languages: Russian 🇷🇺, English 🇬🇧, Georgian 🇬🇪." },
-    "themeToggle":      { icon:"🎨", title:"Theme", text:"Switch between light and dark theme. Or enable automatic time-based switching in Settings." },
-    "appLogoBtn":       { icon:"🌿", title:"BudgetPRO", text:"Tap 4 times to enter creator mode (only for the app creator)." },
-    "balanceCard":   { icon:"💎", title:"Balance", text:"Current balance = starting amount + income − expenses. Tap to filter history." },
-    "incomeCard":    { icon:"📈", title:"Income", text:"Total income for selected period. Tap to show only income in history." },
-    "expenseCard":   { icon:"📉", title:"Expenses", text:"Total expenses for selected period. Tap to show only expenses in history." },
-    "salaryCard":    { icon:"💼", title:"Starting amount", text:"Money you started tracking from (cash, savings). Tap to change." },
-    "fabBtn":        { icon:"➕", title:"Add transaction", text:"The main app button! Tap to add an expense or income. Or swipe up from the bottom." },
-    "voiceInputBtn": { icon:"🎤", title:"Voice input", text:"Say 'spent 50 on groceries' — app adds it automatically. Works in Chrome." },
-    "goalsNavBtn":   { icon:"🎯", title:"My Goals", text:"Save for dreams with a progress bar. Add a goal, fund it, get confetti on completion!" },
+    home: {
+      icon: "🏠",
+      title: "Home",
+      text: "Shows your balance, transaction history, and a quick income/expense summary.",
+    },
+    stats: {
+      icon: "📊",
+      title: "Stats",
+      text: "Expense charts by category, trends, and monthly forecast. See where your money goes.",
+    },
+    tools: {
+      icon: "🧮",
+      title: "Tools",
+      text: "Calculator, currency converter, receipt scanner, data export and other useful features.",
+    },
+    notebook: {
+      icon: "📔",
+      title: "Notebook",
+      text: "Personal notes not linked to transactions. Store anything you want here.",
+    },
+    settings: {
+      icon: "⚙️",
+      title: "Settings",
+      text: "Manage profiles, themes, currency, reminders, budgets and more.",
+    },
+    headerSupportBtn: {
+      icon: "💬",
+      title: "Support",
+      text: "Write to the app creator. Ask a question, report a bug, or leave feedback.",
+    },
+    headerGuideBtn: {
+      icon: "📖",
+      title: "Guide",
+      text: "Step-by-step tour of the app. Learn how to use all features.",
+    },
+    headerLangBtn: {
+      icon: "🌐",
+      title: "Language",
+      text: "Switch between three languages: Russian 🇷🇺, English 🇬🇧, Georgian 🇬🇪.",
+    },
+    themeToggle: {
+      icon: "🎨",
+      title: "Theme",
+      text: "Switch between light and dark theme. Or enable automatic time-based switching in Settings.",
+    },
+    appLogoBtn: {
+      icon: "🌿",
+      title: "BudgetPRO",
+      text: "Tap 4 times to enter creator mode (only for the app creator).",
+    },
+    balanceCard: {
+      icon: "💎",
+      title: "Balance",
+      text: "Current balance = starting amount + income − expenses. Tap to filter history.",
+    },
+    incomeCard: {
+      icon: "📈",
+      title: "Income",
+      text: "Total income for selected period. Tap to show only income in history.",
+    },
+    expenseCard: {
+      icon: "📉",
+      title: "Expenses",
+      text: "Total expenses for selected period. Tap to show only expenses in history.",
+    },
+    salaryCard: {
+      icon: "💼",
+      title: "Starting amount",
+      text: "Money you started tracking from (cash, savings). Tap to change.",
+    },
+    fabBtn: {
+      icon: "➕",
+      title: "Add transaction",
+      text: "The main app button! Tap to add an expense or income. Or swipe up from the bottom.",
+    },
+    voiceInputBtn: {
+      icon: "🎤",
+      title: "Voice input",
+      text: "Say 'spent 50 on groceries' — app adds it automatically. Works in Chrome.",
+    },
+    goalsNavBtn: {
+      icon: "🎯",
+      title: "My Goals",
+      text: "Save for dreams with a progress bar. Add a goal, fund it, get confetti on completion!",
+    },
   },
   ka: {
-    "home":          { icon:"🏠", title:"მთავარი", text:"ბალანსი, ოპერაციების ისტორია და შემოსავლების/ხარჯების მოკლე სახე." },
-    "stats":         { icon:"📊", title:"სტატისტიკა", text:"ხარჯების დიაგრამები კატეგორიების მიხედვით, ტრენდები და პროგნოზი." },
-    "tools":         { icon:"🧮", title:"ხელსაწყოები", text:"კალკულატორი, ვალუტის კონვერტერი, ჩეკის სკანერი და სხვა." },
-    "settings":      { icon:"⚙️", title:"პარამეტრები", text:"პროფილები, თემები, ვალუტა, შეხსენებები, ბიუჯეტები." },
-    "headerSupportBtn": { icon:"💬", title:"მხარდაჭერა", text:"დაუკავშირდით შემქმნელს. შეკითხვა, შეცდომა ან შეფასება." },
-    "headerGuideBtn":   { icon:"📖", title:"სახელმძღვანელო", text:"ნაბიჯ-ნაბიჯ ტური პროგრამაში." },
-    "headerLangBtn":    { icon:"🌐", title:"ენა", text:"სამ ენას შორის გადართვა: რუსული, ინგლისური, ქართული." },
-    "themeToggle":      { icon:"🎨", title:"თემა", text:"მსუბუქი და ბნელი თემის გადართვა." },
-    "fabBtn":           { icon:"➕", title:"ოპერაციის დამატება", text:"მთავარი ღილაკი! დააჭირეთ ხარჯის ან შემოსავლის დასამატებლად." },
-    "balanceCard":      { icon:"💎", title:"ბალანსი", text:"მიმდინარე ბალანსი = საწყისი + შემოსავლები − ხარჯები." },
+    home: {
+      icon: "🏠",
+      title: "მთავარი",
+      text: "ბალანსი, ოპერაციების ისტორია და შემოსავლების/ხარჯების მოკლე სახე.",
+    },
+    stats: {
+      icon: "📊",
+      title: "სტატისტიკა",
+      text: "ხარჯების დიაგრამები კატეგორიების მიხედვით, ტრენდები და პროგნოზი.",
+    },
+    tools: {
+      icon: "🧮",
+      title: "ხელსაწყოები",
+      text: "კალკულატორი, ვალუტის კონვერტერი, ჩეკის სკანერი და სხვა.",
+    },
+    settings: {
+      icon: "⚙️",
+      title: "პარამეტრები",
+      text: "პროფილები, თემები, ვალუტა, შეხსენებები, ბიუჯეტები.",
+    },
+    headerSupportBtn: {
+      icon: "💬",
+      title: "მხარდაჭერა",
+      text: "დაუკავშირდით შემქმნელს. შეკითხვა, შეცდომა ან შეფასება.",
+    },
+    headerGuideBtn: {
+      icon: "📖",
+      title: "სახელმძღვანელო",
+      text: "ნაბიჯ-ნაბიჯ ტური პროგრამაში.",
+    },
+    headerLangBtn: {
+      icon: "🌐",
+      title: "ენა",
+      text: "სამ ენას შორის გადართვა: რუსული, ინგლისური, ქართული.",
+    },
+    themeToggle: {
+      icon: "🎨",
+      title: "თემა",
+      text: "მსუბუქი და ბნელი თემის გადართვა.",
+    },
+    fabBtn: {
+      icon: "➕",
+      title: "ოპერაციის დამატება",
+      text: "მთავარი ღილაკი! დააჭირეთ ხარჯის ან შემოსავლის დასამატებლად.",
+    },
+    balanceCard: {
+      icon: "💎",
+      title: "ბალანსი",
+      text: "მიმდინარე ბალანსი = საწყისი + შემოსავლები − ხარჯები.",
+    },
   },
 };
 
 function showTooltip(elementId) {
   const lang = currentLang;
-  const tips = (TOOLTIPS[lang] || TOOLTIPS.ru);
+  const tips = TOOLTIPS[lang] || TOOLTIPS.ru;
   const tip = tips[elementId];
   if (!tip) return;
 
@@ -12277,10 +14362,12 @@ function showTooltip(elementId) {
 
   const ov = document.createElement("div");
   ov.id = "appTooltip";
-  ov.style.cssText = "position:fixed;inset:0;z-index:99998;display:flex;align-items:flex-end;padding:20px;pointer-events:none;";
+  ov.style.cssText =
+    "position:fixed;inset:0;z-index:99998;display:flex;align-items:flex-end;padding:20px;pointer-events:none;";
 
   const box = document.createElement("div");
-  box.style.cssText = "background:var(--card-bg);border-radius:20px;padding:18px 20px;box-shadow:0 -4px 40px rgba(0,0,0,0.2);border:1.5px solid var(--cream-border);max-width:360px;width:100%;margin:auto;pointer-events:auto;animation:slideUpBounce 0.3s cubic-bezier(0.34,1.3,0.64,1) both;";
+  box.style.cssText =
+    "background:var(--card-bg);border-radius:20px;padding:18px 20px;box-shadow:0 -4px 40px rgba(0,0,0,0.2);border:1.5px solid var(--cream-border);max-width:360px;width:100%;margin:auto;pointer-events:auto;animation:slideUpBounce 0.3s cubic-bezier(0.34,1.3,0.64,1) both;";
   box.innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
       <div style="font-size:28px;flex-shrink:0;">${tip.icon}</div>
@@ -12294,37 +14381,67 @@ function showTooltip(elementId) {
   document.body.appendChild(ov);
 
   box.querySelector("#ttClose").addEventListener("click", () => ov.remove());
-  ov.addEventListener("click", e => { if (e.target === ov) ov.remove(); });
+  ov.addEventListener("click", (e) => {
+    if (e.target === ov) ov.remove();
+  });
   // Auto-close
   setTimeout(() => ov?.remove(), 6000);
 }
 
 function initTooltips() {
   const tooltipIds = Object.keys(TOOLTIPS.ru);
-  tooltipIds.forEach(id => {
+  tooltipIds.forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
 
     let pressTimer = null;
     // Long press on mobile
-    el.addEventListener("touchstart", e => {
-      pressTimer = setTimeout(() => { e.preventDefault(); showTooltip(id); haptic("medium"); }, 600);
-    }, { passive: true });
-    el.addEventListener("touchend",  () => clearTimeout(pressTimer));
+    el.addEventListener(
+      "touchstart",
+      (e) => {
+        pressTimer = setTimeout(() => {
+          e.preventDefault();
+          showTooltip(id);
+          haptic("medium");
+        }, 600);
+      },
+      { passive: true },
+    );
+    el.addEventListener("touchend", () => clearTimeout(pressTimer));
     el.addEventListener("touchmove", () => clearTimeout(pressTimer));
     // Right-click on desktop
-    el.addEventListener("contextmenu", e => { e.preventDefault(); showTooltip(id); });
+    el.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      showTooltip(id);
+    });
   });
 
   // Add ? badges to nav buttons
-  document.querySelectorAll(".nav-btn").forEach(btn => {
-    const map = { home:"home", stats:"stats", tools:"tools", notebook:"notebook", settings:"settings" };
-    const id = Object.keys(map).find(k => btn.dataset.tab === k || btn.id === k+"Btn");
+  document.querySelectorAll(".nav-btn").forEach((btn) => {
+    const map = {
+      home: "home",
+      stats: "stats",
+      tools: "tools",
+      notebook: "notebook",
+      settings: "settings",
+    };
+    const id = Object.keys(map).find(
+      (k) => btn.dataset.tab === k || btn.id === k + "Btn",
+    );
     if (!id) return;
     let pressTimer2 = null;
-    btn.addEventListener("touchstart", () => { pressTimer2 = setTimeout(() => showTooltip(id), 600); }, { passive: true });
-    btn.addEventListener("touchend",  () => clearTimeout(pressTimer2));
-    btn.addEventListener("contextmenu", e => { e.preventDefault(); showTooltip(id); });
+    btn.addEventListener(
+      "touchstart",
+      () => {
+        pressTimer2 = setTimeout(() => showTooltip(id), 600);
+      },
+      { passive: true },
+    );
+    btn.addEventListener("touchend", () => clearTimeout(pressTimer2));
+    btn.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      showTooltip(id);
+    });
   });
 }
 setTimeout(initTooltips, 1000);
@@ -12334,400 +14451,1063 @@ setTimeout(initTooltips, 1000);
 // ══════════════════════════════════════════════════════════════
 const GUIDE_TOPICS = {
   ru: [
-    { id:"basics", icon:"🏠", title:"Основы: первые шаги",
-      steps:[
-        { emoji:"👋", title:"Добро пожаловать в БюджетPRO!", text:"Это личный финансовый трекер. Помогает понять куда уходят деньги и планировать бюджет.\nДавайте пройдёмся по всем основным функциям вместе!", action:null, nav:"home" },
-        { emoji:"💼", title:"Начальная сумма", text:"Карточка «Нач. сумма» — введите сколько денег у вас есть прямо сейчас (наличные + карта). Нажмите на неё чтобы изменить.", action:"salaryCard", nav:"home", scroll:"salaryCard" },
-        { emoji:"💎", title:"Баланс", text:"Карточка «Мой баланс» показывает текущий остаток = начальная сумма + доходы − расходы. Нажмите на неё чтобы увидеть детали.", action:"balanceCard", nav:"home", scroll:"balanceCard" },
-        { emoji:"➕", title:"Кнопка добавить", text:"Большая кнопка «+» внизу по центру — главная кнопка приложения! Нажмите её чтобы добавить расход или доход.", action:"fabBtn", nav:"home", scroll:"fabBtn" },
-        { emoji:"📜", title:"История операций", text:"Ниже карточек баланса отображается вся история ваших трат и доходов. Каждая запись — отдельная карточка.", action:null, nav:"home", scrollTo:".ops-list" },
-      ]
+    {
+      id: "basics",
+      icon: "🏠",
+      title: "Основы: первые шаги",
+      steps: [
+        {
+          emoji: "👋",
+          title: "Добро пожаловать в БюджетPRO!",
+          text: "Это личный финансовый трекер. Помогает понять куда уходят деньги и планировать бюджет.\nДавайте пройдёмся по всем основным функциям вместе!",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "💼",
+          title: "Начальная сумма",
+          text: "Карточка «Нач. сумма» — введите сколько денег у вас есть прямо сейчас (наличные + карта). Нажмите на неё чтобы изменить.",
+          action: "salaryCard",
+          nav: "home",
+          scroll: "salaryCard",
+        },
+        {
+          emoji: "💎",
+          title: "Баланс",
+          text: "Карточка «Мой баланс» показывает текущий остаток = начальная сумма + доходы − расходы. Нажмите на неё чтобы увидеть детали.",
+          action: "balanceCard",
+          nav: "home",
+          scroll: "balanceCard",
+        },
+        {
+          emoji: "➕",
+          title: "Кнопка добавить",
+          text: "Большая кнопка «+» внизу по центру — главная кнопка приложения! Нажмите её чтобы добавить расход или доход.",
+          action: "fabBtn",
+          nav: "home",
+          scroll: "fabBtn",
+        },
+        {
+          emoji: "📜",
+          title: "История операций",
+          text: "Ниже карточек баланса отображается вся история ваших трат и доходов. Каждая запись — отдельная карточка.",
+          action: null,
+          nav: "home",
+          scrollTo: ".ops-list",
+        },
+      ],
     },
-    { id:"budget", icon:"🎯", title:"Бюджеты и лимиты",
-      steps:[
-        { emoji:"🎯", title:"Что такое бюджет?", text:"Бюджет — ежемесячный лимит трат на категорию.\nПример: «Рестораны — не более 200₾ в месяц».\nПриложение предупредит когда превысите лимит.", action:null, nav:"settings" },
-        { emoji:"⚙️", title:"Откройте Настройки", text:"Нажмите «⚙️ Настройки» в нижней навигации. Здесь управление всеми функциями приложения.", action:null, nav:"settings", scroll:"settingsNavBtn" },
-        { emoji:"💰", title:"Раздел Бюджеты", text:"Найдите карточку «💰 Бюджеты» в Настройках. Нажмите «+ Добавить бюджет» чтобы создать лимит для категории.", action:"addBudgetBtn", nav:"settings", scroll:"addBudgetBtn" },
-        { emoji:"✍️", title:"Установите лимит", text:"Выберите категорию (например «Продукты»), введите сумму лимита на месяц (например 300₾), нажмите «Сохранить».", action:null, nav:"settings" },
-        { emoji:"📊", title:"Как это работает", text:"После установки бюджетов — при добавлении расхода в Настройках появится прогресс-бар: сколько из лимита потрачено.", action:null, nav:"settings" },
-      ]
+    {
+      id: "budget",
+      icon: "🎯",
+      title: "Бюджеты и лимиты",
+      steps: [
+        {
+          emoji: "🎯",
+          title: "Что такое бюджет?",
+          text: "Бюджет — ежемесячный лимит трат на категорию.\nПример: «Рестораны — не более 200₾ в месяц».\nПриложение предупредит когда превысите лимит.",
+          action: null,
+          nav: "settings",
+        },
+        {
+          emoji: "⚙️",
+          title: "Откройте Настройки",
+          text: "Нажмите «⚙️ Настройки» в нижней навигации. Здесь управление всеми функциями приложения.",
+          action: null,
+          nav: "settings",
+          scroll: "settingsNavBtn",
+        },
+        {
+          emoji: "💰",
+          title: "Раздел Бюджеты",
+          text: "Найдите карточку «💰 Бюджеты» в Настройках. Нажмите «+ Добавить бюджет» чтобы создать лимит для категории.",
+          action: "addBudgetBtn",
+          nav: "settings",
+          scroll: "addBudgetBtn",
+        },
+        {
+          emoji: "✍️",
+          title: "Установите лимит",
+          text: "Выберите категорию (например «Продукты»), введите сумму лимита на месяц (например 300₾), нажмите «Сохранить».",
+          action: null,
+          nav: "settings",
+        },
+        {
+          emoji: "📊",
+          title: "Как это работает",
+          text: "После установки бюджетов — при добавлении расхода в Настройках появится прогресс-бар: сколько из лимита потрачено.",
+          action: null,
+          nav: "settings",
+        },
+      ],
     },
-    { id:"stats", icon:"📊", title:"Статистика и аналитика",
-      steps:[
-        { emoji:"📊", title:"Вкладка Статистика", text:"Здесь всё о ваших финансах: круговые диаграммы, графики, топ категорий трат и прогноз на следующий месяц.", action:null, nav:"stats" },
-        { emoji:"🥧", title:"Круговая диаграмма", text:"Большая диаграмма показывает как распределились ваши расходы по категориям. Нажмите на сегмент чтобы увидеть детали.", action:null, nav:"stats", scrollTo:".chart-card" },
-        { emoji:"📈", title:"График за период", text:"Выберите период (неделя/месяц/год) чтобы увидеть динамику расходов и доходов во времени.", action:null, nav:"stats", scrollTo:".stats-period-selector" },
-        { emoji:"🏆", title:"Топ категорий", text:"Список категорий где вы тратите больше всего. Полезно чтобы найти где можно сэкономить.", action:null, nav:"stats", scrollTo:".stats-cats" },
-        { emoji:"🔮", title:"Прогноз", text:"На основе вашей истории приложение предсказывает расходы следующего месяца.", action:null, nav:"stats" },
-      ]
+    {
+      id: "stats",
+      icon: "📊",
+      title: "Статистика и аналитика",
+      steps: [
+        {
+          emoji: "📊",
+          title: "Вкладка Статистика",
+          text: "Здесь всё о ваших финансах: круговые диаграммы, графики, топ категорий трат и прогноз на следующий месяц.",
+          action: null,
+          nav: "stats",
+        },
+        {
+          emoji: "🥧",
+          title: "Круговая диаграмма",
+          text: "Большая диаграмма показывает как распределились ваши расходы по категориям. Нажмите на сегмент чтобы увидеть детали.",
+          action: null,
+          nav: "stats",
+          scrollTo: ".chart-card",
+        },
+        {
+          emoji: "📈",
+          title: "График за период",
+          text: "Выберите период (неделя/месяц/год) чтобы увидеть динамику расходов и доходов во времени.",
+          action: null,
+          nav: "stats",
+          scrollTo: ".stats-period-selector",
+        },
+        {
+          emoji: "🏆",
+          title: "Топ категорий",
+          text: "Список категорий где вы тратите больше всего. Полезно чтобы найти где можно сэкономить.",
+          action: null,
+          nav: "stats",
+          scrollTo: ".stats-cats",
+        },
+        {
+          emoji: "🔮",
+          title: "Прогноз",
+          text: "На основе вашей истории приложение предсказывает расходы следующего месяца.",
+          action: null,
+          nav: "stats",
+        },
+      ],
     },
-    { id:"profiles", icon:"👥", title:"Профили и семья",
-      steps:[
-        { emoji:"👥", title:"Несколько профилей", text:"Профили позволяют вести отдельный учёт для каждого члена семьи. У каждого свой баланс, история и бюджеты.", action:null, nav:"settings" },
-        { emoji:"⚙️", title:"Раздел Профили", text:"Откройте Настройки → найдите карточку «👤 Профили». Там список всех профилей и кнопка добавить.", action:null, nav:"settings", scrollTo:"[id='profilesCard']" },
-        { emoji:"➕", title:"Добавить профиль", text:"Нажмите «+ Добавить профиль» → введите имя (например «Мама») → выберите цвет → Сохранить.", action:"addProfileBtn", nav:"settings", scroll:"addProfileBtn" },
-        { emoji:"🔄", title:"Переключение", text:"Нажмите на имя текущего профиля в шапке приложения или в настройках → выберите другой профиль.", action:"appLogoBtn", nav:"home", scroll:"appLogoBtn" },
-        { emoji:"🔗", title:"Общий доступ", text:"В профиле нажмите «Поделиться» — создастся ссылка. Отправьте её члену семьи — они откроют приложение с совместным доступом.", action:null, nav:"settings" },
-      ]
+    {
+      id: "profiles",
+      icon: "👥",
+      title: "Профили и семья",
+      steps: [
+        {
+          emoji: "👥",
+          title: "Несколько профилей",
+          text: "Профили позволяют вести отдельный учёт для каждого члена семьи. У каждого свой баланс, история и бюджеты.",
+          action: null,
+          nav: "settings",
+        },
+        {
+          emoji: "⚙️",
+          title: "Раздел Профили",
+          text: "Откройте Настройки → найдите карточку «👤 Профили». Там список всех профилей и кнопка добавить.",
+          action: null,
+          nav: "settings",
+          scrollTo: "[id='profilesCard']",
+        },
+        {
+          emoji: "➕",
+          title: "Добавить профиль",
+          text: "Нажмите «+ Добавить профиль» → введите имя (например «Мама») → выберите цвет → Сохранить.",
+          action: "addProfileBtn",
+          nav: "settings",
+          scroll: "addProfileBtn",
+        },
+        {
+          emoji: "🔄",
+          title: "Переключение",
+          text: "Нажмите на имя текущего профиля в шапке приложения или в настройках → выберите другой профиль.",
+          action: "appLogoBtn",
+          nav: "home",
+          scroll: "appLogoBtn",
+        },
+        {
+          emoji: "🔗",
+          title: "Общий доступ",
+          text: "В профиле нажмите «Поделиться» — создастся ссылка. Отправьте её члену семьи — они откроют приложение с совместным доступом.",
+          action: null,
+          nav: "settings",
+        },
+      ],
     },
-    { id:"voice", icon:"🎤", title:"Голосовой ввод",
-      steps:[
-        { emoji:"🎤", title:"Голосовой ввод", text:"Скажите «потратил 50 лари на продукты» — приложение сразу добавит расход! Не нужно ничего нажимать вручную.", action:null, nav:"home" },
-        { emoji:"📱", title:"Требования", text:"Нужен Google Chrome на Android или компьютере. Safari на iPhone не поддерживает Web Speech API.", action:null, nav:"home" },
-        { emoji:"🎤", title:"Кнопка голоса", text:"Зелёная кнопка 🎤 справа над навигацией. Или: Настройки → Расширенные функции → «Использовать сейчас».", action:"voiceInputBtn", nav:"home", scroll:"voiceInputBtn" },
-        { emoji:"🗣️", title:"Как говорить", text:"Нажмите → появится экран «Говорите...» → произнесите фразу чётко → дождитесь распознавания.", action:"voiceInputBtn", nav:"home" },
-        { emoji:"✅", title:"Примеры фраз:", text:"• «Потратил 50 лари на продукты»\n• «Купил кофе за 8 лари»\n• «Получил зарплату 1000»\n• «Заплатил за такси 15»\n• «Купил одежду за 120»", action:null, nav:"home" },
-      ]
+    {
+      id: "voice",
+      icon: "🎤",
+      title: "Голосовой ввод",
+      steps: [
+        {
+          emoji: "🎤",
+          title: "Голосовой ввод",
+          text: "Скажите «потратил 50 лари на продукты» — приложение сразу добавит расход! Не нужно ничего нажимать вручную.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "📱",
+          title: "Требования",
+          text: "Нужен Google Chrome на Android или компьютере. Safari на iPhone не поддерживает Web Speech API.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "🎤",
+          title: "Кнопка голоса",
+          text: "Зелёная кнопка 🎤 справа над навигацией. Или: Настройки → Расширенные функции → «Использовать сейчас».",
+          action: "voiceInputBtn",
+          nav: "home",
+          scroll: "voiceInputBtn",
+        },
+        {
+          emoji: "🗣️",
+          title: "Как говорить",
+          text: "Нажмите → появится экран «Говорите...» → произнесите фразу чётко → дождитесь распознавания.",
+          action: "voiceInputBtn",
+          nav: "home",
+        },
+        {
+          emoji: "✅",
+          title: "Примеры фраз:",
+          text: "• «Потратил 50 лари на продукты»\n• «Купил кофе за 8 лари»\n• «Получил зарплату 1000»\n• «Заплатил за такси 15»\n• «Купил одежду за 120»",
+          action: null,
+          nav: "home",
+        },
+      ],
     },
-    { id:"goals", icon:"🌟", title:"Цели и накопления",
-      steps:[
-        { emoji:"🌟", title:"Копите на мечты", text:"Раздел «Цели» — ставьте финансовые цели с суммой и отслеживайте накопления через красивый прогресс-бар.", action:"goalsNavBtn", nav:"home", scroll:"goalsNavBtn" },
-        { emoji:"🎯", title:"Кнопка целей", text:"Жёлтая кнопка 🎯 слева над навигацией. Также в Настройках → Расширенные функции.", action:"goalsNavBtn", nav:"home", scroll:"goalsNavBtn" },
-        { emoji:"➕", title:"Создать цель", text:"Введите emoji (например 🍎), название («iPhone 15»), целевую сумму (1200₾) и уже накопленную сумму.", action:null, nav:"home" },
-        { emoji:"💰", title:"Пополнять", text:"«💰 Пополнить» → введите сумму которую отложили. Прогресс-бар заполняется!", action:null, nav:"home" },
-        { emoji:"🎊", title:"Достижение", text:"Когда накопленная сумма достигнет цели — конфетти и «Цель достигнута!» 🏆 Делитесь достижением!", action:null, nav:"home" },
-      ]
+    {
+      id: "goals",
+      icon: "🌟",
+      title: "Цели и накопления",
+      steps: [
+        {
+          emoji: "🌟",
+          title: "Копите на мечты",
+          text: "Раздел «Цели» — ставьте финансовые цели с суммой и отслеживайте накопления через красивый прогресс-бар.",
+          action: "goalsNavBtn",
+          nav: "home",
+          scroll: "goalsNavBtn",
+        },
+        {
+          emoji: "🎯",
+          title: "Кнопка целей",
+          text: "Жёлтая кнопка 🎯 слева над навигацией. Также в Настройках → Расширенные функции.",
+          action: "goalsNavBtn",
+          nav: "home",
+          scroll: "goalsNavBtn",
+        },
+        {
+          emoji: "➕",
+          title: "Создать цель",
+          text: "Введите emoji (например 🍎), название («iPhone 15»), целевую сумму (1200₾) и уже накопленную сумму.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "💰",
+          title: "Пополнять",
+          text: "«💰 Пополнить» → введите сумму которую отложили. Прогресс-бар заполняется!",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "🎊",
+          title: "Достижение",
+          text: "Когда накопленная сумма достигнет цели — конфетти и «Цель достигнута!» 🏆 Делитесь достижением!",
+          action: null,
+          nav: "home",
+        },
+      ],
     },
-    { id:"notifications", icon:"🔔", title:"Напоминания",
-      steps:[
-        { emoji:"🔔", title:"Для чего напоминания?", text:"Приложение будет присылать уведомления чтобы вы не забывали регулярно записывать расходы.", action:null, nav:"settings" },
-        { emoji:"⚙️", title:"Откройте Настройки", text:"Нажмите «⚙️ Настройки» → прокрутите до раздела «🔔 Напоминания».", action:null, nav:"settings", scroll:"notifEnableBtn" },
-        { emoji:"🔘", title:"Включите напоминания", text:"Нажмите кнопку «🔔 Включить напоминания». Браузер запросит разрешение — нажмите «Разрешить».", action:"notifEnableBtn", nav:"settings", scroll:"notifEnableBtn" },
-        { emoji:"⏰", title:"Выберите интервал", text:"После включения появятся варианты: каждые 30 минут, 1 час, раз в день. Выберите удобный.", action:"notifEnableBtn", nav:"settings" },
-        { emoji:"📅", title:"Конкретное время", text:"Прокрутите ниже — там поле «📅 Дата» и «⏰ Время». Установите конкретный момент для напоминания.", action:null, nav:"settings", scrollTo:".custom-datetime-row" },
-      ]
+    {
+      id: "notifications",
+      icon: "🔔",
+      title: "Напоминания",
+      steps: [
+        {
+          emoji: "🔔",
+          title: "Для чего напоминания?",
+          text: "Приложение будет присылать уведомления чтобы вы не забывали регулярно записывать расходы.",
+          action: null,
+          nav: "settings",
+        },
+        {
+          emoji: "⚙️",
+          title: "Откройте Настройки",
+          text: "Нажмите «⚙️ Настройки» → прокрутите до раздела «🔔 Напоминания».",
+          action: null,
+          nav: "settings",
+          scroll: "notifEnableBtn",
+        },
+        {
+          emoji: "🔘",
+          title: "Включите напоминания",
+          text: "Нажмите кнопку «🔔 Включить напоминания». Браузер запросит разрешение — нажмите «Разрешить».",
+          action: "notifEnableBtn",
+          nav: "settings",
+          scroll: "notifEnableBtn",
+        },
+        {
+          emoji: "⏰",
+          title: "Выберите интервал",
+          text: "После включения появятся варианты: каждые 30 минут, 1 час, раз в день. Выберите удобный.",
+          action: "notifEnableBtn",
+          nav: "settings",
+        },
+        {
+          emoji: "📅",
+          title: "Конкретное время",
+          text: "Прокрутите ниже — там поле «📅 Дата» и «⏰ Время». Установите конкретный момент для напоминания.",
+          action: null,
+          nav: "settings",
+          scrollTo: ".custom-datetime-row",
+        },
+      ],
     },
-    { id:"export", icon:"📤", title:"Экспорт данных",
-      steps:[
-        { emoji:"📤", title:"Экспорт данных", text:"Выгружайте историю операций в разных форматах: для хранения, передачи на другое устройство или анализа.", action:null, nav:"tools" },
-        { emoji:"🧮", title:"Вкладка Инструменты", text:"Нажмите «🧮 Инструменты» в нижней навигации — там все дополнительные функции.", action:null, nav:"tools", scroll:"toolsNavBtn" },
-        { emoji:"📊", title:"Google Таблицы", text:"«📊 Google Таблицы» → скачается CSV-файл → откройте в Google Sheets → Файл → Импорт. Вся история в таблице!", action:"newSheetsBtn", nav:"tools", scroll:"newSheetsBtn" },
-        { emoji:"📧", title:"Email отчёт", text:"«📧 Email отчёт» → введите свой email → получите красивый отчёт за текущий месяц.", action:"newEmailBtn", nav:"tools", scroll:"newEmailBtn" },
-        { emoji:"⚙️", title:"Другие форматы", text:"Настройки → раздел «Данные»: JSON (перенос на другое устройство), PDF (для печати).", action:null, nav:"settings" },
-      ]
+    {
+      id: "export",
+      icon: "📤",
+      title: "Экспорт данных",
+      steps: [
+        {
+          emoji: "📤",
+          title: "Экспорт данных",
+          text: "Выгружайте историю операций в разных форматах: для хранения, передачи на другое устройство или анализа.",
+          action: null,
+          nav: "tools",
+        },
+        {
+          emoji: "🧮",
+          title: "Вкладка Инструменты",
+          text: "Нажмите «🧮 Инструменты» в нижней навигации — там все дополнительные функции.",
+          action: null,
+          nav: "tools",
+          scroll: "toolsNavBtn",
+        },
+        {
+          emoji: "📊",
+          title: "Google Таблицы",
+          text: "«📊 Google Таблицы» → скачается CSV-файл → откройте в Google Sheets → Файл → Импорт. Вся история в таблице!",
+          action: "newSheetsBtn",
+          nav: "tools",
+          scroll: "newSheetsBtn",
+        },
+        {
+          emoji: "📧",
+          title: "Email отчёт",
+          text: "«📧 Email отчёт» → введите свой email → получите красивый отчёт за текущий месяц.",
+          action: "newEmailBtn",
+          nav: "tools",
+          scroll: "newEmailBtn",
+        },
+        {
+          emoji: "⚙️",
+          title: "Другие форматы",
+          text: "Настройки → раздел «Данные»: JSON (перенос на другое устройство), PDF (для печати).",
+          action: null,
+          nav: "settings",
+        },
+      ],
     },
-    { id:"newtools", icon:"✨", title:"Новые инструменты",
-      steps:[
-        { emoji:"✨", title:"Новые инструменты", text:"В разделе «Инструменты» есть дополнительные мощные функции. Прокрутите вниз чтобы увидеть их.", action:null, nav:"tools", scrollTo:"#newToolsBlock" },
-        { emoji:"📸", title:"Сканер чеков", text:"Сфотографируйте бумажный чек — OCR-технология автоматически распознает итоговую сумму и предложит добавить расход.", action:"newScanBtn", nav:"tools", scroll:"newScanBtn" },
-        { emoji:"⚖️", title:"Правило 50/30/20", text:"Знаменитое финансовое правило: 50% на необходимое, 30% на желания, 20% в сбережения. Кнопка автоматически расставит лимиты!", action:"newRuleBtn", nav:"tools", scroll:"newRuleBtn" },
-        { emoji:"💑", title:"Партнёрский режим", text:"Создайте общую «комнату» → поделитесь кодом с партнёром → оба видите общий бюджет в реальном времени!", action:"partnerModeBtn", nav:"tools", scroll:"partnerModeBtn" },
-        { emoji:"🎨", title:"Темы оформления", text:"Настройки → «🎨 Цветовые темы» — выберите из 6 вариантов. Автоматическая смена по времени суток тоже есть!", action:null, nav:"settings" },
-      ]
+    {
+      id: "newtools",
+      icon: "✨",
+      title: "Новые инструменты",
+      steps: [
+        {
+          emoji: "✨",
+          title: "Новые инструменты",
+          text: "В разделе «Инструменты» есть дополнительные мощные функции. Прокрутите вниз чтобы увидеть их.",
+          action: null,
+          nav: "tools",
+          scrollTo: "#newToolsBlock",
+        },
+        {
+          emoji: "📸",
+          title: "Сканер чеков",
+          text: "Сфотографируйте бумажный чек — OCR-технология автоматически распознает итоговую сумму и предложит добавить расход.",
+          action: "newScanBtn",
+          nav: "tools",
+          scroll: "newScanBtn",
+        },
+        {
+          emoji: "⚖️",
+          title: "Правило 50/30/20",
+          text: "Знаменитое финансовое правило: 50% на необходимое, 30% на желания, 20% в сбережения. Кнопка автоматически расставит лимиты!",
+          action: "newRuleBtn",
+          nav: "tools",
+          scroll: "newRuleBtn",
+        },
+        {
+          emoji: "💑",
+          title: "Партнёрский режим",
+          text: "Создайте общую «комнату» → поделитесь кодом с партнёром → оба видите общий бюджет в реальном времени!",
+          action: "partnerModeBtn",
+          nav: "tools",
+          scroll: "partnerModeBtn",
+        },
+        {
+          emoji: "🎨",
+          title: "Темы оформления",
+          text: "Настройки → «🎨 Цветовые темы» — выберите из 6 вариантов. Автоматическая смена по времени суток тоже есть!",
+          action: null,
+          nav: "settings",
+        },
+      ],
     },
   ],
   en: [
-    { id:"basics", icon:"🏠", title:"Basics: First Steps",
-      steps:[
-        { emoji:"👋", title:"Welcome to BudgetPRO!", text:"This is your personal finance tracker. It helps you understand where money goes and plan your budget.", action:null, nav:"home" },
-        { emoji:"💼", title:"Starting Amount", text:"The 'Starting amount' card — enter how much money you have right now (cash + cards). Tap it to change.", action:"salaryCard", nav:"home", scroll:"salaryCard" },
-        { emoji:"💎", title:"Balance Card", text:"Shows your current balance = starting amount + income − expenses. Tap to see a detailed breakdown.", action:"balanceCard", nav:"home", scroll:"balanceCard" },
-        { emoji:"➕", title:"Add Button", text:"The big «+» button at the bottom center — main button of the app! Tap to add an expense or income.", action:"fabBtn", nav:"home", scroll:"fabBtn" },
-        { emoji:"📜", title:"Transaction History", text:"Below the balance cards is your full history. Each transaction is its own card — tap to edit or delete.", action:null, nav:"home", scrollTo:".ops-list" },
-      ]
+    {
+      id: "basics",
+      icon: "🏠",
+      title: "Basics: First Steps",
+      steps: [
+        {
+          emoji: "👋",
+          title: "Welcome to BudgetPRO!",
+          text: "This is your personal finance tracker. It helps you understand where money goes and plan your budget.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "💼",
+          title: "Starting Amount",
+          text: "The 'Starting amount' card — enter how much money you have right now (cash + cards). Tap it to change.",
+          action: "salaryCard",
+          nav: "home",
+          scroll: "salaryCard",
+        },
+        {
+          emoji: "💎",
+          title: "Balance Card",
+          text: "Shows your current balance = starting amount + income − expenses. Tap to see a detailed breakdown.",
+          action: "balanceCard",
+          nav: "home",
+          scroll: "balanceCard",
+        },
+        {
+          emoji: "➕",
+          title: "Add Button",
+          text: "The big «+» button at the bottom center — main button of the app! Tap to add an expense or income.",
+          action: "fabBtn",
+          nav: "home",
+          scroll: "fabBtn",
+        },
+        {
+          emoji: "📜",
+          title: "Transaction History",
+          text: "Below the balance cards is your full history. Each transaction is its own card — tap to edit or delete.",
+          action: null,
+          nav: "home",
+          scrollTo: ".ops-list",
+        },
+      ],
     },
-    { id:"stats", icon:"📊", title:"Stats & Analytics",
-      steps:[
-        { emoji:"📊", title:"Stats Tab", text:"Charts, trends, top spending categories and a monthly forecast — all in one place.", action:null, nav:"stats" },
-        { emoji:"🥧", title:"Pie Chart", text:"See how your expenses are split across categories. Tap a segment for details.", action:null, nav:"stats", scrollTo:".chart-card" },
-        { emoji:"📈", title:"Trends Over Time", text:"Select a period (week/month/year) to see income and expense trends over time.", action:null, nav:"stats" },
-      ]
+    {
+      id: "stats",
+      icon: "📊",
+      title: "Stats & Analytics",
+      steps: [
+        {
+          emoji: "📊",
+          title: "Stats Tab",
+          text: "Charts, trends, top spending categories and a monthly forecast — all in one place.",
+          action: null,
+          nav: "stats",
+        },
+        {
+          emoji: "🥧",
+          title: "Pie Chart",
+          text: "See how your expenses are split across categories. Tap a segment for details.",
+          action: null,
+          nav: "stats",
+          scrollTo: ".chart-card",
+        },
+        {
+          emoji: "📈",
+          title: "Trends Over Time",
+          text: "Select a period (week/month/year) to see income and expense trends over time.",
+          action: null,
+          nav: "stats",
+        },
+      ],
     },
-    { id:"voice", icon:"🎤", title:"Voice Input",
-      steps:[
-        { emoji:"🎤", title:"Voice Input", text:"Say 'spent 50 on groceries' — the app adds it instantly! Great when your hands are busy.", action:null, nav:"home" },
-        { emoji:"📱", title:"Requirements", text:"You need Google Chrome on Android or desktop. Safari on iPhone does not support Web Speech API.", action:null, nav:"home" },
-        { emoji:"🎤", title:"Voice Button", text:"Green 🎤 button on the right, above navigation. Or: Settings → Advanced features → 'Use now'.", action:"voiceInputBtn", nav:"home", scroll:"voiceInputBtn" },
-        { emoji:"✅", title:"Example phrases:", text:"• 'Spent 50 on groceries'\n• 'Bought coffee for 8'\n• 'Got salary 1000'\n• 'Paid 15 for taxi'", action:null, nav:"home" },
-      ]
+    {
+      id: "voice",
+      icon: "🎤",
+      title: "Voice Input",
+      steps: [
+        {
+          emoji: "🎤",
+          title: "Voice Input",
+          text: "Say 'spent 50 on groceries' — the app adds it instantly! Great when your hands are busy.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "📱",
+          title: "Requirements",
+          text: "You need Google Chrome on Android or desktop. Safari on iPhone does not support Web Speech API.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "🎤",
+          title: "Voice Button",
+          text: "Green 🎤 button on the right, above navigation. Or: Settings → Advanced features → 'Use now'.",
+          action: "voiceInputBtn",
+          nav: "home",
+          scroll: "voiceInputBtn",
+        },
+        {
+          emoji: "✅",
+          title: "Example phrases:",
+          text: "• 'Spent 50 on groceries'\n• 'Bought coffee for 8'\n• 'Got salary 1000'\n• 'Paid 15 for taxi'",
+          action: null,
+          nav: "home",
+        },
+      ],
     },
-    { id:"goals", icon:"🌟", title:"Goals & Savings",
-      steps:[
-        { emoji:"🌟", title:"Save for Dreams", text:"Set financial goals with target amounts and track progress with a beautiful progress bar.", action:"goalsNavBtn", nav:"home", scroll:"goalsNavBtn" },
-        { emoji:"➕", title:"Create a Goal", text:"Enter an emoji, name (e.g. 'iPhone 15'), target amount (e.g. $1200) and amount already saved.", action:null, nav:"home" },
-        { emoji:"🎊", title:"Goal Achieved!", text:"When savings reach the target — confetti and 'Goal achieved!' 🏆 Share the moment!", action:null, nav:"home" },
-      ]
+    {
+      id: "goals",
+      icon: "🌟",
+      title: "Goals & Savings",
+      steps: [
+        {
+          emoji: "🌟",
+          title: "Save for Dreams",
+          text: "Set financial goals with target amounts and track progress with a beautiful progress bar.",
+          action: "goalsNavBtn",
+          nav: "home",
+          scroll: "goalsNavBtn",
+        },
+        {
+          emoji: "➕",
+          title: "Create a Goal",
+          text: "Enter an emoji, name (e.g. 'iPhone 15'), target amount (e.g. $1200) and amount already saved.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "🎊",
+          title: "Goal Achieved!",
+          text: "When savings reach the target — confetti and 'Goal achieved!' 🏆 Share the moment!",
+          action: null,
+          nav: "home",
+        },
+      ],
     },
-    { id:"notifications", icon:"🔔", title:"Reminders",
-      steps:[
-        { emoji:"🔔", title:"What are reminders?", text:"The app sends notifications to remind you to log expenses regularly so you never forget.", action:null, nav:"settings" },
-        { emoji:"🔘", title:"Enable reminders", text:"Go to Settings → scroll to '🔔 Reminders' → tap the big button → tap 'Allow' when the browser asks.", action:"notifEnableBtn", nav:"settings", scroll:"notifEnableBtn" },
-        { emoji:"📅", title:"Set a specific time", text:"Scroll down to the date/time pickers and set an exact moment for a one-time reminder.", action:null, nav:"settings", scrollTo:".custom-datetime-row" },
-      ]
+    {
+      id: "notifications",
+      icon: "🔔",
+      title: "Reminders",
+      steps: [
+        {
+          emoji: "🔔",
+          title: "What are reminders?",
+          text: "The app sends notifications to remind you to log expenses regularly so you never forget.",
+          action: null,
+          nav: "settings",
+        },
+        {
+          emoji: "🔘",
+          title: "Enable reminders",
+          text: "Go to Settings → scroll to '🔔 Reminders' → tap the big button → tap 'Allow' when the browser asks.",
+          action: "notifEnableBtn",
+          nav: "settings",
+          scroll: "notifEnableBtn",
+        },
+        {
+          emoji: "📅",
+          title: "Set a specific time",
+          text: "Scroll down to the date/time pickers and set an exact moment for a one-time reminder.",
+          action: null,
+          nav: "settings",
+          scrollTo: ".custom-datetime-row",
+        },
+      ],
     },
-    { id:"export", icon:"📤", title:"Exporting Data",
-      steps:[
-        { emoji:"📊", title:"Google Sheets", text:"Tools tab → '📊 Google Sheets export' → download CSV → open in Google Sheets → Import.", action:"newSheetsBtn", nav:"tools", scroll:"newSheetsBtn" },
-        { emoji:"📧", title:"Email Report", text:"'📧 Email report' → enter your email → get a beautiful monthly financial summary.", action:"newEmailBtn", nav:"tools", scroll:"newEmailBtn" },
-      ]
+    {
+      id: "export",
+      icon: "📤",
+      title: "Exporting Data",
+      steps: [
+        {
+          emoji: "📊",
+          title: "Google Sheets",
+          text: "Tools tab → '📊 Google Sheets export' → download CSV → open in Google Sheets → Import.",
+          action: "newSheetsBtn",
+          nav: "tools",
+          scroll: "newSheetsBtn",
+        },
+        {
+          emoji: "📧",
+          title: "Email Report",
+          text: "'📧 Email report' → enter your email → get a beautiful monthly financial summary.",
+          action: "newEmailBtn",
+          nav: "tools",
+          scroll: "newEmailBtn",
+        },
+      ],
     },
   ],
   ka: [
-    { id:"basics", icon:"🏠", title:"საფუძვლები: პირველი ნაბიჯები",
-      steps:[
-        { emoji:"👋", title:"კეთილი იყოს BudgetPRO-ში!", text:"ეს არის პირადი ფინანსური ტრეკერი. გეხმარება გაიგოთ სად მიდის ფული.", action:null, nav:"home" },
-        { emoji:"💼", title:"საწყისი თანხა", text:"'საწ. თანხა' ბარათი — შეიყვანეთ რამდენი ფული გაქვთ ახლა. დააჭირეთ შესაცვლელად.", action:"salaryCard", nav:"home", scroll:"salaryCard" },
-        { emoji:"➕", title:"დამატების ღილაკი", text:"ქვემოთ «+» ღილაკი — მთავარი ღილაკი! დააჭირეთ ხარჯის ან შემოსავლის დასამატებლად.", action:"fabBtn", nav:"home", scroll:"fabBtn" },
-        { emoji:"📊", title:"სტატისტიკა", text:"'სტატისტიკა' ჩანართი — დიაგრამები, ტრენდები, პროგნოზი.", action:null, nav:"stats" },
-      ]
+    {
+      id: "basics",
+      icon: "🏠",
+      title: "საფუძვლები: პირველი ნაბიჯები",
+      steps: [
+        {
+          emoji: "👋",
+          title: "კეთილი იყოს BudgetPRO-ში!",
+          text: "ეს არის პირადი ფინანსური ტრეკერი. გეხმარება გაიგოთ სად მიდის ფული.",
+          action: null,
+          nav: "home",
+        },
+        {
+          emoji: "💼",
+          title: "საწყისი თანხა",
+          text: "'საწ. თანხა' ბარათი — შეიყვანეთ რამდენი ფული გაქვთ ახლა. დააჭირეთ შესაცვლელად.",
+          action: "salaryCard",
+          nav: "home",
+          scroll: "salaryCard",
+        },
+        {
+          emoji: "➕",
+          title: "დამატების ღილაკი",
+          text: "ქვემოთ «+» ღილაკი — მთავარი ღილაკი! დააჭირეთ ხარჯის ან შემოსავლის დასამატებლად.",
+          action: "fabBtn",
+          nav: "home",
+          scroll: "fabBtn",
+        },
+        {
+          emoji: "📊",
+          title: "სტატისტიკა",
+          text: "'სტატისტიკა' ჩანართი — დიაგრამები, ტრენდები, პროგნოზი.",
+          action: null,
+          nav: "stats",
+        },
+      ],
     },
-    { id:"notifications", icon:"🔔", title:"შეხსენებები",
-      steps:[
-        { emoji:"🔔", title:"შეხსენებები", text:"პროგრამა გამოგიგზავნით შეტყობინებებს ხარჯების ჩასაწერად.", action:null, nav:"settings" },
-        { emoji:"🔘", title:"ჩართვა", text:"პარამეტრები → '🔔 შეხსენებები' → დიდი ღილაკი → 'Allow'.", action:"notifEnableBtn", nav:"settings", scroll:"notifEnableBtn" },
-      ]
+    {
+      id: "notifications",
+      icon: "🔔",
+      title: "შეხსენებები",
+      steps: [
+        {
+          emoji: "🔔",
+          title: "შეხსენებები",
+          text: "პროგრამა გამოგიგზავნით შეტყობინებებს ხარჯების ჩასაწერად.",
+          action: null,
+          nav: "settings",
+        },
+        {
+          emoji: "🔘",
+          title: "ჩართვა",
+          text: "პარამეტრები → '🔔 შეხსენებები' → დიდი ღილაკი → 'Allow'.",
+          action: "notifEnableBtn",
+          nav: "settings",
+          scroll: "notifEnableBtn",
+        },
+      ],
     },
-    { id:"voice", icon:"🎤", title:"ხმოვანი შეყვანა",
-      steps:[
-        { emoji:"🎤", title:"ხმოვანი შეყვანა", text:"'50 ლარი დავხარჯე საყიდლებზე' — პროგრამა ავტომატურად ამატებს!", action:"voiceInputBtn", nav:"home", scroll:"voiceInputBtn" },
-        { emoji:"📱", title:"მოთხოვნა", text:"საჭიროა Google Chrome Android-ზე ან კომპიუტერზე.", action:null, nav:"home" },
-      ]
+    {
+      id: "voice",
+      icon: "🎤",
+      title: "ხმოვანი შეყვანა",
+      steps: [
+        {
+          emoji: "🎤",
+          title: "ხმოვანი შეყვანა",
+          text: "'50 ლარი დავხარჯე საყიდლებზე' — პროგრამა ავტომატურად ამატებს!",
+          action: "voiceInputBtn",
+          nav: "home",
+          scroll: "voiceInputBtn",
+        },
+        {
+          emoji: "📱",
+          title: "მოთხოვნა",
+          text: "საჭიროა Google Chrome Android-ზე ან კომპიუტერზე.",
+          action: null,
+          nav: "home",
+        },
+      ],
     },
-    { id:"goals", icon:"🌟", title:"მიზნები",
-      steps:[
-        { emoji:"🌟", title:"მიზნები", text:"ოცნებებისთვის შენახვა პროგრეს-ბარით.", action:"goalsNavBtn", nav:"home", scroll:"goalsNavBtn" },
-        { emoji:"➕", title:"მიზნის შექმნა", text:"emoji, სახელი, სამიზნე თანხა, უკვე დაზოგილი.", action:null, nav:"home" },
-      ]
+    {
+      id: "goals",
+      icon: "🌟",
+      title: "მიზნები",
+      steps: [
+        {
+          emoji: "🌟",
+          title: "მიზნები",
+          text: "ოცნებებისთვის შენახვა პროგრეს-ბარით.",
+          action: "goalsNavBtn",
+          nav: "home",
+          scroll: "goalsNavBtn",
+        },
+        {
+          emoji: "➕",
+          title: "მიზნის შექმნა",
+          text: "emoji, სახელი, სამიზნე თანხა, უკვე დაზოგილი.",
+          action: null,
+          nav: "home",
+        },
+      ],
     },
-    { id:"export", icon:"📤", title:"ექსპორტი",
-      steps:[
-        { emoji:"📊", title:"Google Sheets", text:"ხელსაწყოები → 'Google Sheets' → CSV ჩამოტვირთვა.", action:"newSheetsBtn", nav:"tools", scroll:"newSheetsBtn" },
-      ]
+    {
+      id: "export",
+      icon: "📤",
+      title: "ექსპორტი",
+      steps: [
+        {
+          emoji: "📊",
+          title: "Google Sheets",
+          text: "ხელსაწყოები → 'Google Sheets' → CSV ჩამოტვირთვა.",
+          action: "newSheetsBtn",
+          nav: "tools",
+          scroll: "newSheetsBtn",
+        },
+      ],
     },
   ],
 };
+// ════════════════════════════════════════════════════════════════
+// INTERACTIVE GUIDE v2 — fully rebuilt
+// ════════════════════════════════════════════════════════════════
 function openInteractiveGuide() {
   const lang = currentLang;
   const topics = GUIDE_TOPICS[lang] || GUIDE_TOPICS.ru;
   let currentTopic = null;
-  let currentStep  = 0;
-
-  // ── Spotlight helpers ──────────────────────────────────────
+  let currentStep = 0;
   let _spotEl = null;
-  function clearSpotlight() {
-    document.getElementById("guideBeacon")?.remove();
-    document.getElementById("guideBeaconStyle")?.remove();
-    if (_spotEl) { _spotEl.style.outline = ""; _spotEl.style.outlineOffset = ""; _spotEl.style.zIndex = ""; _spotEl = null; }
-  }
-  function spotlightEl(id) {
-    clearSpotlight();
-    const el = document.getElementById(id);
-    if (!el) return;
-    _spotEl = el;
-    el.scrollIntoView({ behavior:"smooth", block:"center" });
-    el.style.outline = "3px solid var(--gold)";
-    el.style.outlineOffset = "5px";
-    setTimeout(() => {
-      const beacon = document.createElement("div");
-      beacon.id = "guideBeacon";
-      const r = el.getBoundingClientRect();
-      beacon.style.cssText = [
-        "position:fixed;",
-        `left:${r.left+r.width/2-20}px;top:${r.top+r.height/2-20}px;`,
-        "width:40px;height:40px;border-radius:50%;",
-        "border:3px solid var(--gold);z-index:999999;pointer-events:none;",
-        "background:rgba(212,167,60,0.2);animation:beaconPulse 1s ease infinite;",
-      ].join("");
-      if (!document.getElementById("guideBeaconStyle")) {
-        const s = document.createElement("style"); s.id = "guideBeaconStyle";
-        s.textContent = "@keyframes beaconPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.9);opacity:.1}}";
-        document.head.appendChild(s);
-      }
-      document.body.appendChild(beacon);
-    }, 400);
-    setTimeout(clearSpotlight, 5000);
+  let _beacon = null;
+
+  // ── Inject guide CSS once ──────────────────────────────────────
+  if (!document.getElementById("guideCSS")) {
+    const s = document.createElement("style");
+    s.id = "guideCSS";
+    s.textContent = `
+      @keyframes guideBeacon{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.7);opacity:.2}}
+      @keyframes guideSheetUp{from{transform:translateX(-50%) translateY(120%);opacity:.5}to{transform:translateX(-50%) translateY(0);opacity:1}}
+      @keyframes guideFadeIn{from{opacity:0}to{opacity:1}}
+      #guideSheet{animation:guideSheetUp .38s cubic-bezier(.34,1.3,.64,1) both}
+      #guideDim{animation:guideFadeIn .25s ease both}
+      .guide-spot-ring{pointer-events:none;position:fixed;z-index:8998;border-radius:12px;
+        box-shadow:0 0 0 3px var(--gold,#c9a84c),0 0 0 6px rgba(201,168,76,.25),0 0 32px 8px rgba(201,168,76,.15);
+        transition:all .35s cubic-bezier(.34,1.3,.64,1);}
+    `;
+    document.head.appendChild(s);
   }
 
-  // ── BOTTOM-SHEET panel (app stays visible behind it) ──────
+  // ── Overlay dim ────────────────────────────────────────────────
+  const dim = document.createElement("div");
+  dim.id = "guideDim";
+  dim.style.cssText =
+    "position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:8990;pointer-events:none;backdrop-filter:blur(1.5px);";
+  document.body.appendChild(dim);
+
+  // ── Bottom sheet ───────────────────────────────────────────────
   const sheet = document.createElement("div");
   sheet.id = "guideSheet";
   sheet.style.cssText = [
     "position:fixed;bottom:0;left:50%;transform:translateX(-50%);",
-    "width:100%;max-width:640px;",
-    "background:var(--card-bg);",
-    "border-radius:28px 28px 0 0;",
-    "box-shadow:0 -8px 48px rgba(0,0,0,0.3);",
-    "z-index:9000;",
-    "max-height:60vh;display:flex;flex-direction:column;",
-    "transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1);",
-    "animation:guideSheetIn 0.35s cubic-bezier(0.34,1.3,0.64,1) both;",
+    "width:100%;max-width:640px;z-index:9100;",
+    "background:var(--card-bg);border-radius:24px 24px 0 0;",
+    "box-shadow:0 -8px 48px rgba(0,0,0,.28);",
+    "max-height:58vh;display:flex;flex-direction:column;overflow:hidden;",
   ].join("");
-
-  if (!document.getElementById("guideSheetStyle")) {
-    const s = document.createElement("style"); s.id = "guideSheetStyle";
-    s.textContent = "@keyframes guideSheetIn{from{transform:translateX(-50%) translateY(100%);opacity:.5}to{transform:translateX(-50%) translateY(0);opacity:1}}";
-    document.head.appendChild(s);
-  }
-
-  // Dim backdrop (doesn't block touch on app elements)
-  const dim = document.createElement("div");
-  dim.id = "guideDim";
-  dim.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:8999;pointer-events:none;backdrop-filter:blur(2px);";
-  document.body.appendChild(dim);
   document.body.appendChild(sheet);
 
-  function closeGuide() {
-    clearSpotlight();
-    document.getElementById("guideSheet")?.remove();
-    document.getElementById("guideDim")?.remove();
+  // ── Spotlight ring ─────────────────────────────────────────────
+  function spotEl(el) {
+    clearSpot();
+    if (!el) return;
+    _spotEl = el;
+    const r = el.getBoundingClientRect();
+    const ring = document.createElement("div");
+    ring.className = "guide-spot-ring";
+    ring.style.cssText = `left:${r.left - 6}px;top:${r.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px;`;
+    document.body.appendChild(ring);
+    _beacon = ring;
+    // Scroll element into view (above the sheet)
+    const sheetH = sheet.offsetHeight + 20;
+    const idealTop = window.scrollY + r.top - (window.innerHeight - sheetH) / 2;
+    window.scrollTo({ top: Math.max(0, idealTop), behavior: "smooth" });
+    setTimeout(() => {
+      if (!_beacon) return;
+      const r2 = el.getBoundingClientRect();
+      _beacon.style.left = r2.left - 6 + "px";
+      _beacon.style.top = r2.top - 6 + "px";
+      _beacon.style.width = r2.width + 12 + "px";
+      _beacon.style.height = r2.height + 12 + "px";
+    }, 400);
+  }
+  function clearSpot() {
+    document.querySelectorAll(".guide-spot-ring").forEach((e) => e.remove());
+    _beacon = null;
   }
 
-  // ── Topic list ─────────────────────────────────────────────
+  function closeGuide() {
+    clearSpot();
+    sheet.remove();
+    dim.remove();
+    document.getElementById("guideCSS")?.remove();
+    document.getElementById("gReturnBtn")?.remove();
+  }
+
+  // ── Find target element with retries ──────────────────────────
+  function findEl(step) {
+    const selectors = [
+      step.action && (() => document.getElementById(step.action)),
+      step.scroll && (() => document.getElementById(step.scroll)),
+      step.scrollTo && (() => document.querySelector(step.scrollTo)),
+    ].filter(Boolean);
+    for (const fn of selectors) {
+      const el = fn();
+      if (el) return el;
+    }
+    return null;
+  }
+
+  // ── Navigate to tab and wait for render ───────────────────────
+  function gotoStep(step) {
+    clearSpot();
+    const doFind = () => {
+      const el = findEl(step);
+      if (el) {
+        spotEl(el);
+      } else if (step.scroll || step.action || step.scrollTo) {
+        // Retry up to 6 times
+        let tries = 0;
+        const retry = setInterval(() => {
+          const el2 = findEl(step);
+          if (el2 || tries++ >= 6) {
+            clearInterval(retry);
+            if (el2) spotEl(el2);
+          }
+        }, 250);
+      }
+    };
+    if (step.nav && typeof setTab === "function") {
+      setTab(step.nav, () => setTimeout(doFind, 80));
+    } else {
+      setTimeout(doFind, 150);
+    }
+  }
+
+  // ── TOPIC LIST ─────────────────────────────────────────────────
   function renderTopicList() {
     currentTopic = null;
+    clearSpot();
     const L = {
-      ru:{title:"📚 Интерактивный гид",sub:"Выберите тему",close:"✕"},
-      en:{title:"📚 Interactive Guide",sub:"Choose a topic",close:"✕"},
-      ka:{title:"📚 ინტერაქტიული გიდი",sub:"აირჩიეთ თემა",close:"✕"},
-    }[lang]||{title:"📚 Guide",sub:"Choose",close:"✕"};
+      ru: { title: "📚 Интерактивный гид", sub: "Выберите раздел", close: "✕" },
+      en: {
+        title: "📚 Interactive Guide",
+        sub: "Choose a section",
+        close: "✕",
+      },
+      ka: {
+        title: "📚 ინტერაქტიური გიდი",
+        sub: "აირჩიეთ განყოფილება",
+        close: "✕",
+      },
+    }[lang] || { title: "📚 Guide", sub: "Choose", close: "✕" };
 
     sheet.innerHTML = `
       <div style="flex-shrink:0;padding:12px 18px 10px;border-bottom:1.5px solid var(--cream-border);display:flex;align-items:center;justify-content:space-between;">
         <div>
           <div style="font-size:16px;font-weight:900;color:var(--text);">${L.title}</div>
-          <div style="font-size:11px;color:var(--text-muted);">${L.sub}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${L.sub}</div>
         </div>
-        <button id="guideClose" style="background:var(--cream-dark);border:none;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);">${L.close}</button>
+        <button id="guideClose" style="background:var(--cream-dark);border:none;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;">${L.close}</button>
       </div>
-      <div style="overflow-y:auto;flex:1;padding:12px 14px 20px;display:flex;flex-direction:column;gap:8px;">
-        ${topics.map((t,i) => `
-          <button class="guide-topic-btn" data-ti="${i}" style="display:flex;align-items:center;gap:12px;padding:14px;background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:16px;cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:all 0.2s;">
-            <div style="font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--primary-pale);border-radius:12px;flex-shrink:0;">${t.icon}</div>
+      <div style="overflow-y:auto;flex:1;padding:10px 14px 20px;display:flex;flex-direction:column;gap:7px;">
+        ${topics
+          .map(
+            (tp, i) => `
+          <button data-ti="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;
+            background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:14px;
+            cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:border-color .15s,transform .15s;">
+            <div style="font-size:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+              background:var(--primary-pale);border-radius:10px;flex-shrink:0;">${tp.icon}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-weight:800;font-size:14px;color:var(--text);">${t.title}</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${t.steps.length} ${lang==="ru"?"шагов":lang==="en"?"steps":"ნაბიჯი"}</div>
+              <div style="font-weight:800;font-size:14px;color:var(--text);">${tp.title}</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${tp.steps.length} ${
+                lang === "ru" ? "шагов" : lang === "en" ? "steps" : "ნაბიჯი"
+              }</div>
             </div>
-            <div style="font-size:18px;color:var(--text-muted);">›</div>
-          </button>`).join("")}
+            <span style="font-size:18px;color:var(--text-muted);">›</span>
+          </button>`,
+          )
+          .join("")}
       </div>`;
 
     sheet.querySelector("#guideClose")?.addEventListener("click", closeGuide);
-    sheet.querySelectorAll(".guide-topic-btn").forEach(btn => {
+    sheet.querySelectorAll("[data-ti]").forEach((btn) => {
       btn.addEventListener("click", () => {
         currentTopic = parseInt(btn.dataset.ti);
         currentStep = 0;
         renderStep();
         haptic("light");
       });
-      btn.addEventListener("mouseenter", () => { btn.style.borderColor = "var(--primary)"; btn.style.transform = "translateX(3px)"; });
-      btn.addEventListener("mouseleave", () => { btn.style.borderColor = "var(--cream-border)"; btn.style.transform = ""; });
+      btn.addEventListener("mouseenter", () => {
+        btn.style.borderColor = "var(--primary)";
+        btn.style.transform = "translateX(2px)";
+      });
+      btn.addEventListener("mouseleave", () => {
+        btn.style.borderColor = "var(--cream-border)";
+        btn.style.transform = "";
+      });
     });
   }
 
-  // ── Step view ──────────────────────────────────────────────
+  // ── STEP VIEW ──────────────────────────────────────────────────
   function renderStep() {
-    clearSpotlight();
     const topic = topics[currentTopic];
-    const step  = topic.steps[currentStep];
+    const step = topic.steps[currentStep];
     const isLast = currentStep === topic.steps.length - 1;
+    const pct = Math.round(((currentStep + 1) / topic.steps.length) * 100);
     const L = {
-      ru:{ back:"← Темы", prev:"←", next:"Далее →", done:"✅ Понятно!", step:"Шаг", skip:"✕", show:"👆 Показать" },
-      en:{ back:"← Topics", prev:"←", next:"Next →", done:"✅ Done!", step:"Step", skip:"✕", show:"👆 Show" },
-      ka:{ back:"← თემები", prev:"←", next:"შემდეგი →", done:"✅ გასაგებია!", step:"ნ", skip:"✕", show:"👆 ჩვენება" },
-    }[lang]||{back:"← Topics",prev:"←",next:"Next →",done:"✅ Done!",step:"Step",skip:"✕",show:"👆 Show"};
+      ru: {
+        back: "← Темы",
+        prev: "←",
+        next: "Далее →",
+        done: "✅ Понятно!",
+        step: "Шаг",
+        skip: "✕",
+        show: "👆 Показать",
+      },
+      en: {
+        back: "← Topics",
+        prev: "←",
+        next: "Next →",
+        done: "✅ Done!",
+        step: "Step",
+        skip: "✕",
+        show: "👆 Show",
+      },
+      ka: {
+        back: "← თემები",
+        prev: "←",
+        next: "შემდეგი →",
+        done: "✅ გასაგებია!",
+        step: "ნ",
+        skip: "✕",
+        show: "👆 ჩვენება",
+      },
+    }[lang] || {
+      back: "←",
+      prev: "←",
+      next: "Next →",
+      done: "✅ Done!",
+      step: "Step",
+      skip: "✕",
+      show: "👆 Show",
+    };
 
-    if (step.nav && typeof setTab === "function") setTab(step.nav);
-    setTimeout(() => {
-      const tid = step.scroll || step.action;
-      if (tid) {
-        const el = document.getElementById(tid);
-        if (el) {
-          const sheetH = (sheet ? sheet.offsetHeight : 200) + 30;
-          const rect   = el.getBoundingClientRect();
-          const ideal  = window.scrollY + rect.top - (window.innerHeight - sheetH)/2;
-          window.scrollTo({top:Math.max(0,ideal),behavior:"smooth"});
-          if (step.action) setTimeout(() => spotlightEl(step.action), 320);
-        }
-      } else if (step.scrollTo) {
-        const el = document.querySelector(step.scrollTo);
-        if (el) el.scrollIntoView({behavior:"smooth",block:"center"});
-      }
-    }, step.nav ? 520 : 150);
+    // Navigate to tab and spotlight element
+    gotoStep(step);
 
-    const pct = Math.round(((currentStep+1)/topic.steps.length)*100);
-    const hasShow = !!(step.action||step.scrollTo||step.scroll);
+    const hasTarget = !!(step.action || step.scroll || step.scrollTo);
 
     sheet.innerHTML = `
       <div style="flex-shrink:0;">
         <div style="padding:8px 16px 6px;display:flex;align-items:center;justify-content:space-between;">
           <button id="gBack" style="background:none;border:none;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;padding:6px 8px 6px 0;">${L.back}</button>
-          <div style="font-size:11px;font-weight:700;color:var(--text-muted);">${topic.icon} ${L.step} ${currentStep+1}/${topic.steps.length}</div>
-          <button id="gSkip" style="background:none;border:none;font-size:14px;color:var(--text-muted);cursor:pointer;padding:6px;">${L.skip}</button>
+          <span style="font-size:11px;font-weight:700;color:var(--text-muted);">${topic.icon} ${L.step} ${currentStep + 1}/${topic.steps.length}</span>
+          <button id="gSkip" style="background:none;border:none;font-size:16px;color:var(--text-muted);cursor:pointer;padding:6px;">${L.skip}</button>
         </div>
-        <div style="height:3px;background:var(--cream-dark);margin:0 16px 10px;border-radius:99px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#2d6a4f,#40916c);border-radius:99px;transition:width .3s;"></div>
+        <div style="height:4px;background:var(--cream-dark);margin:0 16px 10px;border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--primary),var(--primary-light,#74c69d));border-radius:99px;transition:width .3s;"></div>
         </div>
       </div>
       <div style="flex:1;overflow-y:auto;padding:0 16px 16px;">
-        <div style="font-size:10px;font-weight:800;color:#2d6a4f;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">${topic.icon} ${topic.title}</div>
+        <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">${topic.icon} ${topic.title}</div>
         <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;">
-          <div style="font-size:40px;flex-shrink:0;line-height:1;">${step.emoji}</div>
+          <div style="font-size:38px;flex-shrink:0;line-height:1;">${step.emoji}</div>
           <div>
-            <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:6px;line-height:1.3;">${step.title}</div>
+            <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:5px;line-height:1.3;">${step.title}</div>
             <div style="font-size:13px;line-height:1.75;color:var(--text-soft);white-space:pre-line;">${step.text}</div>
           </div>
         </div>
-        ${hasShow ? `<button id="gShow" style="width:100%;margin-bottom:12px;padding:11px;background:rgba(201,168,76,.1);border:1.5px solid rgba(201,168,76,.5);border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">👆 ${L.show}</button>` : ""}
+        ${
+          hasTarget
+            ? `
+          <button id="gShow" style="width:100%;margin-bottom:12px;padding:11px;
+            background:rgba(201,168,76,.1);border:1.5px solid rgba(201,168,76,.5);
+            border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;color:var(--text);
+            display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
+            ${L.show}
+          </button>`
+            : ""
+        }
         <div style="display:flex;gap:8px;">
           ${currentStep > 0 ? `<button id="gPrev" class="btn-secondary" style="flex:0 0 46px;padding:13px;font-size:16px;">${L.prev}</button>` : ""}
           <button id="gNext" class="btn-primary" style="flex:1;padding:13px;font-size:14px;font-weight:800;">${isLast ? L.done : L.next}</button>
         </div>
       </div>`;
 
-    sheet.querySelector("#gBack")?.addEventListener("click",  () => { clearSpotlight(); renderTopicList(); });
-    sheet.querySelector("#gSkip")?.addEventListener("click",  () => { clearSpotlight(); closeGuide(); haptic("light"); });
-    sheet.querySelector("#gPrev")?.addEventListener("click",  () => { currentStep--; renderStep(); haptic("light"); });
-    sheet.querySelector("#gNext")?.addEventListener("click",  () => { isLast ? renderTopicList() : (currentStep++, renderStep()); haptic("light"); });
-    sheet.querySelector("#gShow")?.addEventListener("click",  () => {
-      haptic("medium");
-      // CRITICAL: clear animation fill-mode FIRST, otherwise transform is locked
-      sheet.style.animation  = "none";
-      sheet.style.transition = "none";
-      // Force reflow so browser registers animation:none
-      void sheet.offsetHeight;
-      // Now set transition + transform
-      sheet.style.transition = "transform .28s cubic-bezier(0.4,0,0.2,1), opacity .2s";
-      sheet.style.transform  = "translateX(-50%) translateY(110%)";
-      sheet.style.opacity    = "0";
-      if (dim) { dim.style.transition="opacity .25s"; dim.style.opacity="0"; }
-
-      if (step.nav && typeof setTab==="function") setTab(step.nav);
-      setTimeout(() => {
-        const tid2 = step.scroll||step.action;
-        if (tid2) { spotlightEl(tid2); }
-        else if (step.scrollTo) { const e2=document.querySelector(step.scrollTo); if(e2) e2.scrollIntoView({behavior:"smooth",block:"center"}); }
-        // Return button
+    sheet.querySelector("#gBack")?.addEventListener("click", () => {
+      clearSpot();
+      renderTopicList();
+    });
+    sheet.querySelector("#gSkip")?.addEventListener("click", () => {
+      closeGuide();
+      haptic("light");
+    });
+    sheet.querySelector("#gPrev")?.addEventListener("click", () => {
+      currentStep--;
+      renderStep();
+      haptic("light");
+    });
+    sheet.querySelector("#gNext")?.addEventListener("click", () => {
+      if (isLast) {
+        clearSpot();
+        renderTopicList();
+      } else {
+        currentStep++;
+        renderStep();
+      }
+      haptic("light");
+    });
+    sheet.querySelector("#gShow")?.addEventListener("click", () => {
+      // Slide sheet down temporarily
+      sheet.style.transition = "transform .3s ease";
+      sheet.style.transform = "translateX(-50%) translateY(90%)";
+      dim.style.opacity = "0.1";
+      // Find the element again after potential tab switch
+      const reShow = () => {
+        const el = findEl(step);
+        if (el) spotEl(el);
+        // Add return button
         document.getElementById("gReturnBtn")?.remove();
         const rb = document.createElement("button");
         rb.id = "gReturnBtn";
-        rb.textContent = {ru:"↑ Вернуться в гид",en:"↑ Back to guide",ka:"↑ გიდზე"}[lang]||"↑ Guide";
-        rb.style.cssText = [
-          "position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;",
-          "padding:13px 32px;background:linear-gradient(135deg,#2d6a4f,#1b4332);",
-          "color:white;border:1.5px solid rgba(201,168,76,.5);border-radius:26px;",
-          "font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(27,67,50,.55);",
-          "white-space:nowrap;font-family:inherit;animation:toastPop .4s ease both;",
-        ].join("");
+        rb.textContent =
+          { ru: "↑ В гид", en: "↑ Guide", ka: "↑ გიდი" }[lang] || "↑ Guide";
+        rb.style.cssText =
+          "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9200;padding:11px 28px;background:linear-gradient(135deg,#2d6a4f,#1b4332);color:white;border:1.5px solid rgba(201,168,76,.5);border-radius:26px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(27,67,50,.5);white-space:nowrap;font-family:inherit;";
         rb.onclick = () => {
           rb.remove();
-          clearSpotlight();
-          sheet.style.animation  = "none";
-          void sheet.offsetHeight;
-          sheet.style.transition = "transform .32s cubic-bezier(0.34,1.3,0.64,1), opacity .25s";
-          sheet.style.transform  = "translateX(-50%) translateY(0)";
-          sheet.style.opacity    = "1";
-          if (dim) { dim.style.transition="opacity .25s"; dim.style.opacity="1"; }
+          clearSpot();
+          sheet.style.transition = "transform .35s cubic-bezier(.34,1.3,.64,1)";
+          sheet.style.transform = "translateX(-50%) translateY(0)";
+          dim.style.opacity = "";
         };
         document.body.appendChild(rb);
-        setTimeout(()=>{ const b=document.getElementById("gReturnBtn"); if(b) b.click(); }, 6000);
-      }, step.nav ? 520 : 150);
+        setTimeout(() => rb.click(), 8000);
+      };
+      if (step.nav) {
+        setTab(step.nav, () => setTimeout(reShow, 100));
+      } else {
+        setTimeout(reShow, 350);
+      }
+      haptic("medium");
     });
   }
 
-
   renderTopicList();
 }
-
 
 // Wire guide button in header
 const _origStartGuide = typeof startGuide === "function" ? startGuide : null;
@@ -12741,21 +15521,24 @@ setTimeout(() => {
   initTooltips();
 }, 1200);
 
-
 // ══════════════════════════════════════════════════════════════
 // LUXURY BACKGROUND — Animated ambient particles
 // ══════════════════════════════════════════════════════════════
 (function initLuxuryBackground() {
   const canvas = document.createElement("canvas");
   canvas.id = "luxBg";
-  canvas.style.cssText = "position:fixed;inset:0;z-index:-1;pointer-events:none;";
+  canvas.style.cssText =
+    "position:fixed;inset:0;z-index:-1;pointer-events:none;";
   document.body.prepend(canvas);
 
   const ctx = canvas.getContext("2d");
-  let W, H, particles = [], animId;
+  let W,
+    H,
+    particles = [],
+    animId;
 
   function resize() {
-    W = canvas.width  = window.innerWidth;
+    W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
   }
   resize();
@@ -12765,7 +15548,9 @@ setTimeout(() => {
 
   // Particle definition
   class Particle {
-    constructor() { this.reset(true); }
+    constructor() {
+      this.reset(true);
+    }
     reset(init) {
       this.x = Math.random() * W;
       this.y = init ? Math.random() * H : H + 10;
@@ -12806,7 +15591,9 @@ setTimeout(() => {
   // Gentle glow orbs
   class Orb {
     constructor(x, y, color) {
-      this.ox = x; this.oy = y; this.color = color;
+      this.ox = x;
+      this.oy = y;
+      this.color = color;
       this.t = Math.random() * Math.PI * 2;
       this.r = 120 + Math.random() * 80;
     }
@@ -12828,17 +15615,20 @@ setTimeout(() => {
   const orbs = [
     new Orb(0.15, 0.25, "rgba(45,106,79,A)"),
     new Orb(0.85, 0.15, "rgba(201,168,76,A)"),
-    new Orb(0.5,  0.7,  "rgba(27,67,50,A)"),
-    new Orb(0.2,  0.85, "rgba(82,183,136,A)"),
-    new Orb(0.8,  0.6,  "rgba(201,168,76,A)"),
+    new Orb(0.5, 0.7, "rgba(27,67,50,A)"),
+    new Orb(0.2, 0.85, "rgba(82,183,136,A)"),
+    new Orb(0.8, 0.6, "rgba(201,168,76,A)"),
   ];
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
     // Orbs first
-    orbs.forEach(o => o.draw());
+    orbs.forEach((o) => o.draw());
     // Particles on top
-    particles.forEach(p => { p.update(); p.draw(); });
+    particles.forEach((p) => {
+      p.update();
+      p.draw();
+    });
     animId = requestAnimationFrame(draw);
   }
   draw();
