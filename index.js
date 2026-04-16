@@ -5754,12 +5754,17 @@ function renderSettings() {
           <div class="field-group" style="margin-bottom:12px;">
             <label class="field-label">${{ ru: "Дата и время", en: "Date and time", ka: "თარიღი და დრო" }[currentLang]}</label>
             <input type="datetime-local" id="newReminderDatetime" class="modal-input"
-              min="${new Date(Date.now() - 1000).toISOString().slice(0, 16)}"
+              
               style="color-scheme:light dark;">
           </div>
-          <button id="addNamedReminderBtn" class="btn-primary" style="width:100%;padding:13px;">
-            ⏰ ${{ ru: "Запланировать", en: "Schedule", ka: "დაგეგმვა" }[currentLang]}
-          </button>
+          <div style="display:flex;gap:8px;">
+            <button id="addNamedReminderBtn" class="btn-primary" style="flex:1;padding:13px;">
+              ⏰ ${{ ru: "Запланировать", en: "Schedule", ka: "დაგეგმვა" }[currentLang]}
+            </button>
+            <button id="testNotifBtn" class="btn-secondary" style="padding:13px;font-size:12px;white-space:nowrap;" title="${{ ru: "Отправить тестовое уведомление прямо сейчас", en: "Send test notification right now", ka: "სატესტო შეტყობინება ახლავე" }[currentLang]}">
+              🔔 ${{ ru: "Тест", en: "Test", ka: "ტესტი" }[currentLang]}
+            </button>
+          </div>
         </div>
 
         <!-- Interval reminders -->
@@ -5824,6 +5829,65 @@ function renderSettings() {
 
   // === NEW REMINDER HANDLERS ===
 
+  // Test notification button
+  document.getElementById("testNotifBtn")?.addEventListener("click", () => {
+    if (typeof Notification === "undefined") {
+      showToast(
+        {
+          ru: "Браузер не поддерживает",
+          en: "Not supported by browser",
+          ka: "ბრაუზერი არ უჭერს",
+        }[currentLang],
+        "error",
+      );
+      return;
+    }
+    const fire = () => {
+      new Notification("🔔 БюджетPRO", {
+        body: {
+          ru: "Уведомления работают! ✅",
+          en: "Notifications work! ✅",
+          ka: "შეტყობინებები მუშაობს! ✅",
+        }[currentLang],
+        icon: "/BudgetPro/favicon-96x96.png",
+        tag: "test-" + Date.now(),
+      });
+      showToast(
+        "✅ " +
+          {
+            ru: "Тест отправлен — проверьте уведомления",
+            en: "Test sent — check notifications",
+            ka: "ტესტი გაიგზავნა",
+          }[currentLang],
+        "success",
+        3000,
+      );
+    };
+    if (Notification.permission === "granted") {
+      fire();
+    } else if (Notification.permission === "denied") {
+      showToast(
+        {
+          ru: "⛔ Разрешите уведомления в настройках браузера",
+          en: "⛔ Allow notifications in browser settings",
+          ka: "⛔ ბრაუზერის პარამეტრებში ნება მიეცით",
+        }[currentLang],
+        "error",
+        4000,
+      );
+    } else {
+      Notification.requestPermission().then((p) => {
+        if (p === "granted") fire();
+        else
+          showToast(
+            { ru: "Отказано", en: "Denied", ka: "უარყოფილია" }[currentLang],
+            "error",
+          );
+      });
+    }
+    haptic("medium");
+  });
+
   // Add named reminder
   document
     .getElementById("addNamedReminderBtn")
@@ -5844,12 +5908,13 @@ function renderSettings() {
         return;
       }
       const ts = new Date(dt).getTime();
-      if (ts <= Date.now()) {
+      // Allow setting reminder for any time today (past times fire immediately)
+      if (isNaN(ts)) {
         showToast(
           {
-            ru: "Время должно быть в будущем",
-            en: "Time must be in the future",
-            ka: "დრო მომავალში უნდა იყოს",
+            ru: "Неверный формат даты",
+            en: "Invalid date format",
+            ka: "თარიღის ფორმატი არასწორია",
           }[currentLang],
           "error",
         );
@@ -5866,6 +5931,10 @@ function renderSettings() {
       list.sort((a, b) => a.ts - b.ts);
       localStorage.setItem("namedReminders", JSON.stringify(list));
       // Schedule in-page timeout
+      if (newR.ts <= Date.now() + 5000) {
+        // Time is now or very soon — fire after 2 seconds
+        newR.ts = Date.now() + 2000;
+      }
       scheduleNamedReminder(newR);
       showToast(
         "✅ " +
@@ -15193,8 +15262,10 @@ function openInteractiveGuide() {
       #guideSheet{animation:guideSheetUp .38s cubic-bezier(.34,1.3,.64,1) both}
       #guideDim{animation:guideFadeIn .25s ease both}
       .guide-spot-ring{pointer-events:none;position:fixed;z-index:8998;border-radius:12px;
-        box-shadow:0 0 0 3px var(--gold,#c9a84c),0 0 0 6px rgba(201,168,76,.25),0 0 32px 8px rgba(201,168,76,.15);
-        transition:all .35s cubic-bezier(.34,1.3,.64,1);}
+        box-shadow:0 0 0 3px #f59e0b,0 0 0 7px rgba(245,158,11,.3),0 0 36px 8px rgba(245,158,11,.18);
+        transition:left .35s cubic-bezier(.34,1.3,.64,1),top .35s cubic-bezier(.34,1.3,.64,1),width .35s,height .35s;}
+      @keyframes guidePulse{0%,100%{box-shadow:0 0 0 3px #f59e0b,0 0 0 7px rgba(245,158,11,.3),0 0 36px 8px rgba(245,158,11,.18)}50%{box-shadow:0 0 0 3px #f59e0b,0 0 0 12px rgba(245,158,11,.15),0 0 48px 12px rgba(245,158,11,.1)}}
+      .guide-spot-ring{animation:guidePulse 2s ease-in-out infinite;}
     `;
     document.head.appendChild(s);
   }
@@ -15203,8 +15274,11 @@ function openInteractiveGuide() {
   const dim = document.createElement("div");
   dim.id = "guideDim";
   dim.style.cssText =
-    "position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:8990;pointer-events:none;backdrop-filter:blur(1.5px);";
+    "position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:8990;pointer-events:auto;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);";
   document.body.appendChild(dim);
+  dim.addEventListener("click", (e) => {
+    if (e.target === dim) closeGuide();
+  });
 
   // ── Bottom sheet ───────────────────────────────────────────────
   const sheet = document.createElement("div");
@@ -15223,29 +15297,40 @@ function openInteractiveGuide() {
     clearSpot();
     if (!el) return;
     _spotEl = el;
-    const r = el.getBoundingClientRect();
-    const ring = document.createElement("div");
-    ring.className = "guide-spot-ring";
-    ring.style.cssText = `left:${r.left - 6}px;top:${r.top - 6}px;width:${r.width + 12}px;height:${r.height + 12}px;`;
-    document.body.appendChild(ring);
-    _beacon = ring;
-    // Scroll element into view (above the sheet)
-    const sheetH = sheet.offsetHeight + 20;
-    const idealTop = window.scrollY + r.top - (window.innerHeight - sheetH) / 2;
-    window.scrollTo({ top: Math.max(0, idealTop), behavior: "smooth" });
-    setTimeout(() => {
-      if (!_beacon) return;
-      const r2 = el.getBoundingClientRect();
-      _beacon.style.left = r2.left - 6 + "px";
-      _beacon.style.top = r2.top - 6 + "px";
-      _beacon.style.width = r2.width + 12 + "px";
-      _beacon.style.height = r2.height + 12 + "px";
-    }, 400);
+    // Read position AFTER any scroll has settled
+    requestAnimationFrame(() => {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 && r.height === 0) return; // element not visible
+      const ring = document.createElement("div");
+      ring.className = "guide-spot-ring";
+      const pad = 6;
+      ring.style.cssText = [
+        `left:${r.left - pad}px;`,
+        `top:${r.top - pad}px;`,
+        `width:${r.width + pad * 2}px;`,
+        `height:${r.height + pad * 2}px;`,
+      ].join("");
+      document.body.appendChild(ring);
+      _beacon = ring;
+      // Update position if window resizes or scroll continues
+      setTimeout(() => {
+        if (!_beacon) return;
+        const r2 = el.getBoundingClientRect();
+        _beacon.style.left = r2.left - pad + "px";
+        _beacon.style.top = r2.top - pad + "px";
+        _beacon.style.width = r2.width + pad * 2 + "px";
+        _beacon.style.height = r2.height + pad * 2 + "px";
+      }, 500);
+    });
   }
   function clearSpot() {
     document.querySelectorAll(".guide-spot-ring").forEach((e) => e.remove());
     _beacon = null;
   }
+
+  // Prevent background scroll while guide open
+  const _origBodyOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
 
   function closeGuide() {
     clearSpot();
@@ -15253,45 +15338,54 @@ function openInteractiveGuide() {
     dim.remove();
     document.getElementById("guideCSS")?.remove();
     document.getElementById("gReturnBtn")?.remove();
+    document.body.style.overflow = _origBodyOverflow;
   }
 
-  // ── Find target element with retries ──────────────────────────
+  // ── Find target element ──────────────────────────────────────
   function findEl(step) {
-    const selectors = [
-      step.action && (() => document.getElementById(step.action)),
-      step.scroll && (() => document.getElementById(step.scroll)),
-      step.scrollTo && (() => document.querySelector(step.scrollTo)),
-    ].filter(Boolean);
-    for (const fn of selectors) {
-      const el = fn();
+    const ids = [step.action, step.scroll].filter(Boolean);
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el) return el;
+    }
+    if (step.scrollTo) {
+      const el = document.querySelector(step.scrollTo);
       if (el) return el;
     }
     return null;
   }
 
-  // ── Navigate to tab and wait for render ───────────────────────
+  // ── Navigate to tab, scroll to element, then spotlight ────────
   function gotoStep(step) {
     clearSpot();
-    const doFind = () => {
-      const el = findEl(step);
-      if (el) {
-        spotEl(el);
-      } else if (step.scroll || step.action || step.scrollTo) {
-        // Retry up to 6 times
-        let tries = 0;
-        const retry = setInterval(() => {
-          const el2 = findEl(step);
-          if (el2 || tries++ >= 6) {
-            clearInterval(retry);
-            if (el2) spotEl(el2);
-          }
-        }, 250);
+
+    function doScrollAndSpot() {
+      // Try to find element, retry up to 8 times with 200ms gap
+      let tries = 0;
+      function attempt() {
+        const el = findEl(step);
+        if (el) {
+          // Scroll so element is visible ABOVE the guide sheet
+          const sheetH = sheet.offsetHeight + 24;
+          const viewableH = window.innerHeight - sheetH;
+          const rect = el.getBoundingClientRect();
+          const elCenter = window.scrollY + rect.top + rect.height / 2;
+          const target = elCenter - viewableH / 2;
+          window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
+          // Wait for scroll to finish, then spotlight
+          setTimeout(() => spotEl(el), 450);
+        } else if (++tries < 8) {
+          setTimeout(attempt, 200);
+        }
       }
-    };
+      attempt();
+    }
+
     if (step.nav && typeof setTab === "function") {
-      setTab(step.nav, () => setTimeout(doFind, 80));
+      // Switch tab first, then find element after render completes
+      setTab(step.nav, () => setTimeout(doScrollAndSpot, 100));
     } else {
-      setTimeout(doFind, 150);
+      setTimeout(doScrollAndSpot, 100);
     }
   }
 
@@ -15474,7 +15568,8 @@ function openInteractiveGuide() {
       // Slide sheet down temporarily
       sheet.style.transition = "transform .3s ease";
       sheet.style.transform = "translateX(-50%) translateY(90%)";
-      dim.style.opacity = "0.1";
+      dim.style.opacity = "0";
+      dim.style.pointerEvents = "none";
       // Find the element again after potential tab switch
       const reShow = () => {
         const el = findEl(step);
@@ -15493,6 +15588,7 @@ function openInteractiveGuide() {
           sheet.style.transition = "transform .35s cubic-bezier(.34,1.3,.64,1)";
           sheet.style.transform = "translateX(-50%) translateY(0)";
           dim.style.opacity = "";
+          dim.style.pointerEvents = "auto";
         };
         document.body.appendChild(rb);
         setTimeout(() => rb.click(), 8000);
