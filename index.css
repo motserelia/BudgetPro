@@ -71,7 +71,7 @@ html {
   scroll-behavior: smooth;
 }
 body {
-  font-family: "Nunito", "Segoe UI", system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: var(--text);
@@ -120,8 +120,7 @@ body.dark::before {
   align-items: center;
   padding: 10px 14px;
   gap: 8px;
-  min-height: 80px;
-  animation: fadeDown 0.5s ease both;
+  min-height: 60px;
   flex-wrap: nowrap;
 }
 .header-left {
@@ -200,7 +199,7 @@ body.dark::before {
    ============================================================ */
 .top-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
   padding: 0 16px 16px;
   animation: fadeUp 0.5s 0.1s ease both;
@@ -243,9 +242,7 @@ body.dark::before {
   background: linear-gradient(135deg, var(--card-bg) 55%, #eef3fd);
   box-shadow: 0 4px 20px rgba(29, 105, 200, 0.14);
 }
-.balance-card::before {
-  background: #2563eb;
-}
+.balance-card::before { display: none !important; }
 .income-card {
   border-color: rgba(26, 115, 64, 0.25);
   background: linear-gradient(135deg, var(--card-bg) 55%, var(--income-pale));
@@ -506,7 +503,6 @@ body.dark .row-balance {
   transition: var(--transition);
 }
 .op-card:hover {
-  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 .op-card:active {
@@ -515,10 +511,12 @@ body.dark .row-balance {
 .op-card[data-type="income"] {
   border-left: 5px solid var(--income-color);
   box-shadow: 0 3px 14px rgba(26, 115, 64, 0.1);
+  background: rgba(26, 115, 64, 0.035);
 }
 .op-card[data-type="expense"] {
   border-left: 5px solid var(--expense-color);
   box-shadow: 0 3px 14px rgba(193, 53, 21, 0.08);
+  background: rgba(193, 53, 21, 0.03);
 }
 body.dark .op-card {
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -681,6 +679,7 @@ body.dark .op-card[data-type="expense"] {
   transform: translateX(-50%);
   width: 100%;
   max-width: 680px;
+  height: 56px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -697,8 +696,9 @@ body.dark .op-card[data-type="expense"] {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 2px;
+  justify-content: center;
+  gap: 0;
+  padding: 6px 4px;
   background: none;
   border: none;
   border-radius: var(--radius-sm);
@@ -717,19 +717,25 @@ body.dark .op-card[data-type="expense"] {
 }
 .nav-btn.active {
   color: var(--primary);
+  position: relative;
+}
+.nav-btn.active::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 99px;
 }
 .nav-btn.active .nav-icon {
-  background: linear-gradient(
-    135deg,
-    var(--primary-pale),
-    rgba(116, 198, 157, 0.2)
-  );
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(45, 106, 79, 0.15);
+  background: var(--primary-pale);
+  box-shadow: 0 2px 8px rgba(45, 106, 79, 0.18);
 }
 .nav-btn.active .nav-label {
-  color: var(--primary);
-  font-weight: 800;
+  display: none !important;
 }
 .nav-icon {
   font-size: 22px;
@@ -739,13 +745,7 @@ body.dark .op-card[data-type="expense"] {
   transition: var(--transition);
 }
 .nav-label {
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 60px;
-  text-align: center;
+  display: none !important;
 }
 
 /* ============================================================
@@ -783,9 +783,10 @@ body.dark .op-card[data-type="expense"] {
   line-height: 1;
 }
 .fab-text {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  opacity: 0.95;
 }
 
 /* FAB анимация дыхания */
@@ -2143,7 +2144,7 @@ body.dark .search-container {
 }
 .calc-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 8px;
 }
 .calc-btn {
@@ -2812,12 +2813,8 @@ body.dark .history-item {
 
 @media (max-width: 360px) {
   .nav-label {
-    font-size: 9px;
-    max-width: 52px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  display: none !important;
+}
   .nav-icon {
     font-size: 20px;
   }
@@ -3527,9 +3524,7 @@ body.simple-mode .nav-icon {
   margin-bottom: 2px !important;
 }
 body.simple-mode .nav-label {
-  max-width: 68px !important;
-  font-size: 12px !important;
-  font-weight: 800 !important;
+  display: none !important;
 }
 body.simple-mode .nav-btn.active {
   background: var(--primary-pale) !important;
@@ -3816,8 +3811,7 @@ body.dark .custom-time-input::-webkit-calendar-picker-indicator {
    ============================================================ */
 
 /* ---- Анимации ---- */
-@keyframes slideUpBounce {
-  from { transform: translateY(40px); opacity: 0; }
+
   to   { transform: translateY(0); opacity: 1; }
 }
 @keyframes shake {
@@ -4029,13 +4023,13 @@ body { font-family: var(--lux-font) !important; -webkit-font-smoothing: antialia
    HEADER — Luxury gradient with gold accent line
    ──────────────────────────────────────────────── */
 .app-header {
-  position: sticky !important; top: 0 !important; z-index: 200 !important;
+  position: relative !important; z-index: 10 !important;
   display: flex !important; align-items: center !important; justify-content: space-between !important;
-  padding: 13px 18px 15px !important; gap: 8px !important;
-  min-height: 78px !important;
-  background: linear-gradient(160deg, #1b4332 0%, #0d2818 45%, #071410 100%) !important;
-  border-bottom: 1px solid rgba(201,168,76,0.25) !important;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.35), 0 1px 0 rgba(201,168,76,0.2) !important;
+  padding: 10px 16px !important; gap: 8px !important;
+  min-height: 60px !important;
+  background: linear-gradient(160deg, var(--header-bg-start, #1b4332) 0%, var(--header-bg-mid, #0d2818) 45%, var(--header-bg-end, #071410) 100%) !important;
+  border-bottom: 1px solid var(--header-border, rgba(201,168,76,0.25)) !important;
+  box-shadow: 0 4px 32px var(--header-shadow, rgba(0,0,0,0.35)) !important;
 }
 /* Gold shimmer line at bottom */
 .app-header::after {
@@ -4044,6 +4038,35 @@ body { font-family: var(--lux-font) !important; -webkit-font-smoothing: antialia
   background: linear-gradient(90deg, transparent, var(--gold), transparent) !important;
   opacity: 0.6 !important;
 }
+/* ── Theme-specific header colours ── */
+body.theme-gold .app-header {
+  --header-bg-start: #1c1400 !important;
+  --header-bg-mid: #111108 !important;
+  --header-bg-end: #0a0a06 !important;
+  --header-border: rgba(200,149,42,0.4) !important;
+  --header-shadow: rgba(0,0,0,0.7) !important;
+}
+body.theme-sunset .app-header {
+  --header-bg-start: #4a1a06 !important;
+  --header-bg-mid: #2d0e02 !important;
+  --header-bg-end: #1a0600 !important;
+  --header-border: rgba(240,140,60,0.3) !important;
+  --header-shadow: rgba(0,0,0,0.5) !important;
+}
+body.theme-white .app-header {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07) !important;
+}
+body.theme-white .app-logo { color: #4f46e5 !important; }
+body.theme-white .header-btn { background: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #334155 !important; }
+body.theme-navy .app-header {
+  --header-bg-start: #060b14 !important;
+  --header-bg-mid: #040810 !important;
+  --header-bg-end: #02050a !important;
+  --header-border: rgba(96,165,250,0.2) !important;
+}
+
 .header-left { flex:1 !important; min-width:0 !important; display:flex !important; flex-direction:column !important; gap:1px !important; }
 .app-logo { font-size: 18px !important; font-weight: 900 !important; color: #fff !important; letter-spacing: -0.4px !important; white-space: nowrap !important; }
 .app-slogan { font-size: 10px !important; color: var(--gold-light) !important; font-weight: 500 !important; letter-spacing: 0.3px !important; opacity: 0.8 !important; }
@@ -4088,7 +4111,7 @@ body.dark {
 /* ────────────────────────────────────────────────
    SUMMARY CARDS — Metallic premium cards
    ──────────────────────────────────────────────── */
-.top-cards { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; padding: 14px 14px 0 !important; }
+.top-cards { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; gap: 10px !important; padding: 14px 14px 12px !important; }
 
 .summary-card {
   border-radius: 20px !important; padding: 16px 14px 14px !important;
@@ -4114,23 +4137,14 @@ body.dark {
 }
 .balance-card .card-label, .balance-card .card-value { color: white !important; }
 .balance-card .card-icon { filter: brightness(1.3) !important; }
-/* Rotating gold ring */
-.balance-card::before {
-  content: '' !important; position: absolute !important; inset: -2px !important;
-  border-radius: 22px !important;
-  background: conic-gradient(from 0deg, transparent 0%, var(--gold) 20%, transparent 40%, var(--gold-light) 60%, transparent 80%) !important;
-  animation: rotateBorder 4s linear infinite !important;
-  z-index: -1 !important; opacity: 0.5 !important;
-}
-@keyframes rotateBorder { to { transform: rotate(360deg); } }
-/* Shimmer overlay */
+/* Balance card - clean, no animation */
+.balance-card::before { display: none !important; }
 .balance-card::after {
   content: '' !important; position: absolute !important;
-  top: 0 !important; left: -100% !important; width: 50% !important; height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent) !important;
-  animation: shimmerCard 3s ease-in-out 1s infinite !important; pointer-events: none !important;
+  inset: 0 !important; border-radius: inherit !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%) !important;
+  pointer-events: none !important;
 }
-@keyframes shimmerCard { 0%,70%{transform:translateX(0%)} 100%{transform:translateX(500%)} }
 
 /* Income card */
 .income-card {
@@ -4246,9 +4260,15 @@ body.dark .bottom-nav {
 .nav-btn.active { background: linear-gradient(135deg, rgba(27,67,50,0.1), rgba(45,106,79,0.06)) !important; }
 body.dark .nav-btn.active { background: rgba(45,106,79,0.15) !important; }
 .nav-icon { font-size:22px !important; line-height:1 !important; }
-.nav-label { font-size:10px !important; font-weight:700 !important; color:var(--text-muted) !important; letter-spacing:0.1px !important; }
-.nav-btn.active .nav-label { color:var(--emerald-mid) !important; font-weight:800 !important; }
-body.dark .nav-btn.active .nav-label { color:#52b788 !important; }
+.nav-label {
+  display: none !important;
+}
+.nav-btn.active .nav-label {
+  display: none !important;
+}
+body.dark .nav-btn.active .nav-label {
+  display: none !important;
+}
 /* Gold dot under active */
 .nav-btn.active::after { content:'' !important; display:block !important; width:4px !important; height:4px !important; border-radius:50% !important; background:var(--gold) !important; margin-top:-1px !important; }
 
@@ -4351,3 +4371,238 @@ body.dark .ntb-icon { background:rgba(45,106,79,.15) !important; }
    MAIN CONTENT PADDING
    ──────────────────────────────────────────────── */
 #mainContent, .main-scroll { padding-bottom: 130px !important; }
+/* ── BALANCE CARD FULL WIDTH ── */
+.balance-card-wide {
+  grid-column: span 3;
+}
+.balance-card-wide .card-value {
+  font-size: 22px;
+}
+.balance-card-wide .card-icon {
+  font-size: 28px;
+}
+
+/* ── NAV LABELS HIDDEN ── */
+.nav-label {
+  display: none !important;
+}
+
+/* ── OFFLINE BAR ── */
+#offlineBar {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: #c13515;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 18px;
+  border-radius: 0 0 12px 12px;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  white-space: nowrap;
+}
+#offlineBar.visible { display: flex; }
+
+/* ── BUDGET 80% WARNING ── */
+.budget-bar-warn {
+  background: var(--gold) !important;
+}
+
+
+/* ============================================================
+   POLISH IMPROVEMENTS — session 3
+   ============================================================ */
+
+/* ── Dark mode: better card contrast ── */
+body.dark .income-card .card-value  { color: #6ee7a8 !important; }
+body.dark .income-card .card-label  { color: rgba(110,231,168,0.75) !important; }
+body.dark .expense-card .card-value { color: #fca5a5 !important; }
+body.dark .expense-card .card-label { color: rgba(252,165,165,0.75) !important; }
+body.dark .salary-card .card-value  { color: #fde68a !important; }
+body.dark .salary-card .card-label  { color: rgba(253,230,138,0.75) !important; }
+body.dark .balance-card .card-value { color: #ffffff !important; text-shadow: 0 2px 12px rgba(0,0,0,0.4) !important; }
+body.dark .summary-card { box-shadow: 0 4px 24px rgba(0,0,0,0.45) !important; }
+
+/* ── Dark mode: op-card backgrounds stronger ── */
+body.dark .op-card[data-type="income"]  { background: rgba(26,115,64,0.10) !important; border-left-color: #52b788 !important; }
+body.dark .op-card[data-type="expense"] { background: rgba(193,53,21,0.10) !important; border-left-color: #e07060 !important; }
+body.dark .op-card { border-color: rgba(255,255,255,0.09) !important; }
+
+/* ── Card hover: cleaner on mobile ── */
+.summary-card:hover { box-shadow: var(--shadow-md) !important; transform: translateY(-1px) !important; }
+.summary-card:active { transform: scale(0.97) !important; }
+
+/* ── Balance card: bigger value since full-width ── */
+.balance-card-wide .card-body { display: flex; flex-direction: column; gap: 2px; }
+.balance-card-wide .card-value {
+  font-size: clamp(24px, 6vw, 32px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.5px !important;
+}
+.balance-card-wide .card-icon { font-size: 30px !important; }
+
+/* ── Gold theme: card accent colours ── */
+body.dark.theme-gold .income-card .card-value  { color: #86efac !important; }
+body.dark.theme-gold .expense-card .card-value { color: #fca5a5 !important; }
+body.dark.theme-gold .salary-card .card-value  { color: #fde68a !important; }
+body.dark.theme-gold .balance-card             { box-shadow: 0 6px 32px rgba(200,149,42,0.35) !important; }
+
+/* ── Navy theme: card improvements ── */
+body.dark.theme-navy .income-card  { border-color: rgba(52,211,153,0.3) !important; }
+body.dark.theme-navy .expense-card { border-color: rgba(248,113,113,0.3) !important; }
+body.dark.theme-navy .balance-card { border-color: rgba(96,165,250,0.4) !important; box-shadow: 0 6px 32px rgba(37,99,235,0.35) !important; }
+
+/* ── FAB: slightly larger touch target ── */
+.fab { min-width: 52px !important; }
+
+/* ── Offline bar top offset matches non-sticky header ── */
+#offlineBar { top: 0 !important; border-radius: 0 0 12px 12px !important; }
+
+/* ── Toast: raised above FAB ── */
+.toast { bottom: calc(var(--nav-h, 56px) + 80px) !important; }
+
+/* ── Op-card active: tighter press ── */
+.op-card:active { transform: scale(0.985) !important; }
+
+/* ── Card label uppercase tweak ── */
+.card-label { text-transform: none !important; letter-spacing: 0 !important; font-weight: 600 !important; }
+
+/* ── Period selector buttons: better contrast active ── */
+.htf-btn.active, .stats-period-btns .htf-btn.active { font-weight: 800 !important; }
+
+/* ── Tab content transitions ── */
+#mainContent {
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+/* ── Dark mode: stronger summary card backgrounds ── */
+body.dark .income-card  { background: linear-gradient(145deg,#042e1e,#0a4a2a) !important; }
+body.dark .expense-card { background: linear-gradient(145deg,#2a0c0c,#3d1212) !important; }
+body.dark .salary-card  { background: linear-gradient(145deg,#221800,#332400) !important; }
+body.dark .balance-card { background: linear-gradient(145deg,#0d2e1e,#1a4d30) !important; }
+body.dark .summary-card { border-width: 1.5px !important; }
+
+/* ── Swipeable op-card visual hint ── */
+.op-card { touch-action: pan-y; }
+.op-card.swiping { transform: translateX(var(--swipe-x, 0px)) !important; transition: none !important; }
+.op-card.swipe-delete { 
+  animation: swipeOut 0.3s ease forwards; 
+}
+@keyframes swipeOut {
+  to { transform: translateX(-110%); opacity: 0; max-height: 0; margin-bottom: 0; }
+}
+
+/* ── Navy theme: dark blue-tinted cards ── */
+body.dark.theme-navy .income-card  { background: linear-gradient(145deg, #04181a, #093845) !important; border-color: rgba(52,211,153,0.3) !important; }
+body.dark.theme-navy .expense-card { background: linear-gradient(145deg, #1c0505, #2e0a0a) !important; border-color: rgba(248,113,113,0.28) !important; }
+body.dark.theme-navy .salary-card  { background: linear-gradient(145deg, #1a1400, #2a2000) !important; border-color: rgba(251,191,36,0.3) !important; }
+body.dark.theme-navy .balance-card { background: linear-gradient(145deg, #040c20, #0a1840) !important; border-color: rgba(96,165,250,0.45) !important; box-shadow: 0 6px 32px rgba(37,99,235,0.4) !important; }
+
+/* ── Gold theme: warm dark-gold tinted cards ── */
+body.dark.theme-gold .income-card  { background: linear-gradient(145deg, #0a1e0a, #0f2c14) !important; border-color: rgba(74,222,128,0.28) !important; }
+body.dark.theme-gold .expense-card { background: linear-gradient(145deg, #1e0a0a, #2c0f0f) !important; border-color: rgba(248,113,113,0.28) !important; }
+body.dark.theme-gold .salary-card  { background: linear-gradient(145deg, #221800, #2e2200) !important; border-color: rgba(200,149,42,0.4) !important; box-shadow: 0 3px 18px rgba(200,149,42,0.18) !important; }
+body.dark.theme-gold .balance-card { background: linear-gradient(145deg, #1a1400, #241c04) !important; border-color: rgba(200,149,42,0.5) !important; box-shadow: 0 6px 32px rgba(200,149,42,0.3) !important; }
+
+/* ── Sunset theme (light): warm tinted cards ── */
+body.theme-sunset .income-card  { background: linear-gradient(145deg, #ecfdf5, #d1fae5) !important; border-color: rgba(16,185,129,0.22) !important; }
+body.theme-sunset .expense-card { background: linear-gradient(145deg, #fff1f2, #ffe4e6) !important; border-color: rgba(239,68,68,0.2) !important; }
+body.theme-sunset .salary-card  { background: linear-gradient(145deg, #fffbeb, #fef3c7) !important; border-color: rgba(217,119,6,0.25) !important; }
+body.theme-sunset .balance-card { background: linear-gradient(145deg, #7c2d12, #c2440a) !important; border-color: rgba(240,140,60,0.4) !important; box-shadow: 0 6px 28px rgba(194,68,10,0.4) !important; }
+body.theme-sunset .balance-card .card-value, body.theme-sunset .balance-card .card-label, body.theme-sunset .balance-card .card-hint { color: rgba(255,255,255,0.95) !important; }
+
+/* ── White theme: clean cards with subtle shadows ── */
+body.theme-white .income-card  { background: #f0fdf4 !important; border-color: rgba(16,185,129,0.2) !important; box-shadow: 0 2px 12px rgba(16,185,129,0.06) !important; }
+body.theme-white .expense-card { background: #fef2f2 !important; border-color: rgba(239,68,68,0.15) !important; box-shadow: 0 2px 12px rgba(239,68,68,0.05) !important; }
+body.theme-white .salary-card  { background: #fffbeb !important; border-color: rgba(217,119,6,0.18) !important; box-shadow: 0 2px 12px rgba(217,119,6,0.05) !important; }
+body.theme-white .balance-card { background: linear-gradient(145deg, #3730a3, #4f46e5) !important; border-color: rgba(99,102,241,0.4) !important; box-shadow: 0 6px 28px rgba(79,70,229,0.35) !important; }
+body.theme-white .balance-card .card-value, body.theme-white .balance-card .card-label { color: #fff !important; }
+
+/* ============================================================
+   FINAL POLISH — session 4
+   ============================================================ */
+
+/* ── Smooth focus rings on all interactive elements ── */
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── Op-delete fade ── */
+.op-delete { opacity: 0.55; transition: opacity 0.18s ease; }
+.op-card:hover .op-delete,
+.op-card:focus-within .op-delete { opacity: 1; }
+
+/* ── Balance card value pop on update ── */
+@keyframes valuePop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.balance-card-wide .card-value.updated {
+  animation: valuePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* ── Bottom nav: active dot polished ── */
+.nav-btn { position: relative; }
+.nav-btn::after { display: none; }
+.nav-btn.active::after {
+  display: block;
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 3px;
+  background: var(--primary);
+  border-radius: 99px;
+}
+
+/* ── Improved modal entry for all themes ── */
+.modal { will-change: transform; }
+
+/* ── Header: consistent line height ── */
+.app-header { line-height: 1.3; }
+
+/* ── Number animation: prevent text flash ── */
+#balanceValue, #incomeValue, #expenseValue, #salaryValue {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ── Improve settings card appearance ── */
+.settings-card {
+  transition: box-shadow 0.2s ease;
+}
+.settings-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Improve toast style ── */
+.toast {
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* ── Main content area: ensure no overflow after non-sticky header ── */
+.main-scroll {
+  min-height: calc(100dvh - 60px - 56px);
+}
+
+/* ── Active nav icon: use primary var instead of hardcoded green ── */
+.nav-btn.active .nav-icon {
+  background: var(--primary-pale);
+}
+.nav-btn.active {
+  color: var(--primary);
+}
+.nav-btn.active::after {
+  background: var(--primary);
+}
