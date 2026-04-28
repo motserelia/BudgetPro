@@ -2953,15 +2953,23 @@ let _lastBalVals = { bal: null, inc: null, exp: null, sal: null };
 
 function updateTopBlocks() {
   let inc = 0,
-    exp = 0;
+    exp = 0,
+    realInc = 0;
   for (const tx of transactions) {
-    if (tx.type === "income") inc += tx.amountRub;
-    else exp += tx.amountRub;
+    if (tx.type === "income") {
+      inc += tx.amountRub;
+      if (!tx._initial) realInc += tx.amountRub;
+    } else {
+      exp += tx.amountRub;
+    }
   }
   const bal = inc - exp,
     s = sym();
+  // Balance = full inc (includes startBalance) - exp
+  // incomeCard shows only REAL income (not starting balance)
+  // salaryCard shows startBalanceRub
   const balD = toDisp(bal),
-    incD = toDisp(inc),
+    incD = toDisp(realInc),
     expD = toDisp(exp),
     salD = toDisp(startBalanceRub);
   const els = {
@@ -3399,7 +3407,13 @@ function renderOpsList() {
       askConfirm(
         t("confirmDelete"),
         () => {
-          transactions.splice(parseInt(btn.dataset.idx), 1);
+          const _di1 = parseInt(btn.dataset.idx);
+          const _dt1 = transactions[_di1];
+          transactions.splice(_di1, 1);
+          if (_dt1 && _dt1._initial) {
+            startBalanceRub = 0;
+            localStorage.removeItem("startBalanceRub");
+          }
           saveAll();
           updateTopBlocks();
           renderBalanceSummary();
@@ -3500,7 +3514,12 @@ function addSwipeToDelete(container) {
             askConfirm(
               t("confirmDelete"),
               () => {
+                const _dt2 = transactions[idxRef];
                 transactions.splice(idxRef, 1);
+                if (_dt2 && _dt2._initial) {
+                  startBalanceRub = 0;
+                  localStorage.removeItem("startBalanceRub");
+                }
                 saveAll();
                 updateTopBlocks();
                 renderBalanceSummary();
@@ -3589,7 +3608,13 @@ function showFullHistory() {
       askConfirm(
         t("confirmDelete"),
         () => {
-          transactions.splice(parseInt(b.dataset.idx), 1);
+          const _di3 = parseInt(b.dataset.idx);
+          const _dt3 = transactions[_di3];
+          transactions.splice(_di3, 1);
+          if (_dt3 && _dt3._initial) {
+            startBalanceRub = 0;
+            localStorage.removeItem("startBalanceRub");
+          }
           saveAll();
           updateTopBlocks();
           renderBalanceSummary();
@@ -3738,7 +3763,12 @@ function openEditModal(idx) {
     askConfirm(
       t("confirmDelete"),
       () => {
+        const _dt4 = transactions[editingOpIndex];
         transactions.splice(editingOpIndex, 1);
+        if (_dt4 && _dt4._initial) {
+          startBalanceRub = 0;
+          localStorage.removeItem("startBalanceRub");
+        }
         saveAll();
         updateTopBlocks();
         renderBalanceSummary();
@@ -12363,7 +12393,12 @@ function safeDeleteOp(idx) {
       () => {
         if (_origDeleteOp) _origDeleteOp(idx);
         else {
+          const _dt5 = transactions[idx];
           transactions.splice(idx, 1);
+          if (_dt5 && _dt5._initial) {
+            startBalanceRub = 0;
+            localStorage.removeItem("startBalanceRub");
+          }
           saveAll();
           updateTopBlocks();
           if (currentTab === "home") renderHome();
@@ -13716,23 +13751,47 @@ function openGoalsModal() {
           </div>
           <div style="display:flex;gap:8px;">
             <button class="goal-add-btn btn-primary" data-gi="${i}" style="flex:1;padding:10px;font-size:13px;">💰 ${lc.addSaved}</button>
+            <button class="goal-sub-btn btn-secondary" data-gi="${i}" style="flex:0 0 44px;padding:10px;font-size:18px;font-weight:900;" title="${currentLang === "en" ? "Subtract" : "Убрать сумму"}">−</button>
           </div>
         </div>`;
           })
           .join("");
 
+  const GOAL_EMOJIS = [
+    "🎯",
+    "🏠",
+    "🚗",
+    "✈️",
+    "💍",
+    "📱",
+    "💻",
+    "🎓",
+    "👶",
+    "🏖️",
+    "💰",
+    "🏋️",
+    "🎸",
+    "📚",
+    "🌟",
+  ];
   const addForm = `
     <div style="background:var(--cream-dark);border-radius:16px;padding:14px;margin-bottom:16px;border:1.5px dashed var(--cream-border);">
       <div style="font-size:13px;font-weight:800;color:var(--text-muted);margin-bottom:10px;">${lc.add}</div>
-      <div style="display:flex;gap:6px;margin-bottom:8px;">
-        <input id="goalEmoji" class="modal-input" value="🎯" style="width:54px;font-size:20px;text-align:center;padding:10px;" maxlength="2">
-        <input id="goalName" class="modal-input" placeholder="${lc.name}" style="flex:1;">
+      <div class="field-group" style="margin-bottom:8px;">
+        <input id="goalName" class="modal-input" placeholder="${lc.name}" style="width:100%;" autocomplete="off">
+      </div>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Иконка / Icon</div>
+        <div id="goalEmojiPicker" style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${GOAL_EMOJIS.map((e, i) => `<button type="button" class="goal-emoji-opt" data-e="${e}" style="width:36px;height:36px;font-size:20px;border-radius:8px;border:2px solid ${i === 0 ? "var(--primary)" : "var(--cream-border)"};background:${i === 0 ? "var(--primary-pale)" : "var(--card-bg)"};cursor:pointer;display:flex;align-items:center;justify-content:center;">${e}</button>`).join("")}
+        </div>
+        <input type="hidden" id="goalEmoji" value="🎯">
       </div>
       <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input id="goalTarget" class="modal-input" type="number" placeholder="${lc.target} (${sym()})" step="0.01" min="1" style="flex:1;">
-        <input id="goalSaved" class="modal-input" type="number" placeholder="${lc.saved} (${sym()})" step="0.01" min="0" style="flex:1;">
+        <input id="goalTarget" class="modal-input" type="number" placeholder="${lc.target} (${sym()})" step="0.01" min="1" style="flex:1;" inputmode="decimal">
+        <input id="goalSaved" class="modal-input" type="number" placeholder="${lc.saved} (${sym()})" step="0.01" min="0" style="flex:1;" inputmode="decimal">
       </div>
-      <button class="btn-primary" id="goalAddBtn" style="width:100%;">${lc.add}</button>
+      <button class="btn-primary" id="goalAddBtn" style="width:100%;padding:14px;font-size:15px;">${lc.add}</button>
     </div>`;
 
   const html = addForm + `<div id="goalsList">${renderGoalCards(goals)}</div>`;
@@ -13785,6 +13844,20 @@ function openGoalsModal() {
   });
   reattachGoalBtns(goals);
 
+  // Wire emoji picker
+  document.querySelectorAll(".goal-emoji-opt").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".goal-emoji-opt").forEach((b) => {
+        b.style.borderColor = "var(--cream-border)";
+        b.style.background = "var(--card-bg)";
+      });
+      btn.style.borderColor = "var(--primary)";
+      btn.style.background = "var(--primary-pale)";
+      const hidden = document.getElementById("goalEmoji");
+      if (hidden) hidden.value = btn.dataset.e;
+    });
+  });
+
   function reattachGoalBtns(gs) {
     document.querySelectorAll(".goal-del-btn").forEach((btn) => {
       btn.onclick = () => {
@@ -13836,6 +13909,32 @@ function openGoalsModal() {
           haptic("success");
           reattachGoalBtns(gs);
         }
+      };
+    });
+
+    // ── Subtract from goal ────────────────────────────────
+    document.querySelectorAll(".goal-sub-btn").forEach((btn) => {
+      btn.onclick = () => {
+        const i = parseInt(btn.dataset.gi);
+        const g = gs[i];
+        const label =
+          currentLang === "en"
+            ? `Remove from "${g.name}" (${sym()}): max ${toDisp(g.saved).toFixed(2)}`
+            : currentLang === "ka"
+              ? `"${g.name}"-დან გამოქვით (${sym()}):`
+              : `Убрать из «${g.name}» (${sym()}): макс ${toDisp(g.saved).toFixed(2)}`;
+        const raw = prompt(label) || "0";
+        const amt = parseFloat(raw);
+        if (isNaN(amt) || amt <= 0) return;
+        const amtRub =
+          (amt / (exchangeRates[displayCurrency] || 1)) *
+          (exchangeRates["RUB"] || 1);
+        g.saved = Math.max(0, g.saved - amtRub);
+        saveGoals(gs);
+        document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
+        haptic("medium");
+        reattachGoalBtns(gs);
+        showToast("−" + amt.toFixed(2) + " " + sym());
       };
     });
   }
@@ -14520,52 +14619,127 @@ setTimeout(initTooltips, 1000);
 // ══════════════════════════════════════════════════════════════
 const GUIDE_TOPICS = {
   ru: [
+    // ── ОСНОВЫ ───────────────────────────────────────────────────
     {
       id: "basics",
       icon: "🏠",
-      title: "Основы: первые шаги",
+      title: "Основы приложения",
       steps: [
         {
           emoji: "👋",
-          title: "Добро пожаловать в БюджетPRO!",
-          text: "Это личный финансовый трекер. Помогает понять куда уходят деньги и планировать бюджет.\nДавайте пройдёмся по всем основным функциям вместе!",
-          action: null,
+          title: "Добро пожаловать!",
           nav: "home",
+          text: "БюджетPRO — личный финансовый трекер. Помогает видеть куда уходят деньги и планировать бюджет. Давайте пройдёмся по всем функциям!",
         },
         {
           emoji: "💼",
           title: "Начальная сумма",
-          text: "Карточка «Нач. сумма» — введите сколько денег у вас есть прямо сейчас (наличные + карта). Нажмите на неё чтобы изменить.",
-          action: "salaryCard",
           nav: "home",
-          scroll: "salaryCard",
+          action: "salaryCard",
+          text: "Карточка «Нач. сумма» — введите сколько денег у вас есть сейчас (наличные + карта). Нажмите на неё чтобы изменить.",
         },
         {
           emoji: "💎",
-          title: "Баланс",
-          text: "Карточка «Мой баланс» показывает текущий остаток = начальная сумма + доходы − расходы. Нажмите на неё чтобы увидеть детали.",
-          action: "balanceCard",
+          title: "Мой баланс",
           nav: "home",
-          scroll: "balanceCard",
+          action: "balanceCard",
+          text: "Карточка «Мой баланс» = начальная сумма + доходы − расходы. Обновляется автоматически после каждой операции.",
         },
         {
-          emoji: "➕",
-          title: "Кнопка добавить",
-          text: "Большая кнопка «+» внизу по центру — главная кнопка приложения! Нажмите её чтобы добавить расход или доход.",
-          action: "fabBtn",
+          emoji: "📋",
+          title: "Карточки доходов и расходов",
           nav: "home",
-          scroll: "fabBtn",
+          action: "incomeCard",
+          text: "Карточки «Доходы» и «Расходы» показывают суммы за текущий период. Нажмите чтобы отфильтровать операции.",
         },
         {
           emoji: "📜",
           title: "История операций",
-          text: "Ниже карточек баланса отображается вся история ваших трат и доходов. Каждая запись — отдельная карточка.",
-          action: null,
           nav: "home",
           scrollTo: ".ops-list",
+          text: "Список всех ваших расходов и доходов. Нажмите на запись чтобы редактировать. Потяните влево чтобы удалить.",
+        },
+        {
+          emoji: "➕",
+          title: "Кнопка добавить (+)",
+          nav: "home",
+          action: "fabBtn",
+          text: "Кнопка «+» добавляет новую операцию. Она закреплена над навигационной панелью — посмотрите в центр нижней части экрана.",
         },
       ],
     },
+    // ── СТАТИСТИКА ────────────────────────────────────────────────
+    {
+      id: "stats",
+      icon: "📊",
+      title: "Статистика",
+      steps: [
+        {
+          emoji: "📊",
+          title: "Сводка месяца",
+          nav: "stats",
+          scrollTo: ".stat-status-card",
+          text: "Статус месяца — в плюсе или в минусе, и насколько. Меняется цвет в зависимости от результата.",
+        },
+        {
+          emoji: "🔢",
+          title: "Ключевые показатели",
+          nav: "stats",
+          scrollTo: ".stat-kpi-grid",
+          text: "Четыре числа: баланс, начальная сумма, доходы и расходы. Быстрый срез за выбранный период.",
+        },
+        {
+          emoji: "🍩",
+          title: "Диаграмма расходов",
+          nav: "stats",
+          scrollTo: ".stat-donut-card",
+          text: "Круговая диаграмма — насколько расходы составляют от доходов. Чем меньше сектор, тем лучше.",
+        },
+        {
+          emoji: "📅",
+          title: "Переключение периода",
+          nav: "stats",
+          scrollTo: ".stats-period-btns",
+          text: "Кнопки Неделя / Месяц / Год — переключают период для всей статистики на странице.",
+        },
+        {
+          emoji: "📉",
+          title: "Динамика по месяцам",
+          nav: "stats",
+          scrollTo: ".stat-chart-card",
+          text: "Столбчатый график — доходы и расходы по месяцам. Видно как меняется финансовая картина.",
+        },
+        {
+          emoji: "🥧",
+          title: "Круговая по категориям",
+          nav: "stats",
+          scrollTo: ".pie-chart-card",
+          text: "Диаграмма расходов по категориям — видно на что уходит больше всего денег.",
+        },
+        {
+          emoji: "🏆",
+          title: "Топ категорий",
+          nav: "stats",
+          scrollTo: ".stat-cats-card",
+          text: "Рейтинг категорий с прогресс-барами. Быстро видно топ трат.",
+        },
+        {
+          emoji: "🌡️",
+          title: "Тепловая карта",
+          nav: "stats",
+          scrollTo: ".stat-heatmap-card",
+          text: "Тепловая карта активности по дням — в какие дни вы тратили больше всего.",
+        },
+        {
+          emoji: "💡",
+          title: "Финансовые советы",
+          nav: "stats",
+          scrollTo: ".stat-tips-card",
+          text: "Автоматические советы на основе анализа ваших трат. Обновляются каждую неделю.",
+        },
+      ],
+    },
+    // ── БЮДЖЕТЫ ──────────────────────────────────────────────────
     {
       id: "budget",
       icon: "🎯",
@@ -14574,806 +14748,324 @@ const GUIDE_TOPICS = {
         {
           emoji: "🎯",
           title: "Что такое бюджет?",
-          text: "Бюджет — ежемесячный лимит трат на категорию.\nПример: «Рестораны — не более 200₾ в месяц».\nПриложение предупредит когда превысите лимит.",
-          action: null,
           nav: "settings",
+          action: "budgetsBody",
+          text: "Бюджет — ежемесячный лимит на категорию. Например «Рестораны — не более 200₾». Приложение предупреждает при превышении 80%.",
         },
         {
-          emoji: "⚙️",
-          title: "Откройте Настройки",
-          text: "Нажмите «⚙️ Настройки» в нижней навигации. Здесь управление всеми функциями приложения.",
-          action: null,
+          emoji: "➕",
+          title: "Добавить лимит",
           nav: "settings",
-          scroll: "settingsNavBtn",
-        },
-        {
-          emoji: "💰",
-          title: "Раздел Бюджеты",
-          text: "Найдите карточку «💰 Бюджеты» в Настройках. Нажмите «+ Добавить бюджет» чтобы создать лимит для категории.",
           action: "addBudgetBtn",
-          nav: "settings",
-          scroll: "addBudgetBtn",
-        },
-        {
-          emoji: "✍️",
-          title: "Установите лимит",
-          text: "Выберите категорию (например «Продукты»), введите сумму лимита на месяц (например 300₾), нажмите «Сохранить».",
-          action: null,
-          nav: "settings",
-        },
-        {
-          emoji: "📊",
-          title: "Как это работает",
-          text: "После установки бюджетов — при добавлении расхода в Настройках появится прогресс-бар: сколько из лимита потрачено.",
-          action: null,
-          nav: "settings",
+          text: "Нажмите «+ Добавить бюджет» — выберите категорию и введите лимит в месяц. Можно настроить любое количество категорий.",
         },
       ],
     },
+    // ── НАПОМИНАНИЯ ──────────────────────────────────────────────
     {
-      id: "stats",
-      icon: "📊",
-      title: "Статистика и аналитика",
-      steps: [
-        {
-          emoji: "📊",
-          title: "Вкладка Статистика",
-          text: "Здесь всё о ваших финансах: круговые диаграммы, графики, топ категорий трат и прогноз на следующий месяц.",
-          action: null,
-          nav: "stats",
-        },
-        {
-          emoji: "🥧",
-          title: "Круговая диаграмма",
-          text: "Большая диаграмма показывает как распределились ваши расходы по категориям. Нажмите на сегмент чтобы увидеть детали.",
-          action: null,
-          nav: "stats",
-          scrollTo: ".chart-card",
-        },
-        {
-          emoji: "📈",
-          title: "График за период",
-          text: "Выберите период (неделя/месяц/год) чтобы увидеть динамику расходов и доходов во времени.",
-          action: null,
-          nav: "stats",
-          scrollTo: ".stats-period-selector",
-        },
-        {
-          emoji: "🏆",
-          title: "Топ категорий",
-          text: "Список категорий где вы тратите больше всего. Полезно чтобы найти где можно сэкономить.",
-          action: null,
-          nav: "stats",
-          scrollTo: ".stats-cats",
-        },
-        {
-          emoji: "🔮",
-          title: "Прогноз",
-          text: "На основе вашей истории приложение предсказывает расходы следующего месяца.",
-          action: null,
-          nav: "stats",
-        },
-      ],
-    },
-    {
-      id: "profiles",
-      icon: "👥",
-      title: "Профили и семья",
-      steps: [
-        {
-          emoji: "👥",
-          title: "Несколько профилей",
-          text: "Профили позволяют вести отдельный учёт для каждого члена семьи. У каждого свой баланс, история и бюджеты.",
-          action: null,
-          nav: "settings",
-        },
-        {
-          emoji: "⚙️",
-          title: "Раздел Профили",
-          text: "Откройте Настройки → найдите карточку «👤 Профили». Там список всех профилей и кнопка добавить.",
-          action: null,
-          nav: "settings",
-          scrollTo: "[id='profilesCard']",
-        },
-        {
-          emoji: "➕",
-          title: "Добавить профиль",
-          text: "Нажмите «+ Добавить профиль» → введите имя (например «Мама») → выберите цвет → Сохранить.",
-          action: "addProfileBtn",
-          nav: "settings",
-          scroll: "addProfileBtn",
-        },
-        {
-          emoji: "🔄",
-          title: "Переключение",
-          text: "Нажмите на имя текущего профиля в шапке приложения или в настройках → выберите другой профиль.",
-          action: "appLogoBtn",
-          nav: "home",
-          scroll: "appLogoBtn",
-        },
-        {
-          emoji: "🔗",
-          title: "Общий доступ",
-          text: "В профиле нажмите «Поделиться» — создастся ссылка. Отправьте её члену семьи — они откроют приложение с совместным доступом.",
-          action: null,
-          nav: "settings",
-        },
-      ],
-    },
-    {
-      id: "voice",
-      icon: "🎤",
-      title: "Голосовой ввод",
-      steps: [
-        {
-          emoji: "🎤",
-          title: "Голосовой ввод",
-          text: "Скажите «потратил 50 лари на продукты» — приложение сразу добавит расход! Не нужно ничего нажимать вручную.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "📱",
-          title: "Требования",
-          text: "Нужен Google Chrome на Android или компьютере. Safari на iPhone не поддерживает Web Speech API.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "🎤",
-          title: "Кнопка голоса",
-          text: "Зелёная кнопка 🎤 справа над навигацией. Или: Настройки → Расширенные функции → «Использовать сейчас».",
-          action: "voiceInputBtn",
-          nav: "home",
-          scroll: "voiceInputBtn",
-        },
-        {
-          emoji: "🗣️",
-          title: "Как говорить",
-          text: "Нажмите → появится экран «Говорите...» → произнесите фразу чётко → дождитесь распознавания.",
-          action: "voiceInputBtn",
-          nav: "home",
-        },
-        {
-          emoji: "✅",
-          title: "Примеры фраз:",
-          text: "• «Потратил 50 лари на продукты»\n• «Купил кофе за 8 лари»\n• «Получил зарплату 1000»\n• «Заплатил за такси 15»\n• «Купил одежду за 120»",
-          action: null,
-          nav: "home",
-        },
-      ],
-    },
-    {
-      id: "goals",
-      icon: "🌟",
-      title: "Цели и накопления",
-      steps: [
-        {
-          emoji: "🌟",
-          title: "Копите на мечты",
-          text: "Раздел «Цели» — ставьте финансовые цели с суммой и отслеживайте накопления через красивый прогресс-бар.",
-          action: "goalsNavBtn",
-          nav: "home",
-          scroll: "goalsNavBtn",
-        },
-        {
-          emoji: "🎯",
-          title: "Кнопка целей",
-          text: "Жёлтая кнопка 🎯 слева над навигацией. Также в Настройках → Расширенные функции.",
-          action: "goalsNavBtn",
-          nav: "home",
-          scroll: "goalsNavBtn",
-        },
-        {
-          emoji: "➕",
-          title: "Создать цель",
-          text: "Введите emoji (например 🍎), название («iPhone 15»), целевую сумму (1200₾) и уже накопленную сумму.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "💰",
-          title: "Пополнять",
-          text: "«💰 Пополнить» → введите сумму которую отложили. Прогресс-бар заполняется!",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "🎊",
-          title: "Достижение",
-          text: "Когда накопленная сумма достигнет цели — конфетти и «Цель достигнута!» 🏆 Делитесь достижением!",
-          action: null,
-          nav: "home",
-        },
-      ],
-    },
-    {
-      id: "notifications",
+      id: "reminders",
       icon: "🔔",
       title: "Напоминания",
       steps: [
         {
           emoji: "🔔",
-          title: "Для чего напоминания?",
-          text: "Приложение будет присылать уведомления чтобы вы не забывали регулярно записывать расходы.",
-          action: null,
+          title: "Включить уведомления",
           nav: "settings",
-        },
-        {
-          emoji: "⚙️",
-          title: "Откройте Настройки",
-          text: "Нажмите «⚙️ Настройки» → прокрутите до раздела «🔔 Напоминания».",
-          action: null,
-          nav: "settings",
-          scroll: "notifEnableBtn",
-        },
-        {
-          emoji: "🔘",
-          title: "Включите напоминания",
-          text: "Нажмите кнопку «🔔 Включить напоминания». Браузер запросит разрешение — нажмите «Разрешить».",
           action: "notifEnableBtn",
+          text: "Нажмите эту кнопку — браузер запросит разрешение. Обязательно нажмите «Разрешить» в диалоге!",
+        },
+        {
+          emoji: "🧪",
+          title: "Проверить уведомления",
           nav: "settings",
-          scroll: "notifEnableBtn",
+          action: "testNotifBtn",
+          text: "Кнопка «Тест» — сразу отправляет тестовое уведомление. Убедитесь что они работают на вашем устройстве.",
+        },
+        {
+          emoji: "📝",
+          title: "Название напоминания",
+          nav: "settings",
+          action: "newReminderName",
+          text: "Введите что нужно сделать — например «Записать расходы» или «Оплатить аренду».",
+        },
+        {
+          emoji: "📅",
+          title: "Дата и время",
+          nav: "settings",
+          action: "newReminderDatetime",
+          text: "Выберите точный момент — нажмите на поле даты и времени. Можно выбрать сегодняшнюю дату для проверки.",
         },
         {
           emoji: "⏰",
-          title: "Выберите интервал",
-          text: "После включения появятся варианты: каждые 30 минут, 1 час, раз в день. Выберите удобный.",
-          action: "notifEnableBtn",
+          title: "Запланировать",
           nav: "settings",
+          action: "addNamedReminderBtn",
+          text: "Нажмите «Запланировать» — напоминание сохранится. Придёт в выбранное время даже если вы закрыли приложение.",
         },
         {
-          emoji: "📅",
-          title: "Конкретное время",
-          text: "Прокрутите ниже — там поле «📅 Дата» и «⏰ Время». Установите конкретный момент для напоминания.",
-          action: null,
+          emoji: "🔁",
+          title: "Повторяющиеся напоминания",
           nav: "settings",
-          scrollTo: ".custom-datetime-row",
+          scrollTo: ".reminder-interval-checkbox",
+          text: "Отметьте галочкой интервал — каждый час, раз в день, раз в неделю. Такие напоминания приходят регулярно.",
         },
       ],
     },
+    // ── ПРОФИЛИ ──────────────────────────────────────────────────
     {
-      id: "export",
-      icon: "📤",
-      title: "Экспорт данных",
+      id: "profiles",
+      icon: "👥",
+      title: "Профили",
       steps: [
         {
-          emoji: "📤",
-          title: "Экспорт данных",
-          text: "Выгружайте историю операций в разных форматах: для хранения, передачи на другое устройство или анализа.",
-          action: null,
-          nav: "tools",
+          emoji: "👥",
+          title: "Раздел Профили",
+          nav: "settings",
+          action: "profilesBody",
+          text: "Несколько профилей — для разных людей или кошельков. У каждого свои операции, бюджеты и настройки.",
         },
+        {
+          emoji: "➕",
+          title: "Добавить профиль",
+          nav: "settings",
+          action: "addProfileBtn",
+          text: "Нажмите «Добавить профиль» — введите имя и выберите цвет. Переключайтесь между профилями в любое время.",
+        },
+      ],
+    },
+    // ── ЦЕЛИ ────────────────────────────────────────────────────
+    {
+      id: "goals",
+      icon: "🌟",
+      title: "Цели и мечты",
+      steps: [
+        {
+          emoji: "🌟",
+          title: "Кнопка целей 🎯",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "Кнопка 🎯 слева внизу открывает ваши цели. Она появляется через секунду после загрузки. Если не видно — включите в Настройках → плавающие кнопки.",
+        },
+        {
+          emoji: "➕",
+          title: "Создать цель",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "В окне целей нажмите «+ Добавить цель» — введите название, выберите иконку, укажите целевую сумму и сколько уже накоплено.",
+        },
+        {
+          emoji: "💰",
+          title: "Пополнить накопления",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "Кнопка «💰 Пополнить» добавляет сумму к цели. Кнопка «−» убирает лишнее. Прогресс-бар обновляется сразу.",
+        },
+      ],
+    },
+    // ── ИНСТРУМЕНТЫ ──────────────────────────────────────────────
+    {
+      id: "tools",
+      icon: "🛠️",
+      title: "Инструменты",
+      steps: [
         {
           emoji: "🧮",
-          title: "Вкладка Инструменты",
-          text: "Нажмите «🧮 Инструменты» в нижней навигации — там все дополнительные функции.",
-          action: null,
+          title: "Калькулятор",
           nav: "tools",
-          scroll: "toolsNavBtn",
+          action: "calcDisplay",
+          text: "Встроенный калькулятор — считайте прямо в приложении. История вычислений сохраняется.",
         },
         {
-          emoji: "📊",
-          title: "Google Таблицы",
-          text: "«📊 Google Таблицы» → скачается CSV-файл → откройте в Google Sheets → Файл → Импорт. Вся история в таблице!",
-          action: "newSheetsBtn",
+          emoji: "💱",
+          title: "Конвертер валют",
           nav: "tools",
-          scroll: "newSheetsBtn",
+          action: "convAmount",
+          text: "Конвертируйте суммы между валютами — курсы обновляются автоматически.",
         },
         {
-          emoji: "📧",
-          title: "Email отчёт",
-          text: "«📧 Email отчёт» → введите свой email → получите красивый отчёт за текущий месяц.",
-          action: "newEmailBtn",
+          emoji: "📦",
+          title: "Другие инструменты",
           nav: "tools",
-          scroll: "newEmailBtn",
-        },
-        {
-          emoji: "⚙️",
-          title: "Другие форматы",
-          text: "Настройки → раздел «Данные»: JSON (перенос на другое устройство), PDF (для печати).",
-          action: null,
-          nav: "settings",
-        },
-      ],
-    },
-    {
-      id: "newtools",
-      icon: "✨",
-      title: "Новые инструменты",
-      steps: [
-        {
-          emoji: "✨",
-          title: "Новые инструменты",
-          text: "В разделе «Инструменты» есть дополнительные мощные функции. Прокрутите вниз чтобы увидеть их.",
-          action: null,
-          nav: "tools",
-          scrollTo: "#newToolsBlock",
-        },
-        {
-          emoji: "📸",
-          title: "Сканер чеков",
-          text: "Сфотографируйте бумажный чек — OCR-технология автоматически распознает итоговую сумму и предложит добавить расход.",
-          action: "newScanBtn",
-          nav: "tools",
-          scroll: "newScanBtn",
-        },
-        {
-          emoji: "⚖️",
-          title: "Правило 50/30/20",
-          text: "Знаменитое финансовое правило: 50% на необходимое, 30% на желания, 20% в сбережения. Кнопка автоматически расставит лимиты!",
-          action: "newRuleBtn",
-          nav: "tools",
-          scroll: "newRuleBtn",
-        },
-        {
-          emoji: "💑",
-          title: "Партнёрский режим",
-          text: "Создайте общую «комнату» → поделитесь кодом с партнёром → оба видите общий бюджет в реальном времени!",
-          action: "partnerModeBtn",
-          nav: "tools",
-          scroll: "partnerModeBtn",
-        },
-        {
-          emoji: "🎨",
-          title: "Темы оформления",
-          text: "Настройки → «🎨 Цветовые темы» — выберите из 6 вариантов. Автоматическая смена по времени суток тоже есть!",
-          action: null,
-          nav: "settings",
+          scrollTo: ".tool-card",
+          text: "Прокрутите вниз — здесь также экспорт данных, интеграции с Google Таблицами и другие функции.",
         },
       ],
     },
   ],
-  en: [
-    {
-      id: "basics",
-      icon: "🏠",
-      title: "Basics: First Steps",
-      steps: [
-        {
-          emoji: "👋",
-          title: "Welcome to BudgetPRO!",
-          text: "This is your personal finance tracker. It helps you understand where money goes and plan your budget.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "💼",
-          title: "Starting Amount",
-          text: "The 'Starting amount' card — enter how much money you have right now (cash + cards). Tap it to change.",
-          action: "salaryCard",
-          nav: "home",
-          scroll: "salaryCard",
-        },
-        {
-          emoji: "💎",
-          title: "Balance Card",
-          text: "Shows your current balance = starting amount + income − expenses. Tap to see a detailed breakdown.",
-          action: "balanceCard",
-          nav: "home",
-          scroll: "balanceCard",
-        },
-        {
-          emoji: "➕",
-          title: "Add Button",
-          text: "The big «+» button at the bottom center — main button of the app! Tap to add an expense or income.",
-          action: "fabBtn",
-          nav: "home",
-          scroll: "fabBtn",
-        },
-        {
-          emoji: "📜",
-          title: "Transaction History",
-          text: "Below the balance cards is your full history. Each transaction is its own card — tap to edit or delete.",
-          action: null,
-          nav: "home",
-          scrollTo: ".ops-list",
-        },
-      ],
-    },
-    {
-      id: "stats",
-      icon: "📊",
-      title: "Stats & Analytics",
-      steps: [
-        {
-          emoji: "📊",
-          title: "Stats Tab",
-          text: "Charts, trends, top spending categories and a monthly forecast — all in one place.",
-          action: null,
-          nav: "stats",
-        },
-        {
-          emoji: "🥧",
-          title: "Pie Chart",
-          text: "See how your expenses are split across categories. Tap a segment for details.",
-          action: null,
-          nav: "stats",
-          scrollTo: ".chart-card",
-        },
-        {
-          emoji: "📈",
-          title: "Trends Over Time",
-          text: "Select a period (week/month/year) to see income and expense trends over time.",
-          action: null,
-          nav: "stats",
-        },
-      ],
-    },
-    {
-      id: "voice",
-      icon: "🎤",
-      title: "Voice Input",
-      steps: [
-        {
-          emoji: "🎤",
-          title: "Voice Input",
-          text: "Say 'spent 50 on groceries' — the app adds it instantly! Great when your hands are busy.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "📱",
-          title: "Requirements",
-          text: "You need Google Chrome on Android or desktop. Safari on iPhone does not support Web Speech API.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "🎤",
-          title: "Voice Button",
-          text: "Green 🎤 button on the right, above navigation. Or: Settings → Advanced features → 'Use now'.",
-          action: "voiceInputBtn",
-          nav: "home",
-          scroll: "voiceInputBtn",
-        },
-        {
-          emoji: "✅",
-          title: "Example phrases:",
-          text: "• 'Spent 50 on groceries'\n• 'Bought coffee for 8'\n• 'Got salary 1000'\n• 'Paid 15 for taxi'",
-          action: null,
-          nav: "home",
-        },
-      ],
-    },
-    {
-      id: "goals",
-      icon: "🌟",
-      title: "Goals & Savings",
-      steps: [
-        {
-          emoji: "🌟",
-          title: "Save for Dreams",
-          text: "Set financial goals with target amounts and track progress with a beautiful progress bar.",
-          action: "goalsNavBtn",
-          nav: "home",
-          scroll: "goalsNavBtn",
-        },
-        {
-          emoji: "➕",
-          title: "Create a Goal",
-          text: "Enter an emoji, name (e.g. 'iPhone 15'), target amount (e.g. $1200) and amount already saved.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "🎊",
-          title: "Goal Achieved!",
-          text: "When savings reach the target — confetti and 'Goal achieved!' 🏆 Share the moment!",
-          action: null,
-          nav: "home",
-        },
-      ],
-    },
-    {
-      id: "notifications",
-      icon: "🔔",
-      title: "Reminders",
-      steps: [
-        {
-          emoji: "🔔",
-          title: "What are reminders?",
-          text: "The app sends notifications to remind you to log expenses regularly so you never forget.",
-          action: null,
-          nav: "settings",
-        },
-        {
-          emoji: "🔘",
-          title: "Enable reminders",
-          text: "Go to Settings → scroll to '🔔 Reminders' → tap the big button → tap 'Allow' when the browser asks.",
-          action: "notifEnableBtn",
-          nav: "settings",
-          scroll: "notifEnableBtn",
-        },
-        {
-          emoji: "📅",
-          title: "Set a specific time",
-          text: "Scroll down to the date/time pickers and set an exact moment for a one-time reminder.",
-          action: null,
-          nav: "settings",
-          scrollTo: ".custom-datetime-row",
-        },
-      ],
-    },
-    {
-      id: "export",
-      icon: "📤",
-      title: "Exporting Data",
-      steps: [
-        {
-          emoji: "📊",
-          title: "Google Sheets",
-          text: "Tools tab → '📊 Google Sheets export' → download CSV → open in Google Sheets → Import.",
-          action: "newSheetsBtn",
-          nav: "tools",
-          scroll: "newSheetsBtn",
-        },
-        {
-          emoji: "📧",
-          title: "Email Report",
-          text: "'📧 Email report' → enter your email → get a beautiful monthly financial summary.",
-          action: "newEmailBtn",
-          nav: "tools",
-          scroll: "newEmailBtn",
-        },
-      ],
-    },
-  ],
-  ka: [
-    {
-      id: "basics",
-      icon: "🏠",
-      title: "საფუძვლები: პირველი ნაბიჯები",
-      steps: [
-        {
-          emoji: "👋",
-          title: "კეთილი იყოს BudgetPRO-ში!",
-          text: "ეს არის პირადი ფინანსური ტრეკერი. გეხმარება გაიგოთ სად მიდის ფული.",
-          action: null,
-          nav: "home",
-        },
-        {
-          emoji: "💼",
-          title: "საწყისი თანხა",
-          text: "'საწ. თანხა' ბარათი — შეიყვანეთ რამდენი ფული გაქვთ ახლა. დააჭირეთ შესაცვლელად.",
-          action: "salaryCard",
-          nav: "home",
-          scroll: "salaryCard",
-        },
-        {
-          emoji: "➕",
-          title: "დამატების ღილაკი",
-          text: "ქვემოთ «+» ღილაკი — მთავარი ღილაკი! დააჭირეთ ხარჯის ან შემოსავლის დასამატებლად.",
-          action: "fabBtn",
-          nav: "home",
-          scroll: "fabBtn",
-        },
-        {
-          emoji: "📊",
-          title: "სტატისტიკა",
-          text: "'სტატისტიკა' ჩანართი — დიაგრამები, ტრენდები, პროგნოზი.",
-          action: null,
-          nav: "stats",
-        },
-      ],
-    },
-    {
-      id: "notifications",
-      icon: "🔔",
-      title: "შეხსენებები",
-      steps: [
-        {
-          emoji: "🔔",
-          title: "შეხსენებები",
-          text: "პროგრამა გამოგიგზავნით შეტყობინებებს ხარჯების ჩასაწერად.",
-          action: null,
-          nav: "settings",
-        },
-        {
-          emoji: "🔘",
-          title: "ჩართვა",
-          text: "პარამეტრები → '🔔 შეხსენებები' → დიდი ღილაკი → 'Allow'.",
-          action: "notifEnableBtn",
-          nav: "settings",
-          scroll: "notifEnableBtn",
-        },
-      ],
-    },
-    {
-      id: "voice",
-      icon: "🎤",
-      title: "ხმოვანი შეყვანა",
-      steps: [
-        {
-          emoji: "🎤",
-          title: "ხმოვანი შეყვანა",
-          text: "'50 ლარი დავხარჯე საყიდლებზე' — პროგრამა ავტომატურად ამატებს!",
-          action: "voiceInputBtn",
-          nav: "home",
-          scroll: "voiceInputBtn",
-        },
-        {
-          emoji: "📱",
-          title: "მოთხოვნა",
-          text: "საჭიროა Google Chrome Android-ზე ან კომპიუტერზე.",
-          action: null,
-          nav: "home",
-        },
-      ],
-    },
-    {
-      id: "goals",
-      icon: "🌟",
-      title: "მიზნები",
-      steps: [
-        {
-          emoji: "🌟",
-          title: "მიზნები",
-          text: "ოცნებებისთვის შენახვა პროგრეს-ბარით.",
-          action: "goalsNavBtn",
-          nav: "home",
-          scroll: "goalsNavBtn",
-        },
-        {
-          emoji: "➕",
-          title: "მიზნის შექმნა",
-          text: "emoji, სახელი, სამიზნე თანხა, უკვე დაზოგილი.",
-          action: null,
-          nav: "home",
-        },
-      ],
-    },
-    {
-      id: "export",
-      icon: "📤",
-      title: "ექსპორტი",
-      steps: [
-        {
-          emoji: "📊",
-          title: "Google Sheets",
-          text: "ხელსაწყოები → 'Google Sheets' → CSV ჩამოტვირთვა.",
-          action: "newSheetsBtn",
-          nav: "tools",
-          scroll: "newSheetsBtn",
-        },
-      ],
-    },
-  ],
+  en: [],
+  ka: [],
 };
+
 // ════════════════════════════════════════════════════════════════
 // INTERACTIVE GUIDE v2 — fully rebuilt
+// ════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// INTERACTIVE GUIDE — полная замена
+// Принцип: переключает вкладку → скроллит к элементу → подсвечивает outline
+// Нет CSS-анимаций на карточке (не ломают JS transform)
 // ════════════════════════════════════════════════════════════════
 function openInteractiveGuide() {
   const lang = currentLang;
   const topics = GUIDE_TOPICS[lang] || GUIDE_TOPICS.ru;
-  let currentTopic = null;
-  let currentStep = 0;
-  let _spotEl = null;
-  let _beacon = null;
+  let topicIdx = null,
+    stepIdx = 0,
+    hlEl = null;
 
-  // ── Inject guide CSS once ──────────────────────────────────────
-  if (!document.getElementById("guideCSS")) {
-    const s = document.createElement("style");
-    s.id = "guideCSS";
-    s.textContent = `
-      @keyframes guideBeacon{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.7);opacity:.2}}
-      @keyframes guideSheetUp{from{transform:translateX(-50%) translateY(120%);opacity:.5}to{transform:translateX(-50%) translateY(0);opacity:1}}
-      @keyframes guideFadeIn{from{opacity:0}to{opacity:1}}
-      #guideSheet{animation:guideSheetUp .38s cubic-bezier(.34,1.3,.64,1) both}
-      #guideDim{animation:guideFadeIn .25s ease both}
-      .guide-spot-ring{pointer-events:none;position:fixed;z-index:8998;border-radius:12px;
-        box-shadow:0 0 0 3px #f59e0b,0 0 0 7px rgba(245,158,11,.3),0 0 36px 8px rgba(245,158,11,.18);
-        transition:left .35s cubic-bezier(.34,1.3,.64,1),top .35s cubic-bezier(.34,1.3,.64,1),width .35s,height .35s;}
-      @keyframes guidePulse{0%,100%{box-shadow:0 0 0 3px #f59e0b,0 0 0 7px rgba(245,158,11,.3),0 0 36px 8px rgba(245,158,11,.18)}50%{box-shadow:0 0 0 3px #f59e0b,0 0 0 12px rgba(245,158,11,.15),0 0 48px 12px rgba(245,158,11,.1)}}
-      .guide-spot-ring{animation:guidePulse 2s ease-in-out infinite;}
-    `;
-    document.head.appendChild(s);
+  // ── Styles ───────────────────────────────────────────────────
+  const styleEl = document.createElement("style");
+  styleEl.id = "gCSS";
+  styleEl.textContent = `
+    #gCard {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 9100;
+      background: var(--card-bg);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -6px 32px rgba(0,0,0,.28);
+      display: flex; flex-direction: column; max-height: 50vh;
+      transform: translateY(100%); transition: transform .3s ease;
+    }
+    #gCard.gOpen { transform: translateY(0); }
+    @keyframes gPulse {
+      0%,100% { outline-color: #f59e0b; outline-offset: 4px; }
+      50%      { outline-color: #fbbf24; outline-offset: 8px; }
+    }
+    .gHL {
+      outline: 3px solid #f59e0b !important;
+      outline-offset: 4px !important;
+      z-index: 8990;
+      animation: gPulse 1.4s ease-in-out infinite;
+    }
+  `;
+  document.head.appendChild(styleEl);
+
+  // ── Card element ──────────────────────────────────────────────
+  const card = document.createElement("div");
+  card.id = "gCard";
+  document.body.appendChild(card);
+  setTimeout(() => card.classList.add("gOpen"), 30);
+
+  // ── Close ─────────────────────────────────────────────────────
+  function close() {
+    removeHL();
+    card.classList.remove("gOpen");
+    setTimeout(() => {
+      card.remove();
+      styleEl.remove();
+    }, 320);
   }
 
-  // ── Overlay dim ────────────────────────────────────────────────
-  const dim = document.createElement("div");
-  dim.id = "guideDim";
-  dim.style.cssText =
-    "position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:8990;pointer-events:auto;backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);";
-  document.body.appendChild(dim);
-  dim.addEventListener("click", (e) => {
-    if (e.target === dim) closeGuide();
-  });
-
-  // ── Bottom sheet ───────────────────────────────────────────────
-  const sheet = document.createElement("div");
-  sheet.id = "guideSheet";
-  sheet.style.cssText = [
-    "position:fixed;bottom:0;left:50%;transform:translateX(-50%);",
-    "width:100%;max-width:640px;z-index:9100;",
-    "background:var(--card-bg);border-radius:24px 24px 0 0;",
-    "box-shadow:0 -8px 48px rgba(0,0,0,.28);",
-    "max-height:58vh;display:flex;flex-direction:column;overflow:hidden;",
-  ].join("");
-  document.body.appendChild(sheet);
-
-  // ── Spotlight ring ─────────────────────────────────────────────
-  function spotEl(el) {
-    clearSpot();
+  // ── Highlight ─────────────────────────────────────────────────
+  function setHL(el) {
+    removeHL();
     if (!el) return;
-    _spotEl = el;
-    // Read position AFTER any scroll has settled
-    requestAnimationFrame(() => {
-      const r = el.getBoundingClientRect();
-      if (r.width === 0 && r.height === 0) return; // element not visible
-      const ring = document.createElement("div");
-      ring.className = "guide-spot-ring";
-      const pad = 6;
-      ring.style.cssText = [
-        `left:${r.left - pad}px;`,
-        `top:${r.top - pad}px;`,
-        `width:${r.width + pad * 2}px;`,
-        `height:${r.height + pad * 2}px;`,
-      ].join("");
-      document.body.appendChild(ring);
-      _beacon = ring;
-      // Update position if window resizes or scroll continues
-      setTimeout(() => {
-        if (!_beacon) return;
-        const r2 = el.getBoundingClientRect();
-        _beacon.style.left = r2.left - pad + "px";
-        _beacon.style.top = r2.top - pad + "px";
-        _beacon.style.width = r2.width + pad * 2 + "px";
-        _beacon.style.height = r2.height + pad * 2 + "px";
-      }, 500);
-    });
-  }
-  function clearSpot() {
-    document.querySelectorAll(".guide-spot-ring").forEach((e) => e.remove());
-    _beacon = null;
+    hlEl = el;
+    // Use a separate overlay ring so overflow:hidden on parent doesn't clip it
+    const r = el.getBoundingClientRect();
+    const pad = 6;
+    const ring = document.createElement("div");
+    ring.id = "gHLRing";
+    ring.style.cssText = [
+      "position:fixed;pointer-events:none;",
+      "z-index:9090;border-radius:14px;",
+      `left:${r.left - pad}px;top:${r.top - pad}px;`,
+      `width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;`,
+      "border:3px solid #f59e0b;",
+      "box-shadow:0 0 0 4px rgba(245,158,11,.2),0 0 20px 4px rgba(245,158,11,.15);",
+      "animation:gPulse 1.4s ease-in-out infinite;",
+    ].join("");
+    document.body.appendChild(ring);
+    // Update position on scroll
+    const updatePos = () => {
+      if (!document.getElementById("gHLRing")) return;
+      const r2 = el.getBoundingClientRect();
+      ring.style.left = r2.left - pad + "px";
+      ring.style.top = r2.top - pad + "px";
+      ring.style.width = r2.width + pad * 2 + "px";
+      ring.style.height = r2.height + pad * 2 + "px";
+    };
+    window.addEventListener("scroll", updatePos, { passive: true });
+    ring._removeScroll = () => window.removeEventListener("scroll", updatePos);
   }
 
-  // Prevent background scroll while guide open
-  const _origBodyOverflow = document.body.style.overflow;
-  document.body.style.overflow = "hidden";
-
-  function closeGuide() {
-    clearSpot();
-    sheet.remove();
-    dim.remove();
-    document.getElementById("guideCSS")?.remove();
-    document.getElementById("gReturnBtn")?.remove();
-    document.body.style.overflow = _origBodyOverflow;
+  function removeHL() {
+    if (hlEl) {
+      hlEl.classList.remove("gHL");
+      hlEl = null;
+    }
+    const ring = document.getElementById("gHLRing");
+    if (ring) {
+      ring._removeScroll?.();
+      ring.remove();
+    }
   }
 
-  // ── Find target element ──────────────────────────────────────
-  function findEl(step) {
-    const ids = [step.action, step.scroll].filter(Boolean);
-    for (const id of ids) {
-      const el = document.getElementById(id);
-      if (el) return el;
+  // ── Find target element ───────────────────────────────────────
+  function findTarget(step) {
+    if (step.action) {
+      const e = document.getElementById(step.action);
+      if (e) return e;
+      // Try dynamic floating buttons
+      if (step.action === "goalsNavBtn") {
+        try {
+          addGoalsNavButton();
+        } catch (e) {}
+      }
+      if (step.action === "voiceInputBtn") {
+        try {
+          addVoiceButton();
+        } catch (e) {}
+      }
+      const e2 = document.getElementById(step.action);
+      if (e2) return e2;
+    }
+    if (step.scroll) {
+      const e = document.getElementById(step.scroll);
+      if (e) return e;
     }
     if (step.scrollTo) {
-      const el = document.querySelector(step.scrollTo);
-      if (el) return el;
+      const e = document.querySelector(step.scrollTo);
+      if (e) return e;
     }
     return null;
   }
 
-  // ── Navigate to tab, scroll to element, then spotlight ────────
-  function gotoStep(step) {
-    clearSpot();
+  // ── Scroll element into center of screen (above guide card) ────
+  function scrollToEl(el) {
+    if (!el) return;
+    const cardH = (card.offsetHeight || 240) + 24;
+    const viewH = window.innerHeight - cardH;
+    const r = el.getBoundingClientRect();
+    // Absolute position of element center
+    const absCenter = window.scrollY + r.top + r.height / 2;
+    // We want element center to be at viewH/2
+    const targetScrollY = absCenter - viewH / 2;
+    window.scrollTo({ top: Math.max(0, targetScrollY), behavior: "smooth" });
+  }
 
-    function doScrollAndSpot() {
-      // Try to find element, retry up to 8 times with 200ms gap
+  // ── Run a step ────────────────────────────────────────────────
+  function runStep() {
+    renderCard();
+    removeHL();
+
+    const step = topics[topicIdx].steps[stepIdx];
+
+    function activate() {
       let tries = 0;
       function attempt() {
-        const el = findEl(step);
+        const el = findTarget(step);
         if (el) {
-          // Scroll so element is visible ABOVE the guide sheet
-          const sheetH = sheet.offsetHeight + 24;
-          const viewableH = window.innerHeight - sheetH;
-          const rect = el.getBoundingClientRect();
-          const elCenter = window.scrollY + rect.top + rect.height / 2;
-          const target = elCenter - viewableH / 2;
-          window.scrollTo({ top: Math.max(0, target), behavior: "smooth" });
-          // Wait for scroll to finish, then spotlight
-          setTimeout(() => spotEl(el), 450);
+          // For fixed-position elements (fab, nav buttons): shrink card so they're visible
+          const style = window.getComputedStyle(el);
+          const isFixed = style.position === "fixed";
+          if (isFixed) {
+            // Shrink guide card to top so fixed elements at bottom are visible
+            card.style.maxHeight = "32vh";
+            setTimeout(() => {
+              card.style.maxHeight = "";
+            }, 4000);
+          } else {
+            scrollToEl(el);
+          }
+          setTimeout(() => setHL(findTarget(step)), isFixed ? 100 : 700);
         } else if (++tries < 8) {
           setTimeout(attempt, 200);
         }
@@ -15381,54 +15073,143 @@ function openInteractiveGuide() {
       attempt();
     }
 
-    if (step.nav && typeof setTab === "function") {
-      // Switch tab first, then find element after render completes
-      setTab(step.nav, () => setTimeout(doScrollAndSpot, 100));
+    if (step.nav && step.nav !== currentTab) {
+      setTab(step.nav, () => setTimeout(activate, 400));
     } else {
-      setTimeout(doScrollAndSpot, 100);
+      activate();
     }
   }
 
-  // ── TOPIC LIST ─────────────────────────────────────────────────
-  function renderTopicList() {
-    currentTopic = null;
-    clearSpot();
-    const L = {
-      ru: { title: "📚 Интерактивный гид", sub: "Выберите раздел", close: "✕" },
+  // ── Render step card ──────────────────────────────────────────
+  function renderCard() {
+    const topic = topics[topicIdx];
+    const step = topic.steps[stepIdx];
+    const isLast = stepIdx === topic.steps.length - 1;
+    const pct = Math.round(((stepIdx + 1) / topic.steps.length) * 100);
+    const LL = {
+      ru: {
+        back: "← Темы",
+        prev: "←",
+        next: "Далее →",
+        done: "Готово ✓",
+        of: "/",
+      },
       en: {
-        title: "📚 Interactive Guide",
-        sub: "Choose a section",
-        close: "✕",
+        back: "← Topics",
+        prev: "←",
+        next: "Next →",
+        done: "Done ✓",
+        of: "/",
       },
       ka: {
-        title: "📚 ინტერაქტიური გიდი",
-        sub: "აირჩიეთ განყოფილება",
-        close: "✕",
+        back: "← თემები",
+        prev: "←",
+        next: "შემდეგი →",
+        done: "მზადა ✓",
+        of: "/",
       },
-    }[lang] || { title: "📚 Guide", sub: "Choose", close: "✕" };
+    }[lang] || { back: "←", prev: "←", next: "Next →", done: "Done", of: "/" };
 
-    sheet.innerHTML = `
-      <div style="flex-shrink:0;padding:12px 18px 10px;border-bottom:1.5px solid var(--cream-border);display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <div style="font-size:16px;font-weight:900;color:var(--text);">${L.title}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${L.sub}</div>
+    card.innerHTML = `
+      <div style="flex-shrink:0;padding:10px 16px 0;">
+        <div style="width:36px;height:4px;background:var(--cream-border);border-radius:99px;margin:0 auto 10px;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <button id="gBackBtn" style="background:none;border:none;font-size:12px;font-weight:700;
+            color:var(--primary);cursor:pointer;padding:4px 0;">${LL.back}</button>
+          <span style="font-size:11px;font-weight:700;color:var(--text-muted);">
+            ${topic.icon} ${stepIdx + 1}${LL.of}${topic.steps.length}
+          </span>
+          <button id="gXBtn" style="background:var(--cream-dark);border:none;width:28px;height:28px;
+            border-radius:50%;font-size:13px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
-        <button id="guideClose" style="background:var(--cream-dark);border:none;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer;color:var(--text-muted);display:flex;align-items:center;justify-content:center;">${L.close}</button>
+        <div style="height:3px;background:var(--cream-dark);border-radius:99px;overflow:hidden;margin-bottom:0;">
+          <div style="height:100%;width:${pct}%;background:var(--primary);border-radius:99px;transition:width .3s;"></div>
+        </div>
       </div>
-      <div style="overflow-y:auto;flex:1;padding:10px 14px 20px;display:flex;flex-direction:column;gap:7px;">
+      <div style="flex:1;overflow-y:auto;padding:12px 16px 16px;">
+        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;">
+          <span style="font-size:32px;flex-shrink:0;line-height:1;">${step.emoji}</span>
+          <div>
+            <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:4px;line-height:1.3;">${step.title}</div>
+            <div style="font-size:13px;line-height:1.7;color:var(--text-soft);white-space:pre-line;">${step.text}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          ${stepIdx > 0 ? `<button id="gPrev" class="btn-secondary" style="flex:0 0 46px;padding:12px;font-size:16px;">${LL.prev}</button>` : ""}
+          <button id="gNext" class="btn-primary" style="flex:1;padding:13px;font-size:14px;font-weight:800;">
+            ${isLast ? LL.done : LL.next}
+          </button>
+        </div>
+      </div>`;
+
+    card.querySelector("#gXBtn").onclick = close;
+    card.querySelector("#gBackBtn").onclick = () => {
+      removeHL();
+      topicIdx = null;
+      renderTopics();
+    };
+    card.querySelector("#gPrev")?.addEventListener("click", () => {
+      stepIdx--;
+      runStep();
+    });
+    card.querySelector("#gNext").onclick = () => {
+      if (isLast) {
+        topicIdx = null;
+        renderTopics();
+      } else {
+        stepIdx++;
+        runStep();
+      }
+      removeHL();
+    };
+  }
+
+  // ── Topic list ────────────────────────────────────────────────
+  function renderTopics() {
+    removeHL();
+    const LL = {
+      ru: {
+        title: "📚 Интерактивный гид",
+        sub: "Выберите тему",
+        steps: "шагов",
+      },
+      en: {
+        title: "📚 Interactive Guide",
+        sub: "Choose a topic",
+        steps: "steps",
+      },
+      ka: { title: "📚 ინტერაქტიური გიდი", sub: "აირჩიეთ თემა", steps: "ნაბ." },
+    }[lang] || { title: "📚 Guide", sub: "Choose", steps: "steps" };
+
+    card.innerHTML = `
+      <div style="flex-shrink:0;padding:10px 16px 0;">
+        <div style="width:36px;height:4px;background:var(--cream-border);border-radius:99px;margin:0 auto 10px;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;
+          padding-bottom:10px;border-bottom:1.5px solid var(--cream-border);">
+          <div>
+            <div style="font-size:15px;font-weight:900;color:var(--text);">${LL.title}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${LL.sub}</div>
+          </div>
+          <button id="gX2" style="background:var(--cream-dark);border:none;width:30px;height:30px;
+            border-radius:50%;font-size:14px;cursor:pointer;color:var(--text-muted);">✕</button>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:10px 14px 20px;display:flex;flex-direction:column;gap:8px;">
         ${topics
           .map(
             (tp, i) => `
           <button data-ti="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;
-            background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:14px;
-            cursor:pointer;font-family:inherit;text-align:left;width:100%;transition:border-color .15s,transform .15s;">
-            <div style="font-size:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;
-              background:var(--primary-pale);border-radius:10px;flex-shrink:0;">${tp.icon}</div>
+            background:var(--cream-dark);border:1.5px solid var(--cream-border);
+            border-radius:14px;cursor:pointer;font-family:inherit;text-align:left;
+            width:100%;transition:border-color .15s,background .15s;">
+            <span style="font-size:24px;width:40px;height:40px;flex-shrink:0;
+              background:var(--primary-pale);border-radius:10px;
+              display:flex;align-items:center;justify-content:center;">${tp.icon}</span>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:800;font-size:14px;color:var(--text);">${tp.title}</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${tp.steps.length} ${
-                lang === "ru" ? "шагов" : lang === "en" ? "steps" : "ნაბიჯი"
-              }</div>
+              <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+                ${tp.steps.length} ${LL.steps}
+              </div>
             </div>
             <span style="font-size:18px;color:var(--text-muted);">›</span>
           </button>`,
@@ -15436,173 +15217,19 @@ function openInteractiveGuide() {
           .join("")}
       </div>`;
 
-    sheet.querySelector("#guideClose")?.addEventListener("click", closeGuide);
-    sheet.querySelectorAll("[data-ti]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        currentTopic = parseInt(btn.dataset.ti);
-        currentStep = 0;
-        renderStep();
-        haptic("light");
-      });
-      btn.addEventListener("mouseenter", () => {
-        btn.style.borderColor = "var(--primary)";
-        btn.style.transform = "translateX(2px)";
-      });
-      btn.addEventListener("mouseleave", () => {
-        btn.style.borderColor = "var(--cream-border)";
-        btn.style.transform = "";
-      });
-    });
-  }
-
-  // ── STEP VIEW ──────────────────────────────────────────────────
-  function renderStep() {
-    const topic = topics[currentTopic];
-    const step = topic.steps[currentStep];
-    const isLast = currentStep === topic.steps.length - 1;
-    const pct = Math.round(((currentStep + 1) / topic.steps.length) * 100);
-    const L = {
-      ru: {
-        back: "← Темы",
-        prev: "←",
-        next: "Далее →",
-        done: "✅ Понятно!",
-        step: "Шаг",
-        skip: "✕",
-        show: "👆 Показать",
-      },
-      en: {
-        back: "← Topics",
-        prev: "←",
-        next: "Next →",
-        done: "✅ Done!",
-        step: "Step",
-        skip: "✕",
-        show: "👆 Show",
-      },
-      ka: {
-        back: "← თემები",
-        prev: "←",
-        next: "შემდეგი →",
-        done: "✅ გასაგებია!",
-        step: "ნ",
-        skip: "✕",
-        show: "👆 ჩვენება",
-      },
-    }[lang] || {
-      back: "←",
-      prev: "←",
-      next: "Next →",
-      done: "✅ Done!",
-      step: "Step",
-      skip: "✕",
-      show: "👆 Show",
-    };
-
-    // Navigate to tab and spotlight element
-    gotoStep(step);
-
-    const hasTarget = !!(step.action || step.scroll || step.scrollTo);
-
-    sheet.innerHTML = `
-      <div style="flex-shrink:0;">
-        <div style="padding:8px 16px 6px;display:flex;align-items:center;justify-content:space-between;">
-          <button id="gBack" style="background:none;border:none;font-size:13px;font-weight:700;color:var(--text-muted);cursor:pointer;padding:6px 8px 6px 0;">${L.back}</button>
-          <span style="font-size:11px;font-weight:700;color:var(--text-muted);">${topic.icon} ${L.step} ${currentStep + 1}/${topic.steps.length}</span>
-          <button id="gSkip" style="background:none;border:none;font-size:16px;color:var(--text-muted);cursor:pointer;padding:6px;">${L.skip}</button>
-        </div>
-        <div style="height:4px;background:var(--cream-dark);margin:0 16px 10px;border-radius:99px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--primary),var(--primary-light,#74c69d));border-radius:99px;transition:width .3s;"></div>
-        </div>
-      </div>
-      <div style="flex:1;overflow-y:auto;padding:0 16px 16px;">
-        <div style="font-size:10px;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">${topic.icon} ${topic.title}</div>
-        <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;">
-          <div style="font-size:38px;flex-shrink:0;line-height:1;">${step.emoji}</div>
-          <div>
-            <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:5px;line-height:1.3;">${step.title}</div>
-            <div style="font-size:13px;line-height:1.75;color:var(--text-soft);white-space:pre-line;">${step.text}</div>
-          </div>
-        </div>
-        ${
-          hasTarget
-            ? `
-          <button id="gShow" style="width:100%;margin-bottom:12px;padding:11px;
-            background:rgba(201,168,76,.1);border:1.5px solid rgba(201,168,76,.5);
-            border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;color:var(--text);
-            display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;">
-            ${L.show}
-          </button>`
-            : ""
-        }
-        <div style="display:flex;gap:8px;">
-          ${currentStep > 0 ? `<button id="gPrev" class="btn-secondary" style="flex:0 0 46px;padding:13px;font-size:16px;">${L.prev}</button>` : ""}
-          <button id="gNext" class="btn-primary" style="flex:1;padding:13px;font-size:14px;font-weight:800;">${isLast ? L.done : L.next}</button>
-        </div>
-      </div>`;
-
-    sheet.querySelector("#gBack")?.addEventListener("click", () => {
-      clearSpot();
-      renderTopicList();
-    });
-    sheet.querySelector("#gSkip")?.addEventListener("click", () => {
-      closeGuide();
-      haptic("light");
-    });
-    sheet.querySelector("#gPrev")?.addEventListener("click", () => {
-      currentStep--;
-      renderStep();
-      haptic("light");
-    });
-    sheet.querySelector("#gNext")?.addEventListener("click", () => {
-      if (isLast) {
-        clearSpot();
-        renderTopicList();
-      } else {
-        currentStep++;
-        renderStep();
-      }
-      haptic("light");
-    });
-    sheet.querySelector("#gShow")?.addEventListener("click", () => {
-      // Slide sheet down temporarily
-      sheet.style.transition = "transform .3s ease";
-      sheet.style.transform = "translateX(-50%) translateY(90%)";
-      dim.style.opacity = "0";
-      dim.style.pointerEvents = "none";
-      // Find the element again after potential tab switch
-      const reShow = () => {
-        const el = findEl(step);
-        if (el) spotEl(el);
-        // Add return button
-        document.getElementById("gReturnBtn")?.remove();
-        const rb = document.createElement("button");
-        rb.id = "gReturnBtn";
-        rb.textContent =
-          { ru: "↑ В гид", en: "↑ Guide", ka: "↑ გიდი" }[lang] || "↑ Guide";
-        rb.style.cssText =
-          "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9200;padding:11px 28px;background:linear-gradient(135deg,#2d6a4f,#1b4332);color:white;border:1.5px solid rgba(201,168,76,.5);border-radius:26px;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(27,67,50,.5);white-space:nowrap;font-family:inherit;";
-        rb.onclick = () => {
-          rb.remove();
-          clearSpot();
-          sheet.style.transition = "transform .35s cubic-bezier(.34,1.3,.64,1)";
-          sheet.style.transform = "translateX(-50%) translateY(0)";
-          dim.style.opacity = "";
-          dim.style.pointerEvents = "auto";
-        };
-        document.body.appendChild(rb);
-        setTimeout(() => rb.click(), 8000);
+    card.querySelector("#gX2").onclick = close;
+    card.querySelectorAll("[data-ti]").forEach((btn) => {
+      btn.onclick = () => {
+        topicIdx = parseInt(btn.dataset.ti);
+        stepIdx = 0;
+        runStep();
       };
-      if (step.nav) {
-        setTab(step.nav, () => setTimeout(reShow, 100));
-      } else {
-        setTimeout(reShow, 350);
-      }
-      haptic("medium");
+      btn.onmouseenter = () => (btn.style.borderColor = "var(--primary)");
+      btn.onmouseleave = () => (btn.style.borderColor = "var(--cream-border)");
     });
   }
 
-  renderTopicList();
+  renderTopics();
 }
 
 // Wire guide button in header
