@@ -473,7 +473,9 @@
         padding-bottom: env(safe-area-inset-bottom);
         box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
       }
-      .nav-label { display: none !important; }
+      .nav-label {
+        display: none !important;
+      }
       .nav-btn {
         display: flex;
         flex-direction: column;
@@ -500,7 +502,9 @@
         font-size: 24px;
         transition: var(--tr);
       }
-      .nav-label { display: none !important; }
+      .nav-label {
+        display: none !important;
+      }
       .nav-btn.active {
         color: var(--primary);
       }
@@ -2817,7 +2821,9 @@
         .main-scroll {
           padding: 0 10px;
         }
-        .nav-label { display: none !important; }
+        .nav-label {
+          display: none !important;
+        }
         .card-value {
           font-size: 15px;
         }
@@ -2946,7 +2952,15 @@
         <div class="app-logo" id="appLogoBtn" title="БюджетPRO">
           🌿 БюджетPRO
         </div>
-        <div id="headerDate" style="font-size:11px;color:var(--text-muted);font-weight:500;margin-top:1px;"></div>
+        <div
+          id="headerDate"
+          style="
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 1px;
+          "
+        ></div>
       </div>
       <div class="header-actions">
         <button class="header-btn" id="headerGuideBtn" title="Гайд">📖</button>
@@ -3056,10 +3070,14 @@
           <div class="spinner"></div>
           <div id="loadingText" style="font-size: 14px; font-weight: 700">
             <script>
-              (function(){
-                const l=localStorage.getItem('lang')||'ru';
-                const m={ru:'Загрузка...',en:'Loading...',ka:'იტვირთება...'};
-                document.write(m[l]||'...');
+              (function () {
+                const l = localStorage.getItem("lang") || "ru";
+                const m = {
+                  ru: "Загрузка...",
+                  en: "Loading...",
+                  ka: "იტვირთება...",
+                };
+                document.write(m[l] || "...");
               })();
             </script>
           </div>
@@ -3097,7 +3115,12 @@
       <button class="nav-btn" data-tab="categories" aria-label="Категории">
         <div class="nav-icon">🗂</div>
       </button>
-      <button id="settingsNavBtn" class="nav-btn" data-tab="settings" aria-label="Настройки">
+      <button
+        id="settingsNavBtn"
+        class="nav-btn"
+        data-tab="settings"
+        aria-label="Настройки"
+      >
         <div class="nav-icon">⚙️</div>
       </button>
     </nav>
@@ -3176,14 +3199,16 @@
         --sp: cubic-bezier(0.34, 1.56, 0.64, 1);
       }
       /* Override lux-em for non-green themes */
-      body.theme-gold, body.dark.theme-gold {
+      body.theme-gold,
+      body.dark.theme-gold {
         --lux-em: #7a5c1a !important;
         --lux-em2: #c8952a !important;
         --lux-em3: #d9a53c !important;
         --lux-gold: #c8952a !important;
         --lux-gold2: #e8b84e !important;
       }
-      body.theme-navy, body.dark.theme-navy {
+      body.theme-navy,
+      body.dark.theme-navy {
         --lux-em: #1e3a5f !important;
         --lux-em2: #2563eb !important;
         --lux-em3: #3b82f6 !important;
@@ -3193,7 +3218,8 @@
         --lux-em2: #4f46e5 !important;
         --lux-em3: #6366f1 !important;
       }
-      body.theme-sunset, body.dark.theme-sunset {
+      body.theme-sunset,
+      body.dark.theme-sunset {
         --lux-em: #7c2d12 !important;
         --lux-em2: #c2440a !important;
         --lux-em3: #e0581a !important;
@@ -3227,8 +3253,8 @@
           var(--header-bg-mid, #0d2118) 60%,
           var(--header-bg-end, #060f0a) 100%
         ) !important;
-        border-bottom: 1px solid var(--header-border, rgba(201,168,76,0.2)) !important;
-        box-shadow: 0 4px 32px var(--header-shadow, rgba(6,15,10,0.5)) !important;
+        border-bottom: 1px solid var(--header-border, rgba(201, 168, 76, 0.2)) !important;
+        box-shadow: 0 4px 32px var(--header-shadow, rgba(6, 15, 10, 0.5)) !important;
         min-height: 60px !important;
         padding: 10px 16px !important;
       }
@@ -3237,42 +3263,66 @@
         --header-bg-start: #1b4332;
         --header-bg-mid: #0d2118;
         --header-bg-end: #060f0a;
-        --header-border: rgba(201,168,76,0.2);
-        --header-shadow: rgba(6,15,10,0.5);
+        --header-border: rgba(201, 168, 76, 0.2);
+        --header-shadow: rgba(6, 15, 10, 0.5);
       }
       /* Gold theme: dark charcoal with gold border */
       body.theme-gold .app-header {
         --header-bg-start: #1c1400;
         --header-bg-mid: #111108;
         --header-bg-end: #0a0a06;
-        --header-border: rgba(200,149,42,0.4) !important;
-        --header-shadow: rgba(0,0,0,0.7);
+        --header-border: rgba(200, 149, 42, 0.4) !important;
+        --header-shadow: rgba(0, 0, 0, 0.7);
       }
       body.theme-gold .app-header::after {
-        background: linear-gradient(90deg, transparent, #c8952a 50%, transparent) !important;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          #c8952a 50%,
+          transparent
+        ) !important;
       }
-      body.theme-gold .app-logo { color: #e8c97a !important; }
+      body.theme-gold .app-logo {
+        color: #e8c97a !important;
+      }
       /* Sunset theme: warm dark */
       body.theme-sunset .app-header {
         --header-bg-start: #4a1a06;
         --header-bg-mid: #2d0e02;
         --header-bg-end: #1a0600;
-        --header-border: rgba(240,140,60,0.3) !important;
+        --header-border: rgba(240, 140, 60, 0.3) !important;
       }
       body.theme-sunset .app-header::after {
-        background: linear-gradient(90deg, transparent, rgba(240,140,60,0.8) 50%, transparent) !important;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(240, 140, 60, 0.8) 50%,
+          transparent
+        ) !important;
       }
-      body.theme-sunset .app-logo { color: #fcd9b0 !important; }
+      body.theme-sunset .app-logo {
+        color: #fcd9b0 !important;
+      }
       /* White theme: light header */
       body.theme-white .app-header {
         background: #ffffff !important;
         border-bottom: 1px solid #e2e8f0 !important;
-        box-shadow: 0 2px 16px rgba(0,0,0,0.07) !important;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07) !important;
       }
-      body.theme-white .app-header::after { display: none !important; }
-      body.theme-white .app-logo { color: #4f46e5 !important; }
-      body.theme-white .header-btn { background: #f1f5f9 !important; border-color: #e2e8f0 !important; color: #334155 !important; }
-      body.theme-white #headerDate { color: #94a3b8 !important; }
+      body.theme-white .app-header::after {
+        display: none !important;
+      }
+      body.theme-white .app-logo {
+        color: #4f46e5 !important;
+      }
+      body.theme-white .header-btn {
+        background: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
+        color: #334155 !important;
+      }
+      body.theme-white #headerDate {
+        color: #94a3b8 !important;
+      }
       .app-header::after {
         content: "" !important;
         position: absolute !important;
@@ -3364,13 +3414,13 @@
       }
       .balance-card-wide .card-label {
         font-size: 12px !important;
-        color: rgba(255,255,255,0.65) !important;
+        color: rgba(255, 255, 255, 0.65) !important;
         font-weight: 600 !important;
         text-transform: none !important;
       }
       .balance-card-wide .card-hint {
         font-size: 11px !important;
-        color: rgba(255,255,255,0.45) !important;
+        color: rgba(255, 255, 255, 0.45) !important;
       }
       .balance-card-wide {
         display: flex !important;
@@ -3398,7 +3448,7 @@
         border-radius: 20px !important;
         background: linear-gradient(
           135deg,
-          rgba(255,255,255,0.07) 0%,
+          rgba(255, 255, 255, 0.07) 0%,
           transparent 60%
         ) !important;
         pointer-events: none !important;
@@ -3440,7 +3490,7 @@
         box-shadow: 0 6px 32px rgba(27, 67, 50, 0.55) !important;
       }
       body.dark .summary-card .card-value {
-        text-shadow: 0 1px 8px rgba(0,0,0,0.4) !important;
+        text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4) !important;
       }
 
       /* ── BALANCE ROWS ── */
@@ -3526,7 +3576,9 @@
         z-index: 300 !important;
         height: 56px !important;
       }
-      .nav-label { display: none !important; }
+      .nav-label {
+        display: none !important;
+      }
       body.dark .bottom-nav {
         background: rgba(8, 16, 12, 0.95) !important;
         border-top-color: rgba(201, 168, 76, 0.1) !important;
@@ -3544,8 +3596,12 @@
       body.dark .nav-btn.active {
         background: rgba(45, 106, 79, 0.18) !important;
       }
-      .nav-btn.active .nav-label { display: none !important; }
-      body.dark .nav-btn.active .nav-label { display: none !important; }
+      .nav-btn.active .nav-label {
+        display: none !important;
+      }
+      body.dark .nav-btn.active .nav-label {
+        display: none !important;
+      }
 
       /* ── MODALS ── */
       .modal {
@@ -3710,7 +3766,7 @@
         position: fixed !important;
         z-index: 200 !important;
       }
-    
+
       /* ── OFFLINE INDICATOR ── */
       #offlineBar {
         position: fixed !important;
@@ -3727,40 +3783,56 @@
         display: none !important;
         align-items: center !important;
         gap: 6px !important;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.25) !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
         animation: slideDown 0.3s ease !important;
       }
-      #offlineBar.visible { display: flex !important; }
+      #offlineBar.visible {
+        display: flex !important;
+      }
       @keyframes slideDown {
-        from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-        to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+        from {
+          transform: translateX(-50%) translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(-50%) translateY(0);
+          opacity: 1;
+        }
       }
       /* ── BUDGET 80% WARNING ── */
-      .budget-bar.warning { background: #d4860a !important; }
-      .budget-warn-label { 
-        font-size: 11px; 
-        color: #d4860a; 
-        font-weight: 700; 
+      .budget-bar.warning {
+        background: #d4860a !important;
+      }
+      .budget-warn-label {
+        font-size: 11px;
+        color: #d4860a;
+        font-weight: 700;
         margin-top: 3px;
       }
-    
+
       /* ── Respect prefers-reduced-motion ── */
       @media (prefers-reduced-motion: reduce) {
-        *, *::before, *::after {
+        *,
+        *::before,
+        *::after {
           animation-duration: 0.01ms !important;
           animation-iteration-count: 1 !important;
           transition-duration: 0.01ms !important;
         }
-        #luxBg { display: none !important; }
+        #luxBg {
+          display: none !important;
+        }
       }
-    
+
       /* ── Small cards (income/expense/salary) compact for 3-col layout ── */
       .income-card .card-hint,
       .expense-card .card-hint,
       .salary-card .card-hint {
         display: none !important;
       }
-      .income-card, .expense-card, .salary-card {
+      .income-card,
+      .expense-card,
+      .salary-card {
         padding: 12px 10px 12px !important;
         gap: 8px !important;
       }
