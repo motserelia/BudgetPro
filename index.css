@@ -3813,7 +3813,7 @@ body.dark .custom-time-input::-webkit-calendar-picker-indicator {
 /* ---- Анимации ---- */
 
   to   { transform: translateY(0); opacity: 1; }
-}
+
 @keyframes shake {
   0%,100% { transform: translateX(0); }
   25%      { transform: translateX(-8px); }
@@ -4605,4 +4605,15 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 .nav-btn.active::after {
   background: var(--primary);
+}
+
+#reminderDateBtn, #reminderTimeBtn {
+  transition: all 0.2s ease;
+}
+#reminderDateBtn:hover, #reminderTimeBtn:hover {
+  border-color: var(--primary);
+  background: var(--primary-pale);
+}
+#reminderDateBtn:active, #reminderTimeBtn:active {
+  transform: scale(0.98);
 }
