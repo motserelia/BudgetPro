@@ -88,3 +88,50 @@ self.addEventListener("fetch", (event) => {
     }),
   );
 });
+
+// ── Push-уведомление (приходит, даже если приложение закрыто) ──
+self.addEventListener("push", (event) => {
+  let data = {
+    title: "БюджетPRO",
+    body: "Напоминание",
+    icon: "/BudgetPro/favicon-96x96.png",
+  };
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {}
+  }
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    badge: data.badge,
+    requireInteraction: true, // ‼️ Не исчезает само
+    actions: [
+      { action: "open", title: "Открыть" },
+      { action: "close", title: "Закрыть" },
+    ],
+    tag: data.tag || "budget-reminder",
+  };
+  event.waitUntil(self.registration.showNotification(data.title, options));
+});
+
+// ── Клик по уведомлению ──
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  if (event.action === "close") return;
+  event.waitUntil(
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((clientList) => {
+        for (const client of clientList) {
+          if (
+            client.url.includes(self.location.hostname) &&
+            "focus" in client
+          ) {
+            return client.focus();
+          }
+        }
+        if (clients.openWindow) return clients.openWindow("/BudgetPro/");
+      }),
+  );
+});
