@@ -237,7 +237,7 @@ const translations = {
     shareWelcomeJoin: "Войти в профиль",
     shareWelcomeLocked: "Этот профиль заблокирован владельцем",
     shareWelcomePwd: "Введите пароль для входа",
-    connectProfile: "🔗 Подключиться к чужому профилю",
+    connectProfile: "Подключиться к чужому профилю",
     connectCode: "Введите код доступа",
     connectPassword: "Пароль (если требуется)",
     connectImportData: "Импортировать пакет данных",
@@ -529,7 +529,7 @@ const translations = {
     fontXL: "Очень крупный",
     animationsLabel: "Анимации и эффекты",
     hapticLabel: "Вибрация при действиях",
-    supportTitle: "💬 Поддержка",
+    supportTitle: "Поддержка",
     supportDesc: "Напишите нам — мы отвечаем в течение 24 часов",
     supportName: "Ваше имя",
     supportEmail: "Email (необязательно)",
@@ -2574,7 +2574,8 @@ function switchProfile(pid) {
   }, 100); // небольшая задержка, чтобы тост профиля не перебивал
 }
 
-function loadAll() {
+// 🔽 Делаем функцию асинхронной, чтобы работали await
+async function loadAll() {
   loadProfiles();
 
   // Принудительно назначаем роли, если их нет
@@ -2588,6 +2589,55 @@ function loadAll() {
   saveGlobal();
 
   loadProfileData(activeProfileId);
+
+  // ██ Восстановление из облака, если локальное хранилище пустое ██
+  if (transactions.length === 0) {
+    // 1. Попытка восстановить из Firebase
+    const fbCfg = JSON.parse(
+      localStorage.getItem("budgetpro_firebase") || "{}",
+    );
+    if (fbCfg.databaseURL) {
+      // Ждём инициализации Firebase (если ещё не)
+      if (typeof initFirebase === "function") await initFirebase();
+      try {
+        const snap = await _fbDB.ref("budgetpro_all_data").once("value");
+        const cloudData = snap.val();
+        if (
+          cloudData &&
+          cloudData.transactions &&
+          cloudData.transactions.length > 0
+        ) {
+          // Восстанавливаем важные данные
+          transactions = cloudData.transactions;
+          startBalanceRub = cloudData.startBalanceRub ?? startBalanceRub;
+          // (при необходимости восстанови и остальные поля: notebooks, категории и т.д.)
+          saveProfileData(); // сразу сохраняем локально
+          showToast("🚀 Данные восстановлены из Firebase", "success");
+        }
+      } catch (e) {
+        console.warn("Firebase restore failed", e);
+      }
+    }
+
+    // 2. Если Firebase не настроен или не дал результатов, пробуем JSONBin
+    if (
+      transactions.length === 0 &&
+      typeof jsonBinLoadMessages === "function"
+    ) {
+      const msgs = await jsonBinLoadMessages();
+      // JSONBin может хранить полный бэкап
+      if (msgs && msgs.length > 0) {
+        const lastBackup = msgs.find((m) => m.type === "full_backup");
+        if (lastBackup && lastBackup.transactions) {
+          transactions = lastBackup.transactions;
+          startBalanceRub = lastBackup.startBalanceRub ?? startBalanceRub;
+          // ... восстановление остальных данных
+          saveProfileData();
+          showToast("☁️ Данные восстановлены из JSONBin", "success");
+        }
+      }
+    }
+  }
 
   // Если активный профиль гостевой, но мы не в гостевом режиме, переключаемся на владельца
   const activeProf = profiles.find((p) => p.id === activeProfileId);
@@ -2612,13 +2662,11 @@ function saveAll() {
 }
 
 function syncStartBalanceTransaction() {
-  const idx = transactions.findIndex(
-    (tx) => tx._initial === true && tx.type === "income",
-  );
-  if (idx !== -1) {
-    transactions[idx].amountRub = startBalanceRub;
-    transactions[idx].note = t("initialCapital");
-  } else if (startBalanceRub > 0) {
+  // 1. Удаляем абсолютно все старые операции с _initial
+  transactions = transactions.filter((tx) => !tx._initial);
+
+  // 2. Если начальная сумма > 0 – создаём одну операцию-якорь
+  if (startBalanceRub > 0) {
     transactions.push({
       type: "income",
       category: t("initialCategory"),
@@ -2640,46 +2688,39 @@ function applyRecurringOps() {
   const todayStr = today();
   const now = new Date();
   let applied = 0;
+
   recurringOps.forEach((op) => {
+    // 🔽 Генерируем постоянный уникальный идентификатор для этой повторяющейся операции
+    if (!op._rid)
+      op._rid =
+        "rec_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6);
+
     if (!op.lastApplied) op.lastApplied = null;
     let shouldApply = false;
+    let targetDate = null; // <-- новая переменная для даты операции
+
     if (op.freq === "monthly") {
-      // Проверяем, нужно ли применить в этом месяце
       const targetDay = op.day || 1;
-      const targetDate = new Date(now.getFullYear(), now.getMonth(), targetDay);
-      const targetStr = targetDate.toISOString().slice(0, 10);
+      const targetDateObj = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        targetDay,
+      );
+      targetDate = targetDateObj.toISOString().slice(0, 10);
       if (
         now.getDate() >= targetDay &&
-        op.lastApplied !== targetStr.slice(0, 7)
+        op.lastApplied !== targetDate.slice(0, 7)
       ) {
-        op.lastApplied = targetStr.slice(0, 7);
+        op.lastApplied = targetDate.slice(0, 7);
         shouldApply = true;
-        // Добавляем операцию с датой targetStr
-        transactions.push({
-          type: op.type,
-          category: op.category,
-          subcategory: op.subcategory || null,
-          amountRub: op.amountRub,
-          date: targetStr,
-          note: (op.note || "") + " 🔄",
-          _recurring: true,
-        });
-        applied++;
+        // ❌ Убираем transactions.push отсюда
       }
     } else if (op.freq === "daily") {
+      targetDate = todayStr;
       if (op.lastApplied !== todayStr) {
         op.lastApplied = todayStr;
         shouldApply = true;
-        transactions.push({
-          type: op.type,
-          category: op.category,
-          subcategory: op.subcategory || null,
-          amountRub: op.amountRub,
-          date: todayStr,
-          note: (op.note || "") + " 🔄",
-          _recurring: true,
-        });
-        applied++;
+        // ❌ Убираем transactions.push отсюда
       }
     } else if (op.freq === "weekly") {
       const weekAgo = new Date();
@@ -2687,16 +2728,33 @@ function applyRecurringOps() {
       const lastDate = op.lastApplied
         ? new Date(op.lastApplied + "T00:00:00")
         : weekAgo;
+      targetDate = todayStr;
       if (lastDate <= weekAgo) {
         op.lastApplied = todayStr;
+        shouldApply = true;
+        // ❌ Убираем transactions.push отсюда
+      }
+    }
+
+    // 🔽 Единое место для добавления операции с проверкой на дубликаты
+    if (shouldApply) {
+      const alreadyExists = transactions.some(
+        (tx) =>
+          tx._recurring === true &&
+          tx._rid === op._rid &&
+          tx.date === targetDate,
+      );
+
+      if (!alreadyExists) {
         transactions.push({
           type: op.type,
           category: op.category,
           subcategory: op.subcategory || null,
           amountRub: op.amountRub,
-          date: todayStr,
+          date: targetDate,
           note: (op.note || "") + " 🔄",
           _recurring: true,
+          _rid: op._rid, // <-- обязательно добавляем идентификатор
         });
         applied++;
       }
@@ -3715,6 +3773,55 @@ function openDatePicker(initialDate, onSelect) {
     .getElementById("dpCancel")
     .addEventListener("click", () => closeModal("datepickerModal"));
 }
+// Кастомный выбор времени (часы:минуты)
+function openTimePicker(initialTime, onSelect) {
+  let hours = 9,
+    minutes = 0;
+  if (initialTime) {
+    const parts = initialTime.split(":");
+    hours = parseInt(parts[0]) || 9;
+    minutes = parseInt(parts[1]) || 0;
+  }
+
+  const html = `
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div style="flex:1; text-align:center;">
+        <div class="field-label">Часы</div>
+        <input type="number" id="tpHours" class="modal-input" min="0" max="23" value="${hours}" 
+          style="font-size:24px; font-weight:700; text-align:center; padding:12px;">
+      </div>
+      <div style="font-size:28px; font-weight:900; color:var(--text-muted);">:</div>
+      <div style="flex:1; text-align:center;">
+        <div class="field-label">Минуты</div>
+        <input type="number" id="tpMinutes" class="modal-input" min="0" max="59" value="${minutes}"
+          style="font-size:24px; font-weight:700; text-align:center; padding:12px;">
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-secondary" id="tpCancel">${t("cancel")}</button>
+      <button class="btn-primary" id="tpSave">${t("save")}</button>
+    </div>
+  `;
+
+  const modal = createModal("timePickerModal", "🕒 Выберите время", html);
+  document.body.appendChild(modal);
+  openModal("timePickerModal");
+
+  document.getElementById("tpCancel").onclick = () =>
+    closeModal("timePickerModal");
+  document.getElementById("tpSave").onclick = () => {
+    const h = document
+      .getElementById("tpHours")
+      .value.toString()
+      .padStart(2, "0");
+    const m = document
+      .getElementById("tpMinutes")
+      .value.toString()
+      .padStart(2, "0");
+    closeModal("timePickerModal");
+    onSelect(`${h}:${m}`);
+  };
+}
 
 // ============================================================
 // МОДАЛКА РЕДАКТИРОВАНИЯ ОПЕРАЦИИ
@@ -3796,13 +3903,12 @@ function openSalaryModal() {
       return;
     }
     startBalanceRub = toRub(v);
-    const ei = transactions.findIndex(
-      (tx) => tx._initial === true && tx.type === "income",
-    );
-    if (ei !== -1) {
-      transactions[ei].amountRub = startBalanceRub;
-      transactions[ei].note = t("initialCapital");
-    } else
+
+    // Удаляем ВСЕ старые операции с _initial
+    transactions = transactions.filter((tx) => !tx._initial);
+
+    // Если новая сумма > 0 – добавляем одну запись-якорь
+    if (startBalanceRub > 0) {
       transactions.push({
         type: "income",
         category: t("initialCategory"),
@@ -3812,14 +3918,14 @@ function openSalaryModal() {
         note: t("initialCapital"),
         _initial: true,
       });
+    }
+
     saveAll();
     updateTopBlocks();
     renderBalanceSummary();
     renderOpsList();
     closeModal("salaryModal");
-    if (simpleMode) {
-      renderHome();
-    }
+    if (simpleMode) renderHome();
     showToast(t("saved"));
   });
 }
@@ -5771,31 +5877,39 @@ function renderSettings() {
           })()}
         </div>
 
-        <!-- Add new reminder -->
-        <div style="background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);">
-          <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;">
-            ➕ ${{ ru: "Добавить напоминание", en: "Add reminder", ka: "შეხსენების დამატება" }[currentLang]}
-          </div>
-          <div class="field-group" style="margin-bottom:10px;">
-            <label class="field-label">${{ ru: "Название", en: "Name", ka: "სახელი" }[currentLang]}</label>
-            <input type="text" id="newReminderName" class="modal-input"
-              placeholder="${{ ru: "Например: Оплата аренды", en: "E.g. Pay rent", ka: "მაგ: ქირის გადახდა" }[currentLang]}">
-          </div>
-          <div class="field-group" style="margin-bottom:12px;">
-            <label class="field-label">${{ ru: "Дата и время", en: "Date and time", ka: "თარიღი და დრო" }[currentLang]}</label>
-            <input type="datetime-local" id="newReminderDatetime" class="modal-input"
-              
-              style="color-scheme:light dark;">
-          </div>
-          <div style="display:flex;gap:8px;">
-            <button id="addNamedReminderBtn" class="btn-primary" style="flex:1;padding:13px;">
-              ⏰ ${{ ru: "Запланировать", en: "Schedule", ka: "დაგეგმვა" }[currentLang]}
-            </button>
-            <button id="testNotifBtn" class="btn-secondary" style="padding:13px;font-size:12px;white-space:nowrap;" title="${{ ru: "Отправить тестовое уведомление прямо сейчас", en: "Send test notification right now", ka: "სატესტო შეტყობინება ახლავე" }[currentLang]}">
-              🔔 ${{ ru: "Тест", en: "Test", ka: "ტესტი" }[currentLang]}
-            </button>
-          </div>
-        </div>
+       <!-- Add new reminder -->
+<div style="background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);">
+  <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;">
+    ➕ ${{ ru: "Добавить напоминание", en: "Add reminder", ka: "შეხსენების დამატება" }[currentLang]}
+  </div>
+  <div class="field-group" style="margin-bottom:10px;">
+    <label class="field-label">${{ ru: "Название", en: "Name", ka: "სახელი" }[currentLang]}</label>
+    <input type="text" id="newReminderName" class="modal-input"
+      placeholder="${{ ru: "Например: Оплата аренды", en: "E.g. Pay rent", ka: "მაგ: ქირის გადახდა" }[currentLang]}">
+  </div>
+  <div class="field-group" style="margin-bottom:12px;">
+    <label class="field-label">${{ ru: "Дата и время", en: "Date and time", ka: "თარიღი და დრო" }[currentLang]}</label>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <input type="hidden" id="newReminderDatetime" value="">
+      <button type="button" id="reminderDateBtn" class="modal-input"
+        style="flex:1; text-align:left; background:var(--cream-dark); border:2px solid var(--cream-border); border-radius:var(--radius-md); padding:12px 14px; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text);">
+        📅 <span id="reminderDateText">Выбрать дату</span>
+      </button>
+      <button type="button" id="reminderTimeBtn" class="modal-input"
+        style="flex:1; text-align:left; background:var(--cream-dark); border:2px solid var(--cream-border); border-radius:var(--radius-md); padding:12px 14px; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text);">
+        🕒 <span id="reminderTimeText">Выбрать время</span>
+      </button>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button id="addNamedReminderBtn" class="btn-primary" style="flex:1;padding:13px;">
+      ⏰ ${{ ru: "Запланировать", en: "Schedule", ka: "დაგეგმვა" }[currentLang]}
+    </button>
+    <button id="testNotifBtn" class="btn-secondary" style="padding:13px;font-size:12px;white-space:nowrap;" title="${{ ru: "Отправить тестовое уведомление прямо сейчас", en: "Send test notification right now", ka: "სატესტო შეტყობინება ახლავე" }[currentLang]}">
+      🔔 ${{ ru: "Тест", en: "Test", ka: "ტესტი" }[currentLang]}
+    </button>
+  </div>
+</div>
 
         <!-- Interval reminders -->
         <div style="margin-top:20px;">
@@ -5858,6 +5972,58 @@ function renderSettings() {
   document.getElementById("mainContent").innerHTML = html;
 
   // === NEW REMINDER HANDLERS ===
+
+  // ── Стилизованный выбор даты и времени ──────────────────────
+  (function initReminderDateTime() {
+    const dateBtn = document.getElementById("reminderDateBtn");
+    const timeBtn = document.getElementById("reminderTimeBtn");
+    if (!dateBtn || !timeBtn) return; // если кнопок нет – выходим
+
+    const dateText = document.getElementById("reminderDateText");
+    const timeText = document.getElementById("reminderTimeText");
+    const hiddenDt = document.getElementById("newReminderDatetime");
+
+    dateBtn.addEventListener("click", () => {
+      const currentVal = hiddenDt.value;
+      const initialDate = currentVal ? currentVal.split("T")[0] : today();
+      openDatePicker(initialDate, (selectedDate) => {
+        dateText.textContent = selectedDate;
+        if (!hiddenDt.value) {
+          hiddenDt.value = selectedDate + "T09:00";
+        } else {
+          const timePart = hiddenDt.value.includes("T")
+            ? hiddenDt.value.split("T")[1]
+            : "09:00";
+          hiddenDt.value = selectedDate + "T" + timePart;
+        }
+      });
+    });
+
+    timeBtn.addEventListener("click", () => {
+      const currentVal = hiddenDt.value;
+      let currentTime = "09:00";
+      if (currentVal && currentVal.includes("T")) {
+        currentTime = currentVal.split("T")[1].slice(0, 5);
+      }
+      openTimePicker(currentTime, (selectedTime) => {
+        timeText.textContent = selectedTime;
+        if (!hiddenDt.value) {
+          hiddenDt.value = today() + "T" + selectedTime;
+          dateText.textContent = today();
+        } else {
+          const datePart = hiddenDt.value.split("T")[0];
+          hiddenDt.value = datePart + "T" + selectedTime;
+        }
+      });
+    });
+
+    // Инициализация значений, если уже были (при редактировании)
+    if (hiddenDt.value) {
+      const [d, t] = hiddenDt.value.split("T");
+      dateText.textContent = d;
+      timeText.textContent = t ? t.slice(0, 5) : "09:00";
+    }
+  })();
 
   // Test notification button
   document.getElementById("testNotifBtn")?.addEventListener("click", () => {
@@ -6183,9 +6349,10 @@ function renderSettings() {
   document.getElementById("clearAllBtn").onclick = () => {
     askConfirm(
       t("resetConfirmMsg"),
-      () => {
+      async () => {
+        // Очищаем локальные данные
         transactions = [];
-        startBalanceRub = 70000;
+        startBalanceRub = 0;
         notebookPages = [];
         categories = JSON.parse(JSON.stringify(window.initialCategories));
         incomeCategories = {
@@ -6201,12 +6368,35 @@ function renderSettings() {
         categoryBudgets = {};
         recurringOps = [];
         localStorage.removeItem("welcomeSeen");
+
+        // Удаляем облачные копии (Firebase + JSONBin)
+        const _fbDB = window._fbDB; // получаем из глобальной переменной
+        if (_fbDB) {
+          try {
+            await _fbDB.ref("budgetpro_all_data").remove();
+          } catch (e) {}
+        }
+        const jc = JSON.parse(
+          localStorage.getItem("budgetpro_jsonbin") || "{}",
+        );
+        if (jc.key && jc.binId) {
+          try {
+            await fetch(`https://api.jsonbin.io/v3/b/${jc.binId}`, {
+              method: "DELETE",
+              headers: { "X-Master-Key": jc.key },
+            });
+          } catch (e) {}
+        }
+
         saveAll();
-        updateTopBlocks();
-        showToast(t("resetDone"));
+        showToast("🗑️ Все данные удалены (включая облако)");
         setTimeout(() => setTab("home"), 500);
       },
-      { icon: "⚠️", title: t("resetConfirmTitle"), yesText: t("yesDeleteAll") },
+      {
+        icon: "⚠️",
+        title: t("resetConfirmTitle"),
+        yesText: "Удалить навсегда",
+      },
     );
   };
 
@@ -7409,18 +7599,28 @@ function fireNamedReminder(r) {
       en: "Log your expenses!",
       ka: "ხარჯები ჩაიწერეთ!",
     }[currentLang];
-  if (
-    typeof Notification !== "undefined" &&
-    Notification.permission === "granted"
-  ) {
-    try {
-      new Notification("🔔 БюджетPRO", {
-        body,
+
+  // Вместо прямого new Notification используем Service Worker
+  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then((reg) => {
+      reg.showNotification("🔔 БюджетPRO", {
+        body: body,
         icon: "/BudgetPro/favicon-96x96.png",
+        requireInteraction: true,
         tag: "named-" + r.id,
       });
-    } catch (e) {}
+    });
+  } else {
+    // Фолбэк, если SW не управляет страницей
+    if (Notification.permission === "granted") {
+      new Notification("🔔 БюджетPRO", {
+        body: body,
+        icon: "/BudgetPro/favicon-96x96.png",
+        requireInteraction: true,
+      });
+    }
   }
+
   showToast("🔔 " + body, "success", 5000);
   haptic && haptic("medium");
 }
@@ -7475,13 +7675,24 @@ function sendReminderNotification() {
     const ms = getIntervalMs(interval);
     const should = !last || now - parseInt(last) >= ms;
     if (should) {
-      try {
+      // *** ЗАМЕНА: использовать Service Worker с requireInteraction ***
+      if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then((reg) => {
+          reg.showNotification(t("appName"), {
+            body: t("remindersDesc"),
+            icon: "/BudgetPro/favicon-96x96.png",
+            requireInteraction: true,
+            tag: "budget-reminder",
+          });
+        });
+      } else if (Notification.permission === "granted") {
         new Notification(t("appName"), {
           body: t("remindersDesc"),
           icon: "/BudgetPro/favicon-96x96.png",
+          requireInteraction: true,
           tag: "budget-reminder",
         });
-      } catch (e) {}
+      }
       localStorage.setItem(lastKey, now);
     }
   }
