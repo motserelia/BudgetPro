@@ -2824,8 +2824,11 @@ async function loadAll() {
     }
   }
 
+  // Пересоздаём начальную сумму после возможного восстановления
   syncStartBalanceTransaction();
   applyRecurringOps();
+  updateTopBlocks(); // обновляем цифры на главной
+  if (currentTab === "home") setTab("home"); // перерисовываем главную
 }
 
 function saveAll() {
@@ -12845,7 +12848,7 @@ function showOnboarding() {
 
 // Show onboarding after first init
 setTimeout(() => {
-  if (shouldShowOnboarding()) showOnboarding();
+  // if (shouldShowOnboarding()) showOnboarding();
 }, 600);
 
 // ──────────────────────────────────────────────────────────────
