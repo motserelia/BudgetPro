@@ -1668,29 +1668,6 @@ async function saveAllToIndexedDB() {
   }
 }
 
-async function loadAllFromIndexedDB() {
-  try {
-    const db = await openDB();
-    const tx = db.transaction("profiles", "readonly");
-    const store = tx.objectStore("profiles");
-    const all = await store.getAll();
-    if (all.length === 0) return false;
-
-    for (const item of all) {
-      if (item.id === "_global_") {
-        localStorage.setItem(getGlobalStorageKey(), item.data);
-      } else {
-        localStorage.setItem(getProfileStorageKey(item.id), item.data);
-      }
-    }
-    console.log("🔄 Data restored from IndexedDB");
-    return true;
-  } catch (e) {
-    console.warn("IndexedDB load error:", e);
-    return false;
-  }
-}
-
 async function clearIndexedDB() {
   try {
     const db = await openDB();
@@ -1746,7 +1723,30 @@ async function loadAllFromIndexedDB() {
     const db = await openDB();
     const tx = db.transaction("profiles", "readonly");
     const store = tx.objectStore("profiles");
-    const all = await store.getAll();
+
+    // Используем getAll, если доступен, иначе собираем через курсор
+    let all;
+    if (typeof store.getAll === "function") {
+      const result = await store.getAll();
+      all = Array.isArray(result) ? result : [];
+    } else {
+      // Запасной вариант для старых браузеров
+      all = await new Promise((resolve, reject) => {
+        const items = [];
+        const request = store.openCursor();
+        request.onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            items.push(cursor.value);
+            cursor.continue();
+          } else {
+            resolve(items);
+          }
+        };
+        request.onerror = () => reject(request.error);
+      });
+    }
+
     if (all.length === 0) return false;
 
     for (const item of all) {
@@ -2787,23 +2787,27 @@ async function loadAll() {
       }
     }
 
-    // 2. Если Firebase не настроен или не дал результатов, пробуем JSONBin
-    if (
-      transactions.length === 0 &&
-      typeof jsonBinLoadMessages === "function"
-    ) {
-      const msgs = await jsonBinLoadMessages();
-      // JSONBin может хранить полный бэкап
-      if (msgs && msgs.length > 0) {
-        const lastBackup = msgs.find((m) => m.type === "full_backup");
-        if (lastBackup && lastBackup.transactions) {
-          transactions = lastBackup.transactions;
-          startBalanceRub = lastBackup.startBalanceRub ?? startBalanceRub;
-          // ... восстановление остальных данных
+    // 2. Если Firebase не дал результатов, пробуем JSONBin (полный бэкап)
+    if (transactions.length === 0) {
+      try {
+        const backup = await jsonBinLoadBackup();
+        if (backup && backup.transactions && backup.transactions.length > 0) {
+          transactions = backup.transactions;
+          startBalanceRub = backup.startBalanceRub ?? startBalanceRub;
+          notebookPages = backup.notebookPages || [];
+          categories = backup.categories || categories;
+          incomeCategories = backup.incomeCategories || incomeCategories;
+          calcHistory = backup.calcHistory || [];
+          convHistory = backup.convHistory || [];
+          userTemplates = backup.userTemplates || [];
+          frequentStats = backup.frequentStats || {};
+          categoryCustomizations = backup.categoryCustomizations || {};
+          categoryBudgets = backup.categoryBudgets || {};
+          recurringOps = backup.recurringOps || [];
           saveProfileData();
-          showToast("☁️ Данные восстановлены из JSONBin", "success");
+          showToast("☁️ Данные восстановлены из облака (JSONBin)", "success");
         }
-      }
+      } catch (e) {}
     }
   }
 
@@ -10754,21 +10758,42 @@ function renderChatBubble(m, lc) {
 // Works across ALL devices without Firebase
 // ════════════════════════════════════════════════════════════
 function getJsonBinConfig() {
-  // 🔐 Встроенный ключ (переживёт любую очистку данных браузера)
   const hardcodedKey =
     "$2a$10$IVcMyd.xcPwrPtkX0ftMXOkfjWg1W6xm5V1bdkliA28d1FCIZHMA6";
-
   try {
     const stored = JSON.parse(
       localStorage.getItem("budgetpro_jsonbin") || "{}",
     );
-    // Если в localStorage есть ключ — используем его (можно обновить через настройки)
-    if (stored.key) return stored;
-    // Иначе возвращаем встроенный ключ
-    return { key: hardcodedKey };
+    if (stored.key) {
+      const binId = stored.binId || getCookie("bp_binId");
+      return { key: stored.key, binId: binId || undefined };
+    }
+    return { key: hardcodedKey, binId: getCookie("bp_binId") || undefined };
   } catch (e) {
-    return { key: hardcodedKey };
+    return { key: hardcodedKey, binId: getCookie("bp_binId") || undefined };
   }
+}
+
+function setCookie(name, value, days) {
+  var expires = "";
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie =
+    name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+}
+
+function getCookie(name) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(";");
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) === " ") c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
 }
 
 async function jsonBinSaveMessages(msgs) {
@@ -10819,12 +10844,11 @@ async function jsonBinSaveMessages(msgs) {
 }
 
 async function jsonBinSaveBackup(data) {
-  const cfg = JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}");
+  const cfg = getJsonBinConfig();
   if (!cfg.key) return;
   try {
-    const binId = cfg.binId;
+    let binId = cfg.binId;
     if (binId) {
-      // Обновляем существующий бин
       await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
         method: "PUT",
         headers: {
@@ -10834,7 +10858,6 @@ async function jsonBinSaveBackup(data) {
         body: JSON.stringify(data),
       });
     } else {
-      // Создаём новый бин
       const r = await fetch("https://api.jsonbin.io/v3/b", {
         method: "POST",
         headers: {
@@ -10846,16 +10869,34 @@ async function jsonBinSaveBackup(data) {
       });
       if (r.ok) {
         const resp = await r.json();
-        const newBinId = resp.metadata?.id;
-        if (newBinId) {
-          const newCfg = { ...cfg, binId: newBinId };
-          localStorage.setItem("budgetpro_jsonbin", JSON.stringify(newCfg));
-          console.log("✅ JSONBin bin created:", newBinId);
+        binId = resp.metadata?.id;
+        if (binId) {
+          // Сохраняем в localStorage и cookies
+          localStorage.setItem(
+            "budgetpro_jsonbin",
+            JSON.stringify({ key: cfg.key, binId: binId }),
+          );
+          setCookie("bp_binId", binId, 365);
         }
       }
     }
   } catch (e) {
     console.warn("JSONBin backup failed:", e);
+  }
+}
+
+async function jsonBinLoadBackup() {
+  const cfg = getJsonBinConfig(); // этот метод уже ищет ключ и binId в cookies
+  if (!cfg.key || !cfg.binId) return null;
+  try {
+    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
+      headers: { "X-Master-Key": cfg.key },
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    return data.record;
+  } catch (e) {
+    return null;
   }
 }
 
