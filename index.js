@@ -2830,11 +2830,11 @@ function saveAll() {
   saveAllToIndexedDB().catch(() => {});
 
   // ⭐ Автосохранение в JSONBin (облако)
-  const jc = JSON.parse(localStorage.getItem('budgetpro_jsonbin') || '{}');
+  const jc = JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}");
   if (jc.key) {
     // Собираем полный снапшот данных текущего профиля
     const backup = {
-      type: 'full_backup',
+      type: "full_backup",
       transactions: transactions,
       startBalanceRub: startBalanceRub,
       notebookPages: notebookPages,
@@ -2847,7 +2847,7 @@ function saveAll() {
       categoryCustomizations: categoryCustomizations,
       categoryBudgets: categoryBudgets,
       recurringOps: recurringOps,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
     // Отправляем в облако (не ждём ответа, чтобы не тормозить интерфейс)
     jsonBinSaveBackup(backup).catch(() => {});
@@ -10805,6 +10805,47 @@ async function jsonBinSaveMessages(msgs) {
   } catch (e) {
     console.warn("JSONBin save:", e.message);
     return false;
+  }
+}
+
+async function jsonBinSaveBackup(data) {
+  const cfg = JSON.parse(localStorage.getItem('budgetpro_jsonbin') || '{}');
+  if (!cfg.key) return;
+  try {
+    const binId = cfg.binId;
+    if (binId) {
+      // Обновляем существующий бин
+      await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': cfg.key
+        },
+        body: JSON.stringify(data)
+      });
+    } else {
+      // Создаём новый бин
+      const r = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': cfg.key,
+          'X-Bin-Name': 'BudgetPRO-Backup'
+        },
+        body: JSON.stringify(data)
+      });
+      if (r.ok) {
+        const resp = await r.json();
+        const newBinId = resp.metadata?.id;
+        if (newBinId) {
+          const newCfg = { ...cfg, binId: newBinId };
+          localStorage.setItem('budgetpro_jsonbin', JSON.stringify(newCfg));
+          console.log('✅ JSONBin bin created:', newBinId);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('JSONBin backup failed:', e);
   }
 }
 
