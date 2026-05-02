@@ -4047,7 +4047,16 @@ function showFullHistory() {
 // DATEPICKER
 // ============================================================
 function openDatePicker(initialDate, onSelect) {
-  const date = initialDate ? new Date(initialDate + "T12:00:00") : new Date();
+  const now = new Date();
+  const todayStr =
+    now.getFullYear() +
+    "-" +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(now.getDate()).padStart(2, "0");
+  const date = initialDate
+    ? new Date(initialDate + "T12:00:00")
+    : new Date(todayStr + "T12:00:00");
   let vY = date.getFullYear(),
     vM = date.getMonth();
   const months = t("months"),
@@ -4107,55 +4116,6 @@ function openDatePicker(initialDate, onSelect) {
   document
     .getElementById("dpCancel")
     .addEventListener("click", () => closeModal("datepickerModal"));
-}
-// Кастомный выбор времени (часы:минуты)
-function openTimePicker(initialTime, onSelect) {
-  let hours = 9,
-    minutes = 0;
-  if (initialTime) {
-    const parts = initialTime.split(":");
-    hours = parseInt(parts[0]) || 9;
-    minutes = parseInt(parts[1]) || 0;
-  }
-
-  const html = `
-    <div style="display:flex; gap:12px; align-items:center;">
-      <div style="flex:1; text-align:center;">
-        <div class="field-label">Часы</div>
-        <input type="number" id="tpHours" class="modal-input" min="0" max="23" value="${hours}" 
-          style="font-size:24px; font-weight:700; text-align:center; padding:12px;">
-      </div>
-      <div style="font-size:28px; font-weight:900; color:var(--text-muted);">:</div>
-      <div style="flex:1; text-align:center;">
-        <div class="field-label">Минуты</div>
-        <input type="number" id="tpMinutes" class="modal-input" min="0" max="59" value="${minutes}"
-          style="font-size:24px; font-weight:700; text-align:center; padding:12px;">
-      </div>
-    </div>
-    <div class="modal-actions" style="margin-top:16px;">
-      <button class="btn-secondary" id="tpCancel">${t("cancel")}</button>
-      <button class="btn-primary" id="tpSave">${t("save")}</button>
-    </div>
-  `;
-
-  const modal = createModal("timePickerModal", "🕒 Выберите время", html);
-  document.body.appendChild(modal);
-  openModal("timePickerModal");
-
-  document.getElementById("tpCancel").onclick = () =>
-    closeModal("timePickerModal");
-  document.getElementById("tpSave").onclick = () => {
-    const h = document
-      .getElementById("tpHours")
-      .value.toString()
-      .padStart(2, "0");
-    const m = document
-      .getElementById("tpMinutes")
-      .value.toString()
-      .padStart(2, "0");
-    closeModal("timePickerModal");
-    onSelect(`${h}:${m}`);
-  };
 }
 
 // ============================================================
@@ -6230,10 +6190,11 @@ function renderSettings() {
         style="flex:1; text-align:left; background:var(--cream-dark); border:2px solid var(--cream-border); border-radius:var(--radius-md); padding:12px 14px; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text);">
         📅 <span id="reminderDateText">Выбрать дату</span>
       </button>
-      <button type="button" id="reminderTimeBtn" class="modal-input"
+            <button type="button" id="reminderTimeBtn" class="modal-input"
         style="flex:1; text-align:left; background:var(--cream-dark); border:2px solid var(--cream-border); border-radius:var(--radius-md); padding:12px 14px; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text);">
         🕒 <span id="reminderTimeText">Выбрать время</span>
       </button>
+      <input type="time" id="nativeTimeInput" class="modal-input" style="display:none;" value="09:00">
     </div>
   </div>
   <div style="display:flex;gap:8px;">
@@ -6335,12 +6296,16 @@ function renderSettings() {
     });
 
     timeBtn.addEventListener("click", () => {
-      const currentVal = hiddenDt.value;
-      let currentTime = "09:00";
-      if (currentVal && currentVal.includes("T")) {
-        currentTime = currentVal.split("T")[1].slice(0, 5);
-      }
-      openTimePicker(currentTime, (selectedTime) => {
+      const nativeInput = document.getElementById("nativeTimeInput");
+      nativeInput.style.display = "block";
+      nativeInput.focus();
+      nativeInput.click();
+    });
+
+    document
+      .getElementById("nativeTimeInput")
+      .addEventListener("change", (e) => {
+        const selectedTime = e.target.value; // формат HH:MM
         timeText.textContent = selectedTime;
         if (!hiddenDt.value) {
           hiddenDt.value = today() + "T" + selectedTime;
@@ -6349,8 +6314,8 @@ function renderSettings() {
           const datePart = hiddenDt.value.split("T")[0];
           hiddenDt.value = datePart + "T" + selectedTime;
         }
+        e.target.style.display = "none";
       });
-    });
 
     // Инициализация значений, если уже были (при редактировании)
     if (hiddenDt.value) {
