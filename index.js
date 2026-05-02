@@ -10754,10 +10754,20 @@ function renderChatBubble(m, lc) {
 // Works across ALL devices without Firebase
 // ════════════════════════════════════════════════════════════
 function getJsonBinConfig() {
+  // 🔐 Встроенный ключ (переживёт любую очистку данных браузера)
+  const hardcodedKey =
+    "$2a$10$IVcMyd.xcPwrPtkX0ftMXOkfjWg1W6xm5V1bdkliA28d1FCIZHMA6";
+
   try {
-    return JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}");
+    const stored = JSON.parse(
+      localStorage.getItem("budgetpro_jsonbin") || "{}",
+    );
+    // Если в localStorage есть ключ — используем его (можно обновить через настройки)
+    if (stored.key) return stored;
+    // Иначе возвращаем встроенный ключ
+    return { key: hardcodedKey };
   } catch (e) {
-    return {};
+    return { key: hardcodedKey };
   }
 }
 
@@ -10809,43 +10819,43 @@ async function jsonBinSaveMessages(msgs) {
 }
 
 async function jsonBinSaveBackup(data) {
-  const cfg = JSON.parse(localStorage.getItem('budgetpro_jsonbin') || '{}');
+  const cfg = JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}");
   if (!cfg.key) return;
   try {
     const binId = cfg.binId;
     if (binId) {
       // Обновляем существующий бин
       await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': cfg.key
+          "Content-Type": "application/json",
+          "X-Master-Key": cfg.key,
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
     } else {
       // Создаём новый бин
-      const r = await fetch('https://api.jsonbin.io/v3/b', {
-        method: 'POST',
+      const r = await fetch("https://api.jsonbin.io/v3/b", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': cfg.key,
-          'X-Bin-Name': 'BudgetPRO-Backup'
+          "Content-Type": "application/json",
+          "X-Master-Key": cfg.key,
+          "X-Bin-Name": "BudgetPRO-Backup",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
       if (r.ok) {
         const resp = await r.json();
         const newBinId = resp.metadata?.id;
         if (newBinId) {
           const newCfg = { ...cfg, binId: newBinId };
-          localStorage.setItem('budgetpro_jsonbin', JSON.stringify(newCfg));
-          console.log('✅ JSONBin bin created:', newBinId);
+          localStorage.setItem("budgetpro_jsonbin", JSON.stringify(newCfg));
+          console.log("✅ JSONBin bin created:", newBinId);
         }
       }
     }
   } catch (e) {
-    console.warn('JSONBin backup failed:', e);
+    console.warn("JSONBin backup failed:", e);
   }
 }
 
