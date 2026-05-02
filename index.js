@@ -6384,9 +6384,9 @@ function renderSettings() {
       }
     });
 
-    document
-      .getElementById("nativeTimeInput")
-      .addEventListener("change", (e) => {
+    const nativeTimeInput = document.getElementById("nativeTimeInput");
+    if (nativeTimeInput) {
+      nativeTimeInput.addEventListener("change", (e) => {
         const selectedTime = e.target.value;
         timeText.textContent = selectedTime;
         if (!hiddenDt.value) {
@@ -6403,6 +6403,7 @@ function renderSettings() {
           timeText.textContent = selectedTime;
         }
       });
+    }
 
     document
       .getElementById("nativeTimeInput")
