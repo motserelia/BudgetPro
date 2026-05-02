@@ -1,4 +1,144 @@
 const CREATOR_SECRET = "budgetpro_creator_irakli_2024";
+
+// ═══════════════════════════════════════════════════════════
+// VAPID-ключи для прямых Web Push уведомлений (без сервера)
+// ═══════════════════════════════════════════════════════════
+const VAPID_PUBLIC_KEY =
+  "BE37_lVHkBLNlIoQoPPYrmcaitgEsSn298RwwjqtHiaC6C_6JzbH8lY-Ae3bptEukJP2OIFCK7XWaGdtHTy1yHk"; // ← вставь свой публичный ключ
+const VAPID_PRIVATE_KEY = "WhGMaq8i363AkH8rVZ-x-0hk7YVS7nJTm-J1IvzOFE8"; // ← вставь свой приватный ключ
+
+// Преобразует VAPID-ключ из строки в Uint8Array
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, "+")
+    .replace(/_/g, "/");
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+// Подписывает пользователя на push-уведомления (теперь с правильным applicationServerKey)
+async function subscribeUserToPush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    console.warn("❌ Push-уведомления не поддерживаются");
+    return null;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
+
+    localStorage.setItem("pushSubscription", JSON.stringify(subscription));
+    console.log("✅ Пользователь подписан на push (VAPID)");
+    return subscription;
+  } catch (e) {
+    console.warn("❌ Ошибка подписки на push:", e);
+    return null;
+  }
+}
+
+// Генерирует JWT-токен для авторизации в Web Push
+async function generateVAPIDJWT() {
+  // Кодируем header
+  const header = {
+    typ: "JWT",
+    alg: "ES256",
+  };
+  // Кодируем payload
+  const payload = {
+    aud: "https://fcm.googleapis.com",
+    exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60, // токен на 12 часов
+    sub: "mailto:motserelia92@gmail.com", // твой email, можно заменить
+  };
+
+  const base64Header = btoa(JSON.stringify(header)).replace(/=/g, "");
+  const base64Payload = btoa(JSON.stringify(payload)).replace(/=/g, "");
+
+  // Для подписи JWT в браузере используем Web Crypto API
+  const encoder = new TextEncoder();
+  const data = encoder.encode(base64Header + "." + base64Payload);
+
+  // Импортируем приватный ключ
+  const keyData = urlBase64ToUint8Array(VAPID_PRIVATE_KEY);
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    keyData,
+    { name: "ECDSA", namedCurve: "P-256" },
+    false,
+    ["sign"],
+  );
+
+  const signature = await crypto.subtle.sign(
+    { name: "ECDSA", hash: { name: "SHA-256" } },
+    cryptoKey,
+    data,
+  );
+
+  const base64Signature = btoa(
+    String.fromCharCode(...new Uint8Array(signature)),
+  )
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+
+  return base64Header + "." + base64Payload + "." + base64Signature;
+}
+
+// Отправляет push-уведомление напрямую (Web Push Protocol)
+async function sendWebPushNotification(
+  title,
+  body,
+  tag,
+  vibrateOptions = [200, 100, 200, 100, 200],
+) {
+  const sub = JSON.parse(localStorage.getItem("pushSubscription"));
+  if (!sub || !sub.endpoint) {
+    console.warn("❌ Нет подписки на push");
+    return false;
+  }
+
+  const soundEnabled = localStorage.getItem("reminderSoundEnabled") !== "false";
+  const vibrate = soundEnabled ? vibrateOptions : undefined;
+
+  try {
+    // Генерируем JWT
+    const jwt = await generateVAPIDJWT();
+
+    // Отправляем push-сообщение
+    const response = await fetch(sub.endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + jwt,
+      },
+      body: JSON.stringify({
+        title: title,
+        body: body,
+        icon: "/BudgetPro/favicon-96x96.png",
+        tag: tag || "budget-reminder",
+        requireInteraction: true,
+        vibrate: vibrate,
+      }),
+    });
+    console.log("📤 Push отправлен, статус:", response.status);
+    return response.ok;
+  } catch (e) {
+    console.warn("❌ Ошибка отправки push:", e);
+    return false;
+  }
+}
+
 let isCreatorMode = false;
 // ============================================================
 // КАТЕГОРИИ
@@ -6220,62 +6360,52 @@ function renderSettings() {
     }
   })();
 
-  // Test notification button
+  // Test notification button (теперь через Web Push)
   document.getElementById("testNotifBtn")?.addEventListener("click", () => {
     if (typeof Notification === "undefined") {
       showToast(
         {
           ru: "Браузер не поддерживает",
           en: "Not supported by browser",
-          ka: "ბრაუზერი არ უჭერს",
+          ka: "ბრაუზერს არ აქვს მხარდაჭერა",
         }[currentLang],
         "error",
       );
       return;
     }
-    const fire = () => {
-      new Notification("🔔 БюджетPRO", {
-        body: {
-          ru: "Уведомления работают! ✅",
-          en: "Notifications work! ✅",
-          ka: "შეტყობინებები მუშაობს! ✅",
-        }[currentLang],
-        icon: "/BudgetPro/favicon-96x96.png",
-        tag: "test-" + Date.now(),
-      });
-      showToast(
-        "✅ " +
+
+    sendWebPushNotification(
+      "🔔 БюджетPRO",
+      {
+        ru: "Тестовое push-уведомление ✅",
+        en: "Test push notification ✅",
+        ka: "სატესტო push შეტყობინება ✅",
+      }[currentLang],
+      "test-" + Date.now(),
+    ).then((success) => {
+      if (success) {
+        showToast(
+          "✅ " +
+            {
+              ru: "Push-уведомление отправлено",
+              en: "Push notification sent",
+              ka: "Push შეტყობინება გაიგზავნა",
+            }[currentLang],
+          "success",
+          3000,
+        );
+      } else {
+        showToast(
           {
-            ru: "Тест отправлен — проверьте уведомления",
-            en: "Test sent — check notifications",
-            ka: "ტესტი გაიგზავნა",
+            ru: "⛔ Не удалось отправить push. Возможно, нет подписки.",
+            en: "⛔ Failed to send push. Maybe no subscription.",
+            ka: "⛔ Push ვერ გაიგზავნა. შესაძლოა არ არის subscription.",
           }[currentLang],
-        "success",
-        3000,
-      );
-    };
-    if (Notification.permission === "granted") {
-      fire();
-    } else if (Notification.permission === "denied") {
-      showToast(
-        {
-          ru: "⛔ Разрешите уведомления в настройках браузера",
-          en: "⛔ Allow notifications in browser settings",
-          ka: "⛔ ბრაუზერის პარამეტრებში ნება მიეცით",
-        }[currentLang],
-        "error",
-        4000,
-      );
-    } else {
-      Notification.requestPermission().then((p) => {
-        if (p === "granted") fire();
-        else
-          showToast(
-            { ru: "Отказано", en: "Denied", ka: "უარყოფილია" }[currentLang],
-            "error",
-          );
-      });
-    }
+          "error",
+          4000,
+        );
+      }
+    });
     haptic("medium");
   });
 
@@ -6392,7 +6522,7 @@ function renderSettings() {
                   "1h": "1 სთ",
                   "2h": "2 სთ",
                   "5h": "5 სთ",
-                  daily: "ყოველდღ.",
+                  daily: "ყოველდღე.",
                   every3days: "3 დღეში",
                   weekly: "კვირაში",
                 },
@@ -7798,32 +7928,28 @@ function fireNamedReminder(r) {
     {
       ru: "Не забудьте записать расходы!",
       en: "Log your expenses!",
-      ka: "ხარჯები ჩაიწერეთ!",
+      ka: "არ დაგავიწყდეთ ხარჯების ჩაწერა!",
     }[currentLang];
 
-  // Вместо прямого new Notification используем Service Worker
-  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.ready.then((reg) => {
-      reg.showNotification("🔔 БюджетPRO", {
-        body: body,
-        icon: "/BudgetPro/favicon-96x96.png",
-        requireInteraction: true,
-        tag: "named-" + r.id,
-      });
-    });
-  } else {
-    // Фолбэк, если SW не управляет страницей
-    if (Notification.permission === "granted") {
-      new Notification("🔔 БюджетPRO", {
-        body: body,
-        icon: "/BudgetPro/favicon-96x96.png",
-        requireInteraction: true,
-      });
-    }
-  }
+  // Отправляем через Web Push (даже если приложение закрыто)
+  sendWebPushNotification("🔔 БюджетPRO", body, "named-" + r.id).then(
+    (success) => {
+      if (!success) {
+        // Фолбэк: показываем внутреннее уведомление (только если страница открыта)
+        if (Notification.permission === "granted") {
+          reg.showNotification("🔔 БюджетPRO", {
+            body: body,
+            icon: "/BudgetPro/favicon-96x96.png",
+            requireInteraction: true,
+            tag: "named-" + r.id,
+          });
+        }
+      }
+    },
+  );
 
   showToast("🔔 " + body, "success", 5000);
-  haptic && haptic("medium");
+  if (typeof haptic === "function") haptic("medium");
 }
 
 // Re-schedule any pending named reminders on page load
@@ -7852,7 +7978,7 @@ function sendReminderNotification() {
   const canNotify = Notification.permission === "granted";
   const now = Date.now();
 
-  // ── Check named reminders (poller-based fallback) ──
+  // ── Проверка именованных напоминаний (прямая отправка через Web Push) ──
   const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
   let changed = false;
   list.forEach((r) => {
@@ -7867,7 +7993,7 @@ function sendReminderNotification() {
     if (currentTab === "settings") renderSettings();
   }
 
-  // ── Check interval reminders ────────────────────────────────
+  // ── Проверка интервальных напоминаний (теперь через Web Push) ──
   if (!remindersEnabled || !canNotify) return;
   for (const [interval, active] of Object.entries(reminderIntervals)) {
     if (!active) continue;
@@ -7876,24 +8002,25 @@ function sendReminderNotification() {
     const ms = getIntervalMs(interval);
     const should = !last || now - parseInt(last) >= ms;
     if (should) {
-      // *** ЗАМЕНА: использовать Service Worker с requireInteraction ***
-      if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.ready.then((reg) => {
-          reg.showNotification(t("appName"), {
-            body: t("remindersDesc"),
-            icon: "/BudgetPro/favicon-96x96.png",
-            requireInteraction: true,
-            tag: "budget-reminder",
-          });
-        });
-      } else if (Notification.permission === "granted") {
-        new Notification(t("appName"), {
-          body: t("remindersDesc"),
-          icon: "/BudgetPro/favicon-96x96.png",
-          requireInteraction: true,
-          tag: "budget-reminder",
-        });
-      }
+      sendWebPushNotification(
+        t("appName"),
+        t("remindersDesc"),
+        "budget-reminder",
+      ).then((success) => {
+        if (!success) {
+          // Фолбэк: если push не ушёл, показываем внутреннее уведомление
+          if (Notification.permission === "granted") {
+            navigator.serviceWorker.ready.then((reg) =>
+              reg.showNotification(t("appName"), {
+                body: t("remindersDesc"),
+                icon: "/BudgetPro/favicon-96x96.png",
+                requireInteraction: true,
+                tag: "budget-reminder",
+              }),
+            );
+          }
+        }
+      });
       localStorage.setItem(lastKey, now);
     }
   }
@@ -8339,6 +8466,10 @@ function init() {
       btn.addEventListener("click", () => setTab(btn.dataset.tab)),
     );
   document.getElementById("fabBtn").addEventListener("click", openAddModal);
+  // ── Инициализация push-уведомлений ──
+  if (Notification.permission === "granted") {
+    subscribeUserToPush();
+  }
   setTab("home");
 
   // ==== ОБНОВЛЕНИЕ КУРСОВ ВАЛЮТ ====
