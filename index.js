@@ -68,7 +68,7 @@ async function generateVAPIDJWT() {
     .replace(/\//g, "_");
   const data = encoder.encode(base64Header + "." + base64Payload);
 
-  const keyData = base64ToArrayBuffer(VAPID_PRIVATE_KEY);
+  const keyData = urlBase64ToUint8Array(VAPID_PRIVATE_KEY);
   const cryptoKey = await crypto.subtle.importKey(
     "pkcs8",
     keyData,
