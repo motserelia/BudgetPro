@@ -2836,7 +2836,6 @@ function saveAll() {
   // ⭐ Автосохранение в JSONBin (облако)
   const jc = JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}");
   if (jc.key) {
-    // Собираем полный снапшот данных текущего профиля
     const backup = {
       type: "full_backup",
       transactions: transactions,
@@ -2853,7 +2852,6 @@ function saveAll() {
       recurringOps: recurringOps,
       timestamp: Date.now(),
     };
-    // Отправляем в облако (не ждём ответа, чтобы не тормозить интерфейс)
     jsonBinSaveBackup(backup).catch(() => {});
   }
 }
@@ -10849,6 +10847,7 @@ async function jsonBinSaveBackup(data) {
   try {
     let binId = cfg.binId;
     if (binId) {
+      // обновляем существующий бин
       await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
         method: "PUT",
         headers: {
@@ -10858,6 +10857,7 @@ async function jsonBinSaveBackup(data) {
         body: JSON.stringify(data),
       });
     } else {
+      // создаём новый бин
       const r = await fetch("https://api.jsonbin.io/v3/b", {
         method: "POST",
         headers: {
@@ -10871,12 +10871,10 @@ async function jsonBinSaveBackup(data) {
         const resp = await r.json();
         binId = resp.metadata?.id;
         if (binId) {
-          // Сохраняем в localStorage и cookies
-          localStorage.setItem(
-            "budgetpro_jsonbin",
-            JSON.stringify({ key: cfg.key, binId: binId }),
-          );
+          const newCfg = { key: cfg.key, binId: binId };
+          localStorage.setItem("budgetpro_jsonbin", JSON.stringify(newCfg));
           setCookie("bp_binId", binId, 365);
+          console.log("✅ JSONBin bin created:", binId);
         }
       }
     }
@@ -10886,7 +10884,7 @@ async function jsonBinSaveBackup(data) {
 }
 
 async function jsonBinLoadBackup() {
-  const cfg = getJsonBinConfig(); // этот метод уже ищет ключ и binId в cookies
+  const cfg = getJsonBinConfig();
   if (!cfg.key || !cfg.binId) return null;
   try {
     const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
