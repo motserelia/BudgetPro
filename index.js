@@ -1623,7 +1623,6 @@ let currentLang = localStorage.getItem("lang") || "ru";
 const DB_NAME = "BudgetPRO_Backup";
 const DB_VERSION = 1;
 
-/** Открывает базу данных */
 function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -1636,6 +1635,70 @@ function openDB() {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+}
+
+async function saveAllToIndexedDB() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction("profiles", "readwrite");
+    const store = tx.objectStore("profiles");
+
+    const profileData = localStorage.getItem(getProfileStorageKey());
+    if (profileData) {
+      await store.put({
+        id: activeProfileId,
+        data: profileData,
+        timestamp: Date.now(),
+      });
+    }
+
+    const globalData = localStorage.getItem(getGlobalStorageKey());
+    if (globalData) {
+      await store.put({
+        id: "_global_",
+        data: globalData,
+        timestamp: Date.now(),
+      });
+    }
+
+    await tx.complete;
+    console.log("✅ IndexedDB backup saved");
+  } catch (e) {
+    console.warn("IndexedDB save error:", e);
+  }
+}
+
+async function loadAllFromIndexedDB() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction("profiles", "readonly");
+    const store = tx.objectStore("profiles");
+    const all = await store.getAll();
+    if (all.length === 0) return false;
+
+    for (const item of all) {
+      if (item.id === "_global_") {
+        localStorage.setItem(getGlobalStorageKey(), item.data);
+      } else {
+        localStorage.setItem(getProfileStorageKey(item.id), item.data);
+      }
+    }
+    console.log("🔄 Data restored from IndexedDB");
+    return true;
+  } catch (e) {
+    console.warn("IndexedDB load error:", e);
+    return false;
+  }
+}
+
+async function clearIndexedDB() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction("profiles", "readwrite");
+    const store = tx.objectStore("profiles");
+    await store.clear();
+    await tx.complete;
+  } catch (e) {}
 }
 
 /** Сохраняет все данные всех профилей и глобальных настроек в IndexedDB */
@@ -2689,7 +2752,6 @@ async function loadAll() {
   if (transactions.length === 0) {
     const restored = await loadAllFromIndexedDB();
     if (restored) {
-      // перезагружаем данные восстановленного профиля
       loadProfiles();
       loadProfileData(activeProfileId);
       showToast("🔄 Данные восстановлены из резервной копии", "success");
@@ -2763,9 +2825,8 @@ async function loadAll() {
 }
 
 function saveAll() {
-  saveProfileData(); // сохраняет текущий профиль в localStorage
-  saveGlobal(); // сохраняет глобальные настройки
-
+  saveProfileData();
+  saveGlobal();
   // ⭐ Автоматическое сохранение в IndexedDB
   saveAllToIndexedDB().catch(() => {});
 }
