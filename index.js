@@ -2833,27 +2833,24 @@ function saveAll() {
   saveGlobal();
   saveAllToIndexedDB().catch(() => {});
 
-  // ⭐ Автосохранение в JSONBin (облако)
-  const jc = JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}");
-  if (jc.key) {
-    const backup = {
-      type: "full_backup",
-      transactions: transactions,
-      startBalanceRub: startBalanceRub,
-      notebookPages: notebookPages,
-      categories: categories,
-      incomeCategories: incomeCategories,
-      calcHistory: calcHistory,
-      convHistory: convHistory,
-      userTemplates: userTemplates,
-      frequentStats: frequentStats,
-      categoryCustomizations: categoryCustomizations,
-      categoryBudgets: categoryBudgets,
-      recurringOps: recurringOps,
-      timestamp: Date.now(),
-    };
-    jsonBinSaveBackup(backup).catch(() => {});
-  }
+  // Автосохранение в JSONBin
+  const backup = {
+    type: "full_backup",
+    transactions: transactions,
+    startBalanceRub: startBalanceRub,
+    notebookPages: notebookPages,
+    categories: categories,
+    incomeCategories: incomeCategories,
+    calcHistory: calcHistory,
+    convHistory: convHistory,
+    userTemplates: userTemplates,
+    frequentStats: frequentStats,
+    categoryCustomizations: categoryCustomizations,
+    categoryBudgets: categoryBudgets,
+    recurringOps: recurringOps,
+    timestamp: Date.now(),
+  };
+  jsonBinSaveBackup(backup).catch(() => {});
 }
 
 function syncStartBalanceTransaction() {
@@ -10756,19 +10753,22 @@ function renderChatBubble(m, lc) {
 // Works across ALL devices without Firebase
 // ════════════════════════════════════════════════════════════
 function getJsonBinConfig() {
+  // 🔐 Встроенные ключ и ID хранилища (переживут любую очистку)
   const hardcodedKey =
     "$2a$10$IVcMyd.xcPwrPtkX0ftMXOkfjWg1W6xm5V1bdkliA28d1FCIZHMA6";
+  const hardcodedBinId = "69f63ad6aaba8821976356bd";
+
   try {
     const stored = JSON.parse(
       localStorage.getItem("budgetpro_jsonbin") || "{}",
     );
-    if (stored.key) {
-      const binId = stored.binId || getCookie("bp_binId");
-      return { key: stored.key, binId: binId || undefined };
-    }
-    return { key: hardcodedKey, binId: getCookie("bp_binId") || undefined };
+    // Если в localStorage есть более новый ключ – используем его, но ID всегда наш
+    return {
+      key: stored.key || hardcodedKey,
+      binId: hardcodedBinId,
+    };
   } catch (e) {
-    return { key: hardcodedKey, binId: getCookie("bp_binId") || undefined };
+    return { key: hardcodedKey, binId: hardcodedBinId };
   }
 }
 
@@ -10843,41 +10843,17 @@ async function jsonBinSaveMessages(msgs) {
 
 async function jsonBinSaveBackup(data) {
   const cfg = getJsonBinConfig();
-  if (!cfg.key) return;
+  if (!cfg.key || !cfg.binId) return;
   try {
-    let binId = cfg.binId;
-    if (binId) {
-      // обновляем существующий бин
-      await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": cfg.key,
-        },
-        body: JSON.stringify(data),
-      });
-    } else {
-      // создаём новый бин
-      const r = await fetch("https://api.jsonbin.io/v3/b", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": cfg.key,
-          "X-Bin-Name": "BudgetPRO-Backup",
-        },
-        body: JSON.stringify(data),
-      });
-      if (r.ok) {
-        const resp = await r.json();
-        binId = resp.metadata?.id;
-        if (binId) {
-          const newCfg = { key: cfg.key, binId: binId };
-          localStorage.setItem("budgetpro_jsonbin", JSON.stringify(newCfg));
-          setCookie("bp_binId", binId, 365);
-          console.log("✅ JSONBin bin created:", binId);
-        }
-      }
-    }
+    await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": cfg.key,
+      },
+      body: JSON.stringify(data),
+    });
+    console.log("☁️ Данные сохранены в JSONBin");
   } catch (e) {
     console.warn("JSONBin backup failed:", e);
   }
