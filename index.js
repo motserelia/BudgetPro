@@ -6352,7 +6352,17 @@ function renderSettings() {
 
     dateBtn.addEventListener("click", () => {
       const currentVal = hiddenDt.value;
-      const initialDate = currentVal ? currentVal.split("T")[0] : today();
+      // Всегда берём локальную сегодняшнюю дату, если нет сохранённой
+      let initialDate;
+      if (currentVal && currentVal.includes("T")) {
+        initialDate = currentVal.split("T")[0];
+      } else {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const dd = String(now.getDate()).padStart(2, "0");
+        initialDate = `${yyyy}-${mm}-${dd}`;
+      }
       openDatePicker(initialDate, (selectedDate) => {
         dateText.textContent = selectedDate;
         if (!hiddenDt.value) {
