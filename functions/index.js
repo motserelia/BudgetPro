@@ -16,35 +16,39 @@ webPush.setVapidDetails(
   vapidKeys.privateKey
 );
 
-// Создаём Express-приложение и применяем cors
-const app = require("express")();
-app.use(cors({ origin: true })); // Разрешает запросы с любого источника
+// Создаём обработчик CORS, разрешающий запросы с вашего сайта
+const corsHandler = cors({ origin: "https://motserelia.github.io" });
 
-app.post("/", async (req, res) => {
-  const { subscription, title, body, icon, tag, vibrate } = req.body;
+exports.sendPushNotification = functions.https.onRequest((req, res) => {
+  // Вызываем cors-проверку вручную, после успеха выполняем нашу логику
+  corsHandler(req, res, async () => {
+    if (req.method !== "POST") {
+      return res.status(405).send("Method Not Allowed");
+    }
 
-  if (!subscription || !subscription.endpoint) {
-    return res.status(400).send("Invalid subscription");
-  }
+    const { subscription, title, body, icon, tag, vibrate } = req.body;
 
-  const payload = JSON.stringify({
-    title: title || "БюджетPRO",
-    body: body || "Напоминание",
-    icon: icon || "/BudgetPro/favicon-96x96.png",
-    tag: tag || "budget-reminder",
-    requireInteraction: true,
-    vibrate: vibrate || [200, 100, 200, 100, 200],
-    data: { url: "/BudgetPro/" }
+    if (!subscription || !subscription.endpoint) {
+      return res.status(400).send("Invalid subscription");
+    }
+
+    const payload = JSON.stringify({
+      title: title || "БюджетPRO",
+      body: body || "Напоминание",
+      icon: icon || "/BudgetPro/favicon-96x96.png",
+      tag: tag || "budget-reminder",
+      requireInteraction: true,
+      vibrate: vibrate || [200, 100, 200, 100, 200],
+      data: { url: "/BudgetPro/" }
+    });
+
+    try {
+      await webPush.sendNotification(subscription, payload);
+      console.log("Push notification sent successfully");
+      return res.status(200).send("OK");
+    } catch (error) {
+      console.error("Push notification failed:", error);
+      return res.status(500).send("Error sending notification");
+    }
   });
-
-  try {
-    await webPush.sendNotification(subscription, payload);
-    console.log("Push notification sent successfully");
-    return res.status(200).send("OK");
-  } catch (error) {
-    console.error("Push notification failed:", error);
-    return res.status(500).send("Error sending notification");
-  }
 });
-
-exports.sendPushNotification = functions.https.onRequest(app);
