@@ -4,8 +4,8 @@ const CREATOR_SECRET = "budgetpro_creator_irakli_2024";
 // VAPID-ключи для прямых Web Push уведомлений (без сервера)
 // ═══════════════════════════════════════════════════════════
 const VAPID_PUBLIC_KEY =
-  "BE37_lVHkBLNlIoQoPPYrmcaitgEsSn298RwwjqtHiaC6C_6JzbH8lY-Ae3bptEukJP2OIFCK7XWaGdtHTy1yHk"; // ← вставь свой публичный ключ
-const VAPID_PRIVATE_KEY = "WhGMaq8i363AkH8rVZ-x-0hk7YVS7nJTm-J1IvzOFE8"; // ← вставь свой приватный ключ
+  "BB9NFAfxuRFAzP0lsPdHc3T_tDexiFHlNbxD_Ab3YPigherRCDVH8DsCgza_c_yaIUJMoIeDYZMFGkHF5ZOzNYs"; // ← вставь свой публичный ключ
+const VAPID_PRIVATE_KEY = "guzvptpQEh693Pavmsn26o0jiFOq3DDlCpjGUrBJv0o"; // ← вставь свой приватный ключ
 
 // Преобразует VAPID-ключ из строки в Uint8Array
 function urlBase64ToUint8Array(base64String) {
@@ -50,29 +50,27 @@ async function subscribeUserToPush() {
 
 // Генерирует JWT-токен для авторизации в Web Push
 async function generateVAPIDJWT() {
-  // Кодируем header
-  const header = {
-    typ: "JWT",
-    alg: "ES256",
-  };
-  // Кодируем payload
+  const header = { typ: "JWT", alg: "ES256" };
   const payload = {
     aud: "https://fcm.googleapis.com",
-    exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60, // токен на 12 часов
-    sub: "mailto:motserelia92@gmail.com", // твой email, можно заменить
+    exp: Math.floor(Date.now() / 1000) + 12 * 60 * 60,
+    sub: "mailto:motserelia92@gmail.com",
   };
 
-  const base64Header = btoa(JSON.stringify(header)).replace(/=/g, "");
-  const base64Payload = btoa(JSON.stringify(payload)).replace(/=/g, "");
-
-  // Для подписи JWT в браузере используем Web Crypto API
   const encoder = new TextEncoder();
+  const base64Header = btoa(JSON.stringify(header))
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
+  const base64Payload = btoa(JSON.stringify(payload))
+    .replace(/=/g, "")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_");
   const data = encoder.encode(base64Header + "." + base64Payload);
 
-  // Импортируем приватный ключ
-  const keyData = urlBase64ToUint8Array(VAPID_PRIVATE_KEY);
+  const keyData = base64ToArrayBuffer(VAPID_PRIVATE_KEY);
   const cryptoKey = await crypto.subtle.importKey(
-    "raw",
+    "pkcs8",
     keyData,
     { name: "ECDSA", namedCurve: "P-256" },
     false,
@@ -93,6 +91,15 @@ async function generateVAPIDJWT() {
     .replace(/\//g, "_");
 
   return base64Header + "." + base64Payload + "." + base64Signature;
+}
+
+function base64ToArrayBuffer(base64) {
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
 }
 
 // Отправляет push-уведомление напрямую (Web Push Protocol)
@@ -214,6 +221,9 @@ const translations = {
     category: "Категория",
     subcategory: "Подкатегория",
     amount: "Сумма",
+    hours: "Часы",
+    minutes: "Минуты",
+    chooseTime: "🕒 Выберите время",
     date: "Дата",
     today: "Сегодня",
     yesterday: "Вчера",
@@ -739,6 +749,9 @@ const translations = {
     category: "Category",
     subcategory: "Subcategory",
     amount: "Amount",
+    hours: "Hours",
+    minutes: "Minutes",
+    chooseTime: "🕒 Pick time",
     date: "Date",
     today: "Today",
     yesterday: "Yesterday",
@@ -1264,6 +1277,9 @@ const translations = {
     category: "კატეგორია",
     subcategory: "ქვეკატეგორია",
     amount: "თანხა",
+    hours: "საათები",
+    minutes: "წუთები",
+    chooseTime: "🕒 აირჩიეთ დრო",
     date: "თარიღი",
     today: "დღეს",
     yesterday: "გუშინ",
@@ -4047,16 +4063,9 @@ function showFullHistory() {
 // DATEPICKER
 // ============================================================
 function openDatePicker(initialDate, onSelect) {
-  const now = new Date();
-  const todayStr =
-    now.getFullYear() +
-    "-" +
-    String(now.getMonth() + 1).padStart(2, "0") +
-    "-" +
-    String(now.getDate()).padStart(2, "0");
-  const date = initialDate
-    ? new Date(initialDate + "T12:00:00")
-    : new Date(todayStr + "T12:00:00");
+  // Если дата не передана, берём сегодняшнюю
+  if (!initialDate) initialDate = today();
+  const date = new Date(initialDate + "T12:00:00");
   let vY = date.getFullYear(),
     vM = date.getMonth();
   const months = t("months"),
@@ -4116,6 +4125,57 @@ function openDatePicker(initialDate, onSelect) {
   document
     .getElementById("dpCancel")
     .addEventListener("click", () => closeModal("datepickerModal"));
+}
+
+function openTimePickerCompact(initialTime, onSelect) {
+  let hours = 9,
+    minutes = 0;
+  if (initialTime) {
+    const parts = initialTime.split(":");
+    hours = parseInt(parts[0]) || 9;
+    minutes = parseInt(parts[1]) || 0;
+  }
+
+  const html = `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <div style="display:flex;gap:8px;align-items:center;justify-content:center;">
+        <div class="field-group" style="margin-bottom:0;flex:0 0 auto;width:80px;">
+          <label class="field-label" style="text-align:center;">${t("hours")}</label>
+          <input type="number" id="tpHours" class="modal-input" min="0" max="23" value="${hours}" 
+            style="font-size:20px;font-weight:700;text-align:center;padding:8px;width:100%;">
+        </div>
+        <div style="font-size:24px;font-weight:900;color:var(--text-muted);margin-top:18px;">:</div>
+        <div class="field-group" style="margin-bottom:0;flex:0 0 auto;width:80px;">
+          <label class="field-label" style="text-align:center;">${t("minutes")}</label>
+          <input type="number" id="tpMinutes" class="modal-input" min="0" max="59" value="${minutes}"
+            style="font-size:20px;font-weight:700;text-align:center;padding:8px;width:100%;">
+        </div>
+      </div>
+      <div class="modal-actions" style="width:100%;margin-top:8px;">
+        <button class="btn-secondary" id="tpCancel" style="flex:1;">${t("cancel")}</button>
+        <button class="btn-primary" id="tpSave" style="flex:1;">${t("save")}</button>
+      </div>
+    </div>
+  `;
+
+  const modal = createModal("timePickerModal", t("chooseTime"), html);
+  document.body.appendChild(modal);
+  openModal("timePickerModal");
+
+  document.getElementById("tpCancel").onclick = () =>
+    closeModal("timePickerModal");
+  document.getElementById("tpSave").onclick = () => {
+    const h = document
+      .getElementById("tpHours")
+      .value.toString()
+      .padStart(2, "0");
+    const m = document
+      .getElementById("tpMinutes")
+      .value.toString()
+      .padStart(2, "0");
+    closeModal("timePickerModal");
+    onSelect(`${h}:${m}`);
+  };
 }
 
 // ============================================================
@@ -6194,7 +6254,7 @@ function renderSettings() {
         style="flex:1; text-align:left; background:var(--cream-dark); border:2px solid var(--cream-border); border-radius:var(--radius-md); padding:12px 14px; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text);">
         🕒 <span id="reminderTimeText">Выбрать время</span>
       </button>
-      <input type="time" id="nativeTimeInput" class="modal-input" style="display:none;" value="09:00">
+      
     </div>
   </div>
   <div style="display:flex;gap:8px;">
@@ -6296,10 +6356,21 @@ function renderSettings() {
     });
 
     timeBtn.addEventListener("click", () => {
-      const nativeInput = document.getElementById("nativeTimeInput");
-      nativeInput.style.display = "block";
-      nativeInput.focus();
-      nativeInput.click();
+      const currentVal = hiddenDt.value;
+      let currentTime = "09:00";
+      if (currentVal && currentVal.includes("T")) {
+        currentTime = currentVal.split("T")[1].slice(0, 5);
+      }
+      openTimePickerCompact(currentTime, (selectedTime) => {
+        timeText.textContent = selectedTime;
+        if (!hiddenDt.value) {
+          hiddenDt.value = today() + "T" + selectedTime;
+          dateText.textContent = today();
+        } else {
+          const datePart = hiddenDt.value.split("T")[0];
+          hiddenDt.value = datePart + "T" + selectedTime;
+        }
+      });
     });
 
     document
