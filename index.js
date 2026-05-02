@@ -1,5 +1,24 @@
 const CREATOR_SECRET = "budgetpro_creator_irakli_2024";
 
+// ═══════════════════════════════════════════════════════════
+// VAPID-публичный ключ (тот же, что и в серверной функции)
+// ═══════════════════════════════════════════════════════════
+const VAPID_PUBLIC_KEY =
+  "BP3G45BX8XQI3DxEsYYyu4lKm5l-gpoJbuEWfYfdYGwdDGocfryIR9wZrz7ztmDxZ_-AQJpOLyjIJ2yHgIQJjjk";
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, "+")
+    .replace(/_/g, "/");
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 let isCreatorMode = false;
 // ============================================================
 // КАТЕГОРИИ
@@ -6304,7 +6323,15 @@ function renderSettings() {
         en: "Test notification ✅",
         ka: "სატესტო შეტყობინება ✅",
       }[currentLang] || "Test notification ✅";
-    showStickyNotification("🔔 БюджетPRO", body, "test-" + Date.now());
+    // Пробуем отправить через сервер (работает даже если приложение закрыто)
+    sendPushViaServer("🔔 БюджетPRO", body, "test-" + Date.now()).then(
+      (success) => {
+        if (!success) {
+          // Фолбэк – локальное уведомление (если сервер недоступен)
+          showStickyNotification("🔔 БюджетPRO", body, "test-" + Date.now());
+        }
+      },
+    );
     showToast("✅ " + body, "success", 3000);
     haptic("medium");
   });
@@ -7827,10 +7854,17 @@ function fireNamedReminder(r) {
     {
       ru: "Не забудьте записать расходы!",
       en: "Log your expenses!",
-      ka: "ხარჯები ჩაიწერეთ!",
+      ka: "არ დაგავიწყდეთ ხარჯების ჩაწერა!",
     }[currentLang];
 
-  showStickyNotification("🔔 БюджетPRO", body, "named-" + r.id);
+  // Пробуем отправить через сервер (работает даже если приложение закрыто)
+  sendPushViaServer("🔔 БюджетPRO", body, "named-" + r.id).then((success) => {
+    if (!success) {
+      // Фолбэк – локальное уведомление (если сервер недоступен)
+      showStickyNotification("🔔 БюджетPRO", body, "named-" + r.id);
+    }
+  });
+
   showToast("🔔 " + body, "success", 5000);
   if (typeof haptic === "function") haptic("medium");
 }
@@ -7885,13 +7919,83 @@ function sendReminderNotification() {
     const ms = getIntervalMs(interval);
     const should = !last || now - parseInt(last) >= ms;
     if (should) {
-      showStickyNotification(
+      sendPushViaServer(
         t("appName"),
         t("remindersDesc"),
         "budget-reminder",
-      );
+      ).then((success) => {
+        if (!success) {
+          showStickyNotification(
+            t("appName"),
+            t("remindersDesc"),
+            "budget-reminder",
+          );
+        }
+      });
       localStorage.setItem(lastKey, now);
     }
+  }
+}
+
+// Подписка на push-уведомления (вызывается при инициализации)
+async function subscribeUserToPush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    console.warn("❌ Push-уведомления не поддерживаются");
+    return null;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
+
+    // Сохраняем подписку в localStorage, чтобы потом использовать при отправке
+    localStorage.setItem("pushSubscription", JSON.stringify(subscription));
+    console.log("✅ Пользователь подписан на push");
+    return subscription;
+  } catch (e) {
+    console.warn("❌ Ошибка подписки на push:", e);
+    return null;
+  }
+}
+
+// Отправляет push через нашу облачную функцию (сервер)
+async function sendPushViaServer(title, body, tag, vibrate) {
+  const sub = JSON.parse(localStorage.getItem("pushSubscription"));
+  if (!sub || !sub.endpoint) {
+    console.warn("❌ Нет подписки");
+    return false;
+  }
+
+  try {
+    const response = await fetch(
+      "https://us-central1-budgetpro-push.cloudfunctions.net/sendPushNotification",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          subscription: sub,
+          title: title,
+          body: body,
+          tag: tag || "budget-reminder",
+          vibrate: vibrate || [200, 100, 200, 100, 200],
+        }),
+      },
+    );
+    if (response.ok) {
+      console.log("📤 Push отправлен через сервер");
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.warn("❌ Ошибка отправки push через сервер:", e);
+    return false;
   }
 }
 
