@@ -89,29 +89,36 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
-// ── Push-уведомление (приходит, даже если приложение закрыто) ──
+// ── Push-уведомление (через Web Push / VAPID) ──
 self.addEventListener("push", (event) => {
   let data = {
     title: "БюджетPRO",
     body: "Напоминание",
     icon: "/BudgetPro/favicon-96x96.png",
+    tag: "budget-reminder",
+    requireInteraction: true,
+    vibrate: undefined,
   };
   if (event.data) {
     try {
       data = event.data.json();
     } catch (e) {}
   }
+
   const options = {
     body: data.body,
     icon: data.icon,
     badge: data.badge,
-    requireInteraction: true, // ‼️ Не исчезает само
+    tag: data.tag || "budget-reminder",
+    requireInteraction: true,
     actions: [
       { action: "open", title: "Открыть" },
       { action: "close", title: "Закрыть" },
     ],
-    tag: data.tag || "budget-reminder",
+    vibrate: data.vibrate,
+    silent: !data.vibrate,
   };
+
   event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
