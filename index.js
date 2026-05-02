@@ -4068,7 +4068,6 @@ function showFullHistory() {
 // DATEPICKER
 // ============================================================
 function openDatePicker(initialDate, onSelect) {
-  // Если дата не передана, берём сегодняшнюю
   if (!initialDate) initialDate = today();
   const date = new Date(initialDate + "T12:00:00");
   let vY = date.getFullYear(),
