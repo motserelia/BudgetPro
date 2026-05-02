@@ -2827,8 +2827,31 @@ async function loadAll() {
 function saveAll() {
   saveProfileData();
   saveGlobal();
-  // ⭐ Автоматическое сохранение в IndexedDB
   saveAllToIndexedDB().catch(() => {});
+
+  // ⭐ Автосохранение в JSONBin (облако)
+  const jc = JSON.parse(localStorage.getItem('budgetpro_jsonbin') || '{}');
+  if (jc.key) {
+    // Собираем полный снапшот данных текущего профиля
+    const backup = {
+      type: 'full_backup',
+      transactions: transactions,
+      startBalanceRub: startBalanceRub,
+      notebookPages: notebookPages,
+      categories: categories,
+      incomeCategories: incomeCategories,
+      calcHistory: calcHistory,
+      convHistory: convHistory,
+      userTemplates: userTemplates,
+      frequentStats: frequentStats,
+      categoryCustomizations: categoryCustomizations,
+      categoryBudgets: categoryBudgets,
+      recurringOps: recurringOps,
+      timestamp: Date.now()
+    };
+    // Отправляем в облако (не ждём ответа, чтобы не тормозить интерфейс)
+    jsonBinSaveBackup(backup).catch(() => {});
+  }
 }
 
 function syncStartBalanceTransaction() {
