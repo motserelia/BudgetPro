@@ -6588,7 +6588,10 @@ function renderSettings() {
 
         saveAll();
         showToast("🗑️ Все данные удалены (включая облако)");
-        setTimeout(() => setTab("home"), 500);
+        setTimeout(() => {
+          setTab("home");
+          updateTopBlocks();
+        }, 500);
       },
       {
         icon: "⚠️",
@@ -12848,7 +12851,7 @@ function showOnboarding() {
 
 // Show onboarding after first init
 setTimeout(() => {
-  // if (shouldShowOnboarding()) showOnboarding();
+  if (shouldShowOnboarding()) showOnboarding();
 }, 600);
 
 // ──────────────────────────────────────────────────────────────
