@@ -4,8 +4,9 @@ const CREATOR_SECRET = "budgetpro_creator_irakli_2024";
 // VAPID-ключи для прямых Web Push уведомлений (без сервера)
 // ═══════════════════════════════════════════════════════════
 const VAPID_PUBLIC_KEY =
-  "BB9NFAfxuRFAzP0lsPdHc3T_tDexiFHlNbxD_Ab3YPigherRCDVH8DsCgza_c_yaIUJMoIeDYZMFGkHF5ZOzNYs"; // ← вставь свой публичный ключ
-const VAPID_PRIVATE_KEY = "guzvptpQEh693Pavmsn26o0jiFOq3DDlCpjGUrBJv0o"; // ← вставь свой приватный ключ
+  "BP3G45BX8XQI3DxEsYYyu4lKm5l-gpoJbuEWfYfdYGwdDGocfryIR9wZrz7ztmDxZ_-AQJpOLyjIJ2yHgIQJjjk"; // ← вставь свой публичный ключ
+const VAPID_PRIVATE_KEY =
+  "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg1Xbq89vPY4cSTyVPtdJ7Hl4DI4FrudSPBOJLV0me_z2hRANCAAT9xuOQV_F0CNw8RLGGMruJSpuZfoKaCW7hFn2H3WBsHQxqHH68iEfcGa8-87Zg8Wf_gECaTi8oyCdsh4CECY45"; // ← вставь свой приватный ключ
 
 // Преобразует VAPID-ключ из строки в Uint8Array
 function urlBase64ToUint8Array(base64String) {
@@ -68,6 +69,7 @@ async function generateVAPIDJWT() {
     .replace(/\//g, "_");
   const data = encoder.encode(base64Header + "." + base64Payload);
 
+  // Импортируем приватный ключ в формате pkcs8
   const keyData = urlBase64ToUint8Array(VAPID_PRIVATE_KEY);
   const cryptoKey = await crypto.subtle.importKey(
     "pkcs8",
@@ -223,7 +225,8 @@ const translations = {
     amount: "Сумма",
     hours: "Часы",
     minutes: "Минуты",
-    chooseTime: "🕒 Выберите время",
+    chooseDate: "📅 Выбрать дату",
+    chooseTimeBtn: "🕒 Выбрать время",
     date: "Дата",
     today: "Сегодня",
     yesterday: "Вчера",
@@ -751,7 +754,8 @@ const translations = {
     amount: "Amount",
     hours: "Hours",
     minutes: "Minutes",
-    chooseTime: "🕒 Pick time",
+    chooseDate: "📅 Pick date",
+    chooseTimeBtn: "🕒 Pick time",
     date: "Date",
     today: "Today",
     yesterday: "Yesterday",
@@ -1279,7 +1283,8 @@ const translations = {
     amount: "თანხა",
     hours: "საათები",
     minutes: "წუთები",
-    chooseTime: "🕒 აირჩიეთ დრო",
+    chooseDate: "📅 აირჩიეთ თარიღი",
+    chooseTimeBtn: "🕒 აირჩიეთ დრო",
     date: "თარიღი",
     today: "დღეს",
     yesterday: "გუშინ",
@@ -6248,13 +6253,13 @@ function renderSettings() {
       <input type="hidden" id="newReminderDatetime" value="">
       <button type="button" id="reminderDateBtn" class="modal-input"
         style="flex:1; text-align:left; background:var(--cream-dark); border:2px solid var(--cream-border); border-radius:var(--radius-md); padding:12px 14px; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text);">
-        📅 <span id="reminderDateText">Выбрать дату</span>
+        📅 <span id="reminderDateText">${t("chooseDate")}</span>
       </button>
             <button type="button" id="reminderTimeBtn" class="modal-input"
         style="flex:1; text-align:left; background:var(--cream-dark); border:2px solid var(--cream-border); border-radius:var(--radius-md); padding:12px 14px; cursor:pointer; font-family:inherit; font-size:15px; color:var(--text);">
-        🕒 <span id="reminderTimeText">Выбрать время</span>
+        🕒 <span id="reminderTimeText">${t("chooseTimeBtn")}</span>
       </button>
-      
+            <input type="time" id="nativeTimeInput" class="modal-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" value="09:00">
     </div>
   </div>
   <div style="display:flex;gap:8px;">
@@ -6356,12 +6361,33 @@ function renderSettings() {
     });
 
     timeBtn.addEventListener("click", () => {
-      const currentVal = hiddenDt.value;
-      let currentTime = "09:00";
-      if (currentVal && currentVal.includes("T")) {
-        currentTime = currentVal.split("T")[1].slice(0, 5);
+      const nativeInput = document.getElementById("nativeTimeInput");
+      if (!nativeInput) return;
+      // Если время не выбрано, ставим текущее
+      if (!hiddenDt.value) {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
+        nativeInput.value = hh + ":" + mm;
+      } else {
+        const timePart = hiddenDt.value.includes("T")
+          ? hiddenDt.value.split("T")[1].slice(0, 5)
+          : "09:00";
+        nativeInput.value = timePart;
       }
-      openTimePickerCompact(currentTime, (selectedTime) => {
+      // Показать системный пикер (колесо прокрутки на телефоне)
+      if (nativeInput.showPicker) {
+        nativeInput.showPicker();
+      } else {
+        nativeInput.focus();
+        nativeInput.click();
+      }
+    });
+
+    document
+      .getElementById("nativeTimeInput")
+      .addEventListener("change", (e) => {
+        const selectedTime = e.target.value;
         timeText.textContent = selectedTime;
         if (!hiddenDt.value) {
           hiddenDt.value = today() + "T" + selectedTime;
@@ -6370,8 +6396,13 @@ function renderSettings() {
           const datePart = hiddenDt.value.split("T")[0];
           hiddenDt.value = datePart + "T" + selectedTime;
         }
+        // Учитываем 12-часовой формат при отображении
+        if (localStorage.getItem("timeFormat12h") === "true") {
+          timeText.textContent = convertTo12(selectedTime);
+        } else {
+          timeText.textContent = selectedTime;
+        }
       });
-    });
 
     document
       .getElementById("nativeTimeInput")
@@ -7010,6 +7041,17 @@ function renderSettings() {
     .getElementById("time12hToggle")
     ?.addEventListener("change", function () {
       localStorage.setItem("timeFormat12h", this.checked ? "true" : "false");
+      const timeText = document.getElementById("reminderTimeText");
+      const hiddenDt = document.getElementById("newReminderDatetime");
+      if (
+        timeText &&
+        hiddenDt &&
+        hiddenDt.value &&
+        hiddenDt.value.includes("T")
+      ) {
+        const timeRaw = hiddenDt.value.split("T")[1].slice(0, 5);
+        timeText.textContent = this.checked ? convertTo12(timeRaw) : timeRaw;
+      }
       haptic("light");
       showToast(
         {
@@ -8431,6 +8473,16 @@ function applyTimeBasedTheme() {
 }
 // Check every 5 minutes
 setInterval(applyTimeBasedTheme, 5 * 60 * 1000);
+
+function convertTo12(time24) {
+  if (!time24) return "";
+  let [h, m] = time24.split(":");
+  h = parseInt(h, 10);
+  const ampm = h >= 12 ? "PM" : "AM";
+  if (h > 12) h -= 12;
+  if (h === 0) h = 12;
+  return `${h}:${m} ${ampm}`;
+}
 
 function init() {
   applyTranslations();
