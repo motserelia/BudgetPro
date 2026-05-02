@@ -11519,6 +11519,55 @@ function openCreatorChatPanel() {
       </div>
     </div>
 
+
+
+        <!-- JSONBin.io setup (always visible) -->
+    <div style="background:var(--primary-pale);border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid var(--primary);">
+      <div style="font-weight:800;font-size:14px;margin-bottom:6px;">🪣 JSONBin.io — ${lang === "ru" ? "Простой вариант (рекомендуется)" : lang === "ka" ? "მარტივი ვარიანტი (რეკომენდებული)" : "Easy option (recommended)"}</div>
+      <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">
+        ${lang === "ru" ? "1. Зайдите на jsonbin.io → Зарегистрируйтесь бесплатно<br>2. API Keys → Create Access Key (выберите все права)<br>3. Вставьте ключ ниже и нажмите 💾" : lang === "ka" ? "1. jsonbin.io → უფასო რეგისტრაცია<br>2. API Keys → Create Access Key<br>3. ჩასვით გასაღები ქვემოთ" : "1. Go to jsonbin.io → Register free<br>2. API Keys → Create Access Key<br>3. Paste your key below"}
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input id="jbKeyInput" class="modal-input" type="text" style="flex:1;font-size:12px;"
+          placeholder="${lang === "ru" ? "Ваш X-Master-Key из jsonbin.io" : lang === "ka" ? "X-Master-Key jsonbin.io-დან" : "Your X-Master-Key from jsonbin.io"}"
+          value="${(() => {
+            try {
+              return (
+                JSON.parse(localStorage.getItem("budgetpro_jsonbin") || "{}")
+                  .key || ""
+              );
+            } catch (e) {
+              return "";
+            }
+          })()}">
+        <button id="jbSaveBtn" class="btn-primary" style="padding:12px 16px;font-size:13px;">💾</button>
+      </div>
+      <div id="jbStatus" style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+        ${(() => {
+          try {
+            const c = JSON.parse(
+              localStorage.getItem("budgetpro_jsonbin") || "{}",
+            );
+            return c.binId
+              ? "✅ Bin: " + c.binId
+              : c.key
+                ? lang === "ru"
+                  ? "Ключ сохранён, bin создастся при первом сохранении"
+                  : lang === "ka"
+                    ? "გასაღები შენახულია"
+                    : "Key saved, bin will be created on first save"
+                : lang === "ru"
+                  ? "Не настроено"
+                  : lang === "ka"
+                    ? "არ არის კონფიგურირებული"
+                    : "Not configured";
+          } catch (e) {
+            return "";
+          }
+        })()}
+      </div>
+    </div>
+
     <!-- Firebase Realtime Database — CROSS-DEVICE REAL-TIME SYNC -->
     <div style="background:var(--balance-pale);border-radius:14px;padding:12px 14px;margin-bottom:10px;border-left:4px solid #ea4335;">
       <div style="font-size:12px;font-weight:900;color:#ea4335;margin-bottom:8px;">🔥 Firebase — ${{ ru: "мгновенный чат с любого устройства (бесплатно!)", en: "instant chat from any device (free!)", ka: "მომენტური ჩატი ნებისმიერი მოწყობილობიდან (უფასო!)" }[lang]}</div>
