@@ -1,23 +1,21 @@
-/* БюджетPRO — Service Worker v3.0 */
-/* Fixed for GitHub Pages subdirectory deployment */
+/* БюджетPRO — Service Worker v3.1 (Netlify edition) */
 
-const CACHE_NAME = "budgetpro-v3.0";
-const BASE = "/BudgetPro"; // GitHub Pages base path
+const CACHE_NAME = "budgetpro-v3.1";
 
 const ASSETS = [
-  BASE + "/",
-  BASE + "/index.html",
-  BASE + "/index.css",
-  BASE + "/index.js",
-  BASE + "/manifest.json",
-  BASE + "/favicon-96x96.png",
-  BASE + "/favicon.svg",
-  BASE + "/favicon.ico",
-  BASE + "/apple-touch-icon.png",
-  BASE + "/money.jpg",
+  "/",
+  "/index.html",
+  "/index.css",
+  "/index.js",
+  "/manifest.json",
+  "/favicon-96x96.png",
+  "/favicon.svg",
+  "/favicon.ico",
+  "/apple-touch-icon.png",
+  "/money.jpg",
 ];
 
-// Install: pre-cache assets
+// Install: pre‑cache assets
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -47,13 +45,13 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch strategy: network-first for Firebase/API, cache-first for assets
+// Fetch strategy: network‑first for external APIs, cache‑first for our own assets
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET") return;
   if (url.protocol === "chrome-extension:") return;
 
-  // Network-first: Firebase, external APIs
+  // Network‑first: Firebase, external APIs
   const isExternal = url.hostname !== location.hostname;
   const isFirebase =
     url.hostname.includes("firebase") || url.hostname.includes("googleapis");
@@ -64,7 +62,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache-first for our own assets
+  // Cache‑first for our own assets
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
@@ -80,21 +78,19 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => {
           if (event.request.headers.get("accept")?.includes("text/html")) {
-            return (
-              caches.match(BASE + "/index.html") || caches.match("/index.html")
-            );
+            return caches.match("/index.html");
           }
         });
     }),
   );
 });
 
-// ── Push-уведомление (через Web Push / VAPID) ──
+// ── Push‑уведомление (через Web Push / VAPID) ──
 self.addEventListener("push", (event) => {
   let data = {
     title: "БюджетPRO",
     body: "Напоминание",
-    icon: "/BudgetPro/favicon-96x96.png",
+    icon: "/favicon-96x96.png",
     tag: "budget-reminder",
     requireInteraction: true,
     vibrate: undefined,
@@ -138,7 +134,7 @@ self.addEventListener("notificationclick", (event) => {
             return client.focus();
           }
         }
-        if (clients.openWindow) return clients.openWindow("/BudgetPro/");
+        if (clients.openWindow) return clients.openWindow("/");
       }),
   );
 });
