@@ -7975,7 +7975,7 @@ async function sendPushViaServer(title, body, tag, vibrate) {
 
   try {
     const response = await fetch(
-      "https://us-central1-budgetpro-push.cloudfunctions.net/sendPushNotification",
+      "https://scintillating-palmier-37b668.netlify.app/.netlify/functions/sendPush",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -8846,7 +8846,7 @@ const DEFAULT_PERMS = {
 function generateShareId() {
   return Math.random().toString(36).slice(2, 10).toUpperCase();
 }
-const HARDCODED_APP_URL = "https://motserelia.github.io/BudgetPro/";
+const HARDCODED_APP_URL = "https://motserelia.github.io";
 function getAppUrl() {
   // 1. User override in localStorage (explicit save wins, including empty = auto)
   const stored = localStorage.getItem("budgetpro_app_url");
