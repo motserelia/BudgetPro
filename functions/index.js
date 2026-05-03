@@ -6,14 +6,16 @@ const cors = require("cors");
 admin.initializeApp();
 
 const vapidKeys = {
-  publicKey: "BP3G45BX8XQI3DxEsYYyu4lKm5l-gpoJbuEWfYfdYGwdDGocfryIR9wZrz7ztmDxZ_-AQJpOLyjIJ2yHgIQJjjk",
-  privateKey: "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg1Xbq89vPY4cSTyVPtdJ7Hl4DI4FrudSPBOJLV0me_z2hRANCAAT9xuOQV_F0CNw8RLGGMruJSpuZfoKaCW7hFn2H3WBsHQxqHH68iEfcGa8-87Zg8Wf_gECaTi8oyCdsh4CECY45"
+  publicKey:
+    "BP3G45BX8XQI3DxEsYYyu4lKm5l-gpoJbuEWfYfdYGwdDGocfryIR9wZrz7ztmDxZ_-AQJpOLyjIJ2yHgIQJjjk",
+  privateKey:
+    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg1Xbq89vPY4cSTyVPtdJ7Hl4DI4FrudSPBOJLV0me_z2hRANCAAT9xuOQV_F0CNw8RLGGMruJSpuZfoKaCW7hFn2H3WBsHQxqHH68iEfcGa8-87Zg8Wf_gECaTi8oyCdsh4CECY45",
 };
 
 webPush.setVapidDetails(
   "mailto:motserelia92@gmail.com",
   vapidKeys.publicKey,
-  vapidKeys.privateKey
+  vapidKeys.privateKey,
 );
 
 const corsHandler = cors({ origin: "https://motserelia.github.io" });
@@ -33,11 +35,11 @@ exports.sendPushNotification = functions.https.onRequest((req, res) => {
     const payload = JSON.stringify({
       title: title || "БюджетPRO",
       body: body || "Напоминание",
-      icon: icon || "/BudgetPro/favicon-96x96.png",
+      icon: icon || "/favicon-96x96.png",
       tag: tag || "budget-reminder",
       requireInteraction: true,
       vibrate: vibrate || [200, 100, 200, 100, 200],
-      data: { url: "/BudgetPro/" }
+      data: { url: "/" },
     });
 
     try {
