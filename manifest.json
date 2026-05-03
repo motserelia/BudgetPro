@@ -2,8 +2,8 @@
   "name": "БюджетPRO",
   "short_name": "BudgetPRO",
   "description": "Личный финансовый трекер — офлайн, без регистрации",
-  "start_url": "/BudgetPro/",
-  "scope": "/BudgetPro/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#2d6a4f",
@@ -38,7 +38,7 @@
     {
       "name": "Добавить операцию",
       "short_name": "Добавить",
-      "url": "/BudgetPro/?action=add",
+      "url": "/?action=add",
       "icons": [{ "src": "favicon-96x96.png", "sizes": "96x96" }]
     }
   ]
