@@ -5,7 +5,6 @@ const cors = require("cors");
 
 admin.initializeApp();
 
-// Настройка VAPID-ключей (публичный и приватный)
 const vapidKeys = {
   publicKey: "BP3G45BX8XQI3DxEsYYyu4lKm5l-gpoJbuEWfYfdYGwdDGocfryIR9wZrz7ztmDxZ_-AQJpOLyjIJ2yHgIQJjjk",
   privateKey: "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg1Xbq89vPY4cSTyVPtdJ7Hl4DI4FrudSPBOJLV0me_z2hRANCAAT9xuOQV_F0CNw8RLGGMruJSpuZfoKaCW7hFn2H3WBsHQxqHH68iEfcGa8-87Zg8Wf_gECaTi8oyCdsh4CECY45"
@@ -17,11 +16,9 @@ webPush.setVapidDetails(
   vapidKeys.privateKey
 );
 
-// Настраиваем CORS для разрешения запросов с твоего сайта
 const corsHandler = cors({ origin: "https://motserelia.github.io" });
 
 exports.sendPushNotification = functions.https.onRequest((req, res) => {
-  // Вызываем cors-проверку вручную, после успеха выполняем нашу логику
   corsHandler(req, res, async () => {
     if (req.method !== "POST") {
       return res.status(405).send("Method Not Allowed");
