@@ -8006,7 +8006,7 @@ function showStickyNotification(title, body, tag) {
 
   const options = {
     body: body,
-    icon: "/BudgetPro/favicon-96x96.png",
+    icon: "/favicon-96x96.png",
     tag: tag || "budget-reminder",
     requireInteraction: true,
     vibrate: vibrate,
@@ -11728,7 +11728,7 @@ function openCreatorChatPanel() {
     <div style="margin-bottom:12px;">
       <label style="font-size:12px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:5px;">🔗 ${{ ru: "URL приложения для ссылок", en: "App URL for share links", ka: "აპის URL ბმულებისთვის" }[lang]}</label>
       <div style="display:flex;gap:8px;">
-        <input type="url" id="creatorAppUrlInput" class="modal-input" value="${getAppUrl()}" placeholder="https://motserelia.github.io/BudgetPro/" style="flex:1;font-size:13px;">
+        <input type="url" id="creatorAppUrlInput" class="modal-input" value="${getAppUrl()}" placeholder="https://motserelia.github.io/" style="flex:1;font-size:13px;">
         <button id="saveCreatorUrl" style="padding:0 14px;border-radius:14px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
       </div>
     </div>
