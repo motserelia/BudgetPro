@@ -6323,15 +6323,7 @@ function renderSettings() {
         en: "Test notification ✅",
         ka: "სატესტო შეტყობინება ✅",
       }[currentLang] || "Test notification ✅";
-    // Пробуем отправить через сервер (работает даже если приложение закрыто)
-    sendPushViaServer("🔔 БюджетPRO", body, "test-" + Date.now()).then(
-      (success) => {
-        if (!success) {
-          // Фолбэк – локальное уведомление (если сервер недоступен)
-          showStickyNotification("🔔 БюджетPRO", body, "test-" + Date.now());
-        }
-      },
-    );
+    showStickyNotification("🔔 БюджетPRO", body, "test-" + Date.now());
     showToast("✅ " + body, "success", 3000);
     haptic("medium");
   });
@@ -7857,13 +7849,8 @@ function fireNamedReminder(r) {
       ka: "არ დაგავიწყდეთ ხარჯების ჩაწერა!",
     }[currentLang];
 
-  // Пробуем отправить через сервер (работает даже если приложение закрыто)
-  sendPushViaServer("🔔 БюджетPRO", body, "named-" + r.id).then((success) => {
-    if (!success) {
-      // Фолбэк – локальное уведомление (если сервер недоступен)
-      showStickyNotification("🔔 БюджетPRO", body, "named-" + r.id);
-    }
-  });
+  // Надёжное локальное уведомление (липучее, с вибрацией и звуком)
+  showStickyNotification("🔔 БюджетPRO", body, "named-" + r.id);
 
   showToast("🔔 " + body, "success", 5000);
   if (typeof haptic === "function") haptic("medium");
@@ -7919,19 +7906,11 @@ function sendReminderNotification() {
     const ms = getIntervalMs(interval);
     const should = !last || now - parseInt(last) >= ms;
     if (should) {
-      sendPushViaServer(
+      showStickyNotification(
         t("appName"),
         t("remindersDesc"),
         "budget-reminder",
-      ).then((success) => {
-        if (!success) {
-          showStickyNotification(
-            t("appName"),
-            t("remindersDesc"),
-            "budget-reminder",
-          );
-        }
-      });
+      );
       localStorage.setItem(lastKey, now);
     }
   }
@@ -7975,7 +7954,7 @@ async function sendPushViaServer(title, body, tag, vibrate) {
 
   try {
     const response = await fetch(
-      "https://scintillating-palmier-37b668.netlify.app/.netlify/functions/sendPush",
+      "https://military-apple.surge.sh/.netlify/functions/sendPush",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -8473,9 +8452,7 @@ function init() {
     );
   document.getElementById("fabBtn").addEventListener("click", openAddModal);
   // ── Инициализация push-уведомлений ──
-  if (Notification.permission === "granted") {
-    subscribeUserToPush();
-  }
+
   setTab("home");
 
   // ==== ОБНОВЛЕНИЕ КУРСОВ ВАЛЮТ ====
