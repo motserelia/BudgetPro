@@ -16,11 +16,11 @@ webPush.setVapidDetails(
   vapidKeys.privateKey
 );
 
-// Создаём обработчик CORS, разрешающий запросы с вашего сайта
+// Настраиваем CORS для разрешения запросов с твоего сайта
 const corsHandler = cors({ origin: "https://motserelia.github.io" });
 
 exports.sendPushNotification = functions.https.onRequest((req, res) => {
-  // Вызываем cors-проверку вручную, после успеха выполняем нашу логику
+  // Вызываем cors-проверку вручную
   corsHandler(req, res, async () => {
     if (req.method !== "POST") {
       return res.status(405).send("Method Not Allowed");
