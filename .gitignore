@@ -1,0 +1,11 @@
+node_modules/
+.gradle/
+android/.gradle/
+android/build/
+android/app/build/
+
+Secret key
+PRIVATE_SECRETS.local.md
+.env
+.env.*
+*.jks

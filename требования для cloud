@@ -1,0 +1,107 @@
+Отлично, теперь все работает. Итак, проанализируй проект полностью, и скажи что надо исправить, какой фунцкионал, что бы ты улучшил и как и для чего, и что бы ты добавил.
+
+Так же не видно что конкретно выбрано в категориях, при создании категории, расход или доход, и они не стилизованы.
+
+Так же надо увеличить немного высоту блока что бы содержимое было видно полностью, вот где :
+
+<div class="set-themes-row">
+
+      <button class="set-theme-sw active" data-theme="white" style="border-color:#f59e0b;">
+
+          <div class="set-theme-dot" style="background:linear-gradient(135deg,#f59e0b,#fb923c)">☀️</div>
+
+          <div class="set-theme-lbl">☀️ ოქროს საათი</div>
+
+          <div class="set-theme-check" style="background:#f59e0b">✓</div>
+
+        </button><button class="set-theme-sw" data-theme="default" style="">
+
+          <div class="set-theme-dot" style="background:linear-gradient(135deg,#f97316,#fb923c)">🌅</div>
+
+          <div class="set-theme-lbl">🌅 გამთენია</div>
+
+          
+
+        </button><button class="set-theme-sw" data-theme="sunset" style="">
+
+          <div class="set-theme-dot" style="background:linear-gradient(135deg,#8b5cf6,#a78bfa)">💫</div>
+
+          <div class="set-theme-lbl">💫 პრიზმა</div>
+
+          
+
+        </button><button class="set-theme-sw" data-theme="ocean" style="">
+
+          <div class="set-theme-dot" style="background:linear-gradient(135deg,#0891b2,#06b6d4)">🌊</div>
+
+          <div class="set-theme-lbl">🌊 ზღვის ტალღები</div>
+
+          
+
+        </button>
+
+    </div>
+
+<div class="set-themes-row">
+
+      <button class="set-theme-sw" data-theme="dark" style="">
+
+          <div class="set-theme-dot" style="background:linear-gradient(135deg,#a78bfa,#c4b5fd)">🌙</div>
+
+          <div class="set-theme-lbl">🌌 ჩრდილოეთის ნათება</div>
+
+          
+
+        </button><button class="set-theme-sw" data-theme="navy" style="">
+
+          <div class="set-theme-dot" style="background:linear-gradient(135deg,#60a5fa,#93c5fd)">🌌</div>
+
+          <div class="set-theme-lbl">🌌 შუაღამის ლურჯი</div>
+
+          
+
+        </button><button class="set-theme-sw" data-theme="gold" style="">
+
+          <div class="set-theme-dot" style="background:linear-gradient(135deg,#fbbf24,#fcd34d)">✨</div>
+
+          <div class="set-theme-lbl">✨ ოქროს მტვერი</div>
+
+          
+
+        </button>
+
+    </div>
+
+Так же он не стилизован :
+
+
+
+<div class="confirm-box">
+
+        <div id="confirmIcon">⚠️</div>
+
+        <div id="confirmTitle">Reset everything?</div>
+
+        <div id="confirmMsg">All records and settings will be deleted.</div>
+
+        <div class="confirm-actions">
+
+          <button class="btn-secondary" id="confirmCancel">✕ Cancel</button>
+
+          <button class="btn-danger" id="confirmOk">Delete forever</button>
+
+        </div>
+
+      </div>
+
+Так же они выходят за рамки блоков :
+
+<button class="set-full-btn set-full-btn-primary" id="addBudgetBtn" style="margin:0 16px 14px">+ Add budget</button>
+
+<button class="set-full-btn set-full-btn-primary" id="addRecurringBtn" style="margin:0 16px 14px">+ Add</button>
+
+Так же Сделай тему рассвет анимированным, сделай анимацию восхода солнца и заката, пусть они медленно чередуются, но что бы было очень красиво на заднем фоне.
+
+Так же анимируй тему золотой час.
+
+При нажатии на темные темы и их разновидность, особо ничего не меняется кроме цвета кнопки добавить и главной карточки, а хотелось еще и изменения цвета анимцаий на заднем фоне в темном режиме.

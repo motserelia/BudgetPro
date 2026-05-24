@@ -1,0 +1,45 @@
+{
+  "name": "БюджетPRO",
+  "short_name": "BudgetPRO",
+  "description": "Личный финансовый трекер — офлайн, без регистрации",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2d6a4f",
+  "background_color": "#faf8f2",
+  "lang": "ru",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    {
+      "src": "favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-96x96.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "favicon-96x96.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Добавить операцию",
+      "short_name": "Добавить",
+      "url": "/?action=add",
+      "icons": [{ "src": "favicon-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}

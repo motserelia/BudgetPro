@@ -1,0 +1,11 @@
+{
+  "appId": "pro.budget.app",
+  "appName": "BudgetPRO",
+  "webDir": "www",
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "hidden": false
+    }
+  }
+}
