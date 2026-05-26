@@ -117,7 +117,7 @@ var incomeCategories = window.incomeCategories;
 // ============================================================
 const translations = {
   ru: {
-    appName: "$ БюджетPRO",
+    appName: "BudgetPRO",
     slogan: "Твой капитал — Твои правила",
     balance: "Мой баланс",
     income: "Доходы",
@@ -648,7 +648,7 @@ const translations = {
     },
   },
   en: {
-    appName: "🌿 BudgetPRO",
+    appName: "BudgetPRO",
     slogan: "Your capital — Your rules",
     balance: "Balance",
     income: "Income",
@@ -1179,7 +1179,7 @@ const translations = {
     },
   },
   ka: {
-    appName: "🌿 ბიუჯეტPRO",
+    appName: "BudgetPRO",
     slogan: "შენი კაპიტალი — შენი წესები",
     balance: "ბალანსი / ნაშთი",
     income: "შემოსავალი",
@@ -3116,6 +3116,7 @@ function loadProfiles() {
   }
   try {
     const g = JSON.parse(raw);
+    let globalThemeMigrated = false;
     profiles = g.profiles || [
       { id: "default", name: "Main profile", emoji: "👤", color: "#2d6a4f" },
     ];
@@ -3131,10 +3132,19 @@ function loadProfiles() {
     biometryCredId = g.biometryCredId || null;
     colorTheme =
       g.colorTheme || localStorage.getItem("colorTheme") || "dark";
+    if (colorTheme === "default") {
+      colorTheme = "dark";
+      localStorage.setItem("colorTheme", "dark");
+      g.colorTheme = "dark";
+      globalThemeMigrated = true;
+    }
     displayCurrency = g.displayCurrency || "GEL";
     if (g.exchangeRates)
       exchangeRates = { ...exchangeRates, ...g.exchangeRates };
     if (colorTheme) applyColorTheme(colorTheme);
+    if (globalThemeMigrated) {
+      saveGlobal();
+    }
   } catch (e) {}
 }
 
