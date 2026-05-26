@@ -2282,6 +2282,7 @@ try {
   if (localStorage.getItem(DEFAULTS_MIGRATION_KEY) !== "1") {
     localStorage.setItem("lang", "en");
     localStorage.setItem("colorTheme", "dark");
+    localStorage.setItem("themeManualOverride", "1");
     currentLang = "en";
     colorTheme = "dark";
     localStorage.setItem(DEFAULTS_MIGRATION_KEY, "1");
@@ -3770,7 +3771,7 @@ function addHeaderButtons() {
           const isDark = document.body.classList.contains("dark");
           // Mark as manual override so time-theme doesn't auto-revert
           localStorage.setItem("themeManualOverride", "1");
-          applyColorTheme(isDark ? "default" : "navy");
+          applyColorTheme(isDark ? "white" : "dark");
           const b = document.getElementById("themeToggle");
           if (b)
             b.textContent = document.body.classList.contains("dark")
@@ -9197,7 +9198,7 @@ function applyTimeBasedTheme() {
   const shouldBeDark = h >= 19 || h < 7;
   const isDark = document.body.classList.contains("dark");
   if (shouldBeDark !== isDark) {
-    applyColorTheme(shouldBeDark ? "navy" : "default");
+    applyColorTheme(shouldBeDark ? "dark" : "white");
     const tb = document.getElementById("themeToggle");
     if (tb) tb.textContent = shouldBeDark ? "☀️" : "🌙";
   }
