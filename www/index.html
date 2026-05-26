@@ -352,16 +352,16 @@
     ></canvas>
     <header class="app-header">
       <div class="header-left">
-        <div class="app-logo" id="appLogoBtn">$ БюджетPRO</div>
+        <div class="app-logo" id="appLogoBtn">$ BudgetPRO</div>
         <div id="headerDate"></div>
       </div>
       <div class="header-actions">
         <button class="header-btn" id="headerGuideBtn">📖</button>
         <button class="header-btn" id="headerHelpBtn">❓</button>
-        <button class="header-btn" id="headerLangBtn" data-i18n-aria-label="language" aria-label="Язык">
-          🇷🇺
+        <button class="header-btn" id="headerLangBtn" data-i18n-aria-label="language" aria-label="Language">
+          🇬🇧
         </button>
-        <button class="header-btn" id="themeToggle" data-i18n-aria-label="theme" aria-label="Тема">
+        <button class="header-btn" id="themeToggle" data-i18n-aria-label="theme" aria-label="Theme">
           🌙
         </button>
       </div>
@@ -373,7 +373,7 @@
           <div id="loadingText" style="font-size: 14px; font-weight: 700">
             <script>
               (function () {
-                const l = localStorage.getItem("lang") || "ru";
+                const l = localStorage.getItem("lang") || "en";
                 document.write(
                   { ru: "Загрузка...", en: "Loading...", ka: "იტვირთება..." }[
                     l
@@ -385,7 +385,7 @@
         </div>
       </div>
     </div>
-    <div id="offlineBar">📴 Офлайн</div>
+    <div id="offlineBar">📴 Offline</div>
     <nav class="bottom-nav" role="navigation" id="mainNav">
       <button class="nav-btn active" data-tab="home">
         <div class="nav-icon">🏠</div>
@@ -393,7 +393,7 @@
       <button class="nav-btn" data-tab="stats">
         <div class="nav-icon">📊</div>
       </button>
-      <button class="nav-btn nav-fab-btn" id="fabBtn" data-i18n-aria-label="add" aria-label="Добавить">
+      <button class="nav-btn nav-fab-btn" id="fabBtn" data-i18n-aria-label="add" aria-label="Add">
         <div class="nav-fab-circle">＋</div>
       </button>
       <button class="nav-btn" data-tab="categories">
@@ -417,19 +417,19 @@
         <div class="more-grid">
           <button class="more-item" data-tab="tools">
             <div class="more-item-icon">🧮</div>
-            <div class="more-item-lbl" data-i18n-more="tools">Инструменты</div>
+            <div class="more-item-lbl" data-i18n-more="tools">Tools</div>
           </button>
           <button class="more-item" id="settingsNavBtn" data-tab="settings">
             <div class="more-item-icon">⚙️</div>
-            <div class="more-item-lbl" data-i18n-more="settings">Настройки</div>
+            <div class="more-item-lbl" data-i18n-more="settings">Settings</div>
           </button>
           <button class="more-item" data-tab="notebook">
             <div class="more-item-icon">📓</div>
-            <div class="more-item-lbl" data-i18n-more="notebook">Заметки</div>
+            <div class="more-item-lbl" data-i18n-more="notebook">Notebook</div>
           </button>
           <button class="more-item" id="moreShareBtn">
             <div class="more-item-icon">📤</div>
-            <div class="more-item-lbl" data-i18n="sharePlain">Поделиться</div>
+            <div class="more-item-lbl" data-i18n="sharePlain">Share</div>
           </button>
         </div>
       </div>
@@ -444,23 +444,23 @@
     >
       <button class="nav-btn active" data-tab="home">
         <div class="nav-icon">🏠</div>
-        <div class="nav-simple-lbl" data-i18n="home">Главная</div>
+        <div class="nav-simple-lbl" data-i18n="home">Home</div>
       </button>
       <button class="nav-btn" data-tab="stats">
         <div class="nav-icon">📊</div>
-        <div class="nav-simple-lbl" data-i18n="stats">Итоги</div>
+        <div class="nav-simple-lbl" data-i18n="stats">Stats</div>
       </button>
       <button
         class="nav-btn nav-fab-btn"
         id="fabBtnSimple"
         data-i18n-aria-label="add"
-        aria-label="Добавить"
+        aria-label="Add"
       >
         <div class="nav-fab-circle">＋</div>
       </button>
       <button class="nav-btn" data-tab="categories">
         <div class="nav-icon">🗂</div>
-        <div class="nav-simple-lbl" data-i18n="categories">Катег.</div>
+        <div class="nav-simple-lbl" data-i18n="categories">Categories</div>
       </button>
       <button class="nav-btn" id="moreNavBtnSimple">
         <div
@@ -469,7 +469,7 @@
         >
           •••
         </div>
-        <div class="nav-simple-lbl" data-i18n="moreLabel">Ещё</div>
+        <div class="nav-simple-lbl" data-i18n="moreLabel">More</div>
       </button>
     </nav>
     <div
@@ -487,11 +487,11 @@
     >
       <div class="confirm-box">
         <div id="confirmIcon">⚠️</div>
-        <div id="confirmTitle" data-i18n="confirmTitleText">Вы уверены?</div>
+        <div id="confirmTitle" data-i18n="confirmTitleText">Are you sure?</div>
         <div id="confirmMsg"></div>
         <div class="confirm-actions">
-          <button class="btn-secondary" id="confirmCancel">✕ Отмена</button>
-          <button class="btn-danger" id="confirmOk">✓ Удалить</button>
+          <button class="btn-secondary" id="confirmCancel">✕ Cancel</button>
+          <button class="btn-danger" id="confirmOk">✓ Delete</button>
         </div>
       </div>
     </div>

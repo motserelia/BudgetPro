@@ -9374,15 +9374,13 @@ function init() {
     drawer.style.display = "block";
     // Локализация пунктов
     const labels = {
-      tools: { ru: "Инструменты", en: "Tools", ka: "ინსტრ." },
-      settings: { ru: "Настройки", en: "Settings", ka: "პარამ." },
-      notebook: { ru: "Заметки", en: "Notes", ka: "ჩანაწ." },
-      share: { ru: "Поделиться", en: "Share", ka: "გაზ." },
+      tools: t("tools"),
+      settings: t("settings"),
+      notebook: t("notebook"),
     };
     drawer.querySelectorAll("[data-i18n-more]").forEach((el) => {
       const key = el.dataset.i18nMore;
-      if (labels[key])
-        el.textContent = labels[key][currentLang] || labels[key].ru;
+      if (labels[key]) el.textContent = labels[key];
     });
     // Клики по пунктам меню
     drawer.querySelectorAll(".more-item[data-tab]").forEach((btn) => {
