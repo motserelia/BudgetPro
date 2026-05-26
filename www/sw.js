@@ -1,6 +1,6 @@
 /* БюджетPRO — Service Worker v3.1 (Netlify edition) */
 
-const CACHE_NAME = "budgetpro-v3.6";
+const CACHE_NAME = "budgetpro-v3.7";
 
 const ASSETS = [
   "/",
