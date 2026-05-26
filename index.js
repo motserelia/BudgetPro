@@ -1709,7 +1709,7 @@ const translations = {
 // ============================================================
 // ТЕКУЩИЙ ЯЗЫК И ФУНКЦИИ ПЕРЕВОДА
 // ============================================================
-let currentLang = localStorage.getItem("lang") || "ru";
+let currentLang = localStorage.getItem("lang") || "en";
 
 Object.assign(translations.ru, {
   alreadyExists: "⚠️ Уже существует",
@@ -3094,7 +3094,7 @@ function loadProfiles() {
     profiles = [
       {
         id: "default",
-        name: "Я",
+        name: "Main profile",
         emoji: "👤",
         color: "#2d6a4f",
         role: "owner",
@@ -3117,8 +3117,12 @@ function loadProfiles() {
   try {
     const g = JSON.parse(raw);
     profiles = g.profiles || [
-      { id: "default", name: "Я", emoji: "👤", color: "#2d6a4f" },
+      { id: "default", name: "Main profile", emoji: "👤", color: "#2d6a4f" },
     ];
+    const defaultProfile = profiles.find((p) => p.id === "default");
+    if (defaultProfile && (!defaultProfile.name || defaultProfile.name === "Я")) {
+      defaultProfile.name = "Main profile";
+    }
     activeProfileId = g.activeProfileId || "default";
     if (g.sharedAccessProfile) sharedAccessProfile = g.sharedAccessProfile;
     pinHash = g.pinHash || null;
@@ -6415,7 +6419,7 @@ function renderProfilesBody() {
     profiles = [
       {
         id: "default",
-        name: "Я",
+        name: "Main profile",
         emoji: "👤",
         color: "#2d6a4f",
         role: "owner",
@@ -6684,7 +6688,7 @@ function renderSettings() {
 
   // ── Активный профиль ──
   const activeProf = profiles.find((p) => p.id === activeProfileId) || {
-    name: "Я",
+    name: "Main profile",
     emoji: "👤",
     color: "#a78bfa",
   };
@@ -6703,7 +6707,7 @@ function renderSettings() {
   <div class="set-profile-card" id="sec-profiles">
     <div class="set-prof-av" style="background:${activeProf.color || "#a78bfa"}">${activeProf.emoji || "👤"}</div>
     <div class="set-prof-info">
-      <div class="set-prof-name">${esc(activeProf.name || "Я")}</div>
+      <div class="set-prof-name">${esc(activeProf.name || "Main profile")}</div>
       <div class="set-prof-sub">${transactions.filter((t) => !t._initial).length} ${
         { ru: "записей", en: "records", ka: "ჩანაწ." }[L]
       } · ${profBalStr}</div>
@@ -9504,7 +9508,7 @@ function init() {
               // Если других нет — создаём дефолтный профиль
               const defaultProf = {
                 id: "default",
-                name: "Я",
+                name: "Main profile",
                 emoji: "👤",
                 color: "#2d6a4f",
               };
@@ -10267,8 +10271,8 @@ async function showShareWelcomeScreen(pkg) {
   // Detect language: use stored lang or browser lang
   const lang =
     localStorage.getItem("lang") ||
-    (navigator.language || "ru").slice(0, 2) ||
-    "ru";
+    (navigator.language || "en").slice(0, 2) ||
+    "en";
   const LL = {
     ru: {
       guestMode: "👤 Гостевой режим",
@@ -10301,7 +10305,7 @@ async function showShareWelcomeScreen(pkg) {
       loading: "⏳ დაკავშირება...",
     },
   };
-  const lc = LL[lang] || LL[currentLang] || LL.ru;
+  const lc = LL[lang] || LL[currentLang] || LL.en;
   const ov = document.createElement("div");
   ov.id = "shareWelcomeOverlay";
   ov.style.cssText =
