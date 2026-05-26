@@ -74,6 +74,8 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 let isCreatorMode = false;
+let backgroundRecoveryStarted = false;
+let deferredUiStarted = false;
 // ============================================================
 // КАТЕГОРИИ
 // ============================================================
@@ -1709,6 +1711,210 @@ const translations = {
 // ============================================================
 let currentLang = localStorage.getItem("lang") || "ru";
 
+Object.assign(translations.ru, {
+  alreadyExists: "⚠️ Уже существует",
+  chooseCategoryAndAmountFirst: "Сначала выберите категорию и сумму",
+  templateSavedToast: "⭐ Шаблон сохранён",
+  newUserMessages: "У вас новые сообщения от пользователей",
+  restoredFromBackup: "🔄 Данные восстановлены из резервной копии",
+  restoredFromFirebase: "🚀 Данные восстановлены из Firebase",
+  restoredFromCloud: "☁️ Данные восстановлены из облака (JSONBin)",
+  noMainProfileFound: "Главный профиль не найден",
+  websocketReconnect: "🔌 Переподключение WebSocket...",
+  allDataDeleted: "🗑️ Все данные удалены",
+  ownProfileToast: "🏠 Вы в своём профиле",
+  profileNotFound: "Профиль не найден",
+  creatorModeOff: "👋 Режим создателя выключен",
+  noReplyContact: "Пользователь не указал контакт для ответа",
+  replyTextPlaceholder: "Введите текст ответа...",
+  enterReplyText: "Введите текст ответа",
+  supportPhoneLabel: "📱 Телефон (WhatsApp, Viber)",
+  supportDisabled: "Приём сообщений временно отключён",
+  allCategoriesBudgeted: "Все категории уже имеют бюджет",
+  jsonExported: "✅ JSON экспортирован",
+  invalidFormat: "❌ Неверный формат",
+  importedOk: "✅ Импортировано",
+  importError: "❌ Ошибка",
+  pdfSavedHtml: "✅ PDF-отчёт сохранён как HTML (откройте и напечатайте)",
+  fileSaved: "✅ Файл сохранён",
+  cloudLoaded: "✅ Данные загружены из облака",
+  cloudLoadError: "❌ Ошибка загрузки",
+  reconnectSocket: "🔌 Переподключить WebSocket",
+  noReminders: "Нет напоминаний",
+  reminderName: "Название",
+  reminderNamePlaceholder: "Например: Оплата аренды",
+  reminderDateTime: "Дата и время",
+  scheduleReminder: "Запланировать",
+  recurringShort: "Повторяющиеся",
+  dangerZone: "⛔ Опасная зона",
+  appFooterVersion: "БюджетPRO v8.0 · Офлайн 📴",
+  backToTopics: "← Темы",
+  guideReady: "Готово ✓",
+  guideStepsShort: "шагов",
+  goalSubtract: "Убрать сумму",
+  goalDeleteConfirm: "Удалить цель?",
+  goalAddedAmount: "Добавлено",
+  goalSubtractedAmount: "Убрано",
+  emailPlaceholder: "email@example.com",
+  replySent: "✅ Ответ отправлен",
+  newMessageFrom: "📬 Новое сообщение от",
+  creatorToggleVisibility: "Показать/скрыть",
+  guestModeActivated: "Гостевой режим",
+  switchedToOwnProfile: "👤 Вы перешли в свой профиль",
+  savedMark: "✅",
+  fileDownloaded: "📄 Файл скачан",
+  amountSubtracted: "−",
+  goalTargetWord: "цель",
+  goalFillNameTarget: "Заполните название и цель",
+  goalAchieved: "🏆 Цель достигнута!",
+  goalAddPromptPrefix: "Пополнить",
+  goalSubtractPromptPrefix: "Убрать из",
+  goalSubtractMax: "макс",
+  enterKey: "Введите ключ",
+  iconLabel: "Иконка",
+  colorLabel: "Цвет",
+  heroUpdatedJustNow: "↑ Обновлено только что",
+  moreLabel: "Ещё",
+  sharePlain: "Поделиться",
+  confirmTitleText: "Вы уверены?",
+});
+
+Object.assign(translations.en, {
+  alreadyExists: "⚠️ Already exists",
+  chooseCategoryAndAmountFirst: "Choose a category and amount first",
+  templateSavedToast: "⭐ Template saved",
+  newUserMessages: "New messages from users",
+  restoredFromBackup: "🔄 Data restored from backup",
+  restoredFromFirebase: "🚀 Data restored from Firebase",
+  restoredFromCloud: "☁️ Data restored from cloud (JSONBin)",
+  noMainProfileFound: "Main profile not found",
+  websocketReconnect: "🔌 Reconnecting WebSocket...",
+  allDataDeleted: "🗑️ All data deleted",
+  ownProfileToast: "🏠 You are in your profile",
+  profileNotFound: "Profile not found",
+  creatorModeOff: "👋 Creator mode turned off",
+  noReplyContact: "The user did not provide a contact for reply",
+  replyTextPlaceholder: "Enter your reply...",
+  enterReplyText: "Enter reply text",
+  supportPhoneLabel: "📱 Phone (WhatsApp, Viber)",
+  supportDisabled: "Receiving messages is temporarily disabled",
+  allCategoriesBudgeted: "All categories already have budgets",
+  jsonExported: "✅ JSON exported",
+  invalidFormat: "❌ Invalid format",
+  importedOk: "✅ Imported",
+  importError: "❌ Error",
+  pdfSavedHtml: "✅ PDF report saved as HTML (open and print)",
+  fileSaved: "✅ File saved",
+  cloudLoaded: "✅ Data loaded from cloud",
+  cloudLoadError: "❌ Loading error",
+  reconnectSocket: "🔌 Reconnect WebSocket",
+  noReminders: "No reminders",
+  reminderName: "Name",
+  reminderNamePlaceholder: "E.g. Pay rent",
+  reminderDateTime: "Date and time",
+  scheduleReminder: "Schedule",
+  recurringShort: "Recurring",
+  dangerZone: "⛔ Danger zone",
+  appFooterVersion: "BudgetPRO v8.0 · Offline 📴",
+  backToTopics: "← Topics",
+  guideReady: "Done ✓",
+  guideStepsShort: "steps",
+  goalSubtract: "Subtract",
+  goalDeleteConfirm: "Delete this goal?",
+  goalAddedAmount: "Added",
+  goalSubtractedAmount: "Removed",
+  emailPlaceholder: "email@example.com",
+  replySent: "✅ Reply sent",
+  newMessageFrom: "📬 New message from",
+  creatorToggleVisibility: "Show/hide",
+  guestModeActivated: "Guest mode",
+  switchedToOwnProfile: "👤 Switched to your profile",
+  savedMark: "✅",
+  fileDownloaded: "📄 File downloaded",
+  amountSubtracted: "−",
+  goalTargetWord: "target",
+  goalFillNameTarget: "Fill in name and target",
+  goalAchieved: "🏆 Goal achieved!",
+  goalAddPromptPrefix: "Add to",
+  goalSubtractPromptPrefix: "Remove from",
+  goalSubtractMax: "max",
+  enterKey: "Enter key",
+  iconLabel: "Icon",
+  colorLabel: "Color",
+  heroUpdatedJustNow: "↑ Updated just now",
+  moreLabel: "More",
+  sharePlain: "Share",
+  confirmTitleText: "Are you sure?",
+});
+
+Object.assign(translations.ka, {
+  alreadyExists: "⚠️ უკვე არსებობს",
+  chooseCategoryAndAmountFirst: "ჯერ აირჩიეთ კატეგორია და თანხა",
+  templateSavedToast: "⭐ შაბლონი შენახულია",
+  newUserMessages: "მომხმარებლებისგან ახალი შეტყობინებებია",
+  restoredFromBackup: "🔄 მონაცემები აღდგა სარეზერვოდან",
+  restoredFromFirebase: "🚀 მონაცემები აღდგა Firebase-დან",
+  restoredFromCloud: "☁️ მონაცემები აღდგა ღრუბლიდან (JSONBin)",
+  noMainProfileFound: "მთავარი პროფილი ვერ მოიძებნა",
+  websocketReconnect: "🔌 WebSocket თავიდან ერთდება...",
+  allDataDeleted: "🗑️ ყველა მონაცემი წაიშალა",
+  ownProfileToast: "🏠 თქვენ საკუთარ პროფილში ხართ",
+  profileNotFound: "პროფილი ვერ მოიძებნა",
+  creatorModeOff: "👋 შემქმნელის რეჟიმი გამორთულია",
+  noReplyContact: "მომხმარებელს საპასუხო კონტაქტი არ მიუთითებია",
+  replyTextPlaceholder: "შეიყვანეთ პასუხის ტექსტი...",
+  enterReplyText: "შეიყვანეთ პასუხის ტექსტი",
+  supportPhoneLabel: "📱 ტელეფონი (WhatsApp, Viber)",
+  supportDisabled: "შეტყობინებების მიღება დროებით გამორთულია",
+  allCategoriesBudgeted: "ყველა კატეგორიას უკვე აქვს ბიუჯეტი",
+  jsonExported: "✅ JSON ექსპორტირებულია",
+  invalidFormat: "❌ არასწორი ფორმატი",
+  importedOk: "✅ იმპორტირებულია",
+  importError: "❌ შეცდომა",
+  pdfSavedHtml: "✅ PDF ანგარიში HTML-ად შეინახა (გახსენით და დაბეჭდეთ)",
+  fileSaved: "✅ ფაილი შენახულია",
+  cloudLoaded: "✅ მონაცემები ღრუბლიდან ჩაიტვირთა",
+  cloudLoadError: "❌ ჩატვირთვის შეცდომა",
+  reconnectSocket: "🔌 WebSocket-ის ხელახლა დაკავშირება",
+  noReminders: "შეხსენებები არ არის",
+  reminderName: "სახელი",
+  reminderNamePlaceholder: "მაგ: ქირის გადახდა",
+  reminderDateTime: "თარიღი და დრო",
+  scheduleReminder: "დაგეგმვა",
+  recurringShort: "განმეორებადი",
+  dangerZone: "⛔ საფრთხის ზონა",
+  appFooterVersion: "ბიუჯეტPRO v8.0 · ოფლაინი 📴",
+  backToTopics: "← თემები",
+  guideReady: "მზადაა ✓",
+  guideStepsShort: "ნაბიჯი",
+  goalSubtract: "თანხის გამოკლება",
+  goalDeleteConfirm: "წავშალოთ ეს მიზანი?",
+  goalAddedAmount: "დამატებულია",
+  goalSubtractedAmount: "გამოკლებულია",
+  emailPlaceholder: "email@example.com",
+  replySent: "✅ პასუხი გაიგზავნა",
+  newMessageFrom: "📬 ახალი შეტყობინება:",
+  creatorToggleVisibility: "ჩვენება/დამალვა",
+  guestModeActivated: "სტუმრის რეჟიმი",
+  switchedToOwnProfile: "👤 საკუთარ პროფილზე გადახვედით",
+  savedMark: "✅",
+  fileDownloaded: "📄 ფაილი ჩამოტვირთულია",
+  amountSubtracted: "−",
+  goalTargetWord: "მიზანი",
+  goalFillNameTarget: "შეავსეთ სახელი და მიზანი",
+  goalAchieved: "🏆 მიზანი მიღწეულია!",
+  goalAddPromptPrefix: "დაამატეთ",
+  goalSubtractPromptPrefix: "გამოაკელით",
+  goalSubtractMax: "მაქს",
+  enterKey: "შეიყვანეთ გასაღები",
+  iconLabel: "იკონა",
+  colorLabel: "ფერი",
+  heroUpdatedJustNow: "↑ ახლახან განახლდა",
+  moreLabel: "მეტი",
+  sharePlain: "გაზიარება",
+  confirmTitleText: "დარწმუნებული ხართ?",
+});
+
 // ============================================================
 // IndexedDB helpers – аварийное восстановление данных
 // ============================================================
@@ -1836,6 +2042,94 @@ function tObj(k) {
   return v && typeof v === "object" ? v : {};
 }
 
+function updateHeroTrendText() {
+  const heroTrend = document.getElementById("heroTrend");
+  if (!heroTrend) return;
+  heroTrend.textContent =
+    {
+      ru: "↑ Обновлено только что",
+      en: "↑ Updated just now",
+      ka: "↑ ახლახან განახლდა",
+    }[currentLang] || "↑ Updated just now";
+}
+
+function updateHeroChipLabels(root = document) {
+  const labels = {
+    ru: {
+      income: "Доход",
+      expense: "Расход",
+      salary: "Старт",
+    },
+    en: {
+      income: "Income",
+      expense: "Spent",
+      salary: "Start",
+    },
+    ka: {
+      income: "შემოს.",
+      expense: "ხარჯ.",
+      salary: "საწყისი",
+    },
+  }[currentLang] || {
+    income: "Income",
+    expense: "Spent",
+    salary: "Start",
+  };
+
+  const incomeLabel = root.querySelector("#incomeHeroLabel");
+  const expenseLabel = root.querySelector("#expenseHeroLabel");
+  const salaryLabel = root.querySelector("#salaryHeroLabel");
+  if (incomeLabel) incomeLabel.textContent = labels.income;
+  if (expenseLabel) expenseLabel.textContent = labels.expense;
+  if (salaryLabel) salaryLabel.textContent = labels.salary;
+}
+
+function forceHeroChipLayout(root = document) {
+  root.querySelectorAll(".hero-chips").forEach((wrap) => {
+    wrap.style.setProperty("display", "grid", "important");
+    wrap.style.setProperty(
+      "grid-template-columns",
+      "repeat(3, minmax(0, 1fr))",
+      "important",
+    );
+    wrap.style.setProperty("gap", "6px", "important");
+    wrap.style.setProperty("align-items", "stretch", "important");
+
+    wrap.querySelectorAll(".hero-chip").forEach((card) => {
+      card.style.setProperty("grid-column", "auto / span 1", "important");
+      card.style.setProperty("grid-row", "auto", "important");
+      card.style.setProperty("width", "auto", "important");
+      card.style.setProperty("max-width", "none", "important");
+      card.style.setProperty("min-width", "0", "important");
+      card.style.setProperty("min-height", "78px", "important");
+      card.style.setProperty("display", "flex", "important");
+      card.style.setProperty("flex-direction", "column", "important");
+      card.style.setProperty("align-items", "center", "important");
+      card.style.setProperty("justify-content", "center", "important");
+      card.style.setProperty("padding", "8px 5px", "important");
+      card.style.setProperty("text-align", "center", "important");
+    });
+
+    wrap.querySelectorAll(".hc-label").forEach((label) => {
+      label.style.setProperty("white-space", "normal", "important");
+      label.style.setProperty("overflow", "visible", "important");
+      label.style.setProperty("text-overflow", "clip", "important");
+      label.style.setProperty("line-height", "1.1", "important");
+      label.style.setProperty("min-height", "18px", "important");
+      label.style.setProperty("display", "flex", "important");
+      label.style.setProperty("align-items", "center", "important");
+      label.style.setProperty("justify-content", "center", "important");
+      label.style.setProperty("text-align", "center", "important");
+    });
+
+    wrap.querySelectorAll(".hc-value").forEach((value) => {
+      value.style.setProperty("text-align", "center", "important");
+      value.style.setProperty("line-height", "1.1", "important");
+      value.style.setProperty("min-height", "14px", "important");
+    });
+  });
+}
+
 function perm(p) {
   if (!sharedAccessProfile) return true;
   return sharedAccessProfile.perms[p] !== false;
@@ -1847,8 +2141,12 @@ function setLanguage(lang) {
   localStorage.setItem("lang", lang);
   document.documentElement.lang = lang;
   applyTranslations();
+  updateHeroTrendText();
+  updateHeroChipLabels();
+  forceHeroChipLayout();
   updateHeader();
   updateTopBlocks();
+  ensureHomeHeroStable();
   const lse = document.getElementById("langSelect");
   if (lse) lse.value = currentLang;
   setTab(currentTab);
@@ -1877,6 +2175,12 @@ function applyTranslations() {
     if (translations[currentLang][k])
       el.textContent = translations[currentLang][k];
   });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
+    const k = el.getAttribute("data-i18n-aria-label");
+    if (translations[currentLang][k])
+      el.setAttribute("aria-label", translations[currentLang][k]);
+  });
+  updateHeroTrendText();
   // Update offline bar text in current language
   if (typeof updateOfflineBar === "function") updateOfflineBar();
   const logo = document.querySelector(".app-logo");
@@ -1917,6 +2221,23 @@ let currentTab = "home";
 let editingOpIndex = null;
 let editingNoteId = null;
 let addType = "expense";
+let addModalCommitted = false;
+let addModalLastClosedAt = 0;
+let addModalWatcher = null;
+let heroWrapObserver = null;
+let heroWrapAnchor = null;
+let addModalRecoveryTimers = [];
+let appTracePanel = null;
+let appTraceLines = [];
+let appTraceMainObserver = null;
+let appTraceHeroObserver = null;
+let appInitDone = false;
+let appBooting = false;
+let appBootTraceTimers = [];
+const APP_TRACE_ENABLED =
+  localStorage.getItem("budgetpro_trace") === "1" ||
+  localStorage.getItem("heroDebug") === "1";
+let backgroundServicesStarted = false;
 let calcHistory = [];
 let convHistory = [];
 let currentFilter = null;
@@ -2895,12 +3216,7 @@ function loadProfileData(pid) {
   ) {
     setTimeout(() => {
       showToast(
-        "📬 " +
-          (currentLang === "en"
-            ? "New messages from users"
-            : currentLang === "ka"
-              ? "მომხმარებლებიდან ახალი შეტყობინებები"
-              : "У вас новые сообщения от пользователей"),
+        "📬 " + t("newUserMessages"),
         "success",
         3000,
       );
@@ -2970,14 +3286,91 @@ function switchProfile(pid) {
       localStorage.getItem("has_new_support_messages") === "true" &&
       isCreator()
     ) {
-      showToast("📬 У вас новые сообщения от пользователей", "success");
+      showToast("📬 " + t("newUserMessages"), "success");
       localStorage.removeItem("has_new_support_messages");
     }
   }, 100); // небольшая задержка, чтобы тост профиля не перебивал
 }
 
-// 🔽 Делаем функцию асинхронной, чтобы работали await
-async function loadAll() {
+async function recoverMissingDataInBackground() {
+  if (backgroundRecoveryStarted) return false;
+  backgroundRecoveryStarted = true;
+
+  let restored = false;
+
+  try {
+    const idbRestored = await loadAllFromIndexedDB();
+    if (idbRestored) {
+      loadProfiles();
+      loadProfileData(activeProfileId);
+      showToast(t("restoredFromBackup"), "success");
+      restored = true;
+    }
+  } catch (e) {
+    console.warn("IndexedDB restore failed", e);
+  }
+
+  if (!restored && transactions.length === 0) {
+    const fbCfg = JSON.parse(
+      localStorage.getItem("budgetpro_firebase") || "{}",
+    );
+    if (fbCfg.databaseURL) {
+      try {
+        if (typeof initFirebase === "function") await initFirebase();
+        const snap = await _fbDB.ref("budgetpro_all_data").once("value");
+        const cloudData = snap.val();
+        if (
+          cloudData &&
+          cloudData.transactions &&
+          cloudData.transactions.length > 0
+        ) {
+          transactions = cloudData.transactions;
+          startBalanceRub = cloudData.startBalanceRub ?? startBalanceRub;
+          saveProfileData();
+          showToast(t("restoredFromFirebase"), "success");
+          restored = true;
+        }
+      } catch (e) {
+        console.warn("Firebase restore failed", e);
+      }
+    }
+  }
+
+  if (!restored && transactions.length === 0) {
+    try {
+      const backup = await jsonBinLoadBackup();
+      if (backup && backup.transactions && backup.transactions.length > 0) {
+        transactions = backup.transactions;
+        startBalanceRub = backup.startBalanceRub ?? startBalanceRub;
+        notebookPages = backup.notebookPages || [];
+        categories = backup.categories || categories;
+        incomeCategories = backup.incomeCategories || incomeCategories;
+        calcHistory = backup.calcHistory || [];
+        convHistory = backup.convHistory || [];
+        userTemplates = backup.userTemplates || [];
+        frequentStats = backup.frequentStats || {};
+        categoryCustomizations = backup.categoryCustomizations || {};
+        categoryBudgets = backup.categoryBudgets || {};
+        recurringOps = backup.recurringOps || [];
+        saveProfileData();
+        showToast(t("restoredFromCloud"), "success");
+        restored = true;
+      }
+    } catch (e) {
+      console.warn("JSONBin restore failed", e);
+    }
+  }
+
+  if (!restored) return false;
+
+  syncStartBalanceTransaction();
+  applyRecurringOps();
+  updateTopBlocks();
+  if (appInitDone && currentTab === "home") setTab("home");
+  return true;
+}
+
+function loadAll() {
   loadProfiles();
 
   // Принудительно назначаем роли, если их нет
@@ -2991,69 +3384,6 @@ async function loadAll() {
   saveGlobal();
 
   loadProfileData(activeProfileId);
-
-  // ===== восстановление из IndexedDB, если данные пропали =====
-  if (transactions.length === 0) {
-    const restored = await loadAllFromIndexedDB();
-    if (restored) {
-      loadProfiles();
-      loadProfileData(activeProfileId);
-      showToast("🔄 Данные восстановлены из резервной копии", "success");
-    }
-  }
-
-  // ██ Восстановление из облака, если локальное хранилище пустое ██
-  if (transactions.length === 0) {
-    // 1. Попытка восстановить из Firebase
-    const fbCfg = JSON.parse(
-      localStorage.getItem("budgetpro_firebase") || "{}",
-    );
-    if (fbCfg.databaseURL) {
-      // Ждём инициализации Firebase (если ещё не)
-      if (typeof initFirebase === "function") await initFirebase();
-      try {
-        const snap = await _fbDB.ref("budgetpro_all_data").once("value");
-        const cloudData = snap.val();
-        if (
-          cloudData &&
-          cloudData.transactions &&
-          cloudData.transactions.length > 0
-        ) {
-          // Восстанавливаем важные данные
-          transactions = cloudData.transactions;
-          startBalanceRub = cloudData.startBalanceRub ?? startBalanceRub;
-          // (при необходимости восстанови и остальные поля: notebooks, категории и т.д.)
-          saveProfileData(); // сразу сохраняем локально
-          showToast("🚀 Данные восстановлены из Firebase", "success");
-        }
-      } catch (e) {
-        console.warn("Firebase restore failed", e);
-      }
-    }
-
-    // 2. Если Firebase не дал результатов, пробуем JSONBin (полный бэкап)
-    if (transactions.length === 0) {
-      try {
-        const backup = await jsonBinLoadBackup();
-        if (backup && backup.transactions && backup.transactions.length > 0) {
-          transactions = backup.transactions;
-          startBalanceRub = backup.startBalanceRub ?? startBalanceRub;
-          notebookPages = backup.notebookPages || [];
-          categories = backup.categories || categories;
-          incomeCategories = backup.incomeCategories || incomeCategories;
-          calcHistory = backup.calcHistory || [];
-          convHistory = backup.convHistory || [];
-          userTemplates = backup.userTemplates || [];
-          frequentStats = backup.frequentStats || {};
-          categoryCustomizations = backup.categoryCustomizations || {};
-          categoryBudgets = backup.categoryBudgets || {};
-          recurringOps = backup.recurringOps || [];
-          saveProfileData();
-          showToast("☁️ Данные восстановлены из облака (JSONBin)", "success");
-        }
-      } catch (e) {}
-    }
-  }
 
   // Если активный профиль гостевой, но мы не в гостевом режиме, переключаемся на владельца
   const activeProf = profiles.find((p) => p.id === activeProfileId);
@@ -3072,7 +3402,15 @@ async function loadAll() {
   syncStartBalanceTransaction();
   applyRecurringOps();
   updateTopBlocks(); // обновляем цифры на главной
-  if (currentTab === "home") setTab("home"); // перерисовываем главную
+  if (appInitDone && currentTab === "home") setTab("home"); // перерисовываем главную
+
+  if (transactions.length === 0) {
+    setTimeout(() => {
+      recoverMissingDataInBackground().catch((e) => {
+        console.warn("Background restore failed", e);
+      });
+    }, 120);
+  }
 }
 
 function saveAll() {
@@ -3449,7 +3787,7 @@ function animateValue(el, from, to, suffix, duration) {
 
 let _lastBalVals = { bal: null, inc: null, exp: null, sal: null };
 
-function updateTopBlocks() {
+function getTopBlockDisplayValues() {
   let inc = 0,
     exp = 0,
     realInc = 0;
@@ -3461,15 +3799,20 @@ function updateTopBlocks() {
       exp += tx.amountRub;
     }
   }
-  const bal = inc - exp,
-    s = sym();
+  return {
+    balD: toDisp(inc - exp),
+    incD: toDisp(realInc),
+    expD: toDisp(exp),
+    salD: toDisp(startBalanceRub),
+  };
+}
+
+function updateTopBlocks() {
+  const s = sym();
   // Balance = full inc (includes startBalance) - exp
   // incomeCard shows only REAL income (not starting balance)
   // salaryCard shows startBalanceRub
-  const balD = toDisp(bal),
-    incD = toDisp(realInc),
-    expD = toDisp(exp),
-    salD = toDisp(startBalanceRub);
+  const { balD, incD, expD, salD } = getTopBlockDisplayValues();
   const els = {
     balanceValue: { val: balD, prev: _lastBalVals.bal },
     incomeValue: { val: incD, prev: _lastBalVals.inc },
@@ -3496,6 +3839,7 @@ function updateTopBlocks() {
     }
   });
   _lastBalVals = { bal: balD, inc: incD, exp: expD, sal: salD };
+  updateHeroTrendText();
 }
 
 // ============================================================
@@ -3503,6 +3847,9 @@ function updateTopBlocks() {
 // ============================================================
 function setTab(tab, onRendered) {
   currentTab = tab;
+  traceApp("setTab", { tab, simpleMode });
+  traceLayoutSnapshot(`setTab:${tab}`);
+  updateHeroDebugOverlay();
   document
     .querySelectorAll(".nav-btn")
     .forEach((b) => b.classList.remove("active"));
@@ -3540,6 +3887,10 @@ function setTab(tab, onRendered) {
     switch (tab) {
       case "home":
         renderHome();
+        setTimeout(() => {
+          ensureHomeHeroStable();
+          updateHeroDebugOverlay();
+        }, 30);
         break;
       case "stats":
         renderStats();
@@ -3595,11 +3946,9 @@ function renderSimpleHome() {
   // Тексты — простые, без терминов
   const T = {
     bal: { ru: "Мой кошелёк", en: "My Wallet", ka: "ჩემი საფულე" }[L],
-    inc: { ru: "Получено", en: "Received", ka: "მიღებული" }[L],
-    exp: { ru: "Потрачено", en: "Spent", ka: "დახარჯული" }[L],
-    sal: { ru: "Начальная сумма", en: "Starting amount", ka: "საწყისი თანხა" }[
-      L
-    ],
+    inc: { ru: "Доход", en: "Income", ka: "შემოს." }[L],
+    exp: { ru: "Расход", en: "Spent", ka: "ხარჯ." }[L],
+    sal: { ru: "Старт", en: "Start", ka: "საწყისი" }[L],
     gotMoney: {
       ru: "💰 Получил деньги",
       en: "💰 Got Money",
@@ -3720,7 +4069,7 @@ function renderSimpleHome() {
               ka: "📉 ხარჯები შემოსავალს აჭარბებს",
             }[L]
       }</div>
-      <div class="hero-chips" style="margin-top:14px; grid-template-columns:1fr 1fr 1fr;">
+      <div class="hero-chips" style="margin-top:14px; grid-template-columns:repeat(3, minmax(0, 1fr));">
         <div class="hero-chip hc-income sm-chip-tap" data-type="income" role="button" tabindex="0">
           <div class="hc-label">${T.inc}</div>
           <div class="hc-value">+${toDisp(realInc).toFixed(2)}</div>
@@ -3938,11 +4287,18 @@ function renderHome() {
   // setTab уже управляет видимостью heroCardWrap
   // Simple mode redirect
   if (simpleMode) {
+    traceApp("renderHome->simpleMode");
     renderSimpleHome();
     return;
   }
+  traceApp("renderHome-start", {
+    transactions: transactions.length,
+    historyFilter,
+    currentFilter,
+  });
+  traceLayoutSnapshot("renderHome:start");
   const sw = !localStorage.getItem("welcomeSeen") && transactions.length === 0;
-  let html = "";
+  let html = createHeroWrapNode().outerHTML;
   if (sw)
     html += `<div class="welcome-tip"><div class="welcome-tip-icon">👋</div><div class="welcome-tip-text"><h3>${t("welcomeTitle")}</h3><p>${t("welcomeText")}</p><button class="welcome-tip-close" id="welcomeClose">${t("welcomeClose")}</button></div></div>`;
   html += `<div id="balanceSummaryContainer"></div><div id="searchContainer"></div>`;
@@ -3958,6 +4314,17 @@ function renderHome() {
   html += `<div class="history-btn-wrap"><button class="history-btn" id="showAllHistoryBtn">${t("allHistory")}</button><div class="history-btn-hint">💡 ${t("historyHint")}</div></div><div id="opsList"></div>`;
   document.getElementById("mainContent").innerHTML = html;
   document.getElementById("mainContent").classList.add("tab-anim");
+  restoreHomeHeroIfNeeded();
+  updateTopBlocks();
+  attachAppTraceObservers();
+  traceApp("renderHome-done", {
+    heroExists: !!document.getElementById("heroCardWrap"),
+    heroParent:
+      document.getElementById("heroCardWrap")?.parentElement?.id ||
+      document.getElementById("heroCardWrap")?.parentElement?.className ||
+      null,
+  });
+  traceLayoutSnapshot("renderHome:done");
 
   // Поиск
   if (!document.getElementById("searchInput")) {
@@ -4011,6 +4378,7 @@ function renderHome() {
   });
   renderBalanceSummary();
   renderOpsList();
+  ensureHomeHeroStable(4, 100);
 }
 
 function renderBalanceSummary() {
@@ -4499,6 +4867,9 @@ function openTimePickerCompact(initialTime, onSelect) {
     </div>
   `;
 
+  updateHeroChipLabels(mc);
+  forceHeroChipLayout(mc);
+
   const modal = createModal("timePickerModal", t("chooseTime"), html);
   document.body.appendChild(modal);
   openModal("timePickerModal");
@@ -4588,10 +4959,42 @@ function openEditModal(idx) {
 // МОДАЛКА ЗАРПЛАТЫ
 // ============================================================
 function openSalaryModal() {
-  const html = `<div class="section-hint">${t("salaryModalHint")}</div><div class="field-group"><label class="field-label">${t("salary_label")} (${sym()})</label><input type="number" id="salaryAmount" class="modal-input" step="any" min="0" value="${toDisp(startBalanceRub).toFixed(2)}" inputmode="decimal" autofocus></div><div class="modal-actions"><button class="btn-primary" id="saveSalaryBtn">💾 ${t("save")}</button></div>`;
+  const initialAmount = toDisp(startBalanceRub).toFixed(2);
+  const html = `
+    <div class="section-hint">${t("salaryModalHint")}</div>
+    <div class="field-group">
+      <label class="field-label">${t("salary_label")} (${sym()})</label>
+      <input type="text" id="salaryAmount" class="modal-input" value="${initialAmount}" inputmode="decimal" autofocus>
+    </div>
+    <div class="quick-numpad">
+      <div class="numpad-row"><button class="numpad-btn" data-salary-numpad="1">1</button><button class="numpad-btn" data-salary-numpad="2">2</button><button class="numpad-btn" data-salary-numpad="3">3</button></div>
+      <div class="numpad-row"><button class="numpad-btn" data-salary-numpad="4">4</button><button class="numpad-btn" data-salary-numpad="5">5</button><button class="numpad-btn" data-salary-numpad="6">6</button></div>
+      <div class="numpad-row"><button class="numpad-btn" data-salary-numpad="7">7</button><button class="numpad-btn" data-salary-numpad="8">8</button><button class="numpad-btn" data-salary-numpad="9">9</button></div>
+      <div class="numpad-row"><button class="numpad-btn" data-salary-numpad="0">0</button><button class="numpad-btn" data-salary-numpad=".">.</button><button class="numpad-btn clear" data-salary-numpad="backspace">⌫</button></div>
+      <div class="numpad-row"><button class="numpad-btn clear" data-salary-numpad="clear">C</button></div>
+    </div>
+    <div class="modal-actions"><button class="btn-primary" id="saveSalaryBtn">💾 ${t("save")}</button></div>`;
   const modal = createModal("salaryModal", t("editBalance"), html);
   document.body.appendChild(modal);
   openModal("salaryModal");
+  let salaryDraft = initialAmount;
+  const salaryInput = document.getElementById("salaryAmount");
+  modal.querySelectorAll("[data-salary-numpad]").forEach((btn) =>
+    btn.addEventListener("click", () => {
+      const v = btn.dataset.salaryNumpad;
+      if (v === "clear") salaryDraft = "";
+      else if (v === "backspace") salaryDraft = salaryDraft.slice(0, -1);
+      else if (v === ".") {
+        if (!salaryDraft.includes(".")) salaryDraft += v;
+      } else salaryDraft += v;
+      if (salaryInput) salaryInput.value = salaryDraft;
+    }),
+  );
+  if (salaryInput) {
+    salaryInput.addEventListener("input", (e) => {
+      salaryDraft = e.target.value;
+    });
+  }
   document.getElementById("saveSalaryBtn")?.addEventListener("click", () => {
     const v = parseFloat(document.getElementById("salaryAmount").value);
     if (isNaN(v) || v < 0) {
@@ -4682,8 +5085,8 @@ function openEditCategoryModal(cat, isIncome) {
   ];
   const html = `
     <div class="field-group"><label class="field-label">${t("catNameLabel")}</label><input type="text" id="editCatName" class="modal-input" value="${esc(cat)}"></div>
-    <div class="field-group"><label class="field-label">Иконка</label><select id="editCatIcon" class="modal-select">${icons.map((i) => `<option value="${i}"${i === cur.icon ? " selected" : ""}>${i}</option>`).join("")}</select></div>
-    <div class="field-group"><label class="field-label">Цвет</label><input type="color" id="editCatColor" class="modal-input" value="${cur.color}"></div>
+    <div class="field-group"><label class="field-label">${t("iconLabel")}</label><select id="editCatIcon" class="modal-select">${icons.map((i) => `<option value="${i}"${i === cur.icon ? " selected" : ""}>${i}</option>`).join("")}</select></div>
+    <div class="field-group"><label class="field-label">${t("colorLabel")}</label><input type="color" id="editCatColor" class="modal-input" value="${cur.color}"></div>
     <div class="modal-actions"><button class="btn-secondary" id="cancelEditCat">${t("cancel")}</button><button class="btn-primary" id="saveEditCat">${t("save")}</button></div>`;
   const modal = createModal("editCategoryModal", t("editCatTitle"), html);
   document.body.appendChild(modal);
@@ -4700,7 +5103,7 @@ function openEditCategoryModal(cat, isIncome) {
       return;
     }
     if (nn !== cat && catObj[nn]) {
-      showToast("⚠️ Уже существует", "error");
+      showToast(t("alreadyExists"), "error");
       return;
     }
     if (nn !== cat) {
@@ -4723,6 +5126,15 @@ function openEditCategoryModal(cat, isIncome) {
 // МОДАЛКА ДОБАВЛЕНИЯ
 // ============================================================
 function openAddModal(defaultType = "expense", presetCategory = null) {
+  if (document.getElementById("addModal")) return;
+  if (Date.now() - addModalLastClosedAt < 450) return;
+  addModalCommitted = false;
+  traceApp("openAddModal", {
+    defaultType,
+    presetCategory,
+    currentTab,
+    simpleMode,
+  });
   const eo =
     `<option value="">${t("selectCategory")}</option>` +
     Object.keys(window.categories)
@@ -4735,10 +5147,11 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       .join("");
   let ca = "";
   const html = `
+    <div id="addModalTopAnchor" style="height:1px;"></div>
     <div class="field-group"><label class="field-label">${t("type")}</label><div class="type-toggle"><button class="type-btn expense ${defaultType === "expense" ? "active" : ""}" data-type="expense">${t("expenseType")}</button><button class="type-btn income ${defaultType === "income" ? "active" : ""}" data-type="income">${t("incomeType")}</button></div></div>
     <div class="field-group"><label class="field-label" id="catLabel">${defaultType === "expense" ? t("expCategory") : t("incCategory")}</label><select id="addCategorySelect" class="modal-select">${defaultType === "expense" ? eo : io}</select></div>
     <div class="field-group" id="addSubcatDiv" style="display:none"><label class="field-label">${t("subcategory")}</label><select id="addSubcatSelect" class="modal-select"></select></div>
-    <div class="field-group"><label class="field-label">${t("amount")} (${sym()})</label><input type="text" id="addAmount" class="modal-input" placeholder="0.00" inputmode="decimal" autofocus></div>
+    <div class="field-group"><label class="field-label">${t("amount")} (${sym()})</label><input type="text" id="addAmount" class="modal-input" placeholder="0.00" inputmode="decimal"></div>
     <div class="quick-numpad">
       <div class="numpad-row"><button class="numpad-btn" data-numpad="1">1</button><button class="numpad-btn" data-numpad="2">2</button><button class="numpad-btn" data-numpad="3">3</button></div>
       <div class="numpad-row"><button class="numpad-btn" data-numpad="4">4</button><button class="numpad-btn" data-numpad="5">5</button><button class="numpad-btn" data-numpad="6">6</button></div>
@@ -4754,6 +5167,23 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
   document.body.appendChild(modal);
   openModal("addModal");
   addType = defaultType;
+  const resetAddModalViewport = () => {
+    const modalBody = modal.querySelector(".modal-body");
+    const sheet = modal.querySelector(".add-modal-sheet");
+    const topAnchor = modal.querySelector("#addModalTopAnchor");
+    if (modalBody) {
+      modalBody.scrollTop = 0;
+      if (typeof modalBody.scrollTo === "function") {
+        modalBody.scrollTo({ top: 0, behavior: "instant" });
+      }
+    }
+    if (topAnchor && typeof topAnchor.scrollIntoView === "function") {
+      topAnchor.scrollIntoView({ block: "start", inline: "nearest" });
+    }
+    if (sheet && !sheet.classList.contains("dragging")) {
+      sheet.style.transform = "";
+    }
+  };
 
   // Начальная установка категорий
   document.getElementById("catLabel").textContent =
@@ -4890,6 +5320,12 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       date,
       note: note || null,
     };
+    traceApp("addModal-save", {
+      type: addType,
+      category: cat,
+      amount: amt,
+    });
+    addModalCommitted = true;
     transactions.push(tx);
     updateFrequentStats(tx);
     saveAll();
@@ -4920,7 +5356,7 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       const amt = parseFloat(document.getElementById("addAmount").value);
       const note = document.getElementById("addNote").value.trim();
       if (!cat || isNaN(amt) || amt <= 0) {
-        showToast("Сначала выберите категорию и сумму", "error");
+        showToast(t("chooseCategoryAndAmountFirst"), "error");
         return;
       }
       addUserTemplate({
@@ -4931,10 +5367,15 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
         amountRub: toRub(amt),
         note,
       });
-      showToast("⭐ Шаблон сохранён");
+      showToast(t("templateSavedToast"));
       updateSuggestions();
     });
   updateSuggestions();
+  resetAddModalViewport();
+  requestAnimationFrame(resetAddModalViewport);
+  setTimeout(resetAddModalViewport, 80);
+  setTimeout(resetAddModalViewport, 220);
+  setTimeout(resetAddModalViewport, 420);
 }
 
 // ============================================================
@@ -6573,7 +7014,7 @@ function renderSettings() {
       ${(() => {
         const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
         if (!list.length)
-          return `<div style="font-size:13px;color:var(--text-muted);padding:8px 0 16px;">${{ ru: "Нет напоминаний", en: "No reminders", ka: "შეხს. არ არის" }[L]}</div>`;
+          return `<div style="font-size:13px;color:var(--text-muted);padding:8px 0 16px;">${t("noReminders")}</div>`;
         return list
           .map(
             (
@@ -6590,10 +7031,10 @@ function renderSettings() {
       })()}
     </div>
     <div style="background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);margin-top:4px">
-      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px">➕ ${{ ru: "Добавить напоминание", en: "Add reminder", ka: "შეხ. დამ." }[L]}</div>
-      <div class="field-group" style="margin-bottom:10px"><label class="field-label">${{ ru: "Название", en: "Name", ka: "სახ." }[L]}</label>
-        <input type="text" id="newReminderName" class="modal-input" placeholder="${{ ru: "Например: Оплата аренды", en: "E.g. Pay rent", ka: "მაგ: ქ. გადახ." }[L]}"></div>
-      <div class="field-group" style="margin-bottom:12px"><label class="field-label">${{ ru: "Дата и время", en: "Date and time", ka: "თარ. და დრო" }[L]}</label>
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px">➕ ${t("add")}</div>
+      <div class="field-group" style="margin-bottom:10px"><label class="field-label">${t("reminderName")}</label>
+        <input type="text" id="newReminderName" class="modal-input" placeholder="${t("reminderNamePlaceholder")}"></div>
+      <div class="field-group" style="margin-bottom:12px"><label class="field-label">${t("reminderDateTime")}</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="hidden" id="newReminderDatetime" value="">
           <button type="button" id="reminderDateBtn" class="modal-input" style="flex:1;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);">📅 <span id="reminderDateText">${t("chooseDate")}</span></button>
@@ -6601,13 +7042,13 @@ function renderSettings() {
           <input type="time" id="nativeTimeInput" class="modal-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" value="09:00">
         </div></div>
       <div style="display:flex;gap:8px">
-        <button id="addNamedReminderBtn" class="btn-primary" style="flex:1;padding:13px">⏰ ${{ ru: "Запланировать", en: "Schedule", ka: "დაგ." }[L]}</button>
+        <button id="addNamedReminderBtn" class="btn-primary" style="flex:1;padding:13px">⏰ ${t("scheduleReminder")}</button>
         <button id="testNotifBtn" class="btn-secondary" style="padding:13px;font-size:12px;white-space:nowrap">🔔 ${{ ru: "Тест", en: "Test", ka: "ტ." }[L]}</button>
       </div>
     </div>
     <!-- Интервальные напоминания -->
     <div style="margin-top:16px">
-      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">🔁 ${{ ru: "Повторяющиеся", en: "Recurring", ka: "განმეო." }[L]}</div>
+      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">🔁 ${t("recurringShort")}</div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${[
           {
@@ -6659,7 +7100,7 @@ function renderSettings() {
   }
 
   <!-- ═══ ОПАСНАЯ ЗОНА ═══ -->
-  <div class="set-section-title" style="color:#f87171">${{ ru: "⛔ Опасная зона", en: "⛔ Danger zone", ka: "⛔ საშ. ზონა" }[L]}</div>
+  <div class="set-section-title" style="color:#f87171">${t("dangerZone")}</div>
   <div class="set-card set-danger-card">
     <div class="set-row">
       <div class="set-row-ico">🗑</div>
@@ -6668,7 +7109,7 @@ function renderSettings() {
     </div>
   </div>
 
-  <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">БюджетPRO v8.0 · Офлайн 📴</div>`;
+  <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">${t("appFooterVersion")}</div>`;
 
   document.getElementById("mainContent").innerHTML = html;
 
@@ -6906,7 +7347,7 @@ function renderSettings() {
     });
   document
     .getElementById("reconnectWsBtn")
-    ?.addEventListener("click", () => showToast("🔌 WebSocket..."));
+    ?.addEventListener("click", () => showToast(t("websocketReconnect")));
   document
     .getElementById("exportCSVBtn")
     ?.addEventListener("click", exportToCSV);
@@ -6954,14 +7395,7 @@ function renderSettings() {
         localStorage.removeItem("welcomeSeen");
         await clearIndexedDB();
         saveAll();
-        showToast(
-          "🗑️ " +
-            {
-              ru: "Все данные удалены",
-              en: "All data cleared",
-              ka: "ყველა მონ. წაიშალა",
-            }[currentLang],
-        );
+        showToast(t("allDataDeleted"));
         setTimeout(() => {
           setTab("home");
           updateTopBlocks();
@@ -7032,21 +7466,14 @@ function renderSettings() {
         sharedAccessProfile = null;
         saveGlobal();
         switchProfile(lp.id);
-        showToast(
-          "🏠 " +
-            {
-              ru: "Вы в своём профиле",
-              en: "Back to your profile",
-              ka: "თქვ. პროფ.",
-            }[currentLang],
-        );
+        showToast(t("ownProfileToast"));
       });
     document
       .getElementById("backToMainProfileBtn")
       ?.addEventListener("click", () => {
         const mp = profiles.find((p) => p.id === "default");
         if (mp) switchProfile(mp.id);
-        else showToast("Главный профиль не найден", "error");
+        else showToast(t("noMainProfileFound"), "error");
       });
   }
 
@@ -7334,7 +7761,7 @@ function openPinSetModal(isChange = false) {
 function openAddBudgetModal() {
   const cats = Object.keys(categories).filter((c) => !categoryBudgets[c]);
   if (!cats.length) {
-    showToast("Все категории уже имеют бюджет");
+    showToast(t("allCategoriesBudgeted"));
     return;
   }
   const html = `
@@ -7478,7 +7905,7 @@ function exportToJSON() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast("✅ JSON экспортирован");
+  showToast(t("jsonExported"));
 }
 function importFromJSON(file) {
   const reader = new FileReader();
@@ -7486,7 +7913,7 @@ function importFromJSON(file) {
     try {
       const d = JSON.parse(e.target.result);
       if (!d.transactions || !d.categories) {
-        showToast("❌ Неверный формат", "error");
+        showToast(t("invalidFormat"), "error");
         return;
       }
       askConfirm(
@@ -7514,12 +7941,12 @@ function importFromJSON(file) {
           saveAll();
           updateTopBlocks();
           setTab("home");
-          showToast("✅ Импортировано");
+          showToast(t("importedOk"));
         },
         { icon: "📥", title: "Импорт", yesText: "Заменить" },
       );
     } catch (e) {
-      showToast("❌ Ошибка", "error");
+      showToast(t("importError"), "error");
     }
   };
   reader.readAsText(file);
@@ -7604,7 +8031,7 @@ function exportToPDF() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast("✅ PDF-отчёт сохранён как HTML (откройте и напечатайте)");
+  showToast(t("pdfSavedHtml"));
 }
 
 async function cloudSave() {
@@ -7638,7 +8065,7 @@ async function cloudSave() {
     await navigator.clipboard.writeText(link);
     showToast(t("cloudCopied"));
   } catch (e) {
-    showToast("✅ Файл сохранён");
+    showToast(t("fileSaved"));
   }
 }
 function cloudLoad() {
@@ -7656,7 +8083,7 @@ function cloudLoad() {
       const json = decodeURIComponent(atob(b64));
       const d = JSON.parse(json);
       if (!d.transactions) {
-        showToast("❌ Неверный формат", "error");
+        showToast(t("invalidFormat"), "error");
         return;
       }
       transactions = d.transactions || [];
@@ -7676,9 +8103,9 @@ function cloudLoad() {
       updateTopBlocks();
       closeModal("cloudLoadModal");
       setTab("home");
-      showToast("✅ Данные загружены из облака");
+      showToast(t("cloudLoaded"));
     } catch (e) {
-      showToast("❌ Ошибка загрузки", "error");
+      showToast(t("cloudLoadError"), "error");
     }
   });
 }
@@ -7875,7 +8302,6 @@ function startReminderPoller() {
   // Also check immediately
   setTimeout(sendReminderNotification, 500);
 }
-startReminderPoller(); // Start as soon as script loads
 
 function startReminderTimer() {
   if (reminderTimer) clearInterval(reminderTimer);
@@ -8042,8 +8468,89 @@ function openInputModal(title, label, defVal, onSave) {
 function createModal(id, title, bodyHtml) {
   document.getElementById(id)?.remove();
   const ov = document.createElement("div");
-  ov.className = "modal-overlay";
   ov.id = id;
+  if (id === "addModal") {
+    ov.className = "add-modal-host";
+    ov.style.display = "none";
+    ov.innerHTML = `<div class="more-overlay add-modal-overlay"></div><div class="more-sheet add-modal-sheet"><div class="more-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
+    ov.querySelector(".modal-close").addEventListener("click", () =>
+      closeModal(id),
+    );
+    ov.querySelector(".add-modal-overlay")?.addEventListener("click", () =>
+      closeModal(id),
+    );
+    const sheet = ov.querySelector(".add-modal-sheet");
+    const body = ov.querySelector(".modal-body");
+    let startY = 0;
+    let currentY = 0;
+    let dragging = false;
+    let dragIntent = false;
+
+    const onStart = (e) => {
+      const point = e.touches?.[0];
+      if (!point || !sheet) return;
+      const target = e.target;
+      const fromCloseBtn = !!target.closest(".modal-close");
+      const fromDragZone = !!target.closest(".more-handle, .modal-header");
+      if (fromCloseBtn || !fromDragZone) {
+        dragIntent = false;
+        return;
+      }
+      startY = point.clientY;
+      currentY = 0;
+      dragging = false;
+      dragIntent = true;
+    };
+
+    const onMove = (e) => {
+      if (!dragIntent || !sheet) return;
+      const point = e.touches?.[0];
+      if (!point) return;
+      const deltaY = point.clientY - startY;
+      if (!dragging) {
+        if (deltaY <= 12) return;
+        dragging = true;
+        sheet.classList.add("dragging");
+        sheet.style.transition = "none";
+        sheet.style.transform = "translateY(0)";
+      }
+      currentY = Math.max(0, deltaY);
+      if (currentY > 0) {
+        e.preventDefault();
+        sheet.style.transform = `translateY(${currentY}px)`;
+      }
+    };
+
+    const onEnd = () => {
+      if (!sheet) return;
+      const wasDragging = dragging;
+      dragging = false;
+      dragIntent = false;
+      sheet.classList.remove("dragging");
+      if (!wasDragging) {
+        currentY = 0;
+        return;
+      }
+      if (currentY > 110) {
+        closeModal(id);
+      } else {
+        sheet.style.transition = "transform .22s ease";
+        sheet.style.transform = "translateY(0)";
+        setTimeout(() => {
+          if (sheet) sheet.style.transition = "";
+        }, 220);
+      }
+      currentY = 0;
+      dragAllowed = false;
+    };
+
+    sheet?.addEventListener("touchstart", onStart, { passive: true });
+    sheet?.addEventListener("touchmove", onMove, { passive: false });
+    sheet?.addEventListener("touchend", onEnd, { passive: true });
+    sheet?.addEventListener("touchcancel", onEnd, { passive: true });
+    return ov;
+  }
+  ov.className = "modal-overlay";
   ov.innerHTML = `<div class="modal"><div class="modal-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
   ov.querySelector(".modal-close").addEventListener("click", () =>
     closeModal(id),
@@ -8056,24 +8563,463 @@ function createModal(id, title, bodyHtml) {
 function openModal(id) {
   const m = document.getElementById(id);
   if (m) {
-    m.classList.add("open");
+    if (id === "addModal") {
+      if (document.activeElement && typeof document.activeElement.blur === "function") {
+        document.activeElement.blur();
+      }
+      m.style.display = "block";
+      m.classList.remove("closing");
+      m.classList.remove("open");
+      m.classList.add("opening");
+      void m.offsetHeight;
+      const sheet = m.querySelector(".add-modal-sheet");
+      const modalBody = m.querySelector(".modal-body");
+      if (sheet) {
+        sheet.classList.remove("dragging");
+        sheet.style.transition = "";
+        sheet.scrollTop = 0;
+      }
+      if (modalBody) {
+        modalBody.scrollTop = 0;
+        if (typeof modalBody.scrollTo === "function") {
+          modalBody.scrollTo({ top: 0, behavior: "instant" });
+        }
+      }
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          m.classList.add("open");
+        });
+        if (modalBody) {
+          modalBody.scrollTop = 0;
+          if (typeof modalBody.scrollTo === "function") {
+            modalBody.scrollTo({ top: 0, behavior: "instant" });
+          }
+        }
+      });
+      setTimeout(() => {
+        if (modalBody) {
+          modalBody.scrollTop = 0;
+          if (typeof modalBody.scrollTo === "function") {
+            modalBody.scrollTo({ top: 0, behavior: "instant" });
+          }
+        }
+      }, 80);
+      setTimeout(() => {
+        if (modalBody) {
+          modalBody.scrollTop = 0;
+          if (typeof modalBody.scrollTo === "function") {
+            modalBody.scrollTo({ top: 0, behavior: "instant" });
+          }
+        }
+        m.classList.remove("opening");
+      }, 640);
+    } else {
+      m.classList.remove("closing");
+      requestAnimationFrame(() => {
+        m.classList.add("open");
+      });
+    }
     document.body.style.overflow = "hidden";
+    traceApp("openModal", { id });
+    traceLayoutSnapshot(`openModal:${id}`);
   }
 }
+
+function restoreHomeHeroIfNeeded() {
+  if (currentTab !== "home" || simpleMode) return;
+  const heroWrap = document.getElementById("heroCardWrap");
+  if (!heroWrap) return;
+  heroWrap.style.display = "";
+  heroWrap.style.visibility = "visible";
+  heroWrap.style.opacity = "1";
+  updateHeroTrendText();
+  forceHeroChipLayout(heroWrap);
+  updateHeroChipLabels(heroWrap);
+  updateHeroDebugOverlay();
+}
+
+function ensureHomeHeroStable(attempts = 6, delay = 120) {
+  restoreHomeHeroIfNeeded();
+  updateHeroDebugOverlay();
+  if (attempts <= 1) return;
+  setTimeout(() => ensureHomeHeroStable(attempts - 1, delay), delay);
+}
+
+function createHeroWrapNode() {
+  const { balD, incD, expD, salD } = getTopBlockDisplayValues();
+  const s = sym();
+  const wrap = document.createElement("div");
+  wrap.className = "hero-card-wrap";
+  wrap.id = "heroCardWrap";
+  wrap.innerHTML = `
+    <div
+      id="balanceCard"
+      class="balance-card balance-card-wide"
+      data-type="balance"
+      role="button"
+      tabindex="0"
+    >
+      <div class="hero-label" data-i18n="balance">${t("balance")}</div>
+      <div class="hero-value" id="balanceValue">${balD.toFixed(2)} ${s}</div>
+      <div class="hero-sub" id="heroTrend"></div>
+      <div class="hero-chips">
+        <div
+          id="incomeCard"
+          class="hero-chip hc-income"
+          data-type="income"
+          role="button"
+          tabindex="0"
+        >
+          <div class="hc-label">
+            <span class="hc-icon">📈</span>
+            <span class="hc-label-text" id="incomeHeroLabel"></span>
+          </div>
+          <div class="hc-value" id="incomeValue">${incD.toFixed(2)} ${s}</div>
+        </div>
+        <div
+          id="expenseCard"
+          class="hero-chip hc-expense"
+          data-type="expense"
+          role="button"
+          tabindex="0"
+        >
+          <div class="hc-label">
+            <span class="hc-icon">📉</span>
+            <span class="hc-label-text" id="expenseHeroLabel"></span>
+          </div>
+          <div class="hc-value" id="expenseValue">${expD.toFixed(2)} ${s}</div>
+        </div>
+        <div
+          id="salaryCard"
+          class="hero-chip hc-salary"
+          data-type="salary"
+          role="button"
+          tabindex="0"
+        >
+          <div class="hc-label">
+            <span class="hc-icon">💼</span>
+            <span class="hc-label-text" id="salaryHeroLabel"></span>
+          </div>
+          <div class="hc-value" id="salaryValue">${salD.toFixed(2)} ${s}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  updateHeroTrendText();
+  updateHeroChipLabels(wrap);
+  return wrap;
+}
+
+function ensureHeroWrapAnchor() {
+  const heroWrap = document.getElementById("heroCardWrap");
+  heroWrapAnchor = document.getElementById("heroCardAnchor") || heroWrapAnchor;
+  if (!heroWrapAnchor || !heroWrapAnchor.isConnected) {
+    const header = document.querySelector(".app-header");
+    const mainScroll = document.querySelector(".main-scroll");
+    heroWrapAnchor = document.createElement("div");
+    heroWrapAnchor.id = "heroCardAnchor";
+    if (header && header.parentNode) {
+      header.parentNode.insertBefore(
+        heroWrapAnchor,
+        mainScroll || header.nextSibling,
+      );
+    }
+  }
+  if (heroWrap) {
+    if (heroWrapAnchor && heroWrap.parentNode === heroWrapAnchor.parentNode) {
+      heroWrapAnchor.parentNode?.insertBefore(heroWrapAnchor, heroWrap);
+    }
+    return heroWrap;
+  }
+  const recreated = createHeroWrapNode();
+  if (heroWrapAnchor?.parentNode) {
+    heroWrapAnchor.parentNode.insertBefore(recreated, heroWrapAnchor.nextSibling);
+  }
+  return recreated;
+}
+
+function mountHeroIntoHome() {
+  const heroWrap = ensureHeroWrapAnchor();
+  const mainContent = document.getElementById("mainContent");
+  if (!heroWrap || !mainContent) return;
+  if (heroWrap.parentNode !== mainContent) {
+    mainContent.insertBefore(heroWrap, mainContent.firstChild || null);
+  }
+}
+
+function unmountHeroFromHome() {
+  const heroWrap = ensureHeroWrapAnchor();
+  if (!heroWrap || !heroWrapAnchor) return;
+  if (heroWrap.parentNode !== heroWrapAnchor.parentNode) {
+    heroWrapAnchor.parentNode?.insertBefore(
+      heroWrap,
+      heroWrapAnchor.nextSibling,
+    );
+  }
+}
+
+function ensureHeroWrapGuard() {
+  const heroWrap = document.getElementById("heroCardWrap");
+  if (!heroWrap) return;
+  heroWrapObserver?.disconnect();
+  heroWrapObserver = new MutationObserver(() => {
+    if (currentTab !== "home" || simpleMode) return;
+    const hiddenByStyle =
+      heroWrap.style.display === "none" ||
+      heroWrap.style.visibility === "hidden" ||
+      heroWrap.style.opacity === "0";
+    if (hiddenByStyle) {
+      restoreHomeHeroIfNeeded();
+    }
+  });
+  heroWrapObserver.observe(heroWrap, {
+    attributes: true,
+    attributeFilter: ["style", "class"],
+  });
+}
+
+function updateHeroDebugOverlay() {
+  if (localStorage.getItem("heroDebug") !== "1") {
+    document.getElementById("heroDebugOverlay")?.remove();
+    return;
+  }
+  let dbg = document.getElementById("heroDebugOverlay");
+  if (!dbg) {
+    dbg = document.createElement("div");
+    dbg.id = "heroDebugOverlay";
+    dbg.style.cssText =
+      "position:fixed;left:8px;top:8px;z-index:20000;background:rgba(0,0,0,.82);color:#fff;padding:8px 10px;border-radius:10px;font:12px/1.35 monospace;max-width:calc(100vw - 16px);white-space:pre-wrap;pointer-events:none;";
+    document.body.appendChild(dbg);
+  }
+  const heroWrap = document.getElementById("heroCardWrap");
+  const parentId =
+    heroWrap?.parentElement?.id ||
+    heroWrap?.parentElement?.className ||
+    "(none)";
+  const rect =
+    heroWrap && heroWrap.getBoundingClientRect
+      ? heroWrap.getBoundingClientRect()
+      : null;
+  dbg.textContent =
+    "tab=" +
+    currentTab +
+    " | simple=" +
+    simpleMode +
+    "\nhero=" +
+    !!heroWrap +
+    " | parent=" +
+    parentId +
+    "\ndisplay=" +
+    (heroWrap?.style.display || "(empty)") +
+    " | vis=" +
+    (heroWrap?.style.visibility || "(empty)") +
+    " | op=" +
+    (heroWrap?.style.opacity || "(empty)") +
+    "\nrect=" +
+    (rect ? Math.round(rect.width) + "x" + Math.round(rect.height) : "none");
+}
+
+function traceApp(event, details = {}) {
+  if (!APP_TRACE_ENABLED) return;
+  const timestamp = new Date().toLocaleTimeString("en-GB", {
+    hour12: false,
+  });
+  let detailText = "";
+  try {
+    detailText = Object.keys(details).length ? " " + JSON.stringify(details) : "";
+  } catch (e) {
+    detailText = " [unserializable]";
+  }
+  const line = `${timestamp} ${event}${detailText}`;
+  console.log("[BPTRACE]", line);
+  try {
+    if (window.BudgetPROTrace && typeof window.BudgetPROTrace.log === "function") {
+      window.BudgetPROTrace.log(line);
+    }
+  } catch (e) {}
+  appTraceLines.push(line);
+  if (appTraceLines.length > 12) appTraceLines.shift();
+
+  if (!appTracePanel) {
+    appTracePanel = document.createElement("div");
+    appTracePanel.id = "appTracePanel";
+    appTracePanel.style.cssText =
+      "position:fixed;left:8px;right:8px;bottom:88px;z-index:20001;" +
+      "background:rgba(0,0,0,.82);color:#fff;border-radius:12px;" +
+      "padding:8px 10px;font:11px/1.35 monospace;max-height:180px;" +
+      "overflow:auto;white-space:pre-wrap;pointer-events:none;" +
+      "box-shadow:0 10px 30px rgba(0,0,0,.35);";
+    document.body.appendChild(appTracePanel);
+  }
+  appTracePanel.textContent = appTraceLines.join("\n");
+}
+
+function attachAppTraceObservers() {
+  if (!APP_TRACE_ENABLED) return;
+  const mainContent = document.getElementById("mainContent");
+  if (mainContent) {
+    appTraceMainObserver?.disconnect();
+    appTraceMainObserver = new MutationObserver(() => {
+      const heroWrap = document.getElementById("heroCardWrap");
+      traceApp("mainContent-mutated", {
+        heroExists: !!heroWrap,
+        heroParent: heroWrap?.parentElement?.id || heroWrap?.parentElement?.className || null,
+        childCount: mainContent.children.length,
+      });
+      attachAppTraceObservers();
+    });
+    appTraceMainObserver.observe(mainContent, { childList: true });
+  }
+
+  const heroWrap = document.getElementById("heroCardWrap");
+  if (heroWrap) {
+    appTraceHeroObserver?.disconnect();
+    appTraceHeroObserver = new MutationObserver(() => {
+      const rect = heroWrap.getBoundingClientRect?.();
+      traceApp("hero-mutated", {
+        display: heroWrap.style.display || "",
+        visibility: heroWrap.style.visibility || "",
+        opacity: heroWrap.style.opacity || "",
+        parent: heroWrap.parentElement?.id || heroWrap.parentElement?.className || null,
+        rect: rect ? `${Math.round(rect.width)}x${Math.round(rect.height)}` : null,
+      });
+    });
+    appTraceHeroObserver.observe(heroWrap, {
+      attributes: true,
+      attributeFilter: ["style", "class"],
+    });
+  }
+}
+
+function describeTraceTarget(target) {
+  if (!target) return "unknown";
+  const el = target.closest?.(
+    "#fabBtn, #fabBtnSimple, .modal-close, .modal-overlay, .btn-primary, .btn-secondary, .nav-btn, .hero-chip, .balance-card-wide, .balance-row, #appLogoBtn",
+  );
+  if (!el) return null;
+  return (
+    el.id ||
+    el.dataset?.tab ||
+    el.dataset?.type ||
+    el.className?.toString()?.split(" ").filter(Boolean).slice(0, 3).join(".") ||
+    el.tagName
+  );
+}
+
+function rectSummary(el) {
+  if (!el || !el.getBoundingClientRect) return null;
+  const r = el.getBoundingClientRect();
+  return {
+    x: Math.round(r.x),
+    y: Math.round(r.y),
+    w: Math.round(r.width),
+    h: Math.round(r.height),
+  };
+}
+
+function elementState(id) {
+  const el = document.getElementById(id);
+  if (!el) return { exists: false };
+  return {
+    exists: true,
+    parent:
+      el.parentElement?.id ||
+      el.parentElement?.className?.toString?.() ||
+      null,
+    display: el.style.display || "",
+    visibility: el.style.visibility || "",
+    opacity: el.style.opacity || "",
+    rect: rectSummary(el),
+  };
+}
+
+function traceLayoutSnapshot(reason) {
+  if (!APP_TRACE_ENABLED) return;
+  const mainContent = document.getElementById("mainContent");
+  traceApp("layout-snapshot", {
+    reason,
+    tab: currentTab,
+    simpleMode,
+    mainContentChildren: mainContent?.children?.length ?? null,
+    mainContentRect: rectSummary(mainContent),
+    hero: elementState("heroCardWrap"),
+    balance: elementState("balanceCard"),
+    income: elementState("incomeCard"),
+    expense: elementState("expenseCard"),
+    salary: elementState("salaryCard"),
+  });
+}
+
+function scheduleBootLayoutTracing() {
+  if (!APP_TRACE_ENABLED) return;
+  appBootTraceTimers.forEach((id) => clearTimeout(id));
+  appBootTraceTimers = [];
+  [0, 80, 180, 320, 600, 1000, 1600, 2400].forEach((delay) => {
+    const timerId = setTimeout(
+      () => traceLayoutSnapshot(`boot+${delay}ms`),
+      delay,
+    );
+    appBootTraceTimers.push(timerId);
+  });
+}
+
+function scheduleHomeRecoveryAfterAddCancel() {
+  addModalRecoveryTimers.forEach((id) => clearTimeout(id));
+  addModalRecoveryTimers = [];
+  [60, 220, 520, 900].forEach((delay) => {
+    const timerId = setTimeout(() => {
+      if (document.getElementById("addModal")) return;
+      if (currentTab !== "home" || simpleMode) return;
+      renderHome();
+      updateTopBlocks();
+    }, delay);
+    addModalRecoveryTimers.push(timerId);
+  });
+}
+
 function closeModal(id) {
   const m = document.getElementById(id);
   if (m) {
-    m.classList.remove("open");
-    setTimeout(() => m.remove(), 350);
+    if (m.classList.contains("closing")) return;
+    traceApp("closeModal-start", {
+      id,
+      addModalCommitted,
+      currentTab,
+      simpleMode,
+    });
+    const shouldRestoreHomeAfterAddCancel =
+      id === "addModal" &&
+      !addModalCommitted &&
+      currentTab === "home" &&
+      !simpleMode;
+    if (id === "addModal") {
+      const sheet = m.querySelector(".add-modal-sheet");
+      addModalLastClosedAt = Date.now();
+      m.classList.add("closing");
+      if (sheet) sheet.classList.remove("dragging");
+      setTimeout(() => {
+        m.style.display = "none";
+        m.remove();
+      }, 500);
+    } else {
+      m.classList.remove("open");
+      setTimeout(() => m.remove(), 350);
+    }
     document.body.style.overflow = "";
+    traceLayoutSnapshot(`closeModal:${id}`);
+    updateHeroDebugOverlay();
+    if (id === "addModal") addModalCommitted = false;
+    setTimeout(() => ensureHomeHeroStable(), 20);
+    if (shouldRestoreHomeAfterAddCancel) {
+      traceApp("closeModal-recover-home", { id });
+      scheduleHomeRecoveryAfterAddCancel();
+    }
   }
 }
 
 // ============================================================
 // ИНИЦИАЛИЗАЦИЯ
 // ============================================================
-loadAll();
-
 // Проверка пин-кода при запуске
 // 🪙 Монеты при доходе (появляются ПОСЛЕ закрытия модалки, 1.5с)
 function showCoinAnimation() {
@@ -8235,6 +9181,60 @@ function applyTimeBasedTheme() {
 // Check every 5 minutes
 setInterval(applyTimeBasedTheme, 5 * 60 * 1000);
 
+function startDeferredBackgroundServices() {
+  if (backgroundServicesStarted) return;
+  backgroundServicesStarted = true;
+
+  setTimeout(() => {
+    updateExchangeRates();
+    setInterval(updateExchangeRates, 3600000);
+  }, 1200);
+
+  setTimeout(() => {
+    startReminderPoller();
+  }, 1800);
+
+  setTimeout(() => {
+    startRealtimeListener();
+  }, 2200);
+
+  setTimeout(() => {
+    warmMessageCaches().catch(() => {});
+  }, 3200);
+
+  setTimeout(addVoiceButton, 1400);
+  setTimeout(addGoalsNavButton, 1600);
+  setTimeout(startDeferredUiEnhancements, 2200);
+}
+
+function startDeferredUiEnhancements() {
+  if (deferredUiStarted) return;
+  deferredUiStarted = true;
+
+  setTimeout(() => {
+    injectCardHelpButtons();
+    injectNavHelpButtons();
+    updateSupportBadge();
+    setInterval(updateSupportBadge, 15000);
+  }, 0);
+
+  setTimeout(() => {
+    ensureSupportButton();
+  }, 200);
+
+  setTimeout(() => {
+    checkRecurringNotifications();
+  }, 800);
+
+  setTimeout(() => {
+    if (shouldShowOnboarding()) showOnboarding();
+  }, 1200);
+
+  setTimeout(() => {
+    showBudgetCelebration();
+  }, 2200);
+}
+
 function convertTo12(time24) {
   if (!time24) return "";
   let [h, m] = time24.split(":");
@@ -8246,8 +9246,12 @@ function convertTo12(time24) {
 }
 
 function init() {
+  appInitDone = true;
   applyTranslations();
   updateTopBlocks();
+  forceHeroChipLayout();
+  updateHeroDebugOverlay();
+  traceApp("init", { currentLang, simpleMode, currentTab });
   updateHeader();
   addHeaderButtons();
   document.documentElement.lang = currentLang;
@@ -8259,6 +9263,9 @@ function init() {
   setTimeout(applyTimeBasedTheme, 200);
   applyFontSize(fontSize || "normal");
   applySimpleMode(simpleMode || localStorage.getItem("simpleMode") === "true");
+  forceHeroChipLayout();
+  updateHeroDebugOverlay();
+  attachAppTraceObservers();
   const tb = document.getElementById("themeToggle");
   if (tb)
     tb.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
@@ -8268,6 +9275,8 @@ function init() {
   });
   // Делегирование событий — работает с динамически рендеренными chips
   document.addEventListener("click", (e) => {
+    const traceTarget = describeTraceTarget(e.target);
+    if (traceTarget) traceApp("click", { target: traceTarget });
     const card = e.target.closest(
       ".summary-card, .hero-chip, .balance-card-wide",
     );
@@ -8330,18 +9339,20 @@ function init() {
     if (card) card.click();
   });
   document
-    .querySelectorAll(".nav-btn")
-    .forEach((btn) =>
-      btn.addEventListener("click", () => setTab(btn.dataset.tab)),
-    );
-  document.getElementById("fabBtn").addEventListener("click", openAddModal);
+    .getElementById("fabBtn")
+    .addEventListener("click", () => openAddModal("expense"));
   // ── Инициализация push-уведомлений ──
 
+  appBooting = false;
   setTab("home");
+  startDeferredBackgroundServices();
+  ensureHeroWrapGuard();
+  setTimeout(() => ensureHomeHeroStable(8, 150), 120);
 
   // ── Обработчики обеих навигаций ──
   const fabBtnSimple = document.getElementById("fabBtnSimple");
-  if (fabBtnSimple) fabBtnSimple.addEventListener("click", openAddModal);
+  if (fabBtnSimple)
+    fabBtnSimple.addEventListener("click", () => openAddModal("expense"));
 
   // Все кнопки с data-tab в обоих навах
   document
@@ -8383,14 +9394,7 @@ function init() {
       if (activeProf && typeof openShareModal === "function")
         openShareModal(activeProf);
       else
-        showToast(
-          {
-            ru: "Профиль не найден",
-            en: "Profile not found",
-            ka: "პრ. ვერ მოიძ.",
-          }[currentLang],
-          "error",
-        );
+        showToast(t("profileNotFound"), "error");
     });
     // Закрытие по оверлею и свайпу вниз
     const overlay = document.getElementById("moreDrawerOverlay");
@@ -8445,10 +9449,6 @@ function init() {
     .getElementById("settingsNavBtnSimple")
     ?.addEventListener("click", () => setTab("settings"));
 
-  // ==== ОБНОВЛЕНИЕ КУРСОВ ВАЛЮТ ====
-  updateExchangeRates(); // обновить при запуске
-  setInterval(updateExchangeRates, 3600000); // каждый час
-
   // ==== ПРОВЕРКА ФЛАГА НОВЫХ СООБЩЕНИЙ ПРИ ЗАГРУЗКЕ ====
   const checkSupportFlag = () => {
     if (
@@ -8456,16 +9456,7 @@ function init() {
       isCreator()
     ) {
       setTimeout(() => {
-        showToast(
-          "📬 " +
-            (currentLang === "en"
-              ? "New messages from users"
-              : currentLang === "ka"
-                ? "მომხმარებლებიდან ახალი შეტყობინებები"
-                : "У вас новые сообщения от пользователей"),
-          "success",
-          3000,
-        );
+        showToast("📬 " + t("newUserMessages"), "success", 3000);
         localStorage.removeItem("has_new_support_messages");
       }, 300);
     }
@@ -8544,16 +9535,7 @@ function init() {
       localStorage.getItem("has_new_support_messages") === "true"
     ) {
       setTimeout(() => {
-        showToast(
-          "📬 " +
-            (currentLang === "en"
-              ? "New messages from users"
-              : currentLang === "ka"
-                ? "მომხმარებლებიდან ახალი შეტყობინებები"
-                : "У вас новые сообщения от пользователей"),
-          "success",
-          3000,
-        );
+        showToast("📬 " + t("newUserMessages"), "success", 3000);
         localStorage.removeItem("has_new_support_messages");
       }, 300);
     }
@@ -8624,6 +9606,8 @@ function applySimpleMode(on) {
   } else if (!simpleMode) {
     document.getElementById("simpleModeCSS")?.remove();
   }
+  updateHeroDebugOverlay();
+  if (appBooting) return;
   if (currentTab === "home") renderHome();
   else setTab("home");
 }
@@ -8892,11 +9876,11 @@ async function generateInviteHtmlFile(prof) {
   const encoded =
     typeof link === "string" ? link.split("#share=")[1] : link.encoded;
   const appUrl = getAppUrl() || window.location.href.split("#")[0];
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>БюджетPRO — Приглашение</title><style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f5;margin:0;padding:20px;box-sizing:border-box;}.card{background:#fff;border-radius:24px;padding:32px 24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.12)}.avatar{width:80px;height:80px;border-radius:50%;background:${prof.color || "#2d6a4f"};display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 auto 20px}.btn{display:block;width:100%;padding:18px;background:${prof.color || "#2d6a4f"};color:#fff;border:none;border-radius:99px;font-size:18px;font-weight:800;cursor:pointer;text-decoration:none;margin-top:20px;font-family:inherit;}</style></head><body><div class="card"><div class="avatar">${prof.emoji || "👤"}</div><h2 style="font-size:22px;font-weight:900;margin:0 0 8px;">Вас приглашают!</h2><p style="color:#666;font-size:15px;margin:0 0 20px;">Профиль в БюджетPRO: «${(prof.name || "").replace(/</g, "&lt;")}»</p><a class="btn" href="${appUrl}#share=${encoded}">🚀 Открыть профиль</a></div></body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>БюджетPRO — Приглашение</title><style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f5f5f5;margin:0;padding:20px;box-sizing:border-box;}.card{background:#fff;border-radius:24px;padding:24px;max-width:360px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.12)}.avatar{width:80px;height:80px;border-radius:50%;background:${prof.color || "#2d6a4f"};display:flex;align-items:center;justify-content:center;font-size:44px;margin:0 auto 20px}.btn{display:block;width:100%;padding:18px;background:${prof.color || "#2d6a4f"};color:#fff;border:none;border-radius:99px;font-size:18px;font-weight:800;cursor:pointer;text-decoration:none;margin-top:20px;font-family:inherit;}</style></head><body><div class="card"><div class="avatar">${prof.emoji || "👤"}</div><h2 style="font-size:22px;font-weight:900;margin:0 0 8px;">Вас приглашают!</h2><p style="color:#666;font-size:15px;margin:0 0 20px;">Профиль в БюджетPRO: «${(prof.name || "").replace(/</g, "&lt;")}»</p><a class="btn" href="${appUrl}#share=${encoded}">🚀 Открыть профиль</a></div></body></html>`;
 }
 async function openShareModal(prof) {
   if (!prof) {
-    showToast("Профиль не найден", "error");
+    showToast(t("profileNotFound"), "error");
     return;
   }
   if (!prof.shareSettings)
@@ -9186,7 +10170,7 @@ async function openShareModal(prof) {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showToast("📄 " + LL.download);
+            showToast(t("fileDownloaded"));
           });
       }
       haptic("success");
@@ -9257,6 +10241,28 @@ function checkShareLink() {
     return false;
   }
 }
+
+async function bootApp() {
+  appBooting = true;
+  traceApp("boot-start", { currentTab, currentLang });
+  traceLayoutSnapshot("boot:start");
+  await loadAll();
+  traceApp("boot-loadAll-done", {
+    transactions: transactions.length,
+    profiles: profiles.length,
+    activeProfileId,
+  });
+  traceLayoutSnapshot("boot:loadAll-done");
+  scheduleBootLayoutTracing();
+  if (!checkShareLink()) {
+    if ((pinEnabled && pinHash) || biometryEnabled) {
+      showPinScreen(init);
+    } else {
+      init();
+    }
+  }
+}
+
 async function showShareWelcomeScreen(pkg) {
   // Detect language: use stored lang or browser lang
   const lang =
@@ -9299,7 +10305,7 @@ async function showShareWelcomeScreen(pkg) {
   const ov = document.createElement("div");
   ov.id = "shareWelcomeOverlay";
   ov.style.cssText =
-    "position:fixed;inset:0;background:var(--cream);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px 24px;animation:fadeIn 0.3s ease both;";
+    "position:fixed;inset:0;background:var(--cream);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:calc(var(--safe-top) + 24px) 24px calc(var(--safe-bottom) + 24px);animation:fadeIn 0.3s ease both;";
   const profileColor = pkg.pcolor || "#2d6a4f";
 
   ov.innerHTML = `
@@ -9439,7 +10445,7 @@ async function showShareWelcomeScreen(pkg) {
     syncStartBalanceTransaction();
     ov.remove();
     init();
-    showToast("✅ " + (LL[currentLang] || LL.ru).guestMode + ": " + pkg.pname);
+  showToast(`${t("savedMark")} ${t("guestModeActivated")}: ${pkg.pname}`);
   });
 }
 
@@ -9492,7 +10498,7 @@ function exitGuestMode() {
   // Переключаемся на собственный профиль гостя
   switchProfile(ownProfile.id);
   updateHeader();
-  showToast("👤 Вы перешли в свой профиль");
+  showToast(t("switchedToOwnProfile"));
 }
 
 function haptic(type = "light") {
@@ -9709,7 +10715,7 @@ function openSupportModal() {
         updateHeader();
       }
       closeModal("supportModal");
-      showToast("👋 Режим создателя выключен");
+      showToast(t("creatorModeOff"));
       if (currentTab === "settings") renderSettings();
     });
 
@@ -9764,7 +10770,7 @@ function openSupportModal() {
 
           const userContact = msg.phone || msg.email;
           if (!userContact) {
-            showToast("Пользователь не указал контакт для ответа", "error");
+            showToast(t("noReplyContact"), "error");
             return;
           }
 
@@ -9772,7 +10778,7 @@ function openSupportModal() {
           const replyHtml = `
             <div class="field-group">
               <label class="field-label">📝 Ваш ответ для ${esc(msg.name)}</label>
-              <textarea id="replyMessageInput" class="modal-textarea" rows="4" placeholder="Введите текст ответа..."></textarea>
+              <textarea id="replyMessageInput" class="modal-textarea" rows="4" placeholder="${t("replyTextPlaceholder")}"></textarea>
             </div>
             <div class="modal-actions">
               <button class="btn-secondary" id="cancelReplyBtn">${t("cancel")}</button>
@@ -9794,7 +10800,7 @@ function openSupportModal() {
                 .getElementById("replyMessageInput")
                 .value.trim();
               if (!replyText) {
-                showToast("Введите текст ответа", "error");
+                showToast(t("enterReplyText"), "error");
                 return;
               }
 
@@ -9815,7 +10821,7 @@ function openSupportModal() {
               );
               closeModal("replyModal");
               renderMessages();
-              showToast("✅ Ответ отправлен");
+              showToast(t("replySent"));
             });
 
           document
@@ -9932,8 +10938,8 @@ function openSupportModal() {
   const html = `
     <div style="background:var(--primary-pale);border-radius:14px;padding:12px 14px;margin-bottom:14px;border-left:4px solid var(--primary);font-size:13px;line-height:1.6;color:var(--text-soft);">${L.hint}</div>
     <div class="field-group"><label class="field-label">${L.name}</label><input type="text" id="supName" class="modal-input" placeholder="${L.name.replace(" *", "")}"></div>
-    <div class="field-group"><label class="field-label">${L.email}</label><input type="email" id="supEmail" class="modal-input" placeholder="email@example.com"></div>
-        <div class="field-group"><label class="field-label">📱 Телефон (WhatsApp, Viber)</label><input type="tel" id="supPhone" class="modal-input" placeholder="+995..."></div>
+    <div class="field-group"><label class="field-label">${L.email}</label><input type="email" id="supEmail" class="modal-input" placeholder="${t("emailPlaceholder")}"></div>
+        <div class="field-group"><label class="field-label">${t("supportPhoneLabel")}</label><input type="tel" id="supPhone" class="modal-input" placeholder="+995..."></div>
     <div class="field-group"><label class="field-label">${L.cat}</label>
       <select id="supCat" class="modal-select">
         <option value="">— ${L.cat.replace(" *", "")} —</option>
@@ -9987,7 +10993,7 @@ function openSupportModal() {
 
     const cs = getCreatorSettings();
     if (!cs.contactEnabled) {
-      showToast("Приём сообщений временно отключён", "error");
+      showToast(t("supportDisabled"), "error");
       closeModal("supportModal");
       return;
     }
@@ -10027,7 +11033,7 @@ function openSupportModal() {
     localStorage.setItem(ownerKey, JSON.stringify(ownerData));
 
     if (activeProfileId === ownerProfile.id) {
-      showToast(`📬 Новое сообщение от ${f.name}`, "success", 3000);
+      showToast(`${t("newMessageFrom")} ${f.name}`, "success", 3000);
       if (window._renderMessages) window._renderMessages();
     } else {
       localStorage.setItem("has_new_support_messages", "true");
@@ -10240,13 +11246,7 @@ function openNotificationHelpModal() {
     ?.addEventListener("click", () => closeModal("notifHelpModal"));
 }
 
-if (!checkShareLink()) {
-  if ((pinEnabled && pinHash) || biometryEnabled) {
-    showPinScreen(init);
-  } else {
-    init();
-  }
-}
+bootApp();
 setTimeout(updateOfflineBar, 600);
 
 // 4-click logo → Creator login
@@ -10351,7 +11351,7 @@ function showCreatorLoginModal(prof) {
         <label style="font-size:13px;font-weight:700;color:var(--text-soft);display:block;margin-bottom:8px;">${lc.label}</label>
         <div style="position:relative;">
           <input type="password" id="creatorKeyInput" class="modal-input" placeholder="${lc.ph}" style="width:100%;padding-right:48px;font-size:16px;letter-spacing:2px;" autocomplete="off">
-          <button id="toggleKeyVisibility" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;cursor:pointer;padding:4px;" title="Показать/скрыть">👁</button>
+          <button id="toggleKeyVisibility" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;cursor:pointer;padding:4px;" title="${t("creatorToggleVisibility")}">👁</button>
         </div>
       </div>
       <div id="creatorLoginError" style="display:none;background:var(--expense-pale);color:var(--expense-color);padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;margin-bottom:12px;text-align:center;"></div>
@@ -11117,11 +12117,7 @@ async function startRealtimeListener() {
   }
 }
 
-// Start listener when page loads
-setTimeout(startRealtimeListener, 1000);
-
-// Also pull from JSONBin on load
-setTimeout(async () => {
+async function warmMessageCaches() {
   const msgs = await jsonBinLoadMessages();
   if (msgs && msgs.length > 0) {
     const localMsgs = getAllMessages();
@@ -11143,7 +12139,7 @@ setTimeout(async () => {
   }
   // Start polling if creator panel may open
   if (isCreator()) startJsonBinPoller();
-}, 2000);
+}
 
 // ── Local fallback (same device) ──────────────────────────────
 let _msgChannel = null;
@@ -12233,7 +13229,7 @@ function openCreatorChatPanel() {
       ?.addEventListener("click", async () => {
         const key = (document.getElementById("jbKeyInput")?.value || "").trim();
         if (!key) {
-          showToast(lang === "ru" ? "Введите ключ" : "Enter key", "error");
+          showToast(t("enterKey"), "error");
           return;
         }
         const cfg = { key };
@@ -12458,14 +13454,6 @@ function injectNavHelpButtons() {
     }
   });
 }
-
-// Run injections after init
-setTimeout(() => {
-  injectCardHelpButtons();
-  injectNavHelpButtons();
-  updateSupportBadge();
-  setInterval(updateSupportBadge, 15000);
-}, 800);
 
 // ============================================================
 // FIX INACTIVE BUTTONS
@@ -12750,8 +13738,6 @@ function ensureSupportButton() {
   // Poll badge every 10s
   setInterval(updateSupportBadge, 10000);
 }
-// Run after init renders the header
-setTimeout(ensureSupportButton, 500);
 // Also re-run when tab changes (init is called again)
 const _origInit = typeof init === "function" ? init : null;
 if (_origInit) {
@@ -12884,7 +13870,7 @@ function showOnboarding() {
     "background:var(--cream);",
     "display:flex;flex-direction:column;",
     "overflow-y:auto;-webkit-overflow-scrolling:touch;",
-    "padding:env(safe-area-inset-top,16px) 24px env(safe-area-inset-bottom,24px);",
+    "padding:calc(var(--safe-top) + 12px) 24px calc(var(--safe-bottom) + 24px);",
     "animation:fadeIn 0.35s ease both;",
     "min-height:100vh;min-height:100dvh;",
   ].join("");
@@ -12967,11 +13953,6 @@ function showOnboarding() {
   document.body.appendChild(ov);
   renderSlide();
 }
-
-// Show onboarding after first init
-setTimeout(() => {
-  if (shouldShowOnboarding()) showOnboarding();
-}, 600);
 
 // ──────────────────────────────────────────────────────────────
 // 2. СВАЙП СНИЗУ ВВЕРХ — быстрое добавление операции
@@ -13397,8 +14378,6 @@ function checkRecurringNotifications() {
     });
   }
 }
-setTimeout(checkRecurringNotifications, 2000);
-
 // ──────────────────────────────────────────────────────────────
 // 7. ЭКСПОРТ В GOOGLE ТАБЛИЦЫ — инструкция + CSV-ready
 // ──────────────────────────────────────────────────────────────
@@ -13906,7 +14885,6 @@ function showBudgetCelebration() {
     }, 500);
   }
 }
-setTimeout(showBudgetCelebration, 3000);
 
 // ═══════════════════════════════════════════════════════════════
 // 🎤 3. ГОЛОСОВОЙ ВВОД (Web Speech API)
@@ -14204,7 +15182,6 @@ function addVoiceButton() {
   );
   document.body.appendChild(voiceBtn);
 }
-setTimeout(addVoiceButton, 800);
 
 // ═══════════════════════════════════════════════════════════════
 // 🧠 4. УМНЫЕ ПОДСКАЗКИ — анализ паттернов
@@ -14391,14 +15368,14 @@ function openGoalsModal() {
           </div>
           <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:8px;">
             <span style="color:var(--primary);">${fmt(g.saved)} ${lc.saved}</span>
-            <span style="color:var(--text-muted);">${fmt(g.target)} цель</span>
+            <span style="color:var(--text-muted);">${fmt(g.target)} ${t("goalTargetWord")}</span>
           </div>
           <div style="height:12px;background:var(--cream-dark);border-radius:99px;overflow:hidden;margin-bottom:12px;">
             <div style="height:100%;width:${pct}%;background:${done ? "linear-gradient(90deg,var(--gold),#f59e0b)" : "linear-gradient(90deg,var(--primary),var(--primary-med))"};border-radius:99px;transition:width 1s ease;"></div>
           </div>
           <div style="display:flex;gap:8px;">
             <button class="goal-add-btn btn-primary" data-gi="${i}" style="flex:1;padding:10px;font-size:13px;">💰 ${lc.addSaved}</button>
-            <button class="goal-sub-btn btn-secondary" data-gi="${i}" style="flex:0 0 44px;padding:10px;font-size:18px;font-weight:900;" title="${currentLang === "en" ? "Subtract" : "Убрать сумму"}">−</button>
+            <button class="goal-sub-btn btn-secondary" data-gi="${i}" style="flex:0 0 44px;padding:10px;font-size:18px;font-weight:900;" title="${t("goalSubtract")}">−</button>
           </div>
         </div>`;
           })
@@ -14428,7 +15405,7 @@ function openGoalsModal() {
         <input id="goalName" class="modal-input" placeholder="${lc.name}" style="width:100%;" autocomplete="off">
       </div>
       <div style="margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">Иконка / Icon</div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">${t("iconLabel")}</div>
         <div id="goalEmojiPicker" style="display:flex;flex-wrap:wrap;gap:6px;">
           ${GOAL_EMOJIS.map((e, i) => `<button type="button" class="goal-emoji-opt" data-e="${e}" style="width:36px;height:36px;font-size:20px;border-radius:8px;border:2px solid ${i === 0 ? "var(--primary)" : "var(--cream-border)"};background:${i === 0 ? "var(--primary-pale)" : "var(--card-bg)"};cursor:pointer;display:flex;align-items:center;justify-content:center;">${e}</button>`).join("")}
         </div>
@@ -14456,14 +15433,7 @@ function openGoalsModal() {
     );
     const emoji = document.getElementById("goalEmoji")?.value || "🎯";
     if (!name || target <= 0) {
-      showToast(
-        currentLang === "en"
-          ? "Fill name and target"
-          : currentLang === "ka"
-            ? "შეავსეთ სახელი და მიზანი"
-            : "Заполните название и цель",
-        "error",
-      );
+      showToast(t("goalFillNameTarget"), "error");
       return;
     }
     const newGoal = {
@@ -14510,7 +15480,7 @@ function openGoalsModal() {
       btn.onclick = () => {
         const i = parseInt(btn.dataset.gi);
         askConfirm(
-          currentLang === "en" ? "Delete this goal?" : "Удалить цель?",
+          t("goalDeleteConfirm"),
           () => {
             gs.splice(i, 1);
             saveGoals(gs);
@@ -14528,11 +15498,7 @@ function openGoalsModal() {
         const i = parseInt(btn.dataset.gi);
         const amt = parseFloat(
           prompt(
-            currentLang === "en"
-              ? `Add to "${gs[i].name}" (${sym()}):`
-              : currentLang === "ka"
-                ? `დაამატეთ "${gs[i].name}"-ს (${sym()}):`
-                : `Пополнить «${gs[i].name}» (${sym()}):`,
+            `${t("goalAddPromptPrefix")} "${gs[i].name}" (${sym()}):`,
           ) || "0",
         );
         if (amt > 0) {
@@ -14544,12 +15510,7 @@ function openGoalsModal() {
           if (gs[i].saved >= gs[i].target) {
             showConfetti({ count: 60, type: "goal" });
             showToast(
-              "🏆 " +
-                (currentLang === "en"
-                  ? "Goal achieved!"
-                  : currentLang === "ka"
-                    ? "მიზანი მიღწეულია!"
-                    : "Цель достигнута!"),
+              t("goalAchieved"),
               "success",
             );
           }
@@ -14564,12 +15525,7 @@ function openGoalsModal() {
       btn.onclick = () => {
         const i = parseInt(btn.dataset.gi);
         const g = gs[i];
-        const label =
-          currentLang === "en"
-            ? `Remove from "${g.name}" (${sym()}): max ${toDisp(g.saved).toFixed(2)}`
-            : currentLang === "ka"
-              ? `"${g.name}"-დან გამოქვით (${sym()}):`
-              : `Убрать из «${g.name}» (${sym()}): макс ${toDisp(g.saved).toFixed(2)}`;
+        const label = `${t("goalSubtractPromptPrefix")} "${g.name}" (${sym()}): ${t("goalSubtractMax")} ${toDisp(g.saved).toFixed(2)}`;
         const raw = prompt(label) || "0";
         const amt = parseFloat(raw);
         if (isNaN(amt) || amt <= 0) return;
@@ -14581,7 +15537,7 @@ function openGoalsModal() {
         document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
         haptic("medium");
         reattachGoalBtns(gs);
-        showToast("−" + amt.toFixed(2) + " " + sym());
+        showToast(`${t("amountSubtracted")}${amt.toFixed(2)} ${sym()}`);
       };
     });
   }
@@ -14610,7 +15566,6 @@ function addGoalsNavButton() {
   btn.addEventListener("mouseleave", () => (btn.style.transform = ""));
   document.body.appendChild(btn);
 }
-setTimeout(addGoalsNavButton, 900);
 
 // ═══════════════════════════════════════════════════════════════
 // 📊 6. ФИНАНСОВЫЙ ИНСАЙТ НЕДЕЛИ
@@ -15124,6 +16079,11 @@ const TOOLTIPS = {
       title: "ხელსაწყოები",
       text: "კალკულატორი, ვალუტის კონვერტერი, ჩეკის სკანერი და სხვა.",
     },
+    notebook: {
+      icon: "📔",
+      title: "ბლოკნოტი",
+      text: "პირადი ჩანაწერები, რომლებიც ოპერაციებთან კავშირში არ არის. შეინახეთ აქ რაც გინდათ.",
+    },
     settings: {
       icon: "⚙️",
       title: "პარამეტრები",
@@ -15149,6 +16109,11 @@ const TOOLTIPS = {
       title: "თემა",
       text: "მსუბუქი და ბნელი თემის გადართვა.",
     },
+    appLogoBtn: {
+      icon: "🌿",
+      title: "BudgetPRO",
+      text: "დააჭირეთ 4-ჯერ, რომ შემქმნელის რეჟიმში შეხვიდეთ.",
+    },
     fabBtn: {
       icon: "➕",
       title: "ოპერაციის დამატება",
@@ -15158,6 +16123,31 @@ const TOOLTIPS = {
       icon: "💎",
       title: "ბალანსი",
       text: "მიმდინარე ბალანსი = საწყისი + შემოსავლები − ხარჯები.",
+    },
+    incomeCard: {
+      icon: "📈",
+      title: "შემოსავლები",
+      text: "არჩეული პერიოდის ყველა შემოსავლის ჯამი. დააჭირეთ, რომ ისტორიაში მხოლოდ შემოსავლები ნახოთ.",
+    },
+    expenseCard: {
+      icon: "📉",
+      title: "ხარჯები",
+      text: "არჩეული პერიოდის ყველა ხარჯის ჯამი. დააჭირეთ, რომ ისტორიაში მხოლოდ ხარჯები ნახოთ.",
+    },
+    salaryCard: {
+      icon: "💼",
+      title: "საწყისი თანხა",
+      text: "ფული, რომლითაც აღრიცხვა დაიწყეთ. დააჭირეთ შესაცვლელად.",
+    },
+    voiceInputBtn: {
+      icon: "🎤",
+      title: "ხმოვანი შეყვანა",
+      text: "თქვით, მაგალითად, „50 ლარი პროდუქტებზე“ და აპი ჩანაწერს თვითონ შექმნის. მუშაობს Chrome-ში.",
+    },
+    goalsNavBtn: {
+      icon: "🎯",
+      title: "ჩემი მიზნები",
+      text: "დაზოგეთ სურვილებისთვის პროგრესის ზოლით. დაამატეთ მიზანი, შეავსეთ და მიღწევისას კონფეტი მიიღეთ!",
     },
   },
 };
@@ -15539,8 +16529,540 @@ const GUIDE_TOPICS = {
       ],
     },
   ],
-  en: [],
-  ka: [],
+  en: [
+    {
+      id: "basics",
+      icon: "🏠",
+      title: "App basics",
+      steps: [
+        {
+          emoji: "👋",
+          title: "Welcome!",
+          nav: "home",
+          text: "BudgetPRO is a personal finance tracker. It helps you see where money goes and plan your budget. Let's walk through the main features.",
+        },
+        {
+          emoji: "💼",
+          title: "Starting amount",
+          nav: "home",
+          action: "salaryCard",
+          text: "The starting amount card stores how much money you have right now. Tap it to change the value.",
+        },
+        {
+          emoji: "💎",
+          title: "My balance",
+          nav: "home",
+          action: "balanceCard",
+          text: "Balance = starting amount + income − expenses. It updates automatically after every transaction.",
+        },
+        {
+          emoji: "📋",
+          title: "Income and expense cards",
+          nav: "home",
+          action: "incomeCard",
+          text: "These cards show totals for the current period. Tap them to filter the transaction list.",
+        },
+        {
+          emoji: "📜",
+          title: "Transaction history",
+          nav: "home",
+          scrollTo: ".ops-list",
+          text: "Here you see all expenses and income. Tap an item to edit it, or swipe left to delete.",
+        },
+        {
+          emoji: "➕",
+          title: "Add button (+)",
+          nav: "home",
+          action: "fabBtn",
+          text: "This is the main action button. Tap it to add an expense or income. You can also swipe up from the bottom.",
+        },
+      ],
+    },
+    {
+      id: "stats",
+      icon: "📊",
+      title: "Statistics",
+      steps: [
+        {
+          emoji: "📊",
+          title: "Monthly summary",
+          nav: "stats",
+          scrollTo: ".stat-status-card",
+          text: "This card shows whether the month is positive or negative and changes color depending on the result.",
+        },
+        {
+          emoji: "🔢",
+          title: "Key metrics",
+          nav: "stats",
+          scrollTo: ".stat-kpi-grid",
+          text: "A quick snapshot of balance, starting amount, income, and expenses for the selected period.",
+        },
+        {
+          emoji: "🍩",
+          title: "Expense ratio",
+          nav: "stats",
+          scrollTo: ".stat-donut-card",
+          text: "The donut chart shows how large expenses are relative to income. Smaller is usually better.",
+        },
+        {
+          emoji: "📅",
+          title: "Period switch",
+          nav: "stats",
+          scrollTo: ".stats-period-btns",
+          text: "Week / Month / Year switches the time range for the whole statistics page.",
+        },
+        {
+          emoji: "📉",
+          title: "Monthly trend",
+          nav: "stats",
+          scrollTo: ".stat-chart-card",
+          text: "Bar charts compare income and expenses by month so you can see how your financial picture changes.",
+        },
+        {
+          emoji: "🥧",
+          title: "Category pie",
+          nav: "stats",
+          scrollTo: ".pie-chart-card",
+          text: "This chart shows which categories take the biggest share of your spending.",
+        },
+        {
+          emoji: "🏆",
+          title: "Top categories",
+          nav: "stats",
+          scrollTo: ".stat-cats-card",
+          text: "A ranking of categories with progress bars so you can instantly spot the biggest expenses.",
+        },
+        {
+          emoji: "🌡️",
+          title: "Heat map",
+          nav: "stats",
+          scrollTo: ".stat-heatmap-card",
+          text: "The heat map shows on which days you were most financially active.",
+        },
+        {
+          emoji: "💡",
+          title: "Financial tips",
+          nav: "stats",
+          scrollTo: ".stat-tips-card",
+          text: "Automatic tips based on spending analysis. They refresh every week.",
+        },
+      ],
+    },
+    {
+      id: "budget",
+      icon: "🎯",
+      title: "Budgets and limits",
+      steps: [
+        {
+          emoji: "🎯",
+          title: "What is a budget?",
+          nav: "settings",
+          action: "budgetsBody",
+          text: "A budget is a monthly limit for a category, for example Restaurants up to 200 GEL. The app warns you after 80%.",
+        },
+        {
+          emoji: "➕",
+          title: "Add a limit",
+          nav: "settings",
+          action: "addBudgetBtn",
+          text: "Tap Add budget, choose a category, and set a monthly limit. You can do this for as many categories as you want.",
+        },
+      ],
+    },
+    {
+      id: "reminders",
+      icon: "🔔",
+      title: "Reminders",
+      steps: [
+        {
+          emoji: "🔔",
+          title: "Enable notifications",
+          nav: "settings",
+          action: "notifEnableBtn",
+          text: "Tap this button and let the browser request permission. Make sure to choose Allow.",
+        },
+        {
+          emoji: "🧪",
+          title: "Test notifications",
+          nav: "settings",
+          action: "testNotifBtn",
+          text: "The test button sends a sample notification right away so you can confirm it works on your device.",
+        },
+        {
+          emoji: "📝",
+          title: "Reminder name",
+          nav: "settings",
+          action: "newReminderName",
+          text: "Enter what should be done, for example Record expenses or Pay rent.",
+        },
+        {
+          emoji: "📅",
+          title: "Date and time",
+          nav: "settings",
+          action: "newReminderDatetime",
+          text: "Choose the exact moment when the reminder should fire. You can even set today's date for testing.",
+        },
+        {
+          emoji: "⏰",
+          title: "Schedule it",
+          nav: "settings",
+          action: "addNamedReminderBtn",
+          text: "Tap Schedule and the reminder will be saved. It can arrive even if the app is closed.",
+        },
+        {
+          emoji: "🔁",
+          title: "Recurring reminders",
+          nav: "settings",
+          scrollTo: ".reminder-interval-checkbox",
+          text: "Enable an interval like hourly, daily, or weekly to receive repeated reminders automatically.",
+        },
+      ],
+    },
+    {
+      id: "profiles",
+      icon: "👥",
+      title: "Profiles",
+      steps: [
+        {
+          emoji: "👥",
+          title: "Profiles section",
+          nav: "settings",
+          action: "profilesBody",
+          text: "Use multiple profiles for different people or wallets. Each profile has its own transactions, budgets, and settings.",
+        },
+        {
+          emoji: "➕",
+          title: "Add profile",
+          nav: "settings",
+          action: "addProfileBtn",
+          text: "Tap Add profile, enter a name, choose a color, and switch between profiles whenever you need.",
+        },
+      ],
+    },
+    {
+      id: "goals",
+      icon: "🌟",
+      title: "Goals and dreams",
+      steps: [
+        {
+          emoji: "🌟",
+          title: "Goals button 🎯",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "The goals button opens your savings goals. It appears a moment after load. If you do not see it, enable floating buttons in Settings.",
+        },
+        {
+          emoji: "➕",
+          title: "Create a goal",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "Inside the goals window tap Add goal, enter a name, choose an icon, set the target amount, and how much is already saved.",
+        },
+        {
+          emoji: "💰",
+          title: "Add savings",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "The money button adds savings to a goal, and the minus button subtracts some if needed. The progress bar updates instantly.",
+        },
+      ],
+    },
+    {
+      id: "tools",
+      icon: "🛠️",
+      title: "Tools",
+      steps: [
+        {
+          emoji: "🧮",
+          title: "Calculator",
+          nav: "tools",
+          action: "calcDisplay",
+          text: "Use the built-in calculator directly in the app. Your calculation history is saved.",
+        },
+        {
+          emoji: "💱",
+          title: "Currency converter",
+          nav: "tools",
+          action: "convAmount",
+          text: "Convert sums between currencies with automatically updated exchange rates.",
+        },
+        {
+          emoji: "📦",
+          title: "More tools",
+          nav: "tools",
+          scrollTo: ".tool-card",
+          text: "Scroll down for more features like export, Google Sheets integration, and other utilities.",
+        },
+      ],
+    },
+  ],
+  ka: [
+    {
+      id: "basics",
+      icon: "🏠",
+      title: "აპის საფუძვლები",
+      steps: [
+        {
+          emoji: "👋",
+          title: "მოგესალმებით!",
+          nav: "home",
+          text: "BudgetPRO პირადი ფინანსების ტრეკერია. ის გეხმარებათ დაინახოთ, სად მიდის ფული და როგორ დაგეგმოთ ბიუჯეტი. მოდი, მთავარ ფუნქციებს ერთად გადავხედოთ.",
+        },
+        {
+          emoji: "💼",
+          title: "საწყისი თანხა",
+          nav: "home",
+          action: "salaryCard",
+          text: "აქ ინახება ის თანხა, რაც ახლა გაქვთ. დააჭირეთ ბარათს, თუ მნიშვნელობის შეცვლა გსურთ.",
+        },
+        {
+          emoji: "💎",
+          title: "ჩემი ბალანსი",
+          nav: "home",
+          action: "balanceCard",
+          text: "ბალანსი = საწყისი თანხა + შემოსავლები − ხარჯები. ყოველი ახალი ოპერაციის შემდეგ ავტომატურად ახლდება.",
+        },
+        {
+          emoji: "📋",
+          title: "შემოსავლის და ხარჯის ბარათები",
+          nav: "home",
+          action: "incomeCard",
+          text: "ეს ბარათები აჩვენებს მიმდინარე პერიოდის ჯამებს. დააჭირეთ, რომ ოპერაციების სია გაფილტროთ.",
+        },
+        {
+          emoji: "📜",
+          title: "ოპერაციების ისტორია",
+          nav: "home",
+          scrollTo: ".ops-list",
+          text: "აქ ჩანს ყველა თქვენი შემოსავალი და ხარჯი. ჩანაწერზე დაჭერა რედაქტირებისთვისაა, მარცხნივ გასმა კი წაშლისთვის.",
+        },
+        {
+          emoji: "➕",
+          title: "დამატების ღილაკი (+)",
+          nav: "home",
+          action: "fabBtn",
+          text: "ეს არის მთავარი მოქმედების ღილაკი. დააჭირეთ ხარჯის ან შემოსავლის დასამატებლად. ასევე შეგიძლიათ ქვემოდან ზემოთ ასვაიფოთ.",
+        },
+      ],
+    },
+    {
+      id: "stats",
+      icon: "📊",
+      title: "სტატისტიკა",
+      steps: [
+        {
+          emoji: "📊",
+          title: "თვიური შეჯამება",
+          nav: "stats",
+          scrollTo: ".stat-status-card",
+          text: "ეს ბარათი გაჩვენებთ, თვე პლუსშია თუ მინუსში, და ფერს შედეგის მიხედვით ცვლის.",
+        },
+        {
+          emoji: "🔢",
+          title: "მთავარი მაჩვენებლები",
+          nav: "stats",
+          scrollTo: ".stat-kpi-grid",
+          text: "სწრაფი სურათი: ბალანსი, საწყისი თანხა, შემოსავლები და ხარჯები არჩეული პერიოდისთვის.",
+        },
+        {
+          emoji: "🍩",
+          title: "ხარჯების წილი",
+          nav: "stats",
+          scrollTo: ".stat-donut-card",
+          text: "დონატის დიაგრამა აჩვენებს, რამდენად დიდია ხარჯები შემოსავლებთან შედარებით.",
+        },
+        {
+          emoji: "📅",
+          title: "პერიოდის გადართვა",
+          nav: "stats",
+          scrollTo: ".stats-period-btns",
+          text: "კვირა / თვე / წელი ცვლის დროის შუალედს სტატისტიკის მთელ გვერდზე.",
+        },
+        {
+          emoji: "📉",
+          title: "თვეების დინამიკა",
+          nav: "stats",
+          scrollTo: ".stat-chart-card",
+          text: "სვეტოვანი გრაფიკი გაჩვენებთ, როგორ იცვლებოდა შემოსავლები და ხარჯები თვეების მიხედვით.",
+        },
+        {
+          emoji: "🥧",
+          title: "კატეგორიების დიაგრამა",
+          nav: "stats",
+          scrollTo: ".pie-chart-card",
+          text: "აქ ჩანს, რომელი კატეგორიები იკავებს თქვენი ხარჯების ყველაზე დიდ ნაწილს.",
+        },
+        {
+          emoji: "🏆",
+          title: "ტოპ კატეგორიები",
+          nav: "stats",
+          scrollTo: ".stat-cats-card",
+          text: "კატეგორიების რეიტინგი პროგრეს-ბარებით, რომ სწრაფად დაინახოთ ყველაზე დიდი ხარჯები.",
+        },
+        {
+          emoji: "🌡️",
+          title: "აქტივობის რუკა",
+          nav: "stats",
+          scrollTo: ".stat-heatmap-card",
+          text: "ეს რუკა აჩვენებს, რომელ დღეებში იყავით ყველაზე აქტიური ფინანსურად.",
+        },
+        {
+          emoji: "💡",
+          title: "ფინანსური რჩევები",
+          nav: "stats",
+          scrollTo: ".stat-tips-card",
+          text: "ავტომატური რჩევები თქვენი ხარჯების ანალიზის მიხედვით. ისინი ყოველ კვირას ახლდება.",
+        },
+      ],
+    },
+    {
+      id: "budget",
+      icon: "🎯",
+      title: "ბიუჯეტები და ლიმიტები",
+      steps: [
+        {
+          emoji: "🎯",
+          title: "რა არის ბიუჯეტი?",
+          nav: "settings",
+          action: "budgetsBody",
+          text: "ბიუჯეტი არის კატეგორიის თვიური ზღვარი, მაგალითად რესტორნები მაქსიმუმ 200 GEL. აპი 80%-ის შემდეგ გაფრთხილებთ.",
+        },
+        {
+          emoji: "➕",
+          title: "ლიმიტის დამატება",
+          nav: "settings",
+          action: "addBudgetBtn",
+          text: "დააჭირეთ ბიუჯეტის დამატებას, აირჩიეთ კატეგორია და მიუთითეთ თვიური ზღვარი. კატეგორიების რაოდენობა შეზღუდული არ არის.",
+        },
+      ],
+    },
+    {
+      id: "reminders",
+      icon: "🔔",
+      title: "შეხსენებები",
+      steps: [
+        {
+          emoji: "🔔",
+          title: "შეტყობინებების ჩართვა",
+          nav: "settings",
+          action: "notifEnableBtn",
+          text: "დააჭირეთ ამ ღილაკს და ბრაუზერს ნებართვის მოთხოვნის საშუალება მიეცით. აუცილებლად აირჩიეთ Allow.",
+        },
+        {
+          emoji: "🧪",
+          title: "ტესტის გაშვება",
+          nav: "settings",
+          action: "testNotifBtn",
+          text: "ტესტის ღილაკი მაშინვე აგზავნის სატესტო შეტყობინებას, რომ შეამოწმოთ მუშაობს თუ არა თქვენს მოწყობილობაზე.",
+        },
+        {
+          emoji: "📝",
+          title: "შეხსენების სახელი",
+          nav: "settings",
+          action: "newReminderName",
+          text: "ჩაწერეთ რა უნდა გაკეთდეს, მაგალითად ხარჯების ჩაწერა ან ქირის გადახდა.",
+        },
+        {
+          emoji: "📅",
+          title: "თარიღი და დრო",
+          nav: "settings",
+          action: "newReminderDatetime",
+          text: "აირჩიეთ ზუსტი დრო, როდის უნდა მოვიდეს შეხსენება. ტესტისთვის დღევანდელი დღეც შეგიძლიათ მიუთითოთ.",
+        },
+        {
+          emoji: "⏰",
+          title: "დაგეგმვა",
+          nav: "settings",
+          action: "addNamedReminderBtn",
+          text: "დააჭირეთ დაგეგმვას და შეხსენება შეინახება. ის შეიძლება მაშინაც მოვიდეს, როცა აპი დახურულია.",
+        },
+        {
+          emoji: "🔁",
+          title: "განმეორებადი შეხსენებები",
+          nav: "settings",
+          scrollTo: ".reminder-interval-checkbox",
+          text: "ჩართეთ ინტერვალი, როგორიცაა საათობრივი, ყოველდღიური ან ყოველკვირეული, რომ შეხსენება რეგულარულად მოვიდეს.",
+        },
+      ],
+    },
+    {
+      id: "profiles",
+      icon: "👥",
+      title: "პროფილები",
+      steps: [
+        {
+          emoji: "👥",
+          title: "პროფილების განყოფილება",
+          nav: "settings",
+          action: "profilesBody",
+          text: "რამდენიმე პროფილი გამოგადგებათ სხვადასხვა ადამიანისთვის ან საფულისთვის. თითოეულს საკუთარი ოპერაციები, ბიუჯეტები და პარამეტრები აქვს.",
+        },
+        {
+          emoji: "➕",
+          title: "პროფილის დამატება",
+          nav: "settings",
+          action: "addProfileBtn",
+          text: "დააჭირეთ პროფილის დამატებას, შეიყვანეთ სახელი, აირჩიეთ ფერი და პროფილებს შორის თავისუფლად გადაერთეთ.",
+        },
+      ],
+    },
+    {
+      id: "goals",
+      icon: "🌟",
+      title: "მიზნები და ოცნებები",
+      steps: [
+        {
+          emoji: "🌟",
+          title: "მიზნების ღილაკი 🎯",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "მიზნების ღილაკი ხსნის თქვენს დაგროვების მიზნებს. ის ჩატვირთვიდან ცოტა ხანში ჩნდება. თუ ვერ ხედავთ, ჩართეთ მცურავი ღილაკები პარამეტრებში.",
+        },
+        {
+          emoji: "➕",
+          title: "მიზნის შექმნა",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "მიზნების ფანჯარაში დააჭირეთ მიზნის დამატებას, შეიყვანეთ სახელი, აირჩიეთ ხატულა, მიუთითეთ სამიზნე თანხა და უკვე დაგროვილი თანხა.",
+        },
+        {
+          emoji: "💰",
+          title: "დანაზოგის დამატება",
+          nav: "home",
+          action: "goalsNavBtn",
+          text: "ფულის ღილაკი თანხას ამატებს მიზანს, ხოლო მინუსი საჭიროების შემთხვევაში აკლებს. პროგრესის ზოლი მაშინვე ახლდება.",
+        },
+      ],
+    },
+    {
+      id: "tools",
+      icon: "🛠️",
+      title: "ხელსაწყოები",
+      steps: [
+        {
+          emoji: "🧮",
+          title: "კალკულატორი",
+          nav: "tools",
+          action: "calcDisplay",
+          text: "ჩაშენებული კალკულატორი პირდაპირ აპში. გამოთვლების ისტორია ინახება.",
+        },
+        {
+          emoji: "💱",
+          title: "ვალუტის კონვერტერი",
+          nav: "tools",
+          action: "convAmount",
+          text: "გადააყვანეთ თანხები სხვადასხვა ვალუტას შორის ავტომატურად განახლებული კურსებით.",
+        },
+        {
+          emoji: "📦",
+          title: "სხვა ხელსაწყოები",
+          nav: "tools",
+          scrollTo: ".tool-card",
+          text: "ქვევით ჩასქროლეთ ექსპორტის, Google Sheets ინტეგრაციის და სხვა სასარგებლო ფუნქციებისთვის.",
+        },
+      ],
+    },
+  ],
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -15752,7 +17274,7 @@ function openInteractiveGuide() {
         back: "← თემები",
         prev: "←",
         next: "შემდეგი →",
-        done: "მზადა ✓",
+        done: "მზადაა ✓",
         of: "/",
       },
     }[lang] || { back: "←", prev: "←", next: "Next →", done: "Done", of: "/" };
@@ -15825,7 +17347,11 @@ function openInteractiveGuide() {
         sub: "Choose a topic",
         steps: "steps",
       },
-      ka: { title: "📚 ინტერაქტიური გიდი", sub: "აირჩიეთ თემა", steps: "ნაბ." },
+      ka: {
+        title: "📚 ინტერაქტიური გიდი",
+        sub: "აირჩიეთ თემა",
+        steps: "ნაბიჯი",
+      },
     }[lang] || { title: "📚 Guide", sub: "Choose", steps: "steps" };
 
     card.innerHTML = `
