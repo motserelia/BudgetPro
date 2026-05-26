@@ -2277,6 +2277,16 @@ let activeProfileId = "default";
 let sharedAccessProfile = null;
 // Тема и доступность
 let colorTheme = localStorage.getItem("colorTheme") || "dark";
+const DEFAULTS_MIGRATION_KEY = "budgetpro_defaults_v1_en_dark";
+try {
+  if (localStorage.getItem(DEFAULTS_MIGRATION_KEY) !== "1") {
+    localStorage.setItem("lang", "en");
+    localStorage.setItem("colorTheme", "dark");
+    currentLang = "en";
+    colorTheme = "dark";
+    localStorage.setItem(DEFAULTS_MIGRATION_KEY, "1");
+  }
+} catch (e) {}
 let biometryEnabled = false;
 let biometryCredId = null;
 let simpleMode = localStorage.getItem("simpleMode") === "true";
