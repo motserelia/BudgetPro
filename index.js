@@ -2276,7 +2276,7 @@ let profiles = [];
 let activeProfileId = "default";
 let sharedAccessProfile = null;
 // Тема и доступность
-let colorTheme = localStorage.getItem("colorTheme") || "default";
+let colorTheme = localStorage.getItem("colorTheme") || "dark";
 let biometryEnabled = false;
 let biometryCredId = null;
 let simpleMode = localStorage.getItem("simpleMode") === "true";
@@ -2574,7 +2574,7 @@ const COLOR_THEMES = {
 };
 
 function applyColorTheme(themeKey) {
-  colorTheme = themeKey || "default";
+  colorTheme = themeKey || "dark";
   localStorage.setItem("colorTheme", colorTheme);
   const theme = COLOR_THEMES[colorTheme];
   if (!theme) return;
@@ -3130,7 +3130,7 @@ function loadProfiles() {
     biometryEnabled = g.biometryEnabled || false;
     biometryCredId = g.biometryCredId || null;
     colorTheme =
-      g.colorTheme || localStorage.getItem("colorTheme") || "default";
+      g.colorTheme || localStorage.getItem("colorTheme") || "dark";
     displayCurrency = g.displayCurrency || "GEL";
     if (g.exchangeRates)
       exchangeRates = { ...exchangeRates, ...g.exchangeRates };
@@ -9261,7 +9261,7 @@ function init() {
   document.documentElement.lang = currentLang;
   // Apply time-based theme before manual override check
   applyColorTheme(
-    colorTheme || localStorage.getItem("colorTheme") || "default",
+    colorTheme || localStorage.getItem("colorTheme") || "dark",
   );
   // After init, check time-based theme (respects existing setting)
   setTimeout(applyTimeBasedTheme, 200);
@@ -14782,7 +14782,7 @@ if (!window._toolsHookInstalled) {
   splash.innerHTML = `
     <div style="font-size:80px;line-height:1;animation:splashLogo 0.7s cubic-bezier(0.34,1.56,0.64,1) both;">🌿</div>
     <div style="font-size:32px;font-weight:900;color:white;letter-spacing:-1px;animation:splashText 0.5s 0.3s ease both;font-family:'Playfair Display',serif;">БюджетPRO</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:600;animation:splashSub 0.5s 0.5s ease both;letter-spacing:0.5px;">Твой капитал — Твои правила</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:600;animation:splashSub 0.5s 0.5s ease both;letter-spacing:0.5px;">Your capital — Your rules</div>
     <div style="width:120px;height:3px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden;margin-top:12px;">
       <div style="height:100%;background:rgba(255,255,255,0.8);border-radius:99px;animation:splashBar 0.7s 0.1s ease both;"></div>
     </div>
