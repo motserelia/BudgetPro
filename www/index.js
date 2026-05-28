@@ -204,6 +204,30 @@ const translations = {
     catNameLabel: "Введите название:",
     newName: "Новое название:",
     inCategoryLabel: "В категории:",
+    colorPickerTitle: "Выбор цвета",
+    colorPresets: "Готовые цвета",
+    colorHex: "HEX-код",
+    invalidColor: "❌ Неверный цвет",
+    categoryPreview: "Предпросмотр",
+    colorHint: "Нажмите, чтобы выбрать или настроить свой цвет",
+    customColor: "Свой цвет",
+    hueLabel: "Тон",
+    saturationLabel: "Насыщенность",
+    lightnessLabel: "Светлота",
+    defaultColorBtn: "↺ Цвет по умолчанию",
+    themeDefaultColor: "Цвет темы",
+    noEmoji: "Без эмодзи",
+    emojiPickerTitle: "Выбор эмодзи",
+    emojiSearchPlaceholder: "Поиск эмодзи",
+    emojiRecentTitle: "Недавние",
+    emojiRecentClear: "Очистить",
+    emojiRecentRemove: "Убрать",
+    emojiSuggestedTitle: "Подходят",
+    emojiNoResults: "Ничего не найдено",
+    emojiPickHint: "Нажмите на эмодзи, чтобы применить",
+    enterCategoryName: "Введите название категории",
+    enterSubcategoryName: "Введите название подкатегории",
+    subcategoryNamePlaceholder: "Например: Аптека, Такси, Карта",
     theme: "🎨 Оформление",
     language: "🌐 Язык",
     data: "💾 Данные",
@@ -735,6 +759,30 @@ const translations = {
     catNameLabel: "Enter name:",
     newName: "New name:",
     inCategoryLabel: "In category:",
+    colorPickerTitle: "Choose color",
+    colorPresets: "Preset colors",
+    colorHex: "HEX code",
+    invalidColor: "❌ Invalid color",
+    categoryPreview: "Preview",
+    colorHint: "Tap to choose or tune your own color",
+    customColor: "Custom color",
+    hueLabel: "Hue",
+    saturationLabel: "Saturation",
+    lightnessLabel: "Lightness",
+    defaultColorBtn: "↺ Default color",
+    themeDefaultColor: "Theme color",
+    noEmoji: "No emoji",
+    emojiPickerTitle: "Choose emoji",
+    emojiSearchPlaceholder: "Search emoji",
+    emojiRecentTitle: "Recent",
+    emojiRecentClear: "Clear",
+    emojiRecentRemove: "Remove",
+    emojiSuggestedTitle: "Suggested",
+    emojiNoResults: "Nothing found",
+    emojiPickHint: "Tap an emoji to apply it",
+    enterCategoryName: "Enter category name",
+    enterSubcategoryName: "Enter subcategory name",
+    subcategoryNamePlaceholder: "E.g. Pharmacy, Taxi, Card",
     theme: "🎨 Theme",
     language: "🌐 Language",
     data: "💾 Data",
@@ -1266,6 +1314,30 @@ const translations = {
     catNameLabel: "სახელი:",
     newName: "ახალი სახელი:",
     inCategoryLabel: "კატეგორიაში:",
+    colorPickerTitle: "ფერის არჩევა",
+    colorPresets: "მზა ფერები",
+    colorHex: "HEX კოდი",
+    invalidColor: "❌ არასწორი ფერი",
+    categoryPreview: "წინასწარ ნახვა",
+    colorHint: "დააჭირეთ, რომ აირჩიოთ ან მოარგოთ საკუთარი ფერი",
+    customColor: "საკუთარი ფერი",
+    hueLabel: "ტონი",
+    saturationLabel: "გაჯერებულობა",
+    lightnessLabel: "სინათლე",
+    defaultColorBtn: "↺ ნაგულისხმევი ფერი",
+    themeDefaultColor: "თემის ფერი",
+    noEmoji: "ემოჯის გარეშე",
+    emojiPickerTitle: "ემოჯის არჩევა",
+    emojiSearchPlaceholder: "ემოჯის ძებნა",
+    emojiRecentTitle: "ბოლო",
+    emojiRecentClear: "გასუფთავება",
+    emojiRecentRemove: "წაშლა",
+    emojiSuggestedTitle: "შესაფერისი",
+    emojiNoResults: "ვერაფერი მოიძებნა",
+    emojiPickHint: "დააჭირეთ ემოჯის, რომ გამოიყენოთ",
+    enterCategoryName: "შეიყვანეთ კატეგორიის სახელი",
+    enterSubcategoryName: "შეიყვანეთ ქვეკატეგორიის სახელი",
+    subcategoryNamePlaceholder: "მაგ: აფთიაქი, ტაქსი, ბარათი",
     theme: "🎨 თემა",
     language: "🌐 ენა",
     data: "💾 მონაცემები",
@@ -2056,24 +2128,24 @@ function updateHeroTrendText() {
 function updateHeroChipLabels(root = document) {
   const labels = {
     ru: {
-      income: "Доход",
-      expense: "Расход",
-      salary: "Старт",
+      income: "Доходы",
+      expense: "Расходы",
+      salary: "Начальная сумма",
     },
     en: {
       income: "Income",
-      expense: "Spent",
-      salary: "Start",
+      expense: "Expenses",
+      salary: "Starting amount",
     },
     ka: {
-      income: "შემოს.",
-      expense: "ხარჯ.",
-      salary: "საწყისი",
+      income: "შემოსავალი",
+      expense: "ხარჯები",
+      salary: "საწყისი თანხა",
     },
   }[currentLang] || {
     income: "Income",
-    expense: "Spent",
-    salary: "Start",
+    expense: "Expenses",
+    salary: "Starting amount",
   };
 
   const incomeLabel = root.querySelector("#incomeHeroLabel");
@@ -2089,25 +2161,25 @@ function forceHeroChipLayout(root = document) {
     wrap.style.setProperty("display", "grid", "important");
     wrap.style.setProperty(
       "grid-template-columns",
-      "repeat(3, minmax(0, 1fr))",
+      "1fr",
       "important",
     );
-    wrap.style.setProperty("gap", "6px", "important");
+    wrap.style.setProperty("gap", "8px", "important");
     wrap.style.setProperty("align-items", "stretch", "important");
 
     wrap.querySelectorAll(".hero-chip").forEach((card) => {
-      card.style.setProperty("grid-column", "auto / span 1", "important");
+      card.style.setProperty("grid-column", "1 / -1", "important");
       card.style.setProperty("grid-row", "auto", "important");
       card.style.setProperty("width", "auto", "important");
       card.style.setProperty("max-width", "none", "important");
       card.style.setProperty("min-width", "0", "important");
-      card.style.setProperty("min-height", "78px", "important");
+      card.style.setProperty("min-height", "58px", "important");
       card.style.setProperty("display", "flex", "important");
-      card.style.setProperty("flex-direction", "column", "important");
+      card.style.setProperty("flex-direction", "row", "important");
       card.style.setProperty("align-items", "center", "important");
-      card.style.setProperty("justify-content", "center", "important");
-      card.style.setProperty("padding", "8px 5px", "important");
-      card.style.setProperty("text-align", "center", "important");
+      card.style.setProperty("justify-content", "space-between", "important");
+      card.style.setProperty("padding", "10px 8px", "important");
+      card.style.setProperty("text-align", "left", "important");
     });
 
     wrap.querySelectorAll(".hc-label").forEach((label) => {
@@ -2115,17 +2187,21 @@ function forceHeroChipLayout(root = document) {
       label.style.setProperty("overflow", "visible", "important");
       label.style.setProperty("text-overflow", "clip", "important");
       label.style.setProperty("line-height", "1.1", "important");
-      label.style.setProperty("min-height", "18px", "important");
+      label.style.setProperty("min-height", "0", "important");
       label.style.setProperty("display", "flex", "important");
       label.style.setProperty("align-items", "center", "important");
-      label.style.setProperty("justify-content", "center", "important");
-      label.style.setProperty("text-align", "center", "important");
+      label.style.setProperty("justify-content", "flex-start", "important");
+      label.style.setProperty("text-align", "left", "important");
+      label.style.setProperty("width", "auto", "important");
+      label.style.setProperty("margin-bottom", "0", "important");
     });
 
     wrap.querySelectorAll(".hc-value").forEach((value) => {
-      value.style.setProperty("text-align", "center", "important");
+      value.style.setProperty("text-align", "right", "important");
       value.style.setProperty("line-height", "1.1", "important");
       value.style.setProperty("min-height", "14px", "important");
+      value.style.setProperty("width", "auto", "important");
+      value.style.setProperty("max-width", "58%", "important");
     });
   });
 }
@@ -2313,6 +2389,1632 @@ const categoryIcons = {
   defaultExpense: { icon: "💸", color: "#ef4444" },
   defaultIncome: { icon: "💰", color: "#22c55e" },
 };
+
+const CATEGORY_EMOJI_GROUPS = [
+  {
+    title: { ru: "Финансы", en: "Finance", ka: "ფინანსები" },
+    emojis: [
+      "💰",
+      "💸",
+      "💳",
+      "🏦",
+      "🏧",
+      "💼",
+      "📈",
+      "📉",
+      "📊",
+      "🧾",
+      "🪙",
+      "💵",
+      "💶",
+      "💷",
+      "💴",
+      "💲",
+      "💱",
+      "💹",
+      "🧮",
+      "📋",
+      "📒",
+      "📓",
+      "📔",
+      "🗓️",
+      "📆",
+      "📤",
+      "📥",
+      "📨",
+      "✉️",
+      "⏰",
+      "⌛",
+      "⏳",
+      "🫰",
+      "🤑",
+      "👛",
+      "👝",
+      "💎",
+      "🔐",
+      "🫴💵",
+      "🤲💵",
+      "🤝💸",
+      "🫱💵🫲",
+      "🗓️💳",
+      "📆🧾",
+      "🔁💳",
+      "🏠💳",
+      "🏠📅",
+      "💍🏦",
+      "🫙🪙",
+      "💳🔁",
+      "🛡️",
+      "🚗🛡️",
+      "🏠🛡️",
+      "❤️🛡️",
+      "⚠️💸",
+      "📅💸",
+      "✨💸",
+      "🚗🔑",
+      "🏠🔑",
+      "🔑",
+    ],
+  },
+  {
+    title: { ru: "Коммуналка", en: "Utilities", ka: "კომუნალური" },
+    emojis: [
+      "💡",
+      "🔌",
+      "🔋",
+      "💧",
+      "🚰",
+      "🌊",
+      "🚿",
+      "🫧",
+      "🔥",
+      "♨️",
+      "❄️",
+      "🌡️",
+      "🌐",
+      "📶",
+      "📺",
+      "📡",
+      "📻",
+      "🛰️",
+      "📱",
+      "☎️",
+      "🗑️",
+      "🪠",
+      "🪣",
+      "🧯",
+      "🚽",
+      "🧻",
+      "🛢️",
+      "🏘️",
+      "🏢",
+      "🏭",
+      "🧰",
+      "🧱",
+    ],
+  },
+  {
+    title: { ru: "Дом И Быт", en: "Home", ka: "სახლი" },
+    emojis: [
+      "🏠",
+      "🏡",
+      "🏚️",
+      "🚪",
+      "🪟",
+      "🪞",
+      "🛋️",
+      "🛏️",
+      "🪑",
+      "🪜",
+      "🧹",
+      "🧺",
+      "🧽",
+      "🛁",
+      "🚿",
+      "🫧",
+      "🪣",
+      "🧯",
+      "🔧",
+      "🛠️",
+      "🧰",
+      "🪵",
+      "🧱",
+      "🪴",
+      "📦",
+      "🛎️",
+    ],
+  },
+  {
+    title: { ru: "Покупки И Еда", en: "Shopping & Food", ka: "შოპინგი და საკვები" },
+    emojis: [
+      "🛒",
+      "🏪",
+      "🏬",
+      "🛍️",
+      "🧺",
+      "🏷️",
+      "📦",
+      "🥦",
+      "🥬",
+      "🌽",
+      "🥕",
+      "🥔",
+      "🍆",
+      "🍅",
+      "🥒",
+      "🫑",
+      "🌶️",
+      "🧄",
+      "🧅",
+      "🫘",
+      "🍄",
+      "🥜",
+      "🫒",
+      "🥥",
+      "🍎",
+      "🍏",
+      "🍐",
+      "🍊",
+      "🍋",
+      "🍈",
+      "🍌",
+      "🍉",
+      "🍇",
+      "🍓",
+      "🫐",
+      "🍒",
+      "🥝",
+      "🥭",
+      "🍍",
+      "🍑",
+      "🥑",
+      "🍞",
+      "🥖",
+      "🥐",
+      "🥯",
+      "🥨",
+      "🧀",
+      "🧈",
+      "🥛",
+      "🍼",
+      "🥣",
+      "🥫",
+      "🧂",
+      "🍚",
+      "🍘",
+      "🍙",
+      "🍥",
+      "🍝",
+      "🍜",
+      "🍲",
+      "🍛",
+      "🍢",
+      "🍡",
+      "🍤",
+      "🍣",
+      "🍱",
+      "🥟",
+      "🥠",
+      "🥡",
+      "🌮",
+      "🌯",
+      "🥙",
+      "🍕",
+      "🍔",
+      "🌭",
+      "🍟",
+      "🍿",
+      "🍗",
+      "🍖",
+      "🥩",
+      "🥚",
+      "🍳",
+      "🥪",
+      "🥗",
+      "🥞",
+      "🧇",
+      "🧆",
+      "🍰",
+      "🧁",
+      "🥧",
+      "🍮",
+      "🍭",
+      "🍬",
+      "🍫",
+      "🍩",
+      "🍪",
+      "🍯",
+      "🥮",
+      "🍨",
+      "🍦",
+      "🍧",
+      "🥤",
+      "🧋",
+      "🧃",
+      "🧊",
+      "🥢",
+      "🍽️",
+      "☕",
+      "🍵",
+      "🫖",
+      "🧉",
+      "🍺",
+      "🍷",
+      "🥂",
+      "🥃",
+      "🍾",
+      "🍹",
+      "🍸",
+      "🍶",
+    ],
+  },
+  {
+    title: { ru: "Транспорт И Путешествия", en: "Transport & Travel", ka: "ტრანსპორტი და მოგზაურობა" },
+    emojis: [
+      "🚗",
+      "🚙",
+      "🚘",
+      "🚕",
+      "🚌",
+      "🚐",
+      "🚚",
+      "🚛",
+      "🚜",
+      "🚇",
+      "🚆",
+      "🚉",
+      "🚊",
+      "🚋",
+      "🚲",
+      "🛴",
+      "🛵",
+      "🏍️",
+      "🛺",
+      "🛞",
+      "⛽",
+      "✈️",
+      "🛩️",
+      "🚁",
+      "🚢",
+      "🛳️",
+      "🛥️",
+      "🚤",
+      "⛴️",
+      "⛵",
+      "🛶",
+      "⚓",
+      "🧳",
+      "🏖️",
+      "🏔️",
+      "🗺️",
+      "🧭",
+      "🎫",
+      "🚀",
+    ],
+  },
+  {
+    title: { ru: "Техника И Медиа", en: "Tech & Media", ka: "ტექნიკა და მედია" },
+    emojis: [
+      "💻",
+      "🖥️",
+      "⌚",
+      "⌨️",
+      "🖱️",
+      "🖨️",
+      "💾",
+      "💿",
+      "📼",
+      "🎧",
+      "📷",
+      "🎥",
+      "📱",
+      "📲",
+      "📟",
+      "☎️",
+      "📞",
+      "📺",
+      "📻",
+      "📡",
+      "🔋",
+      "🔌",
+      "🔦",
+      "🕹️",
+      "🎮",
+      "🔒",
+      "📦",
+    ],
+  },
+  {
+    title: { ru: "Здоровье И Красота", en: "Health & Beauty", ka: "ჯანმრთელობა და სილამაზე" },
+    emojis: [
+      "💊",
+      "🩺",
+      "🦷",
+      "🏥",
+      "💉",
+      "🩹",
+      "🩸",
+      "🧪",
+      "🧬",
+      "🫀",
+      "🦴",
+      "🪥",
+      "🧴",
+      "🧼",
+      "💄",
+      "💅",
+      "🪒",
+      "👓",
+      "🕶️",
+    ],
+  },
+  {
+    title: { ru: "Одежда И Стиль", en: "Style", ka: "სტილი" },
+    emojis: [
+      "👕",
+      "👔",
+      "👗",
+      "👖",
+      "🩳",
+      "👟",
+      "🩴",
+      "👠",
+      "🧥",
+      "🧢",
+      "👒",
+      "🧤",
+      "🧣",
+      "🎀",
+      "👜",
+      "🎒",
+      "💍",
+      "👑",
+      "🛍️",
+    ],
+  },
+  {
+    title: { ru: "Работа И Учёба", en: "Work & Study", ka: "სამუშაო და სწავლა" },
+    emojis: [
+      "💼",
+      "🎓",
+      "📚",
+      "📖",
+      "📘",
+      "📗",
+      "📙",
+      "📝",
+      "✏️",
+      "🖊️",
+      "📐",
+      "📎",
+      "📌",
+      "📁",
+      "🗂️",
+      "📒",
+      "📓",
+      "📔",
+      "🧠",
+      "💡",
+      "📅",
+      "🧒🏫",
+    ],
+  },
+  {
+    title: { ru: "Жизнь И Досуг", en: "Lifestyle", ka: "ცხოვრება და დასვენება" },
+    emojis: [
+      "🎁",
+      "🎉",
+      "🎂",
+      "🕯️",
+      "❤️",
+      "🤍",
+      "🩷",
+      "💜",
+      "💙",
+      "💚",
+      "🧡",
+      "🫶",
+      "🙏",
+      "✨",
+      "⭐",
+      "🌞",
+      "🌙",
+      "🌈",
+      "👶",
+      "🧒",
+      "🎬",
+      "🎵",
+      "🎨",
+      "🎭",
+      "🎤",
+      "🎱",
+      "🎳",
+      "🧩",
+      "🎣",
+      "🎯",
+      "🎲",
+      "🎟️",
+      "⚽",
+      "🏀",
+      "🎾",
+      "🏋️",
+      "🏃",
+      "🧘",
+      "🛀",
+      "🏕️",
+      "⛱️",
+      "🪩",
+      "🍀",
+      "🎮",
+      "🧸",
+    ],
+  },
+  {
+    title: { ru: "Животные И Природа", en: "Nature", ka: "ბუნება" },
+    emojis: [
+      "🐶",
+      "🐱",
+      "🐾",
+      "🐟",
+      "🐦",
+      "🦜",
+      "🦋",
+      "🐴",
+      "🌿",
+      "🌱",
+      "🌳",
+      "🌲",
+      "🌴",
+      "🍁",
+      "🌸",
+      "🌷",
+      "🌹",
+      "🌼",
+      "🌻",
+      "🪻",
+      "☀️",
+      "🌤️",
+      "⛅",
+      "🌧️",
+      "⛈️",
+      "❄️",
+      "🔥",
+      "🌍",
+      "🧿",
+      "🪄",
+    ],
+  },
+  {
+    title: { ru: "Сад И Агро", en: "Garden & Agro", ka: "ბაღი და აგრო" },
+    emojis: [
+      "🧑‍🌾",
+      "👨‍🌾",
+      "👩‍🌾",
+      "🚜",
+      "🪓",
+      "🪚",
+      "⛏️",
+      "🔨",
+      "🧰",
+      "🪵",
+      "🌾",
+      "🫛",
+      "🌱",
+      "🌿",
+      "☘️",
+      "🍀",
+      "🪴",
+      "🌳",
+      "🌲",
+      "🌴",
+      "🌵",
+      "🌷",
+      "🌹",
+      "🌺",
+      "🌸",
+      "🌼",
+      "🌻",
+      "🪻",
+      "🍄",
+      "🪹",
+      "🪺",
+      "🐄",
+      "🐂",
+      "🐎",
+      "🐖",
+      "🐏",
+      "🐑",
+      "🐐",
+      "🐓",
+      "🐇",
+      "🐝",
+      "🦆",
+    ],
+  },
+  {
+    title: { ru: "Флаги И Страны", en: "Flags & Places", ka: "დროშები და ქვეყნები" },
+    emojis: [
+      "🇬🇪",
+      "🇬🇧",
+      "🇺🇸",
+      "🇪🇺",
+      "🇩🇪",
+      "🇫🇷",
+      "🇮🇹",
+      "🇪🇸",
+      "🇵🇹",
+      "🇳🇱",
+      "🇧🇪",
+      "🇨🇭",
+      "🇦🇹",
+      "🇸🇪",
+      "🇳🇴",
+      "🇫🇮",
+      "🇩🇰",
+      "🇵🇱",
+      "🇨🇿",
+      "🇷🇴",
+      "🇧🇬",
+      "🇬🇷",
+      "🇹🇷",
+      "🇺🇦",
+      "🇦🇲",
+      "🇦🇿",
+      "🇰🇿",
+      "🇮🇱",
+      "🇦🇪",
+      "🇪🇬",
+      "🇮🇳",
+      "🇯🇵",
+      "🇨🇳",
+      "🇰🇷",
+      "🇨🇦",
+      "🇦🇺",
+      "🇧🇷",
+      "🇲🇽",
+      "🏳️",
+      "🏴",
+      "🚩",
+      "🏁",
+      "🗽",
+      "🗼",
+      "🏛️",
+      "🏰",
+      "🕌",
+      "⛪",
+      "🛕",
+      "🕍",
+      "🌉",
+      "🏝️",
+      "🏜️",
+      "🏞️",
+      "🌋",
+    ],
+  },
+  {
+    title: { ru: "Жесты И Люди", en: "People & Hands", ka: "ადამიანები და ჟესტები" },
+    emojis: [
+      "🫴",
+      "🫳",
+      "🤲",
+      "🫱",
+      "🫲",
+      "🤝",
+      "🫶",
+      "🙏",
+      "👍",
+      "👎",
+      "👏",
+      "🙌",
+      "👌",
+      "✌️",
+      "🤞",
+      "🫰",
+      "👋",
+      "🤚",
+      "✋",
+      "🖐️",
+      "👆",
+      "👇",
+      "👉",
+      "👈",
+      "🤌",
+      "🧑",
+      "👨",
+      "👩",
+      "🧓",
+    ],
+  },
+];
+
+const CATEGORY_EMOJI_OPTIONS = [...new Set(
+  CATEGORY_EMOJI_GROUPS.flatMap((group) => group.emojis),
+)];
+
+const CATEGORY_EMOJI_MATCHES = [...CATEGORY_EMOJI_OPTIONS].sort(
+  (a, b) => b.length - a.length,
+);
+
+const CATEGORY_EMOJI_RECENTS_KEY = "budgetpro_recent_category_emojis_v2";
+
+const CATEGORY_EMOJI_AUTO_RULES = [
+  {
+    emoji: "💍🏦",
+    keywords: ["ломбард", "pawnshop", "pawn", "залог", "заложить", "ლომბარდ"],
+  },
+  {
+    emoji: "🗓️💳",
+    keywords: [
+      "ежемесячный взнос",
+      "ежемесячный платеж",
+      "monthly installment",
+      "monthly payment",
+      "installment",
+      "installment payment",
+      "recurring installment",
+      "განვადება",
+      "ყოველთვიური გადახდა",
+      "განვადების გადახდა",
+    ],
+  },
+  {
+    emoji: "🫴💵",
+    keywords: [
+      "рука с деньгами",
+      "cash on hand",
+      "hand with money",
+      "наличные",
+      "налом",
+      "ფული ხელში",
+    ],
+  },
+  {
+    emoji: "🤲💵",
+    keywords: [
+      "получить деньги",
+      "received money",
+      "money received",
+      "take money",
+      "receive cash",
+      "ფულის მიღება",
+    ],
+  },
+  {
+    emoji: "🤝💸",
+    keywords: [
+      "передача денег",
+      "transfer money",
+      "money transfer",
+      "send money",
+      "handoff money",
+      "payment to someone",
+      "ფულის გადაცემა",
+    ],
+  },
+  {
+    emoji: "🫱💵🫲",
+    keywords: [
+      "из рук в руки",
+      "hand to hand",
+      "cash handoff",
+      "наличные из рук в руки",
+      "ფული ხელიდან ხელში",
+    ],
+  },
+  {
+    emoji: "🔁💳",
+    keywords: [
+      "автоплатеж",
+      "autopay",
+      "recurring payment",
+      "subscription payment",
+      "regular payment",
+      "ავტოგადახდა",
+    ],
+  },
+  {
+    emoji: "🏠💳",
+    keywords: [
+      "ипотека",
+      "mortgage",
+      "home loan",
+      "mortgage payment",
+      "იპოთეკ",
+      "სახლის სესხი",
+    ],
+  },
+  {
+    emoji: "🏠📅",
+    keywords: [
+      "арендная плата",
+      "rent due",
+      "monthly rent",
+      "ქირა",
+      "ქირის გადახდა",
+    ],
+  },
+  {
+    emoji: "💳🔁",
+    keywords: [
+      "кешбэк",
+      "cashback",
+      "refund to card",
+      "return to card",
+      "card refund",
+      "ქეშბექი",
+      "ბარათზე დაბრუნება",
+    ],
+  },
+  {
+    emoji: "🫙🪙",
+    keywords: [
+      "копилка",
+      "savings jar",
+      "coins jar",
+      "piggy bank",
+      "დანაზოგ",
+      "ხურდა",
+    ],
+  },
+  {
+    emoji: "💱",
+    keywords: [
+      "обмен валют",
+      "exchange",
+      "currency exchange",
+      "ვალუტის გაცვლა",
+    ],
+  },
+  {
+    emoji: "🧮",
+    keywords: [
+      "расчет",
+      "калькуляция",
+      "budgeting",
+      "calculator",
+      "calculation",
+      "ანგარიში",
+      "გაანგარიშება",
+    ],
+  },
+  {
+    emoji: "💹",
+    keywords: ["инвестиции", "investment", "stocks", "trade", "trading", "ინვესტ"],
+  },
+  {
+    emoji: "💧",
+    keywords: ["вода", "water", "წყალი", "водоснаб", "кран", "tap"],
+  },
+  {
+    emoji: "🚰",
+    keywords: ["питьевая вода", "drinking water", "სასმელი წყალი"],
+  },
+  {
+    emoji: "🔥",
+    keywords: ["газ", "gas", "გაზი", "გაზ"],
+  },
+  {
+    emoji: "💡",
+    keywords: [
+      "свет",
+      "электр",
+      "electric",
+      "electricity",
+      "power",
+      "დენი",
+      "ელექტრო",
+    ],
+  },
+  {
+    emoji: "🌐",
+    keywords: [
+      "интернет",
+      "internet",
+      "wifi",
+      "wi-fi",
+      "broadband",
+      "ინტერნეტ",
+      "ვაიფაი",
+    ],
+  },
+  {
+    emoji: "📶",
+    keywords: ["связь", "mobile", "signal", "network", "ქსელი"],
+  },
+  {
+    emoji: "📱",
+    keywords: ["телефон", "phone", "mobile", "sim", "номер", "ტელეფონ"],
+  },
+  {
+    emoji: "🗑️",
+    keywords: ["мусор", "trash", "garbage", "waste", "ნაგავ"],
+  },
+  {
+    emoji: "🏦",
+    keywords: ["банк", "bank", "loan", "кредит", "заём", "сесх", "ბანკ"],
+  },
+  {
+    emoji: "🛒",
+    keywords: [
+      "продукт",
+      "grocery",
+      "grocer",
+      "market",
+      "supermarket",
+      "магазин",
+      "продук",
+      "სუპერმარკ",
+      "პროდუქ",
+    ],
+  },
+  {
+    emoji: "🍞",
+    keywords: ["хлеб", "bread", "პური"],
+  },
+  {
+    emoji: "🥛",
+    keywords: ["молоко", "milk", "რძე"],
+  },
+  {
+    emoji: "☕",
+    keywords: ["кофе", "coffee", "ყავა"],
+  },
+  {
+    emoji: "🍔",
+    keywords: ["еда", "food", "обед", "ужин", "burger", "საჭმ", "კვება"],
+  },
+  {
+    emoji: "🍕",
+    keywords: ["пицца", "pizza", "პიცა"],
+  },
+  {
+    emoji: "🚌",
+    keywords: ["транспорт", "bus", "автобус", "маршрут", "transport", "ტრანსპორტ", "ავტობუს"],
+  },
+  {
+    emoji: "🚕",
+    keywords: ["такси", "taxi", "cab", "ტაქსი"],
+  },
+  {
+    emoji: "🚇",
+    keywords: ["метро", "metro", "subway", "მეტრო"],
+  },
+  {
+    emoji: "🚲",
+    keywords: ["велосип", "bike", "bicycle", "ველო"],
+  },
+  {
+    emoji: "⛽",
+    keywords: ["бензин", "fuel", "petrol", "diesel", "заправ", "საწვავ", "ბენზ"],
+  },
+  {
+    emoji: "✈️",
+    keywords: ["самолет", "plane", "flight", "air", "ავია", "ფრენ"],
+  },
+  {
+    emoji: "🚢",
+    keywords: ["ship", "ferry", "паром", "გემი"],
+  },
+  {
+    emoji: "💻",
+    keywords: ["комп", "computer", "laptop", "ноут", "pc", "კომპ", "ლეპტოპ"],
+  },
+  {
+    emoji: "📷",
+    keywords: ["camera", "фото", "камера", "კამერა"],
+  },
+  {
+    emoji: "💊",
+    keywords: ["аптек", "pharmacy", "medicine", "pill", "таблет", "აფთიაქ", "წამ"],
+  },
+  {
+    emoji: "🏥",
+    keywords: ["больниц", "hospital", "clinic", "doctor", "კლინიკ", "ექიმ", "საავადმყოფ"],
+  },
+  {
+    emoji: "🩺",
+    keywords: ["анализ", "checkup", "осмотр", "ультра", "ექო", "ანალიზ"],
+  },
+  {
+    emoji: "🧴",
+    keywords: ["космет", "beauty", "care", "уход", "სილამაზ", "მოვლა"],
+  },
+  {
+    emoji: "👕",
+    keywords: ["одежд", "clothes", "shirt", "pants", "ტანსაცმ"],
+  },
+  {
+    emoji: "👟",
+    keywords: ["обув", "shoes", "sneakers", "ფეხსაცმ"],
+  },
+  {
+    emoji: "📚",
+    keywords: ["книг", "book", "study", "school", "წიგნ", "სწავლ"],
+  },
+  {
+    emoji: "🎓",
+    keywords: ["курс", "универс", "tuition", "college", "უნივერს", "კურს"],
+  },
+  {
+    emoji: "⚽",
+    keywords: ["спорт", "football", "soccer", "სპორტ", "ფეხბურთ"],
+  },
+  {
+    emoji: "🏋️",
+    keywords: ["gym", "зал", "workout", "ვარჯიშ", "დარბაზ"],
+  },
+  {
+    emoji: "🎬",
+    keywords: ["кино", "movie", "cinema", "фильм", "კინო", "ფილმ"],
+  },
+  {
+    emoji: "🎮",
+    keywords: ["игр", "game", "gaming", "თამაში"],
+  },
+  {
+    emoji: "🎁",
+    keywords: ["подар", "gift", "present", "საჩუქ"],
+  },
+  {
+    emoji: "💼",
+    keywords: ["зарплат", "salary", "job", "работ", "ხელფას", "სამსახურ"],
+  },
+  {
+    emoji: "💵",
+    keywords: ["income", "bonus", "прем", "доход", "შემოსავ"],
+  },
+  {
+    emoji: "🏠",
+    keywords: ["аренд", "rent", "home", "house", "дом", "ქირ", "სახლ"],
+  },
+  {
+    emoji: "🐾",
+    keywords: ["pet", "animal", "живот", "питом", "ცხოველ"],
+  },
+  {
+    emoji: "🐶",
+    keywords: ["dog", "собак", "ძაღლ"],
+  },
+  {
+    emoji: "🐱",
+    keywords: ["cat", "кот", "კატ"],
+  },
+];
+
+const CATEGORY_EMOJI_NAME_RULES = [
+  { emoji: "🛒", keywords: ["тележка", "корзина", "shopping cart", "cart", "საყიდლების ურიკა", "ურიკა"] },
+  { emoji: "🏪", keywords: ["магазин", "магазинчик", "shop", "store", "mini market", "მაღაზია", "მინიმარკეტი"] },
+  { emoji: "🏬", keywords: ["торговый центр", "универмаг", "mall", "department store", "shopping center", "სავაჭრო ცენტრი", "უნივერმაღი"] },
+  { emoji: "🛍️", keywords: ["пакеты", "покупки", "shopping bags", "shopping", "bags", "შოპინგი", "პაკეტები"] },
+  { emoji: "🧺", keywords: ["корзина", "basket", "shopping basket", "კალათა", "საყიდლების კალათა"] },
+  { emoji: "🏷️", keywords: ["ценник", "скидка", "tag", "price tag", "sale", "ფასდაკლება", "ეტიკეტი"] },
+  { emoji: "📦", keywords: ["коробка", "посылка", "box", "package", "parcel", "ყუთი", "ამანათი"] },
+  { emoji: "🥦", keywords: ["брокколи", "broccoli", "ბროკოლი"] },
+  { emoji: "🥬", keywords: ["листовая зелень", "капуста", "lettuce", "leafy greens", "კომბოსტო", "მწვანილი"] },
+  { emoji: "🌽", keywords: ["кукуруза", "corn", "maize", "სიმინდი"] },
+  { emoji: "🥕", keywords: ["морковь", "carrot", "სტაფილო"] },
+  { emoji: "🥔", keywords: ["картошка", "картофель", "potato", "potatoes", "კარტოფილი"] },
+  { emoji: "🍆", keywords: ["баклажан", "eggplant", "aubergine", "ბადრიჯანი"] },
+  { emoji: "🍅", keywords: ["помидор", "томат", "tomato", "tomatoes", "პომიდორი"] },
+  { emoji: "🥒", keywords: ["огурец", "cucumber", "კიტრი"] },
+  { emoji: "🫑", keywords: ["перец", "сладкий перец", "bell pepper", "pepper", "ბულგარული წიწაკა", "წიწაკა"] },
+  { emoji: "🌶️", keywords: ["чили", "острый перец", "chili", "hot pepper", "წიწაკა ჩილი", "ცხარე წიწაკა"] },
+  { emoji: "🧄", keywords: ["чеснок", "garlic", "ნიორი"] },
+  { emoji: "🧅", keywords: ["лук", "onion", "ხახვი"] },
+  { emoji: "🫘", keywords: ["фасоль", "бобы", "beans", "bean", "ლობიო", "მარცვლეული"] },
+  { emoji: "🍄", keywords: ["грибы", "гриб", "mushroom", "mushrooms", "სოკო", "სოკოები"] },
+  { emoji: "🥜", keywords: ["орехи", "арахис", "nuts", "peanuts", "თხილი", "კაკალი"] },
+  { emoji: "🫒", keywords: ["оливки", "маслины", "olive", "olives", "ზეთისხილი"] },
+  { emoji: "🥥", keywords: ["кокос", "coconut", "ქოქოსი"] },
+  { emoji: "🍎", keywords: ["яблоко", "apple", "ვაშლი"] },
+  { emoji: "🍏", keywords: ["зеленое яблоко", "green apple", "მწვანე ვაშლი"] },
+  { emoji: "🍐", keywords: ["груша", "pear", "მსხალი"] },
+  { emoji: "🍊", keywords: ["апельсин", "orange", "ფორთოხალი"] },
+  { emoji: "🍋", keywords: ["лимон", "lemon", "ლიმონი"] },
+  { emoji: "🍈", keywords: ["дыня", "melon", "ნესვი"] },
+  { emoji: "🍌", keywords: ["банан", "banana", "ბანანი"] },
+  { emoji: "🍉", keywords: ["арбуз", "watermelon", "საზამთრო"] },
+  { emoji: "🍇", keywords: ["виноград", "grapes", "ყურძენი"] },
+  { emoji: "🍓", keywords: ["клубника", "strawberry", "მარწყვი"] },
+  { emoji: "🫐", keywords: ["черника", "голубика", "blueberries", "blueberry", "მოცვი"] },
+  { emoji: "🍒", keywords: ["вишня", "черешня", "cherries", "cherry", "ალუბალი"] },
+  { emoji: "🥝", keywords: ["киви", "kiwi", "კივი"] },
+  { emoji: "🥭", keywords: ["манго", "mango", "მანგო"] },
+  { emoji: "🍍", keywords: ["ананас", "pineapple", "ანანასი"] },
+  { emoji: "🍑", keywords: ["персик", "peach", "ატამი"] },
+  { emoji: "🥑", keywords: ["авокадо", "avocado", "ავოკადო"] },
+  { emoji: "🍞", keywords: ["хлеб", "bread", "პური"] },
+  { emoji: "🥖", keywords: ["багет", "baguette", "ფრანგული პური"] },
+  { emoji: "🥐", keywords: ["круассан", "croissant", "კრუასანი"] },
+  { emoji: "🥯", keywords: ["бублик", "бейгл", "bagel", "ბეიგელი"] },
+  { emoji: "🥨", keywords: ["крендель", "pretzel", "პრეცელი"] },
+  { emoji: "🧀", keywords: ["сыр", "cheese", "ყველი"] },
+  { emoji: "🧈", keywords: ["масло", "сливочное масло", "butter", "კარაქი"] },
+  { emoji: "🥛", keywords: ["молоко", "milk", "რძე"] },
+  { emoji: "🍼", keywords: ["детская бутылочка", "бутылочка", "baby bottle", "bottle", "ბოთლი", "ბავშვის ბოთლი"] },
+  { emoji: "🥣", keywords: ["каша", "миска", "bowl", "porridge", "cereal bowl", "ფაფა", "თასი"] },
+  { emoji: "🥫", keywords: ["консервы", "банка", "canned food", "can", "კონსერვი"] },
+  { emoji: "🧂", keywords: ["соль", "salt", "მარილი"] },
+  { emoji: "🍚", keywords: ["рис", "rice", "ბრინჯი"] },
+  { emoji: "🍘", keywords: ["рисовый крекер", "rice cracker", "ბრინჯის კრეკერი"] },
+  { emoji: "🍙", keywords: ["рисовый шарик", "rice ball", "ონიგირი", "ბრინჯის ბურთულა"] },
+  { emoji: "🍥", keywords: ["рыбный пирог", "fish cake", "ნარუტო", "თევზის ნამცხვარი"] },
+  { emoji: "🍝", keywords: ["паста", "макароны", "pasta", "სპაგეტი", "მაკარონი"] },
+  { emoji: "🍜", keywords: ["лапша", "суп", "noodles", "ramen", "ნუდლსი", "ლაფშა"] },
+  { emoji: "🍲", keywords: ["рагу", "суп", "pot of food", "stew", "ჩაშუშული", "წვნიანი"] },
+  { emoji: "🍛", keywords: ["карри", "curry", "კარი"] },
+  { emoji: "🍢", keywords: ["шашлык", "якитори", "skewer", "ოდენ", "შამფური"] },
+  { emoji: "🍡", keywords: ["данго", "сладости на палочке", "dango", "sweet dumplings", "დანგო"] },
+  { emoji: "🍤", keywords: ["креветки", "shrimp", "prawn", "კრევეტი"] },
+  { emoji: "🍣", keywords: ["суши", "sushi", "სუში"] },
+  { emoji: "🍱", keywords: ["бенто", "ланчбокс", "bento", "lunch box", "ბენტო", "სადილის ყუთი"] },
+  { emoji: "🥟", keywords: ["пельмени", "вареники", "dumplings", "ხინკალი", "დამპლინგი"] },
+  { emoji: "🥠", keywords: ["печенье с предсказанием", "fortune cookie", "წინასწარმეტყველების ნამცხვარი"] },
+  { emoji: "🥡", keywords: ["еда навынос", "takeout box", "takeaway", "წასაღები ყუთი"] },
+  { emoji: "🌮", keywords: ["тако", "taco", "ტაკო"] },
+  { emoji: "🌯", keywords: ["буррито", "burrito", "ბურიტო"] },
+  { emoji: "🥙", keywords: ["пита", "шаурма", "stuffed flatbread", "პიტა", "შაურმა"] },
+  { emoji: "🍕", keywords: ["пицца", "pizza", "პიცა"] },
+  { emoji: "🍔", keywords: ["бургер", "гамбургер", "burger", "ბურგერი"] },
+  { emoji: "🌭", keywords: ["хот дог", "hot dog", "ჰოთ დოგი"] },
+  { emoji: "🍟", keywords: ["картошка фри", "фри", "fries", "french fries", "კარტოფილი ფრი"] },
+  { emoji: "🍿", keywords: ["попкорн", "popcorn", "პოპკორნი"] },
+  { emoji: "🍗", keywords: ["курица", "куриная ножка", "chicken leg", "chicken", "ქათამი", "ქათმის ბარკალი"] },
+  { emoji: "🍖", keywords: ["мясо на кости", "meat on bone", "ხორცი ძვალზე"] },
+  { emoji: "🥩", keywords: ["стейк", "мясо", "steak", "meat", "სტეიკი", "ხორცი"] },
+  { emoji: "🥚", keywords: ["яйцо", "яйца", "egg", "eggs", "კვერცხი", "კვერცხები"] },
+  { emoji: "🍳", keywords: ["яичница", "жареное яйцо", "fried egg", "cooking", "შემწვარი კვერცხი", "ტაფაზე კვერცხი"] },
+  { emoji: "🥪", keywords: ["сэндвич", "бутерброд", "sandwich", "სენდვიჩი"] },
+  { emoji: "🥗", keywords: ["салат", "salad", "სალათი"] },
+  { emoji: "🥞", keywords: ["блины", "панкейки", "pancakes", "ბლინები", "პანკეიკი"] },
+  { emoji: "🧇", keywords: ["вафли", "waffle", "ვაფლი"] },
+  { emoji: "🧆", keywords: ["фалафель", "falafel", "ფალაფელი"] },
+  { emoji: "🍰", keywords: ["торт", "cake", "კეიკი", "ტორტი"] },
+  { emoji: "🧁", keywords: ["кекс", "капкейк", "cupcake", "კაპქეიკი"] },
+  { emoji: "🥧", keywords: ["пирог", "pie", "ღვეზელი", "პაი"] },
+  { emoji: "🍮", keywords: ["пудинг", "pudding", "პუდინგი"] },
+  { emoji: "🍭", keywords: ["леденец", "lollipop", "ჩუპა ჩუპსი", "საწუწნი"] },
+  { emoji: "🍬", keywords: ["конфета", "candy", "ტკბილეული", "კანფეტი"] },
+  { emoji: "🍫", keywords: ["шоколад", "chocolate", "შოკოლადი"] },
+  { emoji: "🍩", keywords: ["пончик", "donut", "დონატი"] },
+  { emoji: "🍪", keywords: ["печенье", "cookie", "ბისკვიტი", "ნამცხვარი"] },
+  { emoji: "🍯", keywords: ["мед", "honey", "თაფლი"] },
+  { emoji: "🥮", keywords: ["лунный пряник", "mooncake", "მუნკეიკი"] },
+  { emoji: "🍨", keywords: ["мороженое", "ice cream", "ნაყინი"] },
+  { emoji: "🍦", keywords: ["рожок", "ice cream cone", "ნაყინის კონუსი"] },
+  { emoji: "🍧", keywords: ["щербет", "shaved ice", "დესერტი ყინულით"] },
+  { emoji: "🥤", keywords: ["газировка", "напиток", "soft drink", "soda", "სასმელი", "გაზიანი"] },
+  { emoji: "🧋", keywords: ["бабл ти", "bubble tea", "ბაბლ თი"] },
+  { emoji: "🧃", keywords: ["сок", "juice", "წვენი"] },
+  { emoji: "🧊", keywords: ["лед", "ice", "ყინული"] },
+  { emoji: "🥢", keywords: ["палочки", "chopsticks", "ჩხირები"] },
+  { emoji: "🍽️", keywords: ["тарелка", "приборы", "plate", "fork and knife", "თეფში", "დანა და ჩანგალი"] },
+  { emoji: "☕", keywords: ["кофе", "coffee", "ყავა"] },
+  { emoji: "🍵", keywords: ["чай", "green tea", "tea", "ჩაი"] },
+  { emoji: "🫖", keywords: ["чайник", "teapot", "ჩაიდანი"] },
+  { emoji: "🧉", keywords: ["мате", "mate", "მატე"] },
+  { emoji: "🍺", keywords: ["пиво", "beer", "ლუდი"] },
+  { emoji: "🍷", keywords: ["вино", "wine", "ღვინო"] },
+  { emoji: "🥂", keywords: ["шампанское", "бокалы", "champagne", "clinking glasses", "შამპანური", "ჭიქები"] },
+  { emoji: "🥃", keywords: ["виски", "whiskey", "whisky", "ვისკი"] },
+  { emoji: "🍾", keywords: ["бутылка", "шампанское", "bottle", "champagne bottle", "ბოთლი", "შამპანურის ბოთლი"] },
+  { emoji: "🍹", keywords: ["коктейль", "cocktail", "კოქტეილი"] },
+  { emoji: "🍸", keywords: ["мартини", "martini", "მარტინი"] },
+  { emoji: "🍶", keywords: ["саке", "sake", "საკე"] },
+  { emoji: "🛡️", keywords: ["страховка", "страхование", "insurance", "policy", "coverage", "დაზღვევა", "სადაზღვევო"] },
+  { emoji: "🚗🛡️", keywords: ["страховка машины", "автостраховка", "каско", "осаго", "car insurance", "auto insurance", "vehicle insurance", "მანქანის დაზღვევა", "ავტოდაზღვევა"] },
+  { emoji: "🏠🛡️", keywords: ["страховка дома", "страховка квартиры", "home insurance", "house insurance", "property insurance", "სახლის დაზღვევა", "ბინის დაზღვევა", "ქონების დაზღვევა"] },
+  { emoji: "❤️🛡️", keywords: ["медицинская страховка", "страховка здоровья", "health insurance", "life insurance", "medical insurance", "ჯანმრთელობის დაზღვევა", "სიცოცხლის დაზღვევა", "სამედიცინო დაზღვევა"] },
+  { emoji: "⚠️💸", keywords: ["неожиданные траты", "непредвиденные расходы", "экстренные траты", "unexpected expenses", "emergency expense", "surprise expense", "გაუთვალისწინებელი ხარჯი", "მოულოდნელი ხარჯი"] },
+  { emoji: "📅💸", keywords: ["запланированные траты", "плановые расходы", "planned expenses", "planned spending", "budgeted expense", "დაგეგმილი ხარჯი", "გეგმური ხარჯი"] },
+  { emoji: "✨💸", keywords: ["приятные траты", "приятные расходы", "радость", "treat yourself", "fun spending", "pleasant expenses", "სასიამოვნო ხარჯი", "სიამოვნების ხარჯი"] },
+  { emoji: "🚗🔑", keywords: ["аренда машины", "прокат машины", "аренда авто", "car rental", "rent a car", "vehicle rental", "მანქანის ქირაობა", "ავტოს გაქირავება"] },
+  { emoji: "🏠🔑", keywords: ["аренда дома", "аренда квартиры", "съем жилья", "home rent", "house rent", "apartment rent", "property rental", "სახლის ქირაობა", "ბინის ქირა", "საცხოვრებლის ქირაობა"] },
+  { emoji: "🔑", keywords: ["аренда", "прокат", "rent", "rental", "lease", "ქირაობა", "ქირა", "გაქირავება"] },
+  { emoji: "🧒🏫", keywords: ["детский сад", "садик", "ясли", "kindergarten", "daycare", "nursery", "preschool", "საბავშვო ბაღი", "ბაღი", "სადღეღამისო ბაღი"] },
+  { emoji: "🚋", keywords: ["трамвай", "tram", "streetcar", "tramway", "ტრამვაი"] },
+  { emoji: "🛥️", keywords: ["яхта", "yacht", "luxury boat", "იახტა"] },
+  { emoji: "🚤", keywords: ["катер", "моторная лодка", "boat", "speedboat", "motorboat", "კატერი", "ნავი", "მოტორიანი ნავი"] },
+  { emoji: "⛵", keywords: ["парусник", "парусная лодка", "sailboat", "sailing boat", "იალქნიანი ნავი"] },
+  { emoji: "⚓", keywords: ["якорь", "порт", "anchor", "harbor", "პორტი", "ღუზა"] },
+  { emoji: "🌴", keywords: ["отдых", "отпуск", "relax", "rest", "vacation", "holiday", "დასვენება", "შვებულება"] },
+  { emoji: "🎨", keywords: ["хобби", "творчество", "рисование", "hobby", "art", "painting", "შემოქმედება", "ჰობი", "ხატვა"] },
+  { emoji: "🎱", keywords: ["бильярд", "пул", "pool", "billiards", "snooker", "ბილიარდი"] },
+  { emoji: "🎳", keywords: ["боулинг", "bowling", "ბოულინგი"] },
+  { emoji: "🧩", keywords: ["пазл", "головоломка", "puzzle", "jigsaw", "ფაზლი", "თავსატეხი"] },
+  { emoji: "🎣", keywords: ["рыбалка", "fishing", "თევზაობა"] },
+  { emoji: "🛀", keywords: ["спа", "релакс", "ванна", "spa", "bath", "self care", "სპა", "აბაზანა", "რელაქსი"] },
+  { emoji: "🏕️", keywords: ["кемпинг", "поход", "camping", "camp", "hiking stay", "კემპინგი", "ბანაკი", "ლაშქრობა"] },
+  { emoji: "⛱️", keywords: ["пляжный отдых", "пляж", "beach", "beach отдых", "ზღვა", "პლაჟი", "პლაჟის დასვენება"] },
+  { emoji: "🪩", keywords: ["вечеринка", "дискотека", "party", "dance", "disco", "წვეულება", "დისკო", "ცეკვა"] },
+  { emoji: "🎟️", keywords: ["билет", "ticket", "entry", "show ticket", "ბილეთი"] },
+];
+
+const CATEGORY_EMOJI_EXTENDED_NAME_RULES = [
+  { emoji: "🧑‍🌾", keywords: ["фермер", "садовник", "агроном", "farmer", "gardener", "agronomist", "ფერმერი", "მებაღე", "აგრონომი"] },
+  { emoji: "👨‍🌾", keywords: ["фермер мужчина", "male farmer", "კაცი ფერმერი"] },
+  { emoji: "👩‍🌾", keywords: ["фермер женщина", "female farmer", "ქალი ფერმერი"] },
+  { emoji: "🚜", keywords: ["трактор", "tractor", "ტრაქტორი"] },
+  { emoji: "🪓", keywords: ["топор", "axe", "hatchet", "ნაჯახი"] },
+  { emoji: "🪚", keywords: ["пила", "saw", "ხერხი"] },
+  { emoji: "⛏️", keywords: ["кирка", "мотыга", "pickaxe", "hoe", "თოხი", "წერაქვი"] },
+  { emoji: "🔨", keywords: ["молоток", "hammer", "ჩაქუჩი"] },
+  { emoji: "🧰", keywords: ["инструменты", "набор инструментов", "toolbox", "tools", "ინსტრუმენტები", "ხელსაწყოები"] },
+  { emoji: "🪵", keywords: ["бревно", "дрова", "wood", "log", "firewood", "მორი", "შეშა"] },
+  { emoji: "🌾", keywords: ["пшеница", "зерно", "урожай", "wheat", "grain", "harvest", "ხორბალი", "მარცვალი", "მოსავალი"] },
+  { emoji: "🫛", keywords: ["горох", "стручки", "peas", "pea pod", "ბარდა", "მუხუდო"] },
+  { emoji: "🌱", keywords: ["росток", "саженец", "seedling", "sprout", "ნერგი", "ყლორტი"] },
+  { emoji: "🌿", keywords: ["трава", "зелень", "herb", "greenery", "ბალახი", "მწვანე"] },
+  { emoji: "☘️", keywords: ["клевер", "clover", "სამყურა"] },
+  { emoji: "🍀", keywords: ["удача", "четырехлистник", "lucky clover", "იღბალი", "იღბლის სამყურა"] },
+  { emoji: "🪴", keywords: ["сад", "огород", "цветок в горшке", "горшок", "potted plant", "plant pot", "garden", "vegetable garden", "ბაღი", "ბოსტანი", "ქოთანი", "ქოთნის მცენარე"] },
+  { emoji: "🌳", keywords: ["дерево", "лес", "tree", "forest", "ხე", "ტყე"] },
+  { emoji: "🌲", keywords: ["ель", "сосна", "pine", "fir tree", "ფიჭვი", "ნაძვი"] },
+  { emoji: "🌴", keywords: ["пальма", "отпуск", "palm tree", "vacation", "პალმა", "დასვენება"] },
+  { emoji: "🌵", keywords: ["кактус", "cactus", "კაქტუსი"] },
+  { emoji: "🌷", keywords: ["тюльпан", "tulip", "ტიტა"] },
+  { emoji: "🌹", keywords: ["роза", "rose", "ვარდი"] },
+  { emoji: "🌼", keywords: ["цветок", "ромашка", "flower", "blossom", "ყვავილი", "გვირილა"] },
+  { emoji: "🌻", keywords: ["подсолнух", "sunflower", "მზესუმზირა"] },
+  { emoji: "🌺", keywords: ["гибискус", "hibiscus", "ჰიბისკუსი"] },
+  { emoji: "🪹", keywords: ["гнездо", "nest", "ბუდე"] },
+  { emoji: "🪺", keywords: ["гнездо с яйцами", "nest with eggs", "ბუდე კვერცხებით"] },
+  { emoji: "🐄", keywords: ["корова", "cow", "ძროხა"] },
+  { emoji: "🐂", keywords: ["бык", "вол", "ox", "bull", "ხარი", "უღელი"] },
+  { emoji: "🐎", keywords: ["лошадь", "horse", "ცხენი"] },
+  { emoji: "🐖", keywords: ["свинья", "pig", "ღორი"] },
+  { emoji: "🐏", keywords: ["баран", "ram", "ვერძი"] },
+  { emoji: "🐑", keywords: ["овца", "sheep", "ცხვარი"] },
+  { emoji: "🐐", keywords: ["коза", "goat", "თხა"] },
+  { emoji: "🐓", keywords: ["петух", "rooster", "მამალი"] },
+  { emoji: "🐇", keywords: ["кролик", "rabbit", "ბაჭია", "კურდღელი"] },
+  { emoji: "🐝", keywords: ["пчела", "bee", "ფუტკარი"] },
+  { emoji: "🦆", keywords: ["утка", "duck", "იხვი"] },
+  { emoji: "🇬🇪", keywords: ["грузия", "georgia", "საქართველო", "georgian flag", "флаг грузии", "საქართველოს დროშა"] },
+  { emoji: "🇬🇧", keywords: ["великобритания", "англия", "британия", "united kingdom", "uk", "britain", "ინგლისი", "ბრიტანეთი", "გაერთიანებული სამეფო"] },
+  { emoji: "🇺🇸", keywords: ["сша", "америка", "usa", "united states", "america", "აშშ", "ამერიკა"] },
+  { emoji: "🇪🇺", keywords: ["евросоюз", "европа", "european union", "eu", "ევროკავშირი", "ევროპა"] },
+  { emoji: "🇩🇪", keywords: ["германия", "germany", "გერმანია"] },
+  { emoji: "🇫🇷", keywords: ["франция", "france", "საფრანგეთი"] },
+  { emoji: "🇮🇹", keywords: ["италия", "italy", "იტალია"] },
+  { emoji: "🇪🇸", keywords: ["испания", "spain", "ესპანეთი"] },
+  { emoji: "🇵🇹", keywords: ["португалия", "portugal", "პორტუგალია"] },
+  { emoji: "🇳🇱", keywords: ["нидерланды", "голландия", "netherlands", "holland", "ნიდერლანდები", "ჰოლანდია"] },
+  { emoji: "🇧🇪", keywords: ["бельгия", "belgium", "ბელგია"] },
+  { emoji: "🇨🇭", keywords: ["швейцария", "switzerland", "შვეიცარია"] },
+  { emoji: "🇦🇹", keywords: ["австрия", "austria", "ავსტრია"] },
+  { emoji: "🇸🇪", keywords: ["швеция", "sweden", "შვედეთი"] },
+  { emoji: "🇳🇴", keywords: ["норвегия", "norway", "ნორვეგია"] },
+  { emoji: "🇫🇮", keywords: ["финляндия", "finland", "ფინეთი"] },
+  { emoji: "🇩🇰", keywords: ["дания", "denmark", "დანია"] },
+  { emoji: "🇵🇱", keywords: ["польша", "poland", "პოლონეთი"] },
+  { emoji: "🇨🇿", keywords: ["чехия", "czechia", "czech republic", "ჩეხეთი"] },
+  { emoji: "🇷🇴", keywords: ["румыния", "romania", "რუმინეთი"] },
+  { emoji: "🇧🇬", keywords: ["болгария", "bulgaria", "ბულგარეთი"] },
+  { emoji: "🇬🇷", keywords: ["греция", "greece", "საბერძნეთი"] },
+  { emoji: "🇹🇷", keywords: ["турция", "turkey", "თურქეთი"] },
+  { emoji: "🇺🇦", keywords: ["украина", "ukraine", "უკრაინა"] },
+  { emoji: "🇦🇲", keywords: ["армения", "armenia", "სომხეთი"] },
+  { emoji: "🇦🇿", keywords: ["азербайджан", "azerbaijan", "აზერბაიჯანი"] },
+  { emoji: "🇰🇿", keywords: ["казахстан", "kazakhstan", "ყაზახეთი"] },
+  { emoji: "🇮🇱", keywords: ["израиль", "israel", "ისრაელი"] },
+  { emoji: "🇦🇪", keywords: ["оаэ", "эмираты", "uae", "emirates", "აბუ დაბი", "არაბთა გაერთიანებული საამიროები"] },
+  { emoji: "🇪🇬", keywords: ["египет", "egypt", "ეგვიპტე"] },
+  { emoji: "🇮🇳", keywords: ["индия", "india", "ინდოეთი"] },
+  { emoji: "🇯🇵", keywords: ["япония", "japan", "იაპონია"] },
+  { emoji: "🇨🇳", keywords: ["китай", "china", "ჩინეთი"] },
+  { emoji: "🇰🇷", keywords: ["корея", "южная корея", "korea", "south korea", "კორეა", "სამხრეთ კორეა"] },
+  { emoji: "🇨🇦", keywords: ["канада", "canada", "კანადა"] },
+  { emoji: "🇦🇺", keywords: ["австралия", "australia", "ავსტრალია"] },
+  { emoji: "🇧🇷", keywords: ["бразилия", "brazil", "ბრაზილია"] },
+  { emoji: "🇲🇽", keywords: ["мексика", "mexico", "მექსიკა"] },
+  { emoji: "🏳️", keywords: ["белый флаг", "white flag", "თეთრი დროშა"] },
+  { emoji: "🏴", keywords: ["черный флаг", "black flag", "შავი დროშა"] },
+  { emoji: "🚩", keywords: ["красный флаг", "red flag", "წითელი დროშა"] },
+  { emoji: "🏁", keywords: ["финиш", "клетчатый флаг", "finish", "checkered flag", "ფინიში", "ჭადრაკის დროშა"] },
+  { emoji: "🗽", keywords: ["статуя свободы", "statue of liberty", "თავისუფლების ქანდაკება"] },
+  { emoji: "🗼", keywords: ["эйфелева башня", "eiffel tower", "ეიფელის კოშკი"] },
+  { emoji: "🏛️", keywords: ["музей", "правительство", "museum", "government building", "მუზეუმი", "სახელმწიფო შენობა"] },
+  { emoji: "🏰", keywords: ["замок", "castle", "ციხე"] },
+  { emoji: "🕌", keywords: ["мечеть", "mosque", "მეჩეთი"] },
+  { emoji: "⛪", keywords: ["церковь", "church", "ეკლესია"] },
+  { emoji: "🛕", keywords: ["храм", "temple", "ტაძარი"] },
+  { emoji: "🕍", keywords: ["синагога", "synagogue", "სინაგოგა"] },
+  { emoji: "🌉", keywords: ["мост", "bridge", "ხიდი"] },
+  { emoji: "🏝️", keywords: ["остров", "island", "კუნძული"] },
+  { emoji: "🏜️", keywords: ["пустыня", "desert", "უდაბნო"] },
+  { emoji: "🏞️", keywords: ["парк", "нацпарк", "park", "national park", "პარკი", "ნაციონალური პარკი"] },
+  { emoji: "🌋", keywords: ["вулкан", "volcano", "ვულკანი"] },
+];
+
+function getBaseCategoryStyle(cat, type) {
+  if (categoryIcons[cat]) return categoryIcons[cat];
+  const defaultStyle =
+    type === "income" ? categoryIcons.defaultIncome : categoryIcons.defaultExpense;
+  return type === "income"
+    ? {
+        icon: detectEmojiByText(cat, type, defaultStyle.icon),
+        color: defaultStyle.color,
+      }
+    : {
+        icon: detectEmojiByText(cat, type, defaultStyle.icon),
+        color: defaultStyle.color,
+      };
+}
+
+function getEmojiOptionsMarkup(selectedEmoji, allowEmpty = false) {
+  const options = [];
+  const list = CATEGORY_EMOJI_OPTIONS.includes(selectedEmoji)
+    ? CATEGORY_EMOJI_OPTIONS
+    : selectedEmoji
+      ? [selectedEmoji, ...CATEGORY_EMOJI_OPTIONS]
+      : CATEGORY_EMOJI_OPTIONS;
+  if (allowEmpty) {
+    options.push(
+      `<option value="">${esc(t("noEmoji"))}</option>`,
+    );
+  }
+  list.forEach((emoji) => {
+    options.push(
+      `<option value="${esc(emoji)}"${
+        emoji === selectedEmoji ? " selected" : ""
+      }>${esc(emoji)}</option>`,
+    );
+  });
+  return options.join("");
+}
+
+function getRecentCategoryEmojis() {
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(CATEGORY_EMOJI_RECENTS_KEY) || "[]",
+    );
+    return Array.isArray(parsed)
+      ? parsed.filter((emoji) => CATEGORY_EMOJI_OPTIONS.includes(emoji)).slice(0, 24)
+      : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveRecentCategoryEmoji(emoji) {
+  const value = String(emoji || "").trim();
+  if (!value || !CATEGORY_EMOJI_OPTIONS.includes(value)) return;
+  const next = [
+    value,
+    ...getRecentCategoryEmojis().filter((item) => item !== value),
+  ].slice(0, 24);
+  try {
+    localStorage.setItem(CATEGORY_EMOJI_RECENTS_KEY, JSON.stringify(next));
+  } catch (e) {}
+}
+
+function removeRecentCategoryEmoji(emoji) {
+  const value = String(emoji || "").trim();
+  if (!value) return;
+  const next = getRecentCategoryEmojis().filter((item) => item !== value);
+  try {
+    localStorage.setItem(CATEGORY_EMOJI_RECENTS_KEY, JSON.stringify(next));
+  } catch (e) {}
+}
+
+function clearRecentCategoryEmojis() {
+  try {
+    localStorage.setItem(CATEGORY_EMOJI_RECENTS_KEY, "[]");
+  } catch (e) {}
+}
+
+const CATEGORY_EMOJI_SEARCH_RULES = [
+  ...CATEGORY_EMOJI_AUTO_RULES,
+  ...CATEGORY_EMOJI_NAME_RULES,
+  ...CATEGORY_EMOJI_EXTENDED_NAME_RULES,
+];
+
+function normalizeEmojiSearchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function tokenizeEmojiSearchText(value) {
+  const normalized = normalizeEmojiSearchText(value);
+  return normalized ? normalized.split(" ").filter(Boolean) : [];
+}
+
+function addEmojiSearchTerm(terms, value) {
+  const raw = String(value || "").trim();
+  if (!raw) return;
+  terms.add(raw);
+  const normalized = normalizeEmojiSearchText(raw);
+  if (normalized) terms.add(normalized);
+  tokenizeEmojiSearchText(raw).forEach((token) => terms.add(token));
+}
+
+function getEmojiSearchTerms(emoji) {
+  const terms = new Set([emoji]);
+  CATEGORY_EMOJI_SEARCH_RULES.forEach((rule) => {
+    if (rule.emoji === emoji) {
+      rule.keywords.forEach((keyword) => addEmojiSearchTerm(terms, keyword));
+    }
+  });
+  CATEGORY_EMOJI_GROUPS.forEach((group) => {
+    if (group.emojis.includes(emoji)) {
+      Object.values(group.title || {}).forEach((title) =>
+        addEmojiSearchTerm(terms, title),
+      );
+    }
+  });
+  return [...terms];
+}
+
+function matchesEmojiSearch(emoji, query) {
+  const rawQuery = String(query || "").trim();
+  if (!rawQuery) return true;
+  if (emoji === rawQuery) return true;
+  const queryTokens = tokenizeEmojiSearchText(rawQuery);
+  if (!queryTokens.length) return false;
+  const haystack = getEmojiSearchTerms(emoji).map((term) =>
+    normalizeEmojiSearchText(term),
+  );
+  return queryTokens.every((token) =>
+    haystack.some((term) => term.includes(token)),
+  );
+}
+
+function splitEmojiLabel(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return { emoji: "", name: "" };
+  const presetEmoji = CATEGORY_EMOJI_MATCHES.find(
+    (emoji) => trimmed === emoji || trimmed.startsWith(`${emoji} `),
+  );
+  if (presetEmoji) {
+    return {
+      emoji: presetEmoji,
+      name: trimmed.slice(presetEmoji.length).trim(),
+    };
+  }
+  const genericMatch = trimmed.match(
+    /^((?:\p{Extended_Pictographic}|\uFE0F|\u200D)+)\s*(.*)$/u,
+  );
+  if (genericMatch) {
+    return {
+      emoji: genericMatch[1].trim(),
+      name: (genericMatch[2] || "").trim(),
+    };
+  }
+  return { emoji: "", name: trimmed };
+}
+
+function composeEmojiLabel(emoji, name) {
+  const cleanName = String(name || "").trim();
+  const cleanEmoji = String(emoji || "").trim();
+  return [cleanEmoji, cleanName].filter(Boolean).join(" ").trim();
+}
+
+function detectEmojiByText(text, type = "expense", fallback = "") {
+  const parsed = splitEmojiLabel(text);
+  if (parsed.emoji) return parsed.emoji;
+  const source = normalizeEmojiSearchText(parsed.name || String(text || ""));
+  if (!source) return fallback || "";
+  let bestEmoji = "";
+  let bestScore = 0;
+  CATEGORY_EMOJI_SEARCH_RULES.forEach((rule) => {
+    rule.keywords.forEach((keyword) => {
+      const normalizedKeyword = normalizeEmojiSearchText(keyword);
+      if (!normalizedKeyword) return;
+      if (!source.includes(normalizedKeyword)) return;
+      const score = normalizedKeyword.length;
+      if (score > bestScore) {
+        bestScore = score;
+        bestEmoji = rule.emoji;
+      }
+    });
+  });
+  if (bestEmoji) return bestEmoji;
+  return fallback || "";
+}
+
+function getDisplaySubcategoryLabel(value, type = "expense") {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const parsed = splitEmojiLabel(raw);
+  const labelName = parsed.name || (!parsed.emoji ? raw : "");
+  const emoji = parsed.emoji || detectEmojiByText(labelName, type, "");
+  return composeEmojiLabel(emoji, labelName);
+}
+
+function hasCustomCategoryColor(cat) {
+  return !!normalizeHexColor(categoryCustomizations?.[cat]?.color);
+}
+
+function getCategoryUiPalette(cat, type) {
+  const style = getCategoryStyle(cat, type);
+  const customColor = normalizeHexColor(categoryCustomizations?.[cat]?.color);
+  const dark = document.body.classList.contains("dark");
+  const accentColor =
+    customColor ||
+    normalizeHexColor(style.color) ||
+    (type === "income" ? "#22C55E" : "#EF4444");
+  return {
+    style,
+    hasCustomColor: !!customColor,
+    accentColor,
+    titleColor: customColor ? accentColor : "var(--text)",
+    subColor: customColor ? accentColor : "var(--text-soft)",
+    edgeColor: customColor ? accentColor : "var(--cream-border)",
+    surfaceTone: customColor ? hexToRgba(accentColor, dark ? 0.14 : 0.08) : "",
+    borderTone: customColor
+      ? hexToRgba(accentColor, dark ? 0.4 : 0.22)
+      : "var(--cream-border)",
+    iconTone: customColor
+      ? hexToRgba(accentColor, dark ? 0.14 : 0.08)
+      : dark
+        ? "rgba(255,255,255,0.06)"
+        : "rgba(255,255,255,0.7)",
+    searchTone: customColor
+      ? hexToRgba(accentColor, dark ? 0.2 : 0.13)
+      : "var(--gold-pale)",
+  };
+}
+
+function renderEmojiFieldButton(button, emoji, type = "expense", allowEmpty = false) {
+  if (!button) return;
+  const value = String(emoji || "").trim();
+  const fallback = type === "income" ? "💰" : "💸";
+  const display = value || (allowEmpty ? "🙂" : fallback);
+  const title = value || (allowEmpty ? t("noEmoji") : fallback);
+  const subtitle = value ? t("emojiPickHint") : allowEmpty ? t("emojiPickHint") : t("emojiSuggestedTitle");
+  button.innerHTML = `<span style="display:flex;align-items:center;gap:12px;min-width:0;"><span aria-hidden="true" style="width:34px;height:34px;border-radius:12px;border:1px solid var(--cream-border);background:var(--card-bg);display:inline-flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 14px rgba(0,0,0,0.08);flex:0 0 auto;">${display}</span><span style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;"><span style="font-weight:800;letter-spacing:0.03em;">${title}</span><span style="opacity:0.68;font-size:11px;font-weight:700;white-space:normal;text-align:left;">${subtitle}</span></span></span><span style="opacity:0.72;font-size:13px;font-weight:700;flex:0 0 auto;">${t("edit")}</span>`;
+}
+
+function openEmojiPickerModal({
+  selectedEmoji = "",
+  allowEmpty = false,
+  suggestedText = "",
+  type = "expense",
+  onPick,
+}) {
+  const modalId = "emojiPickerModal";
+  const currentEmoji = String(selectedEmoji || "").trim();
+  const suggestedEmoji = detectEmojiByText(suggestedText, type, "");
+  let recentEmojis = getRecentCategoryEmojis();
+  const html = `
+    <div style="display:grid;gap:10px;">
+      <div class="field-group" style="margin-bottom:0;">
+        <input type="text" id="emojiPickerSearch" class="modal-input" placeholder="${esc(t("emojiSearchPlaceholder"))}" autocomplete="off" spellcheck="false">
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--text-muted);padding:0 2px;">${t("emojiPickHint")}</div>
+      <div id="emojiPickerBody" style="display:grid;gap:12px;max-height:min(56vh,430px);overflow:auto;padding-right:2px;"></div>
+    </div>`;
+  const modal = createModal(modalId, t("emojiPickerTitle"), html);
+  document.body.appendChild(modal);
+  openModal(modalId);
+  const modalCard = modal.querySelector(".modal");
+  if (modalCard) {
+    modalCard.style.maxWidth = "430px";
+    modalCard.style.width = "calc(100vw - 18px)";
+  }
+
+  const searchInput = document.getElementById("emojiPickerSearch");
+  const body = document.getElementById("emojiPickerBody");
+
+  const buildEmojiButton = (emoji, { removable = false } = {}) => {
+    const isActive = emoji === currentEmoji;
+    const emojiButton = `<button type="button" class="theme-swatch-btn" data-emoji-pick="${esc(
+      emoji,
+    )}" style="width:48px;height:48px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:24px;border-radius:14px;${
+      isActive
+        ? "box-shadow:0 0 0 2px var(--accent), 0 10px 22px rgba(0,0,0,0.14);transform:translateY(-1px);"
+        : ""
+    }">${emoji}</button>`;
+    if (!removable) {
+      return `<div style="display:flex;justify-content:center;">${emojiButton}</div>`;
+    }
+    return `<div style="display:grid;justify-items:center;align-content:start;gap:6px;padding-top:2px;">
+      ${emojiButton}
+      <button type="button" data-emoji-remove="${esc(
+        emoji,
+      )}" aria-label="${esc(`${t("emojiRecentRemove")} ${emoji}`)}" style="min-width:28px;height:22px;padding:0 8px;border:none;border-radius:999px;background:var(--primary);color:#fff;font-size:14px;line-height:1;font-weight:900;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(0,0,0,0.12);cursor:pointer;border:2px solid var(--card-bg);">✕</button>
+    </div>`;
+  };
+
+  const buildSection = (title, emojis, options = {}) => {
+    if (!emojis.length) return "";
+    const { removable = false, actionHtml = "", columns = 6 } = options;
+    return `<section style="display:grid;gap:8px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px;flex-wrap:wrap;">
+        <div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);">${esc(title)}</div>
+        ${actionHtml}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(${columns},minmax(0,1fr));gap:${removable ? "12px 8px" : "8px"};align-items:start;">${emojis
+        .map((emoji) => buildEmojiButton(emoji, { removable }))
+        .join("")}</div>
+    </section>`;
+  };
+
+  const uniqueEmojis = (items) =>
+    [...new Set(items.filter((emoji) => CATEGORY_EMOJI_OPTIONS.includes(emoji)))];
+
+  const renderPicker = () => {
+    const query = String(searchInput?.value || "").trim().toLowerCase();
+    if (query) {
+      const matched = uniqueEmojis(
+        CATEGORY_EMOJI_OPTIONS.filter((emoji) => matchesEmojiSearch(emoji, query)),
+      );
+      body.innerHTML =
+        (allowEmpty
+          ? `<button type="button" class="btn-secondary" data-emoji-clear="1" style="padding:10px 12px;">${t("noEmoji")}</button>`
+          : "") +
+        (matched.length
+          ? buildSection(t("emojiSuggestedTitle"), matched)
+          : `<div style="padding:16px 10px;text-align:center;color:var(--text-muted);font-size:13px;font-weight:700;">${t("emojiNoResults")}</div>`);
+    } else {
+      const suggested = uniqueEmojis(
+        [currentEmoji, suggestedEmoji, type === "income" ? "💰" : "💸"].filter(Boolean),
+      );
+      const sections = [];
+      if (allowEmpty) {
+        sections.push(
+          `<button type="button" class="btn-secondary" data-emoji-clear="1" style="padding:10px 12px;">${t("noEmoji")}</button>`,
+        );
+      }
+      if (suggested.length) sections.push(buildSection(t("emojiSuggestedTitle"), suggested));
+      if (recentEmojis.length) {
+        sections.push(
+          buildSection(t("emojiRecentTitle"), recentEmojis, {
+            removable: true,
+            columns: 5,
+            actionHtml: `<button type="button" data-emoji-clear-recent="1" style="padding:7px 12px;font-size:11px;font-weight:800;border-radius:999px;border:1px solid var(--cream-border);background:var(--primary-pale);color:var(--primary);display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;">${esc(t("emojiRecentClear"))}</button>`,
+          }),
+        );
+      }
+      CATEGORY_EMOJI_GROUPS.forEach((group) => {
+        sections.push(
+          buildSection(group.title[currentLang] || group.title.ru, group.emojis),
+        );
+      });
+      body.innerHTML = sections.join("");
+    }
+
+    body.querySelectorAll("[data-emoji-pick]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const emoji = btn.getAttribute("data-emoji-pick") || "";
+        saveRecentCategoryEmoji(emoji);
+        closeModal(modalId);
+        onPick(emoji);
+      });
+    });
+    body.querySelectorAll("[data-emoji-clear]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        closeModal(modalId);
+        onPick("");
+      });
+    });
+    body.querySelectorAll("[data-emoji-remove]").forEach((btn) => {
+      btn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const emoji = btn.getAttribute("data-emoji-remove") || "";
+        removeRecentCategoryEmoji(emoji);
+        recentEmojis = getRecentCategoryEmojis();
+        renderPicker();
+      });
+    });
+    body.querySelectorAll("[data-emoji-clear-recent]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        clearRecentCategoryEmojis();
+        recentEmojis = [];
+        renderPicker();
+      });
+    });
+  };
+
+  searchInput?.addEventListener("input", renderPicker);
+  setTimeout(() => searchInput?.focus(), 160);
+  renderPicker();
+}
 
 // ============================================================
 // ЦВЕТОВЫЕ ТЕМЫ
@@ -2808,16 +4510,12 @@ function applyColorTheme(themeKey) {
 }
 
 function getCategoryStyle(cat, type) {
-  if (categoryCustomizations?.[cat])
-    return {
-      icon: categoryCustomizations[cat].icon,
-      color: categoryCustomizations[cat].color,
-    };
-  if (categoryIcons[cat])
-    return { icon: categoryIcons[cat].icon, color: categoryIcons[cat].color };
-  return type === "income"
-    ? { icon: "💰", color: "#22c55e" }
-    : { icon: "💸", color: "#ef4444" };
+  const baseStyle = getBaseCategoryStyle(cat, type);
+  const custom = categoryCustomizations?.[cat] || {};
+  return {
+    icon: custom.icon || baseStyle.icon,
+    color: normalizeHexColor(custom.color) || baseStyle.color,
+  };
 }
 
 // ============================================================
@@ -3968,21 +5666,38 @@ function renderSimpleHome() {
   const s = sym();
   const L = currentLang;
 
-  // Тексты — простые, без терминов
+  const todayTx = transactions.filter((tx) => !tx._initial && tx.date === today());
+  const todayIncome = todayTx
+    .filter((tx) => tx.type === "income")
+    .reduce((sum, tx) => sum + tx.amountRub, 0);
+  const todayExpense = todayTx
+    .filter((tx) => tx.type === "expense")
+    .reduce((sum, tx) => sum + tx.amountRub, 0);
+  const monthPrefix = today().slice(0, 7);
+  const monthExpense = transactions
+    .filter(
+      (tx) =>
+        !tx._initial &&
+        tx.type === "expense" &&
+        String(tx.date || "").slice(0, 7) === monthPrefix,
+    )
+    .reduce((sum, tx) => sum + tx.amountRub, 0);
+
+  // Тексты — простые, без бухгалтерских терминов
   const T = {
-    bal: { ru: "Мой кошелёк", en: "My Wallet", ka: "ჩემი საფულე" }[L],
-    inc: { ru: "Доход", en: "Income", ka: "შემოს." }[L],
-    exp: { ru: "Расход", en: "Spent", ka: "ხარჯ." }[L],
-    sal: { ru: "Старт", en: "Start", ka: "საწყისი" }[L],
+    bal: { ru: "Сейчас доступно", en: "Available now", ka: "ახლა ხელმისაწვდომია" }[L],
+    inc: { ru: "Получено", en: "Received", ka: "მიღებულია" }[L],
+    exp: { ru: "Потрачено", en: "Spent", ka: "დახარჯულია" }[L],
+    sal: { ru: "Начальная сумма", en: "Starting amount", ka: "საწყისი თანხა" }[L],
     gotMoney: {
-      ru: "💰 Получил деньги",
-      en: "💰 Got Money",
-      ka: "💰 ფული მივიღე",
+      ru: "Получил",
+      en: "Received",
+      ka: "მივიღე",
     }[L],
     spentMon: {
-      ru: "🛍 Потратил деньги",
-      en: "🛍 Spent Money",
-      ka: "🛍 ფული დავხარჯე",
+      ru: "Потратил",
+      en: "Spent",
+      ka: "დავხარჯე",
     }[L],
     gotSub: {
       ru: "зарплата, подарок...",
@@ -3999,19 +5714,29 @@ function renderSimpleHome() {
       en: "📋 Full History",
       ka: "📋 სრული ისტ.",
     }[L],
+    voice: {
+      ru: "Сказать голосом",
+      en: "Speak it",
+      ka: "ხმით თქმა",
+    }[L],
+    voiceHint: {
+      ru: "Например: кофе 8 лари, такси 12, зарплата 1200",
+      en: "Try: coffee 8 lari, taxi 12, salary 1200",
+      ka: "მაგ: ყავა 8 ლარი, ტაქსი 12, ხელფასი 1200",
+    }[L],
     quick: {
       ru: "Быстро добавить расход",
       en: "Quick expense",
       ka: "სწრაფი ხარჯი",
     }[L],
-    recent: { ru: "Последние записи", en: "Recent records", ka: "ბოლო ჩანაწ." }[
+    recent: { ru: "Сегодня", en: "Today", ka: "დღეს" }[
       L
     ],
     all: { ru: "Смотреть все →", en: "See all →", ka: "ყველა →" }[L],
     noOps: {
-      ru: "Записей пока нет.\nНажмите «Получил» или «Потратил» чтобы добавить первую запись.",
-      en: "No records yet.\nTap 'Got Money' or 'Spent Money' to add the first one.",
-      ka: "ჩანაწ. ჯერ არ არის.\nდააჭ. 'მივიღე' ან 'დავხარჯე'.",
+      ru: "Сегодня записей пока нет.\nНажмите «Получил», «Потратил» или скажите голосом.",
+      en: "No records today yet.\nTap 'Received', 'Spent', or speak it.",
+      ka: "დღეს ჩანაწერი ჯერ არ არის.\nდააჭირეთ ან თქვით ხმოვანი ბრძანება.",
     }[L],
     hint: {
       ru: "Нажмите на любую запись чтобы изменить или удалить её",
@@ -4020,10 +5745,13 @@ function renderSimpleHome() {
     }[L],
   };
 
-  // Последние 5 операций (без начальной суммы)
-  const recent = [...transactions]
-    .filter((tx) => !tx._initial)
-    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
+  // В простом режиме показываем сначала сегодняшний день.
+  const recent = [...todayTx]
+    .sort((a, b) =>
+      `${b.date || ""} ${b.time || ""}`.localeCompare(
+        `${a.date || ""} ${a.time || ""}`,
+      ),
+    )
     .slice(0, 5);
 
   // 8 быстрых категорий для расходов
@@ -4081,20 +5809,14 @@ function renderSimpleHome() {
       <div class="sh-value" style="color:${balColor}">
         <span class="sh-currency" style="color:rgba(255,255,255,.65)">${s}</span>${toDisp(Math.abs(bal)).toFixed(2)}
       </div>
-      <div class="sh-sub">${
-        bal >= 0
-          ? {
-              ru: "📈 Всё в порядке",
-              en: "📈 Looking good",
-              ka: "📈 ყველაფერი კარგია",
-            }[L]
-          : {
-              ru: "📉 Расходы превышают доходы",
-              en: "📉 Spending exceeds income",
-              ka: "📉 ხარჯები შემოსავალს აჭარბებს",
-            }[L]
-      }</div>
-      <div class="hero-chips" style="margin-top:14px; grid-template-columns:repeat(3, minmax(0, 1fr));">
+      <div class="sh-sub">
+        ${{
+          ru: `Сегодня −${fmt(todayExpense)} ${s} · За месяц −${fmt(monthExpense)} ${s}`,
+          en: `Today −${fmt(todayExpense)} ${s} · This month −${fmt(monthExpense)} ${s}`,
+          ka: `დღეს −${fmt(todayExpense)} ${s} · თვეში −${fmt(monthExpense)} ${s}`,
+        }[L]}
+      </div>
+      <div class="hero-chips sm-wallet-lines" style="margin-top:14px;">
         <div class="hero-chip hc-income sm-chip-tap" data-type="income" role="button" tabindex="0">
           <div class="hc-label">${T.inc}</div>
           <div class="hc-value">+${toDisp(realInc).toFixed(2)}</div>
@@ -4115,12 +5837,7 @@ function renderSimpleHome() {
       <div class="sm-stat-item">
         <div class="sm-stat-icon">📅</div>
         <div class="sm-stat-info">
-          <div class="sm-stat-val">${{ ru: "Сегодня", en: "Today", ka: "დღეს" }[L]}: <span style="font-weight:900;color:${(() => {
-            const todayExp = transactions
-              .filter((t) => t.date === today() && t.type === "expense")
-              .reduce((s, t) => s + t.amountRub, 0);
-            return todayExp > 0 ? "#fca5a5" : "#5eead4";
-          })()}">−${s}${fmt(transactions.filter((t) => t.date === today() && t.type === "expense").reduce((s2, t) => s2 + t.amountRub, 0))}</span></div>
+          <div class="sm-stat-val">${{ ru: "Сегодня", en: "Today", ka: "დღეს" }[L]}: <span style="font-weight:900;color:${todayExpense > 0 ? "#fca5a5" : "#5eead4"}">−${s}${fmt(todayExpense)}</span></div>
           <div class="sm-stat-sub">${{ ru: "потрачено за сегодня", en: "spent today", ka: "დღეს დახარჯული" }[L]}</div>
         </div>
       </div>
@@ -4133,6 +5850,15 @@ function renderSimpleHome() {
         </div>
       </div>
     </div>
+
+    <!-- ── ГОЛОС ── -->
+    <button class="sm-voice-btn" id="simpleVoiceBtn">
+      <span class="sm-voice-icon">🎤</span>
+      <span class="sm-voice-copy">
+        <span class="sm-voice-title">${T.voice}</span>
+        <span class="sm-voice-hint">${T.voiceHint}</span>
+      </span>
+    </button>
 
     <!-- ── ДВЕ БОЛЬШИЕ КНОПКИ ── -->
     <div class="sm-two-btns">
@@ -4216,6 +5942,10 @@ function renderSimpleHome() {
   mc.querySelector(".sm-add-expense")?.addEventListener("click", () =>
     openAddModal("expense"),
   );
+  mc.querySelector("#simpleVoiceBtn")?.addEventListener("click", () => {
+    haptic("medium");
+    startVoiceInput();
+  });
 
   // Быстрые категории
   mc.querySelectorAll(".sm-quick-btn").forEach((btn) => {
@@ -4511,14 +6241,20 @@ function renderOpsList() {
         html += `<div class="ops-date-group">${getDateGroupLabel(txDate)}</div>`;
       }
       const sign = tx.type === "income" ? "+" : " −";
-      const style = getCategoryStyle(tx.category, tx.type);
-      let dcat = esc(tx.category);
+      const palette = getCategoryUiPalette(tx.category, tx.type);
+      const style = palette.style;
+      const categoryColor = palette.accentColor;
+      const displaySubcategory = getDisplaySubcategoryLabel(
+        tx.subcategory,
+        tx.type,
+      );
+      let dcat = `<span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span>`;
       if (sq && tx.category.toLowerCase().includes(sq))
-        dcat = `<span style="background:var(--gold-pale);border-radius:4px;padding:0 2px;">${esc(tx.category)}</span>`;
+        dcat = `<span style="background:${palette.searchTone};border-radius:6px;padding:1px 5px;display:inline-block;"><span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span></span>`;
       html += `<div class="op-card" data-idx="${idx}" data-type="${tx.type}">
         <div class="op-icon-wrap">${style.icon}</div>
         <div class="op-info" style="flex:1;min-width:0;">
-          <div class="op-category" style="font-size:13px;font-weight:700;">${dcat}${tx.subcategory ? ` · <span style="font-weight:400;font-size:11px;">${esc(tx.subcategory)}</span>` : ""}</div>
+          <div class="op-category" style="font-size:13px;font-weight:700;">${dcat}${displaySubcategory ? ` · <span style="font-weight:700;font-size:11px;color:${palette.subColor};">${esc(displaySubcategory)}</span>` : ""}</div>
           ${tx.note ? `<div class="op-note" style="font-size:11px;opacity:.7;">📝 ${esc(tx.note.substring(0, 50))}</div>` : ""}
           ${tx._recurring ? `<div class="op-note" style="font-size:11px;opacity:.7;">🔄 ${t("recurring") || "повтор."}</div>` : ""}
           <div class="op-time" style="font-size:10px;font-weight:600;opacity:.55;margin-top:1px;">${tx.time || ""}</div>
@@ -4728,7 +6464,19 @@ function showFullHistory() {
   all.forEach((op) => {
     const ri = transactions.indexOf(op),
       sign = op.type === "income" ? "+" : "−";
-    html += `<div class="history-item"><div class="history-item-info"><div class="history-item-cat">${getOpEmoji(op)} ${esc(op.category)}${op.subcategory ? ` (${esc(op.subcategory)})` : ""}</div><div class="history-item-meta">${fmtDate(op.date)}${op.note ? " 📝 " + esc(op.note.substring(0, 30)) : ""}</div></div><div class="history-item-amt ${op.type}">${sign}${fmt(op.amountRub)}</div><div class="history-item-btns"><button class="icon-btn edit" data-idx="${ri}">✏️</button><button class="icon-btn delete" data-idx="${ri}">🗑</button></div></div>`;
+    const palette = getCategoryUiPalette(op.category, op.type);
+    const style = palette.style;
+    const displaySubcategory = getDisplaySubcategoryLabel(
+      op.subcategory,
+      op.type,
+    );
+    const cardStyle = palette.hasCustomColor
+      ? `border-left:4px solid ${palette.accentColor};background:linear-gradient(135deg, ${hexToRgba(
+          palette.accentColor,
+          document.body.classList.contains("dark") ? 0.15 : 0.1,
+        )} 0%, var(--card-bg) 68%);`
+      : `border-left:4px solid var(--cream-border);`;
+    html += `<div class="history-item" style="${cardStyle}"><div class="history-item-info"><div class="history-item-cat"><span style="color:${palette.titleColor};font-weight:800;">${style.icon} ${esc(op.category)}</span>${displaySubcategory ? ` <span style="font-weight:700;color:${palette.subColor};">(${esc(displaySubcategory)})</span>` : ""}</div><div class="history-item-meta">${fmtDate(op.date)}${op.note ? " 📝 " + esc(op.note.substring(0, 30)) : ""}</div></div><div class="history-item-amt ${op.type}">${sign}${fmt(op.amountRub)}</div><div class="history-item-btns"><button class="icon-btn edit" data-idx="${ri}">✏️</button><button class="icon-btn delete" data-idx="${ri}">🗑</button></div></div>`;
   });
   html += `</div><div style="margin-top:16px;"><button class="btn-danger" id="clearAllHistoryBtn" style="width:100%">🗑 ${t("clearAllOps")}</button></div>`;
   const modal = createModal("fullHistoryModal", t("allHistory"), html);
@@ -5057,74 +6805,543 @@ function openSalaryModal() {
 // ============================================================
 // МОДАЛКА КАТЕГОРИЙ
 // ============================================================
+const CATEGORY_COLOR_PRESETS = [
+  "#ef4444",
+  "#f97316",
+  "#f59e0b",
+  "#eab308",
+  "#84cc16",
+  "#22c55e",
+  "#10b981",
+  "#14b8a6",
+  "#06b6d4",
+  "#0ea5e9",
+  "#3b82f6",
+  "#6366f1",
+  "#8b5cf6",
+  "#a855f7",
+  "#d946ef",
+  "#ec4899",
+  "#f43f5e",
+  "#64748b",
+  "#475569",
+  "#111827",
+];
+
+function normalizeHexColor(value) {
+  const raw = String(value || "").trim();
+  const withHash = raw.startsWith("#") ? raw : `#${raw}`;
+  if (/^#[0-9a-f]{3}$/i.test(withHash)) {
+    return (
+      "#" +
+      withHash
+        .slice(1)
+        .split("")
+        .map((ch) => ch + ch)
+        .join("")
+        .toUpperCase()
+    );
+  }
+  if (/^#[0-9a-f]{6}$/i.test(withHash)) return withHash.toUpperCase();
+  return "";
+}
+
+function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function hexToRgb(hex) {
+  const normalized = normalizeHexColor(hex);
+  if (!normalized) return null;
+  const int = parseInt(normalized.slice(1), 16);
+  return {
+    r: (int >> 16) & 255,
+    g: (int >> 8) & 255,
+    b: int & 255,
+  };
+}
+
+function rgbToHex(r, g, b) {
+  return (
+    "#" +
+    [r, g, b]
+      .map((value) =>
+        clampNumber(Math.round(value), 0, 255)
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("")
+      .toUpperCase()
+  );
+}
+
+function rgbToHsl(r, g, b) {
+  let red = clampNumber(r, 0, 255) / 255;
+  let green = clampNumber(g, 0, 255) / 255;
+  let blue = clampNumber(b, 0, 255) / 255;
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+  const diff = max - min;
+
+  if (diff !== 0) {
+    s = diff / (1 - Math.abs(2 * l - 1));
+    switch (max) {
+      case red:
+        h = 60 * (((green - blue) / diff) % 6);
+        break;
+      case green:
+        h = 60 * ((blue - red) / diff + 2);
+        break;
+      default:
+        h = 60 * ((red - green) / diff + 4);
+        break;
+    }
+  }
+  if (h < 0) h += 360;
+  return {
+    h: Math.round(h),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100),
+  };
+}
+
+function hslToRgb(h, s, l) {
+  const hue = ((Number(h) % 360) + 360) % 360;
+  const sat = clampNumber(Number(s), 0, 100) / 100;
+  const light = clampNumber(Number(l), 0, 100) / 100;
+  const chroma = (1 - Math.abs(2 * light - 1)) * sat;
+  const x = chroma * (1 - Math.abs(((hue / 60) % 2) - 1));
+  const m = light - chroma / 2;
+  let red = 0;
+  let green = 0;
+  let blue = 0;
+
+  if (hue < 60) {
+    red = chroma;
+    green = x;
+  } else if (hue < 120) {
+    red = x;
+    green = chroma;
+  } else if (hue < 180) {
+    green = chroma;
+    blue = x;
+  } else if (hue < 240) {
+    green = x;
+    blue = chroma;
+  } else if (hue < 300) {
+    red = x;
+    blue = chroma;
+  } else {
+    red = chroma;
+    blue = x;
+  }
+
+  return {
+    r: Math.round((red + m) * 255),
+    g: Math.round((green + m) * 255),
+    b: Math.round((blue + m) * 255),
+  };
+}
+
+function hexToHsl(hex) {
+  const rgb = hexToRgb(hex);
+  return rgb ? rgbToHsl(rgb.r, rgb.g, rgb.b) : { h: 0, s: 84, l: 60 };
+}
+
+function hslToHex(h, s, l) {
+  const rgb = hslToRgb(h, s, l);
+  return rgbToHex(rgb.r, rgb.g, rgb.b);
+}
+
+function hexToRgba(hex, alpha) {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return `rgba(239,68,68,${alpha})`;
+  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+}
+
+function renderCategoryColorButton(button, color) {
+  if (!button) return;
+  const normalized = normalizeHexColor(color);
+  const isCustom = !!normalized;
+  const swatchBg = isCustom ? normalized : "var(--card-bg)";
+  const swatchBorder = isCustom
+    ? "rgba(255,255,255,0.45)"
+    : "var(--cream-border)";
+  const title = isCustom ? normalized : t("themeDefaultColor");
+  button.innerHTML = `<span style="display:flex;align-items:center;gap:12px;min-width:0;"><span aria-hidden="true" style="width:26px;height:26px;border-radius:999px;border:2px solid ${swatchBorder};background:${swatchBg};box-shadow:0 4px 14px rgba(0,0,0,0.2);flex:0 0 auto;"></span><span style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;"><span style="font-weight:800;letter-spacing:0.04em;">${title}</span><span style="opacity:0.68;font-size:11px;font-weight:700;white-space:normal;text-align:left;">${t("colorHint")}</span></span></span><span style="opacity:0.72;font-size:13px;font-weight:700;flex:0 0 auto;">${t("edit")}</span>`;
+}
+
+function renderCategoryPreviewCard(container, name, icon, color, isIncome) {
+  if (!container) return;
+  const normalized = normalizeHexColor(color);
+  const hasCustomColor = !!normalized;
+  const previewColor = normalized || "var(--text)";
+  const title = (name || "").trim() || t("category");
+  const typeLabel = isIncome ? t("income") : t("expense");
+  const softBg = hasCustomColor
+    ? hexToRgba(previewColor, document.body.classList.contains("dark") ? 0.18 : 0.12)
+    : document.body.classList.contains("dark")
+      ? "rgba(255,255,255,0.06)"
+      : "rgba(255,255,255,0.82)";
+  const softBorder = hasCustomColor
+    ? hexToRgba(previewColor, document.body.classList.contains("dark") ? 0.42 : 0.28)
+    : "var(--cream-border)";
+  container.innerHTML = `
+    <div style="border-radius:18px;padding:16px;background:linear-gradient(135deg, ${softBg} 0%, rgba(255,255,255,0.04) 100%);border:1.5px solid ${softBorder};box-shadow:0 14px 30px rgba(0,0,0,0.08);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+          <div style="width:46px;height:46px;border-radius:16px;background:${softBg};border:1px solid ${softBorder};display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.18);">${icon}</div>
+          <div style="min-width:0;">
+            <div style="font-size:16px;font-weight:900;color:${previewColor};line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(title)}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">${typeLabel} · ${hasCustomColor ? previewColor : t("themeDefaultColor")}</div>
+          </div>
+        </div>
+        <div style="padding:7px 11px;border-radius:999px;background:${softBg};border:1px solid ${softBorder};font-size:11px;font-weight:900;color:${previewColor};text-transform:uppercase;letter-spacing:.05em;">${t("categoryPreview")}</div>
+      </div>
+    </div>`;
+}
+
+function openCategoryColorPicker(initialColor, onSave) {
+  const modalId = "colorPickerModal";
+  const fallbackColor = normalizeHexColor(initialColor) || "#EF4444";
+  let selectedColor = fallbackColor;
+  const initialHsl = hexToHsl(fallbackColor);
+  const html = `
+    <div class="field-group">
+      <label class="field-label">${t("colorPresets")}</label>
+      <div id="colorPickerGrid" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;">
+        ${CATEGORY_COLOR_PRESETS.map(
+          (color) => `
+            <button
+              type="button"
+              class="theme-swatch-btn"
+              data-color="${color}"
+              style="padding:10px;display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:16px;"
+              aria-label="${t("colorLabel")} ${color.toUpperCase()}"
+            >
+              <span aria-hidden="true" style="width:26px;height:26px;border-radius:999px;background:${color};border:2px solid rgba(255,255,255,0.45);box-shadow:0 4px 12px rgba(0,0,0,0.18);"></span>
+            </button>
+          `,
+        ).join("")}
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("customColor")}</label>
+      <div style="display:grid;gap:10px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text-muted);font-weight:800;margin-bottom:6px;"><span>${t("hueLabel")}</span><span id="colorPickerHueVal">${initialHsl.h}</span></div>
+          <input type="range" id="colorPickerHue" min="0" max="360" step="1" value="${initialHsl.h}" style="width:100%;">
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text-muted);font-weight:800;margin-bottom:6px;"><span>${t("saturationLabel")}</span><span id="colorPickerSatVal">${initialHsl.s}%</span></div>
+          <input type="range" id="colorPickerSat" min="0" max="100" step="1" value="${initialHsl.s}" style="width:100%;">
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text-muted);font-weight:800;margin-bottom:6px;"><span>${t("lightnessLabel")}</span><span id="colorPickerLightVal">${initialHsl.l}%</span></div>
+          <input type="range" id="colorPickerLight" min="0" max="100" step="1" value="${initialHsl.l}" style="width:100%;">
+        </div>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("colorHex")}</label>
+      <input type="text" id="colorPickerHex" class="modal-input" value="${fallbackColor}" placeholder="#22C55E" autocapitalize="characters" spellcheck="false">
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("categoryPreview")}</label>
+      <div id="colorPickerPreview" class="theme-swatch-btn" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <span style="display:flex;align-items:center;gap:12px;min-width:0;">
+          <span id="colorPickerPreviewDot" aria-hidden="true" style="width:28px;height:28px;border-radius:999px;border:2px solid rgba(255,255,255,0.45);background:${fallbackColor};box-shadow:0 4px 14px rgba(0,0,0,0.2);flex:0 0 auto;"></span>
+          <span id="colorPickerPreviewText" style="font-weight:800;letter-spacing:0.04em;">${fallbackColor}</span>
+        </span>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="colorPickerCancel">${t("cancel")}</button>
+      <button class="btn-primary" id="colorPickerSave">${t("save")}</button>
+    </div>`;
+  const modal = createModal(modalId, t("colorPickerTitle"), html);
+  document.body.appendChild(modal);
+  openModal(modalId);
+
+  const hexInput = document.getElementById("colorPickerHex");
+  const previewDot = document.getElementById("colorPickerPreviewDot");
+  const previewText = document.getElementById("colorPickerPreviewText");
+  const hueInput = document.getElementById("colorPickerHue");
+  const satInput = document.getElementById("colorPickerSat");
+  const lightInput = document.getElementById("colorPickerLight");
+  const hueValue = document.getElementById("colorPickerHueVal");
+  const satValue = document.getElementById("colorPickerSatVal");
+  const lightValue = document.getElementById("colorPickerLightVal");
+  const swatches = Array.from(
+    document.querySelectorAll(`#${modalId} [data-color]`),
+  );
+
+  const syncPickerUi = (nextColor, options = {}) => {
+    const normalized = normalizeHexColor(nextColor);
+    if (!normalized) return false;
+    selectedColor = normalized;
+    if (!options.skipInput && hexInput) hexInput.value = normalized;
+    if (previewDot) previewDot.style.background = normalized;
+    if (previewText) previewText.textContent = normalized;
+    if (!options.skipHslSync) {
+      const { h, s, l } = hexToHsl(normalized);
+      if (hueInput) hueInput.value = h;
+      if (satInput) satInput.value = s;
+      if (lightInput) lightInput.value = l;
+      if (hueValue) hueValue.textContent = String(h);
+      if (satValue) satValue.textContent = `${s}%`;
+      if (lightValue) lightValue.textContent = `${l}%`;
+    }
+    swatches.forEach((swatch) => {
+      const isActive =
+        normalizeHexColor(swatch.dataset.color) === selectedColor;
+      swatch.style.transform = isActive ? "translateY(-2px) scale(1.03)" : "";
+      swatch.style.boxShadow = isActive
+        ? "0 0 0 2px var(--accent), 0 10px 24px rgba(0,0,0,0.16)"
+        : "";
+      swatch.style.borderColor = isActive ? "var(--accent)" : "";
+    });
+    return true;
+  };
+
+  swatches.forEach((swatch) => {
+    swatch.addEventListener("click", () => {
+      syncPickerUi(swatch.dataset.color);
+    });
+  });
+
+  hexInput?.addEventListener("input", (e) => {
+    const raw = e.target.value.toUpperCase().replace(/[^#0-9A-F]/g, "");
+    e.target.value = raw.startsWith("#") ? raw : raw ? `#${raw}` : "";
+    const normalized = normalizeHexColor(e.target.value);
+    if (normalized) syncPickerUi(normalized, { skipInput: true });
+  });
+
+  const syncFromSliders = () => {
+    const hex = hslToHex(hueInput?.value || 0, satInput?.value || 0, lightInput?.value || 0);
+    syncPickerUi(hex, { skipHslSync: true });
+    if (hueValue) hueValue.textContent = String(hueInput?.value || 0);
+    if (satValue) satValue.textContent = `${satInput?.value || 0}%`;
+    if (lightValue) lightValue.textContent = `${lightInput?.value || 0}%`;
+  };
+
+  [hueInput, satInput, lightInput].forEach((input) => {
+    input?.addEventListener("input", syncFromSliders);
+  });
+
+  hexInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("colorPickerSave")?.click();
+  });
+
+  document
+    .getElementById("colorPickerCancel")
+    ?.addEventListener("click", () => closeModal(modalId));
+
+  document.getElementById("colorPickerSave")?.addEventListener("click", () => {
+    const normalized = normalizeHexColor(hexInput?.value || selectedColor);
+    if (!normalized) {
+      showToast(t("invalidColor"), "error");
+      return;
+    }
+    closeModal(modalId);
+    onSave(normalized);
+  });
+
+  syncPickerUi(fallbackColor);
+}
+
+function openSubcategoryEditorModal({
+  title,
+  parentCategory,
+  parentType = "expense",
+  initialValue = "",
+  categoryColor,
+  onSave,
+}) {
+  const modalId = "subcategoryEditorModal";
+  const parsed = splitEmojiLabel(initialValue);
+  const detectedEmoji = parsed.emoji || detectEmojiByText(parsed.name, parentType, "");
+  const previewColor = normalizeHexColor(categoryColor) || "#EF4444";
+  let emojiTouched = false;
+  const html = `
+    <div class="field-group">
+      <label class="field-label">${t("inCategoryLabel")}</label>
+      <div class="theme-swatch-btn" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <span style="font-weight:800;color:${previewColor};">${esc(parentCategory)}</span>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("iconLabel")}</label>
+      <input type="hidden" id="editSubcatEmoji" value="${esc(detectedEmoji)}">
+      <button type="button" class="theme-swatch-btn" id="editSubcatEmojiBtn" style="width:100%;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;"></button>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("newName")}</label>
+      <input type="text" id="editSubcatName" class="modal-input" value="${esc(parsed.name)}" placeholder="${esc(t("subcategoryNamePlaceholder"))}" autofocus>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("categoryPreview")}</label>
+      <div id="editSubcatPreview" class="theme-swatch-btn" style="padding:14px 16px;display:flex;align-items:center;gap:12px;"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="cancelSubcatEdit">${t("cancel")}</button>
+      <button class="btn-primary" id="saveSubcatEdit">${t("save")}</button>
+    </div>`;
+  const modal = createModal(modalId, title, html);
+  document.body.appendChild(modal);
+  openModal(modalId);
+
+  const emojiSelect = document.getElementById("editSubcatEmoji");
+  const emojiButton = document.getElementById("editSubcatEmojiBtn");
+  const nameInput = document.getElementById("editSubcatName");
+  const preview = document.getElementById("editSubcatPreview");
+
+  const syncPreview = () => {
+    renderEmojiFieldButton(emojiButton, emojiSelect?.value || "", parentType, true);
+    const label = composeEmojiLabel(emojiSelect?.value || "", nameInput?.value);
+    preview.innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-weight:800;color:${previewColor};">${esc(
+      label || composeEmojiLabel(emojiSelect?.value || "", t("subcategory")),
+    )}</span></span>`;
+  };
+
+  syncPreview();
+  emojiButton?.addEventListener("click", () => {
+    openEmojiPickerModal({
+      selectedEmoji: emojiSelect?.value || "",
+      allowEmpty: true,
+      suggestedText: nameInput?.value || parsed.name || parentCategory,
+      type: parentType,
+      onPick: (emoji) => {
+        emojiTouched = true;
+        if (emojiSelect) emojiSelect.value = emoji;
+        syncPreview();
+      },
+    });
+  });
+  nameInput?.addEventListener("input", () => {
+    if (!emojiTouched && emojiSelect) {
+      emojiSelect.value = detectEmojiByText(
+        nameInput.value,
+        parentType,
+        "",
+      );
+    }
+    syncPreview();
+  });
+  nameInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("saveSubcatEdit")?.click();
+  });
+
+  document
+    .getElementById("cancelSubcatEdit")
+    ?.addEventListener("click", () => closeModal(modalId));
+  document.getElementById("saveSubcatEdit")?.addEventListener("click", () => {
+    const name = nameInput?.value.trim();
+    if (!name) {
+      showToast(t("enterSubcategoryName"), "error");
+      return;
+    }
+    closeModal(modalId);
+    onSave(composeEmojiLabel(emojiSelect?.value || "", name));
+  });
+}
+
 function openEditCategoryModal(cat, isIncome) {
   const catObj = isIncome ? incomeCategories : categories;
-  const cur =
-    categoryCustomizations[cat] ||
-    categoryIcons[cat] ||
-    (isIncome
-      ? { icon: "💰", color: "#22c55e" }
-      : { icon: "💸", color: "#ef4444" });
-  const icons = [
-    "💰",
-    "💸",
-    "💡",
-    "🛒",
-    "🏦",
-    "📅",
-    "🚌",
-    "⚡",
-    "💼",
-    "🎁",
-    "💻",
-    "🍔",
-    "☕",
-    "🍕",
-    "🚗",
-    "✈️",
-    "🚲",
-    "⛽",
-    "🏠",
-    "🔥",
-    "💧",
-    "📱",
-    "💊",
-    "📚",
-    "⚽",
-    "🎬",
-    "🎮",
-    "🐶",
-    "👕",
-    "💄",
-    "🔧",
-    "📌",
-    "⭐",
-    "❤️",
-    "✨",
-    "🏃",
-    "🎭",
-    "🛍️",
-    "🎓",
-    "🧴",
-    "🏥",
-  ];
+  const typeKey = isIncome ? "income" : "expense";
+  const cur = getCategoryStyle(cat, typeKey);
+  const currentCustomColor =
+    normalizeHexColor(categoryCustomizations?.[cat]?.color) || "";
   const html = `
     <div class="field-group"><label class="field-label">${t("catNameLabel")}</label><input type="text" id="editCatName" class="modal-input" value="${esc(cat)}"></div>
-    <div class="field-group"><label class="field-label">${t("iconLabel")}</label><select id="editCatIcon" class="modal-select">${icons.map((i) => `<option value="${i}"${i === cur.icon ? " selected" : ""}>${i}</option>`).join("")}</select></div>
-    <div class="field-group"><label class="field-label">${t("colorLabel")}</label><input type="color" id="editCatColor" class="modal-input" value="${cur.color}"></div>
+    <div class="field-group"><label class="field-label">${t("iconLabel")}</label><input type="hidden" id="editCatIcon" value="${esc(
+      cur.icon,
+    )}"><button type="button" class="theme-swatch-btn" id="editCatIconBtn" style="width:100%;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;"></button></div>
+    <div class="field-group">
+      <label class="field-label">${t("colorLabel")}</label>
+      <input type="hidden" id="editCatColor" value="${esc(currentCustomColor)}">
+      <button type="button" class="theme-swatch-btn" id="editCatColorBtn" style="width:100%;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;"></button>
+      <button type="button" class="btn-secondary" id="resetCatColorBtn" style="width:100%;margin-top:8px;">${t("defaultColorBtn")}</button>
+    </div>
+    <div class="field-group">
+      <label class="field-label">${t("categoryPreview")}</label>
+      <div id="editCatPreview"></div>
+    </div>
     <div class="modal-actions"><button class="btn-secondary" id="cancelEditCat">${t("cancel")}</button><button class="btn-primary" id="saveEditCat">${t("save")}</button></div>`;
   const modal = createModal("editCategoryModal", t("editCatTitle"), html);
   document.body.appendChild(modal);
   openModal("editCategoryModal");
+  const editCatNameInput = document.getElementById("editCatName");
+  const editCatIconInput = document.getElementById("editCatIcon");
+  const editCatIconBtn = document.getElementById("editCatIconBtn");
+  const editCatColorInput = document.getElementById("editCatColor");
+  const editCatColorBtn = document.getElementById("editCatColorBtn");
+  const editCatPreview = document.getElementById("editCatPreview");
+  let editIconTouched = !!categoryCustomizations?.[cat]?.icon;
+  const syncCategoryPreview = () => {
+    renderEmojiFieldButton(editCatIconBtn, editCatIconInput?.value || "", typeKey);
+    renderCategoryColorButton(editCatColorBtn, editCatColorInput?.value);
+    renderCategoryPreviewCard(
+      editCatPreview,
+      editCatNameInput?.value || cat,
+      editCatIconInput?.value || cur.icon,
+      editCatColorInput?.value,
+      isIncome,
+    );
+  };
+  syncCategoryPreview();
+  editCatColorBtn?.addEventListener("click", () => {
+    openCategoryColorPicker(editCatColorInput?.value, (nextColor) => {
+      if (editCatColorInput) editCatColorInput.value = nextColor;
+      syncCategoryPreview();
+    });
+  });
+  document
+    .getElementById("resetCatColorBtn")
+    ?.addEventListener("click", () => {
+      if (editCatColorInput) editCatColorInput.value = "";
+      syncCategoryPreview();
+    });
+  editCatIconBtn?.addEventListener("click", () => {
+    openEmojiPickerModal({
+      selectedEmoji: editCatIconInput?.value || "",
+      allowEmpty: false,
+      suggestedText: editCatNameInput?.value || cat,
+      type: typeKey,
+      onPick: (emoji) => {
+        editIconTouched = true;
+        if (editCatIconInput) editCatIconInput.value = emoji;
+        syncCategoryPreview();
+      },
+    });
+  });
+  editCatNameInput?.addEventListener("input", () => {
+    if (!editIconTouched && editCatIconInput) {
+      editCatIconInput.value = detectEmojiByText(
+        editCatNameInput.value,
+        typeKey,
+        getBaseCategoryStyle("", typeKey).icon,
+      );
+    }
+    syncCategoryPreview();
+  });
   document
     .getElementById("cancelEditCat")
     .addEventListener("click", () => closeModal("editCategoryModal"));
   document.getElementById("saveEditCat").addEventListener("click", () => {
     const nn = document.getElementById("editCatName").value.trim();
-    const ni = document.getElementById("editCatIcon").value,
-      nc = document.getElementById("editCatColor").value;
+    const ni = document.getElementById("editCatIcon").value;
+    const rawColor = document.getElementById("editCatColor").value;
+    const nc = normalizeHexColor(rawColor);
     if (!nn) {
-      showToast(t("enterAmount"), "error");
+      showToast(t("enterCategoryName"), "error");
+      return;
+    }
+    if (rawColor && !nc) {
+      showToast(t("invalidColor"), "error");
       return;
     }
     if (nn !== cat && catObj[nn]) {
@@ -5134,12 +7351,17 @@ function openEditCategoryModal(cat, isIncome) {
     if (nn !== cat) {
       catObj[nn] = catObj[cat];
       delete catObj[cat];
-      if (categoryCustomizations[cat]) {
-        categoryCustomizations[nn] = categoryCustomizations[cat];
-        delete categoryCustomizations[cat];
-      }
+      if (categoryCustomizations[cat]) delete categoryCustomizations[cat];
     }
-    categoryCustomizations[nn] = { icon: ni, color: nc };
+    const baseStyle = getBaseCategoryStyle(nn, typeKey);
+    const nextCustomization = {};
+    if (ni !== baseStyle.icon) nextCustomization.icon = ni;
+    if (nc) nextCustomization.color = nc;
+    if (!Object.keys(nextCustomization).length) {
+      delete categoryCustomizations[nn];
+    } else {
+      categoryCustomizations[nn] = nextCustomization;
+    }
     saveAll();
     renderCategories();
     closeModal("editCategoryModal");
@@ -6298,13 +8520,46 @@ function openNotebookModal(id) {
 // ============================================================
 function openAddCategoryModal(defType = "expense") {
   let sel = defType;
-  const html = `<div class="field-group"><label class="field-label">${t("catTypeLabel")}</label><div class="cat-type-toggle"><button class="cat-type-btn expense ${defType === "expense" ? "active" : ""}" data-type="expense"><div class="cat-type-icon">💸</div><div class="cat-type-title">${t("catTypeExpenseTitle")}</div></button><button class="cat-type-btn income ${defType === "income" ? "active" : ""}" data-type="income"><div class="cat-type-icon">💰</div><div class="cat-type-title">${t("catTypeIncomeTitle")}</div></button></div></div><div class="field-group"><label class="field-label">${t("catNameLabel")}</label><input type="text" id="newCatName" class="modal-input" placeholder="${t("catNamePlaceholder")}" autofocus></div><div class="modal-actions"><button class="btn-secondary" id="addCatCancel">${t("cancel")}</button><button class="btn-primary" id="addCatSave">✚ ${t("save")}</button></div>`;
+  let iconTouched = false;
+  const initialIcon = detectEmojiByText("", defType, getBaseCategoryStyle("", defType).icon);
+  const html = `<div class="field-group"><label class="field-label">${t("catTypeLabel")}</label><div class="cat-type-toggle"><button class="cat-type-btn expense ${defType === "expense" ? "active" : ""}" data-type="expense"><div class="cat-type-icon">💸</div><div class="cat-type-title">${t("catTypeExpenseTitle")}</div></button><button class="cat-type-btn income ${defType === "income" ? "active" : ""}" data-type="income"><div class="cat-type-icon">💰</div><div class="cat-type-title">${t("catTypeIncomeTitle")}</div></button></div></div><div class="field-group"><label class="field-label">${t("catNameLabel")}</label><input type="text" id="newCatName" class="modal-input" placeholder="${t("catNamePlaceholder")}" autofocus></div><div class="field-group"><label class="field-label">${t("iconLabel")}</label><input type="hidden" id="newCatIcon" value="${esc(
+    initialIcon,
+  )}"><button type="button" class="theme-swatch-btn" id="newCatIconBtn" style="width:100%;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;"></button></div><div class="modal-actions"><button class="btn-secondary" id="addCatCancel">${t("cancel")}</button><button class="btn-primary" id="addCatSave">✚ ${t("save")}</button></div>`;
   const modal = createModal("addCatModal", t("addCatModalTitle"), html);
   document.body.appendChild(modal);
   openModal("addCatModal");
+  const newCatIconSelect = document.getElementById("newCatIcon");
+  const newCatIconBtn = document.getElementById("newCatIconBtn");
+  const newCatNameInput = document.getElementById("newCatName");
+  const syncNewCatIcon = () =>
+    renderEmojiFieldButton(newCatIconBtn, newCatIconSelect?.value || "", sel);
   // Устанавливаем active класс для дефолтного типа при открытии
   modal.querySelectorAll(".cat-type-btn.active").forEach((b) => {
     b.classList.add("active-" + b.dataset.type);
+  });
+  syncNewCatIcon();
+  newCatIconBtn?.addEventListener("click", () => {
+    openEmojiPickerModal({
+      selectedEmoji: newCatIconSelect?.value || "",
+      allowEmpty: false,
+      suggestedText: newCatNameInput?.value || "",
+      type: sel,
+      onPick: (emoji) => {
+        iconTouched = true;
+        if (newCatIconSelect) newCatIconSelect.value = emoji;
+        syncNewCatIcon();
+      },
+    });
+  });
+  newCatNameInput?.addEventListener("input", () => {
+    if (!iconTouched && newCatIconSelect) {
+      newCatIconSelect.value = detectEmojiByText(
+        newCatNameInput.value,
+        sel,
+        getBaseCategoryStyle("", sel).icon,
+      );
+      syncNewCatIcon();
+    }
   });
   modal.querySelectorAll(".cat-type-btn").forEach((btn) =>
     btn.addEventListener("click", () => {
@@ -6313,6 +8568,14 @@ function openAddCategoryModal(defType = "expense") {
         b.classList.remove("active", "active-expense", "active-income");
       });
       btn.classList.add("active", "active-" + btn.dataset.type);
+      if (!iconTouched && newCatIconSelect) {
+        newCatIconSelect.value = detectEmojiByText(
+          newCatNameInput?.value || "",
+          sel,
+          getBaseCategoryStyle("", sel).icon,
+        );
+      }
+      syncNewCatIcon();
       haptic && haptic("light");
     }),
   );
@@ -6322,7 +8585,7 @@ function openAddCategoryModal(defType = "expense") {
   document.getElementById("addCatSave").addEventListener("click", () => {
     const name = document.getElementById("newCatName").value.trim();
     if (!name) {
-      showToast(t("enterAmount"), "error");
+      showToast(t("enterCategoryName"), "error");
       return;
     }
     if (sel === "expense") {
@@ -6337,6 +8600,16 @@ function openAddCategoryModal(defType = "expense") {
         return;
       }
       incomeCategories[name] = { subcats: [] };
+    }
+    const baseStyle = getBaseCategoryStyle(name, sel);
+    const baseColor =
+      normalizeHexColor(baseStyle.color) ||
+      (sel === "income" ? "#22C55E" : "#EF4444");
+    const icon =
+      newCatIconSelect?.value ||
+      detectEmojiByText(name, sel, baseStyle.icon);
+    if (icon !== baseStyle.icon) {
+      categoryCustomizations[name] = { icon, color: baseColor };
     }
     saveAll();
     renderCategories();
@@ -6357,25 +8630,61 @@ function renderCategories() {
       div.className = "cat-item";
       const safeId =
         "chips-" + (isIncome ? "inc-" : "") + cat.replace(/\s/g, "_");
-      const style = getCategoryStyle(cat, isIncome ? "income" : "expense");
-      div.innerHTML = `<div class="cat-item-header"><div class="cat-item-name">${style.icon} ${esc(cat)}</div><button class="icon-btn delete" data-delcat="${esc(cat)}">✕</button></div><div class="chips-row" id="${safeId}"></div><button class="cat-add-sub-btn add-sub" data-cat="${esc(cat)}">＋ ${t("addSubcategory")}</button>`;
+      const typeKey = isIncome ? "income" : "expense";
+      const palette = getCategoryUiPalette(cat, typeKey);
+      const style = palette.style;
+      if (palette.hasCustomColor) {
+        div.style.borderLeft = `4px solid ${palette.edgeColor}`;
+        div.style.background = `linear-gradient(135deg, ${palette.surfaceTone} 0%, var(--card-bg) 58%)`;
+      } else {
+        div.style.borderLeft = `4px solid var(--cream-border)`;
+        div.style.background = "";
+      }
+      div.innerHTML = `<div class="cat-item-header"><div class="cat-item-name" style="display:flex;align-items:center;gap:10px;"><span style="width:34px;height:34px;border-radius:12px;background:${palette.iconTone};border:1px solid ${palette.borderTone};display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;">${style.icon}</span><span style="color:${palette.titleColor};font-weight:800;">${esc(cat)}</span></div><button class="icon-btn delete" data-delcat="${esc(cat)}">✕</button></div><div class="chips-row" id="${safeId}"></div><button class="cat-add-sub-btn add-sub" data-cat="${esc(cat)}">＋ ${t("addSubcategory")}</button>`;
       container.appendChild(div);
       const chips = document.getElementById(safeId);
       data.subcats.forEach((sub) => {
         const chip = document.createElement("span");
         chip.className = "chip";
-        chip.innerHTML = `${esc(sub)} <button class="chip-del" data-cat="${esc(cat)}" data-sub="${esc(sub)}">✕</button>`;
+        chip.style.background = palette.hasCustomColor
+          ? hexToRgba(
+              palette.accentColor,
+              document.body.classList.contains("dark") ? 0.16 : 0.1,
+            )
+          : document.body.classList.contains("dark")
+            ? "rgba(255,255,255,0.06)"
+            : "rgba(255,255,255,0.78)";
+        chip.style.border = `1px solid ${palette.hasCustomColor ? hexToRgba(
+          palette.accentColor,
+          document.body.classList.contains("dark") ? 0.34 : 0.22,
+        ) : "var(--cream-border)"}`;
+        const displaySub = getDisplaySubcategoryLabel(sub, typeKey);
+        chip.innerHTML = `<span style="color:${palette.subColor};font-weight:800;">${esc(
+          displaySub,
+        )}</span> <button class="chip-del" data-cat="${esc(cat)}" data-sub="${esc(sub)}">✕</button>`;
         chip.addEventListener("click", (e) => {
           if (e.target.classList.contains("chip-del")) return;
-          openInputModal(t("editSubcatTitle"), t("newName"), sub, (nn) => {
-            if (nn?.trim()) {
+          openSubcategoryEditorModal({
+            title: t("editSubcatTitle"),
+            parentCategory: cat,
+            parentType: typeKey,
+            initialValue: sub,
+            categoryColor: palette.accentColor,
+            onSave: (nextValue) => {
+              if (!nextValue.trim()) return;
               const i = catObj[cat].subcats.indexOf(sub);
-              if (i !== -1) {
-                catObj[cat].subcats[i] = nn.trim();
-                saveAll();
-                renderCategories();
+              if (i === -1) return;
+              if (
+                nextValue !== sub &&
+                catObj[cat].subcats.includes(nextValue)
+              ) {
+                showToast(t("alreadyExists"), "error");
+                return;
               }
-            }
+              catObj[cat].subcats[i] = nextValue;
+              saveAll();
+              renderCategories();
+            },
           });
         });
         chip.querySelector(".chip-del").addEventListener("click", (e) => {
@@ -6409,18 +8718,23 @@ function renderCategories() {
         );
       });
       div.querySelector(".add-sub").addEventListener("click", () => {
-        openInputModal(
-          t("newSubcatTitle"),
-          `${t("inCategoryLabel")} «${cat}»`,
-          "",
-          (sub) => {
-            if (sub?.trim()) {
-              catObj[cat].subcats.push(sub.trim());
-              saveAll();
-              renderCategories();
+        openSubcategoryEditorModal({
+          title: t("newSubcatTitle"),
+          parentCategory: cat,
+          parentType: typeKey,
+          initialValue: "",
+          categoryColor: palette.accentColor,
+          onSave: (subValue) => {
+            if (!subValue.trim()) return;
+            if (catObj[cat].subcats.includes(subValue)) {
+              showToast(t("alreadyExists"), "error");
+              return;
             }
+            catObj[cat].subcats.push(subValue.trim());
+            saveAll();
+            renderCategories();
           },
-        );
+        });
       });
     }
   }
@@ -6922,6 +9236,21 @@ function renderSettings() {
       <label class="switch"><input type="checkbox" id="showVoiceBtnToggle" ${localStorage.getItem("showVoiceBtn") !== "false" ? "checked" : ""}><span class="slider round"></span></label>
     </div>
     <div class="set-row set-row-divider">
+      <div class="set-row-ico">🗣️</div>
+      <div class="set-row-label set-row-label-sub">
+        <span>${{ ru: "Режим распознавания", en: "Recognition mode", ka: "ამოცნობის რეჟიმი" }[L]}</span>
+        <span class="set-row-sub">${getVoiceInputModeLabels()[getVoiceInputMode()].hint}</span>
+      </div>
+      <select id="voiceModeSelect" class="settings-select set-inline-select" style="max-width:136px;">
+        ${Object.entries(getVoiceInputModeLabels())
+          .map(
+            ([value, item]) =>
+              `<option value="${value}"${getVoiceInputMode() === value ? " selected" : ""}>${esc(item.label)}</option>`,
+          )
+          .join("")}
+      </select>
+    </div>
+    <div class="set-row set-row-divider">
       <div class="set-row-ico">🎯</div>
       <div class="set-row-label set-row-label-sub">
         <span>${{ ru: "Кнопка целей", en: "Goals button", ka: "მიზნების ღ." }[L]}</span>
@@ -7292,6 +9621,22 @@ function renderSettings() {
       addVoiceButton();
       haptic("light");
       showToast(t("saved"));
+    });
+  document
+    .getElementById("voiceModeSelect")
+    ?.addEventListener("change", function () {
+      const next = setVoiceInputMode(this.value);
+      const labels = getVoiceInputModeLabels();
+      haptic("light");
+      showToast(
+        {
+          ru: `Режим: ${labels[next].label}`,
+          en: `Mode: ${labels[next].label}`,
+          ka: `რეჟიმი: ${labels[next].label}`,
+        }[currentLang] || `Mode: ${labels[next].label}`,
+        "success",
+      );
+      renderSettings();
     });
   document.getElementById("voiceDirectBtn")?.addEventListener("click", () => {
     haptic("medium");
@@ -9363,9 +11708,14 @@ function init() {
     );
     if (card) card.click();
   });
-  document
-    .getElementById("fabBtn")
-    .addEventListener("click", () => openAddModal("expense"));
+  document.getElementById("fabBtn").addEventListener("click", (e) => {
+    if (isVoiceDragSuppressed()) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    openAddModal("expense");
+  });
   // ── Инициализация push-уведомлений ──
 
   appBooting = false;
@@ -9377,7 +11727,14 @@ function init() {
   // ── Обработчики обеих навигаций ──
   const fabBtnSimple = document.getElementById("fabBtnSimple");
   if (fabBtnSimple)
-    fabBtnSimple.addEventListener("click", () => openAddModal("expense"));
+    fabBtnSimple.addEventListener("click", (e) => {
+      if (isVoiceDragSuppressed()) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      openAddModal("expense");
+    });
 
   // Все кнопки с data-tab в обоих навах
   document
@@ -14912,7 +17269,735 @@ function showBudgetCelebration() {
 // ═══════════════════════════════════════════════════════════════
 // 🎤 3. ГОЛОСОВОЙ ВВОД (Web Speech API)
 // ═══════════════════════════════════════════════════════════════
+const VOICE_OVERLAY_ID = "voiceOverlay";
+const VOICE_INPUT_MODE_KEY = "budgetpro_voice_mode";
+const VOICE_LEARNING_KEY = "budgetpro_voice_learning_v2";
+const VOICE_MAX_LEARNING_ENTRIES = 120;
+
+const VOICE_INPUT_MODES = {
+  auto: {
+    overlayGate: 0.05,
+    overlayBoost: 1.2,
+    overlayRelease: 0.8,
+    overlayNoiseRise: 0.12,
+    overlayNoiseFall: 0.035,
+    overlaySpeechAttack: 0.34,
+    overlaySpeechDecay: 0.12,
+    overlaySpeechThreshold: 0.085,
+    overlaySpeechinessWeight: 0.32,
+    webRmsBoost: 8.4,
+    webPeakBoost: 1.5,
+    webMinSpeechiness: 0.2,
+  },
+  whisper: {
+    overlayGate: 0.024,
+    overlayBoost: 1.5,
+    overlayRelease: 0.88,
+    overlayNoiseRise: 0.08,
+    overlayNoiseFall: 0.028,
+    overlaySpeechAttack: 0.38,
+    overlaySpeechDecay: 0.08,
+    overlaySpeechThreshold: 0.05,
+    overlaySpeechinessWeight: 0.22,
+    webRmsBoost: 10.2,
+    webPeakBoost: 1.9,
+    webMinSpeechiness: 0.14,
+  },
+  street: {
+    overlayGate: 0.095,
+    overlayBoost: 1.06,
+    overlayRelease: 0.72,
+    overlayNoiseRise: 0.2,
+    overlayNoiseFall: 0.055,
+    overlaySpeechAttack: 0.26,
+    overlaySpeechDecay: 0.17,
+    overlaySpeechThreshold: 0.12,
+    overlaySpeechinessWeight: 0.48,
+    webRmsBoost: 6.8,
+    webPeakBoost: 1.18,
+    webMinSpeechiness: 0.32,
+  },
+};
+
+function getVoiceInputMode() {
+  const raw = String(localStorage.getItem(VOICE_INPUT_MODE_KEY) || "auto")
+    .trim()
+    .toLowerCase();
+  return Object.prototype.hasOwnProperty.call(VOICE_INPUT_MODES, raw)
+    ? raw
+    : "auto";
+}
+
+function setVoiceInputMode(mode) {
+  const next = Object.prototype.hasOwnProperty.call(VOICE_INPUT_MODES, mode)
+    ? mode
+    : "auto";
+  localStorage.setItem(VOICE_INPUT_MODE_KEY, next);
+  return next;
+}
+
+function getVoiceInputModeConfig(mode = getVoiceInputMode()) {
+  return VOICE_INPUT_MODES[mode] || VOICE_INPUT_MODES.auto;
+}
+
+function getVoiceInputModeLabels() {
+  return {
+    auto: {
+      label: { ru: "Авто", en: "Auto", ka: "ავტო" }[currentLang] || "Auto",
+      hint:
+        {
+          ru: "Сбалансированный режим на каждый день",
+          en: "Balanced everyday mode",
+          ka: "დაბალანსებული ყოველდღიური რეჟიმი",
+        }[currentLang] || "Balanced everyday mode",
+    },
+    whisper: {
+      label: { ru: "Шепот", en: "Whisper", ka: "ჩურჩული" }[currentLang] || "Whisper",
+      hint:
+        {
+          ru: "Для тихой речи рядом с микрофоном",
+          en: "For quiet speech close to the mic",
+          ka: "ჩუმი მეტყველებისთვის მიკროფონთან ახლოს",
+        }[currentLang] || "For quiet speech close to the mic",
+    },
+    street: {
+      label: { ru: "Улица", en: "Street", ka: "ქუჩა" }[currentLang] || "Street",
+      hint:
+        {
+          ru: "Жёстче отсекает фоновый шум",
+          en: "Cuts background noise more aggressively",
+          ka: "უფრო მკაცრად ჭრის ფონის ხმაურს",
+        }[currentLang] || "Cuts background noise more aggressively",
+    },
+  };
+}
+
+function getVoiceRecognitionLangCode({ native = false } = {}) {
+  if (native) return "auto";
+  return currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
+}
+
+function normalizeVoiceMeaningText(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[₾$€£¥]/g, " ")
+    .replace(/[^\p{L}\p{N}\s.,-]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const VOICE_MEANING_STOP_WORDS = new Set([
+  "и",
+  "а",
+  "но",
+  "на",
+  "за",
+  "в",
+  "во",
+  "с",
+  "со",
+  "по",
+  "из",
+  "для",
+  "или",
+  "the",
+  "a",
+  "an",
+  "for",
+  "to",
+  "and",
+  "of",
+  "on",
+  "with",
+  "at",
+  "ხარჯი",
+  "შემოსავალი",
+  "და",
+  "ან",
+  "ში",
+  "თვის",
+  "თანხა",
+  "amount",
+  "expense",
+  "income",
+  "лари",
+  "лари",
+  "lari",
+  "gel",
+  "ლარი",
+]);
+
+function tokenizeVoiceMeaningText(text) {
+  return normalizeVoiceMeaningText(text)
+    .split(/[\s,.-]+/)
+    .map((token) => token.trim())
+    .filter(
+      (token) =>
+        token &&
+        token.length > 1 &&
+        !VOICE_MEANING_STOP_WORDS.has(token) &&
+        !/^\d+$/.test(token),
+    );
+}
+
+function loadVoiceLearningEntries() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(VOICE_LEARNING_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveVoiceLearningEntries(entries) {
+  try {
+    localStorage.setItem(
+      VOICE_LEARNING_KEY,
+      JSON.stringify(entries.slice(0, VOICE_MAX_LEARNING_ENTRIES)),
+    );
+  } catch (e) {}
+}
+
+function rememberVoiceLearningSample({
+  rawText,
+  type,
+  category,
+  subcategory = "",
+}) {
+  const normalized = normalizeVoiceMeaningText(rawText);
+  const tokens = tokenizeVoiceMeaningText(rawText);
+  if (!normalized || !tokens.length || !category) return;
+
+  const entries = loadVoiceLearningEntries();
+  const now = Date.now();
+  const existing = entries.find(
+    (entry) => entry.normalized === normalized && entry.type === type,
+  );
+
+  if (existing) {
+    existing.category = category;
+    existing.subcategory = subcategory || "";
+    existing.tokens = tokens;
+    existing.lang = currentLang;
+    existing.hits = Math.min(99, Number(existing.hits || 0) + 1);
+    existing.updatedAt = now;
+  } else {
+    entries.unshift({
+      normalized,
+      tokens,
+      type,
+      category,
+      subcategory: subcategory || "",
+      lang: currentLang,
+      hits: 1,
+      updatedAt: now,
+    });
+  }
+
+  entries.sort(
+    (a, b) =>
+      Number(b.hits || 0) - Number(a.hits || 0) ||
+      Number(b.updatedAt || 0) - Number(a.updatedAt || 0),
+  );
+  saveVoiceLearningEntries(entries);
+}
+
+function findVoiceLearningHint(text, preferredType = "") {
+  const normalized = normalizeVoiceMeaningText(text);
+  const tokens = tokenizeVoiceMeaningText(text);
+  if (!normalized || !tokens.length) return null;
+
+  let best = null;
+  loadVoiceLearningEntries().forEach((entry) => {
+    if (!entry?.category || !entry?.normalized) return;
+
+    let score = 0;
+    if (entry.normalized === normalized) score += 90;
+    if (preferredType && entry.type === preferredType) score += 8;
+    else if (preferredType && entry.type && entry.type !== preferredType) score -= 10;
+    if (entry.lang === currentLang) score += 4;
+
+    const entryTokens = Array.isArray(entry.tokens) ? entry.tokens : [];
+    let overlap = 0;
+    entryTokens.forEach((token) => {
+      if (tokens.includes(token)) overlap += token.length >= 4 ? 2 : 1;
+      if (normalized.includes(token)) overlap += 0.5;
+    });
+    score += overlap * 6;
+    score += Math.min(12, Number(entry.hits || 0) * 2);
+
+    if (!best || score > best.score) {
+      best = {
+        category: entry.category,
+        subcategory: entry.subcategory || "",
+        type: entry.type || preferredType || "expense",
+        score,
+      };
+    }
+  });
+
+  return best && best.score >= 18 ? best : null;
+}
+
+function scoreVoiceLabelMatch(normalizedText, label) {
+  const normalizedLabel = normalizeVoiceMeaningText(label);
+  if (!normalizedLabel) return 0;
+  let score = normalizedText.includes(normalizedLabel) ? 18 : 0;
+  const labelTokens = tokenizeVoiceMeaningText(normalizedLabel);
+  labelTokens.forEach((token) => {
+    if (normalizedText.includes(token)) score += token.length >= 5 ? 7 : 4;
+  });
+  return score;
+}
+
+function getVoiceListeningCopy() {
+  const mode = getVoiceInputMode();
+  return {
+    title:
+      { ru: "Говорите...", en: "Listening...", ka: "ილაპარაკეთ..." }[
+        currentLang
+      ] || "Listening...",
+    hint:
+      (
+        {
+          auto: {
+            ru: "Можно говорить по-русски, English или ქართულად: сумма и категория",
+            en: "Speak Russian, English or Georgian: amount and category",
+            ka: "ილაპარაკეთ რუსულად, English ან ქართულად: თანხა და კატეგორია",
+          },
+          whisper: {
+            ru: "Шепот: поднесите телефон ближе и говорите коротко",
+            en: "Whisper: hold the phone closer and speak briefly",
+            ka: "ჩურჩული: მოიტანეთ ტელეფონი ახლოს და თქვით მოკლედ",
+          },
+          street: {
+            ru: "Шумно вокруг: говорите ближе к микрофону и короче",
+            en: "Noisy outside: speak closer to the mic and keep it short",
+            ka: "ხმაურია: ილაპარაკეთ მიკროფონთან ახლოს და მოკლედ",
+          },
+        }[mode] || {
+          ru: "Формат: «Потратил 50 лари на продукты»",
+          en: "Format: «I spent 50 lari on groceries»",
+          ka: "ფორმატი: «დავხარჯე 50 ლარი პროდუქტებზე»",
+        }
+      )[currentLang] || "Format: I spent 50 lari on groceries",
+  };
+}
+
+function ensureVoiceOverlayStyles() {
+  if (document.getElementById("voiceOverlayStyles")) return;
+  const style = document.createElement("style");
+  style.id = "voiceOverlayStyles";
+  style.textContent = `
+    @keyframes voiceOverlayFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    .voice-overlay-shell {
+      width: min(92vw, 360px);
+      display: grid;
+      justify-items: center;
+      gap: 16px;
+      text-align: center;
+      color: white;
+    }
+    .voice-orb-wrap {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      display: grid;
+      place-items: center;
+      animation: voiceOverlayFloat 3.2s ease-in-out infinite;
+    }
+    .voice-wave-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 124px;
+      height: 124px;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255,255,255,0.24);
+      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 48%, transparent 72%);
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.22;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .voice-orb-core {
+      position: relative;
+      z-index: 2;
+      width: 88px;
+      height: 88px;
+      border-radius: 28px;
+      display: grid;
+      place-items: center;
+      font-size: 42px;
+      color: white;
+      background: linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
+      border: 1.5px solid rgba(255,255,255,0.24);
+      box-shadow: 0 22px 42px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.08) inset;
+      backdrop-filter: blur(12px);
+      will-change: transform, box-shadow;
+    }
+    .voice-wave-canvas {
+      width: min(88vw, 300px);
+      height: 84px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.09);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .voice-overlay-copy {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+    .voice-overlay-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+    .voice-overlay-hint {
+      font-size: 14px;
+      line-height: 1.5;
+      color: rgba(255,255,255,0.76);
+      padding: 0 8px;
+      max-width: 320px;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function cleanupVoiceOverlayMeter() {
+  const state = window.__voiceOverlayState;
+  if (!state) return;
+  if (typeof state.meterCleanup === "function") {
+    try {
+      state.meterCleanup();
+    } catch (e) {}
+  }
+  if (state.rafId) cancelAnimationFrame(state.rafId);
+  window.__voiceOverlayState = null;
+}
+
+function normalizeVoiceOverlayEnergy(level) {
+  const clamped = Math.max(0, Math.min(1, Number(level) || 0));
+  if (clamped <= 0.012) return 0;
+  return Math.min(1, Math.pow(clamped, 0.72) * 1.12);
+}
+
+function setVoiceOverlayLevel(level, meta = {}) {
+  const state = window.__voiceOverlayState;
+  if (!state) return;
+  const cfg = state.modeConfig || getVoiceInputModeConfig();
+  const raw = normalizeVoiceOverlayEnergy(level);
+  const speechiness = Math.max(
+    0,
+    Math.min(1, Number(meta.speechiness ?? raw) || 0),
+  );
+
+  if (!Number.isFinite(state.noiseFloor)) {
+    state.noiseFloor = raw * 0.78;
+  }
+  const noiseLerp =
+    raw > state.noiseFloor ? cfg.overlayNoiseRise : cfg.overlayNoiseFall;
+  state.noiseFloor += (raw - state.noiseFloor) * noiseLerp;
+
+  const gated = Math.max(
+    0,
+    raw -
+      state.noiseFloor -
+      cfg.overlayGate +
+      speechiness * cfg.overlaySpeechinessWeight,
+  );
+  const speechCandidate = Math.max(
+    0,
+    Math.min(1, gated * cfg.overlayBoost + speechiness * 0.22),
+  );
+
+  if (
+    speechCandidate >= cfg.overlaySpeechThreshold ||
+    speechiness >= cfg.webMinSpeechiness
+  ) {
+    state.speechConfidence +=
+      (1 - state.speechConfidence) * cfg.overlaySpeechAttack;
+  } else {
+    state.speechConfidence +=
+      (0 - state.speechConfidence) * cfg.overlaySpeechDecay;
+  }
+
+  const smoothed = speechCandidate * (0.42 + state.speechConfidence * 0.8);
+  state.targetEnergy = Math.max(smoothed, state.targetEnergy * cfg.overlayRelease);
+}
+
+function renderVoiceOverlayFrame(state, timestamp) {
+  if (!state?.overlay?.isConnected) return;
+  const t = timestamp || performance.now();
+  state.energy += (state.targetEnergy - state.energy) * 0.34;
+  state.targetEnergy *= 0.8;
+  const energy = Math.max(0.04, Math.min(1, state.energy));
+
+  state.rings.forEach((ring, index) => {
+    const drift = Math.sin(t * 0.0016 + index * 0.9) * 0.018;
+    const scale = 1 + index * 0.16 + energy * (0.24 + index * 0.1) + drift;
+    ring.style.transform = `translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+    ring.style.opacity = `${Math.max(0.12, 0.26 + energy * (0.28 - index * 0.05))}`;
+  });
+
+  if (state.core) {
+    state.core.style.transform = `scale(${(1 + energy * 0.12).toFixed(3)})`;
+    state.core.style.boxShadow = `0 22px 42px rgba(0,0,0,0.28), 0 0 ${(
+      20 + energy * 52
+    ).toFixed(1)}px rgba(255,122,89,${(0.18 + energy * 0.22).toFixed(
+      3,
+    )}), 0 0 0 1px rgba(255,255,255,0.08) inset`;
+  }
+
+  const canvas = state.canvas;
+  const ctx = state.ctx;
+  if (canvas && ctx) {
+    const width = canvas.width;
+    const height = canvas.height;
+    const mid = height / 2;
+    ctx.clearRect(0, 0, width, height);
+
+    const gradient = ctx.createLinearGradient(0, 0, width, 0);
+    gradient.addColorStop(0, "rgba(255,255,255,0.18)");
+    gradient.addColorStop(0.22, "rgba(251,146,60,0.92)");
+    gradient.addColorStop(0.5, "rgba(255,214,102,0.96)");
+    gradient.addColorStop(0.78, "rgba(96,165,250,0.9)");
+    gradient.addColorStop(1, "rgba(255,255,255,0.18)");
+
+    ctx.lineWidth = 3;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = gradient;
+    ctx.beginPath();
+    const amplitude = 8 + energy * 30;
+    for (let x = 0; x <= width; x += 4) {
+      const progress = x / width;
+      const wave =
+        Math.sin(progress * Math.PI * 6 + t * 0.010) * amplitude * 0.55 +
+        Math.sin(progress * Math.PI * 13 - t * 0.016) * amplitude * 0.24 +
+        Math.sin(progress * Math.PI * 2 + t * 0.004) * amplitude * 0.18;
+      const y = mid + wave;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = `rgba(255,255,255,${(0.22 + energy * 0.24).toFixed(3)})`;
+    ctx.beginPath();
+    for (let x = 0; x <= width; x += 6) {
+      const progress = x / width;
+      const wave =
+        Math.sin(progress * Math.PI * 5 + t * 0.006) * (amplitude * 0.38);
+      const y = mid + wave;
+      if (x === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  state.rafId = requestAnimationFrame((ts) => renderVoiceOverlayFrame(state, ts));
+}
+
+function createVoiceListeningOverlay() {
+  ensureVoiceOverlayStyles();
+  closeVoiceListeningOverlay();
+  const copy = getVoiceListeningCopy();
+  const overlay = document.createElement("div");
+  overlay.id = VOICE_OVERLAY_ID;
+  overlay.style.cssText =
+    "position:fixed;inset:0;z-index:99998;background:radial-gradient(circle at 50% 35%, rgba(255,149,105,0.20), transparent 28%), rgba(5,8,18,0.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px 16px;";
+  overlay.innerHTML = `
+    <div class="voice-overlay-shell">
+      <div class="voice-orb-wrap">
+        <div class="voice-wave-ring" data-voice-ring="1"></div>
+        <div class="voice-wave-ring" data-voice-ring="2"></div>
+        <div class="voice-wave-ring" data-voice-ring="3"></div>
+        <div class="voice-orb-core" id="voiceOrbCore">🎤</div>
+      </div>
+      <canvas id="voiceWaveCanvas" class="voice-wave-canvas" width="300" height="84"></canvas>
+      <div class="voice-overlay-copy">
+        <div class="voice-overlay-title">${copy.title}</div>
+        <div class="voice-overlay-hint">${copy.hint}</div>
+      </div>
+      <button id="voiceCancel" style="padding:12px 28px;border-radius:20px;background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.24);font-size:15px;font-weight:800;cursor:pointer;">${t(
+        "cancel",
+      )}</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const canvas = document.getElementById("voiceWaveCanvas");
+  const state = {
+    overlay,
+    rings: Array.from(overlay.querySelectorAll("[data-voice-ring]")),
+    core: document.getElementById("voiceOrbCore"),
+    canvas,
+    ctx: canvas?.getContext?.("2d") || null,
+    mode: getVoiceInputMode(),
+    modeConfig: getVoiceInputModeConfig(),
+    energy: 0.08,
+    targetEnergy: 0.12,
+    noiseFloor: 0.03,
+    speechConfidence: 0.16,
+    rafId: 0,
+    meterCleanup: null,
+  };
+  window.__voiceOverlayState = state;
+  renderVoiceOverlayFrame(state, performance.now());
+  return overlay;
+}
+
+function closeVoiceListeningOverlay() {
+  window.__budgetProNativeVoiceLevel = null;
+  cleanupVoiceOverlayMeter();
+  document.getElementById(VOICE_OVERLAY_ID)?.remove();
+}
+
+async function startWebVoiceOverlayMeter() {
+  const state = window.__voiceOverlayState;
+  if (!state || typeof navigator === "undefined") return;
+  const modeConfig = state.modeConfig || getVoiceInputModeConfig();
+  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+  if (!navigator.mediaDevices?.getUserMedia || !AudioContextCtor) return;
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      },
+    });
+    if (window.__voiceOverlayState !== state) {
+      stream.getTracks().forEach((track) => track.stop());
+      return;
+    }
+    const audioContext = new AudioContextCtor();
+    const analyser = audioContext.createAnalyser();
+    analyser.fftSize = 512;
+    analyser.smoothingTimeConstant = 0.62;
+    const source = audioContext.createMediaStreamSource(stream);
+    const data = new Uint8Array(analyser.fftSize);
+    const freqData = new Uint8Array(analyser.frequencyBinCount);
+    source.connect(analyser);
+    let rafId = 0;
+    const tick = () => {
+      analyser.getByteTimeDomainData(data);
+      analyser.getByteFrequencyData(freqData);
+      let sum = 0;
+      let peak = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = (data[i] - 128) / 128;
+        sum += v * v;
+        peak = Math.max(peak, Math.abs(v));
+      }
+      const rms = Math.sqrt(sum / data.length);
+      let totalEnergy = 0;
+      let speechBandEnergy = 0;
+      const binHz = audioContext.sampleRate / analyser.fftSize;
+      for (let i = 1; i < freqData.length; i++) {
+        const value = freqData[i] / 255;
+        const hz = i * binHz;
+        totalEnergy += value;
+        if (hz >= 160 && hz <= 3800) speechBandEnergy += value;
+      }
+      const speechiness =
+        totalEnergy > 0 ? speechBandEnergy / totalEnergy : 0;
+      const boosted = Math.max(
+        rms * modeConfig.webRmsBoost,
+        peak * modeConfig.webPeakBoost,
+      );
+      const combined =
+        boosted * (0.52 + Math.max(0, speechiness - 0.08) * 1.2);
+      setVoiceOverlayLevel(Math.min(1, combined), { speechiness });
+      rafId = requestAnimationFrame(tick);
+    };
+    tick();
+    state.meterCleanup = () => {
+      cancelAnimationFrame(rafId);
+      try {
+        source.disconnect();
+      } catch (e) {}
+      try {
+        analyser.disconnect();
+      } catch (e) {}
+      stream.getTracks().forEach((track) => track.stop());
+      if (audioContext.state !== "closed") {
+        audioContext.close().catch(() => {});
+      }
+    };
+  } catch (e) {
+    console.warn("[Voice overlay meter]", e);
+  }
+}
+
 function startVoiceInput() {
+  const webLangCode = getVoiceRecognitionLangCode();
+  const nativeLangCode = getVoiceRecognitionLangCode({ native: true });
+  const voiceMode = getVoiceInputMode();
+  const nativeVoice =
+    window.BudgetPROVoice && typeof window.BudgetPROVoice.start === "function";
+  if (nativeVoice) {
+    const ov = createVoiceListeningOverlay();
+    window.__budgetProNativeVoiceResult = (status, payload, alternatives = []) => {
+      closeVoiceListeningOverlay();
+      window.__budgetProNativeVoiceResult = null;
+      if (status === "result" && payload && payload.trim()) {
+        haptic("success");
+        parseVoiceInput(payload, alternatives);
+        return;
+      }
+      console.warn("[Voice native error]", payload);
+      const rawError = String(payload || "").toLowerCase();
+      const permissionError =
+        rawError.includes("permission") || rawError.includes("denied");
+      const unavailableError = rawError.includes("not available");
+      const L = permissionError
+        ? {
+            ru: "Нет доступа к микрофону. Разрешите микрофон для BudgetPRO.",
+            en: "Microphone access is blocked. Allow microphone for BudgetPRO.",
+            ka: "მიკროფონზე წვდომა დაბლოკილია. დაუშვით მიკროფონი BudgetPRO-სთვის.",
+          }
+        : unavailableError
+          ? {
+              ru: "На этом устройстве недоступно голосовое распознавание.",
+              en: "Speech recognition is not available on this device.",
+              ka: "ამ მოწყობილობაზე ხმოვანი ამოცნობა მიუწვდომელია.",
+            }
+          : {
+              ru: "Не расслышал. Попробуйте ещё раз короткой фразой.",
+              en: "I couldn't catch that. Try again with a short phrase.",
+              ka: "ვერ გავიგე. სცადეთ მოკლე ფრაზით თავიდან.",
+            };
+      showToast(L[currentLang] || L.ru, "error");
+    };
+    document.getElementById("voiceCancel").onclick = () => {
+      try {
+        window.BudgetPROVoice.stop();
+      } catch (e) {}
+      window.__budgetProNativeVoiceResult = null;
+      closeVoiceListeningOverlay();
+    };
+    haptic("medium");
+    try {
+      window.__budgetProNativeVoiceLevel = (level) => setVoiceOverlayLevel(level);
+      if (typeof window.BudgetPROVoice.startConfig === "function") {
+        window.BudgetPROVoice.startConfig(nativeLangCode, voiceMode);
+      } else {
+        window.BudgetPROVoice.start(`${nativeLangCode}::${voiceMode}`);
+      }
+      return;
+    } catch (e) {
+      closeVoiceListeningOverlay();
+      window.__budgetProNativeVoiceResult = null;
+      console.warn("[Voice native fallback]", e);
+    }
+  }
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -14925,40 +18010,31 @@ function startVoiceInput() {
     return;
   }
   const rec = new SpeechRecognition();
-  rec.lang =
-    currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
+  rec.lang = webLangCode;
   rec.continuous = false;
   rec.interimResults = false;
-  rec.maxAlternatives = 1;
+  rec.maxAlternatives = voiceMode === "whisper" ? 7 : 5;
 
-  // Show listening overlay
-  const ov = document.createElement("div");
-  ov.id = "voiceOverlay";
-  ov.style.cssText =
-    "position:fixed;inset:0;z-index:99998;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;";
-  ov.innerHTML = `
-    <div style="font-size:80px;animation:voicePulse 1s ease infinite;">🎤</div>
-    <div style="font-size:20px;font-weight:800;color:white;">${{ ru: "Говорите...", en: "Listening...", ka: "ილაპარაკეთ..." }[currentLang]}</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.7);text-align:center;padding:0 24px;">${{ ru: "Например: «потратил 50 лари на продукты»", en: "E.g.: «spent 50 on groceries»", ka: "მაგ: «დავხარჯე 50 ლარი საყიდლებზე»" }[currentLang]}</div>
-    <button id="voiceCancel" style="padding:12px 28px;border-radius:20px;background:rgba(255,255,255,0.2);color:white;border:1.5px solid rgba(255,255,255,0.4);font-size:15px;font-weight:700;cursor:pointer;">${t("cancel")}</button>
-    <style>@keyframes voicePulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,100,100,0))}50%{transform:scale(1.1);filter:drop-shadow(0 0 20px rgba(255,100,100,0.6))}}</style>
-  `;
-  document.body.appendChild(ov);
+  const ov = createVoiceListeningOverlay();
   document.getElementById("voiceCancel").onclick = () => {
     rec.stop();
-    ov.remove();
+    closeVoiceListeningOverlay();
   };
   haptic("medium");
+  startWebVoiceOverlayMeter();
 
   rec.onresult = (event) => {
-    ov.remove();
-    const text = event.results[0][0].transcript.toLowerCase();
-    console.log("Voice:", text);
+    closeVoiceListeningOverlay();
+    const alternatives = Array.from(event.results?.[0] || [])
+      .map((result) => result.transcript)
+      .filter(Boolean);
+    const choice = chooseBestVoiceTranscript(alternatives);
+    console.log("Voice:", choice.text, choice.alternatives);
     haptic("success");
-    parseVoiceInput(text);
+    parseVoiceInput(choice.text, choice.alternatives);
   };
   rec.onerror = (e) => {
-    ov.remove();
+    closeVoiceListeningOverlay();
     const L = {
       ru: "Не удалось распознать. Попробуйте ещё раз.",
       en: "Couldn't recognize. Please try again.",
@@ -14967,218 +18043,1957 @@ function startVoiceInput() {
     showToast(L[currentLang] || L.ru, "error");
   };
   rec.onend = () => {
-    const o = document.getElementById("voiceOverlay");
-    if (o) o.remove();
+    closeVoiceListeningOverlay();
   };
   rec.start();
 }
 
-function parseVoiceInput(text) {
-  // Extract amount: look for numbers (including with decimals)
-  const amountMatch = text.match(/(\d+(?:[.,]\d+)?)/);
-  const amount = amountMatch
-    ? parseFloat(amountMatch[1].replace(",", "."))
-    : null;
-
-  // Detect type: income keywords
-  const incomeWords = {
-    ru: ["получил", "заработал", "пришло", "доход", "зарплата"],
-    en: ["received", "earned", "income", "salary", "got"],
-    ka: ["მივიღე", "შემოვიდა"],
-  };
-  const expenseWords = {
-    ru: ["потратил", "купил", "заплатил", "расход", "потратила"],
-    en: ["spent", "bought", "paid", "expense"],
-    ka: ["დავხარჯე", "ვიყიდე", "გადავიხადე"],
-  };
-  const iWords = incomeWords[currentLang] || incomeWords.ru;
-  const eWords = expenseWords[currentLang] || expenseWords.ru;
-  const isIncome = iWords.some((w) => text.includes(w));
-  const isExpense = eWords.some((w) => text.includes(w)) || !isIncome;
-
-  // Find category from text
-  let detectedCat = null;
-  const catMap = {
+function getVoiceDraftLabels() {
+  const L = {
     ru: {
-      продукт: "Продукты",
-      еда: "Продукты",
-      магазин: "Продукты",
-      транспорт: "Транспорт",
-      метро: "Транспорт",
-      автобус: "Транспорт",
-      такси: "Транспорт",
-      кафе: "Рестораны",
-      ресторан: "Рестораны",
-      кофе: "Кафе",
-      аренда: "Коммуналка",
-      квартира: "Коммуналка",
-      коммунал: "Коммуналка",
-      одежда: "Одежда",
-      лекарство: "Здоровье",
-      аптека: "Здоровье",
-      интернет: "Коммуналка",
-      телефон: "Телефон",
-      бензин: "Транспорт",
+      title: "Голосовой ввод",
+      recognized: "Продиктованный текст",
+      reparse: "↻ Обновить поля из текста",
+      reparseDone: "Поля обновлены",
+      type: "Тип операции",
+      amount: "Сумма",
+      category: "Категория",
+      subcategory: "Подкатегория",
+      newCategory: "＋ Новая категория",
+      newSubcategory: "＋ Новая подкатегория",
+      newCategoryPlaceholder: "Например: Кофе",
+      newSubcategoryPlaceholder: "Например: Капучино",
+      newCategoryHint:
+        "Если заполнить это поле, приложение создаст отдельную категорию.",
+      newSubcategoryHint:
+        "Если заполнить это поле, она сохранится внутри выбранной категории.",
+      save: "✓ Добавить операцию",
+      added: "✅ Добавлено голосом",
+      amountMissing: "Введите сумму",
+      categoryMissing: "Выберите или создайте категорию",
+      textPlaceholder: "Можно поправить распознанный текст перед сохранением",
+      alternatives: "Варианты распознавания",
+      categorySelected: "Категория выбрана",
+      subcategorySelected: "Подкатегория выбрана",
+      enterCategoryName: "Введите название категории",
+      enterSubcategoryName: "Введите название подкатегории",
+      selectCategoryForSubcategory:
+        "Сначала выберите или создайте категорию, потом добавьте подкатегорию",
+      quickTitle: "Быстрая запись",
+      quickReady: "Проверьте и сохраните",
+      quickOriginal: "Распознано",
+      quickSave: "✓ Сохранить",
+      quickEdit: "Исправить",
+      quickMore: "Сохранить и ещё",
+      quickRetry: "Повторить голос",
+      fallbackCategory: "Другое",
     },
     en: {
-      grocery: "Продукты",
-      food: "Продукты",
-      transport: "Транспорт",
-      metro: "Транспорт",
-      bus: "Транспорт",
-      taxi: "Транспорт",
-      coffee: "Кафе",
-      restaurant: "Рестораны",
-      rent: "Коммуналка",
-      clothes: "Одежда",
-      medicine: "Здоровье",
-      pharmacy: "Здоровье",
-      gas: "Транспорт",
+      title: "Voice input",
+      recognized: "Dictated text",
+      reparse: "↻ Update fields from text",
+      reparseDone: "Fields updated",
+      type: "Transaction type",
+      amount: "Amount",
+      category: "Category",
+      subcategory: "Subcategory",
+      newCategory: "＋ New category",
+      newSubcategory: "＋ New subcategory",
+      newCategoryPlaceholder: "For example: Coffee",
+      newSubcategoryPlaceholder: "For example: Cappuccino",
+      newCategoryHint:
+        "If filled, the app will create a separate category.",
+      newSubcategoryHint:
+        "If filled, it will be saved inside the selected category.",
+      save: "✓ Add transaction",
+      added: "✅ Added by voice",
+      amountMissing: "Enter amount",
+      categoryMissing: "Choose or create a category",
+      textPlaceholder: "You can edit the recognized text before saving",
+      alternatives: "Recognition variants",
+      categorySelected: "Category selected",
+      subcategorySelected: "Subcategory selected",
+      enterCategoryName: "Enter category name",
+      enterSubcategoryName: "Enter subcategory name",
+      selectCategoryForSubcategory:
+        "Choose or create a category first, then add a subcategory",
+      quickTitle: "Quick entry",
+      quickReady: "Check and save",
+      quickOriginal: "Recognized",
+      quickSave: "✓ Save",
+      quickEdit: "Edit",
+      quickMore: "Save and more",
+      quickRetry: "Try again",
+      fallbackCategory: "Other",
+    },
+    ka: {
+      title: "ხმოვანი შეყვანა",
+      recognized: "ნაკარნახევი ტექსტი",
+      reparse: "↻ ველების განახლება ტექსტიდან",
+      reparseDone: "ველები განახლდა",
+      type: "ოპერაციის ტიპი",
+      amount: "თანხა",
+      category: "კატეგორია",
+      subcategory: "ქვეკატეგორია",
+      newCategory: "＋ ახალი კატეგორია",
+      newSubcategory: "＋ ახალი ქვეკატეგორია",
+      newCategoryPlaceholder: "მაგალითად: ყავა",
+      newSubcategoryPlaceholder: "მაგალითად: კაპუჩინო",
+      newCategoryHint: "თუ შეავსებთ, შეიქმნება ცალკე კატეგორია.",
+      newSubcategoryHint: "თუ შეავსებთ, შეინახება არჩეულ კატეგორიაში.",
+      save: "✓ ოპერაციის დამატება",
+      added: "✅ ხმით დამატებულია",
+      amountMissing: "შეიყვანეთ თანხა",
+      categoryMissing: "აირჩიეთ ან შექმენით კატეგორია",
+      textPlaceholder: "შენახვამდე შეგიძლიათ ტექსტის შესწორება",
+      alternatives: "ამოცნობის ვარიანტები",
+      categorySelected: "კატეგორია არჩეულია",
+      subcategorySelected: "ქვეკატეგორია არჩეულია",
+      enterCategoryName: "შეიყვანეთ კატეგორიის სახელი",
+      enterSubcategoryName: "შეიყვანეთ ქვეკატეგორიის სახელი",
+      selectCategoryForSubcategory:
+        "ჯერ აირჩიეთ ან შექმენით კატეგორია, შემდეგ დაამატეთ ქვეკატეგორია",
+      quickTitle: "სწრაფი ჩანაწერი",
+      quickReady: "შეამოწმეთ და შეინახეთ",
+      quickOriginal: "ამოცნობილი ტექსტი",
+      quickSave: "✓ შენახვა",
+      quickEdit: "შეცვლა",
+      quickMore: "შენახვა და კიდევ",
+      quickRetry: "თავიდან ჩაწერა",
+      fallbackCategory: "სხვა",
     },
   };
-  const cm = catMap[currentLang] || catMap.ru;
-  for (const [word, cat] of Object.entries(cm)) {
-    if (text.includes(word)) {
-      detectedCat = cat;
-      break;
+  return L[currentLang] || L.ru;
+}
+
+function syncCategoryGlobals() {
+  window.categories = categories;
+  window.incomeCategories = incomeCategories;
+}
+
+function getVoiceCategoryObject(type) {
+  syncCategoryGlobals();
+  return type === "income" ? incomeCategories : categories;
+}
+
+function getVoiceCategoryOptions(type, selected = "") {
+  const catObj = getVoiceCategoryObject(type);
+  return (
+    `<option value="">${t("selectCategory")}</option>` +
+    Object.keys(catObj)
+      .map(
+        (cat) =>
+          `<option value="${esc(cat)}"${cat === selected ? " selected" : ""}>${esc(cat)}</option>`,
+      )
+      .join("")
+  );
+}
+
+function findVoiceSubcategory(normalizedText, type, category = null) {
+  const catObj = getVoiceCategoryObject(type);
+  const entries = category
+    ? [[category, catObj[category]]]
+    : Object.entries(catObj);
+  let best = { category, subcategory: "", score: 0 };
+  for (const [cat, data] of entries) {
+    for (const sub of data?.subcats || []) {
+      const score = scoreVoiceLabelMatch(normalizedText, sub);
+      if (score > best.score) best = { category: cat, subcategory: sub, score };
     }
   }
-  // Check actual category list
-  if (!detectedCat) {
-    for (const cat of Object.keys(categories)) {
-      if (text.includes(cat.toLowerCase())) {
-        detectedCat = cat;
-        break;
+  return best.score >= 10 ? best : { category, subcategory: "" };
+}
+
+function findVoiceCategoryByLabel(normalizedText, type) {
+  const catObj = getVoiceCategoryObject(type);
+  let best = { category: "", score: 0 };
+  Object.keys(catObj).forEach((cat) => {
+    const score = scoreVoiceLabelMatch(normalizedText, cat);
+    if (score > best.score) best = { category: cat, score };
+  });
+  return best.score >= 10 ? best.category : "";
+}
+
+function normalizeVoiceAlternatives(values) {
+  const list = Array.isArray(values) ? values : [values];
+  const seen = new Set();
+  return list
+    .map((value) => String(value || "").trim())
+    .filter(Boolean)
+    .filter((value) => {
+      const key = value.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+}
+
+function isVoiceTextCompatibleWithCurrentLanguage(text) {
+  const value = String(text || "");
+  if (currentLang === "ka") return /[\u10A0-\u10FF]/.test(value);
+  if (currentLang === "ru") return /[а-яё]/i.test(value);
+  return /[a-z]/i.test(value) || /\d/.test(value);
+}
+
+function showVoiceLanguageMismatch() {
+  const L = {
+    ru: "Распознавание вернуло текст не на выбранном языке. Попробуйте ещё раз.",
+    en: "Recognition returned text in another language. Please try again.",
+    ka: "ამოცნობამ სხვა ენის ტექსტი დააბრუნა. სცადეთ ხელახლა.",
+  };
+  showToast(L[currentLang] || L.ru, "error", 3600);
+}
+
+function parseVoiceNumericCandidate(token) {
+  let raw = String(token || "").replace(/\s+/g, "");
+  if (!raw) return null;
+  const lastComma = raw.lastIndexOf(",");
+  const lastDot = raw.lastIndexOf(".");
+
+  if (lastComma !== -1 && lastDot !== -1) {
+    const decimalIndex = Math.max(lastComma, lastDot);
+    raw =
+      raw.slice(0, decimalIndex).replace(/[.,]/g, "") +
+      "." +
+      raw.slice(decimalIndex + 1).replace(/[^\d]/g, "");
+  } else if (lastComma !== -1) {
+    const parts = raw.split(",");
+    raw =
+      parts.length === 2 && parts[1].length <= 2
+        ? parts[0].replace(/[.]/g, "") + "." + parts[1]
+        : raw.replace(/,/g, "");
+  } else if (lastDot !== -1) {
+    const parts = raw.split(".");
+    raw =
+      parts.length === 2 && parts[1].length <= 2
+        ? raw
+        : raw.replace(/[.]/g, "");
+  }
+
+  const value = parseFloat(raw);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function parseGeorgianCompactNumberToken(token) {
+  const raw = normalizeVoiceMeaningText(token);
+  if (!raw) return null;
+  const direct = {
+    ნული: 0,
+    ერთი: 1,
+    ორი: 2,
+    სამი: 3,
+    ოთხი: 4,
+    ხუთი: 5,
+    ექვსი: 6,
+    შვიდი: 7,
+    რვა: 8,
+    ცხრა: 9,
+    ათი: 10,
+    თერთმეტი: 11,
+    თორმეტი: 12,
+    ცამეტი: 13,
+    თოთხმეტი: 14,
+    თხუთმეტი: 15,
+    თექვსმეტი: 16,
+    ჩვიდმეტი: 17,
+    ჩვიდმეტი: 17,
+    თვრამეტი: 18,
+    ცხრამეტი: 19,
+    ოცი: 20,
+    ოცდაათი: 30,
+    ორმოცი: 40,
+    ორმოცდაათი: 50,
+    სამოცი: 60,
+    სამოცდაათი: 70,
+    ოთხმოცი: 80,
+    ოთხმოცდაათი: 90,
+    ასი: 100,
+    ას: 100,
+    ორასი: 200,
+    ორას: 200,
+    სამასი: 300,
+    სამას: 300,
+    ოთხასი: 400,
+    ოთხას: 400,
+    ხუთასი: 500,
+    ხუთას: 500,
+    ექვსასი: 600,
+    ექვსას: 600,
+    შვიდასი: 700,
+    შვიდას: 700,
+    რვაასი: 800,
+    რვაას: 800,
+    ცხრაასი: 900,
+    ცხრაას: 900,
+    ათასი: 1000,
+    ათას: 1000,
+    მილიონი: 1000000,
+    მილიონ: 1000000,
+  };
+  if (Object.prototype.hasOwnProperty.call(direct, raw)) return direct[raw];
+
+  const thousandStems = {
+    ერთ: 1,
+    ერთი: 1,
+    ორ: 2,
+    ორი: 2,
+    სამ: 3,
+    სამი: 3,
+    ოთხ: 4,
+    ოთხი: 4,
+    ხუთ: 5,
+    ხუთი: 5,
+    ექვს: 6,
+    ექვსი: 6,
+    შვიდ: 7,
+    შვიდი: 7,
+    რვა: 8,
+    ცხრა: 9,
+  };
+  for (const suffix of ["ათასი", "ათას"]) {
+    if (raw.endsWith(suffix) && raw.length > suffix.length) {
+      const stem = raw.slice(0, -suffix.length);
+      if (Object.prototype.hasOwnProperty.call(thousandStems, stem)) {
+        return thousandStems[stem] * 1000;
       }
     }
   }
 
-  // Show result modal
-  const L = {
-    ru: {
-      found: "🎤 Распознано:",
-      type: isIncome ? "Доход" : "Расход",
-      amount: "Сумма:",
-      cat: "Категория:",
-      confirm: "✅ Добавить",
-      edit: "✏️ Изменить",
-      notFound: "Сумма не найдена. Попробуйте снова.",
-    },
-    en: {
-      found: "🎤 Recognized:",
-      type: isIncome ? "Income" : "Expense",
-      amount: "Amount:",
-      cat: "Category:",
-      confirm: "✅ Add",
-      edit: "✏️ Edit",
-      notFound: "Amount not found. Try again.",
-    },
-    ka: {
-      found: "🎤 ამოცნობილია:",
-      type: isIncome ? "შემოსავალი" : "ხარჯი",
-      amount: "თანხა:",
-      cat: "კატეგორია:",
-      confirm: "✅ დამატება",
-      edit: "✏️ შეცვლა",
-      notFound: "თანხა ვერ მოიძებნა.",
-    },
-  };
-  const lc = L[currentLang] || L.ru;
-
-  if (!amount) {
-    showToast(lc.notFound, "error");
-    return;
+  for (const prefix of ["ათას", "ათასი"]) {
+    if (raw.startsWith(prefix) && raw.length > prefix.length) {
+      const tailValue = parseGeorgianCompactNumberToken(raw.slice(prefix.length));
+      if (Number.isFinite(tailValue)) return 1000 + tailValue;
+    }
   }
 
-  const html = `
-    <div style="background:var(--primary-pale);border-radius:14px;padding:14px;margin-bottom:14px;border-left:4px solid var(--primary);">
-      <div style="font-size:12px;font-weight:800;color:var(--text-muted);margin-bottom:4px;">${lc.found}</div>
-      <div style="font-size:14px;line-height:1.6;">"${text}"</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-      <div style="background:var(--cream-dark);border-radius:12px;padding:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${lc.type}</div>
-        <div style="font-size:16px;font-weight:900;color:${isIncome ? "var(--income-color)" : "var(--expense-color)"};">${lc.type}</div>
-      </div>
-      <div style="background:var(--cream-dark);border-radius:12px;padding:12px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${lc.amount}</div>
-        <div style="font-size:16px;font-weight:900;">${amount.toFixed(2)} ${sym()}</div>
-      </div>
-    </div>
-    ${detectedCat ? `<div style="background:var(--cream-dark);border-radius:12px;padding:12px;margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:4px;">${lc.cat}</div><div style="font-size:15px;font-weight:800;">${detectedCat}</div></div>` : ""}
-    <div style="display:flex;gap:10px;">
-      <button class="btn-secondary" id="voiceEdit" style="flex:1;">${lc.edit}</button>
-      <button class="btn-primary" id="voiceConfirm" style="flex:2;">${lc.confirm}</button>
-    </div>`;
+  const prefixes = [
+    ["ოთხმოცდა", 80],
+    ["სამოცდა", 60],
+    ["ორმოცდა", 40],
+    ["ოცდა", 20],
+  ];
+  for (const [prefix, base] of prefixes) {
+    if (raw.startsWith(prefix) && raw.length > prefix.length) {
+      const tail = raw.slice(prefix.length);
+      const tailValue = parseGeorgianCompactNumberToken(tail);
+      if (Number.isFinite(tailValue)) return base + tailValue;
+    }
+  }
 
-  const modal = createModal(
-    "voiceModal",
-    "🎤 " +
-      (currentLang === "en"
-        ? "Voice Input"
-        : currentLang === "ka"
-          ? "ხმოვანი შეყვანა"
-          : "Голосовой ввод"),
-    html,
+  const hundredPrefixes = [
+    ["ცხრაას", 900],
+    ["რვაას", 800],
+    ["შვიდას", 700],
+    ["ექვსას", 600],
+    ["ხუთას", 500],
+    ["ოთხას", 400],
+    ["სამას", 300],
+    ["ორას", 200],
+    ["ას", 100],
+  ];
+  for (const [prefix, base] of hundredPrefixes) {
+    if (raw.startsWith(prefix) && raw.length > prefix.length) {
+      const tail = raw.slice(prefix.length);
+      const tailValue = parseGeorgianCompactNumberToken(tail);
+      if (Number.isFinite(tailValue)) return base + tailValue;
+    }
+  }
+
+  if (raw.endsWith("ასი") && raw.length > 3) {
+    const stem = raw.slice(0, -3);
+    const stems = {
+      ორ: 2,
+      სამ: 3,
+      ოთხ: 4,
+      ხუთ: 5,
+      ექვს: 6,
+      შვიდ: 7,
+      რვა: 8,
+      ცხრა: 9,
+    };
+    if (Object.prototype.hasOwnProperty.call(stems, stem)) {
+      return stems[stem] * 100;
+    }
+  }
+
+  return null;
+}
+
+function parseVoiceTokenNumber(token, numberWords) {
+  const numeric = parseVoiceNumericCandidate(token);
+  if (Number.isFinite(numeric) && Number.isInteger(numeric)) return numeric;
+
+  const georgianCompact = parseGeorgianCompactNumberToken(token);
+  if (Number.isFinite(georgianCompact)) return georgianCompact;
+
+  if (Object.prototype.hasOwnProperty.call(numberWords, token)) {
+    return numberWords[token];
+  }
+
+  return null;
+}
+
+function parseVoiceNumericPhrase(phrase) {
+  const value = String(phrase || "").trim();
+  if (!value) return null;
+  const parts = value.split(/\s+/).filter(Boolean);
+  if (
+    parts.length === 2 &&
+    /^\d{1,6}$/.test(parts[0]) &&
+    /^\d{1,2}$/.test(parts[1])
+  ) {
+    return parseFloat(`${parts[0]}.${parts[1].padStart(2, "0")}`);
+  }
+  return parseVoiceNumericCandidate(value);
+}
+
+function parseVoiceNumberWords(normalizedText) {
+  const numericOnly = String(normalizedText || "").trim();
+  if (/^\d+(?:[\s.,]\d+)*$/.test(numericOnly)) {
+    const numericValue = parseVoiceNumericPhrase(numericOnly);
+    if (Number.isFinite(numericValue)) return numericValue;
+  }
+
+  const numberWords = {
+    ноль: 0,
+    один: 1,
+    одна: 1,
+    одно: 1,
+    два: 2,
+    две: 2,
+    три: 3,
+    четыре: 4,
+    пять: 5,
+    шесть: 6,
+    семь: 7,
+    восемь: 8,
+    девять: 9,
+    десять: 10,
+    одиннадцать: 11,
+    двенадцать: 12,
+    тринадцать: 13,
+    четырнадцать: 14,
+    пятнадцать: 15,
+    шестнадцать: 16,
+    семнадцать: 17,
+    восемнадцать: 18,
+    девятнадцать: 19,
+    двадцать: 20,
+    тридцать: 30,
+    сорок: 40,
+    пятьдесят: 50,
+    шестьдесят: 60,
+    семьдесят: 70,
+    восемьдесят: 80,
+    девяносто: 90,
+    сто: 100,
+    двести: 200,
+    триста: 300,
+    четыреста: 400,
+    пятьсот: 500,
+    шестьсот: 600,
+    семьсот: 700,
+    восемьсот: 800,
+    девятьсот: 900,
+    zero: 0,
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
+    thirteen: 13,
+    fourteen: 14,
+    fifteen: 15,
+    sixteen: 16,
+    seventeen: 17,
+    eighteen: 18,
+    nineteen: 19,
+    twenty: 20,
+    thirty: 30,
+    forty: 40,
+    fifty: 50,
+    sixty: 60,
+    seventy: 70,
+    eighty: 80,
+    ninety: 90,
+    hundred: 100,
+    ერთი: 1,
+    ორი: 2,
+    სამი: 3,
+    ოთხი: 4,
+    ხუთი: 5,
+    ექვსი: 6,
+    შვიდი: 7,
+    რვა: 8,
+    ცხრა: 9,
+    ათი: 10,
+    თერთმეტი: 11,
+    თორმეტი: 12,
+    ცამეტი: 13,
+    თოთხმეტი: 14,
+    თხუთმეტი: 15,
+    თექვსმეტი: 16,
+    ჩვიდმეტი: 17,
+    თვრამეტი: 18,
+    ცხრამეტი: 19,
+    ოცი: 20,
+    ოცდაათი: 30,
+    ორმოცი: 40,
+    ორმოცდაათი: 50,
+    სამოცი: 60,
+    სამოცდაათი: 70,
+    ოთხმოცი: 80,
+    ოთხმოცდაათი: 90,
+    ასი: 100,
+    ას: 100,
+    ორას: 200,
+    სამას: 300,
+    ოთხას: 400,
+    ხუთას: 500,
+    ექვსას: 600,
+    შვიდას: 700,
+    რვაას: 800,
+    ცხრაას: 900,
+    ათას: 1000,
+    მილიონი: 1000000,
+    მილიონ: 1000000,
+    half: 0.5,
+    полтора: 1.5,
+    полторы: 1.5,
+    половина: 0.5,
+    ნახევარი: 0.5,
+    quarter: 0.25,
+  };
+  const scaleWords = {
+    тысяча: 1000,
+    тысячи: 1000,
+    тысяч: 1000,
+    thousand: 1000,
+    thousands: 1000,
+    million: 1000000,
+    millions: 1000000,
+    ათასი: 1000,
+    ათას: 1000,
+    მილიონი: 1000000,
+    მილიონ: 1000000,
+  };
+  const decimalWords = new Set([
+    "целых",
+    "целая",
+    "запятая",
+    "точка",
+    "point",
+    "dot",
+    "comma",
+    "decimal",
+    "მძიმე",
+    "წერტილი",
+  ]);
+  const tokens = normalizeVoiceMeaningText(normalizedText)
+    .replace(/-/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  let best = null;
+
+  const parseIntegerSequence = (start) => {
+    let total = 0;
+    let current = 0;
+    let matched = false;
+    let end = start;
+    for (let j = start; j < Math.min(tokens.length, start + 14); j++) {
+      const token = tokens[j];
+
+      if (
+        (token === "a" || token === "an") &&
+        ["hundred", "thousand", "million"].includes(tokens[j + 1] || "")
+      ) {
+        current += 1;
+        matched = true;
+        end = j + 1;
+        continue;
+      }
+
+      if (Object.prototype.hasOwnProperty.call(scaleWords, token)) {
+        current = Math.max(1, current) * scaleWords[token];
+        total += current;
+        current = 0;
+        matched = true;
+        end = j + 1;
+        continue;
+      }
+
+      const value = parseVoiceTokenNumber(token, numberWords);
+      if (Number.isFinite(value)) {
+        if (value % 1 !== 0) {
+          current += value;
+        } else if (value === 100 && current > 0 && current < 100) {
+          current *= 100;
+        } else if (value >= 1000) {
+          current = Math.max(1, current) * value;
+          total += current;
+          current = 0;
+        } else if (value >= 100 && current > 0 && current < 100) {
+          current *= value;
+        } else {
+          current += value;
+        }
+        matched = true;
+        end = j + 1;
+        continue;
+      }
+
+      break;
+    }
+    if (!matched) return null;
+    return { value: total + current, end };
+  };
+
+  const parseFractionSequence = (start) => {
+    const digits = [];
+    for (let j = start; j < Math.min(tokens.length, start + 2); j++) {
+      const token = tokens[j];
+      if (/^\d$/.test(token)) {
+        digits.push(token);
+        continue;
+      }
+      const value = parseVoiceTokenNumber(token, numberWords);
+      if (Number.isInteger(value) && value >= 0 && value <= 9) {
+        digits.push(String(value));
+        continue;
+      }
+      break;
+    }
+    if (digits.length) {
+      return {
+        value: parseInt(digits.join(""), 10) / Math.pow(10, digits.length),
+        end: start + digits.length,
+      };
+    }
+
+    const integer = parseIntegerSequence(start);
+    if (!integer) return null;
+    const denominator =
+      integer.value < 10 ? 10 : integer.value < 100 ? 100 : 1000;
+    return {
+      value: integer.value / denominator,
+      end: integer.end,
+    };
+  };
+
+  for (let i = 0; i < tokens.length; i++) {
+    const directFraction = numberWords[tokens[i]];
+    if (
+      typeof directFraction === "number" &&
+      directFraction > 0 &&
+      directFraction < 2 &&
+      (!best || directFraction > best)
+    ) {
+      best = directFraction;
+    }
+
+    const parsed = parseIntegerSequence(i);
+    if (!parsed || !(parsed.value > 0)) continue;
+    let value = parsed.value;
+    let end = parsed.end;
+
+    if (decimalWords.has(tokens[end])) {
+      const fraction = parseFractionSequence(end + 1);
+      if (fraction) {
+        value += fraction.value;
+        end = fraction.end;
+      }
+    } else if (
+      tokens[end] &&
+      ["копеек", "копейки", "cents", "cent", "tetri", "თეთრი"].includes(
+        tokens[end],
+      )
+    ) {
+      value /= value >= 100 ? 100 : 10;
+      end += 1;
+    }
+
+    if (value > 0 && (!best || value > best)) best = value;
+  }
+
+  return best;
+}
+
+function extractVoiceCurrencyPairAmount(text) {
+  const tokens = normalizeVoiceMeaningText(text).split(/\s+/).filter(Boolean);
+  if (!tokens.length) return null;
+
+  const majorWords = new Set([
+    "ლარი",
+    "ლარს",
+    "ლარად",
+    "lari",
+    "gel",
+    "лари",
+    "лар",
+    "dollar",
+    "dollars",
+    "usd",
+    "euro",
+    "eur",
+    "евро",
+    "руб",
+    "ruble",
+    "rubles",
+    "rub",
+    "pound",
+    "pounds",
+  ]);
+  const minorWords = new Set([
+    "თეთრი",
+    "თეთრს",
+    "tetri",
+    "tetris",
+    "cent",
+    "cents",
+    "коп",
+    "копеек",
+    "копейки",
+  ]);
+
+  const parseNearPhrase = (start, end) => {
+    if (start >= end) return null;
+    let numericStart = end;
+    while (numericStart > start && /^\d+(?:[.,]\d+)?$/.test(tokens[numericStart - 1])) {
+      numericStart -= 1;
+    }
+    if (numericStart < end) {
+      const numericPhrase = tokens.slice(numericStart, end).join(" ");
+      const numericValue = parseVoiceNumericPhrase(numericPhrase);
+      if (Number.isFinite(numericValue) && numericValue > 0) return numericValue;
+    }
+
+    let best = null;
+    for (let i = end - 1; i >= start; i--) {
+      const phrase = tokens.slice(i, end).join(" ").trim();
+      if (!phrase) continue;
+      const parsed = /^\d+(?:[\s.,]\d+)*$/.test(phrase)
+        ? parseVoiceNumericPhrase(phrase)
+        : parseVoiceNumberWords(phrase);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        if (!Number.isFinite(best) || parsed > best) best = parsed;
+      }
+    }
+    return best;
+  };
+
+  for (let i = 0; i < tokens.length; i++) {
+    if (!majorWords.has(tokens[i])) continue;
+    const major = parseNearPhrase(Math.max(0, i - 10), i);
+    if (!(Number.isFinite(major) && major > 0)) continue;
+    let value = major;
+
+    for (let j = i + 1; j < Math.min(tokens.length, i + 6); j++) {
+      if (!minorWords.has(tokens[j])) continue;
+      const minor = parseNearPhrase(i + 1, j);
+      if (Number.isFinite(minor) && minor >= 0) {
+        value += minor >= 100 ? minor / 100 : minor / 100;
+      }
+      break;
+    }
+    return value;
+  }
+
+  return null;
+}
+
+function extractVoiceAmount(text) {
+  const normalizedText = String(text || "").toLowerCase();
+  const currencyWords = [
+    "₾",
+    "gel",
+    "lari",
+    "ლარი",
+    "ლარს",
+    "ლარად",
+    "ლარ",
+    "лар",
+    "лари",
+    "руб",
+    "рубл",
+    "ruble",
+    "rub",
+    "доллар",
+    "dollar",
+    "usd",
+    "eur",
+    "euro",
+    "евро",
+    "თეთრი",
+    "tetri",
+    "cents",
+    "cent",
+  ];
+  const amountMarkers = [
+    "за",
+    "на",
+    "сумма",
+    "стоимость",
+    "цена",
+    "потрат",
+    "заплат",
+    "куп",
+    "spent",
+    "paid",
+    "for",
+    "amount",
+    "cost",
+    "price",
+    "დავხარჯე",
+    "გადავიხადე",
+    "მაქვს",
+    "თანხა",
+    "ფასი",
+    "ღირდა",
+    "დამიჯდა",
+    "შევიძინე",
+    "received",
+    "salary",
+    "costs",
+    "worth",
+  ];
+  const currencyPairAmount = extractVoiceCurrencyPairAmount(text);
+  const candidates = [];
+  if (Number.isFinite(currencyPairAmount) && currencyPairAmount > 0) {
+    candidates.push({
+      value: currencyPairAmount,
+      score: 15,
+      index: 0,
+    });
+  }
+  const decimalSplitPattern = /(\d{1,6})\s+(\d{1,2})(?!\d)/g;
+  let decimalMatch;
+
+  while ((decimalMatch = decimalSplitPattern.exec(normalizedText))) {
+    const whole = parseInt(decimalMatch[1], 10);
+    const fraction = parseInt(decimalMatch[2], 10);
+    if (!(whole > 0) || !(fraction >= 0)) continue;
+    const before = normalizedText.slice(
+      Math.max(0, decimalMatch.index - 22),
+      decimalMatch.index,
+    );
+    const after = normalizedText.slice(
+      decimalMatch.index + decimalMatch[0].length,
+      decimalMatch.index + decimalMatch[0].length + 22,
+    );
+    const near = before + " " + after;
+    const hasMoneyContext =
+      currencyWords.some((word) => near.includes(word)) ||
+      amountMarkers.some((word) => before.includes(word));
+    if (!hasMoneyContext) continue;
+    candidates.push({
+      value: parseFloat(`${whole}.${String(fraction).padStart(2, "0")}`),
+      score: 9,
+      index: decimalMatch.index,
+    });
+  }
+
+  const pattern = /\d+(?:[\s.,]\d+)*/g;
+  let match;
+
+  while ((match = pattern.exec(normalizedText))) {
+    const value = parseVoiceNumericCandidate(match[0]);
+    if (!value) continue;
+    const before = normalizedText.slice(Math.max(0, match.index - 24), match.index);
+    const after = normalizedText.slice(match.index + match[0].length, match.index + match[0].length + 24);
+    const near = before + " " + after;
+    let score = 0;
+    if (currencyWords.some((word) => near.includes(word))) score += 8;
+    if (amountMarkers.some((word) => before.includes(word))) score += 5;
+    if (amountMarkers.some((word) => after.includes(word))) score += 2;
+    if (value >= 10) score += 1;
+    candidates.push({ value, score, index: match.index });
+  }
+
+  const wordAmount = parseVoiceNumberWords(normalizedText);
+  if (Number.isFinite(wordAmount) && wordAmount > 0) {
+    let score = 4;
+    if (currencyWords.some((word) => normalizedText.includes(word))) score += 4;
+    if (amountMarkers.some((word) => normalizedText.includes(word))) score += 3;
+    candidates.push({ value: wordAmount, score, index: normalizedText.length + 1 });
+  }
+
+  if (candidates.length) {
+    candidates.sort((a, b) => b.score - a.score || b.value - a.value || a.index - b.index);
+    return candidates[0].value;
+  }
+
+  return wordAmount;
+}
+
+function buildVoiceDraftFromText(input) {
+  const rawText = String(input || "").trim();
+  const normalizedText = normalizeVoiceMeaningText(rawText);
+  const amount = extractVoiceAmount(rawText);
+
+  const incomeWords = {
+    ru: [
+      "получил",
+      "получила",
+      "заработал",
+      "заработала",
+      "пришло",
+      "доход",
+      "зарплата",
+      "подарили",
+      "кэшбэк",
+      "вернули",
+    ],
+    en: [
+      "received",
+      "earned",
+      "income",
+      "salary",
+      "got",
+      "gift",
+      "refund",
+      "cashback",
+    ],
+    ka: ["მივიღე", "შემოვიდა", "ხელფასი", "საჩუქარი", "ქეშბექი"],
+  };
+  const expenseWords = {
+    ru: [
+      "потратил",
+      "потратила",
+      "купил",
+      "купила",
+      "заплатил",
+      "заплатила",
+      "расход",
+      "оплатил",
+      "оплатила",
+      "заказал",
+      "заказала",
+    ],
+    en: ["spent", "bought", "paid", "expense", "pay", "ordered", "order"],
+    ka: ["დავხარჯე", "ვიყიდე", "გადავიხადე", "შევუკვეთე"],
+  };
+  const iWords = Object.values(incomeWords).flat();
+  const eWords = Object.values(expenseWords).flat();
+  const isIncome = iWords.some((w) => normalizedText.includes(w));
+  const isExpense = eWords.some((w) => normalizedText.includes(w));
+  const learnedHint = findVoiceLearningHint(rawText);
+  const type =
+    isIncome && !isExpense
+      ? "income"
+      : !isIncome && !isExpense && learnedHint?.type
+        ? learnedHint.type
+        : "expense";
+
+  const categoryMaps = {
+    expense: {
+      ru: {
+        продукт: "Продукты",
+        еда: "Продукты",
+        магазин: "Продукты",
+        супермаркет: "Продукты",
+        транспорт: "Транспорт",
+        метро: "Транспорт",
+        автобус: "Транспорт",
+        такси: "Транспорт",
+        бензин: "Транспорт",
+        кафе: "Кафе",
+        ресторан: "Рестораны",
+        кофе: "Кофе",
+        аренда: "Коммуналка",
+        квартира: "Коммуналка",
+        коммунал: "Коммуналка",
+        интернет: "Коммуналка",
+        телефон: "Телефон",
+        одежда: "Одежда",
+        лекарство: "Здоровье",
+        аптека: "Здоровье",
+        коммунал: "Коммуналка",
+        вода: "Коммуналка",
+        свет: "Коммуналка",
+        электр: "Коммуналка",
+        дом: "Дом",
+      },
+      en: {
+        grocery: "Продукты",
+        groceries: "Продукты",
+        food: "Продукты",
+        eggs: "Продукты",
+        egg: "Продукты",
+        products: "Продукты",
+        supermarket: "Продукты",
+        market: "Продукты",
+        transport: "Транспорт",
+        metro: "Транспорт",
+        bus: "Транспорт",
+        taxi: "Транспорт",
+        fuel: "Транспорт",
+        gas: "Транспорт",
+        coffee: "Кофе",
+        cafe: "Кафе",
+        restaurant: "Рестораны",
+        rent: "Коммуналка",
+        utility: "Коммуналка",
+        internet: "Коммуналка",
+        phone: "Телефон",
+        clothes: "Одежда",
+        medicine: "Здоровье",
+        pharmacy: "Здоровье",
+        water: "Коммуналка",
+        electricity: "Коммуналка",
+        utility: "Коммуналка",
+        home: "Дом",
+      },
+      ka: {
+        საჭმ: "Продукты",
+        პროდუქტ: "Продукты",
+        პროდუქტებ: "Продукты",
+        პროტუკტ: "Продукты",
+        სურსათ: "Продукты",
+        მარკეტ: "Продукты",
+        კვერცხ: "Продукты",
+        ტრანსპორტ: "Транспорт",
+        მეტრო: "Транспорт",
+        ავტობუს: "Транспорт",
+        ტაქს: "Транспорт",
+        ყავა: "Кофе",
+        კაფე: "Кафе",
+        რესტორან: "Рестораны",
+        ინტერნეტ: "Коммуналка",
+        ტელეფონ: "Телефон",
+        წამალ: "Здоровье",
+        წყ: "Коммуналка",
+        დენი: "Коммуналка",
+        სახლი: "Дом",
+      },
+    },
+    income: {
+      ru: {
+        зарплат: "Зарплата",
+        подарок: "Подарок",
+        подарили: "Подарок",
+        фриланс: "Фриланс",
+        проект: "Фриланс",
+        подработка: "Фриланс",
+      },
+      en: {
+        salary: "Зарплата",
+        gift: "Подарок",
+        freelance: "Фриланс",
+        project: "Фриланс",
+        client: "Фриланс",
+      },
+      ka: {
+        ხელფას: "Зарплата",
+        საჩუქ: "Подарок",
+        ფრილანს: "Фриланс",
+        პროექტ: "Фриланс",
+      },
+    },
+  };
+
+  let detectedCat = null;
+  const cm = Object.assign(
+    {},
+    categoryMaps[type]?.ru || {},
+    categoryMaps[type]?.en || {},
+    categoryMaps[type]?.ka || {},
+    categoryMaps[type]?.[currentLang] || {},
   );
+  for (const [word, cat] of Object.entries(cm)) {
+    if (normalizedText.includes(word)) {
+      detectedCat = cat;
+      break;
+    }
+  }
+
+  const catObj = getVoiceCategoryObject(type);
+  if (!detectedCat) {
+    detectedCat = findVoiceCategoryByLabel(normalizedText, type);
+  }
+
+  const subHit = findVoiceSubcategory(normalizedText, type, detectedCat);
+  if (!detectedCat && subHit.category) detectedCat = subHit.category;
+  if (!detectedCat && learnedHint?.category) detectedCat = learnedHint.category;
+  const learnedSubcategory =
+    !subHit.subcategory && learnedHint?.subcategory ? learnedHint.subcategory : "";
+
+  return {
+    rawText,
+    type,
+    amount,
+    category: detectedCat || "",
+    subcategory: subHit.subcategory || learnedSubcategory || "",
+  };
+}
+
+function scoreVoiceTranscript(text) {
+  const normalizedText = normalizeVoiceMeaningText(text);
+  const draft = buildVoiceDraftFromText(text);
+  const learnedHint = findVoiceLearningHint(text, draft.type);
+  let score = 0;
+  if (Number.isFinite(draft.amount) && draft.amount > 0) score += 40;
+  if (draft.category) score += 22;
+  if (draft.subcategory) score += 8;
+  if (draft.type === "income") score += 3;
+  if (learnedHint?.category) score += Math.min(20, learnedHint.score || 0);
+
+  const financialWords = [
+    "потрат",
+    "куп",
+    "заплат",
+    "оплат",
+    "расход",
+    "доход",
+    "получ",
+    "зарплат",
+    "заработ",
+    "spent",
+    "bought",
+    "paid",
+    "expense",
+    "income",
+    "salary",
+    "received",
+    "earned",
+    "დავხარჯე",
+    "ვიყიდე",
+    "გადავიხადე",
+    "შემოსავალი",
+    "ხელფასი",
+  ];
+  const moneyWords = [
+    "лари",
+    "лар",
+    "gel",
+    "lari",
+    "ლარი",
+    "ლარს",
+    "თეთრი",
+    "tetri",
+    "₾",
+    "руб",
+    "usd",
+    "dollar",
+    "dollars",
+    "доллар",
+    "eur",
+    "евро",
+    "cent",
+    "cents",
+  ];
+
+  financialWords.forEach((word) => {
+    if (normalizedText.includes(word)) score += 4;
+  });
+  moneyWords.forEach((word) => {
+    if (normalizedText.includes(word)) score += 5;
+  });
+  Object.keys(getVoiceCategoryObject(draft.type)).forEach((cat) => {
+    if (normalizedText.includes(cat.toLowerCase())) score += 6;
+  });
+
+  const wordsCount = normalizedText.split(/\s+/).filter(Boolean).length;
+  if (wordsCount >= 3) score += 2;
+  if (wordsCount > 14) score -= 4;
+  return score;
+}
+
+function chooseBestVoiceTranscript(values) {
+  const rawAlternatives = normalizeVoiceAlternatives(values);
+  const alternatives = rawAlternatives;
+  if (!alternatives.length) return { text: "", alternatives: [] };
+  const ranked = alternatives
+    .map((text, index) => ({ text, index, score: scoreVoiceTranscript(text) }))
+    .sort((a, b) => b.score - a.score || a.index - b.index);
+  const best = ranked[0]?.text || alternatives[0];
+  return {
+    text: best,
+    alternatives: [best, ...alternatives.filter((text) => text !== best)],
+  };
+}
+
+function parseVoiceInput(text, alternatives = []) {
+  const choice = chooseBestVoiceTranscript([text, ...normalizeVoiceAlternatives(alternatives)]);
+  openVoiceQuickModal(buildVoiceDraftFromText(choice.text), choice.alternatives);
+}
+
+function getVoiceFallbackCategory(type) {
+  const L = getVoiceDraftLabels();
+  const catObj = getVoiceCategoryObject(type);
+  const preferred = L.fallbackCategory || "Другое";
+  if (catObj[preferred]) return preferred;
+  if (type === "expense" && catObj["Неожиданные траты"]) {
+    return "Неожиданные траты";
+  }
+  return preferred;
+}
+
+function saveVoiceDraftTransaction({
+  type,
+  category,
+  subcategory = "",
+  amount,
+  date = today(),
+  note = "",
+  modalId = "voiceModal",
+  continueListening = false,
+}) {
+  const L = getVoiceDraftLabels();
+  if (!Number.isFinite(amount) || amount <= 0) {
+    showToast(L.amountMissing, "error");
+    return false;
+  }
+  const finalCategory = category || getVoiceFallbackCategory(type);
+  const amountRub = toRub(amount);
+  if (!confirmVoiceBudgetIfNeeded(type, finalCategory, amountRub)) return false;
+
+  const catObj = getVoiceCategoryObject(type);
+  if (!catObj[finalCategory]) catObj[finalCategory] = { subcats: [] };
+  if (!Array.isArray(catObj[finalCategory].subcats)) {
+    catObj[finalCategory].subcats = [];
+  }
+  if (subcategory && !catObj[finalCategory].subcats.includes(subcategory)) {
+    catObj[finalCategory].subcats.push(subcategory);
+  }
+  syncCategoryGlobals();
+
+  const tx = {
+    id: Date.now() + "_v",
+    type,
+    category: finalCategory,
+    subcategory: subcategory || null,
+    amountRub,
+    date,
+    note: note || null,
+    emoji: type === "income" ? "💰" : "💸",
+  };
+
+  transactions.push(tx);
+  rememberVoiceLearningSample({
+    rawText: note || "",
+    type,
+    category: finalCategory,
+    subcategory: subcategory || "",
+  });
+  updateFrequentStats(tx);
+  saveAll();
+  closeModal(modalId);
+  updateTopBlocks();
+  renderBalanceSummary();
+  if (currentTab === "home") {
+    if (simpleMode) renderSimpleHome();
+    else renderHome();
+  } else if (currentTab === "categories") {
+    renderCategories();
+  }
+  showToast(L.added, "success");
+  if (type === "income") showCoinAnimation();
+  else showMoneyFlyEffect();
+  haptic("success");
+  if (continueListening) {
+    setTimeout(() => startVoiceInput(), 520);
+  }
+  return true;
+}
+
+function openVoiceQuickModal(draft, alternatives = []) {
+  const L = getVoiceDraftLabels();
+  const liveDraft = {
+    ...draft,
+    type: draft.type || "expense",
+    rawText: draft.rawText || "",
+    amount: Number.isFinite(draft.amount) ? draft.amount : 0,
+    category: draft.category || getVoiceFallbackCategory(draft.type || "expense"),
+    subcategory: draft.subcategory || "",
+  };
+  const altOptions = normalizeVoiceAlternatives(alternatives)
+    .filter((item) => item.toLowerCase() !== String(draft.rawText || "").toLowerCase())
+    .slice(0, 3);
+
+  const html = `
+    <div style="display:grid;gap:14px;">
+      <div style="border-radius:24px;padding:18px;background:linear-gradient(135deg,var(--primary-pale),rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.14);box-shadow:0 16px 42px rgba(0,0,0,.14);">
+        <div style="font-size:12px;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;">${L.quickReady}</div>
+        <div id="voiceQuickAmountHero" style="font-size:34px;line-height:1;font-weight:1000;margin-bottom:14px;"></div>
+        <div id="voiceQuickChipRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <label class="field-label">${L.recognized}</label>
+          <textarea id="voiceQuickText" class="modal-textarea" rows="2" placeholder="${esc(L.textPlaceholder)}">${esc(liveDraft.rawText)}</textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;">
+          <div class="field-group" style="margin-bottom:0;">
+            <label class="field-label">${L.amount} (${sym()})</label>
+            <input type="text" id="voiceQuickAmount" class="modal-input" value="${esc(
+              Number.isFinite(liveDraft.amount) && liveDraft.amount > 0
+                ? liveDraft.amount.toFixed(2)
+                : "",
+            )}" placeholder="0.00" inputmode="decimal">
+          </div>
+          <div class="field-group" style="margin-bottom:0;">
+            <label class="field-label">${L.type}</label>
+            <div class="type-toggle">
+              <button type="button" class="type-btn expense ${liveDraft.type === "expense" ? "active" : ""}" data-voice-quick-type="expense">${t(
+                "expenseType",
+              )}</button>
+              <button type="button" class="type-btn income ${liveDraft.type === "income" ? "active" : ""}" data-voice-quick-type="income">${t(
+                "incomeType",
+              )}</button>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn-secondary" id="voiceQuickReparse" style="width:100%;margin-top:10px;padding:11px 12px;">${L.reparse}</button>
+      </div>
+
+      ${
+        altOptions.length
+          ? `<div style="display:grid;gap:7px;">
+              <div style="font-size:11px;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;">${L.alternatives}</div>
+              ${altOptions
+                .map(
+                  (alt) =>
+                    `<button type="button" class="voice-quick-alt" data-voice-alt="${esc(alt)}" style="text-align:left;border-radius:14px;padding:11px 12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:inherit;font-size:13px;font-weight:800;">${esc(alt)}</button>`,
+                )
+                .join("")}
+            </div>`
+          : ""
+      }
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button type="button" class="btn-primary" id="voiceQuickSave" style="grid-column:1 / -1;font-size:17px;padding:16px;">${L.quickSave}</button>
+        <button type="button" class="btn-secondary" id="voiceQuickEdit">${L.quickEdit}</button>
+        <button type="button" class="btn-secondary" id="voiceQuickMore">${L.quickMore}</button>
+        <button type="button" class="btn-secondary" id="voiceQuickRetry" style="grid-column:1 / -1;">${L.quickRetry}</button>
+      </div>
+    </div>
+  `;
+
+  const modal = createModal("voiceQuickModal", "🎤 " + L.quickTitle, html);
+  document.body.appendChild(modal);
+  openModal("voiceQuickModal");
+
+  const textInput = document.getElementById("voiceQuickText");
+  const amountInput = document.getElementById("voiceQuickAmount");
+  const amountHero = document.getElementById("voiceQuickAmountHero");
+  const chipRow = document.getElementById("voiceQuickChipRow");
+
+  const parseQuickAmount = () => {
+    const value = parseFloat(String(amountInput?.value || "").replace(",", "."));
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  const ensureQuickCategoryForType = () => {
+    const catObj = getVoiceCategoryObject(liveDraft.type);
+    if (!liveDraft.category || !catObj[liveDraft.category]) {
+      const reparsed = buildVoiceDraftFromText(textInput?.value || liveDraft.rawText || "");
+      if (
+        reparsed.type === liveDraft.type &&
+        reparsed.category &&
+        Object.prototype.hasOwnProperty.call(catObj, reparsed.category)
+      ) {
+        liveDraft.category = reparsed.category;
+        liveDraft.subcategory = reparsed.subcategory || "";
+      } else {
+        liveDraft.category = getVoiceFallbackCategory(liveDraft.type);
+        liveDraft.subcategory = "";
+      }
+    }
+  };
+
+  const renderQuickSummary = () => {
+    liveDraft.rawText = textInput?.value || liveDraft.rawText || "";
+    liveDraft.amount = parseQuickAmount();
+    ensureQuickCategoryForType();
+    const typeLabel =
+      liveDraft.type === "income" ? t("incomeType") : t("expenseType");
+    const typeColor =
+      liveDraft.type === "income"
+        ? "var(--income-color)"
+        : "var(--expense-color)";
+    amountHero.textContent =
+      Number.isFinite(liveDraft.amount) && liveDraft.amount > 0
+        ? `${liveDraft.amount.toFixed(2)} ${sym()}`
+        : `— ${L.amountMissing}`;
+    amountHero.style.color = typeColor;
+    chipRow.innerHTML = [
+      `<span style="padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);font-size:13px;font-weight:900;color:${typeColor};">${esc(
+        typeLabel,
+      )}</span>`,
+      liveDraft.category
+        ? `<span style="padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);font-size:13px;font-weight:900;">${esc(
+            liveDraft.category,
+          )}</span>`
+        : "",
+      liveDraft.subcategory
+        ? `<span style="padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.14);font-size:13px;font-weight:900;">${esc(
+            liveDraft.subcategory,
+          )}</span>`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("");
+    modal.querySelectorAll("[data-voice-quick-type]").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.voiceQuickType === liveDraft.type);
+    });
+  };
+
+  const reparseQuickDraft = ({ replaceText = false, text = "" } = {}) => {
+    const raw = replaceText ? text : textInput?.value || liveDraft.rawText || "";
+    const reparsed = buildVoiceDraftFromText(raw);
+    liveDraft.rawText = reparsed.rawText || raw;
+    if (replaceText && textInput) textInput.value = liveDraft.rawText;
+    liveDraft.type = reparsed.type || liveDraft.type;
+    if (Number.isFinite(reparsed.amount) && reparsed.amount > 0) {
+      liveDraft.amount = reparsed.amount;
+      if (amountInput) amountInput.value = reparsed.amount.toFixed(2);
+    }
+    const catObj = getVoiceCategoryObject(liveDraft.type);
+    liveDraft.category =
+      reparsed.category && Object.prototype.hasOwnProperty.call(catObj, reparsed.category)
+        ? reparsed.category
+        : getVoiceFallbackCategory(liveDraft.type);
+    liveDraft.subcategory =
+      reparsed.category === liveDraft.category ? reparsed.subcategory || "" : "";
+    renderQuickSummary();
+  };
+
+  const openEditor = () => {
+    liveDraft.rawText = textInput?.value || liveDraft.rawText || "";
+    liveDraft.amount = parseQuickAmount();
+    closeModal("voiceQuickModal");
+    setTimeout(
+      () =>
+        openVoiceDraftModal(
+          {
+            ...liveDraft,
+            category: liveDraft.category || getVoiceFallbackCategory(liveDraft.type),
+          },
+          alternatives,
+        ),
+      220,
+    );
+  };
+
+  const saveQuick = (continueListening = false) => {
+    liveDraft.rawText = textInput?.value || liveDraft.rawText || "";
+    liveDraft.amount = parseQuickAmount();
+    ensureQuickCategoryForType();
+    if (!(Number.isFinite(liveDraft.amount) && liveDraft.amount > 0)) {
+      showToast(L.amountMissing, "error");
+      amountInput?.focus();
+      openEditor();
+      return;
+    }
+    saveVoiceDraftTransaction({
+      type: liveDraft.type,
+      category: liveDraft.category || getVoiceFallbackCategory(liveDraft.type),
+      subcategory: liveDraft.subcategory || "",
+      amount: liveDraft.amount,
+      date: today(),
+      note: liveDraft.rawText,
+      modalId: "voiceQuickModal",
+      continueListening,
+    });
+  };
+
+  textInput?.addEventListener("input", () => {
+    liveDraft.rawText = textInput.value;
+    const liveParsed = buildVoiceDraftFromText(textInput.value);
+    if (Number.isFinite(liveParsed.amount) && liveParsed.amount > 0) {
+      liveDraft.amount = liveParsed.amount;
+      amountInput.value = liveParsed.amount.toFixed(2);
+    }
+    renderQuickSummary();
+  });
+
+  amountInput?.addEventListener("input", renderQuickSummary);
+
+  modal.querySelectorAll("[data-voice-quick-type]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      liveDraft.type = btn.dataset.voiceQuickType || "expense";
+      ensureQuickCategoryForType();
+      renderQuickSummary();
+      haptic("light");
+    });
+  });
+
+  document.getElementById("voiceQuickReparse")?.addEventListener("click", () => {
+    reparseQuickDraft();
+    showToast(L.reparseDone, "success");
+  });
+
+  document.getElementById("voiceQuickSave")?.addEventListener("click", () => {
+    saveQuick(false);
+  });
+  document.getElementById("voiceQuickMore")?.addEventListener("click", () => {
+    saveQuick(true);
+  });
+  document.getElementById("voiceQuickEdit")?.addEventListener("click", openEditor);
+  document.getElementById("voiceQuickRetry")?.addEventListener("click", () => {
+    closeModal("voiceQuickModal");
+    setTimeout(() => startVoiceInput(), 420);
+  });
+  modal.querySelectorAll("[data-voice-alt]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const alt = btn.dataset.voiceAlt || "";
+      reparseQuickDraft({ replaceText: true, text: alt });
+      showToast(L.reparseDone, "success");
+    });
+  });
+
+  renderQuickSummary();
+}
+
+function confirmVoiceBudgetIfNeeded(type, category, amountRub) {
+  if (type !== "expense" || !categoryBudgets[category]) return true;
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const spent = transactions
+    .filter(
+      (tx) =>
+        tx.type === "expense" &&
+        tx.category === category &&
+        tx.date &&
+        new Date(tx.date + "T00:00:00") >= monthStart,
+    )
+    .reduce((sum, tx) => sum + tx.amountRub, 0);
+  const limit = categoryBudgets[category];
+  const newSpent = spent + amountRub;
+  if (newSpent > limit) {
+    const msg =
+      { ru: "Продолжить?", en: "Continue?", ka: "გაგრძელება?" }[
+        currentLang
+      ] || "Continue?";
+    return confirm(t("budgetOverLimit") + " " + fmt(limit) + ". " + msg);
+  }
+  if (newSpent / limit >= 0.8) {
+    const remaining = limit - newSpent;
+    showToast(
+      t("budgetWarning80") +
+        " · " +
+        fmt(remaining) +
+        " " +
+        t("budgetWarning80Desc"),
+      "error",
+      3500,
+    );
+  }
+  return true;
+}
+
+function openVoiceDraftModal(draft, alternatives = []) {
+  const L = getVoiceDraftLabels();
+  const altOptions = normalizeVoiceAlternatives(alternatives)
+    .filter((item) => item.toLowerCase() !== String(draft.rawText || "").toLowerCase())
+    .slice(0, 4);
+  const existingCatObj = getVoiceCategoryObject(draft.type);
+  const initialCatExists =
+    draft.category && Object.prototype.hasOwnProperty.call(existingCatObj, draft.category);
+  const initialSelectedCat = initialCatExists ? draft.category : "";
+  const initialNewCat = draft.category && !initialCatExists ? draft.category : "";
+  const amountValue =
+    Number.isFinite(draft.amount) && draft.amount > 0
+      ? draft.amount.toFixed(2)
+      : "";
+
+  const html = `
+    <div style="background:linear-gradient(135deg,var(--primary-pale),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:14px;margin-bottom:14px;">
+      <div class="field-group" style="margin-bottom:10px;">
+        <label class="field-label">${L.recognized}</label>
+        <textarea id="voiceDraftText" class="modal-textarea" rows="3" placeholder="${esc(L.textPlaceholder)}">${esc(draft.rawText)}</textarea>
+      </div>
+      ${
+        altOptions.length
+          ? `<div style="margin:2px 0 10px;">
+              <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px;">${L.alternatives}</div>
+              <div style="display:flex;flex-direction:column;gap:6px;">
+                ${altOptions
+                  .map(
+                    (alt) =>
+                      `<button type="button" class="voice-alt-btn" data-voice-alt="${esc(alt)}" style="text-align:left;border-radius:12px;padding:9px 11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:inherit;font-size:13px;font-weight:700;">${esc(alt)}</button>`,
+                  )
+                  .join("")}
+              </div>
+            </div>`
+          : ""
+      }
+      <button type="button" class="btn-secondary" id="voiceReparseBtn" style="width:100%;padding:11px 12px;">${L.reparse}</button>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">${L.type}</label>
+      <div class="type-toggle">
+        <button type="button" class="type-btn expense ${draft.type === "expense" ? "active" : ""}" data-type="expense">${t("expenseType")}</button>
+        <button type="button" class="type-btn income ${draft.type === "income" ? "active" : ""}" data-type="income">${t("incomeType")}</button>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">${L.amount} (${sym()})</label>
+      <input type="text" id="voiceAmount" class="modal-input" value="${esc(amountValue)}" placeholder="0.00" inputmode="decimal">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">${L.category}</label>
+      <select id="voiceCategorySelect" class="modal-select">${getVoiceCategoryOptions(draft.type, initialSelectedCat)}</select>
+    </div>
+
+    <div style="display:grid;gap:8px;margin-top:-4px;margin-bottom:12px;">
+      <button type="button" class="btn-secondary" id="voiceNewCatToggle" style="width:100%;padding:10px 12px;">${L.newCategory}</button>
+      <div id="voiceNewCatWrap" style="${initialNewCat ? "" : "display:none;"}">
+        <input type="text" id="voiceNewCategory" class="modal-input" value="${esc(initialNewCat)}" placeholder="${esc(L.newCategoryPlaceholder)}">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${L.newCategoryHint}</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">${L.subcategory}</label>
+      <select id="voiceSubcatSelect" class="modal-select"></select>
+    </div>
+
+    <div style="display:grid;gap:8px;margin-top:-4px;margin-bottom:14px;">
+      <button type="button" class="btn-secondary" id="voiceNewSubToggle" style="width:100%;padding:10px 12px;">${L.newSubcategory}</button>
+      <div id="voiceNewSubWrap" style="display:none;">
+        <input type="text" id="voiceNewSubcategory" class="modal-input" placeholder="${esc(L.newSubcategoryPlaceholder)}">
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">${L.newSubcategoryHint}</div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">${t("date")}</label>
+      <input type="text" id="voiceDateDisplay" class="modal-input" readonly value="${fmtDate(today())}">
+      <input type="hidden" id="voiceDate" value="${today()}">
+    </div>
+
+    <div class="modal-actions" style="padding-left:0!important;padding-right:0!important;">
+      <button type="button" class="btn-secondary" id="voiceCancelDraft" style="flex:1;">${t("cancel")}</button>
+      <button type="button" class="btn-primary" id="voiceSaveDraft" style="flex:2;">${L.save}</button>
+    </div>
+  `;
+
+  const modal = createModal("voiceModal", "🎤 " + L.title, html);
   document.body.appendChild(modal);
   openModal("voiceModal");
 
-  document.getElementById("voiceEdit")?.addEventListener("click", () => {
-    closeModal("voiceModal");
-    addType = isIncome ? "income" : "expense";
-    openAddModal();
-    setTimeout(() => {
-      const af = document.getElementById("addAmount");
-      if (af && amount)
-        af.value = toDisp(
-          (amount / (exchangeRates[displayCurrency] || 1)) *
-            exchangeRates["RUB"],
-        ).toFixed(2);
-    }, 300);
+  let currentType = draft.type || "expense";
+  const textInput = document.getElementById("voiceDraftText");
+  const amountInput = document.getElementById("voiceAmount");
+  const categorySelect = document.getElementById("voiceCategorySelect");
+  const subcatSelect = document.getElementById("voiceSubcatSelect");
+  const newCatWrap = document.getElementById("voiceNewCatWrap");
+  const newCatInput = document.getElementById("voiceNewCategory");
+  const newSubWrap = document.getElementById("voiceNewSubWrap");
+  const newSubInput = document.getElementById("voiceNewSubcategory");
+
+  const selectedCategoryName = () =>
+    newCatInput.value.trim() || categorySelect.value;
+
+  const refreshTypeButtons = () => {
+    modal.querySelectorAll(".type-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.type === currentType);
+    });
+  };
+
+  const setTemporarySelectOption = (select, value, labelPrefix = "") => {
+    select
+      .querySelectorAll('option[data-temp-created="true"]')
+      .forEach((option) => option.remove());
+    if (!value) return;
+    const existing = [...select.options].find((option) => option.value === value);
+    if (existing) {
+      existing.selected = true;
+      return;
+    }
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = `${labelPrefix}${value}`;
+    option.dataset.tempCreated = "true";
+    option.selected = true;
+    select.appendChild(option);
+  };
+
+  const refreshSubcategories = (selected = "") => {
+    const useNewCategory = !!newCatInput.value.trim();
+    const newSubcategory = newSubInput.value.trim();
+    const cat = useNewCategory ? "" : categorySelect.value;
+    const subcats = cat
+      ? getVoiceCategoryObject(currentType)[cat]?.subcats || []
+      : [];
+    subcatSelect.innerHTML =
+      `<option value="">${t("noSubcategory")}</option>` +
+      subcats
+        .map(
+          (sub) =>
+            `<option value="${esc(sub)}"${sub === selected ? " selected" : ""}>${esc(sub)}</option>`,
+        )
+        .join("");
+    if (newSubcategory) {
+      setTemporarySelectOption(subcatSelect, newSubcategory, "＋ ");
+    }
+    subcatSelect.disabled =
+      !newSubcategory && (useNewCategory || subcats.length === 0);
+  };
+
+  const refreshCategories = (selected = "") => {
+    categorySelect.innerHTML = getVoiceCategoryOptions(currentType, selected);
+    const newCategory = newCatInput.value.trim();
+    if (newCategory) {
+      setTemporarySelectOption(categorySelect, newCategory, "＋ ");
+    }
+    refreshSubcategories();
+  };
+
+  refreshCategories(initialSelectedCat || initialNewCat);
+  refreshSubcategories(draft.subcategory);
+
+  const applyVoiceDraft = (nextDraft, replaceText = false) => {
+    currentType = nextDraft.type || currentType;
+    refreshTypeButtons();
+    if (replaceText) textInput.value = nextDraft.rawText || textInput.value;
+    if (Number.isFinite(nextDraft.amount) && nextDraft.amount > 0) {
+      amountInput.value = nextDraft.amount.toFixed(2);
+    }
+    newCatInput.value = "";
+    newSubInput.value = "";
+    newCatWrap.style.display = "none";
+    newSubWrap.style.display = "none";
+    const catObj = getVoiceCategoryObject(currentType);
+    if (nextDraft.category && !catObj[nextDraft.category]) {
+      refreshCategories();
+      newCatWrap.style.display = "";
+      newCatInput.value = nextDraft.category;
+      setTemporarySelectOption(categorySelect, nextDraft.category, "＋ ");
+    } else {
+      refreshCategories(nextDraft.category);
+    }
+    refreshSubcategories(nextDraft.subcategory);
+  };
+
+  const syncAmountFromDraftText = () => {
+    const liveDraft = buildVoiceDraftFromText(textInput.value);
+    if (Number.isFinite(liveDraft.amount) && liveDraft.amount > 0) {
+      const nextAmount = liveDraft.amount.toFixed(2);
+      if (amountInput.value !== nextAmount) {
+        amountInput.value = nextAmount;
+      }
+    }
+  };
+
+  textInput.addEventListener("input", syncAmountFromDraftText);
+
+  modal.querySelectorAll("[data-voice-alt]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const alt = btn.dataset.voiceAlt || "";
+      applyVoiceDraft(buildVoiceDraftFromText(alt), true);
+      showToast(L.reparseDone, "success");
+    });
   });
 
-  document.getElementById("voiceConfirm")?.addEventListener("click", () => {
+  modal.querySelectorAll(".type-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentType = btn.dataset.type;
+      newCatInput.value = "";
+      newSubInput.value = "";
+      newCatWrap.style.display = "none";
+      newSubWrap.style.display = "none";
+      refreshTypeButtons();
+      refreshCategories();
+      haptic("light");
+    });
+  });
+
+  categorySelect.addEventListener("change", () => {
+    if (categorySelect.value) {
+      newCatInput.value = "";
+      newCatWrap.style.display = "none";
+    }
+    refreshSubcategories();
+  });
+
+  newCatInput.addEventListener("input", () => {
+    const value = newCatInput.value.trim();
+    if (value) {
+      setTemporarySelectOption(categorySelect, value, "＋ ");
+    } else {
+      refreshCategories(categorySelect.value);
+    }
+    refreshSubcategories();
+  });
+
+  newSubInput.addEventListener("input", () => {
+    refreshSubcategories(newSubInput.value.trim() || subcatSelect.value);
+  });
+
+  document.getElementById("voiceNewCatToggle")?.addEventListener("click", () => {
+    const isHidden = newCatWrap.style.display === "none";
+    if (isHidden) {
+      newCatWrap.style.display = "";
+      categorySelect.value = "";
+      newCatInput.focus();
+      return;
+    }
+
+    const value = newCatInput.value.trim();
+    if (!value) {
+      showToast(L.enterCategoryName, "error");
+      newCatInput.focus();
+      return;
+    }
+    setTemporarySelectOption(categorySelect, value, "＋ ");
+    refreshSubcategories();
+    showToast(`${L.categorySelected}: ${value}`, "success");
+  });
+
+  document.getElementById("voiceNewSubToggle")?.addEventListener("click", () => {
+    const category = selectedCategoryName();
+    if (!category) {
+      showToast(L.selectCategoryForSubcategory, "error", 3800);
+      if (newCatWrap.style.display === "none") {
+        categorySelect.focus();
+      } else {
+        newCatInput.focus();
+      }
+      return;
+    }
+
+    const isHidden = newSubWrap.style.display === "none";
+    if (isHidden) {
+      newSubWrap.style.display = "";
+      newSubInput.focus();
+      return;
+    }
+
+    const value = newSubInput.value.trim();
+    if (!value) {
+      showToast(L.enterSubcategoryName, "error");
+      newSubInput.focus();
+      return;
+    }
+    setTemporarySelectOption(subcatSelect, value, "＋ ");
+    subcatSelect.disabled = false;
+    showToast(`${L.subcategorySelected}: ${value}`, "success");
+  });
+
+  document.getElementById("voiceReparseBtn")?.addEventListener("click", () => {
+    const reparsed = buildVoiceDraftFromText(textInput.value);
+    applyVoiceDraft(reparsed);
+    showToast(L.reparseDone, "success");
+  });
+
+  document.getElementById("voiceCancelDraft")?.addEventListener("click", () => {
     closeModal("voiceModal");
-    const amtRub =
-      (amount / (exchangeRates[displayCurrency] || 1)) * exchangeRates["RUB"];
-    const newTx = {
+  });
+
+  document.getElementById("voiceSaveDraft")?.addEventListener("click", () => {
+    const amount = parseFloat(String(amountInput.value).replace(",", "."));
+    const category = selectedCategoryName();
+    const subcategory = newSubInput.value.trim() || subcatSelect.value || "";
+    const note = textInput.value.trim();
+    const date = document.getElementById("voiceDate").value || today();
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showToast(L.amountMissing, "error");
+      amountInput.focus();
+      return;
+    }
+    if (!category) {
+      showToast(L.categoryMissing, "error");
+      categorySelect.focus();
+      return;
+    }
+
+    const amountRub = toRub(amount);
+    if (!confirmVoiceBudgetIfNeeded(currentType, category, amountRub)) return;
+
+    const catObj = getVoiceCategoryObject(currentType);
+    if (!catObj[category]) catObj[category] = { subcats: [] };
+    if (!Array.isArray(catObj[category].subcats)) {
+      catObj[category].subcats = [];
+    }
+    if (subcategory && !catObj[category].subcats.includes(subcategory)) {
+      catObj[category].subcats.push(subcategory);
+    }
+    syncCategoryGlobals();
+
+    const tx = {
       id: Date.now() + "_v",
-      type: isIncome ? "income" : "expense",
-      category:
-        detectedCat ||
-        (isIncome
-          ? Object.keys(incomeCategories)[0]
-          : Object.keys(categories)[0]),
-      subcategory: "",
-      amountRub: amtRub,
-      date: new Date().toISOString().slice(0, 10),
-      note: text,
-      emoji: isIncome ? "💰" : "💸",
+      type: currentType,
+      category,
+      subcategory: subcategory || null,
+      amountRub,
+      date,
+      note: note || null,
+      emoji: currentType === "income" ? "💰" : "💸",
     };
-    transactions.unshift(newTx);
+
+    transactions.push(tx);
+    rememberVoiceLearningSample({
+      rawText: note || "",
+      type: currentType,
+      category,
+      subcategory: subcategory || "",
+    });
+    updateFrequentStats(tx);
     saveAll();
+    closeModal("voiceModal");
     updateTopBlocks();
-    if (currentTab === "home") renderHome();
-    showToast(
-      currentLang === "en"
-        ? "✅ Added by voice"
-        : currentLang === "ka"
-          ? "✅ ხმით დამატებულია"
-          : "✅ Добавлено голосом",
-      "success",
-    );
-    showCoinAnimation();
+    renderBalanceSummary();
+    if (currentTab === "home") {
+      if (simpleMode) renderSimpleHome();
+      else renderHome();
+    } else if (currentTab === "categories") {
+      renderCategories();
+    }
+    showToast(L.added, "success");
+    if (currentType === "income") showCoinAnimation();
+    else showMoneyFlyEffect();
     haptic("success");
   });
 }
 
 // Add voice button to FAB area after init
+function isVoiceDragSuppressed() {
+  return Date.now() < (window.__voiceDragSuppressUntil || 0);
+}
+
+function suppressVoiceDragClicks(ms = 650) {
+  window.__voiceDragSuppressUntil = Date.now() + ms;
+}
+
+function stopVoiceGestureEvent(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  if (typeof e.stopImmediatePropagation === "function") {
+    e.stopImmediatePropagation();
+  }
+}
+
+function ensureVoiceDragShield() {
+  if (window.__voiceDragShieldInstalled) return;
+  window.__voiceDragShieldInstalled = true;
+
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!isVoiceDragSuppressed()) return;
+      stopVoiceGestureEvent(e);
+    },
+    true,
+  );
+}
+
 function getFloatingBtnSetting(key) {
   return localStorage.getItem(key) !== "false"; // default ON
 }
 
 function addVoiceButton() {
+  ensureVoiceDragShield();
   document.getElementById("voiceInputBtn")?.remove();
   if (!getFloatingBtnSetting("showVoiceBtn")) return;
   const voiceBtn = document.createElement("button");
@@ -15188,22 +20003,94 @@ function addVoiceButton() {
     { ru: "Голосовой ввод", en: "Voice input", ka: "ხმოვანი შეყვანა" }[
       currentLang
     ] || "Voice";
-  // Position: right side, above the nav bar, offset up so doesn't overlap FAB
-  voiceBtn.style.cssText =
-    "position:fixed;bottom:140px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--primary-pale);border:2px solid var(--primary);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
-  voiceBtn.addEventListener("click", () => {
+  document.body.appendChild(voiceBtn);
+
+  const size = 62;
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const savedPos = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("voiceBtnPos") || "null");
+    } catch (e) {
+      return null;
+    }
+  })();
+  const applyPos = (x, y) => {
+    const pad = 8;
+    const maxX = window.innerWidth - size - pad;
+    const maxY = window.innerHeight - size - pad;
+    const left = clamp(x, pad, Math.max(pad, maxX));
+    const top = clamp(y, pad, Math.max(pad, maxY));
+    voiceBtn.style.left = left + "px";
+    voiceBtn.style.top = top + "px";
+    voiceBtn.style.right = "auto";
+    voiceBtn.style.bottom = "auto";
+    return { x: left, y: top };
+  };
+  if (savedPos && Number.isFinite(savedPos.x) && Number.isFinite(savedPos.y)) {
+    applyPos(savedPos.x, savedPos.y);
+  }
+
+  let dragging = false;
+  let moved = false;
+  let startX = 0;
+  let startY = 0;
+  let originX = 0;
+  let originY = 0;
+  let activePointer = null;
+
+  voiceBtn.addEventListener("pointerdown", (e) => {
+    stopVoiceGestureEvent(e);
+    activePointer = e.pointerId;
+    const rect = voiceBtn.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    originX = rect.left;
+    originY = rect.top;
+    dragging = true;
+    moved = false;
+    voiceBtn.classList.add("dragging");
+    voiceBtn.setPointerCapture?.(e.pointerId);
+  });
+
+  voiceBtn.addEventListener("pointermove", (e) => {
+    if (!dragging || e.pointerId !== activePointer) return;
+    stopVoiceGestureEvent(e);
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
+    if (!moved) return;
+    applyPos(originX + dx, originY + dy);
+  });
+
+  const finishDrag = (e, canceled = false) => {
+    if (!dragging || e.pointerId !== activePointer) return;
+    stopVoiceGestureEvent(e);
+    dragging = false;
+    voiceBtn.classList.remove("dragging");
+    voiceBtn.releasePointerCapture?.(e.pointerId);
+    activePointer = null;
+    if (moved || canceled) {
+      const rect = voiceBtn.getBoundingClientRect();
+      const pos = applyPos(rect.left, rect.top);
+      localStorage.setItem("voiceBtnPos", JSON.stringify(pos));
+      suppressVoiceDragClicks();
+      return;
+    }
     haptic("medium");
     startVoiceInput();
+  };
+
+  voiceBtn.addEventListener("pointerup", finishDrag);
+  voiceBtn.addEventListener("pointercancel", (e) => finishDrag(e, true));
+  voiceBtn.addEventListener("click", (e) => {
+    if (!isVoiceDragSuppressed()) return;
+    stopVoiceGestureEvent(e);
   });
-  voiceBtn.addEventListener(
-    "mouseenter",
-    () => (voiceBtn.style.transform = "scale(1.12)"),
-  );
-  voiceBtn.addEventListener(
-    "mouseleave",
-    () => (voiceBtn.style.transform = ""),
-  );
-  document.body.appendChild(voiceBtn);
+  window.addEventListener("resize", () => {
+    const rect = voiceBtn.getBoundingClientRect();
+    const pos = applyPos(rect.left, rect.top);
+    localStorage.setItem("voiceBtnPos", JSON.stringify(pos));
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
