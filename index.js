@@ -2007,7 +2007,6 @@ function openDB() {
   });
 }
 
-
 /** Сохраняет все данные всех профилей и глобальных настроек в IndexedDB */
 async function saveAllToIndexedDB() {
   try {
@@ -2159,11 +2158,7 @@ function updateHeroChipLabels(root = document) {
 function forceHeroChipLayout(root = document) {
   root.querySelectorAll(".hero-chips").forEach((wrap) => {
     wrap.style.setProperty("display", "grid", "important");
-    wrap.style.setProperty(
-      "grid-template-columns",
-      "1fr",
-      "important",
-    );
+    wrap.style.setProperty("grid-template-columns", "1fr", "important");
     wrap.style.setProperty("gap", "8px", "important");
     wrap.style.setProperty("align-items", "stretch", "important");
 
@@ -2525,7 +2520,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Покупки И Еда", en: "Shopping & Food", ka: "შოპინგი და საკვები" },
+    title: {
+      ru: "Покупки И Еда",
+      en: "Shopping & Food",
+      ka: "შოპინგი და საკვები",
+    },
     emojis: [
       "🛒",
       "🏪",
@@ -2649,7 +2648,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Транспорт И Путешествия", en: "Transport & Travel", ka: "ტრანსპორტი და მოგზაურობა" },
+    title: {
+      ru: "Транспорт И Путешествия",
+      en: "Transport & Travel",
+      ka: "ტრანსპორტი და მოგზაურობა",
+    },
     emojis: [
       "🚗",
       "🚙",
@@ -2693,7 +2696,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Техника И Медиа", en: "Tech & Media", ka: "ტექნიკა და მედია" },
+    title: {
+      ru: "Техника И Медиа",
+      en: "Tech & Media",
+      ka: "ტექნიკა და მედია",
+    },
     emojis: [
       "💻",
       "🖥️",
@@ -2725,7 +2732,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Здоровье И Красота", en: "Health & Beauty", ka: "ჯანმრთელობა და სილამაზე" },
+    title: {
+      ru: "Здоровье И Красота",
+      en: "Health & Beauty",
+      ka: "ჯანმრთელობა და სილამაზე",
+    },
     emojis: [
       "💊",
       "🩺",
@@ -2773,7 +2784,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Работа И Учёба", en: "Work & Study", ka: "სამუშაო და სწავლა" },
+    title: {
+      ru: "Работа И Учёба",
+      en: "Work & Study",
+      ka: "სამუშაო და სწავლა",
+    },
     emojis: [
       "💼",
       "🎓",
@@ -2800,7 +2815,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Жизнь И Досуг", en: "Lifestyle", ka: "ცხოვრება და დასვენება" },
+    title: {
+      ru: "Жизнь И Досуг",
+      en: "Lifestyle",
+      ka: "ცხოვრება და დასვენება",
+    },
     emojis: [
       "🎁",
       "🎉",
@@ -2932,7 +2951,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Флаги И Страны", en: "Flags & Places", ka: "დროშები და ქვეყნები" },
+    title: {
+      ru: "Флаги И Страны",
+      en: "Flags & Places",
+      ka: "დროშები და ქვეყნები",
+    },
     emojis: [
       "🇬🇪",
       "🇬🇧",
@@ -2992,7 +3015,11 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Жесты И Люди", en: "People & Hands", ka: "ადამიანები და ჟესტები" },
+    title: {
+      ru: "Жесты И Люди",
+      en: "People & Hands",
+      ka: "ადამიანები და ჟესტები",
+    },
     emojis: [
       "🫴",
       "🫳",
@@ -3027,9 +3054,9 @@ const CATEGORY_EMOJI_GROUPS = [
   },
 ];
 
-const CATEGORY_EMOJI_OPTIONS = [...new Set(
-  CATEGORY_EMOJI_GROUPS.flatMap((group) => group.emojis),
-)];
+const CATEGORY_EMOJI_OPTIONS = [
+  ...new Set(CATEGORY_EMOJI_GROUPS.flatMap((group) => group.emojis)),
+];
 
 const CATEGORY_EMOJI_MATCHES = [...CATEGORY_EMOJI_OPTIONS].sort(
   (a, b) => b.length - a.length,
@@ -3179,7 +3206,14 @@ const CATEGORY_EMOJI_AUTO_RULES = [
   },
   {
     emoji: "💹",
-    keywords: ["инвестиции", "investment", "stocks", "trade", "trading", "ინვესტ"],
+    keywords: [
+      "инвестиции",
+      "investment",
+      "stocks",
+      "trade",
+      "trading",
+      "ინვესტ",
+    ],
   },
   {
     emoji: "💧",
@@ -3269,7 +3303,15 @@ const CATEGORY_EMOJI_AUTO_RULES = [
   },
   {
     emoji: "🚌",
-    keywords: ["транспорт", "bus", "автобус", "маршрут", "transport", "ტრანსპორტ", "ავტობუს"],
+    keywords: [
+      "транспорт",
+      "bus",
+      "автобус",
+      "маршрут",
+      "transport",
+      "ტრანსპორტ",
+      "ავტობუს",
+    ],
   },
   {
     emoji: "🚕",
@@ -3285,7 +3327,15 @@ const CATEGORY_EMOJI_AUTO_RULES = [
   },
   {
     emoji: "⛽",
-    keywords: ["бензин", "fuel", "petrol", "diesel", "заправ", "საწვავ", "ბენზ"],
+    keywords: [
+      "бензин",
+      "fuel",
+      "petrol",
+      "diesel",
+      "заправ",
+      "საწვავ",
+      "ბენზ",
+    ],
   },
   {
     emoji: "✈️",
@@ -3305,11 +3355,27 @@ const CATEGORY_EMOJI_AUTO_RULES = [
   },
   {
     emoji: "💊",
-    keywords: ["аптек", "pharmacy", "medicine", "pill", "таблет", "აფთიაქ", "წამ"],
+    keywords: [
+      "аптек",
+      "pharmacy",
+      "medicine",
+      "pill",
+      "таблет",
+      "აფთიაქ",
+      "წამ",
+    ],
   },
   {
     emoji: "🏥",
-    keywords: ["больниц", "hospital", "clinic", "doctor", "კლინიკ", "ექიმ", "საავადმყოფ"],
+    keywords: [
+      "больниц",
+      "hospital",
+      "clinic",
+      "doctor",
+      "კლინიკ",
+      "ექიმ",
+      "საავადმყოფ",
+    ],
   },
   {
     emoji: "🩺",
@@ -3382,29 +3448,151 @@ const CATEGORY_EMOJI_AUTO_RULES = [
 ];
 
 const CATEGORY_EMOJI_NAME_RULES = [
-  { emoji: "🛒", keywords: ["тележка", "корзина", "shopping cart", "cart", "საყიდლების ურიკა", "ურიკა"] },
-  { emoji: "🏪", keywords: ["магазин", "магазинчик", "shop", "store", "mini market", "მაღაზია", "მინიმარკეტი"] },
-  { emoji: "🏬", keywords: ["торговый центр", "универмаг", "mall", "department store", "shopping center", "სავაჭრო ცენტრი", "უნივერმაღი"] },
-  { emoji: "🛍️", keywords: ["пакеты", "покупки", "shopping bags", "shopping", "bags", "შოპინგი", "პაკეტები"] },
-  { emoji: "🧺", keywords: ["корзина", "basket", "shopping basket", "კალათა", "საყიდლების კალათა"] },
-  { emoji: "🏷️", keywords: ["ценник", "скидка", "tag", "price tag", "sale", "ფასდაკლება", "ეტიკეტი"] },
-  { emoji: "📦", keywords: ["коробка", "посылка", "box", "package", "parcel", "ყუთი", "ამანათი"] },
+  {
+    emoji: "🛒",
+    keywords: [
+      "тележка",
+      "корзина",
+      "shopping cart",
+      "cart",
+      "საყიდლების ურიკა",
+      "ურიკა",
+    ],
+  },
+  {
+    emoji: "🏪",
+    keywords: [
+      "магазин",
+      "магазинчик",
+      "shop",
+      "store",
+      "mini market",
+      "მაღაზია",
+      "მინიმარკეტი",
+    ],
+  },
+  {
+    emoji: "🏬",
+    keywords: [
+      "торговый центр",
+      "универмаг",
+      "mall",
+      "department store",
+      "shopping center",
+      "სავაჭრო ცენტრი",
+      "უნივერმაღი",
+    ],
+  },
+  {
+    emoji: "🛍️",
+    keywords: [
+      "пакеты",
+      "покупки",
+      "shopping bags",
+      "shopping",
+      "bags",
+      "შოპინგი",
+      "პაკეტები",
+    ],
+  },
+  {
+    emoji: "🧺",
+    keywords: [
+      "корзина",
+      "basket",
+      "shopping basket",
+      "კალათა",
+      "საყიდლების კალათა",
+    ],
+  },
+  {
+    emoji: "🏷️",
+    keywords: [
+      "ценник",
+      "скидка",
+      "tag",
+      "price tag",
+      "sale",
+      "ფასდაკლება",
+      "ეტიკეტი",
+    ],
+  },
+  {
+    emoji: "📦",
+    keywords: [
+      "коробка",
+      "посылка",
+      "box",
+      "package",
+      "parcel",
+      "ყუთი",
+      "ამანათი",
+    ],
+  },
   { emoji: "🥦", keywords: ["брокколи", "broccoli", "ბროკოლი"] },
-  { emoji: "🥬", keywords: ["листовая зелень", "капуста", "lettuce", "leafy greens", "კომბოსტო", "მწვანილი"] },
+  {
+    emoji: "🥬",
+    keywords: [
+      "листовая зелень",
+      "капуста",
+      "lettuce",
+      "leafy greens",
+      "კომბოსტო",
+      "მწვანილი",
+    ],
+  },
   { emoji: "🌽", keywords: ["кукуруза", "corn", "maize", "სიმინდი"] },
   { emoji: "🥕", keywords: ["морковь", "carrot", "სტაფილო"] },
-  { emoji: "🥔", keywords: ["картошка", "картофель", "potato", "potatoes", "კარტოფილი"] },
+  {
+    emoji: "🥔",
+    keywords: ["картошка", "картофель", "potato", "potatoes", "კარტოფილი"],
+  },
   { emoji: "🍆", keywords: ["баклажан", "eggplant", "aubergine", "ბადრიჯანი"] },
-  { emoji: "🍅", keywords: ["помидор", "томат", "tomato", "tomatoes", "პომიდორი"] },
+  {
+    emoji: "🍅",
+    keywords: ["помидор", "томат", "tomato", "tomatoes", "პომიდორი"],
+  },
   { emoji: "🥒", keywords: ["огурец", "cucumber", "კიტრი"] },
-  { emoji: "🫑", keywords: ["перец", "сладкий перец", "bell pepper", "pepper", "ბულგარული წიწაკა", "წიწაკა"] },
-  { emoji: "🌶️", keywords: ["чили", "острый перец", "chili", "hot pepper", "წიწაკა ჩილი", "ცხარე წიწაკა"] },
+  {
+    emoji: "🫑",
+    keywords: [
+      "перец",
+      "сладкий перец",
+      "bell pepper",
+      "pepper",
+      "ბულგარული წიწაკა",
+      "წიწაკა",
+    ],
+  },
+  {
+    emoji: "🌶️",
+    keywords: [
+      "чили",
+      "острый перец",
+      "chili",
+      "hot pepper",
+      "წიწაკა ჩილი",
+      "ცხარე წიწაკა",
+    ],
+  },
   { emoji: "🧄", keywords: ["чеснок", "garlic", "ნიორი"] },
   { emoji: "🧅", keywords: ["лук", "onion", "ხახვი"] },
-  { emoji: "🫘", keywords: ["фасоль", "бобы", "beans", "bean", "ლობიო", "მარცვლეული"] },
-  { emoji: "🍄", keywords: ["грибы", "гриб", "mushroom", "mushrooms", "სოკო", "სოკოები"] },
-  { emoji: "🥜", keywords: ["орехи", "арахис", "nuts", "peanuts", "თხილი", "კაკალი"] },
-  { emoji: "🫒", keywords: ["оливки", "маслины", "olive", "olives", "ზეთისხილი"] },
+  {
+    emoji: "🫘",
+    keywords: ["фасоль", "бобы", "beans", "bean", "ლობიო", "მარცვლეული"],
+  },
+  {
+    emoji: "🍄",
+    keywords: ["грибы", "гриб", "mushroom", "mushrooms", "სოკო", "სოკოები"],
+  },
+  {
+    emoji: "🥜",
+    keywords: ["орехи", "арахис", "nuts", "peanuts", "თხილი", "კაკალი"],
+  },
+  {
+    emoji: "🫒",
+    keywords: ["оливки", "маслины", "olive", "olives", "ზეთისხილი"],
+  },
   { emoji: "🥥", keywords: ["кокос", "coconut", "ქოქოსი"] },
   { emoji: "🍎", keywords: ["яблоко", "apple", "ვაშლი"] },
   { emoji: "🍏", keywords: ["зеленое яблоко", "green apple", "მწვანე ვაშლი"] },
@@ -3416,8 +3604,14 @@ const CATEGORY_EMOJI_NAME_RULES = [
   { emoji: "🍉", keywords: ["арбуз", "watermelon", "საზამთრო"] },
   { emoji: "🍇", keywords: ["виноград", "grapes", "ყურძენი"] },
   { emoji: "🍓", keywords: ["клубника", "strawberry", "მარწყვი"] },
-  { emoji: "🫐", keywords: ["черника", "голубика", "blueberries", "blueberry", "მოცვი"] },
-  { emoji: "🍒", keywords: ["вишня", "черешня", "cherries", "cherry", "ალუბალი"] },
+  {
+    emoji: "🫐",
+    keywords: ["черника", "голубика", "blueberries", "blueberry", "მოცვი"],
+  },
+  {
+    emoji: "🍒",
+    keywords: ["вишня", "черешня", "cherries", "cherry", "ალუბალი"],
+  },
   { emoji: "🥝", keywords: ["киви", "kiwi", "კივი"] },
   { emoji: "🥭", keywords: ["манго", "mango", "მანგო"] },
   { emoji: "🍍", keywords: ["ананас", "pineapple", "ანანასი"] },
@@ -3431,42 +3625,151 @@ const CATEGORY_EMOJI_NAME_RULES = [
   { emoji: "🧀", keywords: ["сыр", "cheese", "ყველი"] },
   { emoji: "🧈", keywords: ["масло", "сливочное масло", "butter", "კარაქი"] },
   { emoji: "🥛", keywords: ["молоко", "milk", "რძე"] },
-  { emoji: "🍼", keywords: ["детская бутылочка", "бутылочка", "baby bottle", "bottle", "ბოთლი", "ბავშვის ბოთლი"] },
-  { emoji: "🥣", keywords: ["каша", "миска", "bowl", "porridge", "cereal bowl", "ფაფა", "თასი"] },
-  { emoji: "🥫", keywords: ["консервы", "банка", "canned food", "can", "კონსერვი"] },
+  {
+    emoji: "🍼",
+    keywords: [
+      "детская бутылочка",
+      "бутылочка",
+      "baby bottle",
+      "bottle",
+      "ბოთლი",
+      "ბავშვის ბოთლი",
+    ],
+  },
+  {
+    emoji: "🥣",
+    keywords: [
+      "каша",
+      "миска",
+      "bowl",
+      "porridge",
+      "cereal bowl",
+      "ფაფა",
+      "თასი",
+    ],
+  },
+  {
+    emoji: "🥫",
+    keywords: ["консервы", "банка", "canned food", "can", "კონსერვი"],
+  },
   { emoji: "🧂", keywords: ["соль", "salt", "მარილი"] },
   { emoji: "🍚", keywords: ["рис", "rice", "ბრინჯი"] },
-  { emoji: "🍘", keywords: ["рисовый крекер", "rice cracker", "ბრინჯის კრეკერი"] },
-  { emoji: "🍙", keywords: ["рисовый шарик", "rice ball", "ონიგირი", "ბრინჯის ბურთულა"] },
-  { emoji: "🍥", keywords: ["рыбный пирог", "fish cake", "ნარუტო", "თევზის ნამცხვარი"] },
-  { emoji: "🍝", keywords: ["паста", "макароны", "pasta", "სპაგეტი", "მაკარონი"] },
-  { emoji: "🍜", keywords: ["лапша", "суп", "noodles", "ramen", "ნუდლსი", "ლაფშა"] },
-  { emoji: "🍲", keywords: ["рагу", "суп", "pot of food", "stew", "ჩაშუშული", "წვნიანი"] },
+  {
+    emoji: "🍘",
+    keywords: ["рисовый крекер", "rice cracker", "ბრინჯის კრეკერი"],
+  },
+  {
+    emoji: "🍙",
+    keywords: ["рисовый шарик", "rice ball", "ონიგირი", "ბრინჯის ბურთულა"],
+  },
+  {
+    emoji: "🍥",
+    keywords: ["рыбный пирог", "fish cake", "ნარუტო", "თევზის ნამცხვარი"],
+  },
+  {
+    emoji: "🍝",
+    keywords: ["паста", "макароны", "pasta", "სპაგეტი", "მაკარონი"],
+  },
+  {
+    emoji: "🍜",
+    keywords: ["лапша", "суп", "noodles", "ramen", "ნუდლსი", "ლაფშა"],
+  },
+  {
+    emoji: "🍲",
+    keywords: ["рагу", "суп", "pot of food", "stew", "ჩაშუშული", "წვნიანი"],
+  },
   { emoji: "🍛", keywords: ["карри", "curry", "კარი"] },
   { emoji: "🍢", keywords: ["шашлык", "якитори", "skewer", "ოდენ", "შამფური"] },
-  { emoji: "🍡", keywords: ["данго", "сладости на палочке", "dango", "sweet dumplings", "დანგო"] },
+  {
+    emoji: "🍡",
+    keywords: [
+      "данго",
+      "сладости на палочке",
+      "dango",
+      "sweet dumplings",
+      "დანგო",
+    ],
+  },
   { emoji: "🍤", keywords: ["креветки", "shrimp", "prawn", "კრევეტი"] },
   { emoji: "🍣", keywords: ["суши", "sushi", "სუში"] },
-  { emoji: "🍱", keywords: ["бенто", "ланчбокс", "bento", "lunch box", "ბენტო", "სადილის ყუთი"] },
-  { emoji: "🥟", keywords: ["пельмени", "вареники", "dumplings", "ხინკალი", "დამპლინგი"] },
-  { emoji: "🥠", keywords: ["печенье с предсказанием", "fortune cookie", "წინასწარმეტყველების ნამცხვარი"] },
-  { emoji: "🥡", keywords: ["еда навынос", "takeout box", "takeaway", "წასაღები ყუთი"] },
+  {
+    emoji: "🍱",
+    keywords: [
+      "бенто",
+      "ланчбокс",
+      "bento",
+      "lunch box",
+      "ბენტო",
+      "სადილის ყუთი",
+    ],
+  },
+  {
+    emoji: "🥟",
+    keywords: ["пельмени", "вареники", "dumplings", "ხინკალი", "დამპლინგი"],
+  },
+  {
+    emoji: "🥠",
+    keywords: [
+      "печенье с предсказанием",
+      "fortune cookie",
+      "წინასწარმეტყველების ნამცხვარი",
+    ],
+  },
+  {
+    emoji: "🥡",
+    keywords: ["еда навынос", "takeout box", "takeaway", "წასაღები ყუთი"],
+  },
   { emoji: "🌮", keywords: ["тако", "taco", "ტაკო"] },
   { emoji: "🌯", keywords: ["буррито", "burrito", "ბურიტო"] },
-  { emoji: "🥙", keywords: ["пита", "шаурма", "stuffed flatbread", "პიტა", "შაურმა"] },
+  {
+    emoji: "🥙",
+    keywords: ["пита", "шаурма", "stuffed flatbread", "პიტა", "შაურმა"],
+  },
   { emoji: "🍕", keywords: ["пицца", "pizza", "პიცა"] },
   { emoji: "🍔", keywords: ["бургер", "гамбургер", "burger", "ბურგერი"] },
   { emoji: "🌭", keywords: ["хот дог", "hot dog", "ჰოთ დოგი"] },
-  { emoji: "🍟", keywords: ["картошка фри", "фри", "fries", "french fries", "კარტოფილი ფრი"] },
+  {
+    emoji: "🍟",
+    keywords: ["картошка фри", "фри", "fries", "french fries", "კარტოფილი ფრი"],
+  },
   { emoji: "🍿", keywords: ["попкорн", "popcorn", "პოპკორნი"] },
-  { emoji: "🍗", keywords: ["курица", "куриная ножка", "chicken leg", "chicken", "ქათამი", "ქათმის ბარკალი"] },
+  {
+    emoji: "🍗",
+    keywords: [
+      "курица",
+      "куриная ножка",
+      "chicken leg",
+      "chicken",
+      "ქათამი",
+      "ქათმის ბარკალი",
+    ],
+  },
   { emoji: "🍖", keywords: ["мясо на кости", "meat on bone", "ხორცი ძვალზე"] },
-  { emoji: "🥩", keywords: ["стейк", "мясо", "steak", "meat", "სტეიკი", "ხორცი"] },
-  { emoji: "🥚", keywords: ["яйцо", "яйца", "egg", "eggs", "კვერცხი", "კვერცხები"] },
-  { emoji: "🍳", keywords: ["яичница", "жареное яйцо", "fried egg", "cooking", "შემწვარი კვერცხი", "ტაფაზე კვერცხი"] },
+  {
+    emoji: "🥩",
+    keywords: ["стейк", "мясо", "steak", "meat", "სტეიკი", "ხორცი"],
+  },
+  {
+    emoji: "🥚",
+    keywords: ["яйцо", "яйца", "egg", "eggs", "კვერცხი", "კვერცხები"],
+  },
+  {
+    emoji: "🍳",
+    keywords: [
+      "яичница",
+      "жареное яйцо",
+      "fried egg",
+      "cooking",
+      "შემწვარი კვერცხი",
+      "ტაფაზე კვერცხი",
+    ],
+  },
   { emoji: "🥪", keywords: ["сэндвич", "бутерброд", "sandwich", "სენდვიჩი"] },
   { emoji: "🥗", keywords: ["салат", "salad", "სალათი"] },
-  { emoji: "🥞", keywords: ["блины", "панкейки", "pancakes", "ბლინები", "პანკეიკი"] },
+  {
+    emoji: "🥞",
+    keywords: ["блины", "панкейки", "pancakes", "ბლინები", "პანკეიკი"],
+  },
   { emoji: "🧇", keywords: ["вафли", "waffle", "ვაფლი"] },
   { emoji: "🧆", keywords: ["фалафель", "falafel", "ფალაფელი"] },
   { emoji: "🍰", keywords: ["торт", "cake", "კეიკი", "ტორტი"] },
@@ -3483,82 +3786,464 @@ const CATEGORY_EMOJI_NAME_RULES = [
   { emoji: "🍨", keywords: ["мороженое", "ice cream", "ნაყინი"] },
   { emoji: "🍦", keywords: ["рожок", "ice cream cone", "ნაყინის კონუსი"] },
   { emoji: "🍧", keywords: ["щербет", "shaved ice", "დესერტი ყინულით"] },
-  { emoji: "🥤", keywords: ["газировка", "напиток", "soft drink", "soda", "სასმელი", "გაზიანი"] },
+  {
+    emoji: "🥤",
+    keywords: [
+      "газировка",
+      "напиток",
+      "soft drink",
+      "soda",
+      "სასმელი",
+      "გაზიანი",
+    ],
+  },
   { emoji: "🧋", keywords: ["бабл ти", "bubble tea", "ბაბლ თი"] },
   { emoji: "🧃", keywords: ["сок", "juice", "წვენი"] },
   { emoji: "🧊", keywords: ["лед", "ice", "ყინული"] },
   { emoji: "🥢", keywords: ["палочки", "chopsticks", "ჩხირები"] },
-  { emoji: "🍽️", keywords: ["тарелка", "приборы", "plate", "fork and knife", "თეფში", "დანა და ჩანგალი"] },
+  {
+    emoji: "🍽️",
+    keywords: [
+      "тарелка",
+      "приборы",
+      "plate",
+      "fork and knife",
+      "თეფში",
+      "დანა და ჩანგალი",
+    ],
+  },
   { emoji: "☕", keywords: ["кофе", "coffee", "ყავა"] },
   { emoji: "🍵", keywords: ["чай", "green tea", "tea", "ჩაი"] },
   { emoji: "🫖", keywords: ["чайник", "teapot", "ჩაიდანი"] },
   { emoji: "🧉", keywords: ["мате", "mate", "მატე"] },
   { emoji: "🍺", keywords: ["пиво", "beer", "ლუდი"] },
   { emoji: "🍷", keywords: ["вино", "wine", "ღვინო"] },
-  { emoji: "🥂", keywords: ["шампанское", "бокалы", "champagne", "clinking glasses", "შამპანური", "ჭიქები"] },
+  {
+    emoji: "🥂",
+    keywords: [
+      "шампанское",
+      "бокалы",
+      "champagne",
+      "clinking glasses",
+      "შამპანური",
+      "ჭიქები",
+    ],
+  },
   { emoji: "🥃", keywords: ["виски", "whiskey", "whisky", "ვისკი"] },
-  { emoji: "🍾", keywords: ["бутылка", "шампанское", "bottle", "champagne bottle", "ბოთლი", "შამპანურის ბოთლი"] },
+  {
+    emoji: "🍾",
+    keywords: [
+      "бутылка",
+      "шампанское",
+      "bottle",
+      "champagne bottle",
+      "ბოთლი",
+      "შამპანურის ბოთლი",
+    ],
+  },
   { emoji: "🍹", keywords: ["коктейль", "cocktail", "კოქტეილი"] },
   { emoji: "🍸", keywords: ["мартини", "martini", "მარტინი"] },
   { emoji: "🍶", keywords: ["саке", "sake", "საკე"] },
-  { emoji: "🛡️", keywords: ["страховка", "страхование", "insurance", "policy", "coverage", "დაზღვევა", "სადაზღვევო"] },
-  { emoji: "🚗🛡️", keywords: ["страховка машины", "автостраховка", "каско", "осаго", "car insurance", "auto insurance", "vehicle insurance", "მანქანის დაზღვევა", "ავტოდაზღვევა"] },
-  { emoji: "🏠🛡️", keywords: ["страховка дома", "страховка квартиры", "home insurance", "house insurance", "property insurance", "სახლის დაზღვევა", "ბინის დაზღვევა", "ქონების დაზღვევა"] },
-  { emoji: "❤️🛡️", keywords: ["медицинская страховка", "страховка здоровья", "health insurance", "life insurance", "medical insurance", "ჯანმრთელობის დაზღვევა", "სიცოცხლის დაზღვევა", "სამედიცინო დაზღვევა"] },
-  { emoji: "⚠️💸", keywords: ["неожиданные траты", "непредвиденные расходы", "экстренные траты", "unexpected expenses", "emergency expense", "surprise expense", "გაუთვალისწინებელი ხარჯი", "მოულოდნელი ხარჯი"] },
-  { emoji: "📅💸", keywords: ["запланированные траты", "плановые расходы", "planned expenses", "planned spending", "budgeted expense", "დაგეგმილი ხარჯი", "გეგმური ხარჯი"] },
-  { emoji: "✨💸", keywords: ["приятные траты", "приятные расходы", "радость", "treat yourself", "fun spending", "pleasant expenses", "სასიამოვნო ხარჯი", "სიამოვნების ხარჯი"] },
-  { emoji: "🚗🔑", keywords: ["аренда машины", "прокат машины", "аренда авто", "car rental", "rent a car", "vehicle rental", "მანქანის ქირაობა", "ავტოს გაქირავება"] },
-  { emoji: "🏠🔑", keywords: ["аренда дома", "аренда квартиры", "съем жилья", "home rent", "house rent", "apartment rent", "property rental", "სახლის ქირაობა", "ბინის ქირა", "საცხოვრებლის ქირაობა"] },
-  { emoji: "🔑", keywords: ["аренда", "прокат", "rent", "rental", "lease", "ქირაობა", "ქირა", "გაქირავება"] },
-  { emoji: "🧒🏫", keywords: ["детский сад", "садик", "ясли", "kindergarten", "daycare", "nursery", "preschool", "საბავშვო ბაღი", "ბაღი", "სადღეღამისო ბაღი"] },
-  { emoji: "🚋", keywords: ["трамвай", "tram", "streetcar", "tramway", "ტრამვაი"] },
+  {
+    emoji: "🛡️",
+    keywords: [
+      "страховка",
+      "страхование",
+      "insurance",
+      "policy",
+      "coverage",
+      "დაზღვევა",
+      "სადაზღვევო",
+    ],
+  },
+  {
+    emoji: "🚗🛡️",
+    keywords: [
+      "страховка машины",
+      "автостраховка",
+      "каско",
+      "осаго",
+      "car insurance",
+      "auto insurance",
+      "vehicle insurance",
+      "მანქანის დაზღვევა",
+      "ავტოდაზღვევა",
+    ],
+  },
+  {
+    emoji: "🏠🛡️",
+    keywords: [
+      "страховка дома",
+      "страховка квартиры",
+      "home insurance",
+      "house insurance",
+      "property insurance",
+      "სახლის დაზღვევა",
+      "ბინის დაზღვევა",
+      "ქონების დაზღვევა",
+    ],
+  },
+  {
+    emoji: "❤️🛡️",
+    keywords: [
+      "медицинская страховка",
+      "страховка здоровья",
+      "health insurance",
+      "life insurance",
+      "medical insurance",
+      "ჯანმრთელობის დაზღვევა",
+      "სიცოცხლის დაზღვევა",
+      "სამედიცინო დაზღვევა",
+    ],
+  },
+  {
+    emoji: "⚠️💸",
+    keywords: [
+      "неожиданные траты",
+      "непредвиденные расходы",
+      "экстренные траты",
+      "unexpected expenses",
+      "emergency expense",
+      "surprise expense",
+      "გაუთვალისწინებელი ხარჯი",
+      "მოულოდნელი ხარჯი",
+    ],
+  },
+  {
+    emoji: "📅💸",
+    keywords: [
+      "запланированные траты",
+      "плановые расходы",
+      "planned expenses",
+      "planned spending",
+      "budgeted expense",
+      "დაგეგმილი ხარჯი",
+      "გეგმური ხარჯი",
+    ],
+  },
+  {
+    emoji: "✨💸",
+    keywords: [
+      "приятные траты",
+      "приятные расходы",
+      "радость",
+      "treat yourself",
+      "fun spending",
+      "pleasant expenses",
+      "სასიამოვნო ხარჯი",
+      "სიამოვნების ხარჯი",
+    ],
+  },
+  {
+    emoji: "🚗🔑",
+    keywords: [
+      "аренда машины",
+      "прокат машины",
+      "аренда авто",
+      "car rental",
+      "rent a car",
+      "vehicle rental",
+      "მანქანის ქირაობა",
+      "ავტოს გაქირავება",
+    ],
+  },
+  {
+    emoji: "🏠🔑",
+    keywords: [
+      "аренда дома",
+      "аренда квартиры",
+      "съем жилья",
+      "home rent",
+      "house rent",
+      "apartment rent",
+      "property rental",
+      "სახლის ქირაობა",
+      "ბინის ქირა",
+      "საცხოვრებლის ქირაობა",
+    ],
+  },
+  {
+    emoji: "🔑",
+    keywords: [
+      "аренда",
+      "прокат",
+      "rent",
+      "rental",
+      "lease",
+      "ქირაობა",
+      "ქირა",
+      "გაქირავება",
+    ],
+  },
+  {
+    emoji: "🧒🏫",
+    keywords: [
+      "детский сад",
+      "садик",
+      "ясли",
+      "kindergarten",
+      "daycare",
+      "nursery",
+      "preschool",
+      "საბავშვო ბაღი",
+      "ბაღი",
+      "სადღეღამისო ბაღი",
+    ],
+  },
+  {
+    emoji: "🚋",
+    keywords: ["трамвай", "tram", "streetcar", "tramway", "ტრამვაი"],
+  },
   { emoji: "🛥️", keywords: ["яхта", "yacht", "luxury boat", "იახტა"] },
-  { emoji: "🚤", keywords: ["катер", "моторная лодка", "boat", "speedboat", "motorboat", "კატერი", "ნავი", "მოტორიანი ნავი"] },
-  { emoji: "⛵", keywords: ["парусник", "парусная лодка", "sailboat", "sailing boat", "იალქნიანი ნავი"] },
-  { emoji: "⚓", keywords: ["якорь", "порт", "anchor", "harbor", "პორტი", "ღუზა"] },
-  { emoji: "🌴", keywords: ["отдых", "отпуск", "relax", "rest", "vacation", "holiday", "დასვენება", "შვებულება"] },
-  { emoji: "🎨", keywords: ["хобби", "творчество", "рисование", "hobby", "art", "painting", "შემოქმედება", "ჰობი", "ხატვა"] },
-  { emoji: "🎱", keywords: ["бильярд", "пул", "pool", "billiards", "snooker", "ბილიარდი"] },
+  {
+    emoji: "🚤",
+    keywords: [
+      "катер",
+      "моторная лодка",
+      "boat",
+      "speedboat",
+      "motorboat",
+      "კატერი",
+      "ნავი",
+      "მოტორიანი ნავი",
+    ],
+  },
+  {
+    emoji: "⛵",
+    keywords: [
+      "парусник",
+      "парусная лодка",
+      "sailboat",
+      "sailing boat",
+      "იალქნიანი ნავი",
+    ],
+  },
+  {
+    emoji: "⚓",
+    keywords: ["якорь", "порт", "anchor", "harbor", "პორტი", "ღუზა"],
+  },
+  {
+    emoji: "🌴",
+    keywords: [
+      "отдых",
+      "отпуск",
+      "relax",
+      "rest",
+      "vacation",
+      "holiday",
+      "დასვენება",
+      "შვებულება",
+    ],
+  },
+  {
+    emoji: "🎨",
+    keywords: [
+      "хобби",
+      "творчество",
+      "рисование",
+      "hobby",
+      "art",
+      "painting",
+      "შემოქმედება",
+      "ჰობი",
+      "ხატვა",
+    ],
+  },
+  {
+    emoji: "🎱",
+    keywords: ["бильярд", "пул", "pool", "billiards", "snooker", "ბილიარდი"],
+  },
   { emoji: "🎳", keywords: ["боулинг", "bowling", "ბოულინგი"] },
-  { emoji: "🧩", keywords: ["пазл", "головоломка", "puzzle", "jigsaw", "ფაზლი", "თავსატეხი"] },
+  {
+    emoji: "🧩",
+    keywords: ["пазл", "головоломка", "puzzle", "jigsaw", "ფაზლი", "თავსატეხი"],
+  },
   { emoji: "🎣", keywords: ["рыбалка", "fishing", "თევზაობა"] },
-  { emoji: "🛀", keywords: ["спа", "релакс", "ванна", "spa", "bath", "self care", "სპა", "აბაზანა", "რელაქსი"] },
-  { emoji: "🏕️", keywords: ["кемпинг", "поход", "camping", "camp", "hiking stay", "კემპინგი", "ბანაკი", "ლაშქრობა"] },
-  { emoji: "⛱️", keywords: ["пляжный отдых", "пляж", "beach", "beach отдых", "ზღვა", "პლაჟი", "პლაჟის დასვენება"] },
-  { emoji: "🪩", keywords: ["вечеринка", "дискотека", "party", "dance", "disco", "წვეულება", "დისკო", "ცეკვა"] },
-  { emoji: "🎟️", keywords: ["билет", "ticket", "entry", "show ticket", "ბილეთი"] },
+  {
+    emoji: "🛀",
+    keywords: [
+      "спа",
+      "релакс",
+      "ванна",
+      "spa",
+      "bath",
+      "self care",
+      "სპა",
+      "აბაზანა",
+      "რელაქსი",
+    ],
+  },
+  {
+    emoji: "🏕️",
+    keywords: [
+      "кемпинг",
+      "поход",
+      "camping",
+      "camp",
+      "hiking stay",
+      "კემპინგი",
+      "ბანაკი",
+      "ლაშქრობა",
+    ],
+  },
+  {
+    emoji: "⛱️",
+    keywords: [
+      "пляжный отдых",
+      "пляж",
+      "beach",
+      "beach отдых",
+      "ზღვა",
+      "პლაჟი",
+      "პლაჟის დასვენება",
+    ],
+  },
+  {
+    emoji: "🪩",
+    keywords: [
+      "вечеринка",
+      "дискотека",
+      "party",
+      "dance",
+      "disco",
+      "წვეულება",
+      "დისკო",
+      "ცეკვა",
+    ],
+  },
+  {
+    emoji: "🎟️",
+    keywords: ["билет", "ticket", "entry", "show ticket", "ბილეთი"],
+  },
 ];
 
 const CATEGORY_EMOJI_EXTENDED_NAME_RULES = [
-  { emoji: "🧑‍🌾", keywords: ["фермер", "садовник", "агроном", "farmer", "gardener", "agronomist", "ფერმერი", "მებაღე", "აგრონომი"] },
+  {
+    emoji: "🧑‍🌾",
+    keywords: [
+      "фермер",
+      "садовник",
+      "агроном",
+      "farmer",
+      "gardener",
+      "agronomist",
+      "ფერმერი",
+      "მებაღე",
+      "აგრონომი",
+    ],
+  },
   { emoji: "👨‍🌾", keywords: ["фермер мужчина", "male farmer", "კაცი ფერმერი"] },
-  { emoji: "👩‍🌾", keywords: ["фермер женщина", "female farmer", "ქალი ფერმერი"] },
+  {
+    emoji: "👩‍🌾",
+    keywords: ["фермер женщина", "female farmer", "ქალი ფერმერი"],
+  },
   { emoji: "🚜", keywords: ["трактор", "tractor", "ტრაქტორი"] },
   { emoji: "🪓", keywords: ["топор", "axe", "hatchet", "ნაჯახი"] },
   { emoji: "🪚", keywords: ["пила", "saw", "ხერხი"] },
-  { emoji: "⛏️", keywords: ["кирка", "мотыга", "pickaxe", "hoe", "თოხი", "წერაქვი"] },
+  {
+    emoji: "⛏️",
+    keywords: ["кирка", "мотыга", "pickaxe", "hoe", "თოხი", "წერაქვი"],
+  },
   { emoji: "🔨", keywords: ["молоток", "hammer", "ჩაქუჩი"] },
-  { emoji: "🧰", keywords: ["инструменты", "набор инструментов", "toolbox", "tools", "ინსტრუმენტები", "ხელსაწყოები"] },
-  { emoji: "🪵", keywords: ["бревно", "дрова", "wood", "log", "firewood", "მორი", "შეშა"] },
-  { emoji: "🌾", keywords: ["пшеница", "зерно", "урожай", "wheat", "grain", "harvest", "ხორბალი", "მარცვალი", "მოსავალი"] },
-  { emoji: "🫛", keywords: ["горох", "стручки", "peas", "pea pod", "ბარდა", "მუხუდო"] },
-  { emoji: "🌱", keywords: ["росток", "саженец", "seedling", "sprout", "ნერგი", "ყლორტი"] },
-  { emoji: "🌿", keywords: ["трава", "зелень", "herb", "greenery", "ბალახი", "მწვანე"] },
+  {
+    emoji: "🧰",
+    keywords: [
+      "инструменты",
+      "набор инструментов",
+      "toolbox",
+      "tools",
+      "ინსტრუმენტები",
+      "ხელსაწყოები",
+    ],
+  },
+  {
+    emoji: "🪵",
+    keywords: ["бревно", "дрова", "wood", "log", "firewood", "მორი", "შეშა"],
+  },
+  {
+    emoji: "🌾",
+    keywords: [
+      "пшеница",
+      "зерно",
+      "урожай",
+      "wheat",
+      "grain",
+      "harvest",
+      "ხორბალი",
+      "მარცვალი",
+      "მოსავალი",
+    ],
+  },
+  {
+    emoji: "🫛",
+    keywords: ["горох", "стручки", "peas", "pea pod", "ბარდა", "მუხუდო"],
+  },
+  {
+    emoji: "🌱",
+    keywords: ["росток", "саженец", "seedling", "sprout", "ნერგი", "ყლორტი"],
+  },
+  {
+    emoji: "🌿",
+    keywords: ["трава", "зелень", "herb", "greenery", "ბალახი", "მწვანე"],
+  },
   { emoji: "☘️", keywords: ["клевер", "clover", "სამყურა"] },
-  { emoji: "🍀", keywords: ["удача", "четырехлистник", "lucky clover", "იღბალი", "იღბლის სამყურა"] },
-  { emoji: "🪴", keywords: ["сад", "огород", "цветок в горшке", "горшок", "potted plant", "plant pot", "garden", "vegetable garden", "ბაღი", "ბოსტანი", "ქოთანი", "ქოთნის მცენარე"] },
+  {
+    emoji: "🍀",
+    keywords: [
+      "удача",
+      "четырехлистник",
+      "lucky clover",
+      "იღბალი",
+      "იღბლის სამყურა",
+    ],
+  },
+  {
+    emoji: "🪴",
+    keywords: [
+      "сад",
+      "огород",
+      "цветок в горшке",
+      "горшок",
+      "potted plant",
+      "plant pot",
+      "garden",
+      "vegetable garden",
+      "ბაღი",
+      "ბოსტანი",
+      "ქოთანი",
+      "ქოთნის მცენარე",
+    ],
+  },
   { emoji: "🌳", keywords: ["дерево", "лес", "tree", "forest", "ხე", "ტყე"] },
-  { emoji: "🌲", keywords: ["ель", "сосна", "pine", "fir tree", "ფიჭვი", "ნაძვი"] },
-  { emoji: "🌴", keywords: ["пальма", "отпуск", "palm tree", "vacation", "პალმა", "დასვენება"] },
+  {
+    emoji: "🌲",
+    keywords: ["ель", "сосна", "pine", "fir tree", "ფიჭვი", "ნაძვი"],
+  },
+  {
+    emoji: "🌴",
+    keywords: [
+      "пальма",
+      "отпуск",
+      "palm tree",
+      "vacation",
+      "პალმა",
+      "დასვენება",
+    ],
+  },
   { emoji: "🌵", keywords: ["кактус", "cactus", "კაქტუსი"] },
   { emoji: "🌷", keywords: ["тюльпан", "tulip", "ტიტა"] },
   { emoji: "🌹", keywords: ["роза", "rose", "ვარდი"] },
-  { emoji: "🌼", keywords: ["цветок", "ромашка", "flower", "blossom", "ყვავილი", "გვირილა"] },
+  {
+    emoji: "🌼",
+    keywords: ["цветок", "ромашка", "flower", "blossom", "ყვავილი", "გვირილა"],
+  },
   { emoji: "🌻", keywords: ["подсолнух", "sunflower", "მზესუმზირა"] },
   { emoji: "🌺", keywords: ["гибискус", "hibiscus", "ჰიბისკუსი"] },
   { emoji: "🪹", keywords: ["гнездо", "nest", "ბუდე"] },
-  { emoji: "🪺", keywords: ["гнездо с яйцами", "nest with eggs", "ბუდე კვერცხებით"] },
+  {
+    emoji: "🪺",
+    keywords: ["гнездо с яйцами", "nest with eggs", "ბუდე კვერცხებით"],
+  },
   { emoji: "🐄", keywords: ["корова", "cow", "ძროხა"] },
   { emoji: "🐂", keywords: ["бык", "вол", "ox", "bull", "ხარი", "უღელი"] },
   { emoji: "🐎", keywords: ["лошадь", "horse", "ცხენი"] },
@@ -3570,16 +4255,70 @@ const CATEGORY_EMOJI_EXTENDED_NAME_RULES = [
   { emoji: "🐇", keywords: ["кролик", "rabbit", "ბაჭია", "კურდღელი"] },
   { emoji: "🐝", keywords: ["пчела", "bee", "ფუტკარი"] },
   { emoji: "🦆", keywords: ["утка", "duck", "იხვი"] },
-  { emoji: "🇬🇪", keywords: ["грузия", "georgia", "საქართველო", "georgian flag", "флаг грузии", "საქართველოს დროშა"] },
-  { emoji: "🇬🇧", keywords: ["великобритания", "англия", "британия", "united kingdom", "uk", "britain", "ინგლისი", "ბრიტანეთი", "გაერთიანებული სამეფო"] },
-  { emoji: "🇺🇸", keywords: ["сша", "америка", "usa", "united states", "america", "აშშ", "ამერიკა"] },
-  { emoji: "🇪🇺", keywords: ["евросоюз", "европа", "european union", "eu", "ევროკავშირი", "ევროპა"] },
+  {
+    emoji: "🇬🇪",
+    keywords: [
+      "грузия",
+      "georgia",
+      "საქართველო",
+      "georgian flag",
+      "флаг грузии",
+      "საქართველოს დროშა",
+    ],
+  },
+  {
+    emoji: "🇬🇧",
+    keywords: [
+      "великобритания",
+      "англия",
+      "британия",
+      "united kingdom",
+      "uk",
+      "britain",
+      "ინგლისი",
+      "ბრიტანეთი",
+      "გაერთიანებული სამეფო",
+    ],
+  },
+  {
+    emoji: "🇺🇸",
+    keywords: [
+      "сша",
+      "америка",
+      "usa",
+      "united states",
+      "america",
+      "აშშ",
+      "ამერიკა",
+    ],
+  },
+  {
+    emoji: "🇪🇺",
+    keywords: [
+      "евросоюз",
+      "европа",
+      "european union",
+      "eu",
+      "ევროკავშირი",
+      "ევროპა",
+    ],
+  },
   { emoji: "🇩🇪", keywords: ["германия", "germany", "გერმანია"] },
   { emoji: "🇫🇷", keywords: ["франция", "france", "საფრანგეთი"] },
   { emoji: "🇮🇹", keywords: ["италия", "italy", "იტალია"] },
   { emoji: "🇪🇸", keywords: ["испания", "spain", "ესპანეთი"] },
   { emoji: "🇵🇹", keywords: ["португалия", "portugal", "პორტუგალია"] },
-  { emoji: "🇳🇱", keywords: ["нидерланды", "голландия", "netherlands", "holland", "ნიდერლანდები", "ჰოლანდია"] },
+  {
+    emoji: "🇳🇱",
+    keywords: [
+      "нидерланды",
+      "голландия",
+      "netherlands",
+      "holland",
+      "ნიდერლანდები",
+      "ჰოლანდია",
+    ],
+  },
   { emoji: "🇧🇪", keywords: ["бельгия", "belgium", "ბელგია"] },
   { emoji: "🇨🇭", keywords: ["швейцария", "switzerland", "შვეიცარია"] },
   { emoji: "🇦🇹", keywords: ["австрия", "austria", "ავსტრია"] },
@@ -3598,12 +4337,32 @@ const CATEGORY_EMOJI_EXTENDED_NAME_RULES = [
   { emoji: "🇦🇿", keywords: ["азербайджан", "azerbaijan", "აზერბაიჯანი"] },
   { emoji: "🇰🇿", keywords: ["казахстан", "kazakhstan", "ყაზახეთი"] },
   { emoji: "🇮🇱", keywords: ["израиль", "israel", "ისრაელი"] },
-  { emoji: "🇦🇪", keywords: ["оаэ", "эмираты", "uae", "emirates", "აბუ დაბი", "არაბთა გაერთიანებული საამიროები"] },
+  {
+    emoji: "🇦🇪",
+    keywords: [
+      "оаэ",
+      "эмираты",
+      "uae",
+      "emirates",
+      "აბუ დაბი",
+      "არაბთა გაერთიანებული საამიროები",
+    ],
+  },
   { emoji: "🇪🇬", keywords: ["египет", "egypt", "ეგვიპტე"] },
   { emoji: "🇮🇳", keywords: ["индия", "india", "ინდოეთი"] },
   { emoji: "🇯🇵", keywords: ["япония", "japan", "იაპონია"] },
   { emoji: "🇨🇳", keywords: ["китай", "china", "ჩინეთი"] },
-  { emoji: "🇰🇷", keywords: ["корея", "южная корея", "korea", "south korea", "კორეა", "სამხრეთ კორეა"] },
+  {
+    emoji: "🇰🇷",
+    keywords: [
+      "корея",
+      "южная корея",
+      "korea",
+      "south korea",
+      "კორეა",
+      "სამხრეთ კორეა",
+    ],
+  },
   { emoji: "🇨🇦", keywords: ["канада", "canada", "კანადა"] },
   { emoji: "🇦🇺", keywords: ["австралия", "australia", "ავსტრალია"] },
   { emoji: "🇧🇷", keywords: ["бразилия", "brazil", "ბრაზილია"] },
@@ -3611,10 +4370,36 @@ const CATEGORY_EMOJI_EXTENDED_NAME_RULES = [
   { emoji: "🏳️", keywords: ["белый флаг", "white flag", "თეთრი დროშა"] },
   { emoji: "🏴", keywords: ["черный флаг", "black flag", "შავი დროშა"] },
   { emoji: "🚩", keywords: ["красный флаг", "red flag", "წითელი დროშა"] },
-  { emoji: "🏁", keywords: ["финиш", "клетчатый флаг", "finish", "checkered flag", "ფინიში", "ჭადრაკის დროშა"] },
-  { emoji: "🗽", keywords: ["статуя свободы", "statue of liberty", "თავისუფლების ქანდაკება"] },
-  { emoji: "🗼", keywords: ["эйфелева башня", "eiffel tower", "ეიფელის კოშკი"] },
-  { emoji: "🏛️", keywords: ["музей", "правительство", "museum", "government building", "მუზეუმი", "სახელმწიფო შენობა"] },
+  {
+    emoji: "🏁",
+    keywords: [
+      "финиш",
+      "клетчатый флаг",
+      "finish",
+      "checkered flag",
+      "ფინიში",
+      "ჭადრაკის დროშა",
+    ],
+  },
+  {
+    emoji: "🗽",
+    keywords: ["статуя свободы", "statue of liberty", "თავისუფლების ქანდაკება"],
+  },
+  {
+    emoji: "🗼",
+    keywords: ["эйфелева башня", "eiffel tower", "ეიფელის კოშკი"],
+  },
+  {
+    emoji: "🏛️",
+    keywords: [
+      "музей",
+      "правительство",
+      "museum",
+      "government building",
+      "მუზეუმი",
+      "სახელმწიფო შენობა",
+    ],
+  },
   { emoji: "🏰", keywords: ["замок", "castle", "ციხე"] },
   { emoji: "🕌", keywords: ["мечеть", "mosque", "მეჩეთი"] },
   { emoji: "⛪", keywords: ["церковь", "church", "ეკლესია"] },
@@ -3623,14 +4408,26 @@ const CATEGORY_EMOJI_EXTENDED_NAME_RULES = [
   { emoji: "🌉", keywords: ["мост", "bridge", "ხიდი"] },
   { emoji: "🏝️", keywords: ["остров", "island", "კუნძული"] },
   { emoji: "🏜️", keywords: ["пустыня", "desert", "უდაბნო"] },
-  { emoji: "🏞️", keywords: ["парк", "нацпарк", "park", "national park", "პარკი", "ნაციონალური პარკი"] },
+  {
+    emoji: "🏞️",
+    keywords: [
+      "парк",
+      "нацпарк",
+      "park",
+      "national park",
+      "პარკი",
+      "ნაციონალური პარკი",
+    ],
+  },
   { emoji: "🌋", keywords: ["вулкан", "volcano", "ვულკანი"] },
 ];
 
 function getBaseCategoryStyle(cat, type) {
   if (categoryIcons[cat]) return categoryIcons[cat];
   const defaultStyle =
-    type === "income" ? categoryIcons.defaultIncome : categoryIcons.defaultExpense;
+    type === "income"
+      ? categoryIcons.defaultIncome
+      : categoryIcons.defaultExpense;
   return type === "income"
     ? {
         icon: detectEmojiByText(cat, type, defaultStyle.icon),
@@ -3650,9 +4447,7 @@ function getEmojiOptionsMarkup(selectedEmoji, allowEmpty = false) {
       ? [selectedEmoji, ...CATEGORY_EMOJI_OPTIONS]
       : CATEGORY_EMOJI_OPTIONS;
   if (allowEmpty) {
-    options.push(
-      `<option value="">${esc(t("noEmoji"))}</option>`,
-    );
+    options.push(`<option value="">${esc(t("noEmoji"))}</option>`);
   }
   list.forEach((emoji) => {
     options.push(
@@ -3670,7 +4465,9 @@ function getRecentCategoryEmojis() {
       localStorage.getItem(CATEGORY_EMOJI_RECENTS_KEY) || "[]",
     );
     return Array.isArray(parsed)
-      ? parsed.filter((emoji) => CATEGORY_EMOJI_OPTIONS.includes(emoji)).slice(0, 24)
+      ? parsed
+          .filter((emoji) => CATEGORY_EMOJI_OPTIONS.includes(emoji))
+          .slice(0, 24)
       : [];
   } catch (e) {
     return [];
@@ -3859,13 +4656,22 @@ function getCategoryUiPalette(cat, type) {
   };
 }
 
-function renderEmojiFieldButton(button, emoji, type = "expense", allowEmpty = false) {
+function renderEmojiFieldButton(
+  button,
+  emoji,
+  type = "expense",
+  allowEmpty = false,
+) {
   if (!button) return;
   const value = String(emoji || "").trim();
   const fallback = type === "income" ? "💰" : "💸";
   const display = value || (allowEmpty ? "🙂" : fallback);
   const title = value || (allowEmpty ? t("noEmoji") : fallback);
-  const subtitle = value ? t("emojiPickHint") : allowEmpty ? t("emojiPickHint") : t("emojiSuggestedTitle");
+  const subtitle = value
+    ? t("emojiPickHint")
+    : allowEmpty
+      ? t("emojiPickHint")
+      : t("emojiSuggestedTitle");
   button.innerHTML = `<span style="display:flex;align-items:center;gap:12px;min-width:0;"><span aria-hidden="true" style="width:34px;height:34px;border-radius:12px;border:1px solid var(--cream-border);background:var(--card-bg);display:inline-flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 14px rgba(0,0,0,0.08);flex:0 0 auto;">${display}</span><span style="display:flex;flex-direction:column;align-items:flex-start;min-width:0;"><span style="font-weight:800;letter-spacing:0.03em;">${title}</span><span style="opacity:0.68;font-size:11px;font-weight:700;white-space:normal;text-align:left;">${subtitle}</span></span></span><span style="opacity:0.72;font-size:13px;font-weight:700;flex:0 0 auto;">${t("edit")}</span>`;
 }
 
@@ -3934,14 +4740,19 @@ function openEmojiPickerModal({
     </section>`;
   };
 
-  const uniqueEmojis = (items) =>
-    [...new Set(items.filter((emoji) => CATEGORY_EMOJI_OPTIONS.includes(emoji)))];
+  const uniqueEmojis = (items) => [
+    ...new Set(items.filter((emoji) => CATEGORY_EMOJI_OPTIONS.includes(emoji))),
+  ];
 
   const renderPicker = () => {
-    const query = String(searchInput?.value || "").trim().toLowerCase();
+    const query = String(searchInput?.value || "")
+      .trim()
+      .toLowerCase();
     if (query) {
       const matched = uniqueEmojis(
-        CATEGORY_EMOJI_OPTIONS.filter((emoji) => matchesEmojiSearch(emoji, query)),
+        CATEGORY_EMOJI_OPTIONS.filter((emoji) =>
+          matchesEmojiSearch(emoji, query),
+        ),
       );
       body.innerHTML =
         (allowEmpty
@@ -3952,7 +4763,9 @@ function openEmojiPickerModal({
           : `<div style="padding:16px 10px;text-align:center;color:var(--text-muted);font-size:13px;font-weight:700;">${t("emojiNoResults")}</div>`);
     } else {
       const suggested = uniqueEmojis(
-        [currentEmoji, suggestedEmoji, type === "income" ? "💰" : "💸"].filter(Boolean),
+        [currentEmoji, suggestedEmoji, type === "income" ? "💰" : "💸"].filter(
+          Boolean,
+        ),
       );
       const sections = [];
       if (allowEmpty) {
@@ -3960,7 +4773,8 @@ function openEmojiPickerModal({
           `<button type="button" class="btn-secondary" data-emoji-clear="1" style="padding:10px 12px;">${t("noEmoji")}</button>`,
         );
       }
-      if (suggested.length) sections.push(buildSection(t("emojiSuggestedTitle"), suggested));
+      if (suggested.length)
+        sections.push(buildSection(t("emojiSuggestedTitle"), suggested));
       if (recentEmojis.length) {
         sections.push(
           buildSection(t("emojiRecentTitle"), recentEmojis, {
@@ -3972,7 +4786,10 @@ function openEmojiPickerModal({
       }
       CATEGORY_EMOJI_GROUPS.forEach((group) => {
         sections.push(
-          buildSection(group.title[currentLang] || group.title.ru, group.emojis),
+          buildSection(
+            group.title[currentLang] || group.title.ru,
+            group.emojis,
+          ),
         );
       });
       body.innerHTML = sections.join("");
@@ -4369,7 +5186,9 @@ function applyColorTheme(themeKey) {
   }
   if (colorTheme === "sunset") {
     // Живой эффект восхода/заката
-    inj("sunsetKf", `
+    inj(
+      "sunsetKf",
+      `
       @keyframes sunRise {
         0%   { transform: translateY(60px) scale(0.7); opacity: 0.2; }
         40%  { opacity: 1; }
@@ -4394,32 +5213,41 @@ function applyColorTheme(themeKey) {
         50%  { opacity: 0.32; }
         100% { transform: rotate(360deg); opacity: 0.18; }
       }
-    `);
+    `,
+    );
     const wrap = document.createElement("div");
     wrap.id = "themeAurora";
-    wrap.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;";
+    wrap.style.cssText =
+      "position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;";
 
     // Небесный градиент
     const sky = document.createElement("div");
-    sky.style.cssText = "position:absolute;inset:0;background:linear-gradient(180deg,rgba(251,146,60,0.13) 0%,rgba(251,191,36,0.09) 40%,transparent 100%);animation:skyGlow 6s ease-in-out infinite;";
+    sky.style.cssText =
+      "position:absolute;inset:0;background:linear-gradient(180deg,rgba(251,146,60,0.13) 0%,rgba(251,191,36,0.09) 40%,transparent 100%);animation:skyGlow 6s ease-in-out infinite;";
     wrap.appendChild(sky);
 
     // Солнце
     const sun = document.createElement("div");
-    sun.style.cssText = "position:absolute;left:50%;bottom:18%;width:64px;height:64px;margin-left:-32px;border-radius:50%;background:radial-gradient(circle,#fde68a 0%,#fb923c 60%,rgba(251,146,60,0) 100%);animation:sunRise 8s ease-out forwards, sunPulse 4s 2s ease-in-out infinite;";
+    sun.style.cssText =
+      "position:absolute;left:50%;bottom:18%;width:64px;height:64px;margin-left:-32px;border-radius:50%;background:radial-gradient(circle,#fde68a 0%,#fb923c 60%,rgba(251,146,60,0) 100%);animation:sunRise 8s ease-out forwards, sunPulse 4s 2s ease-in-out infinite;";
     wrap.appendChild(sun);
 
     // Лучи солнца
     const rays = document.createElement("div");
-    rays.style.cssText = "position:absolute;left:50%;bottom:calc(18% + 32px);width:160px;height:160px;margin-left:-80px;margin-bottom:-80px;background:conic-gradient(rgba(251,191,36,0.18) 0deg,transparent 30deg,rgba(251,191,36,0.14) 60deg,transparent 90deg,rgba(251,191,36,0.18) 120deg,transparent 150deg,rgba(251,191,36,0.14) 180deg,transparent 210deg,rgba(251,191,36,0.18) 240deg,transparent 270deg,rgba(251,191,36,0.14) 300deg,transparent 330deg,rgba(251,191,36,0.18) 360deg);border-radius:50%;animation:rayRotate 12s linear infinite;";
+    rays.style.cssText =
+      "position:absolute;left:50%;bottom:calc(18% + 32px);width:160px;height:160px;margin-left:-80px;margin-bottom:-80px;background:conic-gradient(rgba(251,191,36,0.18) 0deg,transparent 30deg,rgba(251,191,36,0.14) 60deg,transparent 90deg,rgba(251,191,36,0.18) 120deg,transparent 150deg,rgba(251,191,36,0.14) 180deg,transparent 210deg,rgba(251,191,36,0.18) 240deg,transparent 270deg,rgba(251,191,36,0.14) 300deg,transparent 330deg,rgba(251,191,36,0.18) 360deg);border-radius:50%;animation:rayRotate 12s linear infinite;";
     wrap.appendChild(rays);
 
     // Облака
-    const cloudColors = ["rgba(251,191,36,0.22)","rgba(251,146,60,0.18)","rgba(253,186,116,0.20)"];
+    const cloudColors = [
+      "rgba(251,191,36,0.22)",
+      "rgba(251,146,60,0.18)",
+      "rgba(253,186,116,0.20)",
+    ];
     [
-      {w:180,h:38,b:"28%",delay:"0s",dur:"18s",top:"auto"},
-      {w:120,h:26,b:"38%",delay:"5s",dur:"24s",top:"auto"},
-      {w:220,h:32,b:"22%",delay:"10s",dur:"30s",top:"auto"},
+      { w: 180, h: 38, b: "28%", delay: "0s", dur: "18s", top: "auto" },
+      { w: 120, h: 26, b: "38%", delay: "5s", dur: "24s", top: "auto" },
+      { w: 220, h: 32, b: "22%", delay: "10s", dur: "30s", top: "auto" },
     ].forEach((c, i) => {
       const cloud = document.createElement("div");
       cloud.style.cssText = `position:absolute;left:-220px;bottom:${c.b};width:${c.w}px;height:${c.h}px;border-radius:999px;background:${cloudColors[i]};filter:blur(8px);animation:cloudDrift ${c.dur} ${c.delay} linear infinite;`;
@@ -4428,7 +5256,8 @@ function applyColorTheme(themeKey) {
 
     // Горизонтальное сияние
     const glow = document.createElement("div");
-    glow.style.cssText = "position:absolute;left:0;right:0;bottom:16%;height:60px;background:linear-gradient(transparent,rgba(251,191,36,0.22),transparent);filter:blur(8px);animation:skyGlow 5s 1s ease-in-out infinite;";
+    glow.style.cssText =
+      "position:absolute;left:0;right:0;bottom:16%;height:60px;background:linear-gradient(transparent,rgba(251,191,36,0.22),transparent);filter:blur(8px);animation:skyGlow 5s 1s ease-in-out infinite;";
     wrap.appendChild(glow);
 
     document.body.insertBefore(wrap, document.body.firstChild);
@@ -4436,7 +5265,9 @@ function applyColorTheme(themeKey) {
 
   if (colorTheme === "white") {
     // Золотой час — мягкое утреннее солнце с частицами пыльцы
-    inj("whiteKf", `
+    inj(
+      "whiteKf",
+      `
       @keyframes goldenRise {
         0%   { transform: translateY(40px); opacity: 0; }
         100% { transform: translateY(0px); opacity: 1; }
@@ -4449,7 +5280,7 @@ function applyColorTheme(themeKey) {
         0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
         15%  { opacity: 0.8; }
         85%  { opacity: 0.6; }
-        100% { transform: translateY(-140px) translateX(${Math.random()>0.5?'':'-'}30px) rotate(180deg); opacity: 0; }
+        100% { transform: translateY(-140px) translateX(${Math.random() > 0.5 ? "" : "-"}30px) rotate(180deg); opacity: 0; }
       }
       @keyframes goldenGlow {
         0%,100% { opacity: 0.4; }
@@ -4459,38 +5290,49 @@ function applyColorTheme(themeKey) {
         0%   { transform: rotate(0deg); opacity: 0.12; }
         100% { transform: rotate(360deg); opacity: 0.12; }
       }
-    `);
+    `,
+    );
     const wrap = document.createElement("div");
     wrap.id = "themeShimmer";
-    wrap.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;";
+    wrap.style.cssText =
+      "position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;";
 
     // Фоновое сияние
     const bg = document.createElement("div");
-    bg.style.cssText = "position:absolute;inset:0;background:radial-gradient(ellipse 90% 60% at 30% 80%,rgba(251,191,36,0.18) 0%,rgba(251,146,60,0.10) 40%,transparent 75%);animation:goldenGlow 7s ease-in-out infinite;";
+    bg.style.cssText =
+      "position:absolute;inset:0;background:radial-gradient(ellipse 90% 60% at 30% 80%,rgba(251,191,36,0.18) 0%,rgba(251,146,60,0.10) 40%,transparent 75%);animation:goldenGlow 7s ease-in-out infinite;";
     wrap.appendChild(bg);
 
     // Солнце низко у горизонта
     const sun = document.createElement("div");
-    sun.style.cssText = "position:absolute;left:28%;bottom:12%;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#fef3c7 0%,#fde68a 40%,#fb923c 75%,rgba(251,146,60,0) 100%);animation:goldenRise 2s ease-out forwards, goldenPulse 5s 2s ease-in-out infinite;";
+    sun.style.cssText =
+      "position:absolute;left:28%;bottom:12%;width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#fef3c7 0%,#fde68a 40%,#fb923c 75%,rgba(251,146,60,0) 100%);animation:goldenRise 2s ease-out forwards, goldenPulse 5s 2s ease-in-out infinite;";
     wrap.appendChild(sun);
 
     // Лучи
     const rays = document.createElement("div");
-    rays.style.cssText = "position:absolute;left:28%;bottom:calc(12% + 40px);width:200px;height:200px;margin-left:-60px;margin-bottom:-100px;background:conic-gradient(rgba(251,191,36,0.15) 0deg,transparent 25deg,rgba(251,191,36,0.12) 50deg,transparent 75deg,rgba(251,191,36,0.15) 100deg,transparent 125deg,rgba(251,191,36,0.12) 150deg,transparent 175deg,rgba(251,191,36,0.15) 200deg,transparent 225deg,rgba(251,191,36,0.12) 250deg,transparent 275deg,rgba(251,191,36,0.15) 300deg,transparent 325deg,rgba(251,191,36,0.12) 350deg,transparent 360deg);border-radius:50%;animation:goldenRay 20s linear infinite;";
+    rays.style.cssText =
+      "position:absolute;left:28%;bottom:calc(12% + 40px);width:200px;height:200px;margin-left:-60px;margin-bottom:-100px;background:conic-gradient(rgba(251,191,36,0.15) 0deg,transparent 25deg,rgba(251,191,36,0.12) 50deg,transparent 75deg,rgba(251,191,36,0.15) 100deg,transparent 125deg,rgba(251,191,36,0.12) 150deg,transparent 175deg,rgba(251,191,36,0.15) 200deg,transparent 225deg,rgba(251,191,36,0.12) 250deg,transparent 275deg,rgba(251,191,36,0.15) 300deg,transparent 325deg,rgba(251,191,36,0.12) 350deg,transparent 360deg);border-radius:50%;animation:goldenRay 20s linear infinite;";
     wrap.appendChild(rays);
 
     // Частицы пыльцы/пыли
     for (let i = 0; i < 22; i++) {
       const p = document.createElement("div");
       const sz = Math.random() * 5 + 2;
-      const colors = ["rgba(251,191,36,0.7)","rgba(251,146,60,0.6)","rgba(253,224,71,0.65)","rgba(252,211,77,0.7)"];
-      p.style.cssText = `position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:${colors[~~(Math.random()*colors.length)]};left:${Math.random()*100}%;bottom:${Math.random()*40}%;filter:blur(${Math.random()<0.4?1:0}px);animation:goldenFloat ${5+Math.random()*10}s ${Math.random()*8}s ease-in-out infinite;`;
+      const colors = [
+        "rgba(251,191,36,0.7)",
+        "rgba(251,146,60,0.6)",
+        "rgba(253,224,71,0.65)",
+        "rgba(252,211,77,0.7)",
+      ];
+      p.style.cssText = `position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:${colors[~~(Math.random() * colors.length)]};left:${Math.random() * 100}%;bottom:${Math.random() * 40}%;filter:blur(${Math.random() < 0.4 ? 1 : 0}px);animation:goldenFloat ${5 + Math.random() * 10}s ${Math.random() * 8}s ease-in-out infinite;`;
       wrap.appendChild(p);
     }
 
     // Горизонтальная дымка
     const haze = document.createElement("div");
-    haze.style.cssText = "position:absolute;left:0;right:0;bottom:10%;height:80px;background:linear-gradient(transparent,rgba(251,191,36,0.18),transparent);filter:blur(12px);animation:goldenGlow 6s ease-in-out infinite;";
+    haze.style.cssText =
+      "position:absolute;left:0;right:0;bottom:10%;height:80px;background:linear-gradient(transparent,rgba(251,191,36,0.18),transparent);filter:blur(12px);animation:goldenGlow 6s ease-in-out infinite;";
     wrap.appendChild(haze);
 
     document.body.insertBefore(wrap, document.body.firstChild);
@@ -4830,7 +5672,10 @@ function loadProfiles() {
       { id: "default", name: "Main profile", emoji: "👤", color: "#2d6a4f" },
     ];
     const defaultProfile = profiles.find((p) => p.id === "default");
-    if (defaultProfile && (!defaultProfile.name || defaultProfile.name === "Я")) {
+    if (
+      defaultProfile &&
+      (!defaultProfile.name || defaultProfile.name === "Я")
+    ) {
       defaultProfile.name = "Main profile";
     }
     activeProfileId = g.activeProfileId || "default";
@@ -4839,8 +5684,7 @@ function loadProfiles() {
     pinEnabled = g.pinEnabled || false;
     biometryEnabled = g.biometryEnabled || false;
     biometryCredId = g.biometryCredId || null;
-    colorTheme =
-      g.colorTheme || localStorage.getItem("colorTheme") || "dark";
+    colorTheme = g.colorTheme || localStorage.getItem("colorTheme") || "dark";
     if (colorTheme === "default") {
       colorTheme = "dark";
       localStorage.setItem("colorTheme", "dark");
@@ -4938,11 +5782,7 @@ function loadProfileData(pid) {
     isCreator()
   ) {
     setTimeout(() => {
-      showToast(
-        "📬 " + t("newUserMessages"),
-        "success",
-        3000,
-      );
+      showToast("📬 " + t("newUserMessages"), "success", 3000);
       localStorage.removeItem("has_new_support_messages");
     }, 500);
   }
@@ -5666,7 +6506,9 @@ function renderSimpleHome() {
   const s = sym();
   const L = currentLang;
 
-  const todayTx = transactions.filter((tx) => !tx._initial && tx.date === today());
+  const todayTx = transactions.filter(
+    (tx) => !tx._initial && tx.date === today(),
+  );
   const todayIncome = todayTx
     .filter((tx) => tx.type === "income")
     .reduce((sum, tx) => sum + tx.amountRub, 0);
@@ -5685,10 +6527,16 @@ function renderSimpleHome() {
 
   // Тексты — простые, без бухгалтерских терминов
   const T = {
-    bal: { ru: "Сейчас доступно", en: "Available now", ka: "ახლა ხელმისაწვდომია" }[L],
+    bal: {
+      ru: "Сейчас доступно",
+      en: "Available now",
+      ka: "ახლა ხელმისაწვდომია",
+    }[L],
     inc: { ru: "Получено", en: "Received", ka: "მიღებულია" }[L],
     exp: { ru: "Потрачено", en: "Spent", ka: "დახარჯულია" }[L],
-    sal: { ru: "Начальная сумма", en: "Starting amount", ka: "საწყისი თანხა" }[L],
+    sal: { ru: "Начальная сумма", en: "Starting amount", ka: "საწყისი თანხა" }[
+      L
+    ],
     gotMoney: {
       ru: "Получил",
       en: "Received",
@@ -5729,9 +6577,7 @@ function renderSimpleHome() {
       en: "Quick expense",
       ka: "სწრაფი ხარჯი",
     }[L],
-    recent: { ru: "Сегодня", en: "Today", ka: "დღეს" }[
-      L
-    ],
+    recent: { ru: "Сегодня", en: "Today", ka: "დღეს" }[L],
     all: { ru: "Смотреть все →", en: "See all →", ka: "ყველა →" }[L],
     noOps: {
       ru: "Сегодня записей пока нет.\nНажмите «Получил», «Потратил» или скажите голосом.",
@@ -5810,11 +6656,13 @@ function renderSimpleHome() {
         <span class="sh-currency" style="color:rgba(255,255,255,.65)">${s}</span>${toDisp(Math.abs(bal)).toFixed(2)}
       </div>
       <div class="sh-sub">
-        ${{
-          ru: `Сегодня −${fmt(todayExpense)} ${s} · За месяц −${fmt(monthExpense)} ${s}`,
-          en: `Today −${fmt(todayExpense)} ${s} · This month −${fmt(monthExpense)} ${s}`,
-          ka: `დღეს −${fmt(todayExpense)} ${s} · თვეში −${fmt(monthExpense)} ${s}`,
-        }[L]}
+        ${
+          {
+            ru: `Сегодня −${fmt(todayExpense)} ${s} · За месяц −${fmt(monthExpense)} ${s}`,
+            en: `Today −${fmt(todayExpense)} ${s} · This month −${fmt(monthExpense)} ${s}`,
+            ka: `დღეს −${fmt(todayExpense)} ${s} · თვეში −${fmt(monthExpense)} ${s}`,
+          }[L]
+        }
       </div>
       <div class="hero-chips sm-wallet-lines" style="margin-top:14px;">
         <div class="hero-chip hc-income sm-chip-tap" data-type="income" role="button" tabindex="0">
@@ -6866,9 +7714,7 @@ function rgbToHex(r, g, b) {
     "#" +
     [r, g, b]
       .map((value) =>
-        clampNumber(Math.round(value), 0, 255)
-          .toString(16)
-          .padStart(2, "0"),
+        clampNumber(Math.round(value), 0, 255).toString(16).padStart(2, "0"),
       )
       .join("")
       .toUpperCase()
@@ -6982,12 +7828,18 @@ function renderCategoryPreviewCard(container, name, icon, color, isIncome) {
   const title = (name || "").trim() || t("category");
   const typeLabel = isIncome ? t("income") : t("expense");
   const softBg = hasCustomColor
-    ? hexToRgba(previewColor, document.body.classList.contains("dark") ? 0.18 : 0.12)
+    ? hexToRgba(
+        previewColor,
+        document.body.classList.contains("dark") ? 0.18 : 0.12,
+      )
     : document.body.classList.contains("dark")
       ? "rgba(255,255,255,0.06)"
       : "rgba(255,255,255,0.82)";
   const softBorder = hasCustomColor
-    ? hexToRgba(previewColor, document.body.classList.contains("dark") ? 0.42 : 0.28)
+    ? hexToRgba(
+        previewColor,
+        document.body.classList.contains("dark") ? 0.42 : 0.28,
+      )
     : "var(--cream-border)";
   container.innerHTML = `
     <div style="border-radius:18px;padding:16px;background:linear-gradient(135deg, ${softBg} 0%, rgba(255,255,255,0.04) 100%);border:1.5px solid ${softBorder};box-shadow:0 14px 30px rgba(0,0,0,0.08);">
@@ -7121,7 +7973,11 @@ function openCategoryColorPicker(initialColor, onSave) {
   });
 
   const syncFromSliders = () => {
-    const hex = hslToHex(hueInput?.value || 0, satInput?.value || 0, lightInput?.value || 0);
+    const hex = hslToHex(
+      hueInput?.value || 0,
+      satInput?.value || 0,
+      lightInput?.value || 0,
+    );
     syncPickerUi(hex, { skipHslSync: true });
     if (hueValue) hueValue.textContent = String(hueInput?.value || 0);
     if (satValue) satValue.textContent = `${satInput?.value || 0}%`;
@@ -7163,7 +8019,8 @@ function openSubcategoryEditorModal({
 }) {
   const modalId = "subcategoryEditorModal";
   const parsed = splitEmojiLabel(initialValue);
-  const detectedEmoji = parsed.emoji || detectEmojiByText(parsed.name, parentType, "");
+  const detectedEmoji =
+    parsed.emoji || detectEmojiByText(parsed.name, parentType, "");
   const previewColor = normalizeHexColor(categoryColor) || "#EF4444";
   let emojiTouched = false;
   const html = `
@@ -7200,7 +8057,12 @@ function openSubcategoryEditorModal({
   const preview = document.getElementById("editSubcatPreview");
 
   const syncPreview = () => {
-    renderEmojiFieldButton(emojiButton, emojiSelect?.value || "", parentType, true);
+    renderEmojiFieldButton(
+      emojiButton,
+      emojiSelect?.value || "",
+      parentType,
+      true,
+    );
     const label = composeEmojiLabel(emojiSelect?.value || "", nameInput?.value);
     preview.innerHTML = `<span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-weight:800;color:${previewColor};">${esc(
       label || composeEmojiLabel(emojiSelect?.value || "", t("subcategory")),
@@ -7223,11 +8085,7 @@ function openSubcategoryEditorModal({
   });
   nameInput?.addEventListener("input", () => {
     if (!emojiTouched && emojiSelect) {
-      emojiSelect.value = detectEmojiByText(
-        nameInput.value,
-        parentType,
-        "",
-      );
+      emojiSelect.value = detectEmojiByText(nameInput.value, parentType, "");
     }
     syncPreview();
   });
@@ -7282,7 +8140,11 @@ function openEditCategoryModal(cat, isIncome) {
   const editCatPreview = document.getElementById("editCatPreview");
   let editIconTouched = !!categoryCustomizations?.[cat]?.icon;
   const syncCategoryPreview = () => {
-    renderEmojiFieldButton(editCatIconBtn, editCatIconInput?.value || "", typeKey);
+    renderEmojiFieldButton(
+      editCatIconBtn,
+      editCatIconInput?.value || "",
+      typeKey,
+    );
     renderCategoryColorButton(editCatColorBtn, editCatColorInput?.value);
     renderCategoryPreviewCard(
       editCatPreview,
@@ -7299,12 +8161,10 @@ function openEditCategoryModal(cat, isIncome) {
       syncCategoryPreview();
     });
   });
-  document
-    .getElementById("resetCatColorBtn")
-    ?.addEventListener("click", () => {
-      if (editCatColorInput) editCatColorInput.value = "";
-      syncCategoryPreview();
-    });
+  document.getElementById("resetCatColorBtn")?.addEventListener("click", () => {
+    if (editCatColorInput) editCatColorInput.value = "";
+    syncCategoryPreview();
+  });
   editCatIconBtn?.addEventListener("click", () => {
     openEmojiPickerModal({
       selectedEmoji: editCatIconInput?.value || "",
@@ -8521,7 +9381,11 @@ function openNotebookModal(id) {
 function openAddCategoryModal(defType = "expense") {
   let sel = defType;
   let iconTouched = false;
-  const initialIcon = detectEmojiByText("", defType, getBaseCategoryStyle("", defType).icon);
+  const initialIcon = detectEmojiByText(
+    "",
+    defType,
+    getBaseCategoryStyle("", defType).icon,
+  );
   const html = `<div class="field-group"><label class="field-label">${t("catTypeLabel")}</label><div class="cat-type-toggle"><button class="cat-type-btn expense ${defType === "expense" ? "active" : ""}" data-type="expense"><div class="cat-type-icon">💸</div><div class="cat-type-title">${t("catTypeExpenseTitle")}</div></button><button class="cat-type-btn income ${defType === "income" ? "active" : ""}" data-type="income"><div class="cat-type-icon">💰</div><div class="cat-type-title">${t("catTypeIncomeTitle")}</div></button></div></div><div class="field-group"><label class="field-label">${t("catNameLabel")}</label><input type="text" id="newCatName" class="modal-input" placeholder="${t("catNamePlaceholder")}" autofocus></div><div class="field-group"><label class="field-label">${t("iconLabel")}</label><input type="hidden" id="newCatIcon" value="${esc(
     initialIcon,
   )}"><button type="button" class="theme-swatch-btn" id="newCatIconBtn" style="width:100%;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;"></button></div><div class="modal-actions"><button class="btn-secondary" id="addCatCancel">${t("cancel")}</button><button class="btn-primary" id="addCatSave">✚ ${t("save")}</button></div>`;
@@ -8606,8 +9470,7 @@ function openAddCategoryModal(defType = "expense") {
       normalizeHexColor(baseStyle.color) ||
       (sel === "income" ? "#22C55E" : "#EF4444");
     const icon =
-      newCatIconSelect?.value ||
-      detectEmojiByText(name, sel, baseStyle.icon);
+      newCatIconSelect?.value || detectEmojiByText(name, sel, baseStyle.icon);
     if (icon !== baseStyle.icon) {
       categoryCustomizations[name] = { icon, color: baseColor };
     }
@@ -8654,10 +9517,14 @@ function renderCategories() {
           : document.body.classList.contains("dark")
             ? "rgba(255,255,255,0.06)"
             : "rgba(255,255,255,0.78)";
-        chip.style.border = `1px solid ${palette.hasCustomColor ? hexToRgba(
-          palette.accentColor,
-          document.body.classList.contains("dark") ? 0.34 : 0.22,
-        ) : "var(--cream-border)"}`;
+        chip.style.border = `1px solid ${
+          palette.hasCustomColor
+            ? hexToRgba(
+                palette.accentColor,
+                document.body.classList.contains("dark") ? 0.34 : 0.22,
+              )
+            : "var(--cream-border)"
+        }`;
         const displaySub = getDisplaySubcategoryLabel(sub, typeKey);
         chip.innerHTML = `<span style="color:${palette.subColor};font-weight:800;">${esc(
           displaySub,
@@ -9008,11 +9875,11 @@ function openEditTemplateModal(tplIdx) {
 function renderSettings() {
   // === Принудительно убираем обрезание для галочек тем ===
   setTimeout(() => {
-    document.querySelectorAll('.set-theme-check').forEach(check => {
+    document.querySelectorAll(".set-theme-check").forEach((check) => {
       let el = check.parentElement;
       while (el && el !== document.body) {
-        el.style.setProperty('overflow', 'visible', 'important');
-        el.style.setProperty('clip', 'unset', 'important');
+        el.style.setProperty("overflow", "visible", "important");
+        el.style.setProperty("clip", "unset", "important");
         el = el.parentElement;
       }
     });
@@ -10934,7 +11801,10 @@ function openModal(id) {
   const m = document.getElementById(id);
   if (m) {
     if (id === "addModal") {
-      if (document.activeElement && typeof document.activeElement.blur === "function") {
+      if (
+        document.activeElement &&
+        typeof document.activeElement.blur === "function"
+      ) {
         document.activeElement.blur();
       }
       m.style.display = "block";
@@ -11103,7 +11973,10 @@ function ensureHeroWrapAnchor() {
   }
   const recreated = createHeroWrapNode();
   if (heroWrapAnchor?.parentNode) {
-    heroWrapAnchor.parentNode.insertBefore(recreated, heroWrapAnchor.nextSibling);
+    heroWrapAnchor.parentNode.insertBefore(
+      recreated,
+      heroWrapAnchor.nextSibling,
+    );
   }
   return recreated;
 }
@@ -11196,14 +12069,19 @@ function traceApp(event, details = {}) {
   });
   let detailText = "";
   try {
-    detailText = Object.keys(details).length ? " " + JSON.stringify(details) : "";
+    detailText = Object.keys(details).length
+      ? " " + JSON.stringify(details)
+      : "";
   } catch (e) {
     detailText = " [unserializable]";
   }
   const line = `${timestamp} ${event}${detailText}`;
   console.log("[BPTRACE]", line);
   try {
-    if (window.BudgetPROTrace && typeof window.BudgetPROTrace.log === "function") {
+    if (
+      window.BudgetPROTrace &&
+      typeof window.BudgetPROTrace.log === "function"
+    ) {
       window.BudgetPROTrace.log(line);
     }
   } catch (e) {}
@@ -11233,7 +12111,10 @@ function attachAppTraceObservers() {
       const heroWrap = document.getElementById("heroCardWrap");
       traceApp("mainContent-mutated", {
         heroExists: !!heroWrap,
-        heroParent: heroWrap?.parentElement?.id || heroWrap?.parentElement?.className || null,
+        heroParent:
+          heroWrap?.parentElement?.id ||
+          heroWrap?.parentElement?.className ||
+          null,
         childCount: mainContent.children.length,
       });
       attachAppTraceObservers();
@@ -11250,8 +12131,13 @@ function attachAppTraceObservers() {
         display: heroWrap.style.display || "",
         visibility: heroWrap.style.visibility || "",
         opacity: heroWrap.style.opacity || "",
-        parent: heroWrap.parentElement?.id || heroWrap.parentElement?.className || null,
-        rect: rect ? `${Math.round(rect.width)}x${Math.round(rect.height)}` : null,
+        parent:
+          heroWrap.parentElement?.id ||
+          heroWrap.parentElement?.className ||
+          null,
+        rect: rect
+          ? `${Math.round(rect.width)}x${Math.round(rect.height)}`
+          : null,
       });
     });
     appTraceHeroObserver.observe(heroWrap, {
@@ -11271,7 +12157,12 @@ function describeTraceTarget(target) {
     el.id ||
     el.dataset?.tab ||
     el.dataset?.type ||
-    el.className?.toString()?.split(" ").filter(Boolean).slice(0, 3).join(".") ||
+    el.className
+      ?.toString()
+      ?.split(" ")
+      .filter(Boolean)
+      .slice(0, 3)
+      .join(".") ||
     el.tagName
   );
 }
@@ -11293,9 +12184,7 @@ function elementState(id) {
   return {
     exists: true,
     parent:
-      el.parentElement?.id ||
-      el.parentElement?.className?.toString?.() ||
-      null,
+      el.parentElement?.id || el.parentElement?.className?.toString?.() || null,
     display: el.style.display || "",
     visibility: el.style.visibility || "",
     opacity: el.style.opacity || "",
@@ -11626,9 +12515,7 @@ function init() {
   addHeaderButtons();
   document.documentElement.lang = currentLang;
   // Apply time-based theme before manual override check
-  applyColorTheme(
-    colorTheme || localStorage.getItem("colorTheme") || "dark",
-  );
+  applyColorTheme(colorTheme || localStorage.getItem("colorTheme") || "dark");
   // After init, check time-based theme (respects existing setting)
   setTimeout(applyTimeBasedTheme, 200);
   applyFontSize(fontSize || "normal");
@@ -11773,8 +12660,7 @@ function init() {
         profiles.find((p) => p.id === activeProfileId) || profiles[0];
       if (activeProf && typeof openShareModal === "function")
         openShareModal(activeProf);
-      else
-        showToast(t("profileNotFound"), "error");
+      else showToast(t("profileNotFound"), "error");
     });
     // Закрытие по оверлею и свайпу вниз
     const overlay = document.getElementById("moreDrawerOverlay");
@@ -12825,7 +13711,7 @@ async function showShareWelcomeScreen(pkg) {
     syncStartBalanceTransaction();
     ov.remove();
     init();
-  showToast(`${t("savedMark")} ${t("guestModeActivated")}: ${pkg.pname}`);
+    showToast(`${t("savedMark")} ${t("guestModeActivated")}: ${pkg.pname}`);
   });
 }
 
@@ -12928,7 +13814,9 @@ function openSupportModal() {
   const cs = getCreatorSettings();
   const canContact = cs.contactEnabled !== false;
   const preferPhone = cs.preferPhone === true;
-  const PH1 = "", PH2 = "", EM = "";
+  const PH1 = "",
+    PH2 = "",
+    EM = "";
 
   // === CREATOR ADMIN PANEL ===
   if (isCreator()) {
@@ -17352,7 +18240,8 @@ function getVoiceInputModeLabels() {
         }[currentLang] || "Balanced everyday mode",
     },
     whisper: {
-      label: { ru: "Шепот", en: "Whisper", ka: "ჩურჩული" }[currentLang] || "Whisper",
+      label:
+        { ru: "Шепот", en: "Whisper", ka: "ჩურჩული" }[currentLang] || "Whisper",
       hint:
         {
           ru: "Для тихой речи рядом с микрофоном",
@@ -17373,8 +18262,12 @@ function getVoiceInputModeLabels() {
 }
 
 function getVoiceRecognitionLangCode({ native = false } = {}) {
-  if (native) return "auto";
-  return currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
+  const code =
+    currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
+  // For native Android bridge, pass the explicit lang code so the OS voice engine
+  // doesn't fall back to the system default language (e.g. Russian)
+  if (native) return code;
+  return code;
 }
 
 function normalizeVoiceMeaningText(text) {
@@ -17515,7 +18408,8 @@ function findVoiceLearningHint(text, preferredType = "") {
     let score = 0;
     if (entry.normalized === normalized) score += 90;
     if (preferredType && entry.type === preferredType) score += 8;
-    else if (preferredType && entry.type && entry.type !== preferredType) score -= 10;
+    else if (preferredType && entry.type && entry.type !== preferredType)
+      score -= 10;
     if (entry.lang === currentLang) score += 4;
 
     const entryTokens = Array.isArray(entry.tokens) ? entry.tokens : [];
@@ -17559,29 +18453,27 @@ function getVoiceListeningCopy() {
         currentLang
       ] || "Listening...",
     hint:
-      (
-        {
-          auto: {
-            ru: "Можно говорить по-русски, English или ქართულად: сумма и категория",
-            en: "Speak Russian, English or Georgian: amount and category",
-            ka: "ილაპარაკეთ რუსულად, English ან ქართულად: თანხა და კატეგორია",
-          },
-          whisper: {
-            ru: "Шепот: поднесите телефон ближе и говорите коротко",
-            en: "Whisper: hold the phone closer and speak briefly",
-            ka: "ჩურჩული: მოიტანეთ ტელეფონი ახლოს და თქვით მოკლედ",
-          },
-          street: {
-            ru: "Шумно вокруг: говорите ближе к микрофону и короче",
-            en: "Noisy outside: speak closer to the mic and keep it short",
-            ka: "ხმაურია: ილაპარაკეთ მიკროფონთან ახლოს და მოკლედ",
-          },
-        }[mode] || {
-          ru: "Формат: «Потратил 50 лари на продукты»",
-          en: "Format: «I spent 50 lari on groceries»",
-          ka: "ფორმატი: «დავხარჯე 50 ლარი პროდუქტებზე»",
-        }
-      )[currentLang] || "Format: I spent 50 lari on groceries",
+      ({
+        auto: {
+          ru: "Можно говорить по-русски, English или ქართულად: сумма и категория",
+          en: "Speak Russian, English or Georgian: amount and category",
+          ka: "ილაპარაკეთ რუსულად, English ან ქართულად: თანხა და კატეგორია",
+        },
+        whisper: {
+          ru: "Шепот: поднесите телефон ближе и говорите коротко",
+          en: "Whisper: hold the phone closer and speak briefly",
+          ka: "ჩურჩული: მოიტანეთ ტელეფონი ახლოს და თქვით მოკლედ",
+        },
+        street: {
+          ru: "Шумно вокруг: говорите ближе к микрофону и короче",
+          en: "Noisy outside: speak closer to the mic and keep it short",
+          ka: "ხმაურია: ილაპარაკეთ მიკროფონთან ახლოს და მოკლედ",
+        },
+      }[mode] || {
+        ru: "Формат: «Потратил 50 лари на продукты»",
+        en: "Format: «I spent 50 lari on groceries»",
+        ka: "ფორმატი: «დავხარჯე 50 ლარი პროდუქტებზე»",
+      })[currentLang] || "Format: I spent 50 lari on groceries",
   };
 }
 
@@ -17728,7 +18620,10 @@ function setVoiceOverlayLevel(level, meta = {}) {
   }
 
   const smoothed = speechCandidate * (0.42 + state.speechConfidence * 0.8);
-  state.targetEnergy = Math.max(smoothed, state.targetEnergy * cfg.overlayRelease);
+  state.targetEnergy = Math.max(
+    smoothed,
+    state.targetEnergy * cfg.overlayRelease,
+  );
 }
 
 function renderVoiceOverlayFrame(state, timestamp) {
@@ -17748,7 +18643,8 @@ function renderVoiceOverlayFrame(state, timestamp) {
   if (state.core) {
     state.core.style.transform = `scale(${(1 + energy * 0.12).toFixed(3)})`;
     state.core.style.boxShadow = `0 22px 42px rgba(0,0,0,0.28), 0 0 ${(
-      20 + energy * 52
+      20 +
+      energy * 52
     ).toFixed(1)}px rgba(255,122,89,${(0.18 + energy * 0.22).toFixed(
       3,
     )}), 0 0 0 1px rgba(255,255,255,0.08) inset`;
@@ -17778,7 +18674,7 @@ function renderVoiceOverlayFrame(state, timestamp) {
     for (let x = 0; x <= width; x += 4) {
       const progress = x / width;
       const wave =
-        Math.sin(progress * Math.PI * 6 + t * 0.010) * amplitude * 0.55 +
+        Math.sin(progress * Math.PI * 6 + t * 0.01) * amplitude * 0.55 +
         Math.sin(progress * Math.PI * 13 - t * 0.016) * amplitude * 0.24 +
         Math.sin(progress * Math.PI * 2 + t * 0.004) * amplitude * 0.18;
       const y = mid + wave;
@@ -17801,7 +18697,9 @@ function renderVoiceOverlayFrame(state, timestamp) {
     ctx.stroke();
   }
 
-  state.rafId = requestAnimationFrame((ts) => renderVoiceOverlayFrame(state, ts));
+  state.rafId = requestAnimationFrame((ts) =>
+    renderVoiceOverlayFrame(state, ts),
+  );
 }
 
 function createVoiceListeningOverlay() {
@@ -17906,14 +18804,12 @@ async function startWebVoiceOverlayMeter() {
         totalEnergy += value;
         if (hz >= 160 && hz <= 3800) speechBandEnergy += value;
       }
-      const speechiness =
-        totalEnergy > 0 ? speechBandEnergy / totalEnergy : 0;
+      const speechiness = totalEnergy > 0 ? speechBandEnergy / totalEnergy : 0;
       const boosted = Math.max(
         rms * modeConfig.webRmsBoost,
         peak * modeConfig.webPeakBoost,
       );
-      const combined =
-        boosted * (0.52 + Math.max(0, speechiness - 0.08) * 1.2);
+      const combined = boosted * (0.52 + Math.max(0, speechiness - 0.08) * 1.2);
       setVoiceOverlayLevel(Math.min(1, combined), { speechiness });
       rafId = requestAnimationFrame(tick);
     };
@@ -17944,7 +18840,11 @@ function startVoiceInput() {
     window.BudgetPROVoice && typeof window.BudgetPROVoice.start === "function";
   if (nativeVoice) {
     const ov = createVoiceListeningOverlay();
-    window.__budgetProNativeVoiceResult = (status, payload, alternatives = []) => {
+    window.__budgetProNativeVoiceResult = (
+      status,
+      payload,
+      alternatives = [],
+    ) => {
       closeVoiceListeningOverlay();
       window.__budgetProNativeVoiceResult = null;
       if (status === "result" && payload && payload.trim()) {
@@ -17985,7 +18885,8 @@ function startVoiceInput() {
     };
     haptic("medium");
     try {
-      window.__budgetProNativeVoiceLevel = (level) => setVoiceOverlayLevel(level);
+      window.__budgetProNativeVoiceLevel = (level) =>
+        setVoiceOverlayLevel(level);
       if (typeof window.BudgetPROVoice.startConfig === "function") {
         window.BudgetPROVoice.startConfig(nativeLangCode, voiceMode);
       } else {
@@ -18011,6 +18912,9 @@ function startVoiceInput() {
   }
   const rec = new SpeechRecognition();
   rec.lang = webLangCode;
+  // Force the lang attribute on the html element so browsers that read it
+  // (some Chrome Android versions) pick the right speech model
+  document.documentElement.setAttribute("lang", webLangCode);
   rec.continuous = false;
   rec.interimResults = false;
   rec.maxAlternatives = voiceMode === "whisper" ? 7 : 5;
@@ -18044,6 +18948,8 @@ function startVoiceInput() {
   };
   rec.onend = () => {
     closeVoiceListeningOverlay();
+    // Restore the document lang to the UI language code (not the speech BCP-47 code)
+    document.documentElement.setAttribute("lang", currentLang);
   };
   rec.start();
 }
@@ -18101,8 +19007,7 @@ function getVoiceDraftLabels() {
       newSubcategory: "＋ New subcategory",
       newCategoryPlaceholder: "For example: Coffee",
       newSubcategoryPlaceholder: "For example: Cappuccino",
-      newCategoryHint:
-        "If filled, the app will create a separate category.",
+      newCategoryHint: "If filled, the app will create a separate category.",
       newSubcategoryHint:
         "If filled, it will be saved inside the selected category.",
       save: "✓ Add transaction",
@@ -18361,7 +19266,9 @@ function parseGeorgianCompactNumberToken(token) {
 
   for (const prefix of ["ათას", "ათასი"]) {
     if (raw.startsWith(prefix) && raw.length > prefix.length) {
-      const tailValue = parseGeorgianCompactNumberToken(raw.slice(prefix.length));
+      const tailValue = parseGeorgianCompactNumberToken(
+        raw.slice(prefix.length),
+      );
       if (Number.isFinite(tailValue)) return 1000 + tailValue;
     }
   }
@@ -18765,13 +19672,17 @@ function extractVoiceCurrencyPairAmount(text) {
   const parseNearPhrase = (start, end) => {
     if (start >= end) return null;
     let numericStart = end;
-    while (numericStart > start && /^\d+(?:[.,]\d+)?$/.test(tokens[numericStart - 1])) {
+    while (
+      numericStart > start &&
+      /^\d+(?:[.,]\d+)?$/.test(tokens[numericStart - 1])
+    ) {
       numericStart -= 1;
     }
     if (numericStart < end) {
       const numericPhrase = tokens.slice(numericStart, end).join(" ");
       const numericValue = parseVoiceNumericPhrase(numericPhrase);
-      if (Number.isFinite(numericValue) && numericValue > 0) return numericValue;
+      if (Number.isFinite(numericValue) && numericValue > 0)
+        return numericValue;
     }
 
     let best = null;
@@ -18905,8 +19816,14 @@ function extractVoiceAmount(text) {
   while ((match = pattern.exec(normalizedText))) {
     const value = parseVoiceNumericCandidate(match[0]);
     if (!value) continue;
-    const before = normalizedText.slice(Math.max(0, match.index - 24), match.index);
-    const after = normalizedText.slice(match.index + match[0].length, match.index + match[0].length + 24);
+    const before = normalizedText.slice(
+      Math.max(0, match.index - 24),
+      match.index,
+    );
+    const after = normalizedText.slice(
+      match.index + match[0].length,
+      match.index + match[0].length + 24,
+    );
     const near = before + " " + after;
     let score = 0;
     if (currencyWords.some((word) => near.includes(word))) score += 8;
@@ -18921,11 +19838,17 @@ function extractVoiceAmount(text) {
     let score = 4;
     if (currencyWords.some((word) => normalizedText.includes(word))) score += 4;
     if (amountMarkers.some((word) => normalizedText.includes(word))) score += 3;
-    candidates.push({ value: wordAmount, score, index: normalizedText.length + 1 });
+    candidates.push({
+      value: wordAmount,
+      score,
+      index: normalizedText.length + 1,
+    });
   }
 
   if (candidates.length) {
-    candidates.sort((a, b) => b.score - a.score || b.value - a.value || a.index - b.index);
+    candidates.sort(
+      (a, b) => b.score - a.score || b.value - a.value || a.index - b.index,
+    );
     return candidates[0].value;
   }
 
@@ -18960,7 +19883,17 @@ function buildVoiceDraftFromText(input) {
       "refund",
       "cashback",
     ],
-    ka: ["მივიღე", "შემოვიდა", "ხელფასი", "საჩუქარი", "ქეშბექი"],
+    ka: [
+      "მივიღე",
+      "შემოვიდა",
+      "ხელფასი",
+      "საჩუქარი",
+      "ქეშბექი",
+      "შემოსავალი",
+      "მომივიდა",
+      "ჩამირიცხა",
+      "მიმიტანეს",
+    ],
   };
   const expenseWords = {
     ru: [
@@ -18977,7 +19910,17 @@ function buildVoiceDraftFromText(input) {
       "заказала",
     ],
     en: ["spent", "bought", "paid", "expense", "pay", "ordered", "order"],
-    ka: ["დავხარჯე", "ვიყიდე", "გადავიხადე", "შევუკვეთე"],
+    ka: [
+      "დავხარჯე",
+      "ვიყიდე",
+      "გადავიხადე",
+      "შევუკვეთე",
+      "ვიხდი",
+      "ვყიდულობ",
+      "ვხარჯავ",
+      "გადვიხადე",
+      "ვიხდი",
+    ],
   };
   const iWords = Object.values(incomeWords).flat();
   const eWords = Object.values(expenseWords).flat();
@@ -19122,7 +20065,9 @@ function buildVoiceDraftFromText(input) {
   if (!detectedCat && subHit.category) detectedCat = subHit.category;
   if (!detectedCat && learnedHint?.category) detectedCat = learnedHint.category;
   const learnedSubcategory =
-    !subHit.subcategory && learnedHint?.subcategory ? learnedHint.subcategory : "";
+    !subHit.subcategory && learnedHint?.subcategory
+      ? learnedHint.subcategory
+      : "";
 
   return {
     rawText,
@@ -19167,6 +20112,10 @@ function scoreVoiceTranscript(text) {
     "გადავიხადე",
     "შემოსავალი",
     "ხელფასი",
+    "მივიღე",
+    "შემოვიდა",
+    "ვხარჯავ",
+    "ვყიდულობ",
   ];
   const moneyWords = [
     "лари",
@@ -19202,6 +20151,23 @@ function scoreVoiceTranscript(text) {
   const wordsCount = normalizedText.split(/\s+/).filter(Boolean).length;
   if (wordsCount >= 3) score += 2;
   if (wordsCount > 14) score -= 4;
+
+  // Script-language consistency bonus:
+  // If UI is Georgian, strongly prefer transcripts that contain Georgian characters (U+10D0–U+10FF)
+  // and penalise transcripts that are purely Cyrillic (Russian fallback from the OS engine)
+  const hasGeorgianChars = /[\u10D0-\u10FF]/.test(text);
+  const hasCyrillicChars = /[\u0400-\u04FF]/.test(text);
+  const hasLatinChars = /[a-zA-Z]/.test(text);
+  if (currentLang === "ka") {
+    if (hasGeorgianChars) score += 30; // strong preference for Georgian script
+    if (hasCyrillicChars && !hasGeorgianChars) score -= 25; // penalise pure-Cyrillic when expecting Georgian
+  } else if (currentLang === "ru") {
+    if (hasCyrillicChars) score += 10;
+    if (hasGeorgianChars && !hasCyrillicChars) score -= 10;
+  } else if (currentLang === "en") {
+    if (hasLatinChars && !hasCyrillicChars) score += 10;
+  }
+
   return score;
 }
 
@@ -19220,8 +20186,14 @@ function chooseBestVoiceTranscript(values) {
 }
 
 function parseVoiceInput(text, alternatives = []) {
-  const choice = chooseBestVoiceTranscript([text, ...normalizeVoiceAlternatives(alternatives)]);
-  openVoiceQuickModal(buildVoiceDraftFromText(choice.text), choice.alternatives);
+  const choice = chooseBestVoiceTranscript([
+    text,
+    ...normalizeVoiceAlternatives(alternatives),
+  ]);
+  openVoiceQuickModal(
+    buildVoiceDraftFromText(choice.text),
+    choice.alternatives,
+  );
 }
 
 function getVoiceFallbackCategory(type) {
@@ -19310,11 +20282,15 @@ function openVoiceQuickModal(draft, alternatives = []) {
     type: draft.type || "expense",
     rawText: draft.rawText || "",
     amount: Number.isFinite(draft.amount) ? draft.amount : 0,
-    category: draft.category || getVoiceFallbackCategory(draft.type || "expense"),
+    category:
+      draft.category || getVoiceFallbackCategory(draft.type || "expense"),
     subcategory: draft.subcategory || "",
   };
   const altOptions = normalizeVoiceAlternatives(alternatives)
-    .filter((item) => item.toLowerCase() !== String(draft.rawText || "").toLowerCase())
+    .filter(
+      (item) =>
+        item.toLowerCase() !== String(draft.rawText || "").toLowerCase(),
+    )
     .slice(0, 3);
 
   const html = `
@@ -19384,14 +20360,18 @@ function openVoiceQuickModal(draft, alternatives = []) {
   const chipRow = document.getElementById("voiceQuickChipRow");
 
   const parseQuickAmount = () => {
-    const value = parseFloat(String(amountInput?.value || "").replace(",", "."));
+    const value = parseFloat(
+      String(amountInput?.value || "").replace(",", "."),
+    );
     return Number.isFinite(value) ? value : 0;
   };
 
   const ensureQuickCategoryForType = () => {
     const catObj = getVoiceCategoryObject(liveDraft.type);
     if (!liveDraft.category || !catObj[liveDraft.category]) {
-      const reparsed = buildVoiceDraftFromText(textInput?.value || liveDraft.rawText || "");
+      const reparsed = buildVoiceDraftFromText(
+        textInput?.value || liveDraft.rawText || "",
+      );
       if (
         reparsed.type === liveDraft.type &&
         reparsed.category &&
@@ -19439,12 +20419,17 @@ function openVoiceQuickModal(draft, alternatives = []) {
       .filter(Boolean)
       .join("");
     modal.querySelectorAll("[data-voice-quick-type]").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.voiceQuickType === liveDraft.type);
+      btn.classList.toggle(
+        "active",
+        btn.dataset.voiceQuickType === liveDraft.type,
+      );
     });
   };
 
   const reparseQuickDraft = ({ replaceText = false, text = "" } = {}) => {
-    const raw = replaceText ? text : textInput?.value || liveDraft.rawText || "";
+    const raw = replaceText
+      ? text
+      : textInput?.value || liveDraft.rawText || "";
     const reparsed = buildVoiceDraftFromText(raw);
     liveDraft.rawText = reparsed.rawText || raw;
     if (replaceText && textInput) textInput.value = liveDraft.rawText;
@@ -19455,11 +20440,14 @@ function openVoiceQuickModal(draft, alternatives = []) {
     }
     const catObj = getVoiceCategoryObject(liveDraft.type);
     liveDraft.category =
-      reparsed.category && Object.prototype.hasOwnProperty.call(catObj, reparsed.category)
+      reparsed.category &&
+      Object.prototype.hasOwnProperty.call(catObj, reparsed.category)
         ? reparsed.category
         : getVoiceFallbackCategory(liveDraft.type);
     liveDraft.subcategory =
-      reparsed.category === liveDraft.category ? reparsed.subcategory || "" : "";
+      reparsed.category === liveDraft.category
+        ? reparsed.subcategory || ""
+        : "";
     renderQuickSummary();
   };
 
@@ -19472,7 +20460,8 @@ function openVoiceQuickModal(draft, alternatives = []) {
         openVoiceDraftModal(
           {
             ...liveDraft,
-            category: liveDraft.category || getVoiceFallbackCategory(liveDraft.type),
+            category:
+              liveDraft.category || getVoiceFallbackCategory(liveDraft.type),
           },
           alternatives,
         ),
@@ -19523,10 +20512,12 @@ function openVoiceQuickModal(draft, alternatives = []) {
     });
   });
 
-  document.getElementById("voiceQuickReparse")?.addEventListener("click", () => {
-    reparseQuickDraft();
-    showToast(L.reparseDone, "success");
-  });
+  document
+    .getElementById("voiceQuickReparse")
+    ?.addEventListener("click", () => {
+      reparseQuickDraft();
+      showToast(L.reparseDone, "success");
+    });
 
   document.getElementById("voiceQuickSave")?.addEventListener("click", () => {
     saveQuick(false);
@@ -19534,7 +20525,9 @@ function openVoiceQuickModal(draft, alternatives = []) {
   document.getElementById("voiceQuickMore")?.addEventListener("click", () => {
     saveQuick(true);
   });
-  document.getElementById("voiceQuickEdit")?.addEventListener("click", openEditor);
+  document
+    .getElementById("voiceQuickEdit")
+    ?.addEventListener("click", openEditor);
   document.getElementById("voiceQuickRetry")?.addEventListener("click", () => {
     closeModal("voiceQuickModal");
     setTimeout(() => startVoiceInput(), 420);
@@ -19567,9 +20560,8 @@ function confirmVoiceBudgetIfNeeded(type, category, amountRub) {
   const newSpent = spent + amountRub;
   if (newSpent > limit) {
     const msg =
-      { ru: "Продолжить?", en: "Continue?", ka: "გაგრძელება?" }[
-        currentLang
-      ] || "Continue?";
+      { ru: "Продолжить?", en: "Continue?", ka: "გაგრძელება?" }[currentLang] ||
+      "Continue?";
     return confirm(t("budgetOverLimit") + " " + fmt(limit) + ". " + msg);
   }
   if (newSpent / limit >= 0.8) {
@@ -19590,13 +20582,18 @@ function confirmVoiceBudgetIfNeeded(type, category, amountRub) {
 function openVoiceDraftModal(draft, alternatives = []) {
   const L = getVoiceDraftLabels();
   const altOptions = normalizeVoiceAlternatives(alternatives)
-    .filter((item) => item.toLowerCase() !== String(draft.rawText || "").toLowerCase())
+    .filter(
+      (item) =>
+        item.toLowerCase() !== String(draft.rawText || "").toLowerCase(),
+    )
     .slice(0, 4);
   const existingCatObj = getVoiceCategoryObject(draft.type);
   const initialCatExists =
-    draft.category && Object.prototype.hasOwnProperty.call(existingCatObj, draft.category);
+    draft.category &&
+    Object.prototype.hasOwnProperty.call(existingCatObj, draft.category);
   const initialSelectedCat = initialCatExists ? draft.category : "";
-  const initialNewCat = draft.category && !initialCatExists ? draft.category : "";
+  const initialNewCat =
+    draft.category && !initialCatExists ? draft.category : "";
   const amountValue =
     Number.isFinite(draft.amount) && draft.amount > 0
       ? draft.amount.toFixed(2)
@@ -19705,7 +20702,9 @@ function openVoiceDraftModal(draft, alternatives = []) {
       .querySelectorAll('option[data-temp-created="true"]')
       .forEach((option) => option.remove());
     if (!value) return;
-    const existing = [...select.options].find((option) => option.value === value);
+    const existing = [...select.options].find(
+      (option) => option.value === value,
+    );
     if (existing) {
       existing.selected = true;
       return;
@@ -19830,55 +20829,59 @@ function openVoiceDraftModal(draft, alternatives = []) {
     refreshSubcategories(newSubInput.value.trim() || subcatSelect.value);
   });
 
-  document.getElementById("voiceNewCatToggle")?.addEventListener("click", () => {
-    const isHidden = newCatWrap.style.display === "none";
-    if (isHidden) {
-      newCatWrap.style.display = "";
-      categorySelect.value = "";
-      newCatInput.focus();
-      return;
-    }
-
-    const value = newCatInput.value.trim();
-    if (!value) {
-      showToast(L.enterCategoryName, "error");
-      newCatInput.focus();
-      return;
-    }
-    setTemporarySelectOption(categorySelect, value, "＋ ");
-    refreshSubcategories();
-    showToast(`${L.categorySelected}: ${value}`, "success");
-  });
-
-  document.getElementById("voiceNewSubToggle")?.addEventListener("click", () => {
-    const category = selectedCategoryName();
-    if (!category) {
-      showToast(L.selectCategoryForSubcategory, "error", 3800);
-      if (newCatWrap.style.display === "none") {
-        categorySelect.focus();
-      } else {
+  document
+    .getElementById("voiceNewCatToggle")
+    ?.addEventListener("click", () => {
+      const isHidden = newCatWrap.style.display === "none";
+      if (isHidden) {
+        newCatWrap.style.display = "";
+        categorySelect.value = "";
         newCatInput.focus();
+        return;
       }
-      return;
-    }
 
-    const isHidden = newSubWrap.style.display === "none";
-    if (isHidden) {
-      newSubWrap.style.display = "";
-      newSubInput.focus();
-      return;
-    }
+      const value = newCatInput.value.trim();
+      if (!value) {
+        showToast(L.enterCategoryName, "error");
+        newCatInput.focus();
+        return;
+      }
+      setTemporarySelectOption(categorySelect, value, "＋ ");
+      refreshSubcategories();
+      showToast(`${L.categorySelected}: ${value}`, "success");
+    });
 
-    const value = newSubInput.value.trim();
-    if (!value) {
-      showToast(L.enterSubcategoryName, "error");
-      newSubInput.focus();
-      return;
-    }
-    setTemporarySelectOption(subcatSelect, value, "＋ ");
-    subcatSelect.disabled = false;
-    showToast(`${L.subcategorySelected}: ${value}`, "success");
-  });
+  document
+    .getElementById("voiceNewSubToggle")
+    ?.addEventListener("click", () => {
+      const category = selectedCategoryName();
+      if (!category) {
+        showToast(L.selectCategoryForSubcategory, "error", 3800);
+        if (newCatWrap.style.display === "none") {
+          categorySelect.focus();
+        } else {
+          newCatInput.focus();
+        }
+        return;
+      }
+
+      const isHidden = newSubWrap.style.display === "none";
+      if (isHidden) {
+        newSubWrap.style.display = "";
+        newSubInput.focus();
+        return;
+      }
+
+      const value = newSubInput.value.trim();
+      if (!value) {
+        showToast(L.enterSubcategoryName, "error");
+        newSubInput.focus();
+        return;
+      }
+      setTemporarySelectOption(subcatSelect, value, "＋ ");
+      subcatSelect.disabled = false;
+      showToast(`${L.subcategorySelected}: ${value}`, "success");
+    });
 
   document.getElementById("voiceReparseBtn")?.addEventListener("click", () => {
     const reparsed = buildVoiceDraftFromText(textInput.value);
@@ -20407,9 +21410,8 @@ function openGoalsModal() {
       btn.onclick = () => {
         const i = parseInt(btn.dataset.gi);
         const amt = parseFloat(
-          prompt(
-            `${t("goalAddPromptPrefix")} "${gs[i].name}" (${sym()}):`,
-          ) || "0",
+          prompt(`${t("goalAddPromptPrefix")} "${gs[i].name}" (${sym()}):`) ||
+            "0",
         );
         if (amt > 0) {
           gs[i].saved +=
@@ -20419,10 +21421,7 @@ function openGoalsModal() {
           document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
           if (gs[i].saved >= gs[i].target) {
             showConfetti({ count: 60, type: "goal" });
-            showToast(
-              t("goalAchieved"),
-              "success",
-            );
+            showToast(t("goalAchieved"), "success");
           }
           haptic("success");
           reattachGoalBtns(gs);
