@@ -80,33 +80,33 @@ let deferredUiStarted = false;
 // КАТЕГОРИИ
 // ============================================================
 window.categories = {
-  Коммуналка: { subcats: ["Свет", "Вода", "Газ", "Интернет", "Сбор мусора"] },
-  Продукты: {
+  კომუნალურები: { subcats: ["შუქი", "წყალი", "გაზი", "ინტერნეტი", "დასუფთავების მოსაკრებელი"] },
+  პროდუქტები: {
     subcats: [
-      "Хлеб",
-      "Яйца",
-      "Зелень",
-      "Сыр",
-      "Молоко",
-      "Огурцы",
-      "Помидоры",
-      "Яблоки",
-      "Бананы",
+      "პური",
+      "კვერცხი",
+      "მხვანილი",
+      "ყველი",
+      "რძე",
+      "კიტრი",
+      "პომიდორი",
+      "ვაშლი",
+      "ბანანი",
     ],
   },
-  "Заём банка": { subcats: ["Банк TBC", "Банк Sakartvelo"] },
-  "Ежемесячные взносы": {
-    subcats: ["Телефон", "Ноутбук", "Планшет", "Ломбард", "Транспорт"],
+  "ბანკის სესხი": { subcats: ["TBC ბანკი", "საქართველოს ბანკი"] },
+  "ყოველთვიური გადასახადები": {
+    subcats: ["ლომბარდი"],
   },
-  Транспорт: {
-    subcats: ["Метро", "Автобус", "Маршрутка", "Трамвай", "Бензин", "Самолёт"],
+  ტრანსპორტი: {
+    subcats: ["მეტრო", "ავტობუსი", "სამარშრუტო მიკროავტობუსი", "ტრამვაი", "ბენზინი", "თვითმფრინავი"],
   },
-  "Неожиданные траты": { subcats: [] },
+  "მოულოდნელი ხარჯები": { subcats: [] },
 };
 window.incomeCategories = {
-  Зарплата: { subcats: [] },
-  Подарок: { subcats: [] },
-  Фриланс: { subcats: [] },
+  ხელფასი: { subcats: [] },
+  საჩუქარი: { subcats: [] },
+  ფრილანსი: { subcats: [] },
 };
 window.initialCategories = JSON.parse(JSON.stringify(window.categories));
 var categories = window.categories;
@@ -2329,7 +2329,7 @@ let statsPeriod = "thisMonth";
 let historyFilter = "allTime"; // фильтр истории по времени
 
 // Новые структуры данных
-let categoryBudgets = {}; // { "Продукты": 5000 } в рублях
+let categoryBudgets = {}; // { "პროდუქტები": 5000 } в рублях
 let recurringOps = []; // повторяющиеся операции
 let pinHash = null; // хеш пин-кода
 let pinEnabled = false;
@@ -2372,15 +2372,15 @@ let curGuideStep = 0;
 // ИКОНКИ И ЦВЕТА
 // ============================================================
 const categoryIcons = {
-  Коммуналка: { icon: "💡", color: "#f59e0b" },
-  Продукты: { icon: "🛒", color: "#10b981" },
-  "Заём банка": { icon: "🏦", color: "#ef4444" },
-  "Ежемесячные взносы": { icon: "📅", color: "#8b5cf6" },
-  Транспорт: { icon: "🚌", color: "#3b82f6" },
-  "Неожиданные траты": { icon: "⚡", color: "#f97316" },
-  Зарплата: { icon: "💼", color: "#22c55e" },
-  Подарок: { icon: "🎁", color: "#ec4899" },
-  Фриланс: { icon: "💻", color: "#06b6d4" },
+  კომუნალურები: { icon: "💡", color: "#f59e0b" },
+  პროდუქტები: { icon: "🛒", color: "#10b981" },
+  "ბანკის სესხი": { icon: "🏦", color: "#ef4444" },
+  "ყოველთვიური გადასახადები": { icon: "📅", color: "#8b5cf6" },
+  ტრანსპორტი: { icon: "🚌", color: "#3b82f6" },
+  "მოულოდნელი ხარჯები": { icon: "⚡", color: "#f97316" },
+  ხელფასი: { icon: "💼", color: "#22c55e" },
+  საჩუქარი: { icon: "🎁", color: "#ec4899" },
+  ფრილანსი: { icon: "💻", color: "#06b6d4" },
   defaultExpense: { icon: "💸", color: "#ef4444" },
   defaultIncome: { icon: "💰", color: "#22c55e" },
 };
@@ -2452,7 +2452,7 @@ const CATEGORY_EMOJI_GROUPS = [
     ],
   },
   {
-    title: { ru: "Коммуналка", en: "Utilities", ka: "კომუნალური" },
+    title: { ru: "კომუნალურები", en: "Utilities", ka: "კომუნალური" },
     emojis: [
       "💡",
       "🔌",
@@ -5728,9 +5728,9 @@ function loadProfileData(pid) {
     notebookPages = [];
     categories = JSON.parse(JSON.stringify(window.initialCategories));
     incomeCategories = {
-      Зарплата: { subcats: [] },
-      Подарок: { subcats: [] },
-      Фриланс: { subcats: [] },
+      ხელფასი: { subcats: [] },
+      საჩუქარი: { subcats: [] },
+      ფრილანსი: { subcats: [] },
     };
     calcHistory = [];
     convHistory = [];
@@ -5829,9 +5829,9 @@ function switchProfile(pid) {
   // Сбрасываем категории и загружаем данные нового профиля
   categories = JSON.parse(JSON.stringify(window.initialCategories));
   incomeCategories = {
-    Зарплата: { subcats: [] },
-    Подарок: { subcats: [] },
-    Фриланс: { subcats: [] },
+    ხელფასი: { subcats: [] },
+    საჩუქარი: { subcats: [] },
+    ფრილანსი: { subcats: [] },
   };
   loadProfileData(pid);
   saveGlobal();
@@ -6604,13 +6604,13 @@ function renderSimpleHome() {
   const quickCats = [
     {
       icon: "🛒",
-      label: { ru: "Продукты", en: "Groceries", ka: "საკვები" },
-      cat: { ru: "Продукты", en: "Groceries", ka: "Groceries" },
+      label: { ru: "პროდუქტები", en: "Groceries", ka: "საკვები" },
+      cat: { ru: "პროდუქტები", en: "Groceries", ka: "Groceries" },
     },
     {
       icon: "🚌",
-      label: { ru: "Транспорт", en: "Transport", ka: "ტრანსპ." },
-      cat: { ru: "Транспорт", en: "Transport", ka: "Transport" },
+      label: { ru: "ტრანსპორტი", en: "Transport", ka: "ტრანსპ." },
+      cat: { ru: "ტრანსპორტი", en: "Transport", ka: "Transport" },
     },
     {
       icon: "☕",
@@ -6625,7 +6625,7 @@ function renderSimpleHome() {
     {
       icon: "🏠",
       label: { ru: "Жильё", en: "Housing", ka: "საცხ." },
-      cat: { ru: "Коммуналка", en: "Housing", ka: "Housing" },
+      cat: { ru: "კომუნალურები", en: "Housing", ka: "Housing" },
     },
     {
       icon: "🍽",
@@ -6639,8 +6639,8 @@ function renderSimpleHome() {
     },
     {
       icon: "🎁",
-      label: { ru: "Подарок", en: "Gift", ka: "საჩ." },
-      cat: { ru: "Подарок", en: "Gift", ka: "Gift" },
+      label: { ru: "საჩუქარი", en: "Gift", ka: "საჩ." },
+      cat: { ru: "საჩუქარი", en: "Gift", ka: "Gift" },
     },
   ];
 
@@ -10618,9 +10618,9 @@ function renderSettings() {
         notebookPages = [];
         categories = JSON.parse(JSON.stringify(window.initialCategories));
         incomeCategories = {
-          Зарплата: { subcats: [] },
-          Подарок: { subcats: [] },
-          Фриланс: { subcats: [] },
+          ხელფასი: { subcats: [] },
+          საჩუქარი: { subcats: [] },
+          ფრილანსი: { subcats: [] },
         };
         calcHistory = [];
         convHistory = [];
@@ -10691,7 +10691,7 @@ function renderSettings() {
         if (!lp) {
           lp = {
             id: "guest_local_" + Date.now(),
-            name: "Мой профиль",
+            name: "ჩემი პროფილი",
             emoji: "👤",
             color: "#a78bfa",
             role: "user",
@@ -13683,9 +13683,9 @@ async function showShareWelcomeScreen(pkg) {
       notebookPages: [],
       categories: JSON.parse(JSON.stringify(window.initialCategories || {})),
       incomeCategories: {
-        Зарплата: { subcats: [] },
-        Подарок: { subcats: [] },
-        Фриланс: { subcats: [] },
+        ხელფასი: { subcats: [] },
+        საჩუქარი: { subcats: [] },
+        ფრილანსი: { subcats: [] },
       },
       calcHistory: [],
       convHistory: [],
@@ -13725,7 +13725,7 @@ function exitGuestMode() {
     const newId = "guest_local_" + Date.now();
     ownProfile = {
       id: newId,
-      name: "Мой профиль",
+      name: "ჩემი პროფილი",
       emoji: "👤",
       color: "#2d6a4f",
       isShared: false,
@@ -13742,9 +13742,9 @@ function exitGuestMode() {
         notebookPages: [],
         categories: JSON.parse(JSON.stringify(window.initialCategories)),
         incomeCategories: {
-          Зарплата: { subcats: [] },
-          Подарок: { subcats: [] },
-          Фриланс: { subcats: [] },
+          ხელფასი: { subcats: [] },
+          საჩუქარი: { subcats: [] },
+          ფრილანსი: { subcats: [] },
         },
         calcHistory: [],
         convHistory: [],
@@ -19937,106 +19937,106 @@ function buildVoiceDraftFromText(input) {
   const categoryMaps = {
     expense: {
       ru: {
-        продукт: "Продукты",
-        еда: "Продукты",
-        магазин: "Продукты",
-        супермаркет: "Продукты",
-        транспорт: "Транспорт",
-        метро: "Транспорт",
-        автобус: "Транспорт",
-        такси: "Транспорт",
-        бензин: "Транспорт",
+        продукт: "პროდუქტები",
+        еда: "პროდუქტები",
+        магазин: "პროდუქტები",
+        супермаркет: "პროდუქტები",
+        транспорт: "ტრანსპორტი",
+        метро: "ტრანსპორტი",
+        автобус: "ტრანსპორტი",
+        такси: "ტრანსპორტი",
+        бензин: "ტრანსპორტი",
         кафе: "Кафе",
         ресторан: "Рестораны",
         кофе: "Кофе",
-        аренда: "Коммуналка",
-        квартира: "Коммуналка",
-        коммунал: "Коммуналка",
-        интернет: "Коммуналка",
-        телефон: "Телефон",
+        аренда: "კომუნალურები",
+        квартира: "კომუნალურები",
+        коммунал: "კომუნალურები",
+        интернет: "კომუნალურები",
+        телефон: "ტელეფონი",
         одежда: "Одежда",
         лекарство: "Здоровье",
         аптека: "Здоровье",
-        коммунал: "Коммуналка",
-        вода: "Коммуналка",
-        свет: "Коммуналка",
-        электр: "Коммуналка",
+        коммунал: "კომუნალურები",
+        вода: "კომუნალურები",
+        свет: "კომუნალურები",
+        электр: "კომუნალურები",
         дом: "Дом",
       },
       en: {
-        grocery: "Продукты",
-        groceries: "Продукты",
-        food: "Продукты",
-        eggs: "Продукты",
-        egg: "Продукты",
-        products: "Продукты",
-        supermarket: "Продукты",
-        market: "Продукты",
-        transport: "Транспорт",
-        metro: "Транспорт",
-        bus: "Транспорт",
-        taxi: "Транспорт",
-        fuel: "Транспорт",
-        gas: "Транспорт",
+        grocery: "პროდუქტები",
+        groceries: "პროდუქტები",
+        food: "პროდუქტები",
+        eggs: "პროდუქტები",
+        egg: "პროდუქტები",
+        products: "პროდუქტები",
+        supermarket: "პროდუქტები",
+        market: "პროდუქტები",
+        transport: "ტრანსპორტი",
+        metro: "ტრანსპორტი",
+        bus: "ტრანსპორტი",
+        taxi: "ტრანსპორტი",
+        fuel: "ტრანსპორტი",
+        gas: "ტრანსპორტი",
         coffee: "Кофе",
         cafe: "Кафе",
         restaurant: "Рестораны",
-        rent: "Коммуналка",
-        utility: "Коммуналка",
-        internet: "Коммуналка",
-        phone: "Телефон",
+        rent: "კომუნალურები",
+        utility: "კომუნალურები",
+        internet: "კომუნალურები",
+        phone: "ტელეფონი",
         clothes: "Одежда",
         medicine: "Здоровье",
         pharmacy: "Здоровье",
-        water: "Коммуналка",
-        electricity: "Коммуналка",
-        utility: "Коммуналка",
+        water: "კომუნალურები",
+        electricity: "კომუნალურები",
+        utility: "კომუნალურები",
         home: "Дом",
       },
       ka: {
-        საჭმ: "Продукты",
-        პროდუქტ: "Продукты",
-        პროდუქტებ: "Продукты",
-        პროტუკტ: "Продукты",
-        სურსათ: "Продукты",
-        მარკეტ: "Продукты",
-        კვერცხ: "Продукты",
-        ტრანსპორტ: "Транспорт",
-        მეტრო: "Транспорт",
-        ავტობუს: "Транспорт",
-        ტაქს: "Транспорт",
+        საჭმ: "პროდუქტები",
+        პროდუქტ: "პროდუქტები",
+        პროდუქტებ: "პროდუქტები",
+        პროტუკტ: "პროდუქტები",
+        სურსათ: "პროდუქტები",
+        მარკეტ: "პროდუქტები",
+        კვერცხ: "პროდუქტები",
+        ტრანსპორტ: "ტრანსპორტი",
+        მეტრო: "ტრანსპორტი",
+        ავტობუს: "ტრანსპორტი",
+        ტაქს: "ტრანსპორტი",
         ყავა: "Кофе",
         კაფე: "Кафе",
         რესტორან: "Рестораны",
-        ინტერნეტ: "Коммуналка",
-        ტელეფონ: "Телефон",
+        ინტერნეტ: "კომუნალურები",
+        ტელეფონ: "ტელეფონი",
         წამალ: "Здоровье",
-        წყ: "Коммуналка",
-        დენი: "Коммуналка",
+        წყ: "კომუნალურები",
+        დენი: "კომუნალურები",
         სახლი: "Дом",
       },
     },
     income: {
       ru: {
-        зарплат: "Зарплата",
-        подарок: "Подарок",
-        подарили: "Подарок",
-        фриланс: "Фриланс",
-        проект: "Фриланс",
-        подработка: "Фриланс",
+        зарплат: "ხელფასი",
+        подарок: "საჩუქარი",
+        подарили: "საჩუქარი",
+        фриланс: "ფრილანსი",
+        проект: "ფრილანსი",
+        подработка: "ფრილანსი",
       },
       en: {
-        salary: "Зарплата",
-        gift: "Подарок",
-        freelance: "Фриланс",
-        project: "Фриланс",
-        client: "Фриланс",
+        salary: "ხელფასი",
+        gift: "საჩუქარი",
+        freelance: "ფრილანსი",
+        project: "ფრილანსი",
+        client: "ფრილანსი",
       },
       ka: {
-        ხელფას: "Зарплата",
-        საჩუქ: "Подарок",
-        ფრილანს: "Фриланс",
-        პროექტ: "Фриланс",
+        ხელფას: "ხელფასი",
+        საჩუქ: "საჩუქარი",
+        ფრილანს: "ფრილანსი",
+        პროექტ: "ფრილანსი",
       },
     },
   };
@@ -20201,8 +20201,8 @@ function getVoiceFallbackCategory(type) {
   const catObj = getVoiceCategoryObject(type);
   const preferred = L.fallbackCategory || "Другое";
   if (catObj[preferred]) return preferred;
-  if (type === "expense" && catObj["Неожиданные траты"]) {
-    return "Неожиданные траты";
+  if (type === "expense" && catObj["მოულოდნელი ხარჯები"]) {
+    return "მოულოდნელი ხარჯები";
   }
   return preferred;
 }
