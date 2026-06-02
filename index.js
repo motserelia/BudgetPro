@@ -112,6 +112,58 @@ window.initialCategories = JSON.parse(JSON.stringify(window.categories));
 var categories = window.categories;
 var incomeCategories = window.incomeCategories;
 
+const LEGACY_CATEGORY_NAME_MAP = {
+  Коммуналка: "კომუნალურები",
+  Продукты: "პროდუქტები",
+  "Заём банка": "ბანკის სესხი",
+  "Ежемесячные взносы": "ყოველთვიური გადასახადები",
+  Транспорт: "ტრანსპორტი",
+  "Неожиданные траты": "მოულოდნელი ხარჯები",
+  Зарплата: "ხელფასი",
+  Подарок: "საჩუქარი",
+  Фриланс: "ფრილანსი",
+};
+
+const LEGACY_SUBCATEGORY_NAME_MAP = {
+  Свет: "შუქი",
+  Вода: "წყალი",
+  Газ: "გაზი",
+  Интернет: "ინტერნეტი",
+  "Сбор мусора": "დასუფთავების მოსაკრებელი",
+  Хлеб: "პური",
+  Яйца: "კვერცხი",
+  Зелень: "მხვანილი",
+  Сыр: "ყველი",
+  Молоко: "რძე",
+  Огурцы: "კიტრი",
+  Помидоры: "პომიდორი",
+  Яблоки: "ვაშლი",
+  Бананы: "ბანანი",
+  "Банк TBC": "TBC ბანკი",
+  "Банк Sakartvelo": "საქართველოს ბანკი",
+  Ломбард: "ლომბარდი",
+  Метро: "მეტრო",
+  Автобус: "ავტობუსი",
+  Маршрутка: "სამარშრუტო მიკროავტობუსი",
+  Трамвай: "ტრამვაი",
+  Бензин: "ბენზინი",
+  Самолёт: "თვითმფრინავი",
+};
+
+function migrateLegacyCategoryNames(source) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) {
+    return source;
+  }
+  return Object.entries(source).reduce((next, [name, value]) => {
+    const migratedName = LEGACY_CATEGORY_NAME_MAP[name] || name;
+    const subcats = Array.isArray(value?.subcats)
+      ? value.subcats.map((subcat) => LEGACY_SUBCATEGORY_NAME_MAP[subcat] || subcat)
+      : [];
+    next[migratedName] = { ...value, subcats };
+    return next;
+  }, {});
+}
+
 // ============================================================
 // ПЕРЕВОДЫ
 // ============================================================
@@ -5746,7 +5798,7 @@ function loadProfileData(pid) {
     transactions = d.transactions || [];
     startBalanceRub = d.startBalanceRub ?? 0;
     if (d.notebookPages) notebookPages = d.notebookPages;
-    if (d.categories) categories = d.categories;
+    if (d.categories) categories = migrateLegacyCategoryNames(d.categories);
     if (d.categoryCustomizations)
       categoryCustomizations = d.categoryCustomizations;
     if (d.incomeCategories) {
@@ -5755,7 +5807,7 @@ function loadProfileData(pid) {
         d.incomeCategories.forEach((c2) => {
           incomeCategories[c2] = { subcats: [] };
         });
-      } else incomeCategories = d.incomeCategories;
+      } else incomeCategories = migrateLegacyCategoryNames(d.incomeCategories);
     }
     calcHistory = d.calcHistory || [];
     convHistory = d.convHistory || [];
@@ -20995,6 +21047,127 @@ function getFloatingBtnSetting(key) {
   return localStorage.getItem(key) !== "false"; // default ON
 }
 
+function syncVoiceButtonEnabled(enabled) {
+  localStorage.setItem("showVoiceBtn", enabled ? "true" : "false");
+  const toggle = document.getElementById("showVoiceBtnToggle");
+  if (toggle) toggle.checked = enabled;
+}
+
+function ensureVoiceTrashBin() {
+  let bin = document.getElementById("voiceTrashBin");
+  if (bin) return bin;
+  bin = document.createElement("div");
+  bin.id = "voiceTrashBin";
+  bin.setAttribute("aria-hidden", "true");
+  bin.style.cssText = `
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    width: 92px;
+    height: 92px;
+    transform: translateX(-50%) translateY(120px) scale(0.72);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10001;
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(232,236,242,0.92));
+    box-shadow: 0 18px 40px rgba(17, 24, 39, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 260ms cubic-bezier(.22,1.25,.36,1), opacity 220ms ease, box-shadow 220ms ease;
+    backdrop-filter: blur(10px);
+  `;
+  const icon = document.createElement("div");
+  icon.textContent = "🗑";
+  icon.style.cssText = `
+    font-size: 40px;
+    line-height: 1;
+    transform-origin: 50% 85%;
+    transition: transform 220ms cubic-bezier(.34,1.56,.64,1);
+    filter: drop-shadow(0 6px 14px rgba(17, 24, 39, 0.16));
+  `;
+  bin.appendChild(icon);
+  document.body.appendChild(bin);
+  return bin;
+}
+
+function setVoiceTrashState(active, strength = 0) {
+  const bin = ensureVoiceTrashBin();
+  const icon = bin.firstChild;
+  if (!active) {
+    bin.style.opacity = "0";
+    bin.style.transform = "translateX(-50%) translateY(120px) scale(0.72)";
+    bin.style.boxShadow = "0 18px 40px rgba(17, 24, 39, 0.22)";
+    if (icon) icon.style.transform = "scale(1) rotate(0deg)";
+    return;
+  }
+  const pull = Math.max(0, Math.min(1, strength));
+  const scale = 0.92 + pull * 0.18;
+  const lift = 18 - pull * 14;
+  bin.style.opacity = String(0.82 + pull * 0.18);
+  bin.style.transform = `translateX(-50%) translateY(${lift}px) scale(${scale})`;
+  bin.style.boxShadow = `0 ${22 + pull * 12}px ${46 + pull * 8}px rgba(239, 68, 68, ${0.22 + pull * 0.08})`;
+  if (icon) {
+    icon.style.transform = `scale(${1 + pull * 0.16}) rotate(${pull * 6}deg)`;
+  }
+}
+
+function isVoiceDismissTarget(rect) {
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const binRect = ensureVoiceTrashBin().getBoundingClientRect();
+  const withinX = centerX >= binRect.left - 18 && centerX <= binRect.right + 18;
+  const withinY = centerY >= binRect.top - 28;
+  return withinX && withinY;
+}
+
+function dismissVoiceButtonWithAnimation(voiceBtn) {
+  const rect = voiceBtn.getBoundingClientRect();
+  const bin = ensureVoiceTrashBin();
+  const binRect = bin.getBoundingClientRect();
+  const targetX = binRect.left + binRect.width / 2 - rect.width / 2;
+  const targetY = binRect.top + binRect.height / 2 - rect.height / 2 + 6;
+  const dx = targetX - rect.left;
+  const dy = targetY - rect.top;
+
+  setVoiceTrashState(true, 1);
+  voiceBtn.style.pointerEvents = "none";
+  voiceBtn.animate(
+    [
+      { transform: "translate(0px, 0px) scale(1)", opacity: 1 },
+      { transform: `translate(${dx * 0.28}px, ${dy * 0.32}px) scale(1.12, 0.9)`, opacity: 1, offset: 0.32 },
+      { transform: `translate(${dx * 0.76}px, ${dy * 0.86}px) scale(0.92, 1.08)`, opacity: 0.96, offset: 0.74 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.18)`, opacity: 0, offset: 1 },
+    ],
+    {
+      duration: 520,
+      easing: "cubic-bezier(.2,.9,.24,1)",
+      fill: "forwards",
+    },
+  );
+  bin.animate(
+    [
+      { transform: bin.style.transform || "translateX(-50%) translateY(4px) scale(1)" },
+      { transform: "translateX(-50%) translateY(0px) scale(1.14, 0.9)", offset: 0.45 },
+      { transform: "translateX(-50%) translateY(0px) scale(0.94, 1.08)", offset: 0.72 },
+      { transform: "translateX(-50%) translateY(4px) scale(1)", offset: 1 },
+    ],
+    {
+      duration: 420,
+      easing: "cubic-bezier(.34,1.56,.64,1)",
+    },
+  );
+
+  window.setTimeout(() => {
+    syncVoiceButtonEnabled(false);
+    localStorage.removeItem("voiceBtnPos");
+    voiceBtn.remove();
+    setVoiceTrashState(false);
+    haptic("medium");
+  }, 520);
+}
+
 function addVoiceButton() {
   ensureVoiceDragShield();
   document.getElementById("voiceInputBtn")?.remove();
@@ -21040,6 +21213,7 @@ function addVoiceButton() {
   let originX = 0;
   let originY = 0;
   let activePointer = null;
+  let dismissing = false;
 
   voiceBtn.addEventListener("pointerdown", (e) => {
     stopVoiceGestureEvent(e);
@@ -21051,7 +21225,9 @@ function addVoiceButton() {
     originY = rect.top;
     dragging = true;
     moved = false;
+    dismissing = false;
     voiceBtn.classList.add("dragging");
+    voiceBtn.style.transition = "none";
     voiceBtn.setPointerCapture?.(e.pointerId);
   });
 
@@ -21062,7 +21238,20 @@ function addVoiceButton() {
     const dy = e.clientY - startY;
     if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
     if (!moved) return;
-    applyPos(originX + dx, originY + dy);
+    const pos = applyPos(originX + dx, originY + dy);
+    const rect = {
+      left: pos.x,
+      top: pos.y,
+      width: size,
+      height: size,
+    };
+    const dragDepth = clamp((dy - 24) / 180, 0, 1);
+    const overTrash = dy > 30 && isVoiceDismissTarget(rect);
+    dismissing = overTrash;
+    setVoiceTrashState(dy > 20, overTrash ? Math.max(0.55, dragDepth) : dragDepth * 0.55);
+    voiceBtn.style.transform = overTrash
+      ? "scale(0.9, 1.08)"
+      : `scale(${1 + dragDepth * 0.06}, ${1 - dragDepth * 0.04})`;
   });
 
   const finishDrag = (e, canceled = false) => {
@@ -21072,6 +21261,14 @@ function addVoiceButton() {
     voiceBtn.classList.remove("dragging");
     voiceBtn.releasePointerCapture?.(e.pointerId);
     activePointer = null;
+    voiceBtn.style.transition = "";
+    voiceBtn.style.transform = "";
+    if (dismissing && moved && !canceled) {
+      dismissVoiceButtonWithAnimation(voiceBtn);
+      suppressVoiceDragClicks();
+      return;
+    }
+    setVoiceTrashState(false);
     if (moved || canceled) {
       const rect = voiceBtn.getBoundingClientRect();
       const pos = applyPos(rect.left, rect.top);

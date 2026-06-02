@@ -109,10 +109,8 @@
       .modal-add-overlay,
       .add-modal-overlay {
         background: rgba(0, 0, 0, 0.55) !important;
-        backdrop-filter: blur(4px) !important;
-        -webkit-backdrop-filter: blur(4px) !important;
         opacity: 0 !important;
-        transition: opacity 0.56s cubic-bezier(0.2, 0.85, 0.25, 1) !important;
+        transition: none !important;
       }
       .modal {
         width: 100% !important;
@@ -143,43 +141,41 @@
         max-width: 480px !important;
         margin: 0 auto !important;
         border-radius: 24px 24px 0 0 !important;
-        transform: translateY(114%) scale(0.985) !important;
+        transform: translate3d(0, 114%, 0);
         transform-origin: bottom center !important;
-        opacity: 0.92 !important;
-        transition:
-          transform 0.62s cubic-bezier(0.16, 0.9, 0.23, 1),
-          opacity 0.52s cubic-bezier(0.2, 0.85, 0.25, 1) !important;
-        will-change: transform, opacity !important;
+        opacity: 1;
+        transition: none;
+        will-change: transform !important;
+        backface-visibility: hidden !important;
+        -webkit-backface-visibility: hidden !important;
+        transform-style: preserve-3d !important;
         animation: none !important;
+        contain: layout paint !important;
       }
       .modal-add-overlay,
       .add-modal-overlay {
         animation: none !important;
       }
-      .add-modal-host.opening .add-modal-overlay,
       .add-modal-host.open .add-modal-overlay,
-      .add-modal-host.opening .modal-add-overlay,
       .add-modal-host.open .modal-add-overlay {
-        opacity: 1 !important;
+        opacity: 1;
       }
-      .add-modal-host.opening .add-modal-sheet,
       .add-modal-host.open .add-modal-sheet,
-      .add-modal-host.opening .modal-add-sheet,
       .add-modal-host.open .modal-add-sheet {
-        transform: translateY(0) scale(1) !important;
+        transform: translate3d(0, 0, 0);
         opacity: 1 !important;
       }
       body.dark .modal-add-sheet,
       body.dark .add-modal-sheet {
         background: rgba(12, 6, 34, 0.98) !important;
         border: 1px solid rgba(255, 255, 255, 0.12) !important;
-        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.7) !important;
+        box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.56) !important;
       }
       body:not(.dark) .modal-add-sheet,
       body:not(.dark) .add-modal-sheet {
         background: rgba(255, 252, 248, 0.98) !important;
         border: 1px solid rgba(249, 115, 22, 0.15) !important;
-        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18) !important;
+        box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.14) !important;
       }
       .add-modal-host.closing .add-modal-overlay {
         opacity: 0 !important;
@@ -187,11 +183,9 @@
       }
       .add-modal-host.closing .modal-add-sheet,
       .add-modal-host.closing .add-modal-sheet {
-        transform: translateY(114%) scale(0.985) !important;
-        opacity: 0.92 !important;
-        transition:
-          transform 0.46s cubic-bezier(0.4, 0, 0.2, 1),
-          opacity 0.4s ease !important;
+        transform: translate3d(0, 114%, 0);
+        opacity: 1;
+        transition: none;
       }
       .modal-add-sheet .modal-handle,
       .add-modal-sheet .modal-handle {
@@ -4469,8 +4463,53 @@
         50% { opacity: 0.68; transform: scale(1.08); }
       }
       #goalsNavBtn {
-        bottom: 82px !important;
-        left: 14px !important;
+        --goals-core-a: #f59e0b;
+        --goals-core-b: #f97316;
+        --goals-wave-a: rgba(245, 158, 11, 0.34);
+        --goals-wave-b: rgba(249, 115, 22, 0.28);
+        --goals-wave-c: rgba(255, 255, 255, 0.28);
+        width: 62px !important;
+        height: 62px !important;
+        border: 0 !important;
+        color: #fff7ed !important;
+        font-size: 28px !important;
+        isolation: isolate !important;
+        touch-action: none !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        background: linear-gradient(135deg, var(--goals-core-a), var(--goals-core-b)) !important;
+        box-shadow:
+          0 14px 34px var(--goals-wave-a),
+          0 8px 22px var(--goals-wave-b) !important;
+        animation: voiceFloatPulse 2.4s ease-in-out infinite !important;
+      }
+      #goalsNavBtn::before {
+        content: "" !important;
+        position: absolute !important;
+        inset: -18px !important;
+        border-radius: inherit !important;
+        z-index: -1 !important;
+        background:
+          radial-gradient(circle, transparent 47%, var(--goals-wave-a) 49%, transparent 53%),
+          radial-gradient(circle, transparent 60%, var(--goals-wave-b) 62%, transparent 67%),
+          radial-gradient(circle, var(--goals-wave-c) 0%, transparent 58%) !important;
+        animation: voiceMicroWaves 2.25s ease-out infinite !important;
+      }
+      #goalsNavBtn::after {
+        content: "" !important;
+        position: absolute !important;
+        inset: -7px !important;
+        border-radius: inherit !important;
+        z-index: -1 !important;
+        background: radial-gradient(circle, var(--goals-wave-b), transparent 66%) !important;
+        animation: voiceSoftBreath 1.7s ease-in-out infinite !important;
+      }
+      #goalsNavBtn.dragging {
+        animation: none !important;
+        transform: scale(1.05) !important;
+        box-shadow:
+          0 18px 42px rgba(245, 158, 11, 0.40),
+          0 10px 26px rgba(249, 115, 22, 0.30) !important;
       }
       body.dark #voiceInputBtn {
         --voice-core-a: #22d3ee;
@@ -4483,9 +4522,14 @@
         border: 0 !important;
       }
       body.dark #goalsNavBtn {
-        background: rgba(255, 255, 255, 0.07) !important;
-        border: 1px solid rgba(255, 255, 255, 0.18) !important;
-        color: #f0eaff !important;
+        --goals-core-a: #fbbf24;
+        --goals-core-b: #fb7185;
+        --goals-wave-a: rgba(251, 191, 36, 0.38);
+        --goals-wave-b: rgba(251, 113, 133, 0.30);
+        --goals-wave-c: rgba(255, 247, 237, 0.24);
+        background: linear-gradient(135deg, var(--goals-core-a), var(--goals-core-b)) !important;
+        color: #1c1917 !important;
+        border: 0 !important;
       }
       body:not(.dark) #voiceInputBtn {
         --voice-core-a: #0284c7;
@@ -4498,9 +4542,14 @@
         border: 0 !important;
       }
       body:not(.dark) #goalsNavBtn {
-        background: rgba(255, 255, 255, 0.88) !important;
-        border: 1px solid rgba(249, 115, 22, 0.18) !important;
-        color: #1c1917 !important;
+        --goals-core-a: #f59e0b;
+        --goals-core-b: #f97316;
+        --goals-wave-a: rgba(245, 158, 11, 0.34);
+        --goals-wave-b: rgba(249, 115, 22, 0.28);
+        --goals-wave-c: rgba(255, 255, 255, 0.28);
+        background: linear-gradient(135deg, var(--goals-core-a), var(--goals-core-b)) !important;
+        color: #fff7ed !important;
+        border: 0 !important;
       }
 
       [style*="background:var(--card-bg)"],
@@ -6948,20 +6997,48 @@
         max-width: 480px !important;
         margin: 0 auto !important;
       }
-      /* Ensure add operation modal uses transition-based animation, not generic sheet keyframes */
+      /* Add operation sheet follows the same bottom-sheet motion as the More drawer. */
       .more-sheet.add-modal-sheet {
-        animation: none !important;
+        animation: slideUpSheet 0.44s cubic-bezier(0.22, 1, 0.36, 1) both !important;
       }
       .more-overlay.add-modal-overlay {
-        animation: none !important;
+        animation: fadeInOverlay 0.28s ease both !important;
       }
       @keyframes slideUpSheet {
+        0% {
+          transform: translate3d(0, 100%, 0);
+        }
+        78% {
+          transform: translate3d(0, -8px, 0);
+        }
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+      }
+      @keyframes slideDownSheet {
+        0% {
+          transform: translate3d(0, 0, 0);
+        }
+        18% {
+          transform: translate3d(0, -4px, 0);
+        }
+        100% {
+          transform: translate3d(0, 104%, 0);
+        }
+      }
+      @keyframes fadeOutOverlay {
         from {
-          transform: translateY(100%);
+          opacity: 1;
         }
         to {
-          transform: none;
+          opacity: 0;
         }
+      }
+      .add-modal-host.closing .more-overlay.add-modal-overlay {
+        animation: fadeOutOverlay 0.3s ease both !important;
+      }
+      .add-modal-host.closing .more-sheet.add-modal-sheet {
+        animation: slideDownSheet 0.42s cubic-bezier(0.4, 0, 0.2, 1) both !important;
       }
       body.dark .more-sheet {
         background: rgba(12, 6, 34, 0.98) !important;

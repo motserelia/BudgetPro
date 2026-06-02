@@ -389,8 +389,8 @@ const translations = {
     simpleModeOff: "Простой режим выкл",
     versionFooter: "БюджетPRO v2.3 · Офлайн 📴",
     biometryTitle: "🫆 Биометрия",
-    biometryDesc: "Face ID / Touch ID / отпечаток пальца",
-    biometryToggleLabel: "Вход по биометрии",
+    biometryDesc: "Отпечаток пальца или распознавание лица, если телефон это поддерживает",
+    biometryToggleLabel: "Вход по лицу или отпечатку",
     biometrySupported: "✅ Биометрия доступна на этом устройстве",
     biometryNotSupported: "❌ Биометрия недоступна на этом устройстве",
     subcatIconLabel: "Подкатегория",
@@ -945,8 +945,8 @@ const translations = {
     simpleModeOff: "Simple mode off",
     versionFooter: "BudgetPRO v2.3 · Offline 📴",
     biometryTitle: "🫆 Biometry",
-    biometryDesc: "Face ID / Touch ID / Fingerprint",
-    biometryToggleLabel: "Login with biometry",
+    biometryDesc: "Fingerprint or face recognition, if the phone supports it",
+    biometryToggleLabel: "Login with face or fingerprint",
     biometrySupported: "✅ Biometry available on this device",
     biometryNotSupported: "❌ Biometry not available",
     subcatIconLabel: "Subcategory",
@@ -1500,8 +1500,8 @@ const translations = {
     simpleModeOff: "მარტივი რეჟიმი გამ",
     versionFooter: "ბიუჯეტPRO v2.3 · ოფლაინ 📴",
     biometryTitle: "🫆 ბიომეტრია",
-    biometryDesc: "Face ID / Touch ID / თითის ანაბეჭდი",
-    biometryToggleLabel: "ბიომეტრიით შესვლა",
+    biometryDesc: "თითის ანაბეჭდი ან სახის ამოცნობა, თუ ტელეფონი მხარს უჭერს",
+    biometryToggleLabel: "სახით ან ანაბეჭდით შესვლა",
     biometrySupported: "✅ ბიომეტრია ხელმისაწვდომია ამ მოწყობილობაზე",
     biometryNotSupported: "❌ ბიომეტრია მიუწვდომელია",
     subcatIconLabel: "ქვეკატეგორია",
@@ -2315,8 +2315,41 @@ let currentFilter = null;
 let remindersEnabled = false;
 let remindersInterval = "daily";
 let reminderIntervals = JSON.parse(
-  localStorage.getItem("reminderIntervals") || '{"daily":true}',
+  localStorage.getItem("reminderIntervals") || "{}",
 );
+let reminderWeekdays = JSON.parse(
+  localStorage.getItem("reminderWeekdays") || "[1,2,3,4,5,6,0]",
+);
+
+function hasActiveRecurringReminderIntervals() {
+  return Object.values(reminderIntervals || {}).some((v) => !!v);
+}
+
+function syncRecurringReminderStateFromNamedReminder(name, deliveryMode, soundChoice) {
+  if (!hasActiveRecurringReminderIntervals()) return;
+  localStorage.setItem("customRecurringReminderText", (name || "").trim());
+  localStorage.setItem("customRecurringReminderDeliveryMode", deliveryMode || "sound_vibration");
+  localStorage.setItem("customRecurringReminderSoundChoice", soundChoice || "");
+}
+
+function clearRecurringReminderState() {
+  const knownIntervals = [
+    "1min", "5min", "10min", "15min", "30min", "1h", "2h", "5h", "daily", "every3days", "weekly",
+  ];
+  reminderIntervals = {};
+  localStorage.setItem("reminderIntervals", JSON.stringify(reminderIntervals));
+  localStorage.removeItem("customRecurringReminderText");
+  localStorage.removeItem("customRecurringReminderDeliveryMode");
+  localStorage.removeItem("customRecurringReminderSoundChoice");
+  for (const interval of knownIntervals) {
+    localStorage.removeItem(`lastReminder_${interval}`);
+  }
+}
+
+async function syncNativeRecurringReminderNotificationsIfNeeded() {
+  if (!hasActiveRecurringReminderIntervals()) return;
+  await syncNativeRecurringReminderNotifications();
+}
 let customReminderDate = localStorage.getItem("customReminderDate") || "";
 let customReminderTime = localStorage.getItem("customReminderTime") || "";
 let customReminderText = localStorage.getItem("customReminderText") || "";
@@ -2361,6 +2394,8 @@ try {
 } catch (e) {}
 let biometryEnabled = false;
 let biometryCredId = null;
+let faceUnlockEnabled = localStorage.getItem("faceUnlockEnabled") === "true";
+let pendingFaceUnlockSetup = localStorage.getItem("pendingFaceUnlockSetup") === "true";
 let simpleMode = localStorage.getItem("simpleMode") === "true";
 let fontSize = localStorage.getItem("fontSize") || "normal";
 let animationsEnabled = localStorage.getItem("animationsEnabled") !== "false";
@@ -5547,6 +5582,62 @@ function esc(str) {
 function fmt(n) {
   return toDisp(n).toFixed(2) + " " + sym();
 }
+function cleanMoneyValue(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.round(n * 100) / 100;
+}
+function parseMoneyInput(value) {
+  return Number(String(value || "").replace(",", ".").replace(/\s+/g, ""));
+}
+function isInitialBalanceTx(tx) {
+  return (
+    !!tx &&
+    (tx._initial === true ||
+      tx.type === "salary" ||
+      tx.id === "__initial_balance__" ||
+      tx.category === "Начальная сумма" ||
+      tx.category === "Starting amount" ||
+      tx.category === "საწყისი თანხა")
+  );
+}
+function normalizeFinancialState() {
+  startBalanceRub = Math.max(0, cleanMoneyValue(startBalanceRub));
+  const seenIds = new Set();
+  const clean = [];
+  for (const tx of transactions || []) {
+    if (!tx || isInitialBalanceTx(tx)) continue;
+    const amountRub = cleanMoneyValue(tx.amountRub);
+    if (amountRub <= 0) continue;
+    const next = {
+      ...tx,
+      id: tx.id || `${tx.date || today()}_${tx.type || "expense"}_${amountRub}_${clean.length}`,
+      type: tx.type === "income" ? "income" : "expense",
+      amountRub,
+      date: tx.date || today(),
+    };
+    if (seenIds.has(next.id)) continue;
+    seenIds.add(next.id);
+    clean.push(next);
+  }
+  if (startBalanceRub > 0) {
+    clean.unshift({
+      id: "__initial_balance__",
+      type: "income",
+      category: t("initialCategory"),
+      subcategory: null,
+      amountRub: startBalanceRub,
+      date: today(),
+      note: t("initialCapital"),
+      _initial: true,
+      lockedInitial: true,
+    });
+  }
+  transactions = clean;
+}
+function getMoneyTransactions() {
+  return (transactions || []).filter((tx) => !isInitialBalanceTx(tx));
+}
 function debounce(fn, delay) {
   let t;
   return function (...a) {
@@ -5773,6 +5864,7 @@ function loadProfileData(pid) {
       )
         tx._initial = true;
     });
+    normalizeFinancialState();
   } catch (e) {}
 
   // Проверка флага новых сообщений для владельца
@@ -5789,6 +5881,7 @@ function loadProfileData(pid) {
 }
 
 function saveProfileData() {
+  normalizeFinancialState();
   localStorage.setItem(
     getProfileStorageKey(),
     JSON.stringify({
@@ -5977,6 +6070,7 @@ function loadAll() {
 }
 
 function saveAll() {
+  normalizeFinancialState();
   saveProfileData();
   saveGlobal();
   saveAllToIndexedDB().catch(() => {});
@@ -6002,21 +6096,7 @@ function saveAll() {
 }
 
 function syncStartBalanceTransaction() {
-  // 1. Удаляем абсолютно все старые операции с _initial
-  transactions = transactions.filter((tx) => !tx._initial);
-
-  // 2. Если начальная сумма > 0 – создаём одну операцию-якорь
-  if (startBalanceRub > 0) {
-    transactions.push({
-      type: "income",
-      category: t("initialCategory"),
-      subcategory: null,
-      amountRub: startBalanceRub,
-      date: today(),
-      note: t("initialCapital"),
-      _initial: true,
-    });
-  }
+  normalizeFinancialState();
   transactions.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
 }
 
@@ -6112,23 +6192,37 @@ function applyRecurringOps() {
 // ПИН-КОД
 // ============================================================
 function showPinScreen(onSuccess) {
-  if (!pinEnabled || !pinHash) {
+  const canUsePin = pinEnabled && pinHash;
+  const canUseBiometry = biometryEnabled && biometryCredId;
+  if (!canUsePin && !canUseBiometry) {
     onSuccess();
     return;
   }
   const overlay = document.createElement("div");
   overlay.id = "pinScreen";
-  overlay.style.cssText = `position:fixed;inset:0;background:var(--cream);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;`;
+  overlay.style.cssText = `position:fixed;inset:0;background:radial-gradient(circle at 50% 10%,var(--primary-pale),var(--cream) 46%,var(--cream-dark));z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);`;
   overlay.innerHTML = `
-    <div style="font-size:40px;">🔒</div>
-    <div style="font-size:20px;font-weight:800;color:var(--text);">${t("pinEnter")}</div>
-    <div id="pinDots" style="display:flex;gap:12px;margin:8px 0;">
-      ${[0, 1, 2, 3].map(() => `<div style="width:16px;height:16px;border-radius:50%;border:2px solid var(--primary);background:transparent;"></div>`).join("")}
+    <div style="width:min(380px,94vw);min-height:min(620px,86vh);border-radius:30px;padding:28px 18px 24px;background:var(--card-bg);border:1.5px solid var(--cream-border);box-shadow:0 20px 54px rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;overflow:hidden;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:0 6px;min-height:48px;flex-shrink:0;">
+      <span style="width:42px;height:42px;border-radius:16px;background:linear-gradient(135deg,var(--primary),var(--primary-med));display:inline-flex;align-items:center;justify-content:center;font-size:22px;line-height:1;box-shadow:0 10px 22px rgba(37,99,235,.22);flex-shrink:0;">🔒</span>
+      <span style="font-size:21px;font-weight:950;color:var(--text);text-align:left;line-height:1.2;min-width:0;">${t("pinEnter")}</span>
     </div>
-    <div id="pinError" style="color:var(--expense-color);font-size:14px;font-weight:700;min-height:20px;"></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:280px;">
-      ${[1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "⌫"].map((k) => `<button class="pin-key" data-key="${k}" style="height:64px;border-radius:16px;border:1.5px solid var(--cream-border);background:var(--card-bg);font-size:22px;font-weight:700;cursor:pointer;color:var(--text);font-family:inherit;">${k}</button>`).join("")}
-    </div>`;
+    <div id="pinDots" style="display:flex;gap:12px;margin:2px 0 0;">
+      ${[0, 1, 2, 3].map(() => `<div style="width:17px;height:17px;border-radius:50%;border:2px solid var(--primary);background:transparent;transition:background .18s ease,transform .18s ease;"></div>`).join("")}
+    </div>
+    <div id="pinError" style="color:var(--expense-color);font-size:14px;font-weight:800;min-height:20px;text-align:center;"></div>
+    ${
+      canUseBiometry
+        ? `<button id="pinBiometryBtn" class="btn-primary" style="width:100%;padding:14px 16px;border-radius:18px;font-size:15px;font-weight:900;box-shadow:0 12px 26px rgba(37,99,235,.2);">🫆 ${t("biometryToggleLabel")}</button>`
+        : ""
+    }
+    ${
+      canUsePin
+        ? `<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%;">
+      ${[1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "⌫"].map((k) => `<button class="pin-key" data-key="${k}" style="height:64px;min-width:0;border-radius:20px;border:1.5px solid var(--cream-border);background:${k === "" ? "transparent" : "var(--cream-dark)"};font-size:${k === "⌫" ? "22px" : "24px"};font-weight:950;cursor:${k === "" ? "default" : "pointer"};color:var(--text);font-family:inherit;box-shadow:${k === "" ? "none" : "0 8px 18px rgba(0,0,0,.08)"};">${k}</button>`).join("")}
+    </div>`
+        : ""
+    }</div>`;
   document.body.appendChild(overlay);
   let entered = "";
   const dots = overlay.querySelectorAll("#pinDots div");
@@ -6136,6 +6230,7 @@ function showPinScreen(onSuccess) {
     dots.forEach((d, i) => {
       d.style.background =
         i < entered.length ? "var(--primary)" : "transparent";
+      d.style.transform = i < entered.length ? "scale(1.08)" : "scale(1)";
     });
   };
   overlay.querySelectorAll(".pin-key").forEach((btn) => {
@@ -6167,6 +6262,34 @@ function showPinScreen(onSuccess) {
       }
     });
   });
+  let biometryAttemptRunning = false;
+  const tryBiometryLogin = async (showFailureText = true) => {
+    if (!canUseBiometry) return;
+    if (biometryAttemptRunning) return;
+    biometryAttemptRunning = true;
+    const ok = await biometryVerify();
+    biometryAttemptRunning = false;
+    if (ok) {
+      overlay.remove();
+      onSuccess();
+    } else if (showFailureText) {
+      const err = document.getElementById("pinError");
+      if (err) {
+        err.textContent =
+          {
+            ru: "Биометрия не сработала. Введите PIN-код.",
+            en: "Biometry did not work. Enter your PIN code.",
+            ka: "ბიომეტრია არ იმუშავა. შეიყვანეთ PIN-კოდი.",
+          }[currentLang] || t("pinWrong");
+      }
+      setTimeout(() => {
+        const e = document.getElementById("pinError");
+        if (e) e.textContent = "";
+      }, 1600);
+    }
+  };
+  document.getElementById("pinBiometryBtn")?.addEventListener("click", () => tryBiometryLogin(true));
+  if (canUseBiometry) setTimeout(() => tryBiometryLogin(false), 350);
 }
 
 // ============================================================
@@ -6354,16 +6477,16 @@ function getTopBlockDisplayValues() {
   let inc = 0,
     exp = 0,
     realInc = 0;
-  for (const tx of transactions) {
+  for (const tx of getMoneyTransactions()) {
     if (tx.type === "income") {
       inc += tx.amountRub;
-      if (!tx._initial) realInc += tx.amountRub;
+      realInc += tx.amountRub;
     } else {
       exp += tx.amountRub;
     }
   }
   return {
-    balD: toDisp(inc - exp),
+    balD: toDisp(startBalanceRub + realInc - exp),
     incD: toDisp(realInc),
     expD: toDisp(exp),
     salD: toDisp(startBalanceRub),
@@ -6496,13 +6619,13 @@ function renderSimpleHome() {
   let inc = 0,
     exp = 0,
     realInc = 0;
-  transactions.forEach((tx) => {
+  getMoneyTransactions().forEach((tx) => {
     if (tx.type === "income") {
       inc += tx.amountRub;
-      if (!tx._initial) realInc += tx.amountRub;
+      realInc += tx.amountRub;
     } else exp += tx.amountRub;
   });
-  const bal = inc - exp;
+  const bal = startBalanceRub + realInc - exp;
   const s = sym();
   const L = currentLang;
 
@@ -6988,7 +7111,7 @@ function renderBalanceSummary() {
   const c = document.getElementById("balanceSummaryContainer");
   if (!c) return;
   const si = document.getElementById("searchInput");
-  let filtered = [...transactions];
+  let filtered = getMoneyTransactions();
   if (currentFilter === "income")
     filtered = filtered.filter((tx) => tx.type === "income");
   else if (currentFilter === "expense")
@@ -7007,7 +7130,7 @@ function renderBalanceSummary() {
   const exp = filtered
     .filter((t) => t.type === "expense")
     .reduce((s, t) => s + t.amountRub, 0);
-  const bal = inc - exp;
+  const bal = startBalanceRub + inc - exp;
   c.innerHTML = `<div class="balance-summary">
     <div class="balance-row row-salary" id="salaryRowBtn" role="button" tabindex="0">
       <div class="balance-row-left"><span class="balance-row-dot dot-salary"></span><span class="balance-row-label">${t("salary_label")}</span></div>
@@ -7386,16 +7509,25 @@ function showFullHistory() {
 // ============================================================
 // DATEPICKER
 // ============================================================
-function openDatePicker(initialDate, onSelect) {
+function openDatePicker(initialDate, onSelect, options = {}) {
+  const multiple = !!options.multiple;
+  const now = new Date();
+  const fallbackDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  let selectedDates = multiple
+    ? Array.isArray(initialDate)
+      ? [...new Set(initialDate.filter(Boolean))]
+      : typeof initialDate === "string" && initialDate
+        ? [...new Set(initialDate.split(",").map((d) => d.trim()).filter(Boolean))]
+        : []
+    : [];
   // Если дата не передана, всегда берём СЕГОДНЯШНЮЮ локальную дату
-  if (!initialDate) {
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
-    initialDate = `${yyyy}-${mm}-${dd}`;
+  if (!initialDate || (multiple && Array.isArray(initialDate) && initialDate.length === 0)) {
+    initialDate = fallbackDate;
   }
-  const date = new Date(initialDate + "T12:00:00");
+  const anchorDate = multiple
+    ? selectedDates[0] || fallbackDate
+    : initialDate || fallbackDate;
+  const date = new Date(anchorDate + "T12:00:00");
   let vY = date.getFullYear(),
     vM = date.getMonth();
   const months = t("months"),
@@ -7410,14 +7542,38 @@ function openDatePicker(initialDate, onSelect) {
       dh += `<div class="datepicker-day empty"></div>`;
     for (let d = 1; d <= dim; d++) {
       const ds = `${vY}-${String(vM + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-      dh += `<div class="datepicker-day${initialDate === ds ? " selected" : ""}" data-date="${ds}">${d}</div>`;
+      const selected = multiple
+        ? selectedDates.includes(ds)
+        : initialDate === ds;
+      dh += `<div class="datepicker-day${selected ? " selected" : ""}" data-date="${ds}">${d}</div>`;
     }
-    return `<div class="datepicker-header"><button class="datepicker-nav" id="dpPrev">←</button><span class="datepicker-month">${months[vM]} ${vY}</span><button class="datepicker-nav" id="dpNext">→</button></div><div class="datepicker-weekdays">${weekdays.map((w) => `<div class="datepicker-weekday">${w}</div>`).join("")}</div><div class="datepicker-days">${dh}</div>`;
+    const selectedSummary = multiple
+      ? `<div style="margin-top:10px;font-size:12px;color:var(--text-muted);font-weight:700;">${
+          {
+            ru: `Выбрано дат: ${selectedDates.length}`,
+            en: `Selected dates: ${selectedDates.length}`,
+            ka: `არჩეული თარიღები: ${selectedDates.length}`,
+          }[currentLang]
+        }</div>`
+      : "";
+    return `<div class="datepicker-header"><button class="datepicker-nav" id="dpPrev">←</button><span class="datepicker-month">${months[vM]} ${vY}</span><button class="datepicker-nav" id="dpNext">→</button></div><div class="datepicker-weekdays">${weekdays.map((w) => `<div class="datepicker-weekday">${w}</div>`).join("")}</div><div class="datepicker-days">${dh}</div>${selectedSummary}`;
   }
   const modal = createModal(
     "datepickerModal",
     t("pickDate"),
-    `<div class="datepicker-content"><div id="dpCal">${rc()}</div><div class="datepicker-actions"><button class="btn-secondary" id="dpCancel">${t("cancel")}</button></div></div>`,
+    `<div class="datepicker-content"><div id="dpCal">${rc()}</div><div class="datepicker-actions">${
+      multiple
+        ? `<button class="btn-secondary" id="dpClear">${{
+            ru: "Снять все даты",
+            en: "Clear all dates",
+            ka: "ყველა თარიღის მოხსნა",
+          }[currentLang]}</button><button class="btn-primary" id="dpApply">${{
+            ru: "Применить выбранные даты",
+            en: "Apply selected dates",
+            ka: "არჩეული თარიღების დადასტურება",
+          }[currentLang]}</button>`
+        : ""
+    }<button class="btn-secondary" id="dpCancel">${t("cancel")}</button></div></div>`,
   );
   document.body.appendChild(modal);
   openModal("datepickerModal");
@@ -7446,12 +7602,28 @@ function openDatePicker(initialDate, onSelect) {
       .querySelectorAll("#dpCal .datepicker-day[data-date]")
       .forEach((d) =>
         d.addEventListener("click", () => {
+          if (multiple) {
+            const picked = d.dataset.date;
+            selectedDates = selectedDates.includes(picked)
+              ? selectedDates.filter((x) => x !== picked)
+              : [...selectedDates, picked].sort();
+            upd();
+            return;
+          }
           closeModal("datepickerModal");
           onSelect(d.dataset.date);
         }),
       );
   }
   upd();
+  document.getElementById("dpApply")?.addEventListener("click", () => {
+    closeModal("datepickerModal");
+    onSelect(selectedDates);
+  });
+  document.getElementById("dpClear")?.addEventListener("click", () => {
+    selectedDates = [];
+    upd();
+  });
   document
     .getElementById("dpCancel")
     .addEventListener("click", () => closeModal("datepickerModal"));
@@ -7534,9 +7706,20 @@ function openEditModal(idx) {
     }),
   );
   document.getElementById("saveEditBtn")?.addEventListener("click", () => {
-    const a = parseFloat(document.getElementById("editAmount").value);
+    const a = parseMoneyInput(document.getElementById("editAmount").value);
     if (isNaN(a) || a <= 0) {
       showToast(t("enterPositive"), "error");
+      return;
+    }
+    if (isInitialBalanceTx(transactions[editingOpIndex])) {
+      startBalanceRub = toRub(a);
+      syncStartBalanceTransaction();
+      saveAll();
+      updateTopBlocks();
+      renderBalanceSummary();
+      renderOpsList();
+      closeModal("editModal");
+      showToast(t("saved"));
       return;
     }
     transactions[editingOpIndex].category =
@@ -7617,28 +7800,13 @@ function openSalaryModal() {
     });
   }
   document.getElementById("saveSalaryBtn")?.addEventListener("click", () => {
-    const v = parseFloat(document.getElementById("salaryAmount").value);
+    const v = parseMoneyInput(document.getElementById("salaryAmount").value);
     if (isNaN(v) || v < 0) {
       showToast(t("enterPositive"), "error");
       return;
     }
     startBalanceRub = toRub(v);
-
-    // Удаляем ВСЕ старые операции с _initial
-    transactions = transactions.filter((tx) => !tx._initial);
-
-    // Если новая сумма > 0 – добавляем одну запись-якорь
-    if (startBalanceRub > 0) {
-      transactions.push({
-        type: "income",
-        category: t("initialCategory"),
-        subcategory: null,
-        amountRub: startBalanceRub,
-        date: today(),
-        note: t("initialCapital"),
-        _initial: true,
-      });
-    }
+    syncStartBalanceTransaction();
 
     saveAll();
     updateTopBlocks();
@@ -8254,7 +8422,6 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       .join("");
   let ca = "";
   const html = `
-    <div id="addModalTopAnchor" style="height:1px;"></div>
     <div class="field-group"><label class="field-label">${t("type")}</label><div class="type-toggle"><button class="type-btn expense ${defaultType === "expense" ? "active" : ""}" data-type="expense">${t("expenseType")}</button><button class="type-btn income ${defaultType === "income" ? "active" : ""}" data-type="income">${t("incomeType")}</button></div></div>
     <div class="field-group"><label class="field-label" id="catLabel">${defaultType === "expense" ? t("expCategory") : t("incCategory")}</label><select id="addCategorySelect" class="modal-select">${defaultType === "expense" ? eo : io}</select></div>
     <div class="field-group" id="addSubcatDiv" style="display:none"><label class="field-label">${t("subcategory")}</label><select id="addSubcatSelect" class="modal-select"></select></div>
@@ -8277,15 +8444,8 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
   const resetAddModalViewport = () => {
     const modalBody = modal.querySelector(".modal-body");
     const sheet = modal.querySelector(".add-modal-sheet");
-    const topAnchor = modal.querySelector("#addModalTopAnchor");
     if (modalBody) {
       modalBody.scrollTop = 0;
-      if (typeof modalBody.scrollTo === "function") {
-        modalBody.scrollTo({ top: 0, behavior: "instant" });
-      }
-    }
-    if (topAnchor && typeof topAnchor.scrollIntoView === "function") {
-      topAnchor.scrollIntoView({ block: "start", inline: "nearest" });
     }
     if (sheet && !sheet.classList.contains("dragging")) {
       sheet.style.transform = "";
@@ -8374,7 +8534,7 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
   document.getElementById("saveAddBtn")?.addEventListener("click", () => {
     const cat = document.getElementById("addCategorySelect").value;
     const sub = document.getElementById("addSubcatSelect")?.value || "";
-    const amt = parseFloat(document.getElementById("addAmount").value);
+    const amt = parseMoneyInput(document.getElementById("addAmount").value);
     const date = document.getElementById("addDate").value;
     const note = document.getElementById("addNote").value.trim();
     if (!cat) {
@@ -8479,10 +8639,6 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
     });
   updateSuggestions();
   resetAddModalViewport();
-  requestAnimationFrame(resetAddModalViewport);
-  setTimeout(resetAddModalViewport, 80);
-  setTimeout(resetAddModalViewport, 220);
-  setTimeout(resetAddModalViewport, 420);
 }
 
 // ============================================================
@@ -9727,21 +9883,130 @@ function renderProfilesBody() {
 // ============================================================
 // БИОМЕТРИЯ (WebAuthn)
 // ============================================================
+function getNativeBiometryPlugin() {
+  const plugins = window.Capacitor?.Plugins || {};
+  return (
+    plugins.NativeBiometric ||
+    plugins.BiometricAuth ||
+    plugins.CapacitorBiometrics ||
+    null
+  );
+}
+
+async function nativeBiometryVerify(options = {}) {
+  const plugin = getNativeBiometryPlugin();
+  if (!plugin) return false;
+  const nativeBiometryOptions = {
+    reason: t("biometryToggleLabel") || "Login with biometry",
+    title: t("biometryTitle") || "Biometry",
+    subtitle: t("biometryDesc") || "Fingerprint / Face ID",
+    description: t("biometryDesc") || "Fingerprint / Face ID",
+    negativeButtonText: t("cancel") || "Cancel",
+    maxAttempts: 5,
+    allowedBiometryTypes: options.faceOnly ? [4] : [3, 4, 5, 6],
+    allowWeakFace: !!options.allowWeakFace,
+  };
+  try {
+    if (typeof plugin.verifyIdentity === "function") {
+      const result = await plugin.verifyIdentity(nativeBiometryOptions);
+      return result?.verified !== false;
+    }
+    if (typeof plugin.authenticate === "function") {
+      const result = await plugin.authenticate(nativeBiometryOptions);
+      return result?.success !== false && result?.authenticated !== false;
+    }
+  } catch (e) {
+    console.warn("native biometry verify:", e);
+  }
+  return false;
+}
+
+function openAndroidSecuritySettings() {
+  try {
+    pendingFaceUnlockSetup = true;
+    localStorage.setItem("pendingFaceUnlockSetup", "true");
+    if (window.BudgetPROSecurity?.openBiometricEnrollSettings) {
+      window.BudgetPROSecurity.openBiometricEnrollSettings();
+    } else {
+      window.BudgetPROSecurity?.openSecuritySettings?.();
+    }
+    return true;
+  } catch (e) {
+    console.warn("open security settings:", e);
+  }
+  return false;
+}
+
+async function refreshFaceUnlockAfterSystemSetup() {
+  if (!pendingFaceUnlockSetup) return;
+  if (document.hidden) return;
+  const faceAvl = await isFaceUnlockAvailable();
+  pendingFaceUnlockSetup = false;
+  localStorage.setItem("pendingFaceUnlockSetup", "false");
+  showToast(
+    faceAvl
+      ? {
+          ru: "Face Unlock найден системой. Нажмите кнопку ещё раз для проверки.",
+          en: "Face Unlock was found by the system. Tap the button again to verify.",
+          ka: "Face Unlock სისტემამ იპოვა. შემოწმებისთვის ღილაკს კიდევ ერთხელ დააჭირეთ.",
+        }[currentLang]
+      : {
+          ru: "Android всё ещё не отдаёт отдельное лицо приложению.",
+          en: "Android still does not expose separate face unlock to the app.",
+          ka: "Android ჯერ კიდევ არ გადასცემს ცალკე სახით განბლოკვას აპს.",
+        }[currentLang],
+    faceAvl ? "success" : "error",
+  );
+  if (currentTab === "settings") renderSettings();
+}
+
+window.addEventListener("pageshow", () => setTimeout(refreshFaceUnlockAfterSystemSetup, 500));
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) setTimeout(refreshFaceUnlockAfterSystemSetup, 500);
+});
+
 async function isBiometryAvailable() {
   try {
-    return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    const plugin = getNativeBiometryPlugin();
+    if (plugin?.isAvailable) {
+      const result = await plugin.isAvailable();
+      if (result?.isAvailable || result?.available || result?.biometryType) return true;
+    }
+    if (window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable) {
+      return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+    }
   } catch (e) {
-    return false;
+    console.warn("biometry available:", e);
   }
+  return false;
+}
+
+async function isFaceUnlockAvailable() {
+  try {
+    const plugin = getNativeBiometryPlugin();
+    if (!plugin?.isAvailable) return isBiometryAvailable();
+    const result = await plugin.isAvailable();
+    const type = Number(result?.biometryType);
+    return !!result?.isAvailable && ([2, 4, 6].includes(type) || await isBiometryAvailable());
+  } catch (e) {
+    console.warn("face unlock available:", e);
+  }
+  return isBiometryAvailable();
 }
 
 async function biometryRegister() {
   try {
+    if (await nativeBiometryVerify()) {
+      biometryCredId = "native";
+      biometryEnabled = true;
+      saveAll();
+      return true;
+    }
     const challenge = crypto.getRandomValues(new Uint8Array(32));
     const cred = await navigator.credentials.create({
       publicKey: {
         challenge,
-        rp: { name: "БюджетPRO", id: location.hostname || "localhost" },
+        rp: { name: "БюджетPRO" },
         user: {
           id: crypto.getRandomValues(new Uint8Array(16)),
           name: "user",
@@ -9771,6 +10036,12 @@ async function biometryRegister() {
 
 async function biometryVerify() {
   if (!biometryCredId) return false;
+  const nativeOptions = faceUnlockEnabled
+    ? { faceOnly: true, allowWeakFace: true }
+    : {};
+  if (biometryCredId === "native") return nativeBiometryVerify(nativeOptions);
+  const nativeOk = await nativeBiometryVerify(nativeOptions);
+  if (nativeOk) return true;
   try {
     const challenge = crypto.getRandomValues(new Uint8Array(32));
     const rawId = Uint8Array.from(atob(biometryCredId), (c2) =>
@@ -9779,7 +10050,6 @@ async function biometryVerify() {
     const assertion = await navigator.credentials.get({
       publicKey: {
         challenge,
-        rpId: location.hostname || "localhost",
         allowCredentials: [{ type: "public-key", id: rawId }],
         userVerification: "required",
         timeout: 60000,
@@ -10047,11 +10317,11 @@ function renderSettings() {
   <!-- Размер шрифта -->
   <div class="set-card" style="padding:14px 16px">
     <div class="set-row-label" style="margin-bottom:10px;font-size:14px;font-weight:700">${t("fontSizeLabel")}</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+    <div class="font-size-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;align-items:stretch;">
       ${["small", "normal", "large", "xl"]
         .map(
           (s) => `<button class="font-size-btn set-font-btn" data-size="${s}"
-        style="padding:10px 4px;border-radius:12px;border:2px solid ${fontSize === s ? "var(--primary)" : "var(--cream-border)"};
+        style="min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.15;padding:10px 8px;border-radius:12px;border:2px solid ${fontSize === s ? "var(--primary)" : "var(--cream-border)"};
         background:${fontSize === s ? "var(--primary-pale)" : "var(--cream-dark)"};
         font-size:${s === "small" ? "12px" : s === "normal" ? "14px" : s === "large" ? "17px" : "20px"};
         font-weight:700;cursor:pointer;font-family:inherit;color:var(--text);">
@@ -10088,6 +10358,14 @@ function renderSettings() {
         <span class="set-row-sub" id="bioStatusText">${t("loading")}</span>
       </div>
       <label class="switch"><input type="checkbox" id="biometryToggle" ${biometryEnabled ? "checked" : ""}><span class="slider round"></span></label>
+    </div>
+    <div class="set-row set-row-divider" id="faceUnlockCard">
+      <div class="set-row-ico">🙂</div>
+      <div class="set-row-label set-row-label-sub">
+        <span>${{ ru: "Разблокировка по лицу", en: "Face unlock", ka: "სახით განბლოკვა" }[L]}</span>
+        <span class="set-row-sub" id="faceUnlockStatusText">${{ ru: "Проверка доступности лица...", en: "Checking face availability...", ka: "სახის ხელმისაწვდომობის შემოწმება..." }[L]}</span>
+      </div>
+      <label class="switch"><input type="checkbox" id="faceUnlockToggle" ${faceUnlockEnabled && biometryEnabled ? "checked" : ""}><span class="slider round"></span></label>
     </div>
   </div>
 
@@ -10219,16 +10497,17 @@ function renderSettings() {
   <div class="set-section-title">${t("reminders")}</div>
   <div class="set-card" style="padding:16px">
     <div style="border-radius:12px;padding:12px 14px;margin-bottom:14px;background:${
-      typeof Notification !== "undefined" &&
-      Notification.permission === "granted"
+      (isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") ||
+      (typeof Notification !== "undefined" && Notification.permission === "granted")
         ? "var(--income-pale)"
         : "var(--cream-dark)"
     };
-      border:1.5px solid ${typeof Notification !== "undefined" && Notification.permission === "granted" ? "var(--income-color)" : "var(--cream-border)"};">
+      border:1.5px solid ${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? "var(--income-color)" : "var(--cream-border)"};">
       <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:22px;">${typeof Notification !== "undefined" && Notification.permission === "granted" ? "✅" : typeof Notification !== "undefined" && Notification.permission === "denied" ? "🚫" : "🔔"}</span>
-        <span style="font-size:14px;font-weight:700;color:var(--text);">${typeof Notification !== "undefined" && Notification.permission === "granted" ? t("notifGranted") : typeof Notification !== "undefined" && Notification.permission === "denied" ? t("notifDenied") : t("notifDefault")}</span>
-        ${typeof Notification !== "undefined" && Notification.permission !== "granted" ? `<button id="requestNotifBtn" class="btn-primary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${t("notifRequest")}</button>` : ""}
+        <span style="font-size:22px;">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? "✅" : ((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied")) ? "🚫" : "🔔"}</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? t("notifGranted") : ((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied")) ? t("notifDenied") : t("notifDefault")}</span>
+        ${((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") !== "granted") || (typeof Notification !== "undefined" && Notification.permission !== "granted")) ? `<button id="requestNotifBtn" class="btn-primary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${t("notifRequest")}</button>` : ""}
+        ${((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted")) ? `<button id="notifDisableBtn" class="btn-secondary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${{ ru: "Отключить уведомления", en: "Disable notifications", ka: "შეტყობინებების გამორთვა" }[L]}</button>` : ""}
       </div>
     </div>
     <div id="namedRemindersList">
@@ -10243,71 +10522,167 @@ function renderSettings() {
               i,
             ) => `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${r.fired ? "var(--cream-dark)" : "var(--income-pale)"};border:1.5px solid ${r.fired ? "var(--cream-border)" : "var(--income-color)"};border-radius:12px;margin-bottom:8px;">
           <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.name || "🔔")}</div>
-          <div style="font-size:11px;color:var(--text-muted);">${new Date(r.ts).toLocaleString(L === "en" ? "en-US" : L === "ka" ? "ka-GE" : "ru-RU")}</div></div>
+          <div style="font-size:11px;color:var(--text-muted);">${new Date(r.ts).toLocaleString(L === "en" ? "en-US" : L === "ka" ? "ka-GE" : "ru-RU")}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${esc(getReminderDeliveryModeLabel(r.deliveryMode || "sound_vibration", L))}${r.soundChoice ? ` · ${esc(getReminderSoundChoiceLabel(r.soundChoice, L))}` : ""}</div></div>
           <span style="font-size:12px;color:${r.fired ? "var(--text-muted)" : "var(--income-color)"};font-weight:700;">${r.fired ? { ru: "✓ Готово", en: "✓ Done", ka: "✓ შეს." }[L] : { ru: "⏰ Ждёт", en: "⏰ Pending", ka: "⏰ ელ." }[L]}</span>
+          <button class="named-reminder-edit" data-idx="${i}" style="background:var(--primary-pale);border:none;border-radius:8px;width:28px;height:28px;color:var(--primary);cursor:pointer;font-size:14px;flex-shrink:0;">✎</button>
           <button class="named-reminder-del" data-idx="${i}" style="background:var(--expense-pale);border:none;border-radius:8px;width:28px;height:28px;color:var(--expense-color);cursor:pointer;font-size:14px;flex-shrink:0;">✕</button>
         </div>`,
           )
           .join("");
       })()}
     </div>
-    <div style="background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);margin-top:4px">
-      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px">➕ ${t("add")}</div>
+    <details style="margin:8px 0 12px;background:var(--cream-dark);border-radius:12px;padding:12px;border:1px dashed var(--cream-border);">
+      <summary style="cursor:pointer;font-size:13px;font-weight:800;color:var(--text);">${{ ru: "Диагностика уведомлений", en: "Notification diagnostics", ka: "შეტყობინებების დიაგნოსტიკა" }[L]}</summary>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+        <button id="refreshReminderDebugBtn" class="btn-secondary" style="padding:10px 12px;font-size:12px;">${{ ru: "Обновить диагностику", en: "Refresh diagnostics", ka: "დიაგნოსტიკის განახლება" }[L]}</button>
+        <button id="hardClearReminderDebugBtn" class="btn-secondary" style="padding:10px 12px;font-size:12px;color:var(--expense-color);border-color:var(--expense-color);">${{ ru: "Жёстко очистить хвосты", en: "Hard clear leftovers", ka: "ნარჩენების მკაცრი გასუფთავება" }[L]}</button>
+      </div>
+      <pre id="reminderDebugText" style="margin-top:10px;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.45;color:var(--text-muted);background:rgba(0,0,0,.04);padding:10px;border-radius:10px;">...</pre>
+    </details>
+    <details open style="background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);margin-top:4px">
+      <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;">
+        <span>${{ ru: "Добавить напоминание", en: "Add a reminder", ka: "შეხსენების დამატება" }[L]}</span>
+        <span style="color:var(--text-muted);font-size:12px;">${{ ru: "Развернуть или свернуть", en: "Expand or collapse", ka: "გაშლა ან შეკეცვა" }[L]}</span>
+      </summary>
+      <input type="hidden" id="editingReminderId" value="">
       <div class="field-group" style="margin-bottom:10px"><label class="field-label">${t("reminderName")}</label>
         <input type="text" id="newReminderName" class="modal-input" placeholder="${t("reminderNamePlaceholder")}"></div>
+      <div class="field-group" style="margin-bottom:10px"><label class="field-label">${{ ru: "Режим уведомления", en: "Notification mode", ka: "შეტყობინების რეჟიმი" }[L]}</label>
+        <select id="reminderDeliveryMode" class="modal-input">
+          <option value="sound_vibration">${{ ru: "🔔📳 Звук и вибрация", en: "🔔📳 Sound and vibration", ka: "🔔📳 ხმა და ვიბრაცია" }[L]}</option>
+          <option value="sound_only">${{ ru: "🔔 Только звук", en: "🔔 Sound only", ka: "🔔 მხოლოდ ხმა" }[L]}</option>
+          <option value="vibration_only">${{ ru: "📳 Только вибрация", en: "📳 Vibration only", ka: "📳 მხოლოდ ვიბრაცია" }[L]}</option>
+          <option value="silent">${{ ru: "🔕 Без звука и без вибрации", en: "🔕 No sound and no vibration", ka: "🔕 უხმოდ და ვიბრაციის გარეშე" }[L]}</option>
+        </select></div>
+      <div class="field-group" style="margin-bottom:10px"><label class="field-label">${{ ru: "Выберите мелодию уведомления", en: "Choose a notification melody", ka: "აირჩიეთ შეტყობინების მელოდია" }[L]}</label>
+        <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin:0 0 8px 0;">${{ ru: "Это поле открывает список мелодий для уведомления. Здесь выбирается, какой звук будет использоваться.", en: "This field opens the list of melodies for the notification. This is where you choose which sound will be used.", ka: "ეს ველი ხსნის შეტყობინების მელოდიების სიას. აქ ირჩევთ რომელი ხმა იქნება გამოყენებული." }[L]}</div>
+        <div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap">
+          <select id="reminderSoundChoice" class="modal-input" style="flex:1;min-height:60px;font-size:17px;font-weight:900;border-width:3px;box-shadow:0 8px 24px rgba(0,0,0,.08)">
+            <option value="">🔕 ${{
+              ru: "Без выбранной мелодии",
+              en: "No selected melody",
+              ka: "არჩეული მელოდიის გარეშე",
+            }[L]}</option>${Array.from({ length: 14 }, (_, i) => {
+            const icons = ["🎵","🎶","🔔","✨","⚡","🌊","💎","🔥","🌙","🚀","🪶","🐣","📟","🔋"];
+            return `<option value="sound_${i + 1}">${icons[i]} ${{
+              ru: `Звук ${i + 1}`,
+              en: `Sound ${i + 1}`,
+              ka: `ხმა ${i + 1}`,
+            }[L]}</option>`;
+          }).join("")}</select>
+          <button type="button" id="previewReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">▶️ ${{ ru: "Проба", en: "Preview", ka: "მოსმენა" }[L]}</button>
+          <button type="button" id="stopReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">⏹ ${{ ru: "Стоп", en: "Stop", ka: "შეჩერება" }[L]}</button>
+          <button type="button" id="resetReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">↺ ${{ ru: "Сброс", en: "Reset", ka: "გასუფთავება" }[L]}</button>
+        </div>
+        <div id="selectedReminderSoundCard" style="margin-top:10px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,var(--primary-pale),var(--cream-dark));border:2px solid var(--primary);box-shadow:0 8px 24px rgba(0,0,0,.08);">
+          <div style="font-size:12px;color:var(--text-muted);font-weight:800;">${{ ru: "Сейчас выбрано", en: "Currently selected", ka: "ამჟამად არჩეული" }[L]}</div>
+          <div id="selectedReminderSoundText" style="margin-top:6px;font-size:18px;font-weight:900;color:var(--text);line-height:1.25;"></div>
+          <div id="selectedReminderModeText" style="margin-top:6px;font-size:14px;font-weight:700;color:var(--primary);line-height:1.3;"></div>
+        </div></div>
       <div class="field-group" style="margin-bottom:12px"><label class="field-label">${t("reminderDateTime")}</label>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="hidden" id="newReminderDatetime" value="">
-          <button type="button" id="reminderDateBtn" class="modal-input" style="flex:1;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);">📅 <span id="reminderDateText">${t("chooseDate")}</span></button>
-          <button type="button" id="reminderTimeBtn" class="modal-input" style="flex:1;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);">🕒 <span id="reminderTimeText">${t("chooseTimeBtn")}</span></button>
-          <input type="time" id="nativeTimeInput" class="modal-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" value="09:00">
-        </div></div>
-      <div style="display:flex;gap:8px">
-        <button id="addNamedReminderBtn" class="btn-primary" style="flex:1;padding:13px">⏰ ${t("scheduleReminder")}</button>
-        <button id="testNotifBtn" class="btn-secondary" style="padding:13px;font-size:12px;white-space:nowrap">🔔 ${{ ru: "Тест", en: "Test", ka: "ტ." }[L]}</button>
+          <button type="button" id="reminderDateBtn" class="modal-input" style="flex:1;min-width:0;min-height:52px;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);"><span id="reminderDateText">${t("chooseDate")}</span></button>
+          <button type="button" id="reminderTimeBtn" class="modal-input" style="flex:1;min-width:0;min-height:52px;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);"><span id="reminderTimeText">${t("chooseTimeBtn")}</span></button>
+          <input type="time" id="nativeTimeInput" class="modal-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" value="">
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+          ${[
+            { min: 1, label: { ru: "Через 1 минуту", en: "In 1 minute", ka: "1 წუთში" } },
+            { min: 5, label: { ru: "Через 5 минут", en: "In 5 minutes", ka: "5 წუთში" } },
+            { min: 10, label: { ru: "Через 10 минут", en: "In 10 minutes", ka: "10 წუთში" } },
+          ]
+            .map(
+              (opt) => `<button type="button" class="reminder-quick-time-btn" data-min="${opt.min}" style="padding:8px 10px;border:none;border-radius:999px;background:var(--primary-pale);color:var(--primary);font-size:12px;font-weight:800;cursor:pointer;">⏱ ${opt.label[L] || opt.label.ru}</button>`,
+            )
+            .join("")}
+      </div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:stretch">
+        <button id="addNamedReminderBtn" class="btn-primary" style="min-width:0;padding:13px 10px;white-space:normal;line-height:1.2;overflow-wrap:anywhere;">⏰ <span id="addNamedReminderBtnText">${t("scheduleReminder")}</span></button>
+        <button id="testNotifBtn" class="btn-secondary" style="min-width:0;padding:13px 10px;font-size:12px;white-space:normal;line-height:1.2;overflow-wrap:anywhere;">🔔 ${{ ru: "Проверить уведомления", en: "Test notifications", ka: "შეტყობინებების ტესტი" }[L]}</button>
       </div>
-    </div>
+    </details>
     <!-- Интервальные напоминания -->
-    <div style="margin-top:16px">
-      <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">🔁 ${t("recurringShort")}</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
+    <details style="margin-top:16px;background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);" open>
+      <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">
+        <span>${{ ru: "Повторяющиеся напоминания", en: "Recurring reminders", ka: "განმეორებადი შეხსენებები" }[L]}</span>
+        <span style="color:var(--text-muted);font-size:12px;">${{ ru: "Выберите интервалы и дни", en: "Choose intervals and days", ka: "აირჩიეთ ინტერვალები და დღეები" }[L]}</span>
+      </summary>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
         ${[
           {
+            val: "1min",
+            label: { ru: "Каждую минуту", en: "Every minute", ka: "ყოველ წუთში" },
+          },
+          {
+            val: "5min",
+            label: { ru: "Каждые 5 минут", en: "Every 5 minutes", ka: "ყოველ 5 წუთში" },
+          },
+          {
+            val: "10min",
+            label: { ru: "Каждые 10 минут", en: "Every 10 minutes", ka: "ყოველ 10 წუთში" },
+          },
+          {
+            val: "15min",
+            label: { ru: "Каждые 15 минут", en: "Every 15 minutes", ka: "ყოველ 15 წუთში" },
+          },
+          {
+            val: "30min",
+            label: { ru: "Каждые 30 минут", en: "Every 30 minutes", ka: "ყოველ 30 წუთში" },
+          },
+          {
             val: "1h",
-            label: { ru: "Каждый час", en: "Every hour", ka: "ყ.საათ." },
+            label: { ru: "Каждый час", en: "Every hour", ka: "ყოველ საათში" },
           },
           {
             val: "2h",
-            label: { ru: "Каждые 2 часа", en: "Every 2h", ka: "ყ.2სთ." },
+            label: { ru: "Каждые 2 часа", en: "Every 2 hours", ka: "ყოველ 2 საათში" },
           },
           {
             val: "5h",
-            label: { ru: "Каждые 5 часов", en: "Every 5h", ka: "ყ.5სთ." },
+            label: { ru: "Каждые 5 часов", en: "Every 5 hours", ka: "ყოველ 5 საათში" },
           },
           {
             val: "daily",
-            label: { ru: "Каждый день", en: "Daily", ka: "ყოვ." },
+            label: { ru: "Каждый день", en: "Every day", ka: "ყოველდღე" },
           },
           {
             val: "every3days",
-            label: { ru: "Каждые 3 дня", en: "Every 3 days", ka: "ყ.3დ." },
+            label: { ru: "Каждые 3 дня", en: "Every 3 days", ka: "ყოველ 3 დღეში" },
           },
           {
             val: "weekly",
-            label: { ru: "Каждую неделю", en: "Weekly", ka: "ყ.კვ." },
+            label: { ru: "Каждую неделю", en: "Every week", ka: "ყოველ კვირაში" },
           },
         ]
           .map(
             (
               opt,
-            ) => `<label style="display:flex;align-items:center;gap:12px;padding:9px 12px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:10px;cursor:pointer;">
+            ) => `<label style="display:flex;align-items:center;gap:12px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:12px;cursor:pointer;">
             <input type="checkbox" class="reminder-interval-checkbox" data-val="${opt.val}" ${reminderIntervals?.[opt.val] ? "checked" : ""} style="width:18px;height:18px;accent-color:var(--primary);flex-shrink:0;">
             <span style="font-size:14px;font-weight:600;color:var(--text)">${opt.label[L] || opt.label.ru}</span>
           </label>`,
           )
           .join("")}
       </div>
-    </div>
+      <div style="margin-top:14px;padding:12px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
+          <div style="font-size:13px;font-weight:800;color:var(--text);">${{ ru: "Дни недели для повторов", en: "Weekdays for recurring reminders", ka: "კვირის დღეები განმეორებადი შეხსენებებისთვის" }[L]}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" id="selectAllReminderWeekdaysBtn" style="border:none;background:var(--primary-pale);color:var(--primary);padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;">${{ ru: "Выбрать все дни", en: "Select all days", ka: "ყველა დღის არჩევა" }[L]}</button>
+            <button type="button" id="resetReminderWeekdaysBtn" style="border:none;background:var(--expense-pale);color:var(--expense-color);padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;">${{ ru: "Снять все дни", en: "Clear all days", ka: "ყველა დღის მოხსნა" }[L]}</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          ${getReminderWeekdayOptions(L)
+            .map(
+              (day) => `<button type="button" class="reminder-weekday-btn" data-day="${day.value}" aria-pressed="${reminderWeekdays.includes(day.value) ? "true" : "false"}" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1.5px solid ${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-border)"};background:${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-dark)"};color:${reminderWeekdays.includes(day.value) ? "#ffffff" : "var(--text)"};font-size:13px;font-weight:800;cursor:pointer;box-shadow:${reminderWeekdays.includes(day.value) ? "0 8px 20px rgba(37,99,235,0.28)" : "none"};">${reminderWeekdays.includes(day.value) ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.22);color:#ffffff;font-size:12px;font-weight:900;flex-shrink:0;">✓</span>` : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)"};color:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.45)"};font-size:12px;font-weight:900;flex-shrink:0;">•</span>`}<span>${day.full}</span></button>`,
+            )
+            .join("")}
+        </div>
+      </div>
+    </details>
   </div>
 
   ${
@@ -10415,7 +10790,23 @@ function renderSettings() {
     });
   document
     .getElementById("changePinBtn")
-    ?.addEventListener("click", () => openPinSetModal(true));
+    ?.addEventListener("click", async () => {
+      if (biometryEnabled && biometryCredId) {
+        const ok = await biometryVerify();
+        if (!ok) {
+          showToast(
+            {
+              ru: "Сначала подтвердите личность отпечатком пальца или распознаванием лица.",
+              en: "First confirm your identity with fingerprint or face recognition.",
+              ka: "ჯერ დაადასტურეთ პირადობა თითის ანაბეჭდით ან სახის ამოცნობით.",
+            }[currentLang],
+            "error",
+          );
+          return;
+        }
+      }
+      openPinSetModal(true);
+    });
 
   // ── Упрощённый режим ──
   document
@@ -10725,6 +11116,28 @@ function renderSettings() {
         : t("biometryNotSupported");
       if (avl) seEl.style.color = "var(--income-color)";
     }
+    const faceAvl = await isFaceUnlockAvailable();
+    const faceStatusEl = document.getElementById("faceUnlockStatusText");
+    if (faceStatusEl) {
+      faceStatusEl.textContent = faceAvl
+        ? {
+            ru: "Лицо доступно через системную биометрию Android.",
+            en: "Face unlock is available through Android system biometry.",
+            ka: "სახით განბლოკვა ხელმისაწვდომია Android-ის სისტემური ბიომეტრიით.",
+          }[currentLang]
+        : {
+            ru: avl
+              ? "Можно включить через системную биометрию Android."
+              : "Системная биометрия недоступна.",
+            en: avl
+              ? "Can be enabled through Android system biometry."
+              : "System biometry is unavailable.",
+            ka: avl
+              ? "შესაძლებელია Android-ის სისტემური ბიომეტრიით ჩართვა."
+              : "სისტემური ბიომეტრია მიუწვდომელია.",
+          }[currentLang];
+      faceStatusEl.style.color = faceAvl || avl ? "var(--income-color)" : "var(--text-muted)";
+    }
     const btEl = document.getElementById("biometryToggle");
     if (btEl) {
       if (!avl) {
@@ -10738,30 +11151,37 @@ function renderSettings() {
             e.target.checked = false;
             return;
           }
-          if (location.protocol === "file:") {
+          if (!pinEnabled || !pinHash) {
             showToast(
               {
-                ru: "Биометрия требует HTTPS. Запустите через сервер.",
-                en: "Biometry needs HTTPS. Use a local server.",
-                ka: "საჭ. HTTPS",
+                ru: "Сначала создайте PIN-код. Он нужен как запасной вход, если биометрия не сработает.",
+                en: "Create a PIN code first. It is needed as a backup if biometry does not work.",
+                ka: "ჯერ შექმენით PIN-კოდი. ის საჭიროა სარეზერვო შესვლისთვის, თუ ბიომეტრია არ იმუშავებს.",
               }[currentLang],
-              "error",
+              "success",
+              2600,
             );
-            e.target.checked = false;
-            return;
+            const createdPin = await openPinSetModal(false, {
+              silent: true,
+              skipRender: true,
+            });
+            if (!createdPin || !pinEnabled || !pinHash) {
+              e.target.checked = false;
+              return;
+            }
           }
           const okk = await biometryRegister();
           if (okk) {
             biometryEnabled = true;
             saveAll();
-            showToast("✅ " + t("biometrySupported"));
+            showToast(t("biometrySupported"));
             setTimeout(() => renderSettings(), 300);
           } else {
             showToast(
               {
-                ru: "Ошибка — нужен HTTPS",
-                en: "Error — HTTPS required",
-                ka: "შეც. HTTPS",
+                ru: "Не удалось включить биометрию. Проверьте, что на телефоне настроен отпечаток пальца или распознавание лица.",
+                en: "Could not enable biometry. Make sure fingerprint or face unlock is configured on the phone.",
+                ka: "ბიომეტრიის ჩართვა ვერ მოხერხდა. შეამოწმეთ, რომ ტელეფონზე დაყენებულია თითის ანაბეჭდი ან სახის ამოცნობა.",
               }[currentLang],
               "error",
             );
@@ -10773,6 +11193,8 @@ function renderSettings() {
             () => {
               biometryEnabled = false;
               biometryCredId = null;
+              faceUnlockEnabled = false;
+              localStorage.setItem("faceUnlockEnabled", "false");
               saveAll();
               showToast(t("pinDisabled"));
               renderSettings();
@@ -10783,12 +11205,68 @@ function renderSettings() {
         }
       });
     }
+    const faceToggle = document.getElementById("faceUnlockToggle");
+    if (faceToggle) {
+      if (!avl) {
+        faceToggle.disabled = true;
+        faceToggle.parentElement.style.opacity = "0.5";
+      }
+      faceToggle.addEventListener("change", async (e) => {
+        if (e.target.checked) {
+          if (!avl) {
+            showToast(
+              {
+                ru: "Системная биометрия недоступна на этом телефоне.",
+                en: "System biometry is unavailable on this phone.",
+                ka: "ამ ტელეფონზე სისტემური ბიომეტრია მიუწვდომელია.",
+              }[currentLang],
+              "error",
+            );
+            e.target.checked = false;
+            return;
+          }
+          if (!pinEnabled || !pinHash) {
+            const createdPin = await openPinSetModal(false, {
+              silent: true,
+              skipRender: true,
+            });
+            if (!createdPin || !pinEnabled || !pinHash) {
+              e.target.checked = false;
+              return;
+            }
+          }
+          showToast(
+            {
+              ru: "Этот Android не даёт BudgetPRO включить только лицо отдельно от отпечатка. Чтобы не использовать отпечаток вместо лица, Face Unlock не будет включён.",
+              en: "This Android does not let BudgetPRO enable face only separately from fingerprint. To avoid using fingerprint as face unlock, Face Unlock will not be enabled.",
+              ka: "ეს Android BudgetPRO-ს არ აძლევს უფლებას ჩართოს მხოლოდ სახე თითის ანაბეჭდისგან ცალკე. რომ თითის ანაბეჭდი სახედ არ გამოვიყენოთ, Face Unlock არ ჩაირთვება.",
+            }[currentLang],
+            "error",
+            5200,
+          );
+          e.target.checked = false;
+          openAndroidSecuritySettings();
+        } else {
+          faceUnlockEnabled = false;
+          localStorage.setItem("faceUnlockEnabled", "false");
+          showToast(
+            {
+              ru: "Разблокировка по лицу выключена.",
+              en: "Face unlock disabled.",
+              ka: "სახით განბლოკვა გამორთულია.",
+            }[currentLang],
+          );
+        }
+      });
+    }
     document.getElementById("biometryResetBtn")?.addEventListener("click", () =>
       askConfirm(
         t("delete") + "?",
         () => {
           biometryEnabled = false;
           biometryCredId = null;
+          faceUnlockEnabled = false;
+          localStorage.setItem("faceUnlockEnabled", "false");
           saveAll();
           showToast(t("deleted"));
           renderSettings();
@@ -10799,9 +11277,292 @@ function renderSettings() {
   })();
 
   // ── Уведомления ──
+  const reminderDateBtn = document.getElementById("reminderDateBtn");
+  const reminderTimeBtn = document.getElementById("reminderTimeBtn");
+  const nativeTimeInput = document.getElementById("nativeTimeInput");
+  const previewReminderSoundBtn = document.getElementById("previewReminderSoundBtn");
+  const stopReminderSoundBtn = document.getElementById("stopReminderSoundBtn");
+  const resetReminderSoundBtn = document.getElementById("resetReminderSoundBtn");
+  const reminderDeliveryModeSelect = document.getElementById("reminderDeliveryMode");
+  const reminderSoundChoiceSelect = document.getElementById("reminderSoundChoice");
+  const selectedReminderSoundText = document.getElementById("selectedReminderSoundText");
+  const selectedReminderModeText = document.getElementById("selectedReminderModeText");
+  const reminderDateText = document.getElementById("reminderDateText");
+  const reminderTimeText = document.getElementById("reminderTimeText");
+  const newReminderDatetime = document.getElementById("newReminderDatetime");
+  if (nativeTimeInput && !nativeTimeInput.value) {
+    const nowForTimeField = new Date();
+    nativeTimeInput.value = `${String(nowForTimeField.getHours()).padStart(2, "0")}:${String(nowForTimeField.getMinutes()).padStart(2, "0")}`;
+  }
+  let previewReminderAudio = null;
+  const stopReminderPreview = () => {
+    try {
+      navigator.vibrate?.(0);
+    } catch (e) {}
+    if (previewReminderAudio) {
+      try {
+        previewReminderAudio.pause();
+        previewReminderAudio.currentTime = 0;
+      } catch (e) {}
+      previewReminderAudio = null;
+    }
+  };
+  const updateReminderSoundSelectionCard = () => {
+    if (selectedReminderSoundText) {
+      selectedReminderSoundText.textContent = reminderSoundChoiceSelect?.value
+        ? getReminderSoundChoiceLabel(reminderSoundChoiceSelect.value, currentLang)
+        : {
+            ru: "🔕 Мелодия не выбрана",
+            en: "🔕 No melody selected",
+            ka: "🔕 მელოდია არჩეული არ არის",
+          }[currentLang];
+    }
+    if (selectedReminderModeText) {
+      selectedReminderModeText.textContent = getReminderDeliveryModeLabel(
+        reminderDeliveryModeSelect?.value || "sound_vibration",
+        currentLang,
+      );
+    }
+  };
+  const previewReminderFeedback = () => {
+    stopReminderPreview();
+    const mode = reminderDeliveryModeSelect?.value || "sound_vibration";
+    const soundChoice = reminderSoundChoiceSelect?.value || "";
+    if (soundChoice && mode !== "silent" && mode !== "vibration_only") {
+      try {
+        const audio = new Audio(`/sounds/reminder_${soundChoice}.mp3`.replace("sound_sound_", "sound_"));
+        audio.volume = 1;
+        audio.currentTime = 0;
+        previewReminderAudio = audio;
+        audio.onended = () => {
+          if (previewReminderAudio === audio) previewReminderAudio = null;
+        };
+        audio.play().catch(() => {});
+      } catch (e) {}
+    }
+    if (mode === "sound_vibration" || mode === "vibration_only") {
+      try {
+        const vibrationMap = {
+          sound_1: [90],
+          sound_2: [70, 45, 90],
+          sound_3: [55, 35, 55, 35, 110],
+          sound_4: [150],
+          sound_5: [45, 30, 45, 30, 45, 30, 130],
+          sound_6: [110, 45, 140],
+          sound_7: [70, 35, 180],
+          sound_8: [180, 50, 90],
+          sound_9: [80, 40, 80, 40, 180],
+          sound_10: [240],
+        };
+        navigator.vibrate?.(vibrationMap[soundChoice] || [120, 70, 120]);
+      } catch (e) {}
+    }
+    showToast(
+      {
+        ru: "Предпрослушка уведомления выполнена.",
+        en: "Notification preview played.",
+        ka: "შეტყობინების მოსმენა შესრულდა.",
+      }[currentLang],
+      "success",
+      1400,
+    );
+  };
+  const getSelectedReminderDates = () => {
+    try {
+      return JSON.parse(newReminderDatetime?.dataset.selectedDates || "[]");
+    } catch (e) {
+      return [];
+    }
+  };
+  const setSelectedReminderDates = (dates) => {
+    const cleanDates = [...new Set((dates || []).filter(Boolean))].sort();
+    if (newReminderDatetime) {
+      newReminderDatetime.dataset.selectedDates = JSON.stringify(cleanDates);
+      newReminderDatetime.dataset.date = cleanDates[0] || "";
+    }
+  };
+  const setReminderDateTimeFromDate = (date) => {
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) return;
+    const selectedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const selectedTime = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    if (nativeTimeInput) nativeTimeInput.value = selectedTime;
+    setSelectedReminderDates([selectedDate]);
+  };
+  window.setReminderDateTimeFromNotificationClock = (date) => {
+    setReminderDateTimeFromDate(date);
+    updateReminderDateTimeLabels();
+  };
+  window.clearReminderDateTimeFromNotificationClock = () => {
+    if (newReminderDatetime) {
+      newReminderDatetime.value = "";
+      newReminderDatetime.dataset.selectedDates = "[]";
+      newReminderDatetime.dataset.date = "";
+    }
+    if (nativeTimeInput) nativeTimeInput.value = "";
+    updateReminderDateTimeLabels();
+  };
+  const updateReminderDateTimeValue = () => {
+    const selectedDates = getSelectedReminderDates();
+    const dateVal = selectedDates[0] || newReminderDatetime?.dataset.date || "";
+    const timeVal = nativeTimeInput?.value || "";
+    if (!dateVal || !timeVal) {
+      if (newReminderDatetime) newReminderDatetime.value = "";
+      return;
+    }
+    if (newReminderDatetime) newReminderDatetime.value = `${dateVal}T${timeVal}`;
+  };
+  const formatReminderTimeLabel = (timeVal) => {
+    if (!timeVal) return t("chooseTimeBtn");
+    if ((localStorage.getItem("notificationClockFormat") || "24") !== "12") return timeVal;
+    const [hours, minutes] = timeVal.split(":").map(Number);
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return timeVal;
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+    return date.toLocaleTimeString(
+      currentLang === "ka" ? "ka-GE" : currentLang === "ru" ? "ru-RU" : "en-US",
+      { hour: "2-digit", minute: "2-digit", hour12: true },
+    );
+  };
+  const updateReminderDateTimeLabels = () => {
+    if (reminderDateText) {
+      const selectedDates = getSelectedReminderDates();
+      if (selectedDates.length > 1) {
+        reminderDateText.textContent =
+          {
+            ru: `Выбрано дат: ${selectedDates.length}`,
+            en: `Selected dates: ${selectedDates.length}`,
+            ka: `არჩეული თარიღები: ${selectedDates.length}`,
+          }[currentLang];
+      } else if (selectedDates.length === 1) {
+        reminderDateText.textContent = new Date(
+          `${selectedDates[0]}T00:00:00`,
+        ).toLocaleDateString(L === "en" ? "en-US" : L === "ka" ? "ka-GE" : "ru-RU", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+      } else {
+        reminderDateText.textContent = t("chooseDate");
+      }
+    }
+    if (reminderTimeText) {
+      reminderTimeText.textContent = formatReminderTimeLabel(nativeTimeInput?.value || "");
+    }
+    updateReminderDateTimeValue();
+  };
+  reminderDateBtn?.addEventListener("click", () => {
+    openDatePicker(getSelectedReminderDates(), (dates) => {
+      setSelectedReminderDates(Array.isArray(dates) ? dates : [dates]);
+      updateReminderDateTimeLabels();
+    }, { multiple: true });
+  });
+  reminderTimeBtn?.addEventListener("click", () => {
+    openNotificationClockModal();
+  });
+  nativeTimeInput?.addEventListener("change", updateReminderDateTimeLabels);
+  previewReminderSoundBtn?.addEventListener("click", previewReminderFeedback);
+  stopReminderSoundBtn?.addEventListener("click", () => {
+    stopReminderPreview();
+    showToast(
+      {
+        ru: "Предпрослушка остановлена.",
+        en: "Preview stopped.",
+        ka: "მოსმენა შეჩერდა.",
+      }[currentLang],
+      "success",
+      1200,
+    );
+  });
+  resetReminderSoundBtn?.addEventListener("click", () => {
+    stopReminderPreview();
+    if (reminderSoundChoiceSelect) reminderSoundChoiceSelect.value = "";
+    updateReminderSoundSelectionCard();
+    showToast(
+      {
+        ru: "Выбор мелодии сброшен.",
+        en: "Melody selection has been reset.",
+        ka: "მელოდიის არჩევა გასუფთავდა.",
+      }[currentLang],
+      "success",
+      1200,
+    );
+  });
+  reminderSoundChoiceSelect?.addEventListener("change", updateReminderSoundSelectionCard);
+  reminderDeliveryModeSelect?.addEventListener("change", updateReminderSoundSelectionCard);
+  updateReminderSoundSelectionCard();
+  document.querySelectorAll(".reminder-quick-time-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const plusMinutes = parseInt(btn.dataset.min, 10) || 1;
+      const now = new Date();
+      now.setSeconds(0, 0);
+      now.setMinutes(now.getMinutes() + plusMinutes);
+      setReminderDateTimeFromDate(now);
+      updateReminderDateTimeLabels();
+    });
+  });
+  const updateReminderWeekdayButtons = () => {
+    document.querySelectorAll(".reminder-weekday-btn").forEach((btn) => {
+      const day = parseInt(btn.dataset.day, 10);
+      const active = reminderWeekdays.includes(day);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+      btn.style.borderColor = active ? "var(--primary)" : "var(--cream-border)";
+      btn.style.background = active ? "var(--primary)" : "var(--cream-dark)";
+      btn.style.color = active ? "#ffffff" : "var(--text)";
+      btn.style.boxShadow = active ? "0 8px 20px rgba(37,99,235,0.28)" : "none";
+      const mark = btn.querySelector("span");
+      if (mark) {
+        mark.textContent = active ? "✓" : "•";
+        mark.style.background = active ? "rgba(255,255,255,0.22)" : "var(--cream)";
+        mark.style.color = active ? "#ffffff" : "var(--text-muted)";
+      }
+    });
+  };
+  document.querySelectorAll(".reminder-weekday-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const day = parseInt(btn.dataset.day, 10);
+      const exists = reminderWeekdays.includes(day);
+      reminderWeekdays = exists
+        ? reminderWeekdays.filter((d) => d !== day)
+        : [...reminderWeekdays, day].sort((a, b) => {
+            const order = [1, 2, 3, 4, 5, 6, 0];
+            return order.indexOf(a) - order.indexOf(b);
+          });
+      localStorage.setItem("reminderWeekdays", JSON.stringify(reminderWeekdays));
+      updateReminderWeekdayButtons();
+    });
+  });
+  document.getElementById("selectAllReminderWeekdaysBtn")?.addEventListener("click", () => {
+    reminderWeekdays = [1, 2, 3, 4, 5, 6, 0];
+    localStorage.setItem("reminderWeekdays", JSON.stringify(reminderWeekdays));
+    updateReminderWeekdayButtons();
+  });
+  document.getElementById("resetReminderWeekdaysBtn")?.addEventListener("click", () => {
+    reminderWeekdays = [];
+    localStorage.setItem("reminderWeekdays", JSON.stringify(reminderWeekdays));
+    updateReminderWeekdayButtons();
+  });
+  if (!getSelectedReminderDates().length && !nativeTimeInput?.value) {
+    const initial = new Date();
+    initial.setSeconds(0, 0);
+    initial.setMinutes(initial.getMinutes() + 1);
+    setReminderDateTimeFromDate(initial);
+  }
+  updateReminderDateTimeLabels();
+
   document.getElementById("requestNotifBtn")?.addEventListener("click", () => {
-    if ("Notification" in window)
-      Notification.requestPermission().then(() => renderSettings());
+    requestReminderPermission().then((state) => {
+      renderSettings();
+      if (state === "granted") {
+        showToast(
+          {
+            ru: "Разрешение на уведомления выдано. Теперь BudgetPRO сможет показывать полные напоминания в шторке телефона.",
+            en: "Notification permission has been granted. BudgetPRO can now show full reminders in your phone notification shade.",
+            ka: "შეტყობინებების ნებართვა გაცემულია. ახლა BudgetPRO შეძლებს სრული შეხსენებების ჩვენებას ტელეფონის შეტყობინებებში.",
+          }[currentLang],
+          "success",
+        );
+      }
+    });
   });
   document
     .getElementById("notifHelpBtn")
@@ -10809,18 +11570,456 @@ function renderSettings() {
   document
     .getElementById("notifEnableBtn")
     ?.addEventListener("click", handleNotifBtnClick);
+  document.getElementById("notifDisableBtn")?.addEventListener("click", async () => {
+    remindersEnabled = false;
+    saveReminderSettings();
+    localStorage.setItem("nativeReminderPermission", "denied");
+    if (isNativeReminderRuntime()) {
+      reminderIntervals = {};
+      localStorage.setItem("reminderIntervals", JSON.stringify(reminderIntervals));
+      await syncNativeRecurringReminderNotifications();
+    }
+    renderSettings();
+    showToast(
+      {
+        ru: "Напоминания отключены внутри приложения. При необходимости отключите системное разрешение уведомлений в настройках Android.",
+        en: "Reminders have been disabled inside the app. If needed, disable the system notification permission in Android settings as well.",
+        ka: "შეხსენებები აპში გამოირთო. საჭიროების შემთხვევაში Android-ის პარამეტრებში სისტემური შეტყობინებების ნებართვაც გამორთეთ.",
+      }[currentLang],
+    );
+  });
+  const updateReminderDebugText = async () => {
+    const out = [];
+    try {
+      const named = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+      const intervals = JSON.parse(localStorage.getItem("reminderIntervals") || "{}");
+      const tracked = JSON.parse(localStorage.getItem("nativeExactNamedIds") || "[]");
+      out.push(`namedReminders: ${named.length}`);
+      out.push(`reminderIntervals: ${JSON.stringify(intervals)}`);
+      out.push(`nativeExactNamedIds: ${JSON.stringify(tracked)}`);
+      out.push(`customRecurringReminderText: ${JSON.stringify(localStorage.getItem("customRecurringReminderText") || "")}`);
+      out.push(`customRecurringReminderDeliveryMode: ${JSON.stringify(localStorage.getItem("customRecurringReminderDeliveryMode") || "")}`);
+      out.push(`customRecurringReminderSoundChoice: ${JSON.stringify(localStorage.getItem("customRecurringReminderSoundChoice") || "")}`);
+      const plugin = getLocalNotificationsPlugin();
+      if (plugin?.getPending) {
+        try {
+          const pending = await plugin.getPending();
+          out.push(`pendingPluginNotifications: ${(pending.notifications || []).length}`);
+          out.push(`pendingPluginIds: ${JSON.stringify((pending.notifications || []).map((n) => n.id).slice(0, 40))}`);
+        } catch (e) {
+          out.push(`pendingPluginError: ${String(e && e.message || e)}`);
+        }
+      }
+      if (plugin?.getDeliveredNotifications) {
+        try {
+          const delivered = await plugin.getDeliveredNotifications();
+          out.push(`deliveredPluginNotifications: ${(delivered.notifications || []).length}`);
+          out.push(`deliveredPluginIds: ${JSON.stringify((delivered.notifications || []).map((n) => n.id).slice(0, 40))}`);
+        } catch (e) {
+          out.push(`deliveredPluginError: ${String(e && e.message || e)}`);
+        }
+      }
+    } catch (e) {
+      out.push(`debugError: ${String(e && e.message || e)}`);
+    }
+    const el = document.getElementById("reminderDebugText");
+    if (el) el.textContent = out.join("\n");
+  };
+  document.getElementById("refreshReminderDebugBtn")?.addEventListener("click", updateReminderDebugText);
+  document.getElementById("hardClearReminderDebugBtn")?.addEventListener("click", async () => {
+    localStorage.setItem("namedReminders", "[]");
+    clearRecurringReminderState();
+    setTrackedNativeNamedReminderIds([]);
+    if (isNativeReminderRuntime()) {
+      await cleanupStaleNativeNamedReminderNotifications();
+      await syncNativeRecurringReminderNotifications();
+    }
+    await updateReminderDebugText();
+    renderSettings();
+    showToast(
+      {
+        ru: "Жёсткая очистка хвостов выполнена. Теперь посмотрите диагностический блок.",
+        en: "Hard cleanup completed. Now check the diagnostics block.",
+        ka: "მკაცრი გასუფთავება შესრულდა. ახლა შეამოწმეთ დიაგნოსტიკის ბლოკი.",
+      }[currentLang],
+      "success",
+    );
+  });
+  updateReminderDebugText();
 
   // ── Интервальные напоминания ──
   document.querySelectorAll(".reminder-interval-checkbox").forEach((cb) => {
-    cb.addEventListener("change", () => {
+    cb.addEventListener("change", async () => {
       if (!reminderIntervals) reminderIntervals = {};
       reminderIntervals[cb.dataset.val] = cb.checked;
       localStorage.setItem(
         "reminderIntervals",
         JSON.stringify(reminderIntervals),
       );
-      showToast(t("saved"));
+      if (isNativeReminderRuntime()) await syncNativeRecurringReminderNotifications();
+      showToast(
+        {
+          ru: "Параметры повторяющихся напоминаний сохранены.",
+          en: "Recurring reminder settings have been saved.",
+          ka: "განმეორებადი შეხსენებების პარამეტრები შენახულია.",
+        }[currentLang],
+      );
     });
+  });
+
+  document.querySelectorAll(".named-reminder-del").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const idx = parseInt(btn.dataset.idx, 10);
+      const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+      const item = list[idx];
+      if (!item) return;
+      list.splice(idx, 1);
+      localStorage.setItem("namedReminders", JSON.stringify(list));
+      if (isNativeReminderRuntime()) {
+        if (!list.length) clearRecurringReminderState();
+        await cancelNativeReminderNotificationById(item.notificationId);
+        untrackNativeNamedReminderId(item.notificationId);
+        await cleanupStaleNativeNamedReminderNotifications();
+        await syncNativeRecurringReminderNotificationsIfNeeded();
+      }
+      renderSettings();
+      showToast(
+        {
+          ru: "Напоминание удалено. Оно больше не появится в шторке уведомлений телефона.",
+          en: "The reminder has been deleted. It will no longer appear in your phone notification shade.",
+          ka: "შეხსენება წაიშალა. ის ტელეფონის შეტყობინებებში აღარ გამოჩნდება.",
+        }[currentLang],
+      );
+    });
+  });
+
+  document.querySelectorAll(".named-reminder-edit").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.idx, 10);
+      const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+      const item = list[idx];
+      if (!item) return;
+      const dt = new Date(item.ts || Date.now());
+      const dateValue = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+      const timeValue = `${String(dt.getHours()).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")}`;
+      const modal = createModal(
+        "editReminderModal",
+        {
+          ru: "Изменить напоминание",
+          en: "Edit reminder",
+          ka: "შეხსენების შეცვლა",
+        }[currentLang],
+        `<div class="field-group" style="margin-bottom:10px;">
+          <label class="field-label">${t("reminderName")}</label>
+          <input id="editReminderNameInput" class="modal-input" value="${esc(item.name || "")}">
+        </div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <label class="field-label">${t("chooseDate")}</label>
+          <input id="editReminderDateInput" type="date" class="modal-input" value="${dateValue}">
+        </div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <label class="field-label">${t("chooseTimeBtn")}</label>
+          <input id="editReminderTimeInput" type="hidden" value="${timeValue}">
+          <button type="button" id="editReminderTimeBtn" class="modal-input" style="width:100%;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);">
+            <span id="editReminderTimeText">${timeValue || t("chooseTimeBtn")}</span>
+          </button>
+        </div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <label class="field-label">${{ ru: "Режим уведомления", en: "Notification mode", ka: "შეტყობინების რეჟიმი" }[currentLang]}</label>
+          <select id="editReminderDeliveryModeInput" class="modal-input">
+            <option value="sound_vibration"${(item.deliveryMode || "sound_vibration") === "sound_vibration" ? " selected" : ""}>${getReminderDeliveryModeLabel("sound_vibration", currentLang)}</option>
+            <option value="sound_only"${item.deliveryMode === "sound_only" ? " selected" : ""}>${getReminderDeliveryModeLabel("sound_only", currentLang)}</option>
+            <option value="vibration_only"${item.deliveryMode === "vibration_only" ? " selected" : ""}>${getReminderDeliveryModeLabel("vibration_only", currentLang)}</option>
+            <option value="silent"${item.deliveryMode === "silent" ? " selected" : ""}>${getReminderDeliveryModeLabel("silent", currentLang)}</option>
+          </select>
+        </div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <label class="field-label">${{ ru: "Мелодия уведомления", en: "Notification melody", ka: "შეტყობინების მელოდია" }[currentLang]}</label>
+          <select id="editReminderSoundChoiceInput" class="modal-input">
+            <option value="">${{ ru: "🔕 Без выбранной мелодии", en: "🔕 No selected melody", ka: "🔕 არჩეული მელოდიის გარეშე" }[currentLang]}</option>
+            ${Array.from({ length: 14 }, (_, i) => {
+              const val = `sound_${i + 1}`;
+              return `<option value="${val}"${item.soundChoice === val ? " selected" : ""}>${esc(getReminderSoundChoiceLabel(val, currentLang))}</option>`;
+            }).join("")}
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-secondary" id="editReminderCancelBtn">${t("cancel")}</button>
+          <button class="btn-primary" id="editReminderSaveBtn">${{ ru: "Сохранить изменения", en: "Save changes", ka: "ცვლილებების შენახვა" }[currentLang]}</button>
+        </div>`,
+      );
+      document.body.appendChild(modal);
+      openModal("editReminderModal");
+      document.getElementById("editReminderCancelBtn")?.addEventListener("click", () => closeModal("editReminderModal"));
+      document.getElementById("editReminderTimeBtn")?.addEventListener("click", () => {
+        const hiddenTime = document.getElementById("editReminderTimeInput");
+        const visibleTime = document.getElementById("editReminderTimeText");
+        openNotificationClockModal({
+          initialTime: hiddenTime?.value || timeValue,
+          onSet: (date) => {
+            const next = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+            if (hiddenTime) hiddenTime.value = next;
+            if (visibleTime) visibleTime.textContent = next;
+          },
+          onDelete: () => {
+            if (hiddenTime) hiddenTime.value = "";
+            if (visibleTime) visibleTime.textContent = t("chooseTimeBtn");
+          },
+        });
+      });
+      document.getElementById("editReminderSaveBtn")?.addEventListener("click", async () => {
+        const nextName = document.getElementById("editReminderNameInput")?.value.trim();
+        const nextDate = document.getElementById("editReminderDateInput")?.value || "";
+        const nextTime = document.getElementById("editReminderTimeInput")?.value || "";
+        const nextMode = document.getElementById("editReminderDeliveryModeInput")?.value || "sound_vibration";
+        const nextSound = document.getElementById("editReminderSoundChoiceInput")?.value || "";
+        if (!nextName || !nextDate || !nextTime) {
+          showToast(
+            {
+              ru: "Укажите текст, дату и время напоминания.",
+              en: "Please provide reminder text, date, and time.",
+              ka: "მიუთითეთ შეხსენების ტექსტი, თარიღი და დრო.",
+            }[currentLang],
+            "error",
+          );
+          return;
+        }
+        const nextTs = new Date(`${nextDate}T${nextTime}`).getTime();
+        if (Number.isNaN(nextTs)) {
+          showToast("Invalid reminder date", "error");
+          return;
+        }
+        const updatedList = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+        const current = updatedList[idx];
+        if (!current) return;
+        const nextNotificationId = getReminderNotificationId(`${current.id}-${nextTs}-${Date.now()}`);
+        const updatedItem = {
+          ...current,
+          name: nextName,
+          body: nextName,
+          ts: nextTs,
+          tsMs: nextTs,
+          fired: false,
+          notificationId: nextNotificationId,
+          deliveryMode: nextMode,
+          soundChoice: nextSound,
+        };
+        updatedList.splice(idx, 1, updatedItem);
+        localStorage.setItem("namedReminders", JSON.stringify(updatedList));
+        if (isNativeReminderRuntime()) {
+          syncRecurringReminderStateFromNamedReminder(nextName, nextMode, nextSound);
+          await cancelNativeReminderNotificationById(current.notificationId);
+          untrackNativeNamedReminderId(current.notificationId);
+          await scheduleNativeNamedReminder(updatedItem);
+          await cleanupStaleNativeNamedReminderNotifications();
+          await syncNativeRecurringReminderNotificationsIfNeeded();
+        } else {
+          scheduleNamedReminder(updatedItem);
+        }
+        closeModal("editReminderModal");
+        renderSettings();
+        showToast(
+          {
+            ru: "Напоминание обновлено через отдельное окно редактирования.",
+            en: "The reminder has been updated from the dedicated edit window.",
+            ka: "შეხსენება განახლდა ცალკე რედაქტირების ფანჯრიდან.",
+          }[currentLang],
+          "success",
+        );
+      });
+    });
+  });
+
+  document.getElementById("testNotifBtn")?.addEventListener("click", async () => {
+    const title = {
+      ru: "🔔 Тестовое уведомление BudgetPRO",
+      en: "🔔 BudgetPRO test notification",
+      ka: "🔔 BudgetPRO ტესტური შეტყობინება",
+    }[currentLang];
+    const body = {
+      ru: "Это полное тестовое уведомление BudgetPRO. Если вы видите его в шторке телефона, значит напоминания настроены правильно и будут приходить в указанное время.",
+      en: "This is a full BudgetPRO test notification. If you can see it in your phone notification shade, reminders are configured correctly and will arrive at the scheduled time.",
+      ka: "ეს არის BudgetPRO-ს სრული სატესტო შეტყობინება. თუ მას ტელეფონის შეტყობინებებში ხედავთ, შეხსენებები სწორად არის გამართული და დანიშნულ დროს მოვა.",
+    }[currentLang];
+    if (isNativeReminderRuntime()) {
+      const state = await requestReminderPermission();
+      if (state !== "granted") {
+        showToast(
+          {
+            ru: "Сначала разрешите уведомления. Без этого тест не сможет появиться в шторке телефона.",
+            en: "Please allow notifications first. Without that, the test cannot appear in your phone notification shade.",
+            ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე ტესტი ტელეფონის შეტყობინებებში ვერ გამოჩნდება.",
+          }[currentLang],
+          "error",
+        );
+        return;
+      }
+      await ensureReminderNotificationChannel();
+      await getLocalNotificationsPlugin().schedule({
+        notifications: [
+          {
+            id: 909001,
+            title,
+            body,
+            schedule: { at: new Date(Date.now() + 2500), allowWhileIdle: true },
+            channelId: "budget-reminders",
+            autoCancel: true,
+            smallIcon: "ic_launcher_foreground",
+            extra: { reminderType: "test" },
+          },
+        ],
+      });
+      showToast(
+        {
+          ru: "Тестовое уведомление запланировано на ближайшие секунды. Сверните приложение и проверьте шторку телефона.",
+          en: "The test notification has been scheduled for the next few seconds. Minimize the app and check your phone notification shade.",
+          ka: "სატესტო შეტყობინება უახლოეს წამებზე დაიგეგმა. დაკეცეთ აპი და შეამოწმეთ ტელეფონის შეტყობინებები.",
+        }[currentLang],
+        "success",
+      );
+      return;
+    }
+    showStickyNotification(title, body, "budget-reminder-test");
+    showToast(body, "success", 5000);
+  });
+
+  document.getElementById("addNamedReminderBtn")?.addEventListener("click", async () => {
+    const name = document.getElementById("newReminderName")?.value.trim();
+    const selectedDates = getSelectedReminderDates();
+    const baseTime = nativeTimeInput?.value || "";
+    const editingReminderId = document.getElementById("editingReminderId")?.value || "";
+    const deliveryMode = document.getElementById("reminderDeliveryMode")?.value || "sound_vibration";
+    const soundChoice = document.getElementById("reminderSoundChoice")?.value || "";
+    if (!name || !selectedDates.length || !baseTime) {
+      showToast(
+        {
+          ru: "Заполните полное название напоминания, выберите хотя бы одну дату и укажите время. Тогда уведомление придёт с нужным текстом в заданный момент.",
+          en: "Please fill in the full reminder name, choose at least one date, and set a time. Then the notification will arrive with the correct text at the scheduled moment.",
+          ka: "შეავსეთ შეხსენების სრული სახელი, აირჩიეთ მინიმუმ ერთი თარიღი და მიუთითეთ დრო. შემდეგ შეტყობინება სწორ ტექსტთან ერთად მოვა დანიშნულ დროს.",
+        }[currentLang],
+        "error",
+      );
+      return;
+    }
+    const targets = selectedDates
+      .map((dateStr) => ({
+        dateStr,
+        raw: `${dateStr}T${baseTime}`,
+        ts: new Date(`${dateStr}T${baseTime}`).getTime(),
+      }))
+      .filter((item) => !Number.isNaN(item.ts));
+    if (!targets.length) {
+      showToast("Invalid reminder date", "error");
+      return;
+    }
+    const nowMinute = new Date();
+    const currentMinuteKey = `${nowMinute.getFullYear()}-${String(nowMinute.getMonth() + 1).padStart(2, "0")}-${String(nowMinute.getDate()).padStart(2, "0")}T${String(nowMinute.getHours()).padStart(2, "0")}:${String(nowMinute.getMinutes()).padStart(2, "0")}`;
+    if (targets.some((item) => (item.raw || "").slice(0, 16) < currentMinuteKey)) {
+      showToast(
+        {
+          ru: "Все выбранные даты и время должны быть не раньше текущей минуты. Удалите прошедшие даты или выберите более позднее время.",
+          en: "All selected dates and times must be no earlier than the current minute. Remove past dates or choose a later time.",
+          ka: "ყველა არჩეული თარიღი და დრო მიმდინარე წუთზე ადრე არ უნდა იყოს. წარსული თარიღები მოხსენით ან უფრო გვიანი დრო აირჩიეთ.",
+        }[currentLang],
+        "error",
+      );
+      return;
+    }
+    if (isNativeReminderRuntime()) {
+      const state = await requestReminderPermission();
+      if (state !== "granted") {
+        showToast(
+          {
+            ru: "Сначала разрешите уведомления. Без этого Android не сможет показать напоминание в нужное время.",
+            en: "Please allow notifications first. Without that, Android cannot show the reminder at the scheduled time.",
+            ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე Android შეხსენებას დანიშნულ დროს ვერ აჩვენებს.",
+          }[currentLang],
+          "error",
+        );
+        return;
+      }
+    }
+    const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+    if (editingReminderId) {
+      const existingIdx = list.findIndex((x) => x.id === editingReminderId);
+      if (existingIdx >= 0) {
+        const existingItem = list[existingIdx];
+        const target = targets[0];
+        const updatedItem = {
+          ...existingItem,
+          name,
+          body: name,
+          ts: target.ts,
+          tsMs: target.ts,
+          fired: false,
+          notificationId: getReminderNotificationId(`${existingItem.id}-${target.ts}-${Date.now()}`),
+          deliveryMode,
+          soundChoice,
+        };
+        list.splice(existingIdx, 1, updatedItem);
+        localStorage.setItem("namedReminders", JSON.stringify(list));
+        if (isNativeReminderRuntime()) {
+          syncRecurringReminderStateFromNamedReminder(name, deliveryMode, soundChoice);
+          await cancelNativeReminderNotificationById(existingItem.notificationId);
+          untrackNativeNamedReminderId(existingItem.notificationId);
+          await scheduleNativeNamedReminder(updatedItem);
+          await cleanupStaleNativeNamedReminderNotifications();
+          await syncNativeRecurringReminderNotificationsIfNeeded();
+        } else {
+          scheduleNamedReminder(updatedItem);
+        }
+        if (document.getElementById("editingReminderId")) {
+          document.getElementById("editingReminderId").value = "";
+        }
+        const addNamedReminderBtnText = document.getElementById("addNamedReminderBtnText");
+        if (addNamedReminderBtnText) addNamedReminderBtnText.textContent = t("scheduleReminder");
+        renderSettings();
+        showToast(
+          {
+            ru: "Напоминание обновлено. Теперь уведомление будет приходить с новым текстом и новыми параметрами.",
+            en: "The reminder has been updated. The notification will now arrive with the new text and settings.",
+            ka: "შეხსენება განახლდა. ახლა შეტყობინება ახალი ტექსტით და ახალი პარამეტრებით მოვა.",
+          }[currentLang],
+          "success",
+        );
+        return;
+      }
+    }
+    for (const target of targets) {
+      const item = {
+        id: `rem_${Date.now()}_${target.dateStr}`,
+        name,
+        body: name,
+        ts: target.ts,
+        tsMs: target.ts,
+        fired: false,
+        notificationId: getReminderNotificationId(`${Date.now()}${target.ts}`),
+        createdAt: new Date().toISOString(),
+        deliveryMode,
+        soundChoice,
+      };
+      list.push(item);
+      if (isNativeReminderRuntime()) {
+        syncRecurringReminderStateFromNamedReminder(name, deliveryMode, soundChoice);
+        await scheduleNativeNamedReminder(item);
+      } else {
+        scheduleNamedReminder(item);
+      }
+    }
+    localStorage.setItem("namedReminders", JSON.stringify(list));
+    if (isNativeReminderRuntime()) {
+      await cleanupStaleNativeNamedReminderNotifications();
+      await syncNativeRecurringReminderNotificationsIfNeeded();
+    }
+    renderSettings();
+    showToast(
+      {
+        ru: `Напоминание сохранено на ${targets.length} дат. В указанное время телефон покажет полное уведомление с заданным текстом.`,
+        en: `The reminder has been saved for ${targets.length} dates. At the scheduled time, your phone will show the full notification text.`,
+        ka: `შეხსენება შენახულია ${targets.length} თარიღისთვის. დანიშნულ დროს ტელეფონი აჩვენებს სრულ ტექსტს.`,
+      }[currentLang],
+      "success",
+    );
   });
 
   attachCreatorHandlers();
@@ -10920,7 +12119,8 @@ function renderRecurringBody() {
     .join("");
 }
 
-function openPinSetModal(isChange = false) {
+function openPinSetModal(isChange = false, options = {}) {
+  return new Promise((resolve) => {
   const html = `
     <div style="text-align:center;font-size:13px;color:var(--text-muted);margin-bottom:16px;">${t("pinSet4")}</div>
     <div id="pinSetDots" style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;">${[0, 1, 2, 3].map(() => `<div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--primary);background:transparent;"></div>`).join("")}</div>
@@ -10970,9 +12170,9 @@ function openPinSetModal(isChange = false) {
             pinHash = await hashPin(entered);
             pinEnabled = true;
             saveAll();
-            showToast(t("pinSaved"));
+            if (!options.silent) showToast(t("pinSaved"));
             closeModal("pinSetModal");
-            renderSettings();
+            if (!options.skipRender) renderSettings();
             resolve(true);
           } else {
             setErr(t("pinMismatch"));
@@ -10992,6 +12192,7 @@ function openPinSetModal(isChange = false) {
       document.getElementById("pinToggle").checked = false;
     }
     resolve(false);
+  });
   });
 }
 
@@ -11350,8 +12551,914 @@ function cloudLoad() {
 // ============================================================
 // НАПОМИНАНИЯ
 // ============================================================
+function getLocalNotificationsPlugin() {
+  return window.Capacitor?.Plugins?.LocalNotifications || null;
+}
+
+function getNativeNotificationsBridge() {
+  return window.BudgetPRONotifications || null;
+}
+
+function isNativeReminderRuntime() {
+  return !!getLocalNotificationsPlugin();
+}
+
+function canUseExactReminderBridge() {
+  return !!getNativeNotificationsBridge();
+}
+
+function getReminderNotificationTitle(name = "") {
+  const base = {
+    ru: "🔔 Напоминание от BudgetPRO",
+    en: "🔔 Reminder from BudgetPRO",
+    ka: "🔔 შეხსენება BudgetPRO-დან",
+  }[currentLang] || "🔔 Reminder from BudgetPRO";
+  return name ? `${base}` : base;
+}
+
+function getReminderNotificationBody(name = "") {
+  if (name && name.trim()) return name.trim();
+  return {
+    ru: "Пора открыть BudgetPRO и выполнить запланированное действие. Напоминание было создано заранее и сработало в выбранное вами время.",
+    en: "It is time to open BudgetPRO and do the planned action. This reminder was created in advance and fired at the exact time you chose.",
+    ka: "დროა გახსნათ BudgetPRO და შეასრულოთ დაგეგმილი მოქმედება. ეს შეხსენება წინასწარ იყო შექმნილი და მოვიდა თქვენს მიერ არჩეულ ზუსტ დროს.",
+  }[currentLang];
+}
+
+function getSavedRecurringReminderText() {
+  return (localStorage.getItem("customRecurringReminderText") || "").trim();
+}
+
+function getReminderDeliveryModeLabel(mode, lang = currentLang) {
+  const labels = {
+    sound_vibration: {
+      ru: "🔔📳 Звук и вибрация",
+      en: "🔔📳 Sound and vibration",
+      ka: "🔔📳 ხმა და ვიბრაცია",
+    },
+    sound_only: {
+      ru: "🔔 Только звук",
+      en: "🔔 Sound only",
+      ka: "🔔 მხოლოდ ხმა",
+    },
+    vibration_only: {
+      ru: "📳 Только вибрация",
+      en: "📳 Vibration only",
+      ka: "📳 მხოლოდ ვიბრაცია",
+    },
+    silent: {
+      ru: "🔕 Без звука и без вибрации",
+      en: "🔕 No sound and no vibration",
+      ka: "🔕 უხმოდ და ვიბრაციის გარეშე",
+    },
+  };
+  return (labels[mode] || labels.sound_vibration)[lang] || labels.sound_vibration.ru;
+}
+
+function getReminderSoundChoiceLabel(soundChoice, lang = currentLang) {
+  const icons = {
+    sound_1: "🎵",
+    sound_2: "🎶",
+    sound_3: "🔔",
+    sound_4: "✨",
+    sound_5: "⚡",
+    sound_6: "🌊",
+    sound_7: "💎",
+    sound_8: "🔥",
+    sound_9: "🌙",
+    sound_10: "🚀",
+    sound_11: "🪶",
+    sound_12: "🐣",
+    sound_13: "📟",
+    sound_14: "🔋",
+  };
+  const n = Number(String(soundChoice || "sound_1").replace("sound_", "")) || 1;
+  const icon = icons[soundChoice] || "🎵";
+  const text = {
+    ru: `Звук ${n}`,
+    en: `Sound ${n}`,
+    ka: `ხმა ${n}`,
+  }[lang] || `Sound ${n}`;
+  return `${icon} ${text}`;
+}
+
+let notificationClockTimer = null;
+
+function openNotificationClockModal(options = {}) {
+  if (notificationClockTimer) {
+    clearInterval(notificationClockTimer);
+    notificationClockTimer = null;
+  }
+  const L =
+    {
+      ru: {
+        title: "Часы напоминания",
+        subtitle: "Актуальное время",
+        format: "Формат",
+        showSeconds: "Секунды",
+        analog: "Циферблат",
+        digital: "Цифры",
+        close: "Закрыть",
+        set: "Установить",
+        cancel: "Отмена",
+        delete: "Удалить",
+        hour: "Часы",
+        minute: "Минуты",
+        weekday: "День недели",
+      },
+      en: {
+        title: "Reminder Clock",
+        subtitle: "Current time",
+        format: "Format",
+        showSeconds: "Seconds",
+        analog: "Dial",
+        digital: "Digits",
+        close: "Close",
+        set: "Set",
+        cancel: "Cancel",
+        delete: "Delete",
+        hour: "Hours",
+        minute: "Minutes",
+        weekday: "Weekday",
+      },
+      ka: {
+        title: "შეხსენების საათი",
+        subtitle: "მიმდინარე დრო",
+        format: "ფორმატი",
+        showSeconds: "წამები",
+        analog: "საათი",
+        digital: "ციფრები",
+        close: "დახურვა",
+        set: "დაყენება",
+        cancel: "გაუქმება",
+        delete: "წაშლა",
+        hour: "საათი",
+        minute: "წუთი",
+        weekday: "კვირის დღე",
+      },
+    }[currentLang] || {};
+  const locale = currentLang === "ka" ? "ka-GE" : currentLang === "ru" ? "ru-RU" : "en-US";
+  const savedFormat = localStorage.getItem("notificationClockFormat") || "24";
+  const savedSeconds = localStorage.getItem("notificationClockSeconds") !== "false";
+  const savedAnalog = localStorage.getItem("notificationClockAnalog") !== "false";
+  const clockSurface = "linear-gradient(135deg,var(--cream),var(--cream-dark))";
+  const clockPanel = "var(--cream)";
+  const clockBorder = "var(--cream-border)";
+  const html = `
+    <div id="notificationClockRoot" style="position:relative;overflow:hidden;border-radius:22px;padding:18px;background:${clockSurface};color:var(--text);box-shadow:0 18px 45px rgba(0,0,0,.22);border:1.5px solid var(--cream-border);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
+        <div>
+          <div style="font-size:12px;font-weight:900;opacity:.72;text-transform:uppercase;">${esc(L.subtitle)}</div>
+          <div id="notificationClockDate" style="font-size:15px;font-weight:800;margin-top:3px;"></div>
+        </div>
+        <div id="notificationClockWeekday" style="font-size:13px;font-weight:900;padding:8px 10px;border-radius:999px;background:${clockPanel};border:1px solid var(--cream-border);"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(118px,150px) 1fr;gap:16px;align-items:center;">
+        <div id="notificationClockDial" style="aspect-ratio:1;border-radius:50%;position:relative;background:${clockPanel};border:2px solid ${clockBorder};box-shadow:inset 0 0 22px rgba(0,0,0,.08);">
+          <div id="notificationClockHourHand" style="position:absolute;left:50%;top:50%;width:5px;height:28%;border-radius:99px;transform-origin:50% 100%;background:var(--text);"></div>
+          <div id="notificationClockMinuteHand" style="position:absolute;left:50%;top:50%;width:4px;height:38%;border-radius:99px;transform-origin:50% 100%;background:var(--primary);"></div>
+          <div id="notificationClockSecondHand" style="position:absolute;left:50%;top:50%;width:2px;height:42%;border-radius:99px;transform-origin:50% 100%;background:#ef4444;"></div>
+          <div style="position:absolute;left:50%;top:50%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:var(--primary);"></div>
+        </div>
+        <div>
+          <div id="notificationClockTime" style="font-size:clamp(42px,12vw,72px);font-weight:950;line-height:.95;font-variant-numeric:tabular-nums;"></div>
+          <div id="notificationClockFullDate" style="font-size:14px;font-weight:800;opacity:.78;margin-top:10px;line-height:1.35;"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px;">
+        <button type="button" id="notificationClockFormatBtn" class="btn-secondary" style="padding:11px 6px;font-size:11px;font-weight:900;white-space:normal;line-height:1.15;min-width:0;overflow-wrap:anywhere;">${esc(L.format)}: ${savedFormat === "12" ? "12h" : "24h"}</button>
+        <button type="button" id="notificationClockSecondsBtn" class="btn-secondary" style="padding:11px 6px;font-size:11px;font-weight:900;white-space:normal;line-height:1.15;min-width:0;overflow-wrap:anywhere;">${esc(L.showSeconds)}: ${savedSeconds ? "ON" : "OFF"}</button>
+        <button type="button" id="notificationClockAnalogBtn" class="btn-secondary" style="padding:11px 6px;font-size:11px;font-weight:900;white-space:normal;line-height:1.15;min-width:0;overflow-wrap:anywhere;">${esc(L.analog)}: ${savedAnalog ? "ON" : "OFF"}</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+        <div style="border-radius:16px;padding:10px;background:${clockPanel};border:1px solid var(--cream-border);">
+          <div style="font-size:11px;font-weight:900;opacity:.72;margin-bottom:8px;">${esc(L.hour)}</div>
+          <div style="display:grid;grid-template-columns:42px 1fr 42px;gap:6px;align-items:center;">
+            <button type="button" id="notificationClockHourMinus" class="btn-secondary" style="padding:10px 0;font-size:18px;">−</button>
+            <input id="notificationClockHourInput" class="modal-input" type="number" min="0" max="23" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:950;padding:10px 4px;">
+            <button type="button" id="notificationClockHourPlus" class="btn-secondary" style="padding:10px 0;font-size:18px;">+</button>
+          </div>
+        </div>
+        <div style="border-radius:16px;padding:10px;background:${clockPanel};border:1px solid var(--cream-border);">
+          <div style="font-size:11px;font-weight:900;opacity:.72;margin-bottom:8px;">${esc(L.minute)}</div>
+          <div style="display:grid;grid-template-columns:42px 1fr 42px;gap:6px;align-items:center;">
+            <button type="button" id="notificationClockMinuteMinus" class="btn-secondary" style="padding:10px 0;font-size:18px;">−</button>
+            <input id="notificationClockMinuteInput" class="modal-input" type="number" min="0" max="59" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:950;padding:10px 4px;">
+            <button type="button" id="notificationClockMinutePlus" class="btn-secondary" style="padding:10px 0;font-size:18px;">+</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;margin-top:10px;">
+        <button type="button" id="notificationClockSetBtn" class="btn-primary" style="padding:12px 6px;font-size:12px;font-weight:900;white-space:normal;line-height:1.15;">${esc(L.set)}</button>
+        <button type="button" id="notificationClockCancelBtn" class="btn-secondary" style="padding:12px 6px;font-size:12px;font-weight:900;white-space:normal;line-height:1.15;">${esc(L.cancel)}</button>
+        <button type="button" id="notificationClockDeleteBtn" class="btn-secondary" style="padding:12px 6px;font-size:12px;font-weight:900;color:var(--expense-color);border-color:var(--expense-color);white-space:normal;line-height:1.15;">${esc(L.delete)}</button>
+      </div>
+    </div>`;
+  const modal = createModal("notificationClockModal", L.title, html);
+  document.body.appendChild(modal);
+  openModal("notificationClockModal");
+
+  let clockFormat = savedFormat;
+  let showSeconds = savedSeconds;
+  let showAnalog = savedAnalog;
+  let selectedClockDate = new Date();
+  if (options.initialTime && /^\d{2}:\d{2}$/.test(options.initialTime)) {
+    const [h, m] = options.initialTime.split(":").map(Number);
+    selectedClockDate.setHours(h, m, 0, 0);
+  }
+  const renderClock = () => {
+    const root = document.getElementById("notificationClockModal");
+    if (!root) {
+      clearInterval(notificationClockTimer);
+      notificationClockTimer = null;
+      return;
+    }
+    const now = selectedClockDate;
+    const timeEl = document.getElementById("notificationClockTime");
+    const dateEl = document.getElementById("notificationClockDate");
+    const fullDateEl = document.getElementById("notificationClockFullDate");
+    const weekdayEl = document.getElementById("notificationClockWeekday");
+    const dialEl = document.getElementById("notificationClockDial");
+    const hourHand = document.getElementById("notificationClockHourHand");
+    const minuteHand = document.getElementById("notificationClockMinuteHand");
+    const secondHand = document.getElementById("notificationClockSecondHand");
+    const hourInput = document.getElementById("notificationClockHourInput");
+    const minuteInput = document.getElementById("notificationClockMinuteInput");
+    if (hourInput && document.activeElement !== hourInput) {
+      hourInput.value = String(now.getHours()).padStart(2, "0");
+    }
+    if (minuteInput && document.activeElement !== minuteInput) {
+      minuteInput.value = String(now.getMinutes()).padStart(2, "0");
+    }
+    if (timeEl) {
+      timeEl.textContent = now.toLocaleTimeString(locale, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: showSeconds ? "2-digit" : undefined,
+        hour12: clockFormat === "12",
+      });
+    }
+    if (dateEl) {
+      dateEl.textContent = now.toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
+    }
+    if (fullDateEl) {
+      fullDateEl.textContent = now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    }
+    if (weekdayEl) {
+      weekdayEl.textContent = now.toLocaleDateString(locale, { weekday: "long" });
+    }
+    if (dialEl) dialEl.style.display = showAnalog ? "" : "none";
+    const seconds = now.getSeconds();
+    const minutes = now.getMinutes() + seconds / 60;
+    const hours = (now.getHours() % 12) + minutes / 60;
+    if (hourHand) hourHand.style.transform = `translate(-50%,-100%) rotate(${hours * 30}deg)`;
+    if (minuteHand) minuteHand.style.transform = `translate(-50%,-100%) rotate(${minutes * 6}deg)`;
+    if (secondHand) {
+      secondHand.style.display = showSeconds ? "" : "none";
+      secondHand.style.transform = `translate(-50%,-100%) rotate(${seconds * 6}deg)`;
+    }
+  };
+  document.getElementById("notificationClockFormatBtn")?.addEventListener("click", () => {
+    clockFormat = clockFormat === "12" ? "24" : "12";
+    localStorage.setItem("notificationClockFormat", clockFormat);
+    document.getElementById("notificationClockFormatBtn").textContent = `${L.format}: ${clockFormat === "12" ? "12h" : "24h"}`;
+    renderClock();
+  });
+  document.getElementById("notificationClockSecondsBtn")?.addEventListener("click", () => {
+    showSeconds = !showSeconds;
+    localStorage.setItem("notificationClockSeconds", showSeconds ? "true" : "false");
+    document.getElementById("notificationClockSecondsBtn").textContent = `${L.showSeconds}: ${showSeconds ? "ON" : "OFF"}`;
+    renderClock();
+  });
+  document.getElementById("notificationClockAnalogBtn")?.addEventListener("click", () => {
+    showAnalog = !showAnalog;
+    localStorage.setItem("notificationClockAnalog", showAnalog ? "true" : "false");
+    document.getElementById("notificationClockAnalogBtn").textContent = `${L.analog}: ${showAnalog ? "ON" : "OFF"}`;
+    renderClock();
+  });
+  const clampClockPart = (value, max) => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return 0;
+    return Math.max(0, Math.min(max, Math.trunc(n)));
+  };
+  const shiftClockPart = (part, delta) => {
+    if (part === "hour") {
+      selectedClockDate.setHours((selectedClockDate.getHours() + delta + 24) % 24);
+    } else {
+      selectedClockDate.setMinutes((selectedClockDate.getMinutes() + delta + 60) % 60);
+    }
+    selectedClockDate.setSeconds(0, 0);
+    renderClock();
+  };
+  document.getElementById("notificationClockHourMinus")?.addEventListener("click", () => shiftClockPart("hour", -1));
+  document.getElementById("notificationClockHourPlus")?.addEventListener("click", () => shiftClockPart("hour", 1));
+  document.getElementById("notificationClockMinuteMinus")?.addEventListener("click", () => shiftClockPart("minute", -1));
+  document.getElementById("notificationClockMinutePlus")?.addEventListener("click", () => shiftClockPart("minute", 1));
+  document.getElementById("notificationClockHourInput")?.addEventListener("change", (e) => {
+    selectedClockDate.setHours(clampClockPart(e.target.value, 23), selectedClockDate.getMinutes(), 0, 0);
+    renderClock();
+  });
+  document.getElementById("notificationClockMinuteInput")?.addEventListener("change", (e) => {
+    selectedClockDate.setMinutes(clampClockPart(e.target.value, 59), 0, 0);
+    renderClock();
+  });
+  document.getElementById("notificationClockSetBtn")?.addEventListener("click", () => {
+    if (typeof options.onSet === "function") {
+      options.onSet(selectedClockDate);
+    } else if (typeof setReminderDateTimeFromNotificationClock === "function") {
+      setReminderDateTimeFromNotificationClock(selectedClockDate);
+    }
+    closeModal("notificationClockModal");
+  });
+  document.getElementById("notificationClockCancelBtn")?.addEventListener("click", () => {
+    closeModal("notificationClockModal");
+  });
+  document.getElementById("notificationClockDeleteBtn")?.addEventListener("click", () => {
+    if (typeof options.onDelete === "function") {
+      options.onDelete();
+    } else if (typeof clearReminderDateTimeFromNotificationClock === "function") {
+      clearReminderDateTimeFromNotificationClock();
+    }
+    closeModal("notificationClockModal");
+  });
+  renderClock();
+  notificationClockTimer = setInterval(() => {
+    selectedClockDate = new Date(selectedClockDate.getTime() + 1000);
+    renderClock();
+  }, 1000);
+}
+
+window.addEventListener("budgetpro:open-notification-clock", openNotificationClockModal);
+
+function getRecurringReminderTitle(interval) {
+  const labels = {
+    "1min": {
+      ru: "🔔 BudgetPRO напоминает каждую минуту",
+      en: "🔔 BudgetPRO reminder every minute",
+      ka: "🔔 BudgetPRO ყოველ წუთში",
+    },
+    "5min": {
+      ru: "🔔 BudgetPRO напоминает каждые пять минут",
+      en: "🔔 BudgetPRO reminder every five minutes",
+      ka: "🔔 BudgetPRO ყოველ ხუთ წუთში",
+    },
+    "10min": {
+      ru: "🔔 BudgetPRO напоминает каждые десять минут",
+      en: "🔔 BudgetPRO reminder every ten minutes",
+      ka: "🔔 BudgetPRO ყოველ ათ წუთში",
+    },
+    "15min": {
+      ru: "🔔 BudgetPRO напоминает каждые пятнадцать минут",
+      en: "🔔 BudgetPRO reminder every fifteen minutes",
+      ka: "🔔 BudgetPRO ყოველ თხუთმეტ წუთში",
+    },
+    "30min": {
+      ru: "🔔 BudgetPRO напоминает каждые тридцать минут",
+      en: "🔔 BudgetPRO reminder every thirty minutes",
+      ka: "🔔 BudgetPRO ყოველ ოცდაათ წუთში",
+    },
+    "1h": {
+      ru: "🔔 BudgetPRO напоминает каждый час",
+      en: "🔔 BudgetPRO hourly reminder",
+      ka: "🔔 BudgetPRO საათობრივი შეხსენება",
+    },
+    "2h": {
+      ru: "🔔 BudgetPRO напоминает каждые два часа",
+      en: "🔔 BudgetPRO reminder every two hours",
+      ka: "🔔 BudgetPRO ყოველ ორ საათში",
+    },
+    "5h": {
+      ru: "🔔 BudgetPRO напоминает каждые пять часов",
+      en: "🔔 BudgetPRO reminder every five hours",
+      ka: "🔔 BudgetPRO ყოველ ხუთ საათში",
+    },
+    daily: {
+      ru: "🔔 BudgetPRO ежедневное напоминание",
+      en: "🔔 BudgetPRO daily reminder",
+      ka: "🔔 BudgetPRO ყოველდღიური შეხსენება",
+    },
+    every3days: {
+      ru: "🔔 BudgetPRO напоминание каждые три дня",
+      en: "🔔 BudgetPRO reminder every three days",
+      ka: "🔔 BudgetPRO ყოველ სამ დღეში",
+    },
+    weekly: {
+      ru: "🔔 BudgetPRO еженедельное напоминание",
+      en: "🔔 BudgetPRO weekly reminder",
+      ka: "🔔 BudgetPRO ყოველკვირეული შეხსენება",
+    },
+  };
+  return (labels[interval] || labels.daily)[currentLang] || "🔔 BudgetPRO reminder";
+}
+
+function getRecurringReminderBody(interval) {
+  const customText = getSavedRecurringReminderText();
+  if (customText) return customText;
+  const labels = {
+    "1min": {
+      ru: "Очень частое напоминание: откройте BudgetPRO и сразу внесите последние траты, доходы или переводы, чтобы ни одна операция не потерялась.",
+      en: "Very frequent reminder: open BudgetPRO and immediately record your latest expenses, income, or transfers so no transaction gets lost.",
+      ka: "ძალიან ხშირი შეხსენება: გახსენით BudgetPRO და მაშინვე ჩაიწერეთ ბოლო ხარჯები, შემოსავლები ან გადარიცხვები, რათა არცერთი ოპერაცია არ დაიკარგოს.",
+    },
+    "5min": {
+      ru: "Напоминание каждые пять минут: если у вас активный финансовый день, откройте BudgetPRO и обновите записи прямо сейчас.",
+      en: "Reminder every five minutes: if you are having an active financial day, open BudgetPRO and update your records right now.",
+      ka: "ყოველ ხუთ წუთში შეხსენება: თუ ფინანსურად აქტიური დღე გაქვთ, გახსენით BudgetPRO და ახლავე განაახლეთ ჩანაწერები.",
+    },
+    "10min": {
+      ru: "Напоминание каждые десять минут: проверьте BudgetPRO и убедитесь, что все свежие операции уже сохранены.",
+      en: "Reminder every ten minutes: check BudgetPRO and make sure all recent transactions have already been saved.",
+      ka: "ყოველ ათ წუთში შეხსენება: შეამოწმეთ BudgetPRO და დარწმუნდით, რომ ყველა ახალი ოპერაცია უკვე შენახულია.",
+    },
+    "15min": {
+      ru: "Напоминание каждые пятнадцать минут: откройте BudgetPRO и поддерживайте ваши данные по расходам и доходам в полном порядке.",
+      en: "Reminder every fifteen minutes: open BudgetPRO and keep your expense and income records perfectly up to date.",
+      ka: "ყოველ თხუთმეტ წუთში შეხსენება: გახსენით BudgetPRO და ხარჯებისა და შემოსავლების მონაცემები სრულ წესრიგში შეინახეთ.",
+    },
+    "30min": {
+      ru: "Напоминание каждые тридцать минут: откройте BudgetPRO и проверьте, не появились ли новые расходы, доходы или переводы.",
+      en: "Reminder every thirty minutes: open BudgetPRO and check whether any new expenses, income, or transfers need to be recorded.",
+      ka: "ყოველ ოცდაათ წუთში შეხსენება: გახსენით BudgetPRO და გადაამოწმეთ, ხომ არ დაგიგროვდათ ახალი ხარჯები, შემოსავლები ან გადარიცხვები.",
+    },
+    "1h": {
+      ru: "Откройте BudgetPRO и запишите операции, чтобы ваши расходы и доходы оставались точными и актуальными.",
+      en: "Open BudgetPRO and record your transactions so your expenses and income stay accurate and up to date.",
+      ka: "გახსენით BudgetPRO და ჩაიწერეთ ოპერაციები, რათა ხარჯები და შემოსავლები ყოველთვის ზუსტი და განახლებული იყოს.",
+    },
+    "2h": {
+      ru: "Проверьте BudgetPRO и занесите новые траты, поступления или переводы, которые могли накопиться за последние два часа.",
+      en: "Check BudgetPRO and record any new expenses, income, or transfers that may have appeared over the last two hours.",
+      ka: "შეამოწმეთ BudgetPRO და ჩაიწერეთ ბოლო ორი საათის ხარჯები, შემოსავლები ან გადარიცხვები.",
+    },
+    "5h": {
+      ru: "Зайдите в BudgetPRO и обновите записи, чтобы финансовая картина дня оставалась полной и понятной.",
+      en: "Open BudgetPRO and refresh your records so the financial picture of your day stays complete and clear.",
+      ka: "შედით BudgetPRO-ში და განაახლეთ ჩანაწერები, რათა დღის ფინანსური სურათი სრული და გასაგები დარჩეს.",
+    },
+    daily: {
+      ru: "Ежедневное напоминание: откройте BudgetPRO, проверьте расходы, доходы и убедитесь, что ничего не забыто.",
+      en: "Daily reminder: open BudgetPRO, review your expenses and income, and make sure nothing was forgotten.",
+      ka: "ყოველდღიური შეხსენება: გახსენით BudgetPRO, გადაამოწმეთ ხარჯები და შემოსავლები და დარწმუნდით, რომ არაფერი დაგრჩათ.",
+    },
+    every3days: {
+      ru: "Напоминание раз в три дня: обновите BudgetPRO, чтобы ваши данные оставались полезными для планирования и анализа.",
+      en: "Reminder every three days: update BudgetPRO so your data stays useful for planning and analysis.",
+      ka: "ყოველ სამ დღეში შეხსენება: განაახლეთ BudgetPRO, რათა მონაცემები სასარგებლო დარჩეს დაგეგმვისა და ანალიზისთვის.",
+    },
+    weekly: {
+      ru: "Еженедельное напоминание: откройте BudgetPRO, сверьте свои записи за неделю и подготовьтесь к следующей.",
+      en: "Weekly reminder: open BudgetPRO, review your records for the week, and prepare for the next one.",
+      ka: "ყოველკვირეული შეხსენება: გახსენით BudgetPRO, გადაამოწმეთ კვირის ჩანაწერები და მოემზადეთ შემდეგი კვირისთვის.",
+    },
+  };
+  return (labels[interval] || labels.daily)[currentLang];
+}
+
+function getReminderWeekdayOptions(lang) {
+  return {
+    ru: [
+      { value: 1, short: "Пн", full: "Понедельник" },
+      { value: 2, short: "Вт", full: "Вторник" },
+      { value: 3, short: "Ср", full: "Среда" },
+      { value: 4, short: "Чт", full: "Четверг" },
+      { value: 5, short: "Пт", full: "Пятница" },
+      { value: 6, short: "Сб", full: "Суббота" },
+      { value: 0, short: "Вс", full: "Воскресенье" },
+    ],
+    en: [
+      { value: 1, short: "Mon", full: "Monday" },
+      { value: 2, short: "Tue", full: "Tuesday" },
+      { value: 3, short: "Wed", full: "Wednesday" },
+      { value: 4, short: "Thu", full: "Thursday" },
+      { value: 5, short: "Fri", full: "Friday" },
+      { value: 6, short: "Sat", full: "Saturday" },
+      { value: 0, short: "Sun", full: "Sunday" },
+    ],
+    ka: [
+      { value: 1, short: "ორშ", full: "ორშაბათი" },
+      { value: 2, short: "სამ", full: "სამშაბათი" },
+      { value: 3, short: "ოთხ", full: "ოთხშაბათი" },
+      { value: 4, short: "ხუთ", full: "ხუთშაბათი" },
+      { value: 5, short: "პარ", full: "პარასკევი" },
+      { value: 6, short: "შაბ", full: "შაბათი" },
+      { value: 0, short: "კვი", full: "კვირა" },
+    ],
+  }[lang] || [];
+}
+
+function isReminderWeekdayAllowed(ts) {
+  if (!Array.isArray(reminderWeekdays) || !reminderWeekdays.length) return true;
+  return reminderWeekdays.includes(new Date(ts).getDay());
+}
+
+function getReminderNotificationId(seed) {
+  const numeric = String(seed || Date.now()).replace(/\D/g, "");
+  return Number(numeric.slice(-8) || Date.now().toString().slice(-8));
+}
+
+async function ensureReminderNotificationChannel() {
+  const plugin = getLocalNotificationsPlugin();
+  if (!plugin?.createChannel) return;
+  try {
+    await plugin.createChannel({
+      id: "budget-reminders",
+      name: "BudgetPRO Reminders",
+      description:
+        "Full reminder notifications from BudgetPRO with scheduled text and emoji.",
+      importance: 5,
+      visibility: 1,
+      vibration: true,
+      lights: true,
+    });
+  } catch (e) {}
+}
+
+async function getReminderPermissionState() {
+  const plugin = getLocalNotificationsPlugin();
+  if (plugin?.checkPermissions) {
+    try {
+      const perm = await plugin.checkPermissions();
+      const state = perm.display || perm.schedule || "prompt";
+      localStorage.setItem("nativeReminderPermission", state);
+      return state;
+    } catch (e) {}
+  }
+  if (typeof Notification !== "undefined") return Notification.permission;
+  return "denied";
+}
+
+async function requestReminderPermission() {
+  const plugin = getLocalNotificationsPlugin();
+  if (plugin?.requestPermissions) {
+    const perm = await plugin.requestPermissions();
+    const state = perm.display || perm.schedule || "prompt";
+    localStorage.setItem("nativeReminderPermission", state);
+    return state;
+  }
+  if (typeof Notification !== "undefined") {
+    return Notification.requestPermission();
+  }
+  return "denied";
+}
+
+async function cancelNativeReminderNotificationById(id) {
+  const bridge = getNativeNotificationsBridge();
+  if (bridge && id) {
+    try {
+      if (typeof bridge.cancelExactReminder === "function") {
+        bridge.cancelExactReminder(Number(id));
+      }
+    } catch (e) {}
+  }
+  const plugin = getLocalNotificationsPlugin();
+  if (!plugin?.cancel || !id) return;
+  try {
+    await plugin.cancel({ notifications: [{ id }] });
+  } catch (e) {}
+}
+
+function getTrackedNativeNamedReminderIds() {
+  try {
+    return JSON.parse(localStorage.getItem("nativeExactNamedIds") || "[]").filter(Boolean);
+  } catch (e) {
+    return [];
+  }
+}
+
+function setTrackedNativeNamedReminderIds(ids) {
+  localStorage.setItem(
+    "nativeExactNamedIds",
+    JSON.stringify([...new Set((ids || []).map((id) => Number(id)).filter(Boolean))]),
+  );
+}
+
+function trackNativeNamedReminderId(id) {
+  const ids = getTrackedNativeNamedReminderIds();
+  ids.push(Number(id));
+  setTrackedNativeNamedReminderIds(ids);
+}
+
+function untrackNativeNamedReminderId(id) {
+  setTrackedNativeNamedReminderIds(
+    getTrackedNativeNamedReminderIds().filter((x) => Number(x) !== Number(id)),
+  );
+}
+
+async function cleanupStaleNativeNamedReminderNotifications() {
+  const bridge = getNativeNotificationsBridge();
+  const plugin = getLocalNotificationsPlugin();
+  const trackedIds = getTrackedNativeNamedReminderIds();
+  if (!bridge) return;
+  const activeIdList = JSON.parse(localStorage.getItem("namedReminders") || "[]")
+    .map((r) => Number(r.notificationId))
+    .filter(Boolean);
+  const activeIds = new Set(
+    JSON.parse(localStorage.getItem("namedReminders") || "[]")
+      .map((r) => Number(r.notificationId))
+      .filter(Boolean),
+  );
+  try {
+    if (typeof bridge.clearTrackedExactRemindersExcept === "function") {
+      bridge.clearTrackedExactRemindersExcept(JSON.stringify(activeIdList));
+    }
+  } catch (e) {}
+  if (plugin?.getPending && plugin?.cancel) {
+    try {
+      const pending = await plugin.getPending();
+      const stalePluginIds = (pending.notifications || [])
+        .filter((n) => {
+          const id = Number(n.id);
+          const isRecurring = n.extra?.reminderType === "recurring" || id >= 810000;
+          if (isRecurring) return false;
+          if (!activeIdList.length) return true;
+          return !activeIds.has(id);
+        })
+        .map((n) => ({ id: n.id }));
+      if (stalePluginIds.length) {
+        await plugin.cancel({ notifications: stalePluginIds });
+      }
+    } catch (e) {}
+  }
+  if (plugin?.getDeliveredNotifications && plugin?.removeDeliveredNotifications && !activeIdList.length) {
+    try {
+      const delivered = await plugin.getDeliveredNotifications();
+      const staleDeliveredIds = (delivered.notifications || [])
+        .filter((n) => {
+          const id = Number(n.id);
+          return !(n.extra?.reminderType === "recurring" || id >= 810000);
+        })
+        .map((n) => ({ id: n.id }));
+      if (staleDeliveredIds.length) {
+        await plugin.removeDeliveredNotifications({ notifications: staleDeliveredIds });
+      }
+    } catch (e) {}
+  }
+  if (!trackedIds.length) return;
+  const staleIds = trackedIds.filter((id) => !activeIds.has(Number(id)));
+  for (const id of staleIds) {
+    try {
+      if (typeof bridge.cancelExactReminder === "function") {
+        bridge.cancelExactReminder(Number(id));
+      }
+    } catch (e) {}
+  }
+  setTrackedNativeNamedReminderIds(trackedIds.filter((id) => activeIds.has(Number(id))));
+}
+
+function getSavedRecurringReminderDeliveryMode() {
+  return localStorage.getItem("customRecurringReminderDeliveryMode") || "sound_vibration";
+}
+
+function getSavedRecurringReminderSoundChoice() {
+  return localStorage.getItem("customRecurringReminderSoundChoice") || "";
+}
+
+function getRecurringExactAlarmHorizonCount(interval) {
+  const map = {
+    "1min": 90,
+    "5min": 72,
+    "10min": 60,
+    "15min": 48,
+    "30min": 36,
+    "1h": 24,
+    "2h": 18,
+    "5h": 12,
+    daily: 14,
+    every3days: 10,
+    weekly: 8,
+  };
+  return map[interval] || 60;
+}
+
+async function syncExactAlarmRecurringReminderNotifications() {
+  const bridge = getNativeNotificationsBridge();
+  if (!bridge) return;
+  const baseId = 910000;
+  const legacyPluginBaseId = 810000;
+  const oldIds = JSON.parse(localStorage.getItem("nativeExactRecurringIds") || "[]");
+  const allPossibleIds = [];
+  for (let intervalIdx = 0; intervalIdx < 12; intervalIdx++) {
+    for (let slot = 0; slot < 120; slot++) {
+      allPossibleIds.push(baseId + intervalIdx * 2000 + slot);
+    }
+  }
+  for (const id of [...new Set([...oldIds, ...allPossibleIds])]) {
+    try {
+      bridge.cancelExactReminder(Number(id));
+    } catch (e) {}
+  }
+  const plugin = getLocalNotificationsPlugin();
+  if (plugin?.getPending && plugin?.cancel) {
+    try {
+      const pending = await plugin.getPending();
+      const legacyRecurringIds = (pending.notifications || [])
+        .filter(
+          (n) =>
+            n.id >= legacyPluginBaseId ||
+            n.extra?.reminderType === "recurring",
+        )
+        .map((n) => ({ id: n.id }));
+      if (legacyRecurringIds.length) {
+        await plugin.cancel({ notifications: legacyRecurringIds });
+      }
+    } catch (e) {}
+  }
+
+  const now = Date.now();
+  const scheduledIds = [];
+  const activeIntervals = Object.entries(reminderIntervals || {}).filter(
+    ([, active]) => !!active,
+  );
+
+  for (const [idx, [interval]] of activeIntervals.entries()) {
+    const step = getIntervalMs(interval);
+    if (!step) continue;
+    let cursor = now + step;
+    let slot = 0;
+    const maxCount = getRecurringExactAlarmHorizonCount(interval);
+    while (slot < maxCount) {
+      if (!isReminderWeekdayAllowed(cursor)) {
+        cursor += step;
+        continue;
+      }
+      const notificationId = baseId + idx * 2000 + slot;
+      let ok = false;
+      try {
+        if (typeof bridge.scheduleExactReminderDetailed === "function") {
+          ok = bridge.scheduleExactReminderDetailed(
+            cursor,
+            notificationId,
+            getRecurringReminderTitle(interval),
+            getRecurringReminderBody(interval),
+            getSavedRecurringReminderDeliveryMode(),
+            getSavedRecurringReminderSoundChoice(),
+          );
+        } else if (typeof bridge.scheduleExactReminder === "function") {
+          ok = bridge.scheduleExactReminder(
+            cursor,
+            notificationId,
+            getRecurringReminderTitle(interval),
+            getRecurringReminderBody(interval),
+          );
+        }
+      } catch (e) {}
+      if (ok) scheduledIds.push(notificationId);
+      cursor += step;
+      slot++;
+    }
+  }
+
+  localStorage.setItem("nativeExactRecurringIds", JSON.stringify(scheduledIds));
+}
+
+async function scheduleNativeNamedReminder(r) {
+  const bridge = getNativeNotificationsBridge();
+  if (bridge) {
+    const ts = Number(r.ts);
+    if (!ts || ts <= Date.now()) return false;
+    const notificationId = r.notificationId || getReminderNotificationId(r.id);
+    try {
+      if (typeof bridge.scheduleExactReminderDetailed === "function") {
+        const ok = !!bridge.scheduleExactReminderDetailed(
+          ts,
+          notificationId,
+          getReminderNotificationTitle(r.name),
+          r.body || getReminderNotificationBody(r.name),
+          r.deliveryMode || "sound_vibration",
+          r.soundChoice || "",
+        );
+        if (ok) trackNativeNamedReminderId(notificationId);
+        return ok;
+      }
+      if (typeof bridge.scheduleExactReminder === "function") {
+        const ok = !!bridge.scheduleExactReminder(
+          ts,
+          notificationId,
+          getReminderNotificationTitle(r.name),
+          r.body || getReminderNotificationBody(r.name),
+        );
+        if (ok) trackNativeNamedReminderId(notificationId);
+        return ok;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+  const plugin = getLocalNotificationsPlugin();
+  if (!plugin?.schedule) return false;
+  const at = new Date(r.ts);
+  if (!(at instanceof Date) || Number.isNaN(at.getTime()) || at.getTime() <= Date.now()) {
+    return false;
+  }
+  await ensureReminderNotificationChannel();
+  try {
+    await plugin.schedule({
+      notifications: [
+        {
+          id: r.notificationId || getReminderNotificationId(r.id),
+          title: getReminderNotificationTitle(r.name),
+          body: r.body || getReminderNotificationBody(r.name),
+          schedule: { at, allowWhileIdle: true },
+          channelId: "budget-reminders",
+          ongoing: false,
+          autoCancel: true,
+          smallIcon: "ic_launcher_foreground",
+          extra: { reminderId: r.id, reminderType: "named" },
+        },
+      ],
+    });
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function syncNativeRecurringReminderNotifications() {
+  if (canUseExactReminderBridge()) {
+    await syncExactAlarmRecurringReminderNotifications();
+    return;
+  }
+  const plugin = getLocalNotificationsPlugin();
+  if (!plugin?.schedule) return;
+  await ensureReminderNotificationChannel();
+  const notifications = [];
+  const now = Date.now();
+  const horizonMs = 30 * 24 * 60 * 60 * 1000;
+  const baseId = 810000;
+  const activeIntervals = Object.entries(reminderIntervals || {}).filter(
+    ([, active]) => !!active,
+  );
+
+  for (const [idx, [interval]] of activeIntervals.entries()) {
+    const step = getIntervalMs(interval);
+    if (!step) continue;
+    let cursor = now + step;
+    let slot = 0;
+    while (cursor <= now + horizonMs && slot < 400) {
+      if (!isReminderWeekdayAllowed(cursor)) {
+        cursor += step;
+        continue;
+      }
+      notifications.push({
+        id: baseId + idx * 500 + slot,
+        title: getRecurringReminderTitle(interval),
+        body: getRecurringReminderBody(interval),
+        schedule: { at: new Date(cursor), allowWhileIdle: true },
+        channelId: "budget-reminders",
+        ongoing: false,
+        autoCancel: true,
+        smallIcon: "ic_launcher_foreground",
+        extra: { reminderType: "recurring", interval },
+      });
+      cursor += step;
+      slot++;
+    }
+  }
+
+  try {
+    const pending = await plugin.getPending();
+    const recurringIds = (pending.notifications || [])
+      .filter((n) => n.extra?.reminderType === "recurring" || n.id >= baseId)
+      .map((n) => ({ id: n.id }));
+    if (recurringIds.length) {
+      await plugin.cancel({ notifications: recurringIds });
+    }
+  } catch (e) {}
+
+  if (notifications.length) {
+    try {
+      await plugin.schedule({ notifications });
+    } catch (e) {}
+  }
+}
+
+async function syncNativeNamedReminderNotifications() {
+  const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+  for (const r of list) {
+    if (r.fired || !r.ts || r.ts <= Date.now()) continue;
+    r.notificationId = r.notificationId || getReminderNotificationId(r.id);
+    await scheduleNativeNamedReminder(r);
+  }
+  localStorage.setItem("namedReminders", JSON.stringify(list));
+}
+
+async function reconcileNativeReminderAlarms() {
+  if (!isNativeReminderRuntime()) return;
+  const named = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+  const hasNamed = named.some((r) => !r.fired && Number(r.ts) > Date.now());
+  const hasRecurring = hasActiveRecurringReminderIntervals();
+  if (!hasNamed && !hasRecurring) {
+    clearRecurringReminderState();
+    setTrackedNativeNamedReminderIds([]);
+  }
+  await cleanupStaleNativeNamedReminderNotifications();
+  await syncNativeRecurringReminderNotifications();
+}
+
 // ── Schedule a named reminder with setTimeout (best-effort) ──
 function scheduleNamedReminder(r) {
+  if (isNativeReminderRuntime()) return;
   const delay = r.tsMs - Date.now();
   if (delay <= 0 || delay > 7 * 24 * 3600 * 1000) return; // skip if past or >7 days
   setTimeout(() => {
@@ -11366,16 +13473,10 @@ function scheduleNamedReminder(r) {
 }
 
 function fireNamedReminder(r) {
-  const body =
-    r.name ||
-    {
-      ru: "Не забудьте записать расходы!",
-      en: "Log your expenses!",
-      ka: "არ დაგავიწყდეთ ხარჯების ჩაწერა!",
-    }[currentLang];
+  const body = getReminderNotificationBody(r.name);
 
   // Надёжное локальное уведомление (липучее, с вибрацией и звуком)
-  showStickyNotification("🔔 БюджетPRO", body, "named-" + r.id);
+  showStickyNotification(getReminderNotificationTitle(r.name), body, "named-" + r.id);
 
   showToast("🔔 " + body, "success", 5000);
   if (typeof haptic === "function") haptic("medium");
@@ -11383,6 +13484,10 @@ function fireNamedReminder(r) {
 
 // Re-schedule any pending named reminders on page load
 function rescheduleNamedReminders() {
+  if (isNativeReminderRuntime()) {
+    syncNativeNamedReminderNotifications();
+    return;
+  }
   const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
   const now = Date.now();
   let changed = false;
@@ -11403,6 +13508,7 @@ function rescheduleNamedReminders() {
 setTimeout(rescheduleNamedReminders, 1000);
 
 function sendReminderNotification() {
+  if (isNativeReminderRuntime()) return;
   if (typeof Notification === "undefined") return;
   const canNotify = Notification.permission === "granted";
   const now = Date.now();
@@ -11430,10 +13536,10 @@ function sendReminderNotification() {
     const last = localStorage.getItem(lastKey);
     const ms = getIntervalMs(interval);
     const should = !last || now - parseInt(last) >= ms;
-    if (should) {
+    if (should && isReminderWeekdayAllowed(now)) {
       showStickyNotification(
-        t("appName"),
-        t("remindersDesc"),
+        getRecurringReminderTitle(interval),
+        getRecurringReminderBody(interval),
         "budget-reminder",
       );
       localStorage.setItem(lastKey, now);
@@ -11562,6 +13668,13 @@ function loadReminderSettings() {
   const si = localStorage.getItem("remindersInterval");
   if (si && ["daily", "every3days", "weekly"].includes(si))
     remindersInterval = si;
+  if (isNativeReminderRuntime()) {
+    getReminderPermissionState().then(() => {
+      syncNativeNamedReminderNotifications();
+      reconcileNativeReminderAlarms();
+    });
+    return;
+  }
   if (remindersEnabled) startReminderTimer();
 }
 
@@ -11707,12 +13820,64 @@ function createModal(id, title, bodyHtml) {
   const ov = document.createElement("div");
   ov.id = id;
   if (id === "addModal") {
+    if (!document.getElementById("addModalMotionCSS")) {
+      const motionStyle = document.createElement("style");
+      motionStyle.id = "addModalMotionCSS";
+      motionStyle.textContent = `
+        #addModal .add-modal-overlay {
+          opacity: 0;
+          transition: opacity 320ms ease-out;
+        }
+        #addModal .add-modal-sheet {
+          transform: translate3d(0,125%,0) scale(.975);
+          opacity: 0;
+          transition:
+            transform 760ms cubic-bezier(.16,1,.24,1),
+            opacity 460ms ease-out;
+          will-change: transform, opacity !important;
+          backface-visibility: hidden !important;
+        }
+        #addModal.open .add-modal-overlay {
+          opacity: 1 !important;
+        }
+        #addModal.open .add-modal-sheet {
+          transform: translate3d(0,0,0) scale(1) !important;
+          opacity: 1 !important;
+        }
+        #addModal.closing .add-modal-overlay {
+          opacity: 0 !important;
+        }
+        #addModal.closing .add-modal-sheet {
+          transform: translate3d(0,110%,0) scale(.99) !important;
+          opacity: 0 !important;
+          transition:
+            transform 300ms cubic-bezier(.4,0,.2,1),
+            opacity 220ms ease !important;
+        }
+        #addModal .add-modal-sheet.dragging {
+          transition: none !important;
+        }
+      `;
+      document.head.appendChild(motionStyle);
+    }
     ov.className = "add-modal-host";
-    ov.style.display = "none";
-    ov.innerHTML = `<div class="more-overlay add-modal-overlay"></div><div class="more-sheet add-modal-sheet"><div class="more-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
-    ov.querySelector(".modal-close").addEventListener("click", () =>
-      closeModal(id),
-    );
+      ov.style.display = "none";
+      ov.innerHTML = `<div class="more-overlay add-modal-overlay"></div><div class="more-sheet add-modal-sheet"><div class="more-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
+      const addSheet = ov.querySelector(".add-modal-sheet");
+      const addOverlay = ov.querySelector(".add-modal-overlay");
+      if (addSheet) {
+        addSheet.style.transform = "translateY(105%)";
+        addSheet.style.opacity = "0";
+        addSheet.style.transition = "transform 420ms cubic-bezier(.16,1,.3,1), opacity 260ms ease";
+        addSheet.style.willChange = "transform, opacity";
+      }
+      if (addOverlay) {
+        addOverlay.style.opacity = "0";
+        addOverlay.style.transition = "opacity 260ms ease";
+      }
+      ov.querySelector(".modal-close").addEventListener("click", () =>
+        closeModal(id),
+      );
     ov.querySelector(".add-modal-overlay")?.addEventListener("click", () =>
       closeModal(id),
     );
@@ -11816,7 +13981,11 @@ function openModal(id) {
       const modalBody = m.querySelector(".modal-body");
       if (sheet) {
         sheet.classList.remove("dragging");
+        sheet.getAnimations?.().forEach((animation) => animation.cancel());
         sheet.style.transition = "";
+        sheet.style.transform = "translateY(105%)";
+        sheet.style.opacity = "0";
+        sheet.style.willChange = "transform, opacity";
         sheet.scrollTop = 0;
       }
       if (modalBody) {
@@ -11825,10 +13994,9 @@ function openModal(id) {
           modalBody.scrollTo({ top: 0, behavior: "instant" });
         }
       }
+      if (sheet) void sheet.offsetHeight;
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          m.classList.add("open");
-        });
+        m.classList.add("open");
         if (modalBody) {
           modalBody.scrollTop = 0;
           if (typeof modalBody.scrollTo === "function") {
@@ -11837,22 +14005,11 @@ function openModal(id) {
         }
       });
       setTimeout(() => {
-        if (modalBody) {
-          modalBody.scrollTop = 0;
-          if (typeof modalBody.scrollTo === "function") {
-            modalBody.scrollTo({ top: 0, behavior: "instant" });
-          }
-        }
-      }, 80);
-      setTimeout(() => {
-        if (modalBody) {
-          modalBody.scrollTop = 0;
-          if (typeof modalBody.scrollTo === "function") {
-            modalBody.scrollTo({ top: 0, behavior: "instant" });
-          }
-        }
         m.classList.remove("opening");
-      }, 640);
+        if (sheet) {
+          sheet.style.willChange = "";
+        }
+      }, 960);
     } else {
       m.classList.remove("closing");
       requestAnimationFrame(() => {
@@ -12254,8 +14411,11 @@ function closeModal(id) {
     if (id === "addModal") {
       const sheet = m.querySelector(".add-modal-sheet");
       addModalLastClosedAt = Date.now();
+      m.classList.remove("open");
       m.classList.add("closing");
-      if (sheet) sheet.classList.remove("dragging");
+      if (sheet) {
+        sheet.classList.remove("dragging");
+      }
       setTimeout(() => {
         m.style.display = "none";
         m.remove();
@@ -12379,6 +14539,10 @@ function startStatsAutoRefresh() {
 
 function getIntervalMs(iv) {
   const map = {
+    "1min": 1 * 60 * 1000,
+    "5min": 5 * 60 * 1000,
+    "10min": 10 * 60 * 1000,
+    "15min": 15 * 60 * 1000,
     "30min": 30 * 60 * 1000,
     "1h": 60 * 60 * 1000,
     "2h": 2 * 60 * 60 * 1000,
@@ -12860,13 +15024,61 @@ function applySimpleMode(on) {
       body.simple-mode { font-size: 18px !important; }
       body.simple-mode .card-value { font-size: 21px !important; font-weight: 900 !important; }
       body.simple-mode .card-label { font-size: 13px !important; }
-      body.simple-mode .fab { width: 66px !important; height: 66px !important; }
+      body.simple-mode .bottom-nav {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 9200 !important;
+        transform: none !important;
+        overflow: visible !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+      }
+      body.simple-mode #simpleNav {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 9200 !important;
+        transform: none !important;
+        overflow: visible !important;
+      }
+      body.simple-mode .fab,
+      body.simple-mode #fabBtn,
+      body.simple-mode #fabBtnSimple,
+      body.simple-mode .nav-fab-circle {
+        width: 66px !important;
+        height: 66px !important;
+        z-index: 9400 !important;
+        overflow: visible !important;
+        position: relative !important;
+      }
       body.simple-mode .fab-icon { font-size: 30px !important; }
       body.simple-mode .nav-label { font-size: 11px !important; }
       body.simple-mode .op-category { font-size: 17px !important; }
       body.simple-mode .op-amount { font-size: 18px !important; }
       body.simple-mode .btn-primary, body.simple-mode .btn-secondary { font-size: 18px !important; padding: 16px !important; }
       body.simple-mode .modal-input, body.simple-mode .modal-select { font-size: 18px !important; }
+      body.simple-mode .modal-overlay,
+      body.simple-mode .add-modal-host,
+      body.simple-mode #moreDrawer {
+        z-index: 30000 !important;
+      }
+      body.simple-mode .modal,
+      body.simple-mode .more-sheet,
+      body.simple-mode .add-modal-sheet {
+        z-index: 30001 !important;
+      }
+      body.simple-mode .font-size-grid {
+        grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)) !important;
+      }
+      body.simple-mode .set-font-btn {
+        min-width: 0 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere !important;
+        line-height: 1.15 !important;
+        padding: 12px 8px !important;
+      }
     `;
     document.head.appendChild(st);
   } else if (!simpleMode) {
@@ -14359,6 +16571,34 @@ function updateNotifUI(enabled) {
 }
 
 function handleNotifBtnClick() {
+  if (isNativeReminderRuntime()) {
+    requestReminderPermission().then(async (state) => {
+      if (state === "granted") {
+        remindersEnabled = true;
+        saveReminderSettings();
+        await syncNativeRecurringReminderNotifications();
+        renderSettings();
+        showToast(
+          {
+            ru: "Нативные Android-уведомления включены. Напоминания будут появляться в шторке телефона даже если приложение закрыто.",
+            en: "Native Android notifications are enabled. Reminders will appear in your phone notification shade even if the app is closed.",
+            ka: "Android-ის მშობლიური შეტყობინებები ჩაირთო. შეხსენებები ტელეფონის შეტყობინებებში გამოჩნდება მაშინაც, როცა აპი დახურულია.",
+          }[currentLang],
+          "success",
+        );
+      } else {
+        showToast(
+          {
+            ru: "Разрешение на уведомления не выдано. Без него Android не сможет показать напоминание в шторке телефона.",
+            en: "Notification permission was not granted. Without it, Android cannot show reminders in your phone notification shade.",
+            ka: "შეტყობინებების ნებართვა არ გაიცა. მის გარეშე Android შეხსენებებს ტელეფონის შეტყობინებებში ვერ აჩვენებს.",
+          }[currentLang],
+          "error",
+        );
+      }
+    });
+    return;
+  }
   if (!("Notification" in window)) {
     showToast(
       {
@@ -20995,6 +23235,213 @@ function getFloatingBtnSetting(key) {
   return localStorage.getItem(key) !== "false"; // default ON
 }
 
+function syncVoiceButtonEnabled(enabled) {
+  localStorage.setItem("showVoiceBtn", enabled ? "true" : "false");
+  const toggle = document.getElementById("showVoiceBtnToggle");
+  if (toggle) toggle.checked = enabled;
+}
+
+function ensureVoiceTrashBin() {
+  let bin = document.getElementById("voiceTrashBin");
+  if (bin) return bin;
+  bin = document.createElement("div");
+  bin.id = "voiceTrashBin";
+  bin.setAttribute("aria-hidden", "true");
+  bin.style.cssText = `
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    width: 118px;
+    height: 118px;
+    transform: translateX(-50%) translateY(120px) scale(0.72);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10001;
+    border-radius: 34px;
+    background:
+      radial-gradient(circle at 50% 28%, rgba(255,255,255,0.98), rgba(255,255,255,0.72) 38%, rgba(255,255,255,0) 39%),
+      linear-gradient(180deg, rgba(255,250,250,0.98), rgba(255,231,231,0.96));
+    border: 2px solid rgba(239, 68, 68, 0.32);
+    box-shadow: 0 20px 48px rgba(239, 68, 68, 0.26), 0 10px 24px rgba(17, 24, 39, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    transition: transform 260ms cubic-bezier(.22,1.25,.36,1), opacity 220ms ease, box-shadow 220ms ease;
+    backdrop-filter: blur(10px);
+  `;
+  const icon = document.createElement("div");
+  icon.innerHTML = `
+    <svg viewBox="0 0 64 64" width="88" height="88" aria-hidden="true">
+      <path fill="#ef4444" d="M23 10c0-3.3 2.7-6 6-6h6c3.3 0 6 2.7 6 6v4h10c1.7 0 3 1.3 3 3s-1.3 3-3 3h-2l-3.2 31.1C45.4 56.2 41.2 60 36.2 60H27.8c-5 0-9.2-3.8-9.7-8.9L15 20h-2c-1.7 0-3-1.3-3-3s1.3-3 3-3h10zm6 0v4h6v-4zM24 28c1.7 0 3 1.3 3 3v16c0 1.7-1.3 3-3 3s-3-1.3-3-3V31c0-1.7 1.3-3 3-3zm16 0c1.7 0 3 1.3 3 3v16c0 1.7-1.3 3-3 3s-3-1.3-3-3V31c0-1.7 1.3-3 3-3zM32 28c1.7 0 3 1.3 3 3v16c0 1.7-1.3 3-3 3s-3-1.3-3-3V31c0-1.7 1.3-3 3-3z"/>
+    </svg>
+  `;
+  icon.style.cssText = `
+    width: 88px;
+    height: 88px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: 50% 85%;
+    transition: transform 220ms cubic-bezier(.34,1.56,.64,1);
+    filter: drop-shadow(0 10px 20px rgba(239, 68, 68, 0.28));
+  `;
+  bin.appendChild(icon);
+  document.body.appendChild(bin);
+  return bin;
+}
+
+function setVoiceTrashState(active, strength = 0) {
+  const bin = ensureVoiceTrashBin();
+  const icon = bin.firstChild;
+  if (!active) {
+    bin.style.opacity = "0";
+    bin.style.transform = "translateX(-50%) translateY(120px) scale(0.72)";
+    bin.style.boxShadow = "0 20px 48px rgba(239, 68, 68, 0.26), 0 10px 24px rgba(17, 24, 39, 0.18)";
+    if (icon) icon.style.transform = "scale(1) rotate(0deg)";
+    return;
+  }
+  const pull = Math.max(0, Math.min(1, strength));
+  const scale = 0.98 + pull * 0.24;
+  const lift = 16 - pull * 12;
+  bin.style.opacity = String(0.9 + pull * 0.1);
+  bin.style.transform = `translateX(-50%) translateY(${lift}px) scale(${scale})`;
+  bin.style.boxShadow = `0 ${28 + pull * 16}px ${54 + pull * 10}px rgba(239, 68, 68, ${0.34 + pull * 0.14}), 0 12px 28px rgba(17, 24, 39, 0.16)`;
+  if (icon) {
+    icon.style.transform = `scale(${1.04 + pull * 0.22}) rotate(${pull * 7}deg)`;
+  }
+}
+
+function hideVoiceTrashBinNow() {
+  const bin = document.getElementById("voiceTrashBin");
+  if (!bin) return;
+  bin.getAnimations?.().forEach((anim) => anim.cancel());
+  const icon = bin.firstChild;
+  bin.style.transition = "none";
+  bin.style.opacity = "0";
+  bin.style.transform = "translateX(-50%) translateY(120px) scale(0.72)";
+  bin.style.boxShadow =
+    "0 20px 48px rgba(239, 68, 68, 0.26), 0 10px 24px rgba(17, 24, 39, 0.18)";
+  if (icon) icon.style.transform = "scale(1) rotate(0deg)";
+  requestAnimationFrame(() => {
+    bin.style.transition =
+      "transform 260ms cubic-bezier(.22,1.25,.36,1), opacity 220ms ease, box-shadow 220ms ease";
+  });
+}
+
+function isVoiceDismissTarget(rect) {
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const binRect = ensureVoiceTrashBin().getBoundingClientRect();
+  const withinX = centerX >= binRect.left - 18 && centerX <= binRect.right + 18;
+  const withinY = centerY >= binRect.top - 28;
+  return withinX && withinY;
+}
+
+function dismissVoiceButtonWithAnimation(voiceBtn, extraDrop = 0) {
+  const rect = voiceBtn.getBoundingClientRect();
+  const bin = ensureVoiceTrashBin();
+  const binRect = bin.getBoundingClientRect();
+  const targetX = binRect.left + binRect.width / 2 - rect.width / 2;
+  const targetY = binRect.top + binRect.height / 2 - rect.height / 2 + 6;
+  const dx = targetX - rect.left;
+  const dy = targetY - rect.top;
+  const overshoot = Math.max(0, Math.min(extraDrop, Math.max(0, dy + 120)));
+
+  setVoiceTrashState(true, 1);
+  voiceBtn.style.pointerEvents = "none";
+  syncVoiceButtonEnabled(false);
+  localStorage.removeItem("voiceBtnPos");
+  window.clearTimeout(window.__voiceDismissTimer);
+  window.__voiceDismissTimer = window.setTimeout(() => {
+    voiceBtn.remove();
+    hideVoiceTrashBinNow();
+    haptic("medium");
+  }, 700);
+  const dismissAnim = voiceBtn.animate(
+    [
+      { transform: "translate(0px, 0px) scale(1)", opacity: 1 },
+      {
+        transform: `translate(0px, ${overshoot}px) scale(0.88, 1.16)`,
+        opacity: 1,
+        offset: 0.44,
+      },
+      {
+        transform: `translate(${dx * 0.32}px, ${overshoot + (dy - overshoot) * 0.34}px) scale(1.12, 0.9)`,
+        opacity: 1,
+        offset: 0.68,
+      },
+      { transform: `translate(${dx * 0.76}px, ${dy * 0.86}px) scale(0.92, 1.08)`, opacity: 0.96, offset: 0.82 },
+      { transform: `translate(${dx}px, ${dy}px) scale(0.18)`, opacity: 0, offset: 1 },
+    ],
+    {
+      duration: 700,
+      easing: "cubic-bezier(.2,.9,.24,1)",
+      fill: "forwards",
+    },
+  );
+  bin.animate(
+    [
+      { transform: bin.style.transform || "translateX(-50%) translateY(4px) scale(1)" },
+      { transform: "translateX(-50%) translateY(0px) scale(1.14, 0.9)", offset: 0.45 },
+      { transform: "translateX(-50%) translateY(0px) scale(0.94, 1.08)", offset: 0.72 },
+      { transform: "translateX(-50%) translateY(4px) scale(1)", offset: 1 },
+    ],
+    {
+      duration: 420,
+      easing: "cubic-bezier(.34,1.56,.64,1)",
+    },
+  );
+
+  let finalized = false;
+  const finalizeDismiss = () => {
+    if (finalized) return;
+    finalized = true;
+    window.clearTimeout(window.__voiceDismissTimer);
+    voiceBtn.remove();
+    hideVoiceTrashBinNow();
+    haptic("medium");
+  };
+  dismissAnim.onfinish = finalizeDismiss;
+  dismissAnim.oncancel = finalizeDismiss;
+  window.setTimeout(finalizeDismiss, 860);
+}
+
+function animateVoiceMomentum(voiceBtn, fromLeft, fromTop, deltaY, done) {
+  const overshoot = Math.min(Math.max(deltaY * 1.7, 360), 680);
+  const momentumAnim = voiceBtn.animate(
+    [
+      { transform: "translate(0px, 0px) scale(1)", offset: 0 },
+      {
+        transform: `translate(0px, ${overshoot * 0.88}px) scale(0.86, 1.18)`,
+        offset: 0.72,
+      },
+      {
+        transform: `translate(0px, ${overshoot + 96}px) scale(1, 1.02)`,
+        offset: 1,
+      },
+    ],
+    {
+      duration: 520,
+      easing: "cubic-bezier(.08,.92,.2,1)",
+      fill: "forwards",
+    },
+  );
+  let momentumDone = false;
+  const finishMomentum = () => {
+    if (momentumDone) return;
+    momentumDone = true;
+    done(
+      clamp(fromLeft, 8, Math.max(8, window.innerWidth - 62 - 8)),
+      fromTop + overshoot + 96,
+    );
+  };
+  momentumAnim.onfinish = finishMomentum;
+  momentumAnim.oncancel = finishMomentum;
+  window.setTimeout(finishMomentum, 560);
+}
+
 function addVoiceButton() {
   ensureVoiceDragShield();
   document.getElementById("voiceInputBtn")?.remove();
@@ -21040,6 +23487,14 @@ function addVoiceButton() {
   let originX = 0;
   let originY = 0;
   let activePointer = null;
+  let dismissing = false;
+  let lastMoveY = 0;
+  let lastMoveTs = 0;
+  let lastVelocityY = 0;
+  let flingDismiss = false;
+  let strongSwipe = false;
+  let armedForDismiss = false;
+  let hoveringTrash = false;
 
   voiceBtn.addEventListener("pointerdown", (e) => {
     stopVoiceGestureEvent(e);
@@ -21051,7 +23506,17 @@ function addVoiceButton() {
     originY = rect.top;
     dragging = true;
     moved = false;
+    dismissing = false;
+    flingDismiss = false;
+    strongSwipe = false;
+    armedForDismiss = false;
+    hoveringTrash = false;
+    setVoiceTrashState(false);
+    lastMoveY = e.clientY;
+    lastMoveTs = e.timeStamp || performance.now();
+    lastVelocityY = 0;
     voiceBtn.classList.add("dragging");
+    voiceBtn.style.transition = "none";
     voiceBtn.setPointerCapture?.(e.pointerId);
   });
 
@@ -21062,7 +23527,41 @@ function addVoiceButton() {
     const dy = e.clientY - startY;
     if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
     if (!moved) return;
-    applyPos(originX + dx, originY + dy);
+    const pos = applyPos(originX + dx, originY + dy);
+    const rect = {
+      left: pos.x,
+      top: pos.y,
+      width: size,
+      height: size,
+    };
+    const now = e.timeStamp || performance.now();
+    const deltaY = e.clientY - lastMoveY;
+    const deltaT = Math.max(1, now - lastMoveTs);
+    const velocityY = deltaY / deltaT;
+    lastVelocityY = velocityY;
+    lastMoveY = e.clientY;
+    lastMoveTs = now;
+    const dragDepth = clamp((dy - 24) / 180, 0, 1);
+    const overTrash = dy > 30 && isVoiceDismissTarget(rect);
+    hoveringTrash = overTrash;
+    strongSwipe =
+      (dy > 36 && velocityY > 0.55) ||
+      (deltaY > 22 && velocityY > 0.7);
+    flingDismiss =
+      dy > 72 &&
+      velocityY > 0.72 &&
+      e.clientY > window.innerHeight * 0.26;
+    if (strongSwipe || flingDismiss) armedForDismiss = true;
+    dismissing = overTrash || armedForDismiss;
+    setVoiceTrashState(
+      dy > 10 || strongSwipe || velocityY > 0.48 || overTrash || armedForDismiss,
+      dismissing || strongSwipe || overTrash || armedForDismiss
+        ? Math.max(0.82, dragDepth)
+        : dragDepth * 0.62,
+    );
+    voiceBtn.style.transform = overTrash
+      ? "scale(0.9, 1.08)"
+      : `scale(${1 + dragDepth * 0.06}, ${1 - dragDepth * 0.04})`;
   });
 
   const finishDrag = (e, canceled = false) => {
@@ -21072,6 +23571,24 @@ function addVoiceButton() {
     voiceBtn.classList.remove("dragging");
     voiceBtn.releasePointerCapture?.(e.pointerId);
     activePointer = null;
+    voiceBtn.style.transition = "";
+    voiceBtn.style.transform = "";
+    const releaseDy = e.clientY - startY;
+    const committedFling =
+      armedForDismiss &&
+      releaseDy > 96 &&
+      lastVelocityY > 0.72 &&
+      e.clientY > window.innerHeight * 0.26;
+    if ((hoveringTrash || committedFling) && moved && !canceled) {
+      setVoiceTrashState(true, 1);
+      dismissVoiceButtonWithAnimation(
+        voiceBtn,
+        Math.max(releaseDy * 2.6, lastVelocityY * 920, 520),
+      );
+      suppressVoiceDragClicks();
+      return;
+    }
+    setVoiceTrashState(false);
     if (moved || canceled) {
       const rect = voiceBtn.getBoundingClientRect();
       const pos = applyPos(rect.left, rect.top);
@@ -21207,7 +23724,7 @@ function saveGoals(goals) {
   localStorage.setItem("budgetpro_goals", JSON.stringify(goals));
 }
 
-function openGoalsModal() {
+function openGoalsModal(options = {}) {
   const lang = currentLang;
   const goals = getGoals();
   const L = {
@@ -21224,6 +23741,8 @@ function openGoalsModal() {
       close: "Закрыть",
       progress: "Прогресс",
       done: "🏆 Достигнута!",
+      changeEmoji: "Сменить emoji",
+      autoEmoji: "Автоподбор по названию",
     },
     en: {
       title: "🎯 My Goals & Dreams",
@@ -21238,6 +23757,8 @@ function openGoalsModal() {
       close: "Close",
       progress: "Progress",
       done: "🏆 Achieved!",
+      changeEmoji: "Change emoji",
+      autoEmoji: "Auto-match by name",
     },
     ka: {
       title: "🎯 ჩემი მიზნები",
@@ -21252,6 +23773,8 @@ function openGoalsModal() {
       close: "დახურვა",
       progress: "პროგრესი",
       done: "🏆 მიღწეულია!",
+      changeEmoji: "ემოჯის შეცვლა",
+      autoEmoji: "ავტო შერჩევა სახელით",
     },
   };
   const lc = L[lang] || L.ru;
@@ -21277,7 +23800,10 @@ function openGoalsModal() {
               <div style="font-weight:900;font-size:15px;color:var(--text);">${esc(g.name)}</div>
               <div style="font-size:12px;color:var(--text-muted);">${lc.progress}: ${pct}% ${done ? "• " + lc.done : ""}</div>
             </div>
-            <button class="goal-del-btn" data-gi="${i}" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-muted);padding:4px;">🗑</button>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="goal-emoji-edit-btn" data-gi="${i}" style="display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,var(--primary),var(--primary-med));border:none;border-radius:999px;font-size:12px;font-weight:800;cursor:pointer;color:#fff;padding:7px 10px;box-shadow:0 8px 18px rgba(37,99,235,0.22);" title="${lc.changeEmoji}">✨ <span style="font-size:11px;line-height:1;">Emoji</span></button>
+              <button class="goal-del-btn" data-gi="${i}" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-muted);padding:4px;">🗑</button>
+            </div>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:8px;">
             <span style="color:var(--primary);">${fmt(g.saved)} ${lc.saved}</span>
@@ -21294,23 +23820,196 @@ function openGoalsModal() {
           })
           .join("");
 
-  const GOAL_EMOJIS = [
-    "🎯",
-    "🏠",
-    "🚗",
-    "✈️",
-    "💍",
-    "📱",
-    "💻",
-    "🎓",
-    "👶",
-    "🏖️",
-    "💰",
-    "🏋️",
-    "🎸",
-    "📚",
-    "🌟",
+  const GOAL_EMOJI_GROUPS = [
+    {
+      title: { ru: "Недвижимость", en: "Property", ka: "უძრავი ქონება" },
+      items: [
+        { emoji: "🏠", keywords: ["квартира", "apartment", "flat", "ბინა", "სახლი გაქირავება"] },
+        { emoji: "🏡", keywords: ["дом", "house", "villa", "домик", "სახლი"] },
+        { emoji: "🏘️", keywords: ["недвиж", "property", "real estate", "უძრავი"] },
+        { emoji: "🏢", keywords: ["коммер", "commercial", "office", "офис", "კომერც", "ოფისი"] },
+        { emoji: "🏬", keywords: ["магазин", "shop", "store", "retail", "მაღაზია"] },
+        { emoji: "🏨", keywords: ["отель", "hotel", "гостиниц", "სასტუმრო"] },
+        { emoji: "🏭", keywords: ["склад", "warehouse", "factory", "производ", "საწყობი"] },
+        { emoji: "🚪", keywords: ["комната", "room", "комнат", "ოთახი"] },
+        { emoji: "🔑", keywords: ["сдача", "аренда", "rent", "lease", "rental", "გაქირავება"] },
+        { emoji: "🏗️", keywords: ["стро", "construction", "build", "стройка", "მშენებლობა"] },
+      ],
+    },
+    {
+      title: { ru: "Транспорт", en: "Transport", ka: "ტრანსპორტი" },
+      items: [
+        { emoji: "🚗", keywords: ["машин", "авто", "car", "sedan", "მანქანა"] },
+        { emoji: "🚙", keywords: ["джип", "suv", "crossover"] },
+        { emoji: "🚕", keywords: ["такси", "taxi", "ტაქსი"] },
+        { emoji: "🏍️", keywords: ["мото", "motorcycle", "bike", "მოტო"] },
+        { emoji: "🚲", keywords: ["вел", "bicycle", "ველო"] },
+        { emoji: "🛴", keywords: ["самокат", "scooter"] },
+        { emoji: "🚚", keywords: ["грузов", "truck", "van"] },
+        { emoji: "⛽", keywords: ["бенз", "fuel", "gas", "საწვავი"] },
+      ],
+    },
+    {
+      title: { ru: "Путешествия", en: "Travel", ka: "მოგზაურობა" },
+      items: [
+        { emoji: "✈️", keywords: ["самолет", "plane", "flight", "ავი", "თვითმფრინავი"] },
+        { emoji: "🧳", keywords: ["путеше", "travel", "trip", "поездк", "მოგზაურობა"] },
+        { emoji: "🏖️", keywords: ["отпуск", "vacation", "beach", "мор", "დასვენება"] },
+        { emoji: "🗺️", keywords: ["тур", "route", "tour", "მარშრუტი"] },
+        { emoji: "🚢", keywords: ["кораб", "ship", "cruise", "яхт", "გემი"] },
+        { emoji: "🚆", keywords: ["поезд", "train", "მატარებელი"] },
+        { emoji: "⛺", keywords: ["кемп", "camping", "კემპინგი"] },
+        { emoji: "🌍", keywords: ["переезд", "relocation", "abroad", "эмигр", "გადასვლა"] },
+      ],
+    },
+    {
+      title: { ru: "Финансы", en: "Finance", ka: "ფინანსები" },
+      items: [
+        { emoji: "💰", keywords: ["деньг", "money", "cash", "накоп", "ფული"] },
+        { emoji: "💵", keywords: ["доллар", "usd", "salary", "income", "зарплат", "ხელფასი"] },
+        { emoji: "💶", keywords: ["евро", "eur"] },
+        { emoji: "💷", keywords: ["фунт", "gbp"] },
+        { emoji: "💴", keywords: ["иен", "yen", "jpy"] },
+        { emoji: "🏦", keywords: ["банк", "deposit", "mortgage", "ипотек", "ბანკი", "იპოთეკა"] },
+        { emoji: "💎", keywords: ["ломбард", "pawn", "pawnshop", "jewel", "ლომბარდ"] },
+        { emoji: "🪙", keywords: ["монет", "coin", "crypto", "крипт", "კრიპტო"] },
+        { emoji: "📈", keywords: ["инвест", "stocks", "shares", "акци", "ინვესტ"] },
+        { emoji: "💸", keywords: ["долг", "debt", "credit", "кредит", "ვალი"] },
+        { emoji: "🧾", keywords: ["налог", "tax", "invoice", "გადასახადი"] },
+        { emoji: "📊", keywords: ["бизнес", "analytics", "report", "ბიზნესი"] },
+      ],
+    },
+    {
+      title: { ru: "Семья и жизнь", en: "Family & Life", ka: "ოჯახი და ცხოვრება" },
+      items: [
+        { emoji: "💍", keywords: ["свад", "wedding", "ring", "кольц", "ქორწ"] },
+        { emoji: "👶", keywords: ["ребен", "baby", "child", "ბავშვი"] },
+        { emoji: "👨‍👩‍👧", keywords: ["семь", "family", "ოჯახი"] },
+        { emoji: "❤️", keywords: ["люб", "love", "heart", "სიყვარული"] },
+        { emoji: "🍼", keywords: ["малыш", "newborn", "ჩვილი"] },
+        { emoji: "🧸", keywords: ["игруш", "toy", "სათამაშო"] },
+        { emoji: "🎁", keywords: ["подар", "gift", "საჩუქარი"] },
+        { emoji: "🌈", keywords: ["радость", "happy", "rainbow", "სიხარული"] },
+      ],
+    },
+    {
+      title: { ru: "Учёба и техника", en: "Study & Tech", ka: "სწავლა და ტექნიკა" },
+      items: [
+        { emoji: "🎓", keywords: ["учеб", "study", "education", "универс", "курс", "სწავლა"] },
+        { emoji: "📚", keywords: ["книг", "book", "library", "წიგნი"] },
+        { emoji: "🧠", keywords: ["мозг", "brain", "skill", "навык", "უნარი"] },
+        { emoji: "💻", keywords: ["ноут", "laptop", "computer", "pc", "კომპიუტერი"] },
+        { emoji: "📱", keywords: ["телефон", "phone", "iphone", "android", "смартфон", "ტელეფონი"] },
+        { emoji: "⌚", keywords: ["часы", "watch", "საათი"] },
+        { emoji: "📷", keywords: ["камер", "camera", "photo", "კამერა"] },
+        { emoji: "🪪", keywords: ["паспорт", "id", "license", "passport", "პასპორტი"] },
+      ],
+    },
+    {
+      title: { ru: "Хобби и спорт", en: "Hobby & Sport", ka: "ჰობი და სპორტი" },
+      items: [
+        { emoji: "🎮", keywords: ["игр", "game", "console", "ps5", "xbox", "თამაში"] },
+        { emoji: "🎬", keywords: ["кино", "movie", "film", "video", "კინო"] },
+        { emoji: "🎨", keywords: ["арт", "draw", "design", "рисован", "ხატვა"] },
+        { emoji: "🎸", keywords: ["гитар", "guitar", "გიტარა"] },
+        { emoji: "🎹", keywords: ["пианино", "piano", "keyboard", "პიანინო"] },
+        { emoji: "🎤", keywords: ["микроф", "sing", "music", "петь", "მუსიკა"] },
+        { emoji: "🏋️", keywords: ["спорт", "gym", "fitness", "качал", "სპორტი"] },
+        { emoji: "⚽", keywords: ["футбол", "football", "soccer", "ფეხბურთი"] },
+        { emoji: "🎾", keywords: ["теннис", "tennis", "ჩოგბურთი"] },
+        { emoji: "🥊", keywords: ["бокс", "boxing", "fight", "კრივი"] },
+      ],
+    },
+    {
+      title: { ru: "Покупки и быт", en: "Shopping & Home", ka: "ყიდვა და სახლი" },
+      items: [
+        { emoji: "🛍️", keywords: ["покуп", "shopping", "buy", "mall", "შოპინგი"] },
+        { emoji: "🍽️", keywords: ["еда", "food", "restaurant", "ресторан", "საკვები"] },
+        { emoji: "☕", keywords: ["кофе", "coffee", "cafe", "кафе", "ყავა"] },
+        { emoji: "🍕", keywords: ["пиц", "pizza"] },
+        { emoji: "🍔", keywords: ["бургер", "burger"] },
+        { emoji: "🛠️", keywords: ["ремонт", "repair", "tool", "renovation", "ремონტი"] },
+        { emoji: "🧰", keywords: ["инструмент", "tools", "ინსტრუმენტი"] },
+        { emoji: "🪑", keywords: ["мебел", "furniture", "ავეჯი"] },
+        { emoji: "🛏️", keywords: ["кровать", "bedroom", "bed", "საწოლი"] },
+        { emoji: "🛁", keywords: ["ванн", "bathroom", "აბაზანა"] },
+        { emoji: "🍳", keywords: ["кухн", "kitchen", "სამზარეულო"] },
+        { emoji: "🧺", keywords: ["стирк", "laundry", "რეცხვა"] },
+      ],
+    },
+    {
+      title: { ru: "Красота и стиль", en: "Beauty & Style", ka: "სილამაზე და სტილი" },
+      items: [
+        { emoji: "✨", keywords: ["крас", "beauty", "sparkle", "style", "სილამაზე"] },
+        { emoji: "🔥", keywords: ["срочно", "urgent", "fire", "hot"] },
+        { emoji: "👑", keywords: ["люкс", "luxury", "premium", "crown", "ლუქსი"] },
+        { emoji: "👜", keywords: ["сумк", "bag", "handbag", "ჩანთა"] },
+        { emoji: "👟", keywords: ["обув", "shoes", "sneakers", "ფეხსაცმელი"] },
+        { emoji: "👗", keywords: ["плать", "dress", "fashion", "კაბა"] },
+        { emoji: "💄", keywords: ["космет", "makeup", "lipstick", "კოსმეტიკა"] },
+        { emoji: "🕶️", keywords: ["очки", "glasses", "style", "სათვალე"] },
+      ],
+    },
+    {
+      title: { ru: "Здоровье", en: "Health", ka: "ჯანმრთელობა" },
+      items: [
+        { emoji: "🏥", keywords: ["лечен", "health", "hospital", "медиц", "ჯანმრთელობა"] },
+        { emoji: "🦷", keywords: ["зуб", "dent", "teeth", "კბილი"] },
+        { emoji: "👓", keywords: ["очки", "vision", "glasses", "მხედველობა"] },
+        { emoji: "💊", keywords: ["лекар", "medicine", "წამალი"] },
+        { emoji: "🧘", keywords: ["йога", "meditation", "calm", "იოგა"] },
+        { emoji: "🌿", keywords: ["сад", "garden", "plants", "მცენარე"] },
+        { emoji: "🐾", keywords: ["питом", "pet", "animal", "ცხოველი"] },
+        { emoji: "🚿", keywords: ["душ", "shower", "შხაპი"] },
+      ],
+    },
+    {
+      title: { ru: "Документы и дела", en: "Docs & Tasks", ka: "დოკუმენტები და საქმეები" },
+      items: [
+        { emoji: "📜", keywords: ["документ", "papers", "visa", "док", "დოკუმენტი"] },
+        { emoji: "⚖️", keywords: ["юрист", "law", "legal", "суд", "იურისტი"] },
+        { emoji: "📦", keywords: ["посыл", "delivery", "box", "package", "ამანათი"] },
+        { emoji: "🚀", keywords: ["стартап", "startup", "launch", "project", "სტარტაპი"] },
+        { emoji: "🏆", keywords: ["побед", "award", "trophy", "win", "გამარჯვება"] },
+        { emoji: "🌟", keywords: ["звезд", "star", "wish", "мечта", "ვარსკვლავი"] },
+        { emoji: "🧭", keywords: ["путь", "direction", "explore", "გზა"] },
+        { emoji: "🔭", keywords: ["телескоп", "space", "science", "მეცნიერება"] },
+      ],
+    },
   ];
+  const GOAL_EMOJI_RULES = GOAL_EMOJI_GROUPS.flatMap((group) => group.items);
+  const GOAL_EMOJIS = [...new Set(GOAL_EMOJI_RULES.map((rule) => rule.emoji))];
+  const normalizeGoalText = (value) =>
+    String(value || "")
+      .toLowerCase()
+      .replace(/ё/g, "е")
+      .replace(/[^a-zа-я0-9\u10a0-\u10ff\s]/gi, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const pickGoalEmojiByName = (name) => {
+    const normalized = normalizeGoalText(name);
+    if (!normalized) return "🎯";
+    const matched = GOAL_EMOJI_RULES.find((rule) =>
+      rule.keywords.some((keyword) => normalized.includes(normalizeGoalText(keyword))),
+    );
+    return matched?.emoji || "🎯";
+  };
+  const renderGoalEmojiPicker = (selectedEmoji = "🎯") =>
+    GOAL_EMOJI_GROUPS.map((group) => {
+      const title = group.title[currentLang] || group.title.ru;
+      return `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin:0 0 6px;">${title}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">
+            ${group.items
+              .map(({ emoji }) => {
+                const active = emoji === selectedEmoji;
+                return `<button type="button" class="goal-emoji-opt" data-e="${emoji}" style="width:36px;height:36px;font-size:20px;border-radius:8px;border:2px solid ${active ? "var(--primary)" : "var(--cream-border)"};background:${active ? "var(--primary-pale)" : "var(--card-bg)"};cursor:pointer;display:flex;align-items:center;justify-content:center;">${emoji}</button>`;
+              })
+              .join("")}
+          </div>
+        </div>`;
+    }).join("");
   const addForm = `
     <div style="background:var(--cream-dark);border-radius:16px;padding:14px;margin-bottom:16px;border:1.5px dashed var(--cream-border);">
       <div style="font-size:13px;font-weight:800;color:var(--text-muted);margin-bottom:10px;">${lc.add}</div>
@@ -21318,9 +24017,12 @@ function openGoalsModal() {
         <input id="goalName" class="modal-input" placeholder="${lc.name}" style="width:100%;" autocomplete="off">
       </div>
       <div style="margin-bottom:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text-muted);margin-bottom:6px;">${t("iconLabel")}</div>
-        <div id="goalEmojiPicker" style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${GOAL_EMOJIS.map((e, i) => `<button type="button" class="goal-emoji-opt" data-e="${e}" style="width:36px;height:36px;font-size:20px;border-radius:8px;border:2px solid ${i === 0 ? "var(--primary)" : "var(--cream-border)"};background:${i === 0 ? "var(--primary-pale)" : "var(--card-bg)"};cursor:pointer;display:flex;align-items:center;justify-content:center;">${e}</button>`).join("")}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);">${t("iconLabel")}</div>
+          <div style="font-size:11px;color:var(--text-muted);">${lc.autoEmoji}</div>
+        </div>
+        <div id="goalEmojiPicker" style="max-height:240px;overflow:auto;padding-right:4px;">
+          ${renderGoalEmojiPicker("🎯")}
         </div>
         <input type="hidden" id="goalEmoji" value="🎯">
       </div>
@@ -21335,6 +24037,53 @@ function openGoalsModal() {
   const modal = createModal("goalsModal", lc.title, html);
   document.body.appendChild(modal);
   openModal("goalsModal");
+  if (options.focusCreate) {
+    window.setTimeout(() => {
+      const nameInput = document.getElementById("goalName");
+      nameInput?.focus();
+      nameInput?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+    }, 120);
+  }
+
+  const setSelectedGoalEmoji = (emoji) => {
+    document.querySelectorAll(".goal-emoji-opt").forEach((btn) => {
+      const active = btn.dataset.e === emoji;
+      btn.style.borderColor = active ? "var(--primary)" : "var(--cream-border)";
+      btn.style.background = active ? "var(--primary-pale)" : "var(--card-bg)";
+    });
+    const hidden = document.getElementById("goalEmoji");
+    if (hidden) hidden.value = emoji;
+  };
+  const attachGoalEmojiPickerHandlers = (onPick) => {
+    document.querySelectorAll(".goal-emoji-opt").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setSelectedGoalEmoji(btn.dataset.e);
+        onPick?.(btn.dataset.e);
+      });
+    });
+  };
+  const openGoalEmojiEditor = (goalIndex, gs) => {
+    const pickerHtml = `
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">${lc.changeEmoji}: ${esc(gs[goalIndex].name)}</div>
+      <div id="goalEmojiPickerEdit" style="max-height:320px;overflow:auto;padding-right:4px;">
+        ${renderGoalEmojiPicker(gs[goalIndex].emoji || pickGoalEmojiByName(gs[goalIndex].name))}
+      </div>
+    `;
+    const emojiModal = createModal("goalEmojiEditModal", lc.changeEmoji, pickerHtml);
+    document.body.appendChild(emojiModal);
+    openModal("goalEmojiEditModal");
+    document.querySelectorAll("#goalEmojiEditModal .goal-emoji-opt").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        gs[goalIndex].emoji = btn.dataset.e;
+        saveGoals(gs);
+        document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
+        closeModal("goalEmojiEditModal");
+        document.getElementById("goalEmojiEditModal")?.remove();
+        haptic("light");
+        reattachGoalBtns(gs);
+      });
+    });
+  };
 
   document.getElementById("goalAddBtn")?.addEventListener("click", () => {
     const name = document.getElementById("goalName")?.value.trim();
@@ -21375,17 +24124,9 @@ function openGoalsModal() {
   reattachGoalBtns(goals);
 
   // Wire emoji picker
-  document.querySelectorAll(".goal-emoji-opt").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".goal-emoji-opt").forEach((b) => {
-        b.style.borderColor = "var(--cream-border)";
-        b.style.background = "var(--card-bg)";
-      });
-      btn.style.borderColor = "var(--primary)";
-      btn.style.background = "var(--primary-pale)";
-      const hidden = document.getElementById("goalEmoji");
-      if (hidden) hidden.value = btn.dataset.e;
-    });
+  attachGoalEmojiPickerHandlers();
+  document.getElementById("goalName")?.addEventListener("input", (e) => {
+    setSelectedGoalEmoji(pickGoalEmojiByName(e.target.value));
   });
 
   function reattachGoalBtns(gs) {
@@ -21404,6 +24145,12 @@ function openGoalsModal() {
           },
           { icon: "🎯" },
         );
+      };
+    });
+    document.querySelectorAll(".goal-emoji-edit-btn").forEach((btn) => {
+      btn.onclick = () => {
+        const i = parseInt(btn.dataset.gi);
+        openGoalEmojiEditor(i, gs);
       };
     });
     document.querySelectorAll(".goal-add-btn").forEach((btn) => {
@@ -21454,25 +24201,401 @@ function openGoalsModal() {
 
 // Add Goals button to nav or tools
 function addGoalsNavButton() {
+  ensureVoiceDragShield();
   document.getElementById("goalsNavBtn")?.remove();
   if (!getFloatingBtnSetting("showGoalsBtn")) return;
   const btn = document.createElement("button");
   btn.id = "goalsNavBtn";
-  btn.innerHTML = "🎯";
+  btn.innerHTML = `
+    <span class="goals-btn-emoji goals-btn-emoji-main">🎯</span>
+    <span class="goals-btn-emoji goals-btn-emoji-top">🏆</span>
+    <span class="goals-btn-emoji goals-btn-emoji-bottom">✨</span>
+  `;
   btn.title =
     { ru: "Мои цели", en: "My Goals", ka: "მიზნები" }[currentLang] || "Goals";
-  // Position: left side, above the nav bar, offset up
-  btn.style.cssText =
-    "position:fixed;bottom:140px;left:14px;width:44px;height:44px;border-radius:50%;background:var(--gold-pale);border:2px solid var(--gold);font-size:20px;cursor:pointer;z-index:200;box-shadow:var(--shadow-md);display:flex;align-items:center;justify-content:center;transition:all 0.2s cubic-bezier(0.34,1.56,0.64,1);";
-  btn.addEventListener("click", () => {
+  btn.style.cssText = `
+    position: fixed;
+    left: 24px;
+    top: ${Math.max(84, window.innerHeight - 172)}px;
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+    min-height: 62px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 31px;
+    line-height: 1;
+    right: auto;
+    bottom: auto;
+    padding: 0;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+    will-change: left, top, transform;
+    color: #fff8ed;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,0.52), rgba(255,255,255,0) 42%),
+      radial-gradient(circle at 70% 78%, rgba(255,231,176,0.24), rgba(255,231,176,0) 34%),
+      linear-gradient(180deg, rgba(255,210,92,1), rgba(249,115,22,1));
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.18),
+      0 18px 38px rgba(249, 115, 22, 0.42),
+      0 8px 18px rgba(17, 24, 39, 0.24),
+      inset 0 2px 0 rgba(255,255,255,0.32);
+    transition: transform 180ms cubic-bezier(.34,1.56,.64,1), box-shadow 180ms ease, filter 180ms ease, left 0s, top 0s;
+    animation: goalsPulse 1850ms ease-in-out infinite;
+    filter: saturate(1.14);
+  `;
+  if (document.body.classList.contains("dark")) {
+    btn.style.background =
+      "radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), rgba(255,255,255,0) 42%), radial-gradient(circle at 70% 78%, rgba(255,210,122,0.18), rgba(255,210,122,0) 34%), linear-gradient(180deg, rgba(255,179,71,1), rgba(234,88,12,1))";
+    btn.style.boxShadow =
+      "0 0 0 1px rgba(255,255,255,0.14), 0 20px 44px rgba(249, 115, 22, 0.46), 0 10px 20px rgba(0, 0, 0, 0.36), inset 0 2px 0 rgba(255,255,255,0.24)";
+  }
+  if (!document.getElementById("goalsPulseStyle")) {
+    const pulseStyle = document.createElement("style");
+    pulseStyle.id = "goalsPulseStyle";
+    pulseStyle.textContent = `
+      @keyframes goalsPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 1px rgba(255,255,255,0.18), 0 18px 38px rgba(249, 115, 22, 0.42), 0 8px 18px rgba(17, 24, 39, 0.24), inset 0 2px 0 rgba(255,255,255,0.32); filter: saturate(1.14); }
+        50% { transform: scale(1.08); box-shadow: 0 0 0 1px rgba(255,255,255,0.22), 0 24px 46px rgba(249, 115, 22, 0.54), 0 12px 24px rgba(17, 24, 39, 0.28), inset 0 2px 0 rgba(255,255,255,0.36); filter: saturate(1.24); }
+      }
+      body.dark #goalsNavBtn {
+        color: #fff7e8;
+        background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.4), rgba(255,255,255,0) 42%), radial-gradient(circle at 70% 78%, rgba(255,210,122,0.18), rgba(255,210,122,0) 34%), linear-gradient(180deg, rgba(255,179,71,1), rgba(234,88,12,1));
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 20px 44px rgba(249, 115, 22, 0.46), 0 10px 20px rgba(0, 0, 0, 0.36), inset 0 2px 0 rgba(255,255,255,0.24);
+      }
+      body:not(.dark) #goalsNavBtn {
+        color: #fff8ed;
+        background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.52), rgba(255,255,255,0) 42%), radial-gradient(circle at 70% 78%, rgba(255,231,176,0.24), rgba(255,231,176,0) 34%), linear-gradient(180deg, rgba(255,210,92,1), rgba(249,115,22,1));
+      }
+      #goalsNavBtn.dragging {
+        animation: none;
+        transform: scale(1.08);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.22), 0 26px 48px rgba(249, 115, 22, 0.56), 0 14px 28px rgba(17, 24, 39, 0.28);
+      }
+      #goalsNavBtn .goals-btn-emoji {
+        position: absolute;
+        line-height: 1;
+        pointer-events: none;
+        user-select: none;
+      }
+      #goalsNavBtn .goals-btn-emoji-main {
+        font-size: 28px;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #goalsNavBtn .goals-btn-emoji-top {
+        font-size: 12px;
+        top: 10px;
+        right: 11px;
+        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.16));
+      }
+      #goalsNavBtn .goals-btn-emoji-bottom {
+        font-size: 12px;
+        bottom: 10px;
+        left: 11px;
+        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.12));
+      }
+      #goalsNavBtn::before,
+      #goalsNavBtn::after {
+        pointer-events: none;
+      }
+    `;
+    document.head.appendChild(pulseStyle);
+  }
+
+  const size = 62;
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const savedPos = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("goalsBtnPos") || "null");
+    } catch (e) {
+      return null;
+    }
+  })();
+  const applyPos = (x, y) => {
+    const pad = 8;
+    const maxX = window.innerWidth - size - pad;
+    const maxY = window.innerHeight - size - pad;
+    const left = clamp(x, pad, Math.max(pad, maxX));
+    const top = clamp(y, pad, Math.max(pad, maxY));
+    btn.style.left = left + "px";
+    btn.style.top = top + "px";
+    btn.style.right = "auto";
+    btn.style.bottom = "auto";
+    return { x: left, y: top };
+  };
+  if (savedPos && Number.isFinite(savedPos.x) && Number.isFinite(savedPos.y)) {
+    applyPos(savedPos.x, savedPos.y);
+  } else {
+    applyPos(24, Math.max(84, window.innerHeight - 172));
+  }
+
+  const syncGoalsButtonEnabled = (enabled) => {
+    localStorage.setItem("showGoalsBtn", enabled ? "true" : "false");
+    const toggle = document.getElementById("showGoalsBtnToggle");
+    if (toggle) toggle.checked = enabled;
+  };
+
+  const showGoalsTooltipOnce = () => {
+    if (localStorage.getItem("goalsBtnHintSeen") === "true") return;
+    localStorage.setItem("goalsBtnHintSeen", "true");
+    const hint = document.createElement("div");
+    hint.id = "goalsBtnHint";
+    hint.textContent =
+      {
+        ru: "Удерживайте для новой цели. Потяните вниз для удаления.",
+        en: "Hold for a new goal. Drag down to remove.",
+        ka: "გააჩერეთ ახალი მიზნისთვის. ქვემოთ გასაწევად წაშლა.",
+      }[currentLang] || "Hold for a new goal. Drag down to remove.";
+    hint.style.cssText = `
+      position: fixed;
+      left: 22px;
+      top: ${Math.max(18, window.innerHeight - 246)}px;
+      max-width: 220px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(17,24,39,0.92);
+      color: #fff;
+      font-size: 12px;
+      line-height: 1.35;
+      z-index: 10002;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.24);
+      animation: fadeUp 0.25s ease both;
+      pointer-events: none;
+    `;
+    document.body.appendChild(hint);
+    window.setTimeout(() => {
+      hint.style.transition = "opacity 180ms ease, transform 180ms ease";
+      hint.style.opacity = "0";
+      hint.style.transform = "translateY(6px)";
+      window.setTimeout(() => hint.remove(), 220);
+    }, 3200);
+  };
+
+  let dragging = false;
+  let moved = false;
+  let startX = 0;
+  let startY = 0;
+  let originX = 0;
+  let originY = 0;
+  let activePointer = null;
+  let lastMoveY = 0;
+  let lastMoveTs = 0;
+  let lastVelocityY = 0;
+  let armedForDismiss = false;
+  let hoveringTrash = false;
+  let longPressTimer = null;
+  let longPressTriggered = false;
+
+  showGoalsTooltipOnce();
+
+  btn.addEventListener("pointerdown", (e) => {
+    stopVoiceGestureEvent(e);
+    activePointer = e.pointerId;
+    const rect = btn.getBoundingClientRect();
+    startX = e.clientX;
+    startY = e.clientY;
+    originX = rect.left;
+    originY = rect.top;
+    dragging = true;
+    moved = false;
+    armedForDismiss = false;
+    hoveringTrash = false;
+    setVoiceTrashState(false);
+    lastMoveY = e.clientY;
+    lastMoveTs = e.timeStamp || performance.now();
+    lastVelocityY = 0;
+    longPressTriggered = false;
+    window.clearTimeout(longPressTimer);
+    longPressTimer = window.setTimeout(() => {
+      if (!dragging || moved) return;
+      longPressTriggered = true;
+      dragging = false;
+      btn.classList.remove("dragging");
+      btn.releasePointerCapture?.(e.pointerId);
+      activePointer = null;
+      btn.style.transition = "";
+      btn.style.transform = "";
+      setVoiceTrashState(false);
+      suppressVoiceDragClicks();
+      haptic("medium");
+      openGoalsModal({ focusCreate: true });
+    }, 430);
+    btn.classList.add("dragging");
+    btn.style.transition = "none";
+    btn.setPointerCapture?.(e.pointerId);
+  });
+
+  btn.addEventListener("pointermove", (e) => {
+    if (!dragging || e.pointerId !== activePointer) return;
+    stopVoiceGestureEvent(e);
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
+    if (moved) {
+      window.clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+    if (!moved) return;
+    const pos = applyPos(originX + dx, originY + dy);
+    const rect = { left: pos.x, top: pos.y, width: size, height: size };
+    const now = e.timeStamp || performance.now();
+    const deltaY = e.clientY - lastMoveY;
+    const deltaT = Math.max(1, now - lastMoveTs);
+    const velocityY = deltaY / deltaT;
+    lastVelocityY = velocityY;
+    lastMoveY = e.clientY;
+    lastMoveTs = now;
+    const dragDepth = clamp((dy - 24) / 180, 0, 1);
+    hoveringTrash = dy > 30 && isVoiceDismissTarget(rect);
+    const strongSwipe =
+      (dy > 36 && velocityY > 0.55) ||
+      (deltaY > 22 && velocityY > 0.7);
+    const flingDismiss =
+      dy > 72 &&
+      velocityY > 0.72 &&
+      e.clientY > window.innerHeight * 0.26;
+    if (strongSwipe || flingDismiss) armedForDismiss = true;
+    const dismissing = hoveringTrash || armedForDismiss;
+    if (dismissing) {
+      const binRect = ensureVoiceTrashBin().getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      const targetLeft = binRect.left + binRect.width / 2 - btnRect.width / 2;
+      const targetTop = Math.min(
+        binRect.top - btnRect.height * 0.22,
+        binRect.top + binRect.height / 2 - btnRect.height / 2,
+      );
+      const magnetX = targetLeft - pos.x;
+      const magnetY = targetTop - pos.y;
+      const pull = hoveringTrash ? 0.34 : armedForDismiss ? 0.18 : 0;
+      if (pull > 0) {
+        applyPos(pos.x + magnetX * pull, pos.y + magnetY * pull);
+      }
+    }
+    setVoiceTrashState(
+      dy > 10 || strongSwipe || velocityY > 0.48 || hoveringTrash || armedForDismiss,
+      dismissing || strongSwipe || hoveringTrash || armedForDismiss
+        ? Math.max(0.82, dragDepth)
+        : dragDepth * 0.62,
+    );
+    btn.style.transform = hoveringTrash
+      ? "scale(0.9, 1.08)"
+      : `scale(${1 + dragDepth * 0.06}, ${1 - dragDepth * 0.04})`;
+  });
+
+  const finishDrag = (e, canceled = false) => {
+    if (!dragging || e.pointerId !== activePointer) return;
+    stopVoiceGestureEvent(e);
+    window.clearTimeout(longPressTimer);
+    longPressTimer = null;
+    dragging = false;
+    btn.classList.remove("dragging");
+    btn.releasePointerCapture?.(e.pointerId);
+    activePointer = null;
+    btn.style.transition = "";
+    btn.style.transform = "";
+    if (longPressTriggered) return;
+    const releaseDy = e.clientY - startY;
+    const committedFling =
+      armedForDismiss &&
+      releaseDy > 96 &&
+      lastVelocityY > 0.72 &&
+      e.clientY > window.innerHeight * 0.26;
+    if ((hoveringTrash || committedFling) && moved && !canceled) {
+      setVoiceTrashState(true, 1);
+      syncGoalsButtonEnabled(false);
+      localStorage.removeItem("goalsBtnPos");
+      window.clearTimeout(window.__goalsDismissTimer);
+      window.__goalsDismissTimer = window.setTimeout(() => {
+        btn.remove();
+        hideVoiceTrashBinNow();
+        haptic("medium");
+      }, 760);
+      const rect = btn.getBoundingClientRect();
+      const binRect = ensureVoiceTrashBin().getBoundingClientRect();
+      const targetX = binRect.left + binRect.width / 2 - rect.width / 2;
+      const targetY = binRect.top + binRect.height / 2 - rect.height / 2 + 6;
+      const dx = targetX - rect.left;
+      const dy = targetY - rect.top;
+      const overshoot = Math.max(
+        0,
+        Math.min(Math.max(releaseDy * 2.6, lastVelocityY * 920, 520), Math.max(0, dy + 120)),
+      );
+      const dismissAnim = btn.animate(
+        [
+          { transform: "translate(0px, 0px) scale(1)", opacity: 1 },
+          {
+            transform: `translate(0px, ${overshoot}px) scale(0.88, 1.16)`,
+            opacity: 1,
+            offset: 0.44,
+          },
+          {
+            transform: `translate(${dx * 0.32}px, ${overshoot + (dy - overshoot) * 0.34}px) scale(1.12, 0.9)`,
+            opacity: 1,
+            offset: 0.68,
+          },
+          { transform: `translate(${dx * 0.76}px, ${dy * 0.86}px) scale(0.92, 1.08)`, opacity: 0.96, offset: 0.82 },
+          { transform: `translate(${dx}px, ${dy}px) scale(0.18)`, opacity: 0, offset: 1 },
+        ],
+        {
+          duration: 700,
+          easing: "cubic-bezier(.2,.9,.24,1)",
+          fill: "forwards",
+        },
+      );
+      let finalized = false;
+      const finalizeDismiss = () => {
+        if (finalized) return;
+        finalized = true;
+        window.clearTimeout(window.__goalsDismissTimer);
+        btn.remove();
+        hideVoiceTrashBinNow();
+        haptic("medium");
+      };
+      dismissAnim.onfinish = finalizeDismiss;
+      dismissAnim.oncancel = finalizeDismiss;
+      window.setTimeout(finalizeDismiss, 860);
+      suppressVoiceDragClicks();
+      return;
+    }
+    setVoiceTrashState(false);
+    if (moved || canceled) {
+      const rect = btn.getBoundingClientRect();
+      const pos = applyPos(rect.left, rect.top);
+      localStorage.setItem("goalsBtnPos", JSON.stringify(pos));
+      suppressVoiceDragClicks();
+      return;
+    }
     haptic("medium");
     openGoalsModal();
+  };
+
+  btn.addEventListener("pointerup", finishDrag);
+  btn.addEventListener("pointercancel", (e) => {
+    window.clearTimeout(longPressTimer);
+    longPressTimer = null;
+    finishDrag(e, true);
   });
-  btn.addEventListener(
-    "mouseenter",
-    () => (btn.style.transform = "scale(1.12)"),
-  );
-  btn.addEventListener("mouseleave", () => (btn.style.transform = ""));
+  btn.addEventListener("click", (e) => {
+    if (!isVoiceDragSuppressed()) return;
+    stopVoiceGestureEvent(e);
+  });
+  window.addEventListener("resize", () => {
+    const rect = btn.getBoundingClientRect();
+    const pos = applyPos(rect.left, rect.top);
+    localStorage.setItem("goalsBtnPos", JSON.stringify(pos));
+  });
   document.body.appendChild(btn);
 }
 
