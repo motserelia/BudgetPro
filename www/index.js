@@ -80,37 +80,89 @@ let deferredUiStarted = false;
 // КАТЕГОРИИ
 // ============================================================
 window.categories = {
-  Коммуналка: { subcats: ["Свет", "Вода", "Газ", "Интернет", "Сбор мусора"] },
-  Продукты: {
+  კომუნალურები: { subcats: ["შუქი", "წყალი", "გაზი", "ინტერნეტი", "დასუფთავების მოსაკრებელი"] },
+  პროდუქტები: {
     subcats: [
-      "Хлеб",
-      "Яйца",
-      "Зелень",
-      "Сыр",
-      "Молоко",
-      "Огурцы",
-      "Помидоры",
-      "Яблоки",
-      "Бананы",
+      "პური",
+      "კვერცხი",
+      "მხვანილი",
+      "ყველი",
+      "რძე",
+      "კიტრი",
+      "პომიდორი",
+      "ვაშლი",
+      "ბანანი",
     ],
   },
-  "Заём банка": { subcats: ["Банк TBC", "Банк Sakartvelo"] },
-  "Ежемесячные взносы": {
-    subcats: ["Телефон", "Ноутбук", "Планшет", "Ломбард", "Транспорт"],
+  "ბანკის სესხი": { subcats: ["TBC ბანკი", "საქართველოს ბანკი"] },
+  "ყოველთვიური გადასახადები": {
+    subcats: ["ლომბარდი"],
   },
-  Транспорт: {
-    subcats: ["Метро", "Автобус", "Маршрутка", "Трамвай", "Бензин", "Самолёт"],
+  ტრანსპორტი: {
+    subcats: ["მეტრო", "ავტობუსი", "სამარშრუტო მიკროავტობუსი", "ტრამვაი", "ბენზინი", "თვითმფრინავი"],
   },
-  "Неожиданные траты": { subcats: [] },
+  "მოულოდნელი ხარჯები": { subcats: [] },
 };
 window.incomeCategories = {
-  Зарплата: { subcats: [] },
-  Подарок: { subcats: [] },
-  Фриланс: { subcats: [] },
+  ხელფასი: { subcats: [] },
+  საჩუქარი: { subcats: [] },
+  ფრილანსი: { subcats: [] },
 };
 window.initialCategories = JSON.parse(JSON.stringify(window.categories));
 var categories = window.categories;
 var incomeCategories = window.incomeCategories;
+
+const LEGACY_CATEGORY_NAME_MAP = {
+  Коммуналка: "კომუნალურები",
+  Продукты: "პროდუქტები",
+  "Заём банка": "ბანკის სესხი",
+  "Ежемесячные взносы": "ყოველთვიური გადასახადები",
+  Транспорт: "ტრანსპორტი",
+  "Неожиданные траты": "მოულოდნელი ხარჯები",
+  Зарплата: "ხელფასი",
+  Подарок: "საჩუქარი",
+  Фриланс: "ფრილანსი",
+};
+
+const LEGACY_SUBCATEGORY_NAME_MAP = {
+  Свет: "შუქი",
+  Вода: "წყალი",
+  Газ: "გაზი",
+  Интернет: "ინტერნეტი",
+  "Сбор мусора": "დასუფთავების მოსაკრებელი",
+  Хлеб: "პური",
+  Яйца: "კვერცხი",
+  Зелень: "მხვანილი",
+  Сыр: "ყველი",
+  Молоко: "რძე",
+  Огурцы: "კიტრი",
+  Помидоры: "პომიდორი",
+  Яблоки: "ვაშლი",
+  Бананы: "ბანანი",
+  "Банк TBC": "TBC ბანკი",
+  "Банк Sakartvelo": "საქართველოს ბანკი",
+  Ломбард: "ლომბარდი",
+  Метро: "მეტრო",
+  Автобус: "ავტობუსი",
+  Маршрутка: "სამარშრუტო მიკროავტობუსი",
+  Трамвай: "ტრამვაი",
+  Бензин: "ბენზინი",
+  Самолёт: "თვითმფრინავი",
+};
+
+function migrateLegacyCategoryNames(source) {
+  if (!source || typeof source !== "object" || Array.isArray(source)) {
+    return source;
+  }
+  return Object.entries(source).reduce((next, [name, value]) => {
+    const migratedName = LEGACY_CATEGORY_NAME_MAP[name] || name;
+    const subcats = Array.isArray(value?.subcats)
+      ? value.subcats.map((subcat) => LEGACY_SUBCATEGORY_NAME_MAP[subcat] || subcat)
+      : [];
+    next[migratedName] = { ...value, subcats };
+    return next;
+  }, {});
+}
 
 // ============================================================
 // ПЕРЕВОДЫ
@@ -5819,9 +5871,9 @@ function loadProfileData(pid) {
     notebookPages = [];
     categories = JSON.parse(JSON.stringify(window.initialCategories));
     incomeCategories = {
-      Зарплата: { subcats: [] },
-      Подарок: { subcats: [] },
-      Фриланс: { subcats: [] },
+      ხელფასი: { subcats: [] },
+      საჩუქარი: { subcats: [] },
+      ფრილანსი: { subcats: [] },
     };
     calcHistory = [];
     convHistory = [];
@@ -5837,7 +5889,7 @@ function loadProfileData(pid) {
     transactions = d.transactions || [];
     startBalanceRub = d.startBalanceRub ?? 0;
     if (d.notebookPages) notebookPages = d.notebookPages;
-    if (d.categories) categories = d.categories;
+    if (d.categories) categories = migrateLegacyCategoryNames(d.categories);
     if (d.categoryCustomizations)
       categoryCustomizations = d.categoryCustomizations;
     if (d.incomeCategories) {
@@ -5846,7 +5898,7 @@ function loadProfileData(pid) {
         d.incomeCategories.forEach((c2) => {
           incomeCategories[c2] = { subcats: [] };
         });
-      } else incomeCategories = d.incomeCategories;
+      } else incomeCategories = migrateLegacyCategoryNames(d.incomeCategories);
     }
     calcHistory = d.calcHistory || [];
     convHistory = d.convHistory || [];
