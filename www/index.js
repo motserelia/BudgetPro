@@ -17388,6 +17388,10 @@ function getJsonBinConfig() {
   }
 }
 
+function getJsonBinApiBase() {
+  return "/api/jsonbin";
+}
+
 function setCookie(name, value, days) {
   var expires = "";
   if (days) {
@@ -17415,46 +17419,15 @@ async function jsonBinSaveMessages(msgs) {
     console.log("⛔ JSONBin синхронизация отключена пользователем");
     return;
   }
-  const cfg = getJsonBinConfig();
-  if (!cfg.key) return false;
   try {
-    const binId = cfg.binId;
-    if (binId) {
-      // Update existing bin
-      const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": cfg.key,
-        },
-        body: JSON.stringify({ messages: msgs, updated: Date.now() }),
-      });
-      return r.ok;
-    } else {
-      // Create new bin
-      const r = await fetch("https://api.jsonbin.io/v3/b", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Master-Key": cfg.key,
-          "X-Bin-Name": "BudgetPRO-Messages",
-          "X-Bin-Private": "false",
-        },
-        body: JSON.stringify({ messages: msgs, updated: Date.now() }),
-      });
-      if (r.ok) {
-        const data = await r.json();
-        const newBinId = data.metadata?.id;
-        if (newBinId) {
-          const newCfg = { ...cfg, binId: newBinId };
-          localStorage.setItem("budgetpro_jsonbin", JSON.stringify(newCfg));
-          // Share bin ID with users via a known key
-          localStorage.setItem("budgetpro_jsonbin_public_binid", newBinId);
-          console.log("✅ JSONBin created:", newBinId);
-        }
-      }
-      return r.ok;
-    }
+    const r = await fetch(`${getJsonBinApiBase()}/messages`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ messages: msgs, updated: Date.now() }),
+    });
+    return r.ok;
   } catch (e) {
     console.warn("JSONBin save:", e.message);
     return false;
@@ -17466,14 +17439,11 @@ async function jsonBinSaveBackup(data) {
     console.log("⛔ JSONBin синхронизация отключена пользователем");
     return;
   }
-  const cfg = getJsonBinConfig();
-  if (!cfg.key || !cfg.binId) return;
   try {
-    await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}`, {
+    await fetch(`${getJsonBinApiBase()}/backup`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "X-Master-Key": cfg.key,
       },
       body: JSON.stringify(data),
     });
@@ -17484,15 +17454,11 @@ async function jsonBinSaveBackup(data) {
 }
 
 async function jsonBinLoadBackup() {
-  const cfg = getJsonBinConfig();
-  if (!cfg.key || !cfg.binId) return null;
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${cfg.binId}/latest`, {
-      headers: { "X-Master-Key": cfg.key },
-    });
+    const r = await fetch(`${getJsonBinApiBase()}/backup`);
     if (!r.ok) return null;
     const data = await r.json();
-    return data.record;
+    return data.record || null;
   } catch (e) {
     return null;
   }
@@ -17500,17 +17466,11 @@ async function jsonBinLoadBackup() {
 
 async function jsonBinLoadMessages() {
   if (location.protocol === "file:") return;
-  const cfg = getJsonBinConfig();
-  const binId =
-    cfg.binId || localStorage.getItem("budgetpro_jsonbin_public_binid");
-  if (!binId) return null;
   try {
-    const r = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-      headers: cfg.key ? { "X-Master-Key": cfg.key } : {},
-    });
+    const r = await fetch(`${getJsonBinApiBase()}/messages`);
     if (!r.ok) return null;
     const data = await r.json();
-    return data.record?.messages || null;
+    return data.messages || null;
   } catch (e) {
     return null;
   }
@@ -17676,9 +17636,7 @@ function saveAllMessages(msgs) {
     _msgChannel?.postMessage({ type: "msg_update", ts: Date.now() });
   } catch (e) {}
   _saveToFirebase(msgs);
-  // Also sync to JSONBin if configured
-  const _jcfg = getJsonBinConfig();
-  if (_jcfg.key) jsonBinSaveMessages(msgs).catch(() => {});
+  jsonBinSaveMessages(msgs).catch(() => {});
 }
 
 function getAllMessages() {
