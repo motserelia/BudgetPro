@@ -75,65 +75,6 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
-    public class SecurityBridge {
-        private boolean startFirstAvailableSettings(Intent[] intents) {
-            for (Intent intent : intents) {
-                try {
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    if (intent.resolveActivity(getPackageManager()) != null) {
-                        startActivity(intent);
-                        return true;
-                    }
-                } catch (Exception ignored) {}
-            }
-            return false;
-        }
-
-        @JavascriptInterface
-        public void openSecuritySettings() {
-            MainActivity.this.runOnUiThread(() -> {
-                try {
-                    Intent intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                } catch (Exception e) {
-                    Intent fallback = new Intent(Settings.ACTION_SETTINGS);
-                    fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(fallback);
-                }
-            });
-        }
-
-        @JavascriptInterface
-        public void openBiometricEnrollSettings() {
-            MainActivity.this.runOnUiThread(() -> {
-                Intent biometricEnroll = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                    ? new Intent(Settings.ACTION_BIOMETRIC_ENROLL).putExtra(
-                        Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                        0x00FF
-                    )
-                    : new Intent(Settings.ACTION_SECURITY_SETTINGS);
-
-                Intent[] intents = new Intent[] {
-                    biometricEnroll,
-                    new Intent("android.settings.BIOMETRIC_ENROLL"),
-                    new Intent("android.settings.FACE_SETTINGS"),
-                    new Intent("android.settings.FACE_UNLOCK_SETTINGS"),
-                    new Intent(Settings.ACTION_SECURITY_SETTINGS),
-                    new Intent(Settings.ACTION_SETTINGS)
-                };
-
-                if (!startFirstAvailableSettings(intents)) {
-                    try {
-                        Intent fallback = new Intent(Settings.ACTION_SETTINGS);
-                        fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(fallback);
-                    } catch (Exception ignored) {}
-                }
-            });
-        }
-    }
-
     public static class NotificationsBridge {
         private final MainActivity activity;
 
@@ -208,7 +149,6 @@ public class MainActivity extends BridgeActivity {
                 wv.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
                 wv.addJavascriptInterface(new TraceBridge(), "BudgetPROTrace");
                 wv.addJavascriptInterface(new VoiceBridge(), "BudgetPROVoice");
-                wv.addJavascriptInterface(new SecurityBridge(), "BudgetPROSecurity");
                 wv.addJavascriptInterface(new NotificationsBridge(this), "BudgetPRONotifications");
                 wv.setWebChromeClient(new WebChromeClient() {
                     @Override
@@ -533,7 +473,7 @@ public class MainActivity extends BridgeActivity {
             ? "auto"
             : mode.trim().toLowerCase(Locale.ROOT);
         pendingVoiceAutoLang = requestedLang.toLowerCase(Locale.ROOT).startsWith("auto");
-        pendingVoiceLang = pendingVoiceAutoLang ? "" : requestedLang;
+        pendingVoiceLang = pendingVoiceAutoLang ? "ru-RU" : normalizeVoiceLang(requestedLang);
         pendingVoiceMode =
             (
                 requestedMode.equals("whisper") ||
@@ -554,6 +494,15 @@ public class MainActivity extends BridgeActivity {
             }
             beginSpeechRecognition();
         });
+    }
+
+    private String normalizeVoiceLang(String lang) {
+        String normalized = (lang == null ? "" : lang.trim()).replace('_', '-');
+        String lower = normalized.toLowerCase(Locale.ROOT);
+        if (lower.startsWith("ka")) return "ka-GE";
+        if (lower.startsWith("en")) return "en-US";
+        if (lower.startsWith("ru")) return "ru-RU";
+        return "ru-RU";
     }
 
     private void beginSpeechRecognition() {
@@ -645,16 +594,15 @@ public class MainActivity extends BridgeActivity {
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         );
-        if (!pendingVoiceAutoLang) {
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, pendingVoiceLang);
-            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, pendingVoiceLang);
-        } else {
-            intent.putExtra("android.speech.extra.ENABLE_LANGUAGE_DETECTION", true);
-            intent.putStringArrayListExtra(
-                "android.speech.extra.LANGUAGE_DETECTION_ALLOWED_LANGUAGES",
-                getBudgetProVoiceLanguages()
-            );
-        }
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, pendingVoiceLang);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, pendingVoiceLang);
+        intent.putExtra("android.speech.extra.ONLY_RETURN_LANGUAGE_PREFERENCE", true);
+        intent.putExtra("android.speech.extra.ENABLE_LANGUAGE_DETECTION", false);
+        intent.putExtra("android.speech.extra.ENABLE_LANGUAGE_SWITCH", false);
+        intent.putStringArrayListExtra(
+            "android.speech.extra.LANGUAGE_SWITCH_ALLOWED_LANGUAGES",
+            getBudgetProVoiceLanguages()
+        );
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
         intent.putExtra(
             RecognizerIntent.EXTRA_MAX_RESULTS,

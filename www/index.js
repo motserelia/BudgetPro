@@ -53,6 +53,27 @@ function injectGuideStyles() {
   `;
   document.head.appendChild(s);
 }
+
+function injectSearchCountStyles() {
+  if (document.getElementById("searchCountStyles")) return;
+  const style = document.createElement("style");
+  style.id = "searchCountStyles";
+  style.textContent = `
+    .search-results-count{
+      display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;
+      margin-top:8px;padding:7px 12px;border-radius:999px;
+      background:linear-gradient(135deg,var(--primary-pale),var(--card-bg));
+      border:1.5px solid var(--cream-border);box-shadow:0 8px 22px rgba(17,24,39,.08);
+      color:var(--text);font-size:12px;font-weight:900;letter-spacing:.02em;line-height:1.2;
+      max-width:100%;white-space:normal;word-break:break-word;
+    }
+    body.dark .search-results-count{
+      background:linear-gradient(135deg,rgba(96,165,250,.18),rgba(167,139,250,.14));
+      border-color:rgba(219,234,254,.22);box-shadow:0 10px 26px rgba(0,0,0,.26);color:#f8fafc;
+    }
+  `;
+  document.head.appendChild(style);
+}
 const CREATOR_SECRET = "";
 
 // ═══════════════════════════════════════════════════════════
@@ -2446,8 +2467,8 @@ try {
 } catch (e) {}
 let biometryEnabled = false;
 let biometryCredId = null;
-let faceUnlockEnabled = localStorage.getItem("faceUnlockEnabled") === "true";
-let pendingFaceUnlockSetup = localStorage.getItem("pendingFaceUnlockSetup") === "true";
+localStorage.removeItem("faceUnlockEnabled");
+localStorage.removeItem("pendingFaceUnlockSetup");
 let simpleMode = localStorage.getItem("simpleMode") === "true";
 let fontSize = localStorage.getItem("fontSize") || "normal";
 let animationsEnabled = localStorage.getItem("animationsEnabled") !== "false";
@@ -6387,77 +6408,18 @@ function updateHeader() {
   const el = document.getElementById("headerDate");
   if (el) {
     const now = new Date();
-    const weekdays = t("weekdaysShort");
-    const months = t("months");
-    const dayOfWeek = weekdays[now.getDay() === 0 ? 6 : now.getDay() - 1];
+    const prof = profiles.find((p) => p.id === activeProfileId);
+    const profileName = prof?.name || "";
     const day = now.getDate();
-    const month = months[now.getMonth()];
-    const year = now.getFullYear();
-    if (currentLang === "en") {
-      el.textContent = `${dayOfWeek}, ${month} ${day}, ${year}`;
-    } else if (currentLang === "ka") {
-      el.textContent = `${dayOfWeek}, ${day} ${month}, ${year}`;
-    } else {
-      el.textContent = `${dayOfWeek}, ${day} ${month} ${year} года`;
-    }
+    const month = now.toLocaleDateString(localeMap[currentLang] || "en-US", {
+      month: "short",
+    });
+    el.textContent = profileName ? `${profileName} · ${day} ${month}` : `${day} ${month}`;
   }
 
-  // ── ПЕРСОНАЛИЗИРОВАННОЕ ПРИВЕТСТВИЕ ──
   const logo = document.getElementById("appLogoBtn");
   if (logo) {
-    const prof = profiles.find((p) => p.id === activeProfileId);
-    const userName = prof?.name || "";
-    const hour = new Date().getHours();
-    let greetEmoji = "🌿";
-    let greetWord = "";
-    if (currentLang === "ru") {
-      if (hour >= 5 && hour < 12) {
-        greetWord = "Доброе утро";
-        greetEmoji = "🌅";
-      } else if (hour < 18) {
-        greetWord = "Добрый день";
-        greetEmoji = "☀️";
-      } else if (hour < 22) {
-        greetWord = "Добрый вечер";
-        greetEmoji = "🌆";
-      } else {
-        greetWord = "Доброй ночи";
-        greetEmoji = "🌙";
-      }
-    } else if (currentLang === "en") {
-      if (hour >= 5 && hour < 12) {
-        greetWord = "Good morning";
-        greetEmoji = "🌅";
-      } else if (hour < 18) {
-        greetWord = "Good afternoon";
-        greetEmoji = "☀️";
-      } else if (hour < 22) {
-        greetWord = "Good evening";
-        greetEmoji = "🌆";
-      } else {
-        greetWord = "Good night";
-        greetEmoji = "🌙";
-      }
-    } else {
-      if (hour >= 5 && hour < 12) {
-        greetWord = "დილა მშვიდობისა";
-        greetEmoji = "🌅";
-      } else if (hour < 18) {
-        greetWord = "მშვიდობისა";
-        greetEmoji = "☀️";
-      } else if (hour < 22) {
-        greetWord = "საღამო მშვიდობისა";
-        greetEmoji = "🌆";
-      } else {
-        greetWord = "ღამე მშვიდობისა";
-        greetEmoji = "🌙";
-      }
-    }
-    if (userName && greetWord) {
-      logo.textContent = `${greetEmoji} ${greetWord}, ${userName}!`;
-    } else {
-      logo.textContent = t("appName");
-    }
+    logo.textContent = "BudgetPRO";
     if (isCreator()) logo.innerHTML += " 👑";
   }
   // Update slogan
@@ -6492,7 +6454,6 @@ function addHeaderButtons() {
               : "🌙";
           showToast("🎨 " + t("themeChanged"));
           haptic("light");
-          if (typeof renderSettings === "function") renderSettings();
         });
         return;
       }
@@ -6594,10 +6555,7 @@ function setTab(tab, onRendered) {
   document
     .querySelector(`.nav-btn[data-tab="${tab}"]`)
     ?.classList.add("active");
-  // Показываем/скрываем hero-карточку: только на главной и только в обычном режиме
   const heroWrap = document.getElementById("heroCardWrap");
-  if (heroWrap)
-    heroWrap.style.display = tab === "home" && !simpleMode ? "" : "none";
   // Обновляем активную кнопку в обоих навах
   document
     .querySelectorAll("#simpleNav .nav-btn, #mainNav .nav-btn")
@@ -6616,12 +6574,16 @@ function setTab(tab, onRendered) {
     document.getElementById("moreNavBtn")?.classList.add("active");
     document.getElementById("moreNavBtnSimple")?.classList.add("active");
   }
-  // Scroll to top smoothly on tab switch
-  window.scrollTo({ top: 0, behavior: "instant" });
   const content = document.getElementById("mainContent");
+  if (!content) return;
+  content.classList.remove("tab-anim");
+  content.style.transition = "opacity 0.2s ease, transform 0.2s ease";
   content.style.opacity = "0";
-  content.style.transform = "translateY(8px)";
-  setTimeout(() => {
+  content.style.transform = "translateY(6px) scale(0.995)";
+  window.setTimeout(() => {
+    if (heroWrap)
+      heroWrap.style.display = tab === "home" && !simpleMode ? "" : "none";
+    window.scrollTo({ top: 0, behavior: "auto" });
     switch (tab) {
       case "home":
         renderHome();
@@ -6646,16 +6608,22 @@ function setTab(tab, onRendered) {
         renderSettings();
         break;
     }
-    content.style.transition = "opacity 0.22s ease, transform 0.22s ease";
-    content.style.opacity = "1";
-    content.style.transform = "translateY(0)";
+    content.classList.remove("tab-anim");
+    void content.offsetWidth;
+    content.classList.add("tab-anim");
+    content.style.transition =
+      "opacity 0.4s ease, transform 0.4s cubic-bezier(.2,.85,.25,1)";
+    requestAnimationFrame(() => {
+      content.style.opacity = "1";
+      content.style.transform = "translateY(0) scale(1)";
+    });
     // Clear transition after animation completes so it doesn't interfere with JS updates
     setTimeout(() => {
       content.style.transition = "";
       content.style.transform = "";
-    }, 280);
+    }, 430);
     if (typeof onRendered === "function") setTimeout(onRendered, 60);
-  }, 160);
+  }, 170);
 }
 
 // ============================================================
@@ -6766,8 +6734,9 @@ function renderSimpleHome() {
     }[L],
   };
 
-  // В простом режиме показываем сначала сегодняшний день.
-  const recent = [...todayTx]
+  // В простом режиме показываем последние записи, а не только сегодняшний день.
+  const recent = transactions
+    .filter((tx) => !tx._initial)
     .sort((a, b) =>
       `${b.date || ""} ${b.time || ""}`.localeCompare(
         `${a.date || ""} ${a.time || ""}`,
@@ -6818,6 +6787,49 @@ function renderSimpleHome() {
       cat: { ru: "Подарок", en: "Gift", ka: "Gift" },
     },
   ];
+
+  const recentHtml = `
+    <!-- ── ПОСЛЕДНИЕ ЗАПИСИ ── -->
+    <div class="sm-recent-block">
+      <div class="sm-section-title" style="margin-top:16px">${T.recent}</div>
+      ${
+        recent.length
+          ? `
+        <div class="sm-hint">💡 ${T.hint}</div>
+        <div class="sm-ops-list">
+          ${recent
+            .map((tx) => {
+              const st2 = getCategoryStyle(tx.category, tx.type);
+              const sign = tx.type === "income" ? "+" : "−";
+              const isInc = tx.type === "income";
+              const icoBg = isInc
+                ? "rgba(45,212,191,0.18)"
+                : "rgba(248,113,113,0.16)";
+              const amtColor = isInc ? "#5eead4" : "#fca5a5";
+              const idx2 = transactions.indexOf(tx);
+              const dateStr =
+                fmtDate(tx.date) + (tx.time ? " · " + tx.time : "");
+              return `<div class="sm-op-row" data-idx="${idx2}">
+              <div class="sm-op-icon" style="background:${icoBg}">${st2.icon}</div>
+              <div class="sm-op-info">
+                <div class="sm-op-name">${esc(tx.category)}</div>
+                <div class="sm-op-date">${dateStr}</div>
+              </div>
+              <div class="sm-op-amount" style="color:${amtColor}">${sign}${s}${fmt(tx.amountRub)}</div>
+            </div>`;
+            })
+            .join("")}
+        </div>
+        <button class="sm-all-btn sm-open-history">${T.all}</button>
+      `
+          : `
+        <div class="sm-empty">
+          <div style="font-size:52px;margin-bottom:12px">📭</div>
+          <div style="font-size:16px;font-weight:700;opacity:.7;white-space:pre-line;text-align:center">${T.noOps}</div>
+        </div>
+      `
+      }
+    </div>`;
 
   // Цвет баланса
   const balColor = bal >= 0 ? "#bbf7d0" : "#fecaca";
@@ -6874,15 +6886,6 @@ function renderSimpleHome() {
       </div>
     </div>
 
-    <!-- ── ГОЛОС ── -->
-    <button class="sm-voice-btn" id="simpleVoiceBtn">
-      <span class="sm-voice-icon">🎤</span>
-      <span class="sm-voice-copy">
-        <span class="sm-voice-title">${T.voice}</span>
-        <span class="sm-voice-hint">${T.voiceHint}</span>
-      </span>
-    </button>
-
     <!-- ── ДВЕ БОЛЬШИЕ КНОПКИ ── -->
     <div class="sm-two-btns">
       <button class="sm-big-btn sm-btn-income sm-add-income">
@@ -6896,6 +6899,17 @@ function renderSimpleHome() {
         <div class="sm-big-sub">${T.spentSub}</div>
       </button>
     </div>
+
+    <!-- ── ГОЛОС ── -->
+    <button class="sm-voice-btn" id="simpleVoiceBtn">
+      <span class="sm-voice-icon">🎤</span>
+      <span class="sm-voice-copy">
+        <span class="sm-voice-title">${T.voice}</span>
+        <span class="sm-voice-hint">${T.voiceHint}</span>
+      </span>
+    </button>
+
+    ${recentHtml}
 
     <!-- ── БЫСТРЫЕ КАТЕГОРИИ ── -->
     <div class="sm-section-title">${T.quick}</div>
@@ -6915,45 +6929,6 @@ function renderSimpleHome() {
     <button class="sm-history-btn sm-open-history">
       ${T.history}
     </button>
-
-    <!-- ── ПОСЛЕДНИЕ ЗАПИСИ ── -->
-    <div class="sm-section-title" style="margin-top:16px">${T.recent}</div>
-    ${
-      recent.length
-        ? `
-      <div class="sm-hint">💡 ${T.hint}</div>
-      <div class="sm-ops-list">
-        ${recent
-          .map((tx) => {
-            const st2 = getCategoryStyle(tx.category, tx.type);
-            const sign = tx.type === "income" ? "+" : "−";
-            const isInc = tx.type === "income";
-            const icoBg = isInc
-              ? "rgba(45,212,191,0.18)"
-              : "rgba(248,113,113,0.16)";
-            const amtColor = isInc ? "#5eead4" : "#fca5a5";
-            const idx2 = transactions.indexOf(tx);
-            const dateStr = fmtDate(tx.date) + (tx.time ? " · " + tx.time : "");
-            return `<div class="sm-op-row" data-idx="${idx2}">
-            <div class="sm-op-icon" style="background:${icoBg}">${st2.icon}</div>
-            <div class="sm-op-info">
-              <div class="sm-op-name">${esc(tx.category)}</div>
-              <div class="sm-op-date">${dateStr}</div>
-            </div>
-            <div class="sm-op-amount" style="color:${amtColor}">${sign}${s}${fmt(tx.amountRub)}</div>
-          </div>`;
-          })
-          .join("")}
-      </div>
-      <button class="sm-all-btn sm-open-history">${T.all}</button>
-    `
-        : `
-      <div class="sm-empty">
-        <div style="font-size:52px;margin-bottom:12px">📭</div>
-        <div style="font-size:16px;font-weight:700;opacity:.7;white-space:pre-line;text-align:center">${T.noOps}</div>
-      </div>
-    `
-    }
 
   </div>`;
 
@@ -7108,6 +7083,7 @@ function renderHome() {
   if (!document.getElementById("searchInput")) {
     const sc = document.getElementById("searchContainer");
     if (sc) {
+      injectSearchCountStyles();
       sc.innerHTML = `<div class="search-container"><div class="search-input-wrapper"><span class="search-icon">🔍</span><input type="text" id="searchInput" class="search-input" placeholder="${t("searchPlaceholder")}" autocomplete="off"><button class="search-clear" id="clearSearchBtn" style="display:none;">✕</button></div><div class="search-results-count" id="searchResultsCount"></div></div>`;
       const sf = document.getElementById("searchInput"),
         csb = document.getElementById("clearSearchBtn");
@@ -7274,7 +7250,7 @@ function renderOpsList() {
       let dcat = `<span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span>`;
       if (sq && tx.category.toLowerCase().includes(sq))
         dcat = `<span style="background:${palette.searchTone};border-radius:6px;padding:1px 5px;display:inline-block;"><span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span></span>`;
-      html += `<div class="op-card" data-idx="${idx}" data-type="${tx.type}">
+      html += `<div class="op-swipe-wrap"><div class="op-delete-reveal" aria-hidden="true"><span>🗑️</span></div><div class="op-card" data-idx="${idx}" data-type="${tx.type}">
         <div class="op-icon-wrap">${style.icon}</div>
         <div class="op-info" style="flex:1;min-width:0;">
           <div class="op-category" style="font-size:13px;font-weight:700;">${dcat}${displaySubcategory ? ` · <span style="font-weight:700;font-size:11px;color:${palette.subColor};">${esc(displaySubcategory)}</span>` : ""}</div>
@@ -7286,7 +7262,7 @@ function renderOpsList() {
           <div class="op-amount ${tx.type === "income" ? "income-amount" : tx.type === "salary" ? "salary-amount" : "expense-amount"}" style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;">${sign}${fmt(tx.amountRub)}</div>
           <button class="op-delete" data-idx="${idx}" aria-label="${t("ariaDeleteOp")}" style="opacity:0;font-size:14px;padding:4px;cursor:pointer;color:#f87171;">✕</button>
         </div>
-      </div>`;
+      </div></div>`;
     });
     html += "</div>";
   }
@@ -7331,15 +7307,87 @@ function renderOpsList() {
 }
 
 function addSwipeToDelete(container) {
+  if (!document.getElementById("opSwipeDeleteStyles")) {
+    const style = document.createElement("style");
+    style.id = "opSwipeDeleteStyles";
+    style.textContent = `
+      .op-swipe-wrap {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        margin-bottom: 8px;
+        isolation: isolate;
+      }
+      .op-swipe-wrap .op-card {
+        position: relative;
+        z-index: 2;
+        margin-bottom: 0 !important;
+        transform-origin: right center;
+        will-change: transform, opacity;
+      }
+      .op-delete-reveal {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 20px;
+        border-radius: inherit;
+        background:
+          radial-gradient(circle at 82% 50%, rgba(255,255,255,.28), transparent 30%),
+          linear-gradient(135deg, #fb7185, #dc2626 62%, #991b1b);
+        color: #fff;
+        opacity: 0;
+        transform: scaleX(.62);
+        transform-origin: right center;
+        pointer-events: none;
+        transition: opacity .16s ease, transform .18s ease;
+      }
+      .op-delete-reveal span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.18);
+        font-size: 22px;
+        filter: drop-shadow(0 8px 14px rgba(127,29,29,.35));
+        transform: scale(.72) rotate(-10deg);
+        transition: transform .18s cubic-bezier(.34,1.56,.64,1);
+      }
+      .op-swipe-wrap.swiping .op-delete-reveal {
+        opacity: var(--swipeReveal, .6);
+        transform: scaleX(var(--swipeScale, .82));
+      }
+      .op-swipe-wrap.swiping .op-delete-reveal span {
+        transform: scale(var(--swipeIconScale, 1)) rotate(var(--swipeIconRot, -10deg));
+      }
+      @keyframes opSwipeSpringBack {
+        0% { transform: translateX(var(--springFrom, -72px)) scaleX(1.16) scaleY(.94); }
+        42% { transform: translateX(18px) scaleX(.91) scaleY(1.06); }
+        66% { transform: translateX(-8px) scaleX(1.055) scaleY(.975); }
+        84% { transform: translateX(3px) scaleX(.985) scaleY(1.012); }
+        100% { transform: translateX(0) scaleX(1) scaleY(1); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
   let sX = 0,
     sY = 0,
     aC = null,
     aI = null,
-    revealEl = null;
+    aW = null;
 
   function clearReveal() {
-    revealEl?.remove();
-    revealEl = null;
+    if (aW) {
+      aW.classList.remove("swiping");
+      aW.style.removeProperty("--swipeReveal");
+      aW.style.removeProperty("--swipeScale");
+      aW.style.removeProperty("--swipeIconScale");
+      aW.style.removeProperty("--swipeIconRot");
+    }
   }
 
   container.querySelectorAll(".op-card").forEach((card) => {
@@ -7350,6 +7398,7 @@ function addSwipeToDelete(container) {
         sY = e.touches[0].clientY;
         aC = card;
         aI = parseInt(card.dataset.idx);
+        aW = card.closest(".op-swipe-wrap");
         clearReveal();
       },
       { passive: true },
@@ -7362,36 +7411,33 @@ function addSwipeToDelete(container) {
         const dx = e.touches[0].clientX - sX;
         const dy = e.touches[0].clientY - sY;
         if (Math.abs(dy) > Math.abs(dx) + 4) {
-          aC = null;
           clearReveal();
+          aC = null;
+          aW = null;
           return;
         }
         if (dx < -6) {
-          const pull = Math.min(Math.abs(dx), 130);
-          const pct = Math.min(pull / 100, 1);
-          aC.style.transform = `translateX(${-pull}px)`;
+          if (dx < -10) e.preventDefault();
+          const rawPull = Math.abs(dx);
+          const pull = Math.min(rawPull, 142);
+          const revealPct = Math.min(pull / 110, 1);
+          const elasticStart = 30;
+          const elasticPct = Math.max(0, Math.min((pull - elasticStart) / 92, 1));
+          const easedElastic = elasticPct * elasticPct * (3 - 2 * elasticPct);
+          const stretch = 1 + easedElastic * 0.14;
+          const squash = 1 - easedElastic * 0.05;
+          aC.style.transform = `translate3d(${-pull}px,0,0) scaleX(${stretch}) scaleY(${squash})`;
           aC.style.transition = "none";
-          // Create/update reveal background
-          if (!revealEl) {
-            revealEl = document.createElement("div");
-            revealEl.style.cssText = [
-              "position:absolute;top:0;right:0;bottom:0;",
-              "border-radius:inherit;",
-              "display:flex;align-items:center;justify-content:flex-end;",
-              "padding-right:20px;",
-              "background:linear-gradient(135deg,#ef4444,#dc2626);",
-              "color:#fff;font-size:20px;pointer-events:none;",
-              "transition:opacity 0.1s;",
-            ].join("");
-            revealEl.textContent = "🗑️";
-            aC.parentElement.style.position = "relative";
-            aC.parentElement.insertBefore(revealEl, aC);
+          if (aW) {
+            aW.classList.add("swiping");
+            aW.style.setProperty("--swipeReveal", String(0.12 + revealPct * 0.88));
+            aW.style.setProperty("--swipeScale", String(0.62 + revealPct * 0.38));
+            aW.style.setProperty("--swipeIconScale", String(0.78 + easedElastic * 0.34));
+            aW.style.setProperty("--swipeIconRot", `${-10 + easedElastic * 16}deg`);
           }
-          revealEl.style.width = pull + "px";
-          revealEl.style.opacity = pct;
         }
       },
-      { passive: true },
+      { passive: false },
     );
 
     card.addEventListener(
@@ -7432,13 +7478,17 @@ function addSwipeToDelete(container) {
         } else {
           clearReveal();
           if (aC) {
-            aC.style.transform = "";
-            aC.style.transition = "transform .2s ease";
+            aC.style.animation = "";
+            aC.style.transition = "transform .34s cubic-bezier(.2,.9,.22,1), opacity .2s ease";
+            aC.style.transform = "translate3d(0,0,0) scaleX(1) scaleY(1)";
             setTimeout(() => {
-              if (aC) aC.style.transition = "";
-            }, 200);
+              if (aC) {
+                aC.style.transition = "";
+              }
+            }, 360);
           }
           aC = null;
+          aW = null;
         }
       },
       { passive: true },
@@ -8491,7 +8541,18 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
     <div class="modal-actions" style="flex-wrap:wrap;gap:8px;"><button class="btn-secondary" id="saveAsTemplateBtn">${t("saveAsTemplate")}</button><button class="btn-primary" id="saveAddBtn">✓ ${t("add")}</button></div>`;
   const modal = createModal("addModal", t("newOperation"), html);
   document.body.appendChild(modal);
-  openModal("addModal");
+  modal.style.display = "block";
+  modal.style.visibility = "hidden";
+  modal.style.pointerEvents = "none";
+  modal.offsetHeight;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      modal.style.display = "none";
+      modal.style.visibility = "";
+      modal.style.pointerEvents = "";
+      openModal("addModal");
+    });
+  });
   addType = defaultType;
   const resetAddModalViewport = () => {
     const modalBody = modal.querySelector(".modal-body");
@@ -9104,6 +9165,12 @@ function renderStats() {
       const values = md.map((d) => toDisp(d.balance));
       const ec = Chart.getChart("balanceLineChart");
       if (ec) ec.destroy();
+      const chartIsDark = document.body.classList.contains("dark");
+      const chartTextColor = chartIsDark ? "#f8fafc" : "#1f2937";
+      const chartMutedColor = chartIsDark ? "#dbeafe" : "#475569";
+      const chartGridColor = chartIsDark
+        ? "rgba(219,234,254,0.16)"
+        : "rgba(71,85,105,0.16)";
       new Chart(canvas, {
         type: "line",
         data: {
@@ -9112,17 +9179,13 @@ function renderStats() {
             {
               label: t("balance") + " (" + sym() + ")",
               data: values,
-              borderColor: document.body.classList.contains("dark")
-                ? "#a78bfa"
-                : "#f97316",
-              backgroundColor: document.body.classList.contains("dark")
+              borderColor: chartIsDark ? "#a78bfa" : "#f97316",
+              backgroundColor: chartIsDark
                 ? "rgba(167,139,250,0.08)"
                 : "rgba(249,115,22,0.06)",
               borderWidth: 2.5,
-              pointBackgroundColor: document.body.classList.contains("dark")
-                ? "#a78bfa"
-                : "#f97316",
-              pointBorderColor: "var(--card-bg)",
+              pointBackgroundColor: chartIsDark ? "#a78bfa" : "#f97316",
+              pointBorderColor: chartIsDark ? "#111827" : "#ffffff",
               pointBorderWidth: 2,
               pointRadius: 5,
               pointHoverRadius: 7,
@@ -9146,15 +9209,18 @@ function renderStats() {
           scales: {
             y: {
               beginAtZero: false,
-              grid: { color: "var(--cream-border)" },
-              ticks: { callback: (v) => v + " " + sym() },
+              grid: { color: chartGridColor },
+              ticks: {
+                color: chartTextColor,
+                font: { weight: "800", size: 11 },
+                callback: (v) => v + " " + sym(),
+              },
             },
             x: {
               grid: { display: false },
               ticks: {
-                color: document.body.classList.contains("dark")
-                  ? "rgba(196,181,253,0.6)"
-                  : "#9ca3af",
+                color: chartMutedColor,
+                font: { weight: "800", size: 11 },
               },
             },
           },
@@ -9183,6 +9249,8 @@ function injectStatsStyles() {
   .stats-period-btn{padding:8px 14px;border-radius:99px;border:1.5px solid var(--cream-border);background:var(--cream-dark);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--transition);color:var(--text-soft);}
   .stats-period-btn:hover{border-color:var(--primary);color:var(--primary);}
   .stats-period-btn.active{background:var(--primary);color:white;border-color:var(--primary);}
+  .search-results-count{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;margin-top:8px;padding:7px 12px;border-radius:999px;background:linear-gradient(135deg,var(--primary-pale),var(--card-bg));border:1.5px solid var(--cream-border);box-shadow:0 8px 22px rgba(17,24,39,.08);color:var(--text);font-size:12px;font-weight:900;letter-spacing:.02em;line-height:1.2;max-width:100%;white-space:normal;word-break:break-word;}
+  body.dark .search-results-count{background:linear-gradient(135deg,rgba(96,165,250,.18),rgba(167,139,250,.14));border-color:rgba(219,234,254,.22);box-shadow:0 10px 26px rgba(0,0,0,.26);color:#f8fafc;}
   .stat-status-card{border-radius:var(--radius-lg);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1.5px solid transparent;}
   .stat-status-card.healthy{background:var(--income-pale);border-color:rgba(26,115,64,0.25);}
   .stat-status-card.warning{background:var(--gold-pale);border-color:var(--gold-border);}
@@ -9211,6 +9279,8 @@ function injectStatsStyles() {
   .stat-gauge-card,.stat-donut-card{background:var(--card-bg);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm);border:1.5px solid var(--cream-border);}
   .stat-gauge-wrap{position:relative;display:flex;justify-content:center;}
   .stat-gauge-svg{width:100%;max-width:180px;overflow:visible;}
+  .stat-gauge-svg text{fill:var(--text);font-weight:900;}
+  body.dark .stat-gauge-svg text{fill:#f8fafc;}
   .gauge-arc{transition:stroke-dashoffset 1.3s cubic-bezier(0.34,1.3,0.64,1);}
   .stat-gauge-center{position:absolute;bottom:0;left:50%;transform:translateX(-50%);text-align:center;}
   .stat-gauge-pct{font-size:22px;font-weight:900;line-height:1;}
@@ -9955,8 +10025,7 @@ async function nativeBiometryVerify(options = {}) {
     description: t("biometryDesc") || "Fingerprint / Face ID",
     negativeButtonText: t("cancel") || "Cancel",
     maxAttempts: 5,
-    allowedBiometryTypes: options.faceOnly ? [4] : [3, 4, 5, 6],
-    allowWeakFace: !!options.allowWeakFace,
+    allowedBiometryTypes: [3, 4, 5, 6],
   };
   try {
     if (typeof plugin.verifyIdentity === "function") {
@@ -9973,50 +10042,6 @@ async function nativeBiometryVerify(options = {}) {
   return false;
 }
 
-function openAndroidSecuritySettings() {
-  try {
-    pendingFaceUnlockSetup = true;
-    localStorage.setItem("pendingFaceUnlockSetup", "true");
-    if (window.BudgetPROSecurity?.openBiometricEnrollSettings) {
-      window.BudgetPROSecurity.openBiometricEnrollSettings();
-    } else {
-      window.BudgetPROSecurity?.openSecuritySettings?.();
-    }
-    return true;
-  } catch (e) {
-    console.warn("open security settings:", e);
-  }
-  return false;
-}
-
-async function refreshFaceUnlockAfterSystemSetup() {
-  if (!pendingFaceUnlockSetup) return;
-  if (document.hidden) return;
-  const faceAvl = await isFaceUnlockAvailable();
-  pendingFaceUnlockSetup = false;
-  localStorage.setItem("pendingFaceUnlockSetup", "false");
-  showToast(
-    faceAvl
-      ? {
-          ru: "Face Unlock найден системой. Нажмите кнопку ещё раз для проверки.",
-          en: "Face Unlock was found by the system. Tap the button again to verify.",
-          ka: "Face Unlock სისტემამ იპოვა. შემოწმებისთვის ღილაკს კიდევ ერთხელ დააჭირეთ.",
-        }[currentLang]
-      : {
-          ru: "Android всё ещё не отдаёт отдельное лицо приложению.",
-          en: "Android still does not expose separate face unlock to the app.",
-          ka: "Android ჯერ კიდევ არ გადასცემს ცალკე სახით განბლოკვას აპს.",
-        }[currentLang],
-    faceAvl ? "success" : "error",
-  );
-  if (currentTab === "settings") renderSettings();
-}
-
-window.addEventListener("pageshow", () => setTimeout(refreshFaceUnlockAfterSystemSetup, 500));
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) setTimeout(refreshFaceUnlockAfterSystemSetup, 500);
-});
-
 async function isBiometryAvailable() {
   try {
     const plugin = getNativeBiometryPlugin();
@@ -10031,19 +10056,6 @@ async function isBiometryAvailable() {
     console.warn("biometry available:", e);
   }
   return false;
-}
-
-async function isFaceUnlockAvailable() {
-  try {
-    const plugin = getNativeBiometryPlugin();
-    if (!plugin?.isAvailable) return isBiometryAvailable();
-    const result = await plugin.isAvailable();
-    const type = Number(result?.biometryType);
-    return !!result?.isAvailable && ([2, 4, 6].includes(type) || await isBiometryAvailable());
-  } catch (e) {
-    console.warn("face unlock available:", e);
-  }
-  return isBiometryAvailable();
 }
 
 async function biometryRegister() {
@@ -10088,11 +10100,8 @@ async function biometryRegister() {
 
 async function biometryVerify() {
   if (!biometryCredId) return false;
-  const nativeOptions = faceUnlockEnabled
-    ? { faceOnly: true, allowWeakFace: true }
-    : {};
-  if (biometryCredId === "native") return nativeBiometryVerify(nativeOptions);
-  const nativeOk = await nativeBiometryVerify(nativeOptions);
+  if (biometryCredId === "native") return nativeBiometryVerify();
+  const nativeOk = await nativeBiometryVerify();
   if (nativeOk) return true;
   try {
     const challenge = crypto.getRandomValues(new Uint8Array(32));
@@ -10410,14 +10419,6 @@ function renderSettings() {
         <span class="set-row-sub" id="bioStatusText">${t("loading")}</span>
       </div>
       <label class="switch"><input type="checkbox" id="biometryToggle" ${biometryEnabled ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-    <div class="set-row set-row-divider" id="faceUnlockCard">
-      <div class="set-row-ico">🙂</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${{ ru: "Разблокировка по лицу", en: "Face unlock", ka: "სახით განბლოკვა" }[L]}</span>
-        <span class="set-row-sub" id="faceUnlockStatusText">${{ ru: "Проверка доступности лица...", en: "Checking face availability...", ka: "სახის ხელმისაწვდომობის შემოწმება..." }[L]}</span>
-      </div>
-      <label class="switch"><input type="checkbox" id="faceUnlockToggle" ${faceUnlockEnabled && biometryEnabled ? "checked" : ""}><span class="slider round"></span></label>
     </div>
   </div>
 
@@ -11168,28 +11169,6 @@ function renderSettings() {
         : t("biometryNotSupported");
       if (avl) seEl.style.color = "var(--income-color)";
     }
-    const faceAvl = await isFaceUnlockAvailable();
-    const faceStatusEl = document.getElementById("faceUnlockStatusText");
-    if (faceStatusEl) {
-      faceStatusEl.textContent = faceAvl
-        ? {
-            ru: "Лицо доступно через системную биометрию Android.",
-            en: "Face unlock is available through Android system biometry.",
-            ka: "სახით განბლოკვა ხელმისაწვდომია Android-ის სისტემური ბიომეტრიით.",
-          }[currentLang]
-        : {
-            ru: avl
-              ? "Можно включить через системную биометрию Android."
-              : "Системная биометрия недоступна.",
-            en: avl
-              ? "Can be enabled through Android system biometry."
-              : "System biometry is unavailable.",
-            ka: avl
-              ? "შესაძლებელია Android-ის სისტემური ბიომეტრიით ჩართვა."
-              : "სისტემური ბიომეტრია მიუწვდომელია.",
-          }[currentLang];
-      faceStatusEl.style.color = faceAvl || avl ? "var(--income-color)" : "var(--text-muted)";
-    }
     const btEl = document.getElementById("biometryToggle");
     if (btEl) {
       if (!avl) {
@@ -11245,8 +11224,6 @@ function renderSettings() {
             () => {
               biometryEnabled = false;
               biometryCredId = null;
-              faceUnlockEnabled = false;
-              localStorage.setItem("faceUnlockEnabled", "false");
               saveAll();
               showToast(t("pinDisabled"));
               renderSettings();
@@ -11257,68 +11234,12 @@ function renderSettings() {
         }
       });
     }
-    const faceToggle = document.getElementById("faceUnlockToggle");
-    if (faceToggle) {
-      if (!avl) {
-        faceToggle.disabled = true;
-        faceToggle.parentElement.style.opacity = "0.5";
-      }
-      faceToggle.addEventListener("change", async (e) => {
-        if (e.target.checked) {
-          if (!avl) {
-            showToast(
-              {
-                ru: "Системная биометрия недоступна на этом телефоне.",
-                en: "System biometry is unavailable on this phone.",
-                ka: "ამ ტელეფონზე სისტემური ბიომეტრია მიუწვდომელია.",
-              }[currentLang],
-              "error",
-            );
-            e.target.checked = false;
-            return;
-          }
-          if (!pinEnabled || !pinHash) {
-            const createdPin = await openPinSetModal(false, {
-              silent: true,
-              skipRender: true,
-            });
-            if (!createdPin || !pinEnabled || !pinHash) {
-              e.target.checked = false;
-              return;
-            }
-          }
-          showToast(
-            {
-              ru: "Этот Android не даёт BudgetPRO включить только лицо отдельно от отпечатка. Чтобы не использовать отпечаток вместо лица, Face Unlock не будет включён.",
-              en: "This Android does not let BudgetPRO enable face only separately from fingerprint. To avoid using fingerprint as face unlock, Face Unlock will not be enabled.",
-              ka: "ეს Android BudgetPRO-ს არ აძლევს უფლებას ჩართოს მხოლოდ სახე თითის ანაბეჭდისგან ცალკე. რომ თითის ანაბეჭდი სახედ არ გამოვიყენოთ, Face Unlock არ ჩაირთვება.",
-            }[currentLang],
-            "error",
-            5200,
-          );
-          e.target.checked = false;
-          openAndroidSecuritySettings();
-        } else {
-          faceUnlockEnabled = false;
-          localStorage.setItem("faceUnlockEnabled", "false");
-          showToast(
-            {
-              ru: "Разблокировка по лицу выключена.",
-              en: "Face unlock disabled.",
-              ka: "სახით განბლოკვა გამორთულია.",
-            }[currentLang],
-          );
-        }
-      });
-    }
     document.getElementById("biometryResetBtn")?.addEventListener("click", () =>
       askConfirm(
         t("delete") + "?",
         () => {
           biometryEnabled = false;
           biometryCredId = null;
-          faceUnlockEnabled = false;
-          localStorage.setItem("faceUnlockEnabled", "false");
           saveAll();
           showToast(t("deleted"));
           renderSettings();
@@ -13881,13 +13802,15 @@ function createModal(id, title, bodyHtml) {
           transition: opacity 320ms ease-out;
         }
         #addModal .add-modal-sheet {
-          transform: translate3d(0,125%,0) scale(.975);
+          transform: translate3d(0,118%,0) scale(.985);
           opacity: 0;
           transition:
-            transform 760ms cubic-bezier(.16,1,.24,1),
-            opacity 460ms ease-out;
+            transform 680ms cubic-bezier(.16,1,.24,1),
+            opacity 360ms ease-out;
           will-change: transform, opacity !important;
           backface-visibility: hidden !important;
+          contain: layout paint style !important;
+          transform-origin: bottom center !important;
         }
         #addModal.open .add-modal-overlay {
           opacity: 1 !important;
@@ -13918,14 +13841,10 @@ function createModal(id, title, bodyHtml) {
       const addSheet = ov.querySelector(".add-modal-sheet");
       const addOverlay = ov.querySelector(".add-modal-overlay");
       if (addSheet) {
-        addSheet.style.transform = "translateY(105%)";
-        addSheet.style.opacity = "0";
-        addSheet.style.transition = "transform 420ms cubic-bezier(.16,1,.3,1), opacity 260ms ease";
         addSheet.style.willChange = "transform, opacity";
       }
       if (addOverlay) {
-        addOverlay.style.opacity = "0";
-        addOverlay.style.transition = "opacity 260ms ease";
+        addOverlay.style.willChange = "opacity";
       }
       ov.querySelector(".modal-close").addEventListener("click", () =>
         closeModal(id),
@@ -15094,17 +15013,40 @@ function applySimpleMode(on) {
         z-index: 9200 !important;
         transform: none !important;
         overflow: visible !important;
+        isolation: isolate !important;
       }
       body.simple-mode .fab,
       body.simple-mode #fabBtn,
-      body.simple-mode #fabBtnSimple,
       body.simple-mode .nav-fab-circle {
         width: 66px !important;
         height: 66px !important;
-        z-index: 9400 !important;
+        z-index: 32000 !important;
         overflow: visible !important;
-        position: relative !important;
+        flex: 0 0 66px !important;
+        min-width: 66px !important;
+        min-height: 66px !important;
       }
+      body.simple-mode #fabBtnSimple {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        pointer-events: auto !important;
+        clip-path: none !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        border-radius: 50% !important;
+      }
+      body.simple-mode #simpleNav .nav-fab,
+      body.simple-mode #simpleNav .fab-wrap {
+        overflow: visible !important;
+        z-index: 31990 !important;
+      }
+      body.simple-mode #simpleNav { padding-top: 10px !important; }
       body.simple-mode .fab-icon { font-size: 30px !important; }
       body.simple-mode .nav-label { font-size: 11px !important; }
       body.simple-mode .op-category { font-size: 17px !important; }
