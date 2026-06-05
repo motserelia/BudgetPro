@@ -101,7 +101,9 @@ let deferredUiStarted = false;
 // КАТЕГОРИИ
 // ============================================================
 window.categories = {
-  კომუნალურები: { subcats: ["შუქი", "წყალი", "გაზი", "ინტერნეტი", "დასუფთავების მოსაკრებელი"] },
+  კომუნალურები: {
+    subcats: ["შუქი", "წყალი", "გაზი", "ინტერნეტი", "დასუფთავების მოსაკრებელი"],
+  },
   პროდუქტები: {
     subcats: [
       "პური",
@@ -120,7 +122,14 @@ window.categories = {
     subcats: ["ლომბარდი"],
   },
   ტრანსპორტი: {
-    subcats: ["მეტრო", "ავტობუსი", "სამარშრუტო მიკროავტობუსი", "ტრამვაი", "ბენზინი", "თვითმფრინავი"],
+    subcats: [
+      "მეტრო",
+      "ავტობუსი",
+      "სამარშრუტო მიკროავტობუსი",
+      "ტრამვაი",
+      "ბენზინი",
+      "თვითმფრინავი",
+    ],
   },
   "მოულოდნელი ხარჯები": { subcats: [] },
 };
@@ -178,7 +187,9 @@ function migrateLegacyCategoryNames(source) {
   return Object.entries(source).reduce((next, [name, value]) => {
     const migratedName = LEGACY_CATEGORY_NAME_MAP[name] || name;
     const subcats = Array.isArray(value?.subcats)
-      ? value.subcats.map((subcat) => LEGACY_SUBCATEGORY_NAME_MAP[subcat] || subcat)
+      ? value.subcats.map(
+          (subcat) => LEGACY_SUBCATEGORY_NAME_MAP[subcat] || subcat,
+        )
       : [];
     next[migratedName] = { ...value, subcats };
     return next;
@@ -462,7 +473,8 @@ const translations = {
     simpleModeOff: "Простой режим выкл",
     versionFooter: "БюджетPRO v2.3 · Офлайн 📴",
     biometryTitle: "🫆 Биометрия",
-    biometryDesc: "Отпечаток пальца или распознавание лица, если телефон это поддерживает",
+    biometryDesc:
+      "Отпечаток пальца или распознавание лица, если телефон это поддерживает",
     biometryToggleLabel: "Вход по лицу или отпечатку",
     biometrySupported: "✅ Биометрия доступна на этом устройстве",
     biometryNotSupported: "❌ Биометрия недоступна на этом устройстве",
@@ -2398,16 +2410,33 @@ function hasActiveRecurringReminderIntervals() {
   return Object.values(reminderIntervals || {}).some((v) => !!v);
 }
 
-function syncRecurringReminderStateFromNamedReminder(name, deliveryMode, soundChoice) {
+function syncRecurringReminderStateFromNamedReminder(
+  name,
+  deliveryMode,
+  soundChoice,
+) {
   if (!hasActiveRecurringReminderIntervals()) return;
   localStorage.setItem("customRecurringReminderText", (name || "").trim());
-  localStorage.setItem("customRecurringReminderDeliveryMode", deliveryMode || "sound_vibration");
+  localStorage.setItem(
+    "customRecurringReminderDeliveryMode",
+    deliveryMode || "sound_vibration",
+  );
   localStorage.setItem("customRecurringReminderSoundChoice", soundChoice || "");
 }
 
 function clearRecurringReminderState() {
   const knownIntervals = [
-    "1min", "5min", "10min", "15min", "30min", "1h", "2h", "5h", "daily", "every3days", "weekly",
+    "1min",
+    "5min",
+    "10min",
+    "15min",
+    "30min",
+    "1h",
+    "2h",
+    "5h",
+    "daily",
+    "every3days",
+    "weekly",
   ];
   reminderIntervals = {};
   localStorage.setItem("reminderIntervals", JSON.stringify(reminderIntervals));
@@ -5661,7 +5690,11 @@ function cleanMoneyValue(value) {
   return Math.round(n * 100) / 100;
 }
 function parseMoneyInput(value) {
-  return Number(String(value || "").replace(",", ".").replace(/\s+/g, ""));
+  return Number(
+    String(value || "")
+      .replace(",", ".")
+      .replace(/\s+/g, ""),
+  );
 }
 function isInitialBalanceTx(tx) {
   return (
@@ -5684,7 +5717,9 @@ function normalizeFinancialState() {
     if (amountRub <= 0) continue;
     const next = {
       ...tx,
-      id: tx.id || `${tx.date || today()}_${tx.type || "expense"}_${amountRub}_${clean.length}`,
+      id:
+        tx.id ||
+        `${tx.date || today()}_${tx.type || "expense"}_${amountRub}_${clean.length}`,
       type: tx.type === "income" ? "income" : "expense",
       amountRub,
       date: tx.date || today(),
@@ -6069,19 +6104,59 @@ async function recoverMissingDataInBackground() {
     try {
       const backup = await jsonBinLoadBackup();
       if (backup && backup.transactions && backup.transactions.length > 0) {
-        transactions = backup.transactions;
-        startBalanceRub = backup.startBalanceRub ?? startBalanceRub;
-        notebookPages = backup.notebookPages || [];
-        categories = backup.categories || categories;
-        incomeCategories = backup.incomeCategories || incomeCategories;
-        calcHistory = backup.calcHistory || [];
-        convHistory = backup.convHistory || [];
-        userTemplates = backup.userTemplates || [];
-        frequentStats = backup.frequentStats || {};
-        categoryCustomizations = backup.categoryCustomizations || {};
-        categoryBudgets = backup.categoryBudgets || {};
-        recurringOps = backup.recurringOps || [];
-        saveProfileData();
+        // ── Новый формат (full_backup_v2): восстанавливаем все профили ──
+        if (
+          backup.type === "full_backup_v2" &&
+          Array.isArray(backup.profiles) &&
+          backup.profiles.length > 0
+        ) {
+          // 1. Восстанавливаем список профилей и глобальные настройки
+          profiles = backup.profiles;
+          activeProfileId = backup.activeProfileId || "default";
+          if (backup.colorTheme) colorTheme = backup.colorTheme;
+          if (backup.displayCurrency) displayCurrency = backup.displayCurrency;
+          if (backup.exchangeRates)
+            exchangeRates = { ...exchangeRates, ...backup.exchangeRates };
+
+          // 2. Восстанавливаем данные каждого профиля в LocalStorage
+          if (
+            backup.allProfilesData &&
+            typeof backup.allProfilesData === "object"
+          ) {
+            Object.entries(backup.allProfilesData).forEach(([pid, data]) => {
+              try {
+                localStorage.setItem(
+                  "budget_profile_" + pid,
+                  JSON.stringify(data),
+                );
+              } catch (e) {
+                console.warn("Failed to restore profile data for", pid, e);
+              }
+            });
+          }
+
+          // 3. Сохраняем глобальные данные
+          saveGlobal();
+
+          // 4. Загружаем данные активного профиля в память
+          loadProfileData(activeProfileId);
+        } else {
+          // ── Старый формат (full_backup): восстанавливаем только активный профиль ──
+          transactions = backup.transactions;
+          startBalanceRub = backup.startBalanceRub ?? startBalanceRub;
+          notebookPages = backup.notebookPages || [];
+          categories = backup.categories || categories;
+          incomeCategories = backup.incomeCategories || incomeCategories;
+          calcHistory = backup.calcHistory || [];
+          convHistory = backup.convHistory || [];
+          userTemplates = backup.userTemplates || [];
+          frequentStats = backup.frequentStats || {};
+          categoryCustomizations = backup.categoryCustomizations || {};
+          categoryBudgets = backup.categoryBudgets || {};
+          recurringOps = backup.recurringOps || [];
+          saveProfileData();
+        }
+
         showToast(t("restoredFromCloud"), "success");
         restored = true;
       }
@@ -6148,9 +6223,46 @@ function saveAll() {
   saveGlobal();
   saveAllToIndexedDB().catch(() => {});
 
-  // Автосохранение в JSONBin
+  // Автосохранение в JSONBin — полный бэкап всех профилей
+  // Собираем данные каждого профиля из LocalStorage
+  const allProfilesData = {};
+  profiles.forEach((p) => {
+    const key = "budget_profile_" + p.id;
+    const raw = localStorage.getItem(key);
+    if (raw) {
+      try {
+        allProfilesData[p.id] = JSON.parse(raw);
+      } catch (e) {}
+    }
+  });
+  // Для активного профиля берём актуальные данные из памяти (они могут быть новее)
+  allProfilesData[activeProfileId] = {
+    transactions,
+    startBalanceRub,
+    notebookPages,
+    categories,
+    incomeCategories,
+    calcHistory,
+    convHistory,
+    userTemplates,
+    frequentStats,
+    categoryCustomizations,
+    categoryBudgets,
+    recurringOps,
+    supportMessages,
+  };
+
   const backup = {
-    type: "full_backup",
+    type: "full_backup_v2",
+    // Глобальные данные
+    profiles: profiles,
+    activeProfileId: activeProfileId,
+    colorTheme: colorTheme,
+    displayCurrency: displayCurrency,
+    exchangeRates: exchangeRates,
+    // Данные всех профилей
+    allProfilesData: allProfilesData,
+    // Данные активного профиля (обратная совместимость со старым форматом)
     transactions: transactions,
     startBalanceRub: startBalanceRub,
     notebookPages: notebookPages,
@@ -6361,7 +6473,9 @@ function showPinScreen(onSuccess) {
       }, 1600);
     }
   };
-  document.getElementById("pinBiometryBtn")?.addEventListener("click", () => tryBiometryLogin(true));
+  document
+    .getElementById("pinBiometryBtn")
+    ?.addEventListener("click", () => tryBiometryLogin(true));
   if (canUseBiometry) setTimeout(() => tryBiometryLogin(false), 350);
 }
 
@@ -6414,7 +6528,9 @@ function updateHeader() {
     const month = now.toLocaleDateString(localeMap[currentLang] || "en-US", {
       month: "short",
     });
-    el.textContent = profileName ? `${profileName} · ${day} ${month}` : `${day} ${month}`;
+    el.textContent = profileName
+      ? `${profileName} · ${day} ${month}`
+      : `${day} ${month}`;
   }
 
   const logo = document.getElementById("appLogoBtn");
@@ -7422,7 +7538,10 @@ function addSwipeToDelete(container) {
           const pull = Math.min(rawPull, 142);
           const revealPct = Math.min(pull / 110, 1);
           const elasticStart = 30;
-          const elasticPct = Math.max(0, Math.min((pull - elasticStart) / 92, 1));
+          const elasticPct = Math.max(
+            0,
+            Math.min((pull - elasticStart) / 92, 1),
+          );
           const easedElastic = elasticPct * elasticPct * (3 - 2 * elasticPct);
           const stretch = 1 + easedElastic * 0.14;
           const squash = 1 - easedElastic * 0.05;
@@ -7430,10 +7549,22 @@ function addSwipeToDelete(container) {
           aC.style.transition = "none";
           if (aW) {
             aW.classList.add("swiping");
-            aW.style.setProperty("--swipeReveal", String(0.12 + revealPct * 0.88));
-            aW.style.setProperty("--swipeScale", String(0.62 + revealPct * 0.38));
-            aW.style.setProperty("--swipeIconScale", String(0.78 + easedElastic * 0.34));
-            aW.style.setProperty("--swipeIconRot", `${-10 + easedElastic * 16}deg`);
+            aW.style.setProperty(
+              "--swipeReveal",
+              String(0.12 + revealPct * 0.88),
+            );
+            aW.style.setProperty(
+              "--swipeScale",
+              String(0.62 + revealPct * 0.38),
+            );
+            aW.style.setProperty(
+              "--swipeIconScale",
+              String(0.78 + easedElastic * 0.34),
+            );
+            aW.style.setProperty(
+              "--swipeIconRot",
+              `${-10 + easedElastic * 16}deg`,
+            );
           }
         }
       },
@@ -7479,7 +7610,8 @@ function addSwipeToDelete(container) {
           clearReveal();
           if (aC) {
             aC.style.animation = "";
-            aC.style.transition = "transform .34s cubic-bezier(.2,.9,.22,1), opacity .2s ease";
+            aC.style.transition =
+              "transform .34s cubic-bezier(.2,.9,.22,1), opacity .2s ease";
             aC.style.transform = "translate3d(0,0,0) scaleX(1) scaleY(1)";
             setTimeout(() => {
               if (aC) {
@@ -7619,11 +7751,21 @@ function openDatePicker(initialDate, onSelect, options = {}) {
     ? Array.isArray(initialDate)
       ? [...new Set(initialDate.filter(Boolean))]
       : typeof initialDate === "string" && initialDate
-        ? [...new Set(initialDate.split(",").map((d) => d.trim()).filter(Boolean))]
+        ? [
+            ...new Set(
+              initialDate
+                .split(",")
+                .map((d) => d.trim())
+                .filter(Boolean),
+            ),
+          ]
         : []
     : [];
   // Если дата не передана, всегда берём СЕГОДНЯШНЮЮ локальную дату
-  if (!initialDate || (multiple && Array.isArray(initialDate) && initialDate.length === 0)) {
+  if (
+    !initialDate ||
+    (multiple && Array.isArray(initialDate) && initialDate.length === 0)
+  ) {
     initialDate = fallbackDate;
   }
   const anchorDate = multiple
@@ -7665,15 +7807,19 @@ function openDatePicker(initialDate, onSelect, options = {}) {
     t("pickDate"),
     `<div class="datepicker-content"><div id="dpCal">${rc()}</div><div class="datepicker-actions">${
       multiple
-        ? `<button class="btn-secondary" id="dpClear">${{
-            ru: "Снять все даты",
-            en: "Clear all dates",
-            ka: "ყველა თარიღის მოხსნა",
-          }[currentLang]}</button><button class="btn-primary" id="dpApply">${{
-            ru: "Применить выбранные даты",
-            en: "Apply selected dates",
-            ka: "არჩეული თარიღების დადასტურება",
-          }[currentLang]}</button>`
+        ? `<button class="btn-secondary" id="dpClear">${
+            {
+              ru: "Снять все даты",
+              en: "Clear all dates",
+              ka: "ყველა თარიღის მოხსნა",
+            }[currentLang]
+          }</button><button class="btn-primary" id="dpApply">${
+            {
+              ru: "Применить выбранные даты",
+              en: "Apply selected dates",
+              ka: "არჩეული თარიღების დადასტურება",
+            }[currentLang]
+          }</button>`
         : ""
     }<button class="btn-secondary" id="dpCancel">${t("cancel")}</button></div></div>`,
   );
@@ -10047,9 +10193,12 @@ async function isBiometryAvailable() {
     const plugin = getNativeBiometryPlugin();
     if (plugin?.isAvailable) {
       const result = await plugin.isAvailable();
-      if (result?.isAvailable || result?.available || result?.biometryType) return true;
+      if (result?.isAvailable || result?.available || result?.biometryType)
+        return true;
     }
-    if (window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable) {
+    if (
+      window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable
+    ) {
       return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     }
   } catch (e) {
@@ -10550,17 +10699,19 @@ function renderSettings() {
   <div class="set-section-title">${t("reminders")}</div>
   <div class="set-card" style="padding:16px">
     <div style="border-radius:12px;padding:12px 14px;margin-bottom:14px;background:${
-      (isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") ||
-      (typeof Notification !== "undefined" && Notification.permission === "granted")
+      (isNativeReminderRuntime() &&
+        localStorage.getItem("nativeReminderPermission") === "granted") ||
+      (typeof Notification !== "undefined" &&
+        Notification.permission === "granted")
         ? "var(--income-pale)"
         : "var(--cream-dark)"
     };
       border:1.5px solid ${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? "var(--income-color)" : "var(--cream-border)"};">
       <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:22px;">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? "✅" : ((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied")) ? "🚫" : "🔔"}</span>
-        <span style="font-size:14px;font-weight:700;color:var(--text);">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? t("notifGranted") : ((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied")) ? t("notifDenied") : t("notifDefault")}</span>
-        ${((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") !== "granted") || (typeof Notification !== "undefined" && Notification.permission !== "granted")) ? `<button id="requestNotifBtn" class="btn-primary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${t("notifRequest")}</button>` : ""}
-        ${((isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted")) ? `<button id="notifDisableBtn" class="btn-secondary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${{ ru: "Отключить уведомления", en: "Disable notifications", ka: "შეტყობინებების გამორთვა" }[L]}</button>` : ""}
+        <span style="font-size:22px;">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? "✅" : (isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied") ? "🚫" : "🔔"}</span>
+        <span style="font-size:14px;font-weight:700;color:var(--text);">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? t("notifGranted") : (isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied") ? t("notifDenied") : t("notifDefault")}</span>
+        ${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") !== "granted") || (typeof Notification !== "undefined" && Notification.permission !== "granted") ? `<button id="requestNotifBtn" class="btn-primary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${t("notifRequest")}</button>` : ""}
+        ${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? `<button id="notifDisableBtn" class="btn-secondary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${{ ru: "Отключить уведомления", en: "Disable notifications", ka: "შეტყობინებების გამორთვა" }[L]}</button>` : ""}
       </div>
     </div>
     <div id="namedRemindersList">
@@ -10612,18 +10763,37 @@ function renderSettings() {
         <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin:0 0 8px 0;">${{ ru: "Это поле открывает список мелодий для уведомления. Здесь выбирается, какой звук будет использоваться.", en: "This field opens the list of melodies for the notification. This is where you choose which sound will be used.", ka: "ეს ველი ხსნის შეტყობინების მელოდიების სიას. აქ ირჩევთ რომელი ხმა იქნება გამოყენებული." }[L]}</div>
         <div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap">
           <select id="reminderSoundChoice" class="modal-input" style="flex:1;min-height:60px;font-size:17px;font-weight:900;border-width:3px;box-shadow:0 8px 24px rgba(0,0,0,.08)">
-            <option value="">🔕 ${{
-              ru: "Без выбранной мелодии",
-              en: "No selected melody",
-              ka: "არჩეული მელოდიის გარეშე",
-            }[L]}</option>${Array.from({ length: 14 }, (_, i) => {
-            const icons = ["🎵","🎶","🔔","✨","⚡","🌊","💎","🔥","🌙","🚀","🪶","🐣","📟","🔋"];
-            return `<option value="sound_${i + 1}">${icons[i]} ${{
-              ru: `Звук ${i + 1}`,
-              en: `Sound ${i + 1}`,
-              ka: `ხმა ${i + 1}`,
-            }[L]}</option>`;
-          }).join("")}</select>
+            <option value="">🔕 ${
+              {
+                ru: "Без выбранной мелодии",
+                en: "No selected melody",
+                ka: "არჩეული მელოდიის გარეშე",
+              }[L]
+            }</option>${Array.from({ length: 14 }, (_, i) => {
+              const icons = [
+                "🎵",
+                "🎶",
+                "🔔",
+                "✨",
+                "⚡",
+                "🌊",
+                "💎",
+                "🔥",
+                "🌙",
+                "🚀",
+                "🪶",
+                "🐣",
+                "📟",
+                "🔋",
+              ];
+              return `<option value="sound_${i + 1}">${icons[i]} ${
+                {
+                  ru: `Звук ${i + 1}`,
+                  en: `Sound ${i + 1}`,
+                  ka: `ხმა ${i + 1}`,
+                }[L]
+              }</option>`;
+            }).join("")}</select>
           <button type="button" id="previewReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">▶️ ${{ ru: "Проба", en: "Preview", ka: "მოსმენა" }[L]}</button>
           <button type="button" id="stopReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">⏹ ${{ ru: "Стоп", en: "Stop", ka: "შეჩერება" }[L]}</button>
           <button type="button" id="resetReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">↺ ${{ ru: "Сброс", en: "Reset", ka: "გასუფთავება" }[L]}</button>
@@ -10642,12 +10812,26 @@ function renderSettings() {
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
           ${[
-            { min: 1, label: { ru: "Через 1 минуту", en: "In 1 minute", ka: "1 წუთში" } },
-            { min: 5, label: { ru: "Через 5 минут", en: "In 5 minutes", ka: "5 წუთში" } },
-            { min: 10, label: { ru: "Через 10 минут", en: "In 10 minutes", ka: "10 წუთში" } },
+            {
+              min: 1,
+              label: { ru: "Через 1 минуту", en: "In 1 minute", ka: "1 წუთში" },
+            },
+            {
+              min: 5,
+              label: { ru: "Через 5 минут", en: "In 5 minutes", ka: "5 წუთში" },
+            },
+            {
+              min: 10,
+              label: {
+                ru: "Через 10 минут",
+                en: "In 10 minutes",
+                ka: "10 წუთში",
+              },
+            },
           ]
             .map(
-              (opt) => `<button type="button" class="reminder-quick-time-btn" data-min="${opt.min}" style="padding:8px 10px;border:none;border-radius:999px;background:var(--primary-pale);color:var(--primary);font-size:12px;font-weight:800;cursor:pointer;">⏱ ${opt.label[L] || opt.label.ru}</button>`,
+              (opt) =>
+                `<button type="button" class="reminder-quick-time-btn" data-min="${opt.min}" style="padding:8px 10px;border:none;border-radius:999px;background:var(--primary-pale);color:var(--primary);font-size:12px;font-weight:800;cursor:pointer;">⏱ ${opt.label[L] || opt.label.ru}</button>`,
             )
             .join("")}
       </div></div>
@@ -10666,23 +10850,43 @@ function renderSettings() {
         ${[
           {
             val: "1min",
-            label: { ru: "Каждую минуту", en: "Every minute", ka: "ყოველ წუთში" },
+            label: {
+              ru: "Каждую минуту",
+              en: "Every minute",
+              ka: "ყოველ წუთში",
+            },
           },
           {
             val: "5min",
-            label: { ru: "Каждые 5 минут", en: "Every 5 minutes", ka: "ყოველ 5 წუთში" },
+            label: {
+              ru: "Каждые 5 минут",
+              en: "Every 5 minutes",
+              ka: "ყოველ 5 წუთში",
+            },
           },
           {
             val: "10min",
-            label: { ru: "Каждые 10 минут", en: "Every 10 minutes", ka: "ყოველ 10 წუთში" },
+            label: {
+              ru: "Каждые 10 минут",
+              en: "Every 10 minutes",
+              ka: "ყოველ 10 წუთში",
+            },
           },
           {
             val: "15min",
-            label: { ru: "Каждые 15 минут", en: "Every 15 minutes", ka: "ყოველ 15 წუთში" },
+            label: {
+              ru: "Каждые 15 минут",
+              en: "Every 15 minutes",
+              ka: "ყოველ 15 წუთში",
+            },
           },
           {
             val: "30min",
-            label: { ru: "Каждые 30 минут", en: "Every 30 minutes", ka: "ყოველ 30 წუთში" },
+            label: {
+              ru: "Каждые 30 минут",
+              en: "Every 30 minutes",
+              ka: "ყოველ 30 წუთში",
+            },
           },
           {
             val: "1h",
@@ -10690,11 +10894,19 @@ function renderSettings() {
           },
           {
             val: "2h",
-            label: { ru: "Каждые 2 часа", en: "Every 2 hours", ka: "ყოველ 2 საათში" },
+            label: {
+              ru: "Каждые 2 часа",
+              en: "Every 2 hours",
+              ka: "ყოველ 2 საათში",
+            },
           },
           {
             val: "5h",
-            label: { ru: "Каждые 5 часов", en: "Every 5 hours", ka: "ყოველ 5 საათში" },
+            label: {
+              ru: "Каждые 5 часов",
+              en: "Every 5 hours",
+              ka: "ყოველ 5 საათში",
+            },
           },
           {
             val: "daily",
@@ -10702,11 +10914,19 @@ function renderSettings() {
           },
           {
             val: "every3days",
-            label: { ru: "Каждые 3 дня", en: "Every 3 days", ka: "ყოველ 3 დღეში" },
+            label: {
+              ru: "Каждые 3 дня",
+              en: "Every 3 days",
+              ka: "ყოველ 3 დღეში",
+            },
           },
           {
             val: "weekly",
-            label: { ru: "Каждую неделю", en: "Every week", ka: "ყოველ კვირაში" },
+            label: {
+              ru: "Каждую неделю",
+              en: "Every week",
+              ka: "ყოველ კვირაში",
+            },
           },
         ]
           .map(
@@ -10730,7 +10950,8 @@ function renderSettings() {
         <div style="display:flex;flex-wrap:wrap;gap:8px;">
           ${getReminderWeekdayOptions(L)
             .map(
-              (day) => `<button type="button" class="reminder-weekday-btn" data-day="${day.value}" aria-pressed="${reminderWeekdays.includes(day.value) ? "true" : "false"}" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1.5px solid ${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-border)"};background:${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-dark)"};color:${reminderWeekdays.includes(day.value) ? "#ffffff" : "var(--text)"};font-size:13px;font-weight:800;cursor:pointer;box-shadow:${reminderWeekdays.includes(day.value) ? "0 8px 20px rgba(37,99,235,0.28)" : "none"};">${reminderWeekdays.includes(day.value) ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.22);color:#ffffff;font-size:12px;font-weight:900;flex-shrink:0;">✓</span>` : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)"};color:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.45)"};font-size:12px;font-weight:900;flex-shrink:0;">•</span>`}<span>${day.full}</span></button>`,
+              (day) =>
+                `<button type="button" class="reminder-weekday-btn" data-day="${day.value}" aria-pressed="${reminderWeekdays.includes(day.value) ? "true" : "false"}" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1.5px solid ${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-border)"};background:${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-dark)"};color:${reminderWeekdays.includes(day.value) ? "#ffffff" : "var(--text)"};font-size:13px;font-weight:800;cursor:pointer;box-shadow:${reminderWeekdays.includes(day.value) ? "0 8px 20px rgba(37,99,235,0.28)" : "none"};">${reminderWeekdays.includes(day.value) ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.22);color:#ffffff;font-size:12px;font-weight:900;flex-shrink:0;">✓</span>` : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)"};color:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.45)"};font-size:12px;font-weight:900;flex-shrink:0;">•</span>`}<span>${day.full}</span></button>`,
             )
             .join("")}
         </div>
@@ -11253,13 +11474,25 @@ function renderSettings() {
   const reminderDateBtn = document.getElementById("reminderDateBtn");
   const reminderTimeBtn = document.getElementById("reminderTimeBtn");
   const nativeTimeInput = document.getElementById("nativeTimeInput");
-  const previewReminderSoundBtn = document.getElementById("previewReminderSoundBtn");
+  const previewReminderSoundBtn = document.getElementById(
+    "previewReminderSoundBtn",
+  );
   const stopReminderSoundBtn = document.getElementById("stopReminderSoundBtn");
-  const resetReminderSoundBtn = document.getElementById("resetReminderSoundBtn");
-  const reminderDeliveryModeSelect = document.getElementById("reminderDeliveryMode");
-  const reminderSoundChoiceSelect = document.getElementById("reminderSoundChoice");
-  const selectedReminderSoundText = document.getElementById("selectedReminderSoundText");
-  const selectedReminderModeText = document.getElementById("selectedReminderModeText");
+  const resetReminderSoundBtn = document.getElementById(
+    "resetReminderSoundBtn",
+  );
+  const reminderDeliveryModeSelect = document.getElementById(
+    "reminderDeliveryMode",
+  );
+  const reminderSoundChoiceSelect = document.getElementById(
+    "reminderSoundChoice",
+  );
+  const selectedReminderSoundText = document.getElementById(
+    "selectedReminderSoundText",
+  );
+  const selectedReminderModeText = document.getElementById(
+    "selectedReminderModeText",
+  );
   const reminderDateText = document.getElementById("reminderDateText");
   const reminderTimeText = document.getElementById("reminderTimeText");
   const newReminderDatetime = document.getElementById("newReminderDatetime");
@@ -11283,7 +11516,10 @@ function renderSettings() {
   const updateReminderSoundSelectionCard = () => {
     if (selectedReminderSoundText) {
       selectedReminderSoundText.textContent = reminderSoundChoiceSelect?.value
-        ? getReminderSoundChoiceLabel(reminderSoundChoiceSelect.value, currentLang)
+        ? getReminderSoundChoiceLabel(
+            reminderSoundChoiceSelect.value,
+            currentLang,
+          )
         : {
             ru: "🔕 Мелодия не выбрана",
             en: "🔕 No melody selected",
@@ -11303,7 +11539,12 @@ function renderSettings() {
     const soundChoice = reminderSoundChoiceSelect?.value || "";
     if (soundChoice && mode !== "silent" && mode !== "vibration_only") {
       try {
-        const audio = new Audio(`/sounds/reminder_${soundChoice}.mp3`.replace("sound_sound_", "sound_"));
+        const audio = new Audio(
+          `/sounds/reminder_${soundChoice}.mp3`.replace(
+            "sound_sound_",
+            "sound_",
+          ),
+        );
         audio.volume = 1;
         audio.currentTime = 0;
         previewReminderAudio = audio;
@@ -11382,11 +11623,13 @@ function renderSettings() {
       if (newReminderDatetime) newReminderDatetime.value = "";
       return;
     }
-    if (newReminderDatetime) newReminderDatetime.value = `${dateVal}T${timeVal}`;
+    if (newReminderDatetime)
+      newReminderDatetime.value = `${dateVal}T${timeVal}`;
   };
   const formatReminderTimeLabel = (timeVal) => {
     if (!timeVal) return t("chooseTimeBtn");
-    if ((localStorage.getItem("notificationClockFormat") || "24") !== "12") return timeVal;
+    if ((localStorage.getItem("notificationClockFormat") || "24") !== "12")
+      return timeVal;
     const [hours, minutes] = timeVal.split(":").map(Number);
     if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return timeVal;
     const date = new Date();
@@ -11400,34 +11643,42 @@ function renderSettings() {
     if (reminderDateText) {
       const selectedDates = getSelectedReminderDates();
       if (selectedDates.length > 1) {
-        reminderDateText.textContent =
-          {
-            ru: `Выбрано дат: ${selectedDates.length}`,
-            en: `Selected dates: ${selectedDates.length}`,
-            ka: `არჩეული თარიღები: ${selectedDates.length}`,
-          }[currentLang];
+        reminderDateText.textContent = {
+          ru: `Выбрано дат: ${selectedDates.length}`,
+          en: `Selected dates: ${selectedDates.length}`,
+          ka: `არჩეული თარიღები: ${selectedDates.length}`,
+        }[currentLang];
       } else if (selectedDates.length === 1) {
         reminderDateText.textContent = new Date(
           `${selectedDates[0]}T00:00:00`,
-        ).toLocaleDateString(L === "en" ? "en-US" : L === "ka" ? "ka-GE" : "ru-RU", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
+        ).toLocaleDateString(
+          L === "en" ? "en-US" : L === "ka" ? "ka-GE" : "ru-RU",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          },
+        );
       } else {
         reminderDateText.textContent = t("chooseDate");
       }
     }
     if (reminderTimeText) {
-      reminderTimeText.textContent = formatReminderTimeLabel(nativeTimeInput?.value || "");
+      reminderTimeText.textContent = formatReminderTimeLabel(
+        nativeTimeInput?.value || "",
+      );
     }
     updateReminderDateTimeValue();
   };
   reminderDateBtn?.addEventListener("click", () => {
-    openDatePicker(getSelectedReminderDates(), (dates) => {
-      setSelectedReminderDates(Array.isArray(dates) ? dates : [dates]);
-      updateReminderDateTimeLabels();
-    }, { multiple: true });
+    openDatePicker(
+      getSelectedReminderDates(),
+      (dates) => {
+        setSelectedReminderDates(Array.isArray(dates) ? dates : [dates]);
+        updateReminderDateTimeLabels();
+      },
+      { multiple: true },
+    );
   });
   reminderTimeBtn?.addEventListener("click", () => {
     openNotificationClockModal();
@@ -11460,8 +11711,14 @@ function renderSettings() {
       1200,
     );
   });
-  reminderSoundChoiceSelect?.addEventListener("change", updateReminderSoundSelectionCard);
-  reminderDeliveryModeSelect?.addEventListener("change", updateReminderSoundSelectionCard);
+  reminderSoundChoiceSelect?.addEventListener(
+    "change",
+    updateReminderSoundSelectionCard,
+  );
+  reminderDeliveryModeSelect?.addEventListener(
+    "change",
+    updateReminderSoundSelectionCard,
+  );
   updateReminderSoundSelectionCard();
   document.querySelectorAll(".reminder-quick-time-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -11485,7 +11742,9 @@ function renderSettings() {
       const mark = btn.querySelector("span");
       if (mark) {
         mark.textContent = active ? "✓" : "•";
-        mark.style.background = active ? "rgba(255,255,255,0.22)" : "var(--cream)";
+        mark.style.background = active
+          ? "rgba(255,255,255,0.22)"
+          : "var(--cream)";
         mark.style.color = active ? "#ffffff" : "var(--text-muted)";
       }
     });
@@ -11500,20 +11759,33 @@ function renderSettings() {
             const order = [1, 2, 3, 4, 5, 6, 0];
             return order.indexOf(a) - order.indexOf(b);
           });
-      localStorage.setItem("reminderWeekdays", JSON.stringify(reminderWeekdays));
+      localStorage.setItem(
+        "reminderWeekdays",
+        JSON.stringify(reminderWeekdays),
+      );
       updateReminderWeekdayButtons();
     });
   });
-  document.getElementById("selectAllReminderWeekdaysBtn")?.addEventListener("click", () => {
-    reminderWeekdays = [1, 2, 3, 4, 5, 6, 0];
-    localStorage.setItem("reminderWeekdays", JSON.stringify(reminderWeekdays));
-    updateReminderWeekdayButtons();
-  });
-  document.getElementById("resetReminderWeekdaysBtn")?.addEventListener("click", () => {
-    reminderWeekdays = [];
-    localStorage.setItem("reminderWeekdays", JSON.stringify(reminderWeekdays));
-    updateReminderWeekdayButtons();
-  });
+  document
+    .getElementById("selectAllReminderWeekdaysBtn")
+    ?.addEventListener("click", () => {
+      reminderWeekdays = [1, 2, 3, 4, 5, 6, 0];
+      localStorage.setItem(
+        "reminderWeekdays",
+        JSON.stringify(reminderWeekdays),
+      );
+      updateReminderWeekdayButtons();
+    });
+  document
+    .getElementById("resetReminderWeekdaysBtn")
+    ?.addEventListener("click", () => {
+      reminderWeekdays = [];
+      localStorage.setItem(
+        "reminderWeekdays",
+        JSON.stringify(reminderWeekdays),
+      );
+      updateReminderWeekdayButtons();
+    });
   if (!getSelectedReminderDates().length && !nativeTimeInput?.value) {
     const initial = new Date();
     initial.setSeconds(0, 0);
@@ -11543,81 +11815,108 @@ function renderSettings() {
   document
     .getElementById("notifEnableBtn")
     ?.addEventListener("click", handleNotifBtnClick);
-  document.getElementById("notifDisableBtn")?.addEventListener("click", async () => {
-    remindersEnabled = false;
-    saveReminderSettings();
-    localStorage.setItem("nativeReminderPermission", "denied");
-    if (isNativeReminderRuntime()) {
-      reminderIntervals = {};
-      localStorage.setItem("reminderIntervals", JSON.stringify(reminderIntervals));
-      await syncNativeRecurringReminderNotifications();
-    }
-    renderSettings();
-    showToast(
-      {
-        ru: "Напоминания отключены внутри приложения. При необходимости отключите системное разрешение уведомлений в настройках Android.",
-        en: "Reminders have been disabled inside the app. If needed, disable the system notification permission in Android settings as well.",
-        ka: "შეხსენებები აპში გამოირთო. საჭიროების შემთხვევაში Android-ის პარამეტრებში სისტემური შეტყობინებების ნებართვაც გამორთეთ.",
-      }[currentLang],
-    );
-  });
+  document
+    .getElementById("notifDisableBtn")
+    ?.addEventListener("click", async () => {
+      remindersEnabled = false;
+      saveReminderSettings();
+      localStorage.setItem("nativeReminderPermission", "denied");
+      if (isNativeReminderRuntime()) {
+        reminderIntervals = {};
+        localStorage.setItem(
+          "reminderIntervals",
+          JSON.stringify(reminderIntervals),
+        );
+        await syncNativeRecurringReminderNotifications();
+      }
+      renderSettings();
+      showToast(
+        {
+          ru: "Напоминания отключены внутри приложения. При необходимости отключите системное разрешение уведомлений в настройках Android.",
+          en: "Reminders have been disabled inside the app. If needed, disable the system notification permission in Android settings as well.",
+          ka: "შეხსენებები აპში გამოირთო. საჭიროების შემთხვევაში Android-ის პარამეტრებში სისტემური შეტყობინებების ნებართვაც გამორთეთ.",
+        }[currentLang],
+      );
+    });
   const updateReminderDebugText = async () => {
     const out = [];
     try {
       const named = JSON.parse(localStorage.getItem("namedReminders") || "[]");
-      const intervals = JSON.parse(localStorage.getItem("reminderIntervals") || "{}");
-      const tracked = JSON.parse(localStorage.getItem("nativeExactNamedIds") || "[]");
+      const intervals = JSON.parse(
+        localStorage.getItem("reminderIntervals") || "{}",
+      );
+      const tracked = JSON.parse(
+        localStorage.getItem("nativeExactNamedIds") || "[]",
+      );
       out.push(`namedReminders: ${named.length}`);
       out.push(`reminderIntervals: ${JSON.stringify(intervals)}`);
       out.push(`nativeExactNamedIds: ${JSON.stringify(tracked)}`);
-      out.push(`customRecurringReminderText: ${JSON.stringify(localStorage.getItem("customRecurringReminderText") || "")}`);
-      out.push(`customRecurringReminderDeliveryMode: ${JSON.stringify(localStorage.getItem("customRecurringReminderDeliveryMode") || "")}`);
-      out.push(`customRecurringReminderSoundChoice: ${JSON.stringify(localStorage.getItem("customRecurringReminderSoundChoice") || "")}`);
+      out.push(
+        `customRecurringReminderText: ${JSON.stringify(localStorage.getItem("customRecurringReminderText") || "")}`,
+      );
+      out.push(
+        `customRecurringReminderDeliveryMode: ${JSON.stringify(localStorage.getItem("customRecurringReminderDeliveryMode") || "")}`,
+      );
+      out.push(
+        `customRecurringReminderSoundChoice: ${JSON.stringify(localStorage.getItem("customRecurringReminderSoundChoice") || "")}`,
+      );
       const plugin = getLocalNotificationsPlugin();
       if (plugin?.getPending) {
         try {
           const pending = await plugin.getPending();
-          out.push(`pendingPluginNotifications: ${(pending.notifications || []).length}`);
-          out.push(`pendingPluginIds: ${JSON.stringify((pending.notifications || []).map((n) => n.id).slice(0, 40))}`);
+          out.push(
+            `pendingPluginNotifications: ${(pending.notifications || []).length}`,
+          );
+          out.push(
+            `pendingPluginIds: ${JSON.stringify((pending.notifications || []).map((n) => n.id).slice(0, 40))}`,
+          );
         } catch (e) {
-          out.push(`pendingPluginError: ${String(e && e.message || e)}`);
+          out.push(`pendingPluginError: ${String((e && e.message) || e)}`);
         }
       }
       if (plugin?.getDeliveredNotifications) {
         try {
           const delivered = await plugin.getDeliveredNotifications();
-          out.push(`deliveredPluginNotifications: ${(delivered.notifications || []).length}`);
-          out.push(`deliveredPluginIds: ${JSON.stringify((delivered.notifications || []).map((n) => n.id).slice(0, 40))}`);
+          out.push(
+            `deliveredPluginNotifications: ${(delivered.notifications || []).length}`,
+          );
+          out.push(
+            `deliveredPluginIds: ${JSON.stringify((delivered.notifications || []).map((n) => n.id).slice(0, 40))}`,
+          );
         } catch (e) {
-          out.push(`deliveredPluginError: ${String(e && e.message || e)}`);
+          out.push(`deliveredPluginError: ${String((e && e.message) || e)}`);
         }
       }
     } catch (e) {
-      out.push(`debugError: ${String(e && e.message || e)}`);
+      out.push(`debugError: ${String((e && e.message) || e)}`);
     }
     const el = document.getElementById("reminderDebugText");
     if (el) el.textContent = out.join("\n");
   };
-  document.getElementById("refreshReminderDebugBtn")?.addEventListener("click", updateReminderDebugText);
-  document.getElementById("hardClearReminderDebugBtn")?.addEventListener("click", async () => {
-    localStorage.setItem("namedReminders", "[]");
-    clearRecurringReminderState();
-    setTrackedNativeNamedReminderIds([]);
-    if (isNativeReminderRuntime()) {
-      await cleanupStaleNativeNamedReminderNotifications();
-      await syncNativeRecurringReminderNotifications();
-    }
-    await updateReminderDebugText();
-    renderSettings();
-    showToast(
-      {
-        ru: "Жёсткая очистка хвостов выполнена. Теперь посмотрите диагностический блок.",
-        en: "Hard cleanup completed. Now check the diagnostics block.",
-        ka: "მკაცრი გასუფთავება შესრულდა. ახლა შეამოწმეთ დიაგნოსტიკის ბლოკი.",
-      }[currentLang],
-      "success",
-    );
-  });
+  document
+    .getElementById("refreshReminderDebugBtn")
+    ?.addEventListener("click", updateReminderDebugText);
+  document
+    .getElementById("hardClearReminderDebugBtn")
+    ?.addEventListener("click", async () => {
+      localStorage.setItem("namedReminders", "[]");
+      clearRecurringReminderState();
+      setTrackedNativeNamedReminderIds([]);
+      if (isNativeReminderRuntime()) {
+        await cleanupStaleNativeNamedReminderNotifications();
+        await syncNativeRecurringReminderNotifications();
+      }
+      await updateReminderDebugText();
+      renderSettings();
+      showToast(
+        {
+          ru: "Жёсткая очистка хвостов выполнена. Теперь посмотрите диагностический блок.",
+          en: "Hard cleanup completed. Now check the diagnostics block.",
+          ka: "მკაცრი გასუფთავება შესრულდა. ახლა შეამოწმეთ დიაგნოსტიკის ბლოკი.",
+        }[currentLang],
+        "success",
+      );
+    });
   updateReminderDebugText();
 
   // ── Интервальные напоминания ──
@@ -11629,7 +11928,8 @@ function renderSettings() {
         "reminderIntervals",
         JSON.stringify(reminderIntervals),
       );
-      if (isNativeReminderRuntime()) await syncNativeRecurringReminderNotifications();
+      if (isNativeReminderRuntime())
+        await syncNativeRecurringReminderNotifications();
       showToast(
         {
           ru: "Параметры повторяющихся напоминаний сохранены.",
@@ -11723,277 +12023,329 @@ function renderSettings() {
       );
       document.body.appendChild(modal);
       openModal("editReminderModal");
-      document.getElementById("editReminderCancelBtn")?.addEventListener("click", () => closeModal("editReminderModal"));
-      document.getElementById("editReminderTimeBtn")?.addEventListener("click", () => {
-        const hiddenTime = document.getElementById("editReminderTimeInput");
-        const visibleTime = document.getElementById("editReminderTimeText");
-        openNotificationClockModal({
-          initialTime: hiddenTime?.value || timeValue,
-          onSet: (date) => {
-            const next = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-            if (hiddenTime) hiddenTime.value = next;
-            if (visibleTime) visibleTime.textContent = next;
-          },
-          onDelete: () => {
-            if (hiddenTime) hiddenTime.value = "";
-            if (visibleTime) visibleTime.textContent = t("chooseTimeBtn");
-          },
+      document
+        .getElementById("editReminderCancelBtn")
+        ?.addEventListener("click", () => closeModal("editReminderModal"));
+      document
+        .getElementById("editReminderTimeBtn")
+        ?.addEventListener("click", () => {
+          const hiddenTime = document.getElementById("editReminderTimeInput");
+          const visibleTime = document.getElementById("editReminderTimeText");
+          openNotificationClockModal({
+            initialTime: hiddenTime?.value || timeValue,
+            onSet: (date) => {
+              const next = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+              if (hiddenTime) hiddenTime.value = next;
+              if (visibleTime) visibleTime.textContent = next;
+            },
+            onDelete: () => {
+              if (hiddenTime) hiddenTime.value = "";
+              if (visibleTime) visibleTime.textContent = t("chooseTimeBtn");
+            },
+          });
         });
-      });
-      document.getElementById("editReminderSaveBtn")?.addEventListener("click", async () => {
-        const nextName = document.getElementById("editReminderNameInput")?.value.trim();
-        const nextDate = document.getElementById("editReminderDateInput")?.value || "";
-        const nextTime = document.getElementById("editReminderTimeInput")?.value || "";
-        const nextMode = document.getElementById("editReminderDeliveryModeInput")?.value || "sound_vibration";
-        const nextSound = document.getElementById("editReminderSoundChoiceInput")?.value || "";
-        if (!nextName || !nextDate || !nextTime) {
+      document
+        .getElementById("editReminderSaveBtn")
+        ?.addEventListener("click", async () => {
+          const nextName = document
+            .getElementById("editReminderNameInput")
+            ?.value.trim();
+          const nextDate =
+            document.getElementById("editReminderDateInput")?.value || "";
+          const nextTime =
+            document.getElementById("editReminderTimeInput")?.value || "";
+          const nextMode =
+            document.getElementById("editReminderDeliveryModeInput")?.value ||
+            "sound_vibration";
+          const nextSound =
+            document.getElementById("editReminderSoundChoiceInput")?.value ||
+            "";
+          if (!nextName || !nextDate || !nextTime) {
+            showToast(
+              {
+                ru: "Укажите текст, дату и время напоминания.",
+                en: "Please provide reminder text, date, and time.",
+                ka: "მიუთითეთ შეხსენების ტექსტი, თარიღი და დრო.",
+              }[currentLang],
+              "error",
+            );
+            return;
+          }
+          const nextTs = new Date(`${nextDate}T${nextTime}`).getTime();
+          if (Number.isNaN(nextTs)) {
+            showToast("Invalid reminder date", "error");
+            return;
+          }
+          const updatedList = JSON.parse(
+            localStorage.getItem("namedReminders") || "[]",
+          );
+          const current = updatedList[idx];
+          if (!current) return;
+          const nextNotificationId = getReminderNotificationId(
+            `${current.id}-${nextTs}-${Date.now()}`,
+          );
+          const updatedItem = {
+            ...current,
+            name: nextName,
+            body: nextName,
+            ts: nextTs,
+            tsMs: nextTs,
+            fired: false,
+            notificationId: nextNotificationId,
+            deliveryMode: nextMode,
+            soundChoice: nextSound,
+          };
+          updatedList.splice(idx, 1, updatedItem);
+          localStorage.setItem("namedReminders", JSON.stringify(updatedList));
+          if (isNativeReminderRuntime()) {
+            syncRecurringReminderStateFromNamedReminder(
+              nextName,
+              nextMode,
+              nextSound,
+            );
+            await cancelNativeReminderNotificationById(current.notificationId);
+            untrackNativeNamedReminderId(current.notificationId);
+            await scheduleNativeNamedReminder(updatedItem);
+            await cleanupStaleNativeNamedReminderNotifications();
+            await syncNativeRecurringReminderNotificationsIfNeeded();
+          } else {
+            scheduleNamedReminder(updatedItem);
+          }
+          closeModal("editReminderModal");
+          renderSettings();
           showToast(
             {
-              ru: "Укажите текст, дату и время напоминания.",
-              en: "Please provide reminder text, date, and time.",
-              ka: "მიუთითეთ შეხსენების ტექსტი, თარიღი და დრო.",
+              ru: "Напоминание обновлено через отдельное окно редактирования.",
+              en: "The reminder has been updated from the dedicated edit window.",
+              ka: "შეხსენება განახლდა ცალკე რედაქტირების ფანჯრიდან.",
+            }[currentLang],
+            "success",
+          );
+        });
+    });
+  });
+
+  document
+    .getElementById("testNotifBtn")
+    ?.addEventListener("click", async () => {
+      const title = {
+        ru: "🔔 Тестовое уведомление BudgetPRO",
+        en: "🔔 BudgetPRO test notification",
+        ka: "🔔 BudgetPRO ტესტური შეტყობინება",
+      }[currentLang];
+      const body = {
+        ru: "Это полное тестовое уведомление BudgetPRO. Если вы видите его в шторке телефона, значит напоминания настроены правильно и будут приходить в указанное время.",
+        en: "This is a full BudgetPRO test notification. If you can see it in your phone notification shade, reminders are configured correctly and will arrive at the scheduled time.",
+        ka: "ეს არის BudgetPRO-ს სრული სატესტო შეტყობინება. თუ მას ტელეფონის შეტყობინებებში ხედავთ, შეხსენებები სწორად არის გამართული და დანიშნულ დროს მოვა.",
+      }[currentLang];
+      if (isNativeReminderRuntime()) {
+        const state = await requestReminderPermission();
+        if (state !== "granted") {
+          showToast(
+            {
+              ru: "Сначала разрешите уведомления. Без этого тест не сможет появиться в шторке телефона.",
+              en: "Please allow notifications first. Without that, the test cannot appear in your phone notification shade.",
+              ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე ტესტი ტელეფონის შეტყობინებებში ვერ გამოჩნდება.",
             }[currentLang],
             "error",
           );
           return;
         }
-        const nextTs = new Date(`${nextDate}T${nextTime}`).getTime();
-        if (Number.isNaN(nextTs)) {
-          showToast("Invalid reminder date", "error");
-          return;
-        }
-        const updatedList = JSON.parse(localStorage.getItem("namedReminders") || "[]");
-        const current = updatedList[idx];
-        if (!current) return;
-        const nextNotificationId = getReminderNotificationId(`${current.id}-${nextTs}-${Date.now()}`);
-        const updatedItem = {
-          ...current,
-          name: nextName,
-          body: nextName,
-          ts: nextTs,
-          tsMs: nextTs,
-          fired: false,
-          notificationId: nextNotificationId,
-          deliveryMode: nextMode,
-          soundChoice: nextSound,
-        };
-        updatedList.splice(idx, 1, updatedItem);
-        localStorage.setItem("namedReminders", JSON.stringify(updatedList));
-        if (isNativeReminderRuntime()) {
-          syncRecurringReminderStateFromNamedReminder(nextName, nextMode, nextSound);
-          await cancelNativeReminderNotificationById(current.notificationId);
-          untrackNativeNamedReminderId(current.notificationId);
-          await scheduleNativeNamedReminder(updatedItem);
-          await cleanupStaleNativeNamedReminderNotifications();
-          await syncNativeRecurringReminderNotificationsIfNeeded();
-        } else {
-          scheduleNamedReminder(updatedItem);
-        }
-        closeModal("editReminderModal");
-        renderSettings();
+        await ensureReminderNotificationChannel();
+        await getLocalNotificationsPlugin().schedule({
+          notifications: [
+            {
+              id: 909001,
+              title,
+              body,
+              schedule: {
+                at: new Date(Date.now() + 2500),
+                allowWhileIdle: true,
+              },
+              channelId: "budget-reminders",
+              autoCancel: true,
+              smallIcon: "ic_launcher_foreground",
+              extra: { reminderType: "test" },
+            },
+          ],
+        });
         showToast(
           {
-            ru: "Напоминание обновлено через отдельное окно редактирования.",
-            en: "The reminder has been updated from the dedicated edit window.",
-            ka: "შეხსენება განახლდა ცალკე რედაქტირების ფანჯრიდან.",
+            ru: "Тестовое уведомление запланировано на ближайшие секунды. Сверните приложение и проверьте шторку телефона.",
+            en: "The test notification has been scheduled for the next few seconds. Minimize the app and check your phone notification shade.",
+            ka: "სატესტო შეტყობინება უახლოეს წამებზე დაიგეგმა. დაკეცეთ აპი და შეამოწმეთ ტელეფონის შეტყობინებები.",
           }[currentLang],
           "success",
         );
-      });
+        return;
+      }
+      showStickyNotification(title, body, "budget-reminder-test");
+      showToast(body, "success", 5000);
     });
-  });
 
-  document.getElementById("testNotifBtn")?.addEventListener("click", async () => {
-    const title = {
-      ru: "🔔 Тестовое уведомление BudgetPRO",
-      en: "🔔 BudgetPRO test notification",
-      ka: "🔔 BudgetPRO ტესტური შეტყობინება",
-    }[currentLang];
-    const body = {
-      ru: "Это полное тестовое уведомление BudgetPRO. Если вы видите его в шторке телефона, значит напоминания настроены правильно и будут приходить в указанное время.",
-      en: "This is a full BudgetPRO test notification. If you can see it in your phone notification shade, reminders are configured correctly and will arrive at the scheduled time.",
-      ka: "ეს არის BudgetPRO-ს სრული სატესტო შეტყობინება. თუ მას ტელეფონის შეტყობინებებში ხედავთ, შეხსენებები სწორად არის გამართული და დანიშნულ დროს მოვა.",
-    }[currentLang];
-    if (isNativeReminderRuntime()) {
-      const state = await requestReminderPermission();
-      if (state !== "granted") {
+  document
+    .getElementById("addNamedReminderBtn")
+    ?.addEventListener("click", async () => {
+      const name = document.getElementById("newReminderName")?.value.trim();
+      const selectedDates = getSelectedReminderDates();
+      const baseTime = nativeTimeInput?.value || "";
+      const editingReminderId =
+        document.getElementById("editingReminderId")?.value || "";
+      const deliveryMode =
+        document.getElementById("reminderDeliveryMode")?.value ||
+        "sound_vibration";
+      const soundChoice =
+        document.getElementById("reminderSoundChoice")?.value || "";
+      if (!name || !selectedDates.length || !baseTime) {
         showToast(
           {
-            ru: "Сначала разрешите уведомления. Без этого тест не сможет появиться в шторке телефона.",
-            en: "Please allow notifications first. Without that, the test cannot appear in your phone notification shade.",
-            ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე ტესტი ტელეფონის შეტყობინებებში ვერ გამოჩნდება.",
+            ru: "Заполните полное название напоминания, выберите хотя бы одну дату и укажите время. Тогда уведомление придёт с нужным текстом в заданный момент.",
+            en: "Please fill in the full reminder name, choose at least one date, and set a time. Then the notification will arrive with the correct text at the scheduled moment.",
+            ka: "შეავსეთ შეხსენების სრული სახელი, აირჩიეთ მინიმუმ ერთი თარიღი და მიუთითეთ დრო. შემდეგ შეტყობინება სწორ ტექსტთან ერთად მოვა დანიშნულ დროს.",
           }[currentLang],
           "error",
         );
         return;
       }
-      await ensureReminderNotificationChannel();
-      await getLocalNotificationsPlugin().schedule({
-        notifications: [
-          {
-            id: 909001,
-            title,
-            body,
-            schedule: { at: new Date(Date.now() + 2500), allowWhileIdle: true },
-            channelId: "budget-reminders",
-            autoCancel: true,
-            smallIcon: "ic_launcher_foreground",
-            extra: { reminderType: "test" },
-          },
-        ],
-      });
-      showToast(
-        {
-          ru: "Тестовое уведомление запланировано на ближайшие секунды. Сверните приложение и проверьте шторку телефона.",
-          en: "The test notification has been scheduled for the next few seconds. Minimize the app and check your phone notification shade.",
-          ka: "სატესტო შეტყობინება უახლოეს წამებზე დაიგეგმა. დაკეცეთ აპი და შეამოწმეთ ტელეფონის შეტყობინებები.",
-        }[currentLang],
-        "success",
-      );
-      return;
-    }
-    showStickyNotification(title, body, "budget-reminder-test");
-    showToast(body, "success", 5000);
-  });
-
-  document.getElementById("addNamedReminderBtn")?.addEventListener("click", async () => {
-    const name = document.getElementById("newReminderName")?.value.trim();
-    const selectedDates = getSelectedReminderDates();
-    const baseTime = nativeTimeInput?.value || "";
-    const editingReminderId = document.getElementById("editingReminderId")?.value || "";
-    const deliveryMode = document.getElementById("reminderDeliveryMode")?.value || "sound_vibration";
-    const soundChoice = document.getElementById("reminderSoundChoice")?.value || "";
-    if (!name || !selectedDates.length || !baseTime) {
-      showToast(
-        {
-          ru: "Заполните полное название напоминания, выберите хотя бы одну дату и укажите время. Тогда уведомление придёт с нужным текстом в заданный момент.",
-          en: "Please fill in the full reminder name, choose at least one date, and set a time. Then the notification will arrive with the correct text at the scheduled moment.",
-          ka: "შეავსეთ შეხსენების სრული სახელი, აირჩიეთ მინიმუმ ერთი თარიღი და მიუთითეთ დრო. შემდეგ შეტყობინება სწორ ტექსტთან ერთად მოვა დანიშნულ დროს.",
-        }[currentLang],
-        "error",
-      );
-      return;
-    }
-    const targets = selectedDates
-      .map((dateStr) => ({
-        dateStr,
-        raw: `${dateStr}T${baseTime}`,
-        ts: new Date(`${dateStr}T${baseTime}`).getTime(),
-      }))
-      .filter((item) => !Number.isNaN(item.ts));
-    if (!targets.length) {
-      showToast("Invalid reminder date", "error");
-      return;
-    }
-    const nowMinute = new Date();
-    const currentMinuteKey = `${nowMinute.getFullYear()}-${String(nowMinute.getMonth() + 1).padStart(2, "0")}-${String(nowMinute.getDate()).padStart(2, "0")}T${String(nowMinute.getHours()).padStart(2, "0")}:${String(nowMinute.getMinutes()).padStart(2, "0")}`;
-    if (targets.some((item) => (item.raw || "").slice(0, 16) < currentMinuteKey)) {
-      showToast(
-        {
-          ru: "Все выбранные даты и время должны быть не раньше текущей минуты. Удалите прошедшие даты или выберите более позднее время.",
-          en: "All selected dates and times must be no earlier than the current minute. Remove past dates or choose a later time.",
-          ka: "ყველა არჩეული თარიღი და დრო მიმდინარე წუთზე ადრე არ უნდა იყოს. წარსული თარიღები მოხსენით ან უფრო გვიანი დრო აირჩიეთ.",
-        }[currentLang],
-        "error",
-      );
-      return;
-    }
-    if (isNativeReminderRuntime()) {
-      const state = await requestReminderPermission();
-      if (state !== "granted") {
+      const targets = selectedDates
+        .map((dateStr) => ({
+          dateStr,
+          raw: `${dateStr}T${baseTime}`,
+          ts: new Date(`${dateStr}T${baseTime}`).getTime(),
+        }))
+        .filter((item) => !Number.isNaN(item.ts));
+      if (!targets.length) {
+        showToast("Invalid reminder date", "error");
+        return;
+      }
+      const nowMinute = new Date();
+      const currentMinuteKey = `${nowMinute.getFullYear()}-${String(nowMinute.getMonth() + 1).padStart(2, "0")}-${String(nowMinute.getDate()).padStart(2, "0")}T${String(nowMinute.getHours()).padStart(2, "0")}:${String(nowMinute.getMinutes()).padStart(2, "0")}`;
+      if (
+        targets.some((item) => (item.raw || "").slice(0, 16) < currentMinuteKey)
+      ) {
         showToast(
           {
-            ru: "Сначала разрешите уведомления. Без этого Android не сможет показать напоминание в нужное время.",
-            en: "Please allow notifications first. Without that, Android cannot show the reminder at the scheduled time.",
-            ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე Android შეხსენებას დანიშნულ დროს ვერ აჩვენებს.",
+            ru: "Все выбранные даты и время должны быть не раньше текущей минуты. Удалите прошедшие даты или выберите более позднее время.",
+            en: "All selected dates and times must be no earlier than the current minute. Remove past dates or choose a later time.",
+            ka: "ყველა არჩეული თარიღი და დრო მიმდინარე წუთზე ადრე არ უნდა იყოს. წარსული თარიღები მოხსენით ან უფრო გვიანი დრო აირჩიეთ.",
           }[currentLang],
           "error",
         );
         return;
       }
-    }
-    const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
-    if (editingReminderId) {
-      const existingIdx = list.findIndex((x) => x.id === editingReminderId);
-      if (existingIdx >= 0) {
-        const existingItem = list[existingIdx];
-        const target = targets[0];
-        const updatedItem = {
-          ...existingItem,
+      if (isNativeReminderRuntime()) {
+        const state = await requestReminderPermission();
+        if (state !== "granted") {
+          showToast(
+            {
+              ru: "Сначала разрешите уведомления. Без этого Android не сможет показать напоминание в нужное время.",
+              en: "Please allow notifications first. Without that, Android cannot show the reminder at the scheduled time.",
+              ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე Android შეხსენებას დანიშნულ დროს ვერ აჩვენებს.",
+            }[currentLang],
+            "error",
+          );
+          return;
+        }
+      }
+      const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+      if (editingReminderId) {
+        const existingIdx = list.findIndex((x) => x.id === editingReminderId);
+        if (existingIdx >= 0) {
+          const existingItem = list[existingIdx];
+          const target = targets[0];
+          const updatedItem = {
+            ...existingItem,
+            name,
+            body: name,
+            ts: target.ts,
+            tsMs: target.ts,
+            fired: false,
+            notificationId: getReminderNotificationId(
+              `${existingItem.id}-${target.ts}-${Date.now()}`,
+            ),
+            deliveryMode,
+            soundChoice,
+          };
+          list.splice(existingIdx, 1, updatedItem);
+          localStorage.setItem("namedReminders", JSON.stringify(list));
+          if (isNativeReminderRuntime()) {
+            syncRecurringReminderStateFromNamedReminder(
+              name,
+              deliveryMode,
+              soundChoice,
+            );
+            await cancelNativeReminderNotificationById(
+              existingItem.notificationId,
+            );
+            untrackNativeNamedReminderId(existingItem.notificationId);
+            await scheduleNativeNamedReminder(updatedItem);
+            await cleanupStaleNativeNamedReminderNotifications();
+            await syncNativeRecurringReminderNotificationsIfNeeded();
+          } else {
+            scheduleNamedReminder(updatedItem);
+          }
+          if (document.getElementById("editingReminderId")) {
+            document.getElementById("editingReminderId").value = "";
+          }
+          const addNamedReminderBtnText = document.getElementById(
+            "addNamedReminderBtnText",
+          );
+          if (addNamedReminderBtnText)
+            addNamedReminderBtnText.textContent = t("scheduleReminder");
+          renderSettings();
+          showToast(
+            {
+              ru: "Напоминание обновлено. Теперь уведомление будет приходить с новым текстом и новыми параметрами.",
+              en: "The reminder has been updated. The notification will now arrive with the new text and settings.",
+              ka: "შეხსენება განახლდა. ახლა შეტყობინება ახალი ტექსტით და ახალი პარამეტრებით მოვა.",
+            }[currentLang],
+            "success",
+          );
+          return;
+        }
+      }
+      for (const target of targets) {
+        const item = {
+          id: `rem_${Date.now()}_${target.dateStr}`,
           name,
           body: name,
           ts: target.ts,
           tsMs: target.ts,
           fired: false,
-          notificationId: getReminderNotificationId(`${existingItem.id}-${target.ts}-${Date.now()}`),
+          notificationId: getReminderNotificationId(
+            `${Date.now()}${target.ts}`,
+          ),
+          createdAt: new Date().toISOString(),
           deliveryMode,
           soundChoice,
         };
-        list.splice(existingIdx, 1, updatedItem);
-        localStorage.setItem("namedReminders", JSON.stringify(list));
+        list.push(item);
         if (isNativeReminderRuntime()) {
-          syncRecurringReminderStateFromNamedReminder(name, deliveryMode, soundChoice);
-          await cancelNativeReminderNotificationById(existingItem.notificationId);
-          untrackNativeNamedReminderId(existingItem.notificationId);
-          await scheduleNativeNamedReminder(updatedItem);
-          await cleanupStaleNativeNamedReminderNotifications();
-          await syncNativeRecurringReminderNotificationsIfNeeded();
+          syncRecurringReminderStateFromNamedReminder(
+            name,
+            deliveryMode,
+            soundChoice,
+          );
+          await scheduleNativeNamedReminder(item);
         } else {
-          scheduleNamedReminder(updatedItem);
+          scheduleNamedReminder(item);
         }
-        if (document.getElementById("editingReminderId")) {
-          document.getElementById("editingReminderId").value = "";
-        }
-        const addNamedReminderBtnText = document.getElementById("addNamedReminderBtnText");
-        if (addNamedReminderBtnText) addNamedReminderBtnText.textContent = t("scheduleReminder");
-        renderSettings();
-        showToast(
-          {
-            ru: "Напоминание обновлено. Теперь уведомление будет приходить с новым текстом и новыми параметрами.",
-            en: "The reminder has been updated. The notification will now arrive with the new text and settings.",
-            ka: "შეხსენება განახლდა. ახლა შეტყობინება ახალი ტექსტით და ახალი პარამეტრებით მოვა.",
-          }[currentLang],
-          "success",
-        );
-        return;
       }
-    }
-    for (const target of targets) {
-      const item = {
-        id: `rem_${Date.now()}_${target.dateStr}`,
-        name,
-        body: name,
-        ts: target.ts,
-        tsMs: target.ts,
-        fired: false,
-        notificationId: getReminderNotificationId(`${Date.now()}${target.ts}`),
-        createdAt: new Date().toISOString(),
-        deliveryMode,
-        soundChoice,
-      };
-      list.push(item);
+      localStorage.setItem("namedReminders", JSON.stringify(list));
       if (isNativeReminderRuntime()) {
-        syncRecurringReminderStateFromNamedReminder(name, deliveryMode, soundChoice);
-        await scheduleNativeNamedReminder(item);
-      } else {
-        scheduleNamedReminder(item);
+        await cleanupStaleNativeNamedReminderNotifications();
+        await syncNativeRecurringReminderNotificationsIfNeeded();
       }
-    }
-    localStorage.setItem("namedReminders", JSON.stringify(list));
-    if (isNativeReminderRuntime()) {
-      await cleanupStaleNativeNamedReminderNotifications();
-      await syncNativeRecurringReminderNotificationsIfNeeded();
-    }
-    renderSettings();
-    showToast(
-      {
-        ru: `Напоминание сохранено на ${targets.length} дат. В указанное время телефон покажет полное уведомление с заданным текстом.`,
-        en: `The reminder has been saved for ${targets.length} dates. At the scheduled time, your phone will show the full notification text.`,
-        ka: `შეხსენება შენახულია ${targets.length} თარიღისთვის. დანიშნულ დროს ტელეფონი აჩვენებს სრულ ტექსტს.`,
-      }[currentLang],
-      "success",
-    );
-  });
+      renderSettings();
+      showToast(
+        {
+          ru: `Напоминание сохранено на ${targets.length} дат. В указанное время телефон покажет полное уведомление с заданным текстом.`,
+          en: `The reminder has been saved for ${targets.length} dates. At the scheduled time, your phone will show the full notification text.`,
+          ka: `შეხსენება შენახულია ${targets.length} თარიღისთვის. დანიშნულ დროს ტელეფონი აჩვენებს სრულ ტექსტს.`,
+        }[currentLang],
+        "success",
+      );
+    });
 
   attachCreatorHandlers();
 }
@@ -12094,7 +12446,7 @@ function renderRecurringBody() {
 
 function openPinSetModal(isChange = false, options = {}) {
   return new Promise((resolve) => {
-  const html = `
+    const html = `
     <div style="text-align:center;font-size:13px;color:var(--text-muted);margin-bottom:16px;">${t("pinSet4")}</div>
     <div id="pinSetDots" style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;">${[0, 1, 2, 3].map(() => `<div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--primary);background:transparent;"></div>`).join("")}</div>
     <div id="pinSetError" style="color:var(--expense-color);text-align:center;font-size:13px;font-weight:700;min-height:18px;"></div>
@@ -12102,70 +12454,71 @@ function openPinSetModal(isChange = false, options = {}) {
       ${[1, 2, 3, 4, 5, 6, 7, 8, 9, "", 0, "⌫"].map((k) => `<button class="pin-key" data-key="${k}" style="height:56px;border-radius:14px;border:1.5px solid var(--cream-border);background:var(--card-bg);font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text);">${k}</button>`).join("")}
     </div>
     <div class="modal-actions" style="margin-top:16px;"><button class="btn-secondary" id="pinSetCancel">${t("cancel")}</button></div>`;
-  const modal = createModal("pinSetModal", t("pinSet"), html);
-  document.body.appendChild(modal);
-  openModal("pinSetModal");
-  let step = 1,
-    firstPin = "",
-    entered = "";
-  const dots = modal.querySelectorAll("#pinSetDots div");
-  const upd = () =>
-    dots.forEach((d, i) => {
-      d.style.background =
-        i < entered.length ? "var(--primary)" : "transparent";
-    });
-  const setErr = (msg) => {
-    const el = document.getElementById("pinSetError");
-    if (el) el.textContent = msg;
-  };
-  modal.querySelectorAll(".pin-key").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const k = btn.dataset.key;
-      if (k === "") return;
-      if (k === "⌫") {
-        entered = entered.slice(0, -1);
+    const modal = createModal("pinSetModal", t("pinSet"), html);
+    document.body.appendChild(modal);
+    openModal("pinSetModal");
+    let step = 1,
+      firstPin = "",
+      entered = "";
+    const dots = modal.querySelectorAll("#pinSetDots div");
+    const upd = () =>
+      dots.forEach((d, i) => {
+        d.style.background =
+          i < entered.length ? "var(--primary)" : "transparent";
+      });
+    const setErr = (msg) => {
+      const el = document.getElementById("pinSetError");
+      if (el) el.textContent = msg;
+    };
+    modal.querySelectorAll(".pin-key").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const k = btn.dataset.key;
+        if (k === "") return;
+        if (k === "⌫") {
+          entered = entered.slice(0, -1);
+          upd();
+          return;
+        }
+        if (entered.length >= 4) return;
+        entered += k;
         upd();
-        return;
-      }
-      if (entered.length >= 4) return;
-      entered += k;
-      upd();
-      if (entered.length === 4) {
-        if (step === 1) {
-          firstPin = entered;
-          entered = "";
-          step = 2;
-          modal.querySelector(".modal-header h2").textContent = t("pinConfirm");
-          dots.forEach((d) => (d.style.background = "transparent"));
-          setErr("");
-        } else {
-          if (entered === firstPin) {
-            pinHash = await hashPin(entered);
-            pinEnabled = true;
-            saveAll();
-            if (!options.silent) showToast(t("pinSaved"));
-            closeModal("pinSetModal");
-            if (!options.skipRender) renderSettings();
-            resolve(true);
-          } else {
-            setErr(t("pinMismatch"));
+        if (entered.length === 4) {
+          if (step === 1) {
+            firstPin = entered;
             entered = "";
-            step = 1;
-            firstPin = "";
+            step = 2;
+            modal.querySelector(".modal-header h2").textContent =
+              t("pinConfirm");
             dots.forEach((d) => (d.style.background = "transparent"));
-            modal.querySelector(".modal-header h2").textContent = t("pinSet");
+            setErr("");
+          } else {
+            if (entered === firstPin) {
+              pinHash = await hashPin(entered);
+              pinEnabled = true;
+              saveAll();
+              if (!options.silent) showToast(t("pinSaved"));
+              closeModal("pinSetModal");
+              if (!options.skipRender) renderSettings();
+              resolve(true);
+            } else {
+              setErr(t("pinMismatch"));
+              entered = "";
+              step = 1;
+              firstPin = "";
+              dots.forEach((d) => (d.style.background = "transparent"));
+              modal.querySelector(".modal-header h2").textContent = t("pinSet");
+            }
           }
         }
-      }
+      });
     });
-  });
-  document.getElementById("pinSetCancel").addEventListener("click", () => {
-    closeModal("pinSetModal");
-    if (!pinEnabled) {
-      document.getElementById("pinToggle").checked = false;
-    }
-    resolve(false);
-  });
+    document.getElementById("pinSetCancel").addEventListener("click", () => {
+      closeModal("pinSetModal");
+      if (!pinEnabled) {
+        document.getElementById("pinToggle").checked = false;
+      }
+      resolve(false);
+    });
   });
 }
 
@@ -12541,11 +12894,12 @@ function canUseExactReminderBridge() {
 }
 
 function getReminderNotificationTitle(name = "") {
-  const base = {
-    ru: "🔔 Напоминание от BudgetPRO",
-    en: "🔔 Reminder from BudgetPRO",
-    ka: "🔔 შეხსენება BudgetPRO-დან",
-  }[currentLang] || "🔔 Reminder from BudgetPRO";
+  const base =
+    {
+      ru: "🔔 Напоминание от BudgetPRO",
+      en: "🔔 Reminder from BudgetPRO",
+      ka: "🔔 შეხსენება BudgetPRO-დან",
+    }[currentLang] || "🔔 Reminder from BudgetPRO";
   return name ? `${base}` : base;
 }
 
@@ -12585,7 +12939,9 @@ function getReminderDeliveryModeLabel(mode, lang = currentLang) {
       ka: "🔕 უხმოდ და ვიბრაციის გარეშე",
     },
   };
-  return (labels[mode] || labels.sound_vibration)[lang] || labels.sound_vibration.ru;
+  return (
+    (labels[mode] || labels.sound_vibration)[lang] || labels.sound_vibration.ru
+  );
 }
 
 function getReminderSoundChoiceLabel(soundChoice, lang = currentLang) {
@@ -12607,11 +12963,12 @@ function getReminderSoundChoiceLabel(soundChoice, lang = currentLang) {
   };
   const n = Number(String(soundChoice || "sound_1").replace("sound_", "")) || 1;
   const icon = icons[soundChoice] || "🎵";
-  const text = {
-    ru: `Звук ${n}`,
-    en: `Sound ${n}`,
-    ka: `ხმა ${n}`,
-  }[lang] || `Sound ${n}`;
+  const text =
+    {
+      ru: `Звук ${n}`,
+      en: `Sound ${n}`,
+      ka: `ხმა ${n}`,
+    }[lang] || `Sound ${n}`;
   return `${icon} ${text}`;
 }
 
@@ -12670,10 +13027,13 @@ function openNotificationClockModal(options = {}) {
         weekday: "კვირის დღე",
       },
     }[currentLang] || {};
-  const locale = currentLang === "ka" ? "ka-GE" : currentLang === "ru" ? "ru-RU" : "en-US";
+  const locale =
+    currentLang === "ka" ? "ka-GE" : currentLang === "ru" ? "ru-RU" : "en-US";
   const savedFormat = localStorage.getItem("notificationClockFormat") || "24";
-  const savedSeconds = localStorage.getItem("notificationClockSeconds") !== "false";
-  const savedAnalog = localStorage.getItem("notificationClockAnalog") !== "false";
+  const savedSeconds =
+    localStorage.getItem("notificationClockSeconds") !== "false";
+  const savedAnalog =
+    localStorage.getItem("notificationClockAnalog") !== "false";
   const clockSurface = "linear-gradient(135deg,var(--cream),var(--cream-dark))";
   const clockPanel = "var(--cream)";
   const clockBorder = "var(--cream-border)";
@@ -12772,43 +13132,71 @@ function openNotificationClockModal(options = {}) {
       });
     }
     if (dateEl) {
-      dateEl.textContent = now.toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" });
+      dateEl.textContent = now.toLocaleDateString(locale, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
     }
     if (fullDateEl) {
-      fullDateEl.textContent = now.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      fullDateEl.textContent = now.toLocaleDateString(locale, {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
     }
     if (weekdayEl) {
-      weekdayEl.textContent = now.toLocaleDateString(locale, { weekday: "long" });
+      weekdayEl.textContent = now.toLocaleDateString(locale, {
+        weekday: "long",
+      });
     }
     if (dialEl) dialEl.style.display = showAnalog ? "" : "none";
     const seconds = now.getSeconds();
     const minutes = now.getMinutes() + seconds / 60;
     const hours = (now.getHours() % 12) + minutes / 60;
-    if (hourHand) hourHand.style.transform = `translate(-50%,-100%) rotate(${hours * 30}deg)`;
-    if (minuteHand) minuteHand.style.transform = `translate(-50%,-100%) rotate(${minutes * 6}deg)`;
+    if (hourHand)
+      hourHand.style.transform = `translate(-50%,-100%) rotate(${hours * 30}deg)`;
+    if (minuteHand)
+      minuteHand.style.transform = `translate(-50%,-100%) rotate(${minutes * 6}deg)`;
     if (secondHand) {
       secondHand.style.display = showSeconds ? "" : "none";
       secondHand.style.transform = `translate(-50%,-100%) rotate(${seconds * 6}deg)`;
     }
   };
-  document.getElementById("notificationClockFormatBtn")?.addEventListener("click", () => {
-    clockFormat = clockFormat === "12" ? "24" : "12";
-    localStorage.setItem("notificationClockFormat", clockFormat);
-    document.getElementById("notificationClockFormatBtn").textContent = `${L.format}: ${clockFormat === "12" ? "12h" : "24h"}`;
-    renderClock();
-  });
-  document.getElementById("notificationClockSecondsBtn")?.addEventListener("click", () => {
-    showSeconds = !showSeconds;
-    localStorage.setItem("notificationClockSeconds", showSeconds ? "true" : "false");
-    document.getElementById("notificationClockSecondsBtn").textContent = `${L.showSeconds}: ${showSeconds ? "ON" : "OFF"}`;
-    renderClock();
-  });
-  document.getElementById("notificationClockAnalogBtn")?.addEventListener("click", () => {
-    showAnalog = !showAnalog;
-    localStorage.setItem("notificationClockAnalog", showAnalog ? "true" : "false");
-    document.getElementById("notificationClockAnalogBtn").textContent = `${L.analog}: ${showAnalog ? "ON" : "OFF"}`;
-    renderClock();
-  });
+  document
+    .getElementById("notificationClockFormatBtn")
+    ?.addEventListener("click", () => {
+      clockFormat = clockFormat === "12" ? "24" : "12";
+      localStorage.setItem("notificationClockFormat", clockFormat);
+      document.getElementById("notificationClockFormatBtn").textContent =
+        `${L.format}: ${clockFormat === "12" ? "12h" : "24h"}`;
+      renderClock();
+    });
+  document
+    .getElementById("notificationClockSecondsBtn")
+    ?.addEventListener("click", () => {
+      showSeconds = !showSeconds;
+      localStorage.setItem(
+        "notificationClockSeconds",
+        showSeconds ? "true" : "false",
+      );
+      document.getElementById("notificationClockSecondsBtn").textContent =
+        `${L.showSeconds}: ${showSeconds ? "ON" : "OFF"}`;
+      renderClock();
+    });
+  document
+    .getElementById("notificationClockAnalogBtn")
+    ?.addEventListener("click", () => {
+      showAnalog = !showAnalog;
+      localStorage.setItem(
+        "notificationClockAnalog",
+        showAnalog ? "true" : "false",
+      );
+      document.getElementById("notificationClockAnalogBtn").textContent =
+        `${L.analog}: ${showAnalog ? "ON" : "OFF"}`;
+      renderClock();
+    });
   const clampClockPart = (value, max) => {
     const n = Number(value);
     if (!Number.isFinite(n)) return 0;
@@ -12816,44 +13204,75 @@ function openNotificationClockModal(options = {}) {
   };
   const shiftClockPart = (part, delta) => {
     if (part === "hour") {
-      selectedClockDate.setHours((selectedClockDate.getHours() + delta + 24) % 24);
+      selectedClockDate.setHours(
+        (selectedClockDate.getHours() + delta + 24) % 24,
+      );
     } else {
-      selectedClockDate.setMinutes((selectedClockDate.getMinutes() + delta + 60) % 60);
+      selectedClockDate.setMinutes(
+        (selectedClockDate.getMinutes() + delta + 60) % 60,
+      );
     }
     selectedClockDate.setSeconds(0, 0);
     renderClock();
   };
-  document.getElementById("notificationClockHourMinus")?.addEventListener("click", () => shiftClockPart("hour", -1));
-  document.getElementById("notificationClockHourPlus")?.addEventListener("click", () => shiftClockPart("hour", 1));
-  document.getElementById("notificationClockMinuteMinus")?.addEventListener("click", () => shiftClockPart("minute", -1));
-  document.getElementById("notificationClockMinutePlus")?.addEventListener("click", () => shiftClockPart("minute", 1));
-  document.getElementById("notificationClockHourInput")?.addEventListener("change", (e) => {
-    selectedClockDate.setHours(clampClockPart(e.target.value, 23), selectedClockDate.getMinutes(), 0, 0);
-    renderClock();
-  });
-  document.getElementById("notificationClockMinuteInput")?.addEventListener("change", (e) => {
-    selectedClockDate.setMinutes(clampClockPart(e.target.value, 59), 0, 0);
-    renderClock();
-  });
-  document.getElementById("notificationClockSetBtn")?.addEventListener("click", () => {
-    if (typeof options.onSet === "function") {
-      options.onSet(selectedClockDate);
-    } else if (typeof setReminderDateTimeFromNotificationClock === "function") {
-      setReminderDateTimeFromNotificationClock(selectedClockDate);
-    }
-    closeModal("notificationClockModal");
-  });
-  document.getElementById("notificationClockCancelBtn")?.addEventListener("click", () => {
-    closeModal("notificationClockModal");
-  });
-  document.getElementById("notificationClockDeleteBtn")?.addEventListener("click", () => {
-    if (typeof options.onDelete === "function") {
-      options.onDelete();
-    } else if (typeof clearReminderDateTimeFromNotificationClock === "function") {
-      clearReminderDateTimeFromNotificationClock();
-    }
-    closeModal("notificationClockModal");
-  });
+  document
+    .getElementById("notificationClockHourMinus")
+    ?.addEventListener("click", () => shiftClockPart("hour", -1));
+  document
+    .getElementById("notificationClockHourPlus")
+    ?.addEventListener("click", () => shiftClockPart("hour", 1));
+  document
+    .getElementById("notificationClockMinuteMinus")
+    ?.addEventListener("click", () => shiftClockPart("minute", -1));
+  document
+    .getElementById("notificationClockMinutePlus")
+    ?.addEventListener("click", () => shiftClockPart("minute", 1));
+  document
+    .getElementById("notificationClockHourInput")
+    ?.addEventListener("change", (e) => {
+      selectedClockDate.setHours(
+        clampClockPart(e.target.value, 23),
+        selectedClockDate.getMinutes(),
+        0,
+        0,
+      );
+      renderClock();
+    });
+  document
+    .getElementById("notificationClockMinuteInput")
+    ?.addEventListener("change", (e) => {
+      selectedClockDate.setMinutes(clampClockPart(e.target.value, 59), 0, 0);
+      renderClock();
+    });
+  document
+    .getElementById("notificationClockSetBtn")
+    ?.addEventListener("click", () => {
+      if (typeof options.onSet === "function") {
+        options.onSet(selectedClockDate);
+      } else if (
+        typeof setReminderDateTimeFromNotificationClock === "function"
+      ) {
+        setReminderDateTimeFromNotificationClock(selectedClockDate);
+      }
+      closeModal("notificationClockModal");
+    });
+  document
+    .getElementById("notificationClockCancelBtn")
+    ?.addEventListener("click", () => {
+      closeModal("notificationClockModal");
+    });
+  document
+    .getElementById("notificationClockDeleteBtn")
+    ?.addEventListener("click", () => {
+      if (typeof options.onDelete === "function") {
+        options.onDelete();
+      } else if (
+        typeof clearReminderDateTimeFromNotificationClock === "function"
+      ) {
+        clearReminderDateTimeFromNotificationClock();
+      }
+      closeModal("notificationClockModal");
+    });
   renderClock();
   notificationClockTimer = setInterval(() => {
     selectedClockDate = new Date(selectedClockDate.getTime() + 1000);
@@ -12861,7 +13280,10 @@ function openNotificationClockModal(options = {}) {
   }, 1000);
 }
 
-window.addEventListener("budgetpro:open-notification-clock", openNotificationClockModal);
+window.addEventListener(
+  "budgetpro:open-notification-clock",
+  openNotificationClockModal,
+);
 
 function getRecurringReminderTitle(interval) {
   const labels = {
@@ -12921,7 +13343,9 @@ function getRecurringReminderTitle(interval) {
       ka: "🔔 BudgetPRO ყოველკვირეული შეხსენება",
     },
   };
-  return (labels[interval] || labels.daily)[currentLang] || "🔔 BudgetPRO reminder";
+  return (
+    (labels[interval] || labels.daily)[currentLang] || "🔔 BudgetPRO reminder"
+  );
 }
 
 function getRecurringReminderBody(interval) {
@@ -12988,35 +13412,37 @@ function getRecurringReminderBody(interval) {
 }
 
 function getReminderWeekdayOptions(lang) {
-  return {
-    ru: [
-      { value: 1, short: "Пн", full: "Понедельник" },
-      { value: 2, short: "Вт", full: "Вторник" },
-      { value: 3, short: "Ср", full: "Среда" },
-      { value: 4, short: "Чт", full: "Четверг" },
-      { value: 5, short: "Пт", full: "Пятница" },
-      { value: 6, short: "Сб", full: "Суббота" },
-      { value: 0, short: "Вс", full: "Воскресенье" },
-    ],
-    en: [
-      { value: 1, short: "Mon", full: "Monday" },
-      { value: 2, short: "Tue", full: "Tuesday" },
-      { value: 3, short: "Wed", full: "Wednesday" },
-      { value: 4, short: "Thu", full: "Thursday" },
-      { value: 5, short: "Fri", full: "Friday" },
-      { value: 6, short: "Sat", full: "Saturday" },
-      { value: 0, short: "Sun", full: "Sunday" },
-    ],
-    ka: [
-      { value: 1, short: "ორშ", full: "ორშაბათი" },
-      { value: 2, short: "სამ", full: "სამშაბათი" },
-      { value: 3, short: "ოთხ", full: "ოთხშაბათი" },
-      { value: 4, short: "ხუთ", full: "ხუთშაბათი" },
-      { value: 5, short: "პარ", full: "პარასკევი" },
-      { value: 6, short: "შაბ", full: "შაბათი" },
-      { value: 0, short: "კვი", full: "კვირა" },
-    ],
-  }[lang] || [];
+  return (
+    {
+      ru: [
+        { value: 1, short: "Пн", full: "Понедельник" },
+        { value: 2, short: "Вт", full: "Вторник" },
+        { value: 3, short: "Ср", full: "Среда" },
+        { value: 4, short: "Чт", full: "Четверг" },
+        { value: 5, short: "Пт", full: "Пятница" },
+        { value: 6, short: "Сб", full: "Суббота" },
+        { value: 0, short: "Вс", full: "Воскресенье" },
+      ],
+      en: [
+        { value: 1, short: "Mon", full: "Monday" },
+        { value: 2, short: "Tue", full: "Tuesday" },
+        { value: 3, short: "Wed", full: "Wednesday" },
+        { value: 4, short: "Thu", full: "Thursday" },
+        { value: 5, short: "Fri", full: "Friday" },
+        { value: 6, short: "Sat", full: "Saturday" },
+        { value: 0, short: "Sun", full: "Sunday" },
+      ],
+      ka: [
+        { value: 1, short: "ორშ", full: "ორშაბათი" },
+        { value: 2, short: "სამ", full: "სამშაბათი" },
+        { value: 3, short: "ოთხ", full: "ოთხშაბათი" },
+        { value: 4, short: "ხუთ", full: "ხუთშაბათი" },
+        { value: 5, short: "პარ", full: "პარასკევი" },
+        { value: 6, short: "შაბ", full: "შაბათი" },
+        { value: 0, short: "კვი", full: "კვირა" },
+      ],
+    }[lang] || []
+  );
 }
 
 function isReminderWeekdayAllowed(ts) {
@@ -13092,7 +13518,9 @@ async function cancelNativeReminderNotificationById(id) {
 
 function getTrackedNativeNamedReminderIds() {
   try {
-    return JSON.parse(localStorage.getItem("nativeExactNamedIds") || "[]").filter(Boolean);
+    return JSON.parse(
+      localStorage.getItem("nativeExactNamedIds") || "[]",
+    ).filter(Boolean);
   } catch (e) {
     return [];
   }
@@ -13101,7 +13529,9 @@ function getTrackedNativeNamedReminderIds() {
 function setTrackedNativeNamedReminderIds(ids) {
   localStorage.setItem(
     "nativeExactNamedIds",
-    JSON.stringify([...new Set((ids || []).map((id) => Number(id)).filter(Boolean))]),
+    JSON.stringify([
+      ...new Set((ids || []).map((id) => Number(id)).filter(Boolean)),
+    ]),
   );
 }
 
@@ -13122,7 +13552,9 @@ async function cleanupStaleNativeNamedReminderNotifications() {
   const plugin = getLocalNotificationsPlugin();
   const trackedIds = getTrackedNativeNamedReminderIds();
   if (!bridge) return;
-  const activeIdList = JSON.parse(localStorage.getItem("namedReminders") || "[]")
+  const activeIdList = JSON.parse(
+    localStorage.getItem("namedReminders") || "[]",
+  )
     .map((r) => Number(r.notificationId))
     .filter(Boolean);
   const activeIds = new Set(
@@ -13141,7 +13573,8 @@ async function cleanupStaleNativeNamedReminderNotifications() {
       const stalePluginIds = (pending.notifications || [])
         .filter((n) => {
           const id = Number(n.id);
-          const isRecurring = n.extra?.reminderType === "recurring" || id >= 810000;
+          const isRecurring =
+            n.extra?.reminderType === "recurring" || id >= 810000;
           if (isRecurring) return false;
           if (!activeIdList.length) return true;
           return !activeIds.has(id);
@@ -13152,7 +13585,11 @@ async function cleanupStaleNativeNamedReminderNotifications() {
       }
     } catch (e) {}
   }
-  if (plugin?.getDeliveredNotifications && plugin?.removeDeliveredNotifications && !activeIdList.length) {
+  if (
+    plugin?.getDeliveredNotifications &&
+    plugin?.removeDeliveredNotifications &&
+    !activeIdList.length
+  ) {
     try {
       const delivered = await plugin.getDeliveredNotifications();
       const staleDeliveredIds = (delivered.notifications || [])
@@ -13162,7 +13599,9 @@ async function cleanupStaleNativeNamedReminderNotifications() {
         })
         .map((n) => ({ id: n.id }));
       if (staleDeliveredIds.length) {
-        await plugin.removeDeliveredNotifications({ notifications: staleDeliveredIds });
+        await plugin.removeDeliveredNotifications({
+          notifications: staleDeliveredIds,
+        });
       }
     } catch (e) {}
   }
@@ -13175,11 +13614,16 @@ async function cleanupStaleNativeNamedReminderNotifications() {
       }
     } catch (e) {}
   }
-  setTrackedNativeNamedReminderIds(trackedIds.filter((id) => activeIds.has(Number(id))));
+  setTrackedNativeNamedReminderIds(
+    trackedIds.filter((id) => activeIds.has(Number(id))),
+  );
 }
 
 function getSavedRecurringReminderDeliveryMode() {
-  return localStorage.getItem("customRecurringReminderDeliveryMode") || "sound_vibration";
+  return (
+    localStorage.getItem("customRecurringReminderDeliveryMode") ||
+    "sound_vibration"
+  );
 }
 
 function getSavedRecurringReminderSoundChoice() {
@@ -13208,7 +13652,9 @@ async function syncExactAlarmRecurringReminderNotifications() {
   if (!bridge) return;
   const baseId = 910000;
   const legacyPluginBaseId = 810000;
-  const oldIds = JSON.parse(localStorage.getItem("nativeExactRecurringIds") || "[]");
+  const oldIds = JSON.parse(
+    localStorage.getItem("nativeExactRecurringIds") || "[]",
+  );
   const allPossibleIds = [];
   for (let intervalIdx = 0; intervalIdx < 12; intervalIdx++) {
     for (let slot = 0; slot < 120; slot++) {
@@ -13227,8 +13673,7 @@ async function syncExactAlarmRecurringReminderNotifications() {
       const legacyRecurringIds = (pending.notifications || [])
         .filter(
           (n) =>
-            n.id >= legacyPluginBaseId ||
-            n.extra?.reminderType === "recurring",
+            n.id >= legacyPluginBaseId || n.extra?.reminderType === "recurring",
         )
         .map((n) => ({ id: n.id }));
       if (legacyRecurringIds.length) {
@@ -13321,7 +13766,11 @@ async function scheduleNativeNamedReminder(r) {
   const plugin = getLocalNotificationsPlugin();
   if (!plugin?.schedule) return false;
   const at = new Date(r.ts);
-  if (!(at instanceof Date) || Number.isNaN(at.getTime()) || at.getTime() <= Date.now()) {
+  if (
+    !(at instanceof Date) ||
+    Number.isNaN(at.getTime()) ||
+    at.getTime() <= Date.now()
+  ) {
     return false;
   }
   await ensureReminderNotificationChannel();
@@ -13449,7 +13898,11 @@ function fireNamedReminder(r) {
   const body = getReminderNotificationBody(r.name);
 
   // Надёжное локальное уведомление (липучее, с вибрацией и звуком)
-  showStickyNotification(getReminderNotificationTitle(r.name), body, "named-" + r.id);
+  showStickyNotification(
+    getReminderNotificationTitle(r.name),
+    body,
+    "named-" + r.id,
+  );
 
   showToast("🔔 " + body, "success", 5000);
   if (typeof haptic === "function") haptic("medium");
@@ -13836,19 +14289,19 @@ function createModal(id, title, bodyHtml) {
       document.head.appendChild(motionStyle);
     }
     ov.className = "add-modal-host";
-      ov.style.display = "none";
-      ov.innerHTML = `<div class="more-overlay add-modal-overlay"></div><div class="more-sheet add-modal-sheet"><div class="more-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
-      const addSheet = ov.querySelector(".add-modal-sheet");
-      const addOverlay = ov.querySelector(".add-modal-overlay");
-      if (addSheet) {
-        addSheet.style.willChange = "transform, opacity";
-      }
-      if (addOverlay) {
-        addOverlay.style.willChange = "opacity";
-      }
-      ov.querySelector(".modal-close").addEventListener("click", () =>
-        closeModal(id),
-      );
+    ov.style.display = "none";
+    ov.innerHTML = `<div class="more-overlay add-modal-overlay"></div><div class="more-sheet add-modal-sheet"><div class="more-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
+    const addSheet = ov.querySelector(".add-modal-sheet");
+    const addOverlay = ov.querySelector(".add-modal-overlay");
+    if (addSheet) {
+      addSheet.style.willChange = "transform, opacity";
+    }
+    if (addOverlay) {
+      addOverlay.style.willChange = "opacity";
+    }
+    ov.querySelector(".modal-close").addEventListener("click", () =>
+      closeModal(id),
+    );
     ov.querySelector(".add-modal-overlay")?.addEventListener("click", () =>
       closeModal(id),
     );
@@ -23250,7 +23703,8 @@ function setVoiceTrashState(active, strength = 0) {
   if (!active) {
     bin.style.opacity = "0";
     bin.style.transform = "translateX(-50%) translateY(120px) scale(0.72)";
-    bin.style.boxShadow = "0 20px 48px rgba(239, 68, 68, 0.26), 0 10px 24px rgba(17, 24, 39, 0.18)";
+    bin.style.boxShadow =
+      "0 20px 48px rgba(239, 68, 68, 0.26), 0 10px 24px rgba(17, 24, 39, 0.18)";
     if (icon) icon.style.transform = "scale(1) rotate(0deg)";
     return;
   }
@@ -23324,8 +23778,16 @@ function dismissVoiceButtonWithAnimation(voiceBtn, extraDrop = 0) {
         opacity: 1,
         offset: 0.68,
       },
-      { transform: `translate(${dx * 0.76}px, ${dy * 0.86}px) scale(0.92, 1.08)`, opacity: 0.96, offset: 0.82 },
-      { transform: `translate(${dx}px, ${dy}px) scale(0.18)`, opacity: 0, offset: 1 },
+      {
+        transform: `translate(${dx * 0.76}px, ${dy * 0.86}px) scale(0.92, 1.08)`,
+        opacity: 0.96,
+        offset: 0.82,
+      },
+      {
+        transform: `translate(${dx}px, ${dy}px) scale(0.18)`,
+        opacity: 0,
+        offset: 1,
+      },
     ],
     {
       duration: 700,
@@ -23335,9 +23797,18 @@ function dismissVoiceButtonWithAnimation(voiceBtn, extraDrop = 0) {
   );
   bin.animate(
     [
-      { transform: bin.style.transform || "translateX(-50%) translateY(4px) scale(1)" },
-      { transform: "translateX(-50%) translateY(0px) scale(1.14, 0.9)", offset: 0.45 },
-      { transform: "translateX(-50%) translateY(0px) scale(0.94, 1.08)", offset: 0.72 },
+      {
+        transform:
+          bin.style.transform || "translateX(-50%) translateY(4px) scale(1)",
+      },
+      {
+        transform: "translateX(-50%) translateY(0px) scale(1.14, 0.9)",
+        offset: 0.45,
+      },
+      {
+        transform: "translateX(-50%) translateY(0px) scale(0.94, 1.08)",
+        offset: 0.72,
+      },
       { transform: "translateX(-50%) translateY(4px) scale(1)", offset: 1 },
     ],
     {
@@ -23497,16 +23968,17 @@ function addVoiceButton() {
     const overTrash = dy > 30 && isVoiceDismissTarget(rect);
     hoveringTrash = overTrash;
     strongSwipe =
-      (dy > 36 && velocityY > 0.55) ||
-      (deltaY > 22 && velocityY > 0.7);
+      (dy > 36 && velocityY > 0.55) || (deltaY > 22 && velocityY > 0.7);
     flingDismiss =
-      dy > 72 &&
-      velocityY > 0.72 &&
-      e.clientY > window.innerHeight * 0.26;
+      dy > 72 && velocityY > 0.72 && e.clientY > window.innerHeight * 0.26;
     if (strongSwipe || flingDismiss) armedForDismiss = true;
     dismissing = overTrash || armedForDismiss;
     setVoiceTrashState(
-      dy > 10 || strongSwipe || velocityY > 0.48 || overTrash || armedForDismiss,
+      dy > 10 ||
+        strongSwipe ||
+        velocityY > 0.48 ||
+        overTrash ||
+        armedForDismiss,
       dismissing || strongSwipe || overTrash || armedForDismiss
         ? Math.max(0.82, dragDepth)
         : dragDepth * 0.62,
@@ -23776,16 +24248,57 @@ function openGoalsModal(options = {}) {
     {
       title: { ru: "Недвижимость", en: "Property", ka: "უძრავი ქონება" },
       items: [
-        { emoji: "🏠", keywords: ["квартира", "apartment", "flat", "ბინა", "სახლი გაქირავება"] },
+        {
+          emoji: "🏠",
+          keywords: [
+            "квартира",
+            "apartment",
+            "flat",
+            "ბინა",
+            "სახლი გაქირავება",
+          ],
+        },
         { emoji: "🏡", keywords: ["дом", "house", "villa", "домик", "სახლი"] },
-        { emoji: "🏘️", keywords: ["недвиж", "property", "real estate", "უძრავი"] },
-        { emoji: "🏢", keywords: ["коммер", "commercial", "office", "офис", "კომერც", "ოფისი"] },
-        { emoji: "🏬", keywords: ["магазин", "shop", "store", "retail", "მაღაზია"] },
+        {
+          emoji: "🏘️",
+          keywords: ["недвиж", "property", "real estate", "უძრავი"],
+        },
+        {
+          emoji: "🏢",
+          keywords: [
+            "коммер",
+            "commercial",
+            "office",
+            "офис",
+            "კომერც",
+            "ოფისი",
+          ],
+        },
+        {
+          emoji: "🏬",
+          keywords: ["магазин", "shop", "store", "retail", "მაღაზია"],
+        },
         { emoji: "🏨", keywords: ["отель", "hotel", "гостиниц", "სასტუმრო"] },
-        { emoji: "🏭", keywords: ["склад", "warehouse", "factory", "производ", "საწყობი"] },
+        {
+          emoji: "🏭",
+          keywords: ["склад", "warehouse", "factory", "производ", "საწყობი"],
+        },
         { emoji: "🚪", keywords: ["комната", "room", "комнат", "ოთახი"] },
-        { emoji: "🔑", keywords: ["сдача", "аренда", "rent", "lease", "rental", "გაქირავება"] },
-        { emoji: "🏗️", keywords: ["стро", "construction", "build", "стройка", "მშენებლობა"] },
+        {
+          emoji: "🔑",
+          keywords: [
+            "сдача",
+            "аренда",
+            "rent",
+            "lease",
+            "rental",
+            "გაქირავება",
+          ],
+        },
+        {
+          emoji: "🏗️",
+          keywords: ["стро", "construction", "build", "стройка", "მშენებლობა"],
+        },
       ],
     },
     {
@@ -23804,35 +24317,73 @@ function openGoalsModal(options = {}) {
     {
       title: { ru: "Путешествия", en: "Travel", ka: "მოგზაურობა" },
       items: [
-        { emoji: "✈️", keywords: ["самолет", "plane", "flight", "ავი", "თვითმფრინავი"] },
-        { emoji: "🧳", keywords: ["путеше", "travel", "trip", "поездк", "მოგზაურობა"] },
-        { emoji: "🏖️", keywords: ["отпуск", "vacation", "beach", "мор", "დასვენება"] },
+        {
+          emoji: "✈️",
+          keywords: ["самолет", "plane", "flight", "ავი", "თვითმფრინავი"],
+        },
+        {
+          emoji: "🧳",
+          keywords: ["путеше", "travel", "trip", "поездк", "მოგზაურობა"],
+        },
+        {
+          emoji: "🏖️",
+          keywords: ["отпуск", "vacation", "beach", "мор", "დასვენება"],
+        },
         { emoji: "🗺️", keywords: ["тур", "route", "tour", "მარშრუტი"] },
         { emoji: "🚢", keywords: ["кораб", "ship", "cruise", "яхт", "გემი"] },
         { emoji: "🚆", keywords: ["поезд", "train", "მატარებელი"] },
         { emoji: "⛺", keywords: ["кемп", "camping", "კემპინგი"] },
-        { emoji: "🌍", keywords: ["переезд", "relocation", "abroad", "эмигр", "გადასვლა"] },
+        {
+          emoji: "🌍",
+          keywords: ["переезд", "relocation", "abroad", "эмигр", "გადასვლა"],
+        },
       ],
     },
     {
       title: { ru: "Финансы", en: "Finance", ka: "ფინანსები" },
       items: [
         { emoji: "💰", keywords: ["деньг", "money", "cash", "накоп", "ფული"] },
-        { emoji: "💵", keywords: ["доллар", "usd", "salary", "income", "зарплат", "ხელფასი"] },
+        {
+          emoji: "💵",
+          keywords: ["доллар", "usd", "salary", "income", "зарплат", "ხელფასი"],
+        },
         { emoji: "💶", keywords: ["евро", "eur"] },
         { emoji: "💷", keywords: ["фунт", "gbp"] },
         { emoji: "💴", keywords: ["иен", "yen", "jpy"] },
-        { emoji: "🏦", keywords: ["банк", "deposit", "mortgage", "ипотек", "ბანკი", "იპოთეკა"] },
-        { emoji: "💎", keywords: ["ломбард", "pawn", "pawnshop", "jewel", "ლომბარდ"] },
-        { emoji: "🪙", keywords: ["монет", "coin", "crypto", "крипт", "კრიპტო"] },
-        { emoji: "📈", keywords: ["инвест", "stocks", "shares", "акци", "ინვესტ"] },
+        {
+          emoji: "🏦",
+          keywords: [
+            "банк",
+            "deposit",
+            "mortgage",
+            "ипотек",
+            "ბანკი",
+            "იპოთეკა",
+          ],
+        },
+        {
+          emoji: "💎",
+          keywords: ["ломбард", "pawn", "pawnshop", "jewel", "ლომბარდ"],
+        },
+        {
+          emoji: "🪙",
+          keywords: ["монет", "coin", "crypto", "крипт", "კრიპტო"],
+        },
+        {
+          emoji: "📈",
+          keywords: ["инвест", "stocks", "shares", "акци", "ინვესტ"],
+        },
         { emoji: "💸", keywords: ["долг", "debt", "credit", "кредит", "ვალი"] },
         { emoji: "🧾", keywords: ["налог", "tax", "invoice", "გადასახადი"] },
         { emoji: "📊", keywords: ["бизнес", "analytics", "report", "ბიზნესი"] },
       ],
     },
     {
-      title: { ru: "Семья и жизнь", en: "Family & Life", ka: "ოჯახი და ცხოვრება" },
+      title: {
+        ru: "Семья и жизнь",
+        en: "Family & Life",
+        ka: "ოჯახი და ცხოვრება",
+      },
       items: [
         { emoji: "💍", keywords: ["свад", "wedding", "ring", "кольц", "ქორწ"] },
         { emoji: "👶", keywords: ["ребен", "baby", "child", "ბავშვი"] },
@@ -23845,42 +24396,90 @@ function openGoalsModal(options = {}) {
       ],
     },
     {
-      title: { ru: "Учёба и техника", en: "Study & Tech", ka: "სწავლა და ტექნიკა" },
+      title: {
+        ru: "Учёба и техника",
+        en: "Study & Tech",
+        ka: "სწავლა და ტექნიკა",
+      },
       items: [
-        { emoji: "🎓", keywords: ["учеб", "study", "education", "универс", "курс", "სწავლა"] },
+        {
+          emoji: "🎓",
+          keywords: ["учеб", "study", "education", "универс", "курс", "სწავლა"],
+        },
         { emoji: "📚", keywords: ["книг", "book", "library", "წიგნი"] },
         { emoji: "🧠", keywords: ["мозг", "brain", "skill", "навык", "უნარი"] },
-        { emoji: "💻", keywords: ["ноут", "laptop", "computer", "pc", "კომპიუტერი"] },
-        { emoji: "📱", keywords: ["телефон", "phone", "iphone", "android", "смартфон", "ტელეფონი"] },
+        {
+          emoji: "💻",
+          keywords: ["ноут", "laptop", "computer", "pc", "კომპიუტერი"],
+        },
+        {
+          emoji: "📱",
+          keywords: [
+            "телефон",
+            "phone",
+            "iphone",
+            "android",
+            "смартфон",
+            "ტელეფონი",
+          ],
+        },
         { emoji: "⌚", keywords: ["часы", "watch", "საათი"] },
         { emoji: "📷", keywords: ["камер", "camera", "photo", "კამერა"] },
-        { emoji: "🪪", keywords: ["паспорт", "id", "license", "passport", "პასპორტი"] },
+        {
+          emoji: "🪪",
+          keywords: ["паспорт", "id", "license", "passport", "პასპორტი"],
+        },
       ],
     },
     {
       title: { ru: "Хобби и спорт", en: "Hobby & Sport", ka: "ჰობი და სპორტი" },
       items: [
-        { emoji: "🎮", keywords: ["игр", "game", "console", "ps5", "xbox", "თამაში"] },
+        {
+          emoji: "🎮",
+          keywords: ["игр", "game", "console", "ps5", "xbox", "თამაში"],
+        },
         { emoji: "🎬", keywords: ["кино", "movie", "film", "video", "კინო"] },
-        { emoji: "🎨", keywords: ["арт", "draw", "design", "рисован", "ხატვა"] },
+        {
+          emoji: "🎨",
+          keywords: ["арт", "draw", "design", "рисован", "ხატვა"],
+        },
         { emoji: "🎸", keywords: ["гитар", "guitar", "გიტარა"] },
         { emoji: "🎹", keywords: ["пианино", "piano", "keyboard", "პიანინო"] },
-        { emoji: "🎤", keywords: ["микроф", "sing", "music", "петь", "მუსიკა"] },
-        { emoji: "🏋️", keywords: ["спорт", "gym", "fitness", "качал", "სპორტი"] },
+        {
+          emoji: "🎤",
+          keywords: ["микроф", "sing", "music", "петь", "მუსიკა"],
+        },
+        {
+          emoji: "🏋️",
+          keywords: ["спорт", "gym", "fitness", "качал", "სპორტი"],
+        },
         { emoji: "⚽", keywords: ["футбол", "football", "soccer", "ფეხბურთი"] },
         { emoji: "🎾", keywords: ["теннис", "tennis", "ჩოგბურთი"] },
         { emoji: "🥊", keywords: ["бокс", "boxing", "fight", "კრივი"] },
       ],
     },
     {
-      title: { ru: "Покупки и быт", en: "Shopping & Home", ka: "ყიდვა და სახლი" },
+      title: {
+        ru: "Покупки и быт",
+        en: "Shopping & Home",
+        ka: "ყიდვა და სახლი",
+      },
       items: [
-        { emoji: "🛍️", keywords: ["покуп", "shopping", "buy", "mall", "შოპინგი"] },
-        { emoji: "🍽️", keywords: ["еда", "food", "restaurant", "ресторан", "საკვები"] },
+        {
+          emoji: "🛍️",
+          keywords: ["покуп", "shopping", "buy", "mall", "შოპინგი"],
+        },
+        {
+          emoji: "🍽️",
+          keywords: ["еда", "food", "restaurant", "ресторан", "საკვები"],
+        },
         { emoji: "☕", keywords: ["кофе", "coffee", "cafe", "кафе", "ყავა"] },
         { emoji: "🍕", keywords: ["пиц", "pizza"] },
         { emoji: "🍔", keywords: ["бургер", "burger"] },
-        { emoji: "🛠️", keywords: ["ремонт", "repair", "tool", "renovation", "ремონტი"] },
+        {
+          emoji: "🛠️",
+          keywords: ["ремонт", "repair", "tool", "renovation", "ремონტი"],
+        },
         { emoji: "🧰", keywords: ["инструмент", "tools", "ინსტრუმენტი"] },
         { emoji: "🪑", keywords: ["мебел", "furniture", "ავეჯი"] },
         { emoji: "🛏️", keywords: ["кровать", "bedroom", "bed", "საწოლი"] },
@@ -23890,22 +24489,38 @@ function openGoalsModal(options = {}) {
       ],
     },
     {
-      title: { ru: "Красота и стиль", en: "Beauty & Style", ka: "სილამაზე და სტილი" },
+      title: {
+        ru: "Красота и стиль",
+        en: "Beauty & Style",
+        ka: "სილამაზე და სტილი",
+      },
       items: [
-        { emoji: "✨", keywords: ["крас", "beauty", "sparkle", "style", "სილამაზე"] },
+        {
+          emoji: "✨",
+          keywords: ["крас", "beauty", "sparkle", "style", "სილამაზე"],
+        },
         { emoji: "🔥", keywords: ["срочно", "urgent", "fire", "hot"] },
-        { emoji: "👑", keywords: ["люкс", "luxury", "premium", "crown", "ლუქსი"] },
+        {
+          emoji: "👑",
+          keywords: ["люкс", "luxury", "premium", "crown", "ლუქსი"],
+        },
         { emoji: "👜", keywords: ["сумк", "bag", "handbag", "ჩანთა"] },
         { emoji: "👟", keywords: ["обув", "shoes", "sneakers", "ფეხსაცმელი"] },
         { emoji: "👗", keywords: ["плать", "dress", "fashion", "კაბა"] },
-        { emoji: "💄", keywords: ["космет", "makeup", "lipstick", "კოსმეტიკა"] },
+        {
+          emoji: "💄",
+          keywords: ["космет", "makeup", "lipstick", "კოსმეტიკა"],
+        },
         { emoji: "🕶️", keywords: ["очки", "glasses", "style", "სათვალე"] },
       ],
     },
     {
       title: { ru: "Здоровье", en: "Health", ka: "ჯანმრთელობა" },
       items: [
-        { emoji: "🏥", keywords: ["лечен", "health", "hospital", "медиц", "ჯანმრთელობა"] },
+        {
+          emoji: "🏥",
+          keywords: ["лечен", "health", "hospital", "медиц", "ჯანმრთელობა"],
+        },
         { emoji: "🦷", keywords: ["зуб", "dent", "teeth", "კბილი"] },
         { emoji: "👓", keywords: ["очки", "vision", "glasses", "მხედველობა"] },
         { emoji: "💊", keywords: ["лекар", "medicine", "წამალი"] },
@@ -23916,16 +24531,38 @@ function openGoalsModal(options = {}) {
       ],
     },
     {
-      title: { ru: "Документы и дела", en: "Docs & Tasks", ka: "დოკუმენტები და საქმეები" },
+      title: {
+        ru: "Документы и дела",
+        en: "Docs & Tasks",
+        ka: "დოკუმენტები და საქმეები",
+      },
       items: [
-        { emoji: "📜", keywords: ["документ", "papers", "visa", "док", "დოკუმენტი"] },
+        {
+          emoji: "📜",
+          keywords: ["документ", "papers", "visa", "док", "დოკუმენტი"],
+        },
         { emoji: "⚖️", keywords: ["юрист", "law", "legal", "суд", "იურისტი"] },
-        { emoji: "📦", keywords: ["посыл", "delivery", "box", "package", "ამანათი"] },
-        { emoji: "🚀", keywords: ["стартап", "startup", "launch", "project", "სტარტაპი"] },
-        { emoji: "🏆", keywords: ["побед", "award", "trophy", "win", "გამარჯვება"] },
-        { emoji: "🌟", keywords: ["звезд", "star", "wish", "мечта", "ვარსკვლავი"] },
+        {
+          emoji: "📦",
+          keywords: ["посыл", "delivery", "box", "package", "ამანათი"],
+        },
+        {
+          emoji: "🚀",
+          keywords: ["стартап", "startup", "launch", "project", "სტარტაპი"],
+        },
+        {
+          emoji: "🏆",
+          keywords: ["побед", "award", "trophy", "win", "გამარჯვება"],
+        },
+        {
+          emoji: "🌟",
+          keywords: ["звезд", "star", "wish", "мечта", "ვარსკვლავი"],
+        },
         { emoji: "🧭", keywords: ["путь", "direction", "explore", "გზა"] },
-        { emoji: "🔭", keywords: ["телескоп", "space", "science", "მეცნიერება"] },
+        {
+          emoji: "🔭",
+          keywords: ["телескоп", "space", "science", "მეცნიერება"],
+        },
       ],
     },
   ];
@@ -23942,7 +24579,9 @@ function openGoalsModal(options = {}) {
     const normalized = normalizeGoalText(name);
     if (!normalized) return "🎯";
     const matched = GOAL_EMOJI_RULES.find((rule) =>
-      rule.keywords.some((keyword) => normalized.includes(normalizeGoalText(keyword))),
+      rule.keywords.some((keyword) =>
+        normalized.includes(normalizeGoalText(keyword)),
+      ),
     );
     return matched?.emoji || "🎯";
   };
@@ -24021,20 +24660,26 @@ function openGoalsModal(options = {}) {
         ${renderGoalEmojiPicker(gs[goalIndex].emoji || pickGoalEmojiByName(gs[goalIndex].name))}
       </div>
     `;
-    const emojiModal = createModal("goalEmojiEditModal", lc.changeEmoji, pickerHtml);
+    const emojiModal = createModal(
+      "goalEmojiEditModal",
+      lc.changeEmoji,
+      pickerHtml,
+    );
     document.body.appendChild(emojiModal);
     openModal("goalEmojiEditModal");
-    document.querySelectorAll("#goalEmojiEditModal .goal-emoji-opt").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        gs[goalIndex].emoji = btn.dataset.e;
-        saveGoals(gs);
-        document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
-        closeModal("goalEmojiEditModal");
-        document.getElementById("goalEmojiEditModal")?.remove();
-        haptic("light");
-        reattachGoalBtns(gs);
+    document
+      .querySelectorAll("#goalEmojiEditModal .goal-emoji-opt")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          gs[goalIndex].emoji = btn.dataset.e;
+          saveGoals(gs);
+          document.getElementById("goalsList").innerHTML = renderGoalCards(gs);
+          closeModal("goalEmojiEditModal");
+          document.getElementById("goalEmojiEditModal")?.remove();
+          haptic("light");
+          reattachGoalBtns(gs);
+        });
       });
-    });
   };
 
   document.getElementById("goalAddBtn")?.addEventListener("click", () => {
@@ -24412,12 +25057,9 @@ function addGoalsNavButton() {
     const dragDepth = clamp((dy - 24) / 180, 0, 1);
     hoveringTrash = dy > 30 && isVoiceDismissTarget(rect);
     const strongSwipe =
-      (dy > 36 && velocityY > 0.55) ||
-      (deltaY > 22 && velocityY > 0.7);
+      (dy > 36 && velocityY > 0.55) || (deltaY > 22 && velocityY > 0.7);
     const flingDismiss =
-      dy > 72 &&
-      velocityY > 0.72 &&
-      e.clientY > window.innerHeight * 0.26;
+      dy > 72 && velocityY > 0.72 && e.clientY > window.innerHeight * 0.26;
     if (strongSwipe || flingDismiss) armedForDismiss = true;
     const dismissing = hoveringTrash || armedForDismiss;
     if (dismissing) {
@@ -24436,7 +25078,11 @@ function addGoalsNavButton() {
       }
     }
     setVoiceTrashState(
-      dy > 10 || strongSwipe || velocityY > 0.48 || hoveringTrash || armedForDismiss,
+      dy > 10 ||
+        strongSwipe ||
+        velocityY > 0.48 ||
+        hoveringTrash ||
+        armedForDismiss,
       dismissing || strongSwipe || hoveringTrash || armedForDismiss
         ? Math.max(0.82, dragDepth)
         : dragDepth * 0.62,
@@ -24482,7 +25128,10 @@ function addGoalsNavButton() {
       const dy = targetY - rect.top;
       const overshoot = Math.max(
         0,
-        Math.min(Math.max(releaseDy * 2.6, lastVelocityY * 920, 520), Math.max(0, dy + 120)),
+        Math.min(
+          Math.max(releaseDy * 2.6, lastVelocityY * 920, 520),
+          Math.max(0, dy + 120),
+        ),
       );
       const dismissAnim = btn.animate(
         [
@@ -24497,8 +25146,16 @@ function addGoalsNavButton() {
             opacity: 1,
             offset: 0.68,
           },
-          { transform: `translate(${dx * 0.76}px, ${dy * 0.86}px) scale(0.92, 1.08)`, opacity: 0.96, offset: 0.82 },
-          { transform: `translate(${dx}px, ${dy}px) scale(0.18)`, opacity: 0, offset: 1 },
+          {
+            transform: `translate(${dx * 0.76}px, ${dy * 0.86}px) scale(0.92, 1.08)`,
+            opacity: 0.96,
+            offset: 0.82,
+          },
+          {
+            transform: `translate(${dx}px, ${dy}px) scale(0.18)`,
+            opacity: 0,
+            offset: 1,
+          },
         ],
         {
           duration: 700,
