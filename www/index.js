@@ -80,6 +80,8 @@ const CREATOR_SECRET = "";
 // VAPID-публичный ключ (тот же, что и в серверной функции)
 // ═══════════════════════════════════════════════════════════
 const VAPID_PUBLIC_KEY = "";
+const AUTH_SESSION_KEY = "budgetpro_auth_session";
+const AUTH_PENDING_EMAIL_KEY = "budgetpro_auth_pending_email";
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -1869,6 +1871,14 @@ const translations = {
 let currentLang = localStorage.getItem("lang") || "en";
 
 Object.assign(translations.ru, {
+  authTitle: "Вход по Magic Link",
+  authEmailPh: "Введите email",
+  authSendLink: "Отправить ссылку",
+  authCheckEmail: "Проверьте почту",
+  authSentTo: "Ссылка отправлена на",
+  authSending: "Отправка...",
+  authError: "Не удалось отправить ссылку",
+  authInvalidEmail: "Введите корректный email",
   alreadyExists: "⚠️ Уже существует",
   chooseCategoryAndAmountFirst: "Сначала выберите категорию и сумму",
   templateSavedToast: "⭐ Шаблон сохранён",
@@ -1937,6 +1947,14 @@ Object.assign(translations.ru, {
 });
 
 Object.assign(translations.en, {
+  authTitle: "Sign in with Magic Link",
+  authEmailPh: "Enter email",
+  authSendLink: "Send link",
+  authCheckEmail: "Check your email",
+  authSentTo: "Link sent to",
+  authSending: "Sending...",
+  authError: "Failed to send link",
+  authInvalidEmail: "Enter a valid email",
   alreadyExists: "⚠️ Already exists",
   chooseCategoryAndAmountFirst: "Choose a category and amount first",
   templateSavedToast: "⭐ Template saved",
@@ -2005,6 +2023,14 @@ Object.assign(translations.en, {
 });
 
 Object.assign(translations.ka, {
+  authTitle: "შესვლა Magic Link-ით",
+  authEmailPh: "შეიყვანეთ ელფოსტა",
+  authSendLink: "ბმულის გაგზავნა",
+  authCheckEmail: "შეამოწმეთ ელფოსტა",
+  authSentTo: "ბმული გაიგზავნა მისამართზე",
+  authSending: "იგზავნება...",
+  authError: "ბმულის გაგზავნა ვერ მოხერხდა",
+  authInvalidEmail: "შეიყვანეთ სწორი ელფოსტა",
   alreadyExists: "⚠️ უკვე არსებობს",
   chooseCategoryAndAmountFirst: "ჯერ აირჩიეთ კატეგორია და თანხა",
   templateSavedToast: "⭐ შაბლონი შენახულია",
@@ -16165,6 +16191,252 @@ function checkShareLink() {
   } catch (e) {
     return false;
   }
+}
+
+function parseJwtPayload(token) {
+  try {
+    const parts = String(token || "").split(".");
+    if (parts.length < 2) return null;
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64 + "=".repeat((4 - (base64.length % 4)) % 4);
+    const json = decodeURIComponent(
+      atob(padded)
+        .split("")
+        .map((ch) => "%" + ch.charCodeAt(0).toString(16).padStart(2, "0"))
+        .join(""),
+    );
+    return JSON.parse(json);
+  } catch (e) {
+    return null;
+  }
+}
+
+function getAuthSession() {
+  try {
+    const raw = localStorage.getItem(AUTH_SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    return {
+      access_token: String(parsed.access_token || ""),
+      refresh_token: String(parsed.refresh_token || ""),
+      expires_at: Number(parsed.expires_at || 0),
+      email: String(parsed.email || ""),
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveAuthSession(session) {
+  const safeSession = {
+    access_token: String(session?.access_token || ""),
+    refresh_token: String(session?.refresh_token || ""),
+    expires_at: Number(session?.expires_at || 0),
+    email: String(session?.email || ""),
+  };
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(safeSession));
+}
+
+function clearAuthSession() {
+  localStorage.removeItem(AUTH_SESSION_KEY);
+  localStorage.removeItem(AUTH_PENDING_EMAIL_KEY);
+}
+
+function isAuthenticated() {
+  const session = getAuthSession();
+  if (!session?.access_token) return false;
+  if (!session?.expires_at) return false;
+  return session.expires_at * 1000 > Date.now();
+}
+
+async function handleAuthCallback() {
+  const hash = window.location.hash || "";
+  if (!hash || hash.startsWith("#share=")) return false;
+
+  const params = new URLSearchParams(hash.slice(1));
+  const accessToken = params.get("access_token") || "";
+  const refreshToken = params.get("refresh_token") || "";
+  const expiresIn = parseInt(params.get("expires_in") || "0", 10);
+
+  if (!accessToken || !refreshToken || !expiresIn) return false;
+
+  const payload = parseJwtPayload(accessToken);
+  const email =
+    payload && typeof payload.email === "string" ? payload.email : "";
+
+  saveAuthSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    expires_at: Math.floor(Date.now() / 1000) + expiresIn,
+    email,
+  });
+
+  localStorage.removeItem(AUTH_PENDING_EMAIL_KEY);
+  history.replaceState(
+    null,
+    "",
+    window.location.pathname + window.location.search,
+  );
+  return true;
+}
+
+async function sendMagicLink(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+
+  const response = await fetch("/api/auth/magic-link", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email: normalizedEmail }),
+  });
+
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (e) {
+    data = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      String(
+        data?.error || data?.message || data?.msg || "magic_link_send_failed",
+      ),
+    );
+  }
+
+  if (data && data.ok === false) {
+    throw new Error(
+      String(
+        data?.error || data?.message || data?.msg || "magic_link_send_failed",
+      ),
+    );
+  }
+
+  localStorage.setItem(AUTH_PENDING_EMAIL_KEY, normalizedEmail);
+  return data || { ok: true };
+}
+
+function showAuthScreen() {
+  const existing = document.getElementById("authScreen");
+  if (existing) existing.remove();
+
+  const pendingEmail = localStorage.getItem(AUTH_PENDING_EMAIL_KEY) || "";
+
+  const overlay = document.createElement("div");
+  overlay.id = "authScreen";
+  overlay.style.cssText =
+    "position:fixed;inset:0;background:radial-gradient(circle at 50% 10%,var(--primary-pale),var(--cream) 46%,var(--cream-dark));z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);";
+
+  const card = document.createElement("div");
+  card.style.cssText =
+    "width:min(380px,94vw);border-radius:30px;padding:28px 20px 24px;background:var(--card-bg);border:1.5px solid var(--cream-border);box-shadow:0 20px 54px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:16px;";
+
+  const icon = document.createElement("div");
+  icon.textContent = "✉️";
+  icon.style.cssText =
+    "font-size:42px;line-height:1;text-align:center;margin-bottom:4px;";
+
+  const title = document.createElement("div");
+  title.textContent = t("authTitle");
+  title.style.cssText =
+    "font-size:24px;font-weight:950;color:var(--text);text-align:center;";
+
+  const sentWrap = document.createElement("div");
+  sentWrap.style.cssText =
+    "display:none;flex-direction:column;gap:4px;background:var(--primary-pale);border:1px solid var(--cream-border);border-radius:18px;padding:14px 16px;";
+
+  const sentTitle = document.createElement("div");
+  sentTitle.textContent = t("authCheckEmail");
+  sentTitle.style.cssText =
+    "font-size:15px;font-weight:900;color:var(--text);text-align:center;";
+
+  const sentEmail = document.createElement("div");
+  sentEmail.style.cssText =
+    "font-size:14px;color:var(--text-muted);text-align:center;word-break:break-word;";
+
+  sentWrap.appendChild(sentTitle);
+  sentWrap.appendChild(sentEmail);
+
+  const input = document.createElement("input");
+  input.type = "email";
+  input.id = "authEmailInput";
+  input.className = "modal-input";
+  input.placeholder = t("authEmailPh");
+  input.autocomplete = "email";
+  input.autocapitalize = "off";
+  input.spellcheck = false;
+
+  const errorEl = document.createElement("div");
+  errorEl.id = "authErrorText";
+  errorEl.style.cssText =
+    "min-height:20px;font-size:14px;font-weight:800;color:var(--expense-color);text-align:center;";
+
+  const button = document.createElement("button");
+  button.id = "authSendBtn";
+  button.className = "btn-primary";
+  button.textContent = t("authSendLink");
+  button.style.cssText =
+    "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;";
+
+  card.appendChild(icon);
+  card.appendChild(title);
+  card.appendChild(sentWrap);
+  card.appendChild(input);
+  card.appendChild(errorEl);
+  card.appendChild(button);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  const updateSentState = (email) => {
+    if (!email) {
+      sentWrap.style.display = "none";
+      sentEmail.textContent = "";
+      return;
+    }
+    sentWrap.style.display = "flex";
+    sentEmail.textContent = `${t("authSentTo")} ${email}`;
+  };
+
+  updateSentState(pendingEmail);
+
+  const setError = (message) => {
+    errorEl.textContent = message || "";
+  };
+
+  const setSending = (sending) => {
+    button.disabled = sending;
+    button.textContent = sending ? t("authSending") : t("authSendLink");
+  };
+
+  const submit = async () => {
+    const email = String(input.value || "").trim().toLowerCase();
+    setError("");
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError(t("authInvalidEmail"));
+      return;
+    }
+
+    setSending(true);
+    try {
+      await sendMagicLink(email);
+      updateSentState(email);
+      input.value = email;
+    } catch (e) {
+      setError(t("authError"));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  button.addEventListener("click", submit);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") submit();
+  });
+  setTimeout(() => input.focus(), 0);
 }
 
 async function bootApp() {
