@@ -358,10 +358,20 @@
       <div class="header-actions">
         <button class="header-btn" id="headerGuideBtn">📖</button>
         <button class="header-btn" id="headerHelpBtn">❓</button>
-        <button class="header-btn" id="headerLangBtn" data-i18n-aria-label="language" aria-label="Language">
+        <button
+          class="header-btn"
+          id="headerLangBtn"
+          data-i18n-aria-label="language"
+          aria-label="Language"
+        >
           🇬🇧
         </button>
-        <button class="header-btn" id="themeToggle" data-i18n-aria-label="theme" aria-label="Theme">
+        <button
+          class="header-btn"
+          id="themeToggle"
+          data-i18n-aria-label="theme"
+          aria-label="Theme"
+        >
           🌙
         </button>
       </div>
@@ -393,7 +403,12 @@
       <button class="nav-btn" data-tab="stats">
         <div class="nav-icon">📊</div>
       </button>
-      <button class="nav-btn nav-fab-btn" id="fabBtn" data-i18n-aria-label="add" aria-label="Add">
+      <button
+        class="nav-btn nav-fab-btn"
+        id="fabBtn"
+        data-i18n-aria-label="add"
+        aria-label="Add"
+      >
         <div class="nav-fab-circle">＋</div>
       </button>
       <button class="nav-btn" data-tab="categories">
@@ -4402,7 +4417,7 @@
       #voiceInputBtn {
         --voice-core-a: #0284c7;
         --voice-core-b: #14b8a6;
-        --voice-wave-a: rgba(2, 132, 199, 0.30);
+        --voice-wave-a: rgba(2, 132, 199, 0.3);
         --voice-wave-b: rgba(20, 184, 166, 0.24);
         --voice-wave-c: rgba(255, 255, 255, 0.28);
         width: 62px !important;
@@ -4416,7 +4431,11 @@
         touch-action: none !important;
         user-select: none !important;
         -webkit-user-select: none !important;
-        background: linear-gradient(135deg, var(--voice-core-a), var(--voice-core-b)) !important;
+        background: linear-gradient(
+          135deg,
+          var(--voice-core-a),
+          var(--voice-core-b)
+        ) !important;
         box-shadow:
           0 14px 34px var(--voice-wave-a),
           0 8px 22px var(--voice-wave-b) !important;
@@ -4429,8 +4448,18 @@
         border-radius: inherit !important;
         z-index: -1 !important;
         background:
-          radial-gradient(circle, transparent 47%, var(--voice-wave-a) 49%, transparent 53%),
-          radial-gradient(circle, transparent 60%, var(--voice-wave-b) 62%, transparent 67%),
+          radial-gradient(
+            circle,
+            transparent 47%,
+            var(--voice-wave-a) 49%,
+            transparent 53%
+          ),
+          radial-gradient(
+            circle,
+            transparent 60%,
+            var(--voice-wave-b) 62%,
+            transparent 67%
+          ),
           radial-gradient(circle, var(--voice-wave-c) 0%, transparent 58%) !important;
         animation: voiceMicroWaves 2.25s ease-out infinite !important;
       }
@@ -4440,7 +4469,11 @@
         inset: -7px !important;
         border-radius: inherit !important;
         z-index: -1 !important;
-        background: radial-gradient(circle, var(--voice-wave-b), transparent 66%) !important;
+        background: radial-gradient(
+          circle,
+          var(--voice-wave-b),
+          transparent 66%
+        ) !important;
         animation: voiceSoftBreath 1.7s ease-in-out infinite !important;
       }
       #voiceInputBtn.dragging {
@@ -4448,25 +4481,55 @@
         transform: scale(1.05) !important;
         box-shadow:
           0 18px 42px rgba(6, 182, 212, 0.38),
-          0 10px 26px rgba(249, 115, 22, 0.30) !important;
+          0 10px 26px rgba(249, 115, 22, 0.3) !important;
       }
       @keyframes voiceFloatPulse {
-        0%, 100% { transform: translateY(0) scale(1); }
-        50% { transform: translateY(-3px) scale(1.04); }
+        0%,
+        100% {
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          transform: translateY(-3px) scale(1.04);
+        }
       }
       @keyframes voiceHaloPulse {
-        0% { opacity: 0.85; transform: scale(0.82); }
-        70% { opacity: 0; transform: scale(1.35); }
-        100% { opacity: 0; transform: scale(1.35); }
+        0% {
+          opacity: 0.85;
+          transform: scale(0.82);
+        }
+        70% {
+          opacity: 0;
+          transform: scale(1.35);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.35);
+        }
       }
       @keyframes voiceMicroWaves {
-        0% { opacity: 0.84; transform: scale(0.72) rotate(0deg); }
-        45% { opacity: 0.42; transform: scale(1.08) rotate(10deg); }
-        100% { opacity: 0; transform: scale(1.34) rotate(18deg); }
+        0% {
+          opacity: 0.84;
+          transform: scale(0.72) rotate(0deg);
+        }
+        45% {
+          opacity: 0.42;
+          transform: scale(1.08) rotate(10deg);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.34) rotate(18deg);
+        }
       }
       @keyframes voiceSoftBreath {
-        0%, 100% { opacity: 0.42; transform: scale(0.92); }
-        50% { opacity: 0.68; transform: scale(1.08); }
+        0%,
+        100% {
+          opacity: 0.42;
+          transform: scale(0.92);
+        }
+        50% {
+          opacity: 0.68;
+          transform: scale(1.08);
+        }
       }
       #goalsNavBtn {
         bottom: 82px !important;
@@ -4476,9 +4539,13 @@
         --voice-core-a: #22d3ee;
         --voice-core-b: #fb7185;
         --voice-wave-a: rgba(34, 211, 238, 0.38);
-        --voice-wave-b: rgba(251, 113, 133, 0.30);
-        --voice-wave-c: rgba(224, 242, 254, 0.20);
-        background: linear-gradient(135deg, var(--voice-core-a), var(--voice-core-b)) !important;
+        --voice-wave-b: rgba(251, 113, 133, 0.3);
+        --voice-wave-c: rgba(224, 242, 254, 0.2);
+        background: linear-gradient(
+          135deg,
+          var(--voice-core-a),
+          var(--voice-core-b)
+        ) !important;
         color: #07111f !important;
         border: 0 !important;
       }
@@ -4490,10 +4557,14 @@
       body:not(.dark) #voiceInputBtn {
         --voice-core-a: #0284c7;
         --voice-core-b: #14b8a6;
-        --voice-wave-a: rgba(2, 132, 199, 0.30);
+        --voice-wave-a: rgba(2, 132, 199, 0.3);
         --voice-wave-b: rgba(20, 184, 166, 0.24);
         --voice-wave-c: rgba(255, 255, 255, 0.28);
-        background: linear-gradient(135deg, var(--voice-core-a), var(--voice-core-b)) !important;
+        background: linear-gradient(
+          135deg,
+          var(--voice-core-a),
+          var(--voice-core-b)
+        ) !important;
         color: #fff !important;
         border: 0 !important;
       }
@@ -5180,7 +5251,9 @@
         margin-top: -18px !important;
       }
       body.simple-mode .main-scroll {
-        padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important;
+        padding-bottom: calc(
+          108px + env(safe-area-inset-bottom, 0px)
+        ) !important;
       }
       body.simple-mode #mainNav {
         display: none !important;
@@ -5447,14 +5520,22 @@
         transform: scale(0.96) !important;
       }
       body.dark .sm-voice-btn {
-        background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(251, 113, 133, 0.16)) !important;
+        background: linear-gradient(
+          135deg,
+          rgba(34, 211, 238, 0.18),
+          rgba(251, 113, 133, 0.16)
+        ) !important;
         border-color: rgba(125, 211, 252, 0.34) !important;
         box-shadow: 0 8px 28px rgba(34, 211, 238, 0.12) !important;
       }
       body:not(.dark) .sm-voice-btn {
-        background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(20, 184, 166, 0.10)) !important;
-        border-color: rgba(2, 132, 199, 0.20) !important;
-        box-shadow: 0 8px 24px rgba(2, 132, 199, 0.10) !important;
+        background: linear-gradient(
+          135deg,
+          rgba(2, 132, 199, 0.12),
+          rgba(20, 184, 166, 0.1)
+        ) !important;
+        border-color: rgba(2, 132, 199, 0.2) !important;
+        box-shadow: 0 8px 24px rgba(2, 132, 199, 0.1) !important;
       }
       .sm-voice-icon {
         width: 56px !important;

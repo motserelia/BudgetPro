@@ -9,3 +9,4 @@ PRIVATE_SECRETS.local.md
 .env
 .env.*
 *.jks
+.aider*
