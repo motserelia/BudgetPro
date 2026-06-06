@@ -16443,6 +16443,7 @@ async function bootApp() {
   appBooting = true;
   traceApp("boot-start", { currentTab, currentLang });
   traceLayoutSnapshot("boot:start");
+  await handleAuthCallback();
   await loadAll();
   traceApp("boot-loadAll-done", {
     transactions: transactions.length,
@@ -16451,12 +16452,15 @@ async function bootApp() {
   });
   traceLayoutSnapshot("boot:loadAll-done");
   scheduleBootLayoutTracing();
-  if (!checkShareLink()) {
-    if ((pinEnabled && pinHash) || biometryEnabled) {
-      showPinScreen(init);
-    } else {
-      init();
-    }
+  if (checkShareLink()) return;
+  if (!isAuthenticated()) {
+    showAuthScreen();
+    return;
+  }
+  if ((pinEnabled && pinHash) || biometryEnabled) {
+    showPinScreen(init);
+  } else {
+    init();
   }
 }
 
