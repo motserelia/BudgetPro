@@ -1878,6 +1878,10 @@ Object.assign(translations.ru, {
   authContinueAsGuest: "Continue as Guest",
   authDividerOr: "OR",
   authSubtitle: "Безопасный вход по email для ваших данных BudgetPRO",
+  authLanguageLabel: "Язык",
+  authThemeLabel: "Тема",
+  authThemeDay: "Day",
+  authThemeNight: "Night",
   authCheckEmail: "Проверьте почту",
   authSentTo: "Ссылка отправлена на",
   authSending: "Отправка...",
@@ -1966,6 +1970,10 @@ Object.assign(translations.en, {
   authContinueAsGuest: "Continue as Guest",
   authDividerOr: "OR",
   authSubtitle: "Secure email access to your BudgetPRO data",
+  authLanguageLabel: "Language",
+  authThemeLabel: "Theme",
+  authThemeDay: "Day",
+  authThemeNight: "Night",
   authCheckEmail: "Check your email",
   authSentTo: "Link sent to",
   authSending: "Sending...",
@@ -2054,6 +2062,10 @@ Object.assign(translations.ka, {
   authContinueAsGuest: "გაგრძელება სტუმრის რეჟიმში",
   authDividerOr: "ან",
   authSubtitle: "უსაფრთხო წვდომა თქვენს BudgetPRO მონაცემებზე ელფოსტით",
+  authLanguageLabel: "ენა",
+  authThemeLabel: "თემა",
+  authThemeDay: "დღე",
+  authThemeNight: "ღამე",
   authCheckEmail: "შეამოწმეთ ელფოსტა",
   authSentTo: "ბმული გაიგზავნა მისამართზე",
   authSending: "იგზავნება...",
@@ -16357,11 +16369,13 @@ function getCreatorSessionMarker() {
 
 function showCreatorWelcomeToastIfNeeded() {
   if (!isCreator()) return;
+  const toastEl = document.getElementById("toast");
+  if (!toastEl) return;
   const marker = getCreatorSessionMarker();
   if (!marker) return;
   if (localStorage.getItem(CREATOR_WELCOME_SHOWN_KEY) === marker) return;
-  localStorage.setItem(CREATOR_WELCOME_SHOWN_KEY, marker);
   showToast(t("creatorWelcomeToast"), "success");
+  localStorage.setItem(CREATOR_WELCOME_SHOWN_KEY, marker);
 }
 
 function logout() {
@@ -16475,22 +16489,58 @@ function showAuthScreen() {
   card.style.cssText =
     isDark
       ? "width:min(380px,94vw);border-radius:30px;padding:28px 20px 24px;background:var(--card-bg);border:1.5px solid var(--cream-border);box-shadow:0 20px 54px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:16px;"
-      : "width:min(420px,94vw);border-radius:32px;padding:32px 22px 24px;background:rgba(255,255,255,.88);border:1px solid rgba(148,163,184,.2);box-shadow:0 24px 80px rgba(15,23,42,.12);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:16px;";
+      : "width:min(430px,94vw);border-radius:32px;padding:26px 22px 24px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,250,252,.95));border:1px solid rgba(148,163,184,.28);box-shadow:0 30px 80px rgba(15,23,42,.16);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:16px;";
+
+  const controls = document.createElement("div");
+  controls.style.cssText =
+    "display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:2px;";
+
+  const languageGroup = document.createElement("div");
+  languageGroup.style.cssText =
+    "display:flex;flex-direction:column;gap:6px;";
+  const languageLabel = document.createElement("div");
+  languageLabel.textContent = t("authLanguageLabel");
+  languageLabel.style.cssText =
+    "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);";
+  const languageRow = document.createElement("div");
+  languageRow.style.cssText =
+    isDark
+      ? "display:flex;gap:6px;padding:5px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);"
+      : "display:flex;gap:6px;padding:5px;border-radius:16px;background:rgba(241,245,249,.92);border:1px solid rgba(148,163,184,.18);";
+
+  const themeGroup = document.createElement("div");
+  themeGroup.style.cssText =
+    "display:flex;flex-direction:column;gap:6px;";
+  const themeLabel = document.createElement("div");
+  themeLabel.textContent = t("authThemeLabel");
+  themeLabel.style.cssText =
+    "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);";
+  const themeRow = document.createElement("div");
+  themeRow.style.cssText =
+    isDark
+      ? "display:flex;gap:6px;padding:5px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);"
+      : "display:flex;gap:6px;padding:5px;border-radius:16px;background:rgba(241,245,249,.92);border:1px solid rgba(148,163,184,.18);";
 
   const logo = document.createElement("div");
   logo.textContent = "BudgetPRO";
   logo.style.cssText =
-    "font-size:30px;font-weight:1000;letter-spacing:-0.04em;color:var(--text);text-align:center;";
+    isDark
+      ? "font-size:30px;font-weight:1000;letter-spacing:-0.04em;color:var(--text);text-align:center;"
+      : "font-size:32px;font-weight:1000;letter-spacing:-0.05em;color:#0f172a;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,.65);";
 
   const title = document.createElement("div");
   title.textContent = t("authTitle");
   title.style.cssText =
-    "font-size:24px;font-weight:950;color:var(--text);text-align:center;";
+    isDark
+      ? "font-size:24px;font-weight:950;color:var(--text);text-align:center;"
+      : "font-size:25px;font-weight:950;color:#111827;text-align:center;line-height:1.18;";
 
   const subtitle = document.createElement("div");
   subtitle.textContent = t("authSubtitle");
   subtitle.style.cssText =
-    "margin-top:-6px;font-size:14px;line-height:1.55;color:var(--text-muted);text-align:center;";
+    isDark
+      ? "margin-top:-6px;font-size:14px;line-height:1.55;color:var(--text-muted);text-align:center;"
+      : "margin-top:-6px;font-size:14px;line-height:1.6;color:#475569;text-align:center;font-weight:600;";
 
   const sentWrap = document.createElement("div");
   sentWrap.style.cssText =
@@ -16519,7 +16569,7 @@ function showAuthScreen() {
   input.style.cssText =
     isDark
       ? ""
-      : "min-height:56px;border-radius:18px;border:1.5px solid rgba(148,163,184,.28);background:rgba(248,250,252,.96);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);padding:0 16px;font-size:15px;";
+      : "min-height:58px;border-radius:18px;border:1.5px solid rgba(100,116,139,.34);background:#fff;box-shadow:0 8px 18px rgba(148,163,184,.12), inset 0 1px 0 rgba(255,255,255,.9);padding:0 16px;font-size:15px;color:#0f172a;font-weight:700;";
 
   const errorEl = document.createElement("div");
   errorEl.id = "authErrorText";
@@ -16551,8 +16601,67 @@ function showAuthScreen() {
   guestButton.style.cssText =
     isDark
       ? "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;"
-      : "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;background:rgba(255,255,255,.72);color:var(--text);border:1.5px solid rgba(148,163,184,.24);box-shadow:0 10px 28px rgba(148,163,184,.12);";
+      : "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;background:#ffffff;color:#1e293b;border:1.5px solid rgba(100,116,139,.28);box-shadow:0 12px 28px rgba(148,163,184,.14);";
 
+  const makeSegmentButton = (label, active, onClick) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = label;
+    btn.style.cssText = active
+      ? isDark
+        ? "flex:1;padding:10px 0;border:none;border-radius:12px;background:linear-gradient(135deg,#a78bfa,#60a5fa);color:#fff;font-size:12px;font-weight:900;cursor:pointer;"
+        : "flex:1;padding:10px 0;border:none;border-radius:12px;background:linear-gradient(135deg,#0f172a,#334155);color:#fff;font-size:12px;font-weight:900;cursor:pointer;"
+      : isDark
+        ? "flex:1;padding:10px 0;border:none;border-radius:12px;background:transparent;color:rgba(255,255,255,.78);font-size:12px;font-weight:800;cursor:pointer;"
+        : "flex:1;padding:10px 0;border:none;border-radius:12px;background:transparent;color:#475569;font-size:12px;font-weight:800;cursor:pointer;";
+    btn.addEventListener("click", onClick);
+    return btn;
+  };
+
+  languageRow.appendChild(
+    makeSegmentButton("RU", currentLang === "ru", () => {
+      setLanguage("ru");
+      showAuthScreen();
+    }),
+  );
+  languageRow.appendChild(
+    makeSegmentButton("EN", currentLang === "en", () => {
+      setLanguage("en");
+      showAuthScreen();
+    }),
+  );
+  languageRow.appendChild(
+    makeSegmentButton("KA", currentLang === "ka", () => {
+      setLanguage("ka");
+      showAuthScreen();
+    }),
+  );
+
+  themeRow.appendChild(
+    makeSegmentButton(t("authThemeDay"), !isDark, () => {
+      document.body.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      if (COLOR_THEMES[colorTheme]?.dark) applyColorTheme("default");
+      showAuthScreen();
+    }),
+  );
+  themeRow.appendChild(
+    makeSegmentButton(t("authThemeNight"), isDark, () => {
+      document.body.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      if (!COLOR_THEMES[colorTheme]?.dark) applyColorTheme("dark");
+      showAuthScreen();
+    }),
+  );
+
+  languageGroup.appendChild(languageLabel);
+  languageGroup.appendChild(languageRow);
+  themeGroup.appendChild(themeLabel);
+  themeGroup.appendChild(themeRow);
+  controls.appendChild(languageGroup);
+  controls.appendChild(themeGroup);
+
+  card.appendChild(controls);
   card.appendChild(logo);
   card.appendChild(title);
   card.appendChild(subtitle);
@@ -16645,11 +16754,14 @@ async function bootApp() {
     showAuthScreen();
     return;
   }
-  if (hasFreshAuth) showCreatorWelcomeToastIfNeeded();
-  if ((pinEnabled && pinHash) || biometryEnabled) {
-    showPinScreen(init);
-  } else {
+  const finishAuthorizedBoot = () => {
     init();
+    if (hasFreshAuth) showCreatorWelcomeToastIfNeeded();
+  };
+  if ((pinEnabled && pinHash) || biometryEnabled) {
+    showPinScreen(finishAuthorizedBoot);
+  } else {
+    finishAuthorizedBoot();
   }
 }
 
