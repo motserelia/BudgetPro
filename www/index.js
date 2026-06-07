@@ -16620,19 +16620,25 @@ function showAuthScreen() {
 
   languageRow.appendChild(
     makeSegmentButton("RU", currentLang === "ru", () => {
-      setLanguage("ru");
+      currentLang = "ru";
+      localStorage.setItem("lang", "ru");
+      document.documentElement.lang = "ru";
       showAuthScreen();
     }),
   );
   languageRow.appendChild(
     makeSegmentButton("EN", currentLang === "en", () => {
-      setLanguage("en");
+      currentLang = "en";
+      localStorage.setItem("lang", "en");
+      document.documentElement.lang = "en";
       showAuthScreen();
     }),
   );
   languageRow.appendChild(
     makeSegmentButton("KA", currentLang === "ka", () => {
-      setLanguage("ka");
+      currentLang = "ka";
+      localStorage.setItem("lang", "ka");
+      document.documentElement.lang = "ka";
       showAuthScreen();
     }),
   );
@@ -20059,8 +20065,7 @@ function shouldShowOnboarding() {
 
 function showOnboarding() {
   if (!shouldShowOnboarding()) return;
-  // Remove any existing overlay
-  document.getElementById("onboardingOverlay")?.remove();
+  if (document.getElementById("onboardingOverlay")) return;
 
   const lang = currentLang;
   const slides = {

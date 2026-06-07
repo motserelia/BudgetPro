@@ -1,6 +1,6 @@
-/* БюджетPRO — Service Worker v3.1 (Netlify edition) */
+/* БюджетPRO — Service Worker v3.2 (Netlify edition) */
 
-const CACHE_NAME = "budgetpro-v3.7";
+const CACHE_NAME = "budgetpro-v3.8";
 
 const ASSETS = [
   "/",
@@ -51,6 +51,9 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET") return;
   if (url.protocol === "chrome-extension:") return;
+  const isAppShell = ["/", "/index.html", "/index.js", "/index.css"].includes(
+    url.pathname,
+  );
 
   // Network‑first: Firebase, external APIs
   const isExternal = url.hostname !== location.hostname;
@@ -63,7 +66,22 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cache‑first for our own assets
+  if (isAppShell) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response?.status === 200 && response.type !== "opaque") {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/index.html"))),
+    );
+    return;
+  }
+
+  // Cache‑first for static local assets
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
