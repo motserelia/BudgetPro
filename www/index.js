@@ -74,14 +74,14 @@ function injectSearchCountStyles() {
   `;
   document.head.appendChild(style);
 }
-const CREATOR_SECRET = "";
-
 // ═══════════════════════════════════════════════════════════
 // VAPID-публичный ключ (тот же, что и в серверной функции)
 // ═══════════════════════════════════════════════════════════
 const VAPID_PUBLIC_KEY = "";
 const AUTH_SESSION_KEY = "budgetpro_auth_session";
 const AUTH_PENDING_EMAIL_KEY = "budgetpro_auth_pending_email";
+const GUEST_MODE_KEY = "budgetpro_guest_mode";
+const CREATOR_WELCOME_SHOWN_KEY = "budgetpro_creator_welcome_shown";
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -1874,11 +1874,23 @@ Object.assign(translations.ru, {
   authTitle: "Вход по Magic Link",
   authEmailPh: "Введите email",
   authSendLink: "Отправить ссылку",
+  authContinueWithEmail: "Continue with Email",
+  authContinueAsGuest: "Continue as Guest",
+  authDividerOr: "OR",
+  authSubtitle: "Безопасный вход по email для ваших данных BudgetPRO",
   authCheckEmail: "Проверьте почту",
   authSentTo: "Ссылка отправлена на",
   authSending: "Отправка...",
   authError: "Не удалось отправить ссылку",
   authInvalidEmail: "Введите корректный email",
+  logout: "Logout",
+  signInWithEmail: "Sign in with Email",
+  signedOut: "Вы вышли из аккаунта",
+  accountStatus: "Статус аккаунта",
+  guestAccount: "👤 Гость",
+  creatorAccount: "👑 Создатель",
+  emailAccount: "📧 Email",
+  creatorWelcomeToast: "👑 Добро пожаловать, мой ХОЗЯИН.",
   alreadyExists: "⚠️ Уже существует",
   chooseCategoryAndAmountFirst: "Сначала выберите категорию и сумму",
   templateSavedToast: "⭐ Шаблон сохранён",
@@ -1950,11 +1962,23 @@ Object.assign(translations.en, {
   authTitle: "Sign in with Magic Link",
   authEmailPh: "Enter email",
   authSendLink: "Send link",
+  authContinueWithEmail: "Continue with Email",
+  authContinueAsGuest: "Continue as Guest",
+  authDividerOr: "OR",
+  authSubtitle: "Secure email access to your BudgetPRO data",
   authCheckEmail: "Check your email",
   authSentTo: "Link sent to",
   authSending: "Sending...",
   authError: "Failed to send link",
   authInvalidEmail: "Enter a valid email",
+  logout: "Logout",
+  signInWithEmail: "Sign in with Email",
+  signedOut: "You have been signed out",
+  accountStatus: "Account status",
+  guestAccount: "👤 Guest",
+  creatorAccount: "👑 Creator",
+  emailAccount: "📧 Email",
+  creatorWelcomeToast: "👑 Welcome back, my MASTER.",
   alreadyExists: "⚠️ Already exists",
   chooseCategoryAndAmountFirst: "Choose a category and amount first",
   templateSavedToast: "⭐ Template saved",
@@ -2026,11 +2050,23 @@ Object.assign(translations.ka, {
   authTitle: "შესვლა Magic Link-ით",
   authEmailPh: "შეიყვანეთ ელფოსტა",
   authSendLink: "ბმულის გაგზავნა",
+  authContinueWithEmail: "ელფოსტით გაგრძელება",
+  authContinueAsGuest: "გაგრძელება სტუმრის რეჟიმში",
+  authDividerOr: "ან",
+  authSubtitle: "უსაფრთხო წვდომა თქვენს BudgetPRO მონაცემებზე ელფოსტით",
   authCheckEmail: "შეამოწმეთ ელფოსტა",
   authSentTo: "ბმული გაიგზავნა მისამართზე",
   authSending: "იგზავნება...",
   authError: "ბმულის გაგზავნა ვერ მოხერხდა",
   authInvalidEmail: "შეიყვანეთ სწორი ელფოსტა",
+  logout: "გასვლა",
+  signInWithEmail: "ელფოსტით შესვლა",
+  signedOut: "ანგარიშიდან გამოხვედით",
+  accountStatus: "ანგარიშის სტატუსი",
+  guestAccount: "👤 სტუმარი",
+  creatorAccount: "👑 შემქმნელი",
+  emailAccount: "📧 ელფოსტა",
+  creatorWelcomeToast: "👑 კეთილი იყოს თქვენი დაბრუნება, ჩემო ბრძანებელო.",
   alreadyExists: "⚠️ უკვე არსებობს",
   chooseCategoryAndAmountFirst: "ჯერ აირჩიეთ კატეგორია და თანხა",
   templateSavedToast: "⭐ შაბლონი შენახულია",
@@ -10409,6 +10445,16 @@ function renderSettings() {
   const profBal = totalInc - totalExp;
   const profBalStr =
     (profBal >= 0 ? "+" : "−") + sym() + fmt(Math.abs(profBal));
+  const currentUserEmail = getCurrentUserEmail();
+  const guestModeActive = isGuestMode();
+  const creatorActive = isCreator();
+  const accountStatusLabel = guestModeActive
+    ? t("guestAccount")
+    : creatorActive
+      ? t("creatorAccount")
+      : currentUserEmail
+        ? t("emailAccount")
+        : "";
 
   const html = `
   <!-- ═══ ПРОФИЛЬ ═══ -->
@@ -10424,6 +10470,21 @@ function renderSettings() {
       ${profiles.length > 1 ? { ru: "Сменить", en: "Switch", ka: "შეცვ." }[L] : { ru: "Добавить", en: "Add", ka: "დამ." }[L]}
     </button>
   </div>
+
+  ${
+    accountStatusLabel
+      ? `
+  <div class="set-card" style="padding:16px 18px;margin-top:12px;">
+    <div style="font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">${t("accountStatus")}</div>
+    <div style="font-size:18px;font-weight:900;color:var(--text);">${accountStatusLabel}</div>
+    ${
+      currentUserEmail
+        ? `<a href="mailto:${esc(currentUserEmail)}" style="display:inline-block;margin-top:8px;font-size:14px;font-weight:700;color:var(--primary);text-decoration:none;word-break:break-word;">${esc(currentUserEmail)}</a>`
+        : ""
+    }
+  </div>`
+      : ""
+  }
 
   <!-- ═══ УПРОЩЁННЫЙ РЕЖИМ (самая заметная кнопка) ═══ -->
   <div class="set-simple-toggle" id="sec-access">
@@ -10995,6 +11056,23 @@ function renderSettings() {
       : ``
   }
 
+  <div class="set-section-title">${t("accountStatus")}</div>
+  <div class="set-card">
+    ${
+      guestModeActive
+        ? `<div class="set-row">
+      <div class="set-row-ico">📧</div>
+      <div class="set-row-label">${t("signInWithEmail")}</div>
+      <button class="set-action-btn" id="signInWithEmailBtn">›</button>
+    </div>`
+        : `<div class="set-row">
+      <div class="set-row-ico">↩️</div>
+      <div class="set-row-label">${t("logout")}</div>
+      <button class="set-action-btn" id="logoutBtn">›</button>
+    </div>`
+    }
+  </div>
+
   <!-- ═══ ОПАСНАЯ ЗОНА ═══ -->
   <div class="set-section-title" style="color:#f87171">${t("dangerZone")}</div>
   <div class="set-card set-danger-card">
@@ -11069,6 +11147,12 @@ function renderSettings() {
       .getElementById("profilesBody")
       ?.scrollIntoView({ behavior: "smooth" });
   });
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    askConfirm(t("logout"), () => logout(), { icon: "↩️" });
+  });
+  document
+    .getElementById("signInWithEmailBtn")
+    ?.addEventListener("click", () => showAuthScreen());
 
   // ── PIN ──
   document
@@ -15594,14 +15678,12 @@ function applyFontSize(size) {
 }
 
 function isCreator() {
-  // If we're in a shared/guest session, NEVER consider as creator
-  // regardless of what's stored in profiles
-  if (sharedAccessProfile) return false;
-  const prof = profiles.find((p) => p.id === activeProfileId);
-  if (!prof || prof.role !== "owner") return false;
-  // Extra check: shared profiles cannot be creator
-  if (prof.isShared) return false;
-  return true;
+  return (
+    !isGuestMode() &&
+    !sharedAccessProfile &&
+    isAuthenticated() &&
+    isCreatorEmail(getCurrentUserEmail())
+  );
 }
 function getCreatorSettings() {
   return JSON.parse(localStorage.getItem("budgetpro_creator_settings") || "{}");
@@ -16238,9 +16320,63 @@ function saveAuthSession(session) {
   localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(safeSession));
 }
 
+function isGuestMode() {
+  return localStorage.getItem(GUEST_MODE_KEY) === "true";
+}
+
+function setGuestMode(enabled) {
+  if (enabled) {
+    localStorage.setItem(GUEST_MODE_KEY, "true");
+  } else {
+    localStorage.removeItem(GUEST_MODE_KEY);
+  }
+}
+
+function getCurrentUserEmail() {
+  return String(getAuthSession()?.email || "")
+    .trim()
+    .toLowerCase();
+}
+
+function getCreatorAllowlist() {
+  return ["motserelia92@gmail.com"];
+}
+
+function isCreatorEmail(email) {
+  const normalized = String(email || "")
+    .trim()
+    .toLowerCase();
+  return !!normalized && getCreatorAllowlist().includes(normalized);
+}
+
+function getCreatorSessionMarker() {
+  const session = getAuthSession();
+  if (!session?.access_token || !session?.expires_at) return "";
+  return `${session.email || ""}:${session.expires_at}`;
+}
+
+function showCreatorWelcomeToastIfNeeded() {
+  if (!isCreator()) return;
+  const marker = getCreatorSessionMarker();
+  if (!marker) return;
+  if (localStorage.getItem(CREATOR_WELCOME_SHOWN_KEY) === marker) return;
+  localStorage.setItem(CREATOR_WELCOME_SHOWN_KEY, marker);
+  showToast(t("creatorWelcomeToast"), "success");
+}
+
+function logout() {
+  clearAuthSession();
+  const overlay = document.getElementById("authScreen");
+  if (overlay) overlay.remove();
+  showAuthScreen();
+  showToast(t("signedOut"), "success");
+}
+
 function clearAuthSession() {
   localStorage.removeItem(AUTH_SESSION_KEY);
   localStorage.removeItem(AUTH_PENDING_EMAIL_KEY);
+  localStorage.removeItem(GUEST_MODE_KEY);
+  localStorage.removeItem(CREATOR_WELCOME_SHOWN_KEY);
 }
 
 function isAuthenticated() {
@@ -16272,6 +16408,8 @@ async function handleAuthCallback() {
     email,
   });
 
+  setGuestMode(false);
+  localStorage.removeItem(CREATOR_WELCOME_SHOWN_KEY);
   localStorage.removeItem(AUTH_PENDING_EMAIL_KEY);
   history.replaceState(
     null,
@@ -16324,25 +16462,35 @@ function showAuthScreen() {
   if (existing) existing.remove();
 
   const pendingEmail = localStorage.getItem(AUTH_PENDING_EMAIL_KEY) || "";
+  const isDark = document.body.classList.contains("dark");
 
   const overlay = document.createElement("div");
   overlay.id = "authScreen";
   overlay.style.cssText =
-    "position:fixed;inset:0;background:radial-gradient(circle at 50% 10%,var(--primary-pale),var(--cream) 46%,var(--cream-dark));z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);";
+    isDark
+      ? "position:fixed;inset:0;background:radial-gradient(circle at 50% 10%,var(--primary-pale),var(--cream) 46%,var(--cream-dark));z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);"
+      : "position:fixed;inset:0;background:radial-gradient(circle at top,rgba(255,255,255,.96),rgba(244,247,251,.98) 38%,rgba(232,238,246,1) 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);";
 
   const card = document.createElement("div");
   card.style.cssText =
-    "width:min(380px,94vw);border-radius:30px;padding:28px 20px 24px;background:var(--card-bg);border:1.5px solid var(--cream-border);box-shadow:0 20px 54px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:16px;";
+    isDark
+      ? "width:min(380px,94vw);border-radius:30px;padding:28px 20px 24px;background:var(--card-bg);border:1.5px solid var(--cream-border);box-shadow:0 20px 54px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:16px;"
+      : "width:min(420px,94vw);border-radius:32px;padding:32px 22px 24px;background:rgba(255,255,255,.88);border:1px solid rgba(148,163,184,.2);box-shadow:0 24px 80px rgba(15,23,42,.12);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:16px;";
 
-  const icon = document.createElement("div");
-  icon.textContent = "✉️";
-  icon.style.cssText =
-    "font-size:42px;line-height:1;text-align:center;margin-bottom:4px;";
+  const logo = document.createElement("div");
+  logo.textContent = "BudgetPRO";
+  logo.style.cssText =
+    "font-size:30px;font-weight:1000;letter-spacing:-0.04em;color:var(--text);text-align:center;";
 
   const title = document.createElement("div");
   title.textContent = t("authTitle");
   title.style.cssText =
     "font-size:24px;font-weight:950;color:var(--text);text-align:center;";
+
+  const subtitle = document.createElement("div");
+  subtitle.textContent = t("authSubtitle");
+  subtitle.style.cssText =
+    "margin-top:-6px;font-size:14px;line-height:1.55;color:var(--text-muted);text-align:center;";
 
   const sentWrap = document.createElement("div");
   sentWrap.style.cssText =
@@ -16368,6 +16516,10 @@ function showAuthScreen() {
   input.autocomplete = "email";
   input.autocapitalize = "off";
   input.spellcheck = false;
+  input.style.cssText =
+    isDark
+      ? ""
+      : "min-height:56px;border-radius:18px;border:1.5px solid rgba(148,163,184,.28);background:rgba(248,250,252,.96);box-shadow:inset 0 1px 0 rgba(255,255,255,.7);padding:0 16px;font-size:15px;";
 
   const errorEl = document.createElement("div");
   errorEl.id = "authErrorText";
@@ -16377,16 +16529,39 @@ function showAuthScreen() {
   const button = document.createElement("button");
   button.id = "authSendBtn";
   button.className = "btn-primary";
-  button.textContent = t("authSendLink");
+  button.textContent = t("authContinueWithEmail");
   button.style.cssText =
-    "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;";
+    isDark
+      ? "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;"
+      : "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;background:linear-gradient(135deg,#111827,#334155);color:#fff;border:none;box-shadow:0 18px 38px rgba(15,23,42,.18);";
 
-  card.appendChild(icon);
+  const divider = document.createElement("div");
+  divider.style.cssText =
+    "display:flex;align-items:center;gap:12px;color:var(--text-muted);font-size:12px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;";
+  divider.innerHTML =
+    '<span style="height:1px;flex:1;background:var(--cream-border);opacity:.9"></span>' +
+    esc(t("authDividerOr")) +
+    '<span style="height:1px;flex:1;background:var(--cream-border);opacity:.9"></span>';
+
+  const guestButton = document.createElement("button");
+  guestButton.type = "button";
+  guestButton.id = "authGuestBtn";
+  guestButton.className = "btn-secondary";
+  guestButton.textContent = t("authContinueAsGuest");
+  guestButton.style.cssText =
+    isDark
+      ? "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;"
+      : "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;background:rgba(255,255,255,.72);color:var(--text);border:1.5px solid rgba(148,163,184,.24);box-shadow:0 10px 28px rgba(148,163,184,.12);";
+
+  card.appendChild(logo);
   card.appendChild(title);
+  card.appendChild(subtitle);
   card.appendChild(sentWrap);
   card.appendChild(input);
   card.appendChild(errorEl);
   card.appendChild(button);
+  card.appendChild(divider);
+  card.appendChild(guestButton);
   overlay.appendChild(card);
   document.body.appendChild(overlay);
 
@@ -16408,7 +16583,10 @@ function showAuthScreen() {
 
   const setSending = (sending) => {
     button.disabled = sending;
-    button.textContent = sending ? t("authSending") : t("authSendLink");
+    guestButton.disabled = sending;
+    button.textContent = sending
+      ? t("authSending")
+      : t("authContinueWithEmail");
   };
 
   const submit = async () => {
@@ -16433,6 +16611,16 @@ function showAuthScreen() {
   };
 
   button.addEventListener("click", submit);
+  guestButton.addEventListener("click", () => {
+    clearAuthSession();
+    setGuestMode(true);
+    overlay.remove();
+    if ((pinEnabled && pinHash) || biometryEnabled) {
+      showPinScreen(init);
+    } else {
+      init();
+    }
+  });
   input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") submit();
   });
@@ -16443,7 +16631,7 @@ async function bootApp() {
   appBooting = true;
   traceApp("boot-start", { currentTab, currentLang });
   traceLayoutSnapshot("boot:start");
-  await handleAuthCallback();
+  const hasFreshAuth = await handleAuthCallback();
   await loadAll();
   traceApp("boot-loadAll-done", {
     transactions: transactions.length,
@@ -16453,10 +16641,11 @@ async function bootApp() {
   traceLayoutSnapshot("boot:loadAll-done");
   scheduleBootLayoutTracing();
   if (checkShareLink()) return;
-  if (!isAuthenticated()) {
+  if (!isGuestMode() && !isAuthenticated()) {
     showAuthScreen();
     return;
   }
+  if (hasFreshAuth) showCreatorWelcomeToastIfNeeded();
   if ((pinEnabled && pinHash) || biometryEnabled) {
     showPinScreen(init);
   } else {
@@ -17480,27 +17669,6 @@ function openNotificationHelpModal() {
 bootApp();
 setTimeout(updateOfflineBar, 600);
 
-// 4-click logo → Creator login
-let _logoClickCount = 0,
-  _logoClickTimer = null;
-document.getElementById("appLogoBtn").addEventListener("click", () => {
-  _logoClickCount++;
-  clearTimeout(_logoClickTimer);
-  _logoClickTimer = setTimeout(() => {
-    _logoClickCount = 0;
-  }, 1200);
-  if (_logoClickCount >= 4) {
-    _logoClickCount = 0;
-    clearTimeout(_logoClickTimer);
-    const prof = profiles.find((p) => p.id === activeProfileId);
-    if (isCreator()) {
-      showCreatorExitModal(prof);
-    } else {
-      showCreatorLoginModal(prof);
-    }
-  }
-});
-
 if (customReminderTimestamp) {
   const remaining = customReminderTimestamp - Date.now();
   if (remaining > 0) {
@@ -17531,173 +17699,6 @@ if (customReminderTimestamp) {
       "customReminderTimestamp",
     ].forEach((k) => localStorage.removeItem(k));
   }
-}
-
-// ============================================================
-// CREATOR LOGIN MODAL (4-click secret entry)
-// ============================================================
-function showCreatorLoginModal(prof) {
-  const L = {
-    ru: {
-      title: "Вход для создателя",
-      hint: "Нажмите на логотип 4 раза, затем введите секретный ключ",
-      label: "Секретный ключ",
-      ph: "Введите ключ...",
-      btn: "Войти",
-      wrong: "❌ Неверный ключ",
-      tip: "Подсказка: ключ хранится у разработчика",
-    },
-    en: {
-      title: "Creator Login",
-      hint: "Tap the logo 4 times, then enter the secret key",
-      label: "Secret key",
-      ph: "Enter key...",
-      btn: "Login",
-      wrong: "❌ Wrong key",
-      tip: "Hint: key is kept by the developer",
-    },
-    ka: {
-      title: "შემქმნელის შესვლა",
-      hint: "დააჭირეთ ლოგოს 4-ჯერ, შემდეგ შეიყვანეთ საიდუმლო გასაღები",
-      label: "საიდუმლო გასაღები",
-      ph: "შეიყვანეთ გასაღები...",
-      btn: "შესვლა",
-      wrong: "❌ არასწორი გასაღები",
-      tip: "მინიშნება: გასაღები ინახება შემქმნელთან",
-    },
-  };
-  const lc = L[currentLang] || L.ru;
-  const overlay = document.createElement("div");
-  overlay.id = "creatorLoginOverlay";
-  overlay.style.cssText =
-    "position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);animation:fadeIn 0.2s ease both;";
-  overlay.innerHTML = `
-    <div style="background:var(--card-bg);border-radius:32px;padding:32px 28px;max-width:340px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.4);animation:slideUpBounce 0.4s cubic-bezier(0.34,1.56,0.64,1) both;border:2px solid var(--gold-border);">
-      <div style="text-align:center;margin-bottom:24px;">
-        <div style="font-size:56px;margin-bottom:12px;animation:pulse 2s infinite;">👑</div>
-        <div style="font-size:20px;font-weight:900;color:var(--primary);">${lc.title}</div>
-        <div style="font-size:13px;color:var(--text-muted);margin-top:8px;line-height:1.5;">${lc.hint}</div>
-      </div>
-      <div style="margin-bottom:16px;">
-        <label style="font-size:13px;font-weight:700;color:var(--text-soft);display:block;margin-bottom:8px;">${lc.label}</label>
-        <div style="position:relative;">
-          <input type="password" id="creatorKeyInput" class="modal-input" placeholder="${lc.ph}" style="width:100%;padding-right:48px;font-size:16px;letter-spacing:2px;" autocomplete="off">
-          <button id="toggleKeyVisibility" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:20px;cursor:pointer;padding:4px;" title="${t("creatorToggleVisibility")}">👁</button>
-        </div>
-      </div>
-      <div id="creatorLoginError" style="display:none;background:var(--expense-pale);color:var(--expense-color);padding:10px 14px;border-radius:12px;font-size:13px;font-weight:700;margin-bottom:12px;text-align:center;"></div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn-secondary" id="creatorLoginCancel" style="flex:1;">${{ ru: "Отмена", en: "Cancel", ka: "გაუქმება" }[currentLang]}</button>
-        <button class="btn-primary" id="creatorLoginBtn" style="flex:2;background:linear-gradient(135deg,var(--gold),#f59e0b);color:white;border:none;">${lc.btn} ✓</button>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:14px;">${lc.tip}</div>
-    </div>`;
-  document.body.appendChild(overlay);
-
-  const input = document.getElementById("creatorKeyInput");
-  input.focus();
-  document
-    .getElementById("toggleKeyVisibility")
-    .addEventListener("click", () => {
-      input.type = input.type === "password" ? "text" : "password";
-    });
-  document
-    .getElementById("creatorLoginCancel")
-    .addEventListener("click", () => overlay.remove());
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
-
-  const tryLogin = () => {
-    const val = input.value.trim();
-    if (!CREATOR_SECRET) {
-      showToast(
-        {
-          ru: "⚠️ Режим создателя не настроен в публичной версии",
-          en: "⚠️ Creator mode is not configured in the public version",
-          ka: "⚠️ შემქმნელის რეჟიმი საჯარო ვერსიაში გამორთულია",
-        }[currentLang],
-        "warning",
-      );
-      return;
-    }
-    if (val === CREATOR_SECRET) {
-      if (prof) prof.role = "owner";
-      saveGlobal();
-      updateHeader();
-      overlay.remove();
-      showToast(
-        {
-          ru: "👑 Режим создателя активирован!",
-          en: "👑 Creator mode activated!",
-          ka: "👑 შემქმნელის რეჟიმი ჩართულია!",
-        }[currentLang],
-      );
-      haptic("success");
-      if (currentTab === "settings") renderSettings();
-      openSupportModal();
-    } else {
-      const errDiv = document.getElementById("creatorLoginError");
-      errDiv.style.display = "block";
-      errDiv.textContent = lc.wrong;
-      input.style.borderColor = "var(--expense-color)";
-      input.style.animation = "shake 0.4s ease";
-      setTimeout(() => {
-        input.style.borderColor = "";
-        input.style.animation = "";
-      }, 1000);
-      haptic("heavy");
-    }
-  };
-  document
-    .getElementById("creatorLoginBtn")
-    .addEventListener("click", tryLogin);
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") tryLogin();
-  });
-}
-
-function showCreatorExitModal(prof) {
-  const L = {
-    ru: { title: "Выйти из режима создателя?", yes: "Выйти", no: "Остаться" },
-    en: { title: "Exit creator mode?", yes: "Exit", no: "Stay" },
-    ka: { title: "გასვლა შემქმნელის რეჟიმიდან?", yes: "გასვლა", no: "დარჩენა" },
-  };
-  const lc = L[currentLang] || L.ru;
-  const overlay = document.createElement("div");
-  overlay.style.cssText =
-    "position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:fadeIn 0.2s ease both;";
-  overlay.innerHTML = `<div style="background:var(--card-bg);border-radius:28px;padding:28px;max-width:300px;width:88%;text-align:center;animation:slideUpBounce 0.35s cubic-bezier(0.34,1.56,0.64,1) both;">
-    <div style="font-size:48px;margin-bottom:12px;">👑</div>
-    <div style="font-size:18px;font-weight:800;margin-bottom:20px;">${lc.title}</div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn-secondary" id="exitCrNo" style="flex:1;">${lc.no}</button>
-      <button class="btn-danger" id="exitCrYes" style="flex:1;">${lc.yes}</button>
-    </div>
-  </div>`;
-  document.body.appendChild(overlay);
-  document
-    .getElementById("exitCrNo")
-    .addEventListener("click", () => overlay.remove());
-  document.getElementById("exitCrYes").addEventListener("click", () => {
-    if (prof) {
-      prof.role = "user";
-      saveGlobal();
-      updateHeader();
-    }
-    overlay.remove();
-    showToast(
-      {
-        ru: "👋 Режим создателя выключен",
-        en: "👋 Creator mode off",
-        ka: "👋 შემქმნელის რეჟიმი გამორთულია",
-      }[currentLang],
-    );
-    if (currentTab === "settings") renderSettings();
-  });
-  overlay.addEventListener("click", (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
 }
 
 // ============================================================
