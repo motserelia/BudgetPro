@@ -1,0 +1,18 @@
+name: Local Config
+version: 1.0.0
+schema: v1
+
+models:
+  - name: Gemini 2.0 Flash
+    provider: google-gemini
+    model: gemini-2.0-flash
+    apiKey: AIzaSyBcrki-9oOO_W5D7XuYK2bqJsJGZkQErqg
+    roles:
+      - chat
+      - edit
+      - apply
+
+context:
+  - provider: codebase
+  - provider: file
+  - provider: folder

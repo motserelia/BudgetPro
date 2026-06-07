@@ -16482,14 +16482,14 @@ function showAuthScreen() {
   overlay.id = "authScreen";
   overlay.style.cssText =
     isDark
-      ? "position:fixed;inset:0;background:radial-gradient(circle at 50% 10%,var(--primary-pale),var(--cream) 46%,var(--cream-dark));z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);"
-      : "position:fixed;inset:0;background:radial-gradient(circle at top,rgba(255,255,255,.96),rgba(244,247,251,.98) 38%,rgba(232,238,246,1) 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);";
+      ? "position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(12px);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);"
+      : "position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(12px);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:calc(var(--safe-top,0px) + 24px) 22px calc(var(--safe-bottom,0px) + 24px);";
 
   const card = document.createElement("div");
   card.style.cssText =
     isDark
-      ? "width:min(380px,94vw);border-radius:30px;padding:28px 20px 24px;background:var(--card-bg);border:1.5px solid var(--cream-border);box-shadow:0 20px 54px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:16px;"
-      : "width:min(430px,94vw);border-radius:32px;padding:26px 22px 24px;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,250,252,.95));border:1px solid rgba(148,163,184,.28);box-shadow:0 30px 80px rgba(15,23,42,.16);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:16px;";
+      ? "width:min(380px,94vw);border-radius:30px;padding:28px 20px 24px;background:rgba(18, 12, 35, 0.96);border:1.5px solid rgba(255,255,255,0.12);box-shadow:0 20px 54px rgba(0,0,0,.38);display:flex;flex-direction:column;gap:16px;"
+      : "width:min(430px,94vw);border-radius:32px;padding:26px 22px 24px;background:rgba(255, 255, 255, 0.98);border:1px solid rgba(148,163,184,.24);box-shadow:0 30px 80px rgba(15,23,42,.22);display:flex;flex-direction:column;gap:16px;";
 
   const controls = document.createElement("div");
   controls.style.cssText =
@@ -16501,7 +16501,9 @@ function showAuthScreen() {
   const languageLabel = document.createElement("div");
   languageLabel.textContent = t("authLanguageLabel");
   languageLabel.style.cssText =
-    "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);";
+    isDark
+      ? "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.88);"
+      : "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#475569;";
   const languageRow = document.createElement("div");
   languageRow.style.cssText =
     isDark
@@ -16514,7 +16516,9 @@ function showAuthScreen() {
   const themeLabel = document.createElement("div");
   themeLabel.textContent = t("authThemeLabel");
   themeLabel.style.cssText =
-    "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);";
+    isDark
+      ? "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,0.88);"
+      : "font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#475569;";
   const themeRow = document.createElement("div");
   themeRow.style.cssText =
     isDark
@@ -16525,21 +16529,21 @@ function showAuthScreen() {
   logo.textContent = "BudgetPRO";
   logo.style.cssText =
     isDark
-      ? "font-size:30px;font-weight:1000;letter-spacing:-0.04em;color:var(--text);text-align:center;"
+      ? "font-size:30px;font-weight:1000;letter-spacing:-0.04em;color:#ffffff;text-align:center;"
       : "font-size:32px;font-weight:1000;letter-spacing:-0.05em;color:#0f172a;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,.65);";
 
   const title = document.createElement("div");
   title.textContent = t("authTitle");
   title.style.cssText =
     isDark
-      ? "font-size:24px;font-weight:950;color:var(--text);text-align:center;"
+      ? "font-size:24px;font-weight:950;color:#ffffff;text-align:center;"
       : "font-size:25px;font-weight:950;color:#111827;text-align:center;line-height:1.18;";
 
   const subtitle = document.createElement("div");
   subtitle.textContent = t("authSubtitle");
   subtitle.style.cssText =
     isDark
-      ? "margin-top:-6px;font-size:14px;line-height:1.55;color:var(--text-muted);text-align:center;"
+      ? "margin-top:-6px;font-size:14px;line-height:1.55;color:rgba(255,255,255,0.88);text-align:center;"
       : "margin-top:-6px;font-size:14px;line-height:1.6;color:#475569;text-align:center;font-weight:600;";
 
   const sentWrap = document.createElement("div");
@@ -16549,11 +16553,15 @@ function showAuthScreen() {
   const sentTitle = document.createElement("div");
   sentTitle.textContent = t("authCheckEmail");
   sentTitle.style.cssText =
-    "font-size:15px;font-weight:900;color:var(--text);text-align:center;";
+    isDark
+      ? "font-size:15px;font-weight:900;color:#ffffff;text-align:center;"
+      : "font-size:15px;font-weight:900;color:#0f172a;text-align:center;";
 
   const sentEmail = document.createElement("div");
   sentEmail.style.cssText =
-    "font-size:14px;color:var(--text-muted);text-align:center;word-break:break-word;";
+    isDark
+      ? "font-size:14px;color:rgba(255,255,255,0.88);text-align:center;word-break:break-word;"
+      : "font-size:14px;color:#475569;text-align:center;word-break:break-word;";
 
   sentWrap.appendChild(sentTitle);
   sentWrap.appendChild(sentEmail);
@@ -20073,7 +20081,7 @@ function showOnboarding() {
       {
         emoji: "🌿",
         title: "Добро пожаловать в БюджетPRO!",
-        sub: "Личный финансовый трекер. Офлайн · Без регистрации · Бесплатно",
+        sub: "Личный финансовый трекер. Офлайн · Вход по Email · Бесплатно",
         color: "var(--primary)",
       },
       {
@@ -20099,7 +20107,7 @@ function showOnboarding() {
       {
         emoji: "🌿",
         title: "Welcome to BudgetPRO!",
-        sub: "Personal finance tracker. Offline · No registration · Free",
+        sub: "Personal finance tracker. Offline · Email Sign-In · Free",
         color: "var(--primary)",
       },
       {
@@ -20124,8 +20132,8 @@ function showOnboarding() {
     ka: [
       {
         emoji: "🌿",
-        title: "კეთილი იყოს თქვენი მობრძანება!",
-        sub: "პირადი ფინანსური ტრეკერი. ოფლაინ · რეგისტრაციის გარეშე · უფასო",
+        title: "კეთილი იყოს თქვენი მობრძანება BudgetPRO-ში!",
+        sub: "პირადი ფინანსების ტრეკერი. ოფლაინ · შესვლა ელფოსტით · უფასო",
         color: "var(--primary)",
       },
       {
