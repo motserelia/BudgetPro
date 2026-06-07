@@ -16405,6 +16405,25 @@ async function handleAuthCallback() {
   if (!hash || hash.startsWith("#share=")) return false;
 
   const params = new URLSearchParams(hash.slice(1));
+  const errorCode = params.get("error_code") || "";
+  const error = params.get("error") || "";
+  if (errorCode === "otp_expired" || error === "access_denied") {
+    localStorage.removeItem(AUTH_PENDING_EMAIL_KEY);
+    history.replaceState(
+      null,
+      "",
+      window.location.pathname + window.location.search,
+    );
+    showToast(
+      {
+        ru: "Ссылка входа истекла. Запросите новое письмо.",
+        en: "Login link expired. Request a new email.",
+        ka: "შესვლის ბმულს ვადა გაუვიდა. მოითხოვეთ ახალი წერილი.",
+      }[currentLang],
+      "error",
+    );
+    return false;
+  }
   const accessToken = params.get("access_token") || "";
   const refreshToken = params.get("refresh_token") || "";
   const expiresIn = parseInt(params.get("expires_in") || "0", 10);
