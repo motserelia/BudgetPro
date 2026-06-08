@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "pro.budget.app",
+      "sha256_cert_fingerprints": [
+        "9C:75:39:9E:82:73:3B:1A:5A:51:FD:50:11:F1:93:7F:21:16:9F:09:A2:51:D5:8C:66:60:E7:4B:2A:C4:48:70"
+      ]
+    }
+  }
+]

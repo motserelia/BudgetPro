@@ -82,6 +82,8 @@ const AUTH_SESSION_KEY = "budgetpro_auth_session";
 const AUTH_PENDING_EMAIL_KEY = "budgetpro_auth_pending_email";
 const GUEST_MODE_KEY = "budgetpro_guest_mode";
 const CREATOR_WELCOME_SHOWN_KEY = "budgetpro_creator_welcome_shown";
+let pendingAppUrlAuthHash = "";
+let appUrlOpenListenerInstalled = false;
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -16401,7 +16403,8 @@ function isAuthenticated() {
 }
 
 async function handleAuthCallback() {
-  const hash = window.location.hash || "";
+  const hash = pendingAppUrlAuthHash || window.location.hash || "";
+  pendingAppUrlAuthHash = "";
   if (!hash || hash.startsWith("#share=")) return false;
 
   const params = new URLSearchParams(hash.slice(1));
@@ -16767,6 +16770,38 @@ function showAuthScreen() {
     if (e.key === "Enter") submit();
   });
   setTimeout(() => input.focus(), 0);
+}
+
+function setupAppUrlOpenListener() {
+  if (appUrlOpenListenerInstalled) return;
+  const AppPlugin = window.Capacitor?.Plugins?.App;
+  if (!AppPlugin || typeof AppPlugin.addListener !== "function") return;
+  appUrlOpenListenerInstalled = true;
+
+  AppPlugin.addListener("appUrlOpen", async ({ url }) => {
+    if (!url) return;
+
+    let incomingUrl;
+    try {
+      incomingUrl = new URL(url);
+    } catch (e) {
+      return;
+    }
+
+    if (incomingUrl.hostname !== "budget-pro-lski.vercel.app") return;
+
+    const authPayload =
+      incomingUrl.hash ||
+      (incomingUrl.search ? `#${incomingUrl.search.slice(1)}` : "");
+
+    if (!authPayload || authPayload.startsWith("#share=")) return;
+
+    pendingAppUrlAuthHash = authPayload;
+    const hasFreshAuth = await handleAuthCallback();
+    if (!hasFreshAuth) return;
+
+    document.getElementById("authScreen")?.remove();
+  });
 }
 
 async function bootApp() {
@@ -17811,6 +17846,7 @@ function openNotificationHelpModal() {
     ?.addEventListener("click", () => closeModal("notifHelpModal"));
 }
 
+setupAppUrlOpenListener();
 bootApp();
 setTimeout(updateOfflineBar, 600);
 
