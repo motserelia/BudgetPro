@@ -108,10 +108,6 @@ module.exports = async (req, res) => {
 
     const url = `${supabaseUrl}/auth/v1/otp`;
     const { response, json, text } = await supabaseFetch(url, {
-
-    console.log("[BP_SUPABASE_STATUS]", response.status);
-    console.log("[BP_SUPABASE_RESPONSE]", text);
-
       method: "POST",
       headers: {
         ...buildAuthHeaders(supabaseAnonKey),
@@ -125,6 +121,9 @@ module.exports = async (req, res) => {
         },
       }),
     });
+
+    console.log("[BP_SUPABASE_STATUS]", response.status);
+    console.log("[BP_SUPABASE_RESPONSE]", text);
 
     console.log("SUPABASE STATUS:", response.status);
     console.log("SUPABASE JSON:", JSON.stringify(json));
