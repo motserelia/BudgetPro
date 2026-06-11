@@ -80,10 +80,13 @@ function injectSearchCountStyles() {
 const VAPID_PUBLIC_KEY = "";
 const AUTH_SESSION_KEY = "budgetpro_auth_session";
 const AUTH_PENDING_EMAIL_KEY = "budgetpro_auth_pending_email";
+const AUTH_MAGIC_LINK_RESEND_UNTIL_KEY =
+  "budgetpro_auth_magic_link_resend_until";
 const GUEST_MODE_KEY = "budgetpro_guest_mode";
 const CREATOR_WELCOME_SHOWN_KEY = "budgetpro_creator_welcome_shown";
 let pendingAppUrlAuthHash = "";
 let appUrlOpenListenerInstalled = false;
+let authResendTimer = null;
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -1887,8 +1890,20 @@ Object.assign(translations.ru, {
   authCheckEmail: "Проверьте почту",
   authSentTo: "Ссылка отправлена на",
   authSending: "Отправка...",
+  authResendAvailableIn: "Повторная отправка через:",
   authError: "Не удалось отправить ссылку",
   authInvalidEmail: "Введите корректный email",
+  authRateLimitTitle: "📧 Отправка писем временно ограничена",
+  authRateLimitIntro:
+    "Сейчас используется тестовый почтовый сервис с ограничением частоты отправки писем.",
+  authRateLimitOptionLater: "войти позже",
+  authRateLimitOptionGuest: "продолжить работу в гостевом режиме",
+  authRateLimitOptionLocal: "создать данные локально на устройстве",
+  authRateLimitDeviceNote:
+    "Все созданные данные останутся сохранены на устройстве.",
+  authRateLimitSyncNote:
+    "После последующего входа в аккаунт данные смогут быть синхронизированы с вашей учетной записью.",
+  authRateLimitUnderstood: "Понятно",
   logout: "Logout",
   signInWithEmail: "Sign in with Email",
   signedOut: "Вы вышли из аккаунта",
@@ -1979,8 +1994,20 @@ Object.assign(translations.en, {
   authCheckEmail: "Check your email",
   authSentTo: "Link sent to",
   authSending: "Sending...",
+  authResendAvailableIn: "Resend available in:",
   authError: "Failed to send link",
   authInvalidEmail: "Enter a valid email",
+  authRateLimitTitle: "📧 Email sending is temporarily limited",
+  authRateLimitIntro:
+    "A test email service with sending limits is currently being used.",
+  authRateLimitOptionLater: "sign in later",
+  authRateLimitOptionGuest: "continue in guest mode",
+  authRateLimitOptionLocal: "create data locally on your device",
+  authRateLimitDeviceNote:
+    "All created data will remain stored on the device.",
+  authRateLimitSyncNote:
+    "After signing in later, the data can be synchronized with your account.",
+  authRateLimitUnderstood: "Understood",
   logout: "Logout",
   signInWithEmail: "Sign in with Email",
   signedOut: "You have been signed out",
@@ -2071,8 +2098,20 @@ Object.assign(translations.ka, {
   authCheckEmail: "შეამოწმეთ ელფოსტა",
   authSentTo: "ბმული გაიგზავნა მისამართზე",
   authSending: "იგზავნება...",
+  authResendAvailableIn: "ხელახლა გაგზავნა შესაძლებელი იქნება:",
   authError: "ბმულის გაგზავნა ვერ მოხერხდა",
   authInvalidEmail: "შეიყვანეთ სწორი ელფოსტა",
+  authRateLimitTitle: "📧 ელფოსტის გაგზავნა დროებით შეზღუდულია",
+  authRateLimitIntro:
+    "ამჟამად გამოიყენება სატესტო ელფოსტის სერვისი, რომელსაც აქვს გაგზავნის ლიმიტები.",
+  authRateLimitOptionLater: "მოგვიანებით შეხვიდეთ",
+  authRateLimitOptionGuest: "გააგრძელოთ სტუმრის რეჟიმში",
+  authRateLimitOptionLocal: "შექმნათ მონაცემები მოწყობილობაზე",
+  authRateLimitDeviceNote:
+    "ყველა შექმნილი მონაცემი დარჩება მოწყობილობაზე.",
+  authRateLimitSyncNote:
+    "მოგვიანებით ანგარიშში შესვლის შემდეგ შესაძლებელი იქნება მონაცემების სინქრონიზაცია.",
+  authRateLimitUnderstood: "გასაგებია",
   logout: "გასვლა",
   signInWithEmail: "ელფოსტით შესვლა",
   signedOut: "ანგარიშიდან გამოხვედით",
@@ -16395,6 +16434,197 @@ function clearAuthSession() {
   localStorage.removeItem(CREATOR_WELCOME_SHOWN_KEY);
 }
 
+function getMagicLinkResendUntil() {
+  const raw = Number(localStorage.getItem(AUTH_MAGIC_LINK_RESEND_UNTIL_KEY) || 0);
+  if (!Number.isFinite(raw) || raw <= 0) {
+    localStorage.removeItem(AUTH_MAGIC_LINK_RESEND_UNTIL_KEY);
+    return 0;
+  }
+  if (raw <= Date.now()) {
+    localStorage.removeItem(AUTH_MAGIC_LINK_RESEND_UNTIL_KEY);
+    return 0;
+  }
+  return raw;
+}
+
+function setMagicLinkResendUntil(timestamp) {
+  const safeTimestamp = Number(timestamp || 0);
+  if (!Number.isFinite(safeTimestamp) || safeTimestamp <= Date.now()) {
+    localStorage.removeItem(AUTH_MAGIC_LINK_RESEND_UNTIL_KEY);
+    return 0;
+  }
+  localStorage.setItem(
+    AUTH_MAGIC_LINK_RESEND_UNTIL_KEY,
+    String(Math.floor(safeTimestamp)),
+  );
+  return safeTimestamp;
+}
+
+function startMagicLinkResendCooldown(durationMs = 120000) {
+  return setMagicLinkResendUntil(Date.now() + Math.max(0, Number(durationMs) || 0));
+}
+
+function getMagicLinkResendRemainingMs() {
+  const until = getMagicLinkResendUntil();
+  return until ? Math.max(0, until - Date.now()) : 0;
+}
+
+function clearAuthResendTimer() {
+  clearInterval(authResendTimer);
+  authResendTimer = null;
+}
+
+function formatMagicLinkResendTime(remainingMs) {
+  const totalSeconds = Math.max(0, Math.floor((Math.max(0, remainingMs) - 1) / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+function ensureAuthUiStyles() {
+  if (document.getElementById("authUiStyles")) return;
+  const style = document.createElement("style");
+  style.id = "authUiStyles";
+  style.textContent = `
+    .auth-resend-timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 56px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1.5px solid var(--cream-border);
+      background: linear-gradient(135deg, var(--primary-pale), var(--card-bg));
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.5;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+    .auth-rate-limit-modal {
+      z-index: 30000 !important;
+      align-items: center !important;
+      padding: calc(var(--safe-top, 0px) + 16px) 14px calc(var(--safe-bottom, 0px) + 16px) !important;
+    }
+    .auth-rate-limit-modal .modal {
+      max-width: min(520px, 100%) !important;
+      max-height: min(90dvh, 90vh) !important;
+      box-shadow: var(--shadow-lg) !important;
+    }
+    .auth-rate-limit-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      color: var(--text);
+    }
+    .auth-rate-limit-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.35;
+      color: var(--text);
+    }
+    .auth-rate-limit-text {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-soft);
+    }
+    .auth-rate-limit-list {
+      margin: 0;
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .auth-rate-limit-note {
+      margin: 0;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--cream-border);
+      background: linear-gradient(135deg, var(--card-bg), var(--primary-pale));
+      color: var(--text-soft);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .auth-rate-limit-actions {
+      padding-top: 4px !important;
+      padding-bottom: 0 !important;
+    }
+    @media (max-width: 640px) {
+      .auth-rate-limit-title {
+        font-size: 18px;
+      }
+      .auth-rate-limit-text,
+      .auth-rate-limit-list {
+        font-size: 13px;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function isMagicLinkRateLimitError(error) {
+  const status = Number(error?.status || 0);
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    status === 429 ||
+    /too many requests|rate limit|rate_limit|throttl|send(?:ing)? limit|email(?:ing)? limit|temporarily limited|frequency limit/.test(
+      message,
+    )
+  );
+}
+
+function createMagicLinkError(status, data, fallbackMessage) {
+  const error = new Error(
+    String(data?.error || data?.message || data?.msg || fallbackMessage),
+  );
+  error.status = Number(status || 0);
+  error.payload = data || null;
+  return error;
+}
+
+function showMagicLinkRateLimitModal() {
+  ensureAuthUiStyles();
+  const modalId = "authRateLimitModal";
+  const html = `
+    <div class="auth-rate-limit-copy">
+      <p class="auth-rate-limit-title">${esc(t("authRateLimitTitle"))}</p>
+      <p class="auth-rate-limit-text">${esc(t("authRateLimitIntro"))}</p>
+      <ul class="auth-rate-limit-list">
+        <li>${esc(t("authRateLimitOptionLater"))};</li>
+        <li>${esc(t("authRateLimitOptionGuest"))};</li>
+        <li>${esc(t("authRateLimitOptionLocal"))}.</li>
+      </ul>
+      <p class="auth-rate-limit-note">${esc(t("authRateLimitDeviceNote"))}</p>
+      <p class="auth-rate-limit-note">${esc(t("authRateLimitSyncNote"))}</p>
+      <div class="modal-actions auth-rate-limit-actions">
+        <button class="btn-primary" id="authRateLimitOkBtn" style="width:100%;">${esc(t("authRateLimitUnderstood"))}</button>
+      </div>
+    </div>
+  `;
+  const modal = createModal(modalId, t("authRateLimitTitle"), html);
+  modal.classList.add("auth-rate-limit-modal");
+  modal.addEventListener(
+    "click",
+    (e) => {
+      if (e.target === modal) e.stopPropagation();
+    },
+    true,
+  );
+  document.body.appendChild(modal);
+  openModal(modalId);
+  document
+    .getElementById("authRateLimitOkBtn")
+    ?.addEventListener("click", () => closeModal(modalId));
+}
+
 function isAuthenticated() {
   const session = getAuthSession();
   if (!session?.access_token) return false;
@@ -16482,21 +16712,13 @@ async function sendMagicLink(email) {
   }
 
   if (!response.ok) {
-    throw new Error(
-      String(
-        data?.error || data?.message || data?.msg || "magic_link_send_failed",
-      ),
-    );
+    throw createMagicLinkError(response.status, data, "magic_link_send_failed");
   }
 
   console.log("[BP_MAGIC_RESPONSE]", response.status, JSON.stringify(data));
 
   if (data && data.ok === false) {
-    throw new Error(
-      String(
-        data?.error || data?.message || data?.msg || "magic_link_send_failed",
-      ),
-    );
+    throw createMagicLinkError(response.status, data, "magic_link_send_failed");
   }
 
   localStorage.setItem(AUTH_PENDING_EMAIL_KEY, normalizedEmail);
@@ -16504,6 +16726,8 @@ async function sendMagicLink(email) {
 }
 
 function showAuthScreen() {
+  ensureAuthUiStyles();
+  clearAuthResendTimer();
   const existing = document.getElementById("authScreen");
   if (existing) existing.remove();
 
@@ -16616,6 +16840,9 @@ function showAuthScreen() {
   errorEl.style.cssText =
     "min-height:20px;font-size:14px;font-weight:800;color:var(--expense-color);text-align:center;";
 
+  const actionWrap = document.createElement("div");
+  actionWrap.style.cssText = "display:flex;flex-direction:column;gap:12px;";
+
   const button = document.createElement("button");
   button.id = "authSendBtn";
   button.className = "btn-primary";
@@ -16624,6 +16851,10 @@ function showAuthScreen() {
     isDark
       ? "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;"
       : "width:100%;padding:16px 18px;border-radius:18px;font-size:16px;font-weight:900;background:linear-gradient(135deg,#111827,#334155);color:#fff;border:none;box-shadow:0 18px 38px rgba(15,23,42,.18);";
+
+  const resendTimer = document.createElement("div");
+  resendTimer.className = "auth-resend-timer";
+  resendTimer.style.display = "none";
 
   const divider = document.createElement("div");
   divider.style.cssText =
@@ -16714,7 +16945,9 @@ function showAuthScreen() {
   card.appendChild(sentWrap);
   card.appendChild(input);
   card.appendChild(errorEl);
-  card.appendChild(button);
+  actionWrap.appendChild(button);
+  actionWrap.appendChild(resendTimer);
+  card.appendChild(actionWrap);
   card.appendChild(divider);
   card.appendChild(guestButton);
   overlay.appendChild(card);
@@ -16736,15 +16969,47 @@ function showAuthScreen() {
     errorEl.textContent = message || "";
   };
 
-  const setSending = (sending) => {
-    button.disabled = sending;
-    guestButton.disabled = sending;
-    button.textContent = sending
+  let isSending = false;
+
+  const syncResendState = () => {
+    const remainingMs = getMagicLinkResendRemainingMs();
+    const resendLocked = remainingMs > 0;
+    if (resendLocked) {
+      resendTimer.style.display = "flex";
+      resendTimer.textContent = `${t("authResendAvailableIn")} ${formatMagicLinkResendTime(remainingMs)}`;
+      button.style.display = "none";
+    } else {
+      resendTimer.style.display = "none";
+      resendTimer.textContent = "";
+      button.style.display = "";
+      clearAuthResendTimer();
+    }
+    button.disabled = isSending || resendLocked;
+    guestButton.disabled = isSending;
+    button.textContent = isSending
       ? t("authSending")
       : t("authContinueWithEmail");
   };
 
+  const startResendTicker = () => {
+    clearAuthResendTimer();
+    if (!getMagicLinkResendRemainingMs()) {
+      syncResendState();
+      return;
+    }
+    syncResendState();
+    authResendTimer = setInterval(() => {
+      syncResendState();
+    }, 1000);
+  };
+
+  const setSending = (sending) => {
+    isSending = !!sending;
+    syncResendState();
+  };
+
   const submit = async () => {
+    if (isSending || getMagicLinkResendRemainingMs() > 0) return;
     const email = String(input.value || "").trim().toLowerCase();
     setError("");
 
@@ -16756,17 +17021,26 @@ function showAuthScreen() {
     setSending(true);
     try {
       await sendMagicLink(email);
+      startMagicLinkResendCooldown(120000);
       updateSentState(email);
       input.value = email;
+      startResendTicker();
     } catch (e) {
-      setError(t("authError"));
+      if (isMagicLinkRateLimitError(e)) {
+        showMagicLinkRateLimitModal();
+      } else {
+        setError(t("authError"));
+      }
     } finally {
       setSending(false);
     }
   };
 
+  startResendTicker();
+
   button.addEventListener("click", submit);
   guestButton.addEventListener("click", () => {
+    clearAuthResendTimer();
     clearAuthSession();
     setGuestMode(true);
     overlay.remove();
@@ -16836,6 +17110,14 @@ function setupAppUrlOpenListener() {
     if (!hasFreshAuth) return;
 
     document.getElementById("authScreen")?.remove();
+
+    try {
+      await loadAll();
+      init();
+      showCreatorWelcomeToastIfNeeded();
+    } catch (e) {
+      console.error("[BP_AUTH_REFRESH_ERROR]", e);
+    }
   });
 }
 
