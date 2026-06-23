@@ -1,59 +1,3 @@
-function injectGuideStyles() {
-  if (document.getElementById("guideStyles")) return;
-  const isDark = document.body.classList.contains("dark");
-  const s = document.createElement("style");
-  s.id = "guideStyles";
-  s.textContent = `
-    .guide-highlight {
-      position: fixed; z-index: 9990; pointer-events: none;
-      border-radius: 14px;
-      box-shadow: 0 0 0 9999px rgba(0,0,0,0.65);
-      outline: 3px solid ${isDark ? "#a78bfa" : "#f97316"};
-      outline-offset: 4px;
-      animation: guideHiPulse 1.5s ease-in-out infinite;
-    }
-    @keyframes guideHiPulse {
-      0%,100%{outline-color:${isDark ? "#a78bfa" : "#f97316"}}
-      50%{outline-color:${isDark ? "#f472b6" : "#ec4899"}}
-    }
-    .guide-tooltip {
-      position: fixed; z-index: 9991;
-      background: ${isDark ? "rgba(18,8,48,0.97)" : "rgba(255,252,248,0.97)"};
-      border: 1px solid ${isDark ? "rgba(167,139,250,0.5)" : "rgba(249,115,22,0.35)"};
-      border-radius: 20px; padding: 18px 18px 14px;
-      width: min(320px, calc(100vw - 32px));
-      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-      animation: guideTipIn 0.3s cubic-bezier(0.34,1.4,0.64,1) both;
-    }
-    @keyframes guideTipIn { from{opacity:0;transform:scale(.88)} to{opacity:1;transform:none} }
-    .guide-tooltip-title {
-      font-size: 16px; font-weight: 800; margin-bottom: 8px;
-      color: ${isDark ? "#c4b5fd" : "#f97316"};
-    }
-    .guide-tooltip-desc {
-      font-size: 13px; line-height: 1.6; margin-bottom: 16px;
-      color: ${isDark ? "#d4c8f8" : "#44403c"};
-    }
-    .guide-tooltip-actions { display: flex; gap: 8px; }
-    .guide-btn-skip {
-      flex: 1; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer;
-      background: ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"};
-      border: 1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)"};
-      color: ${isDark ? "rgba(196,181,253,0.7)" : "#9a3412"};
-      font-family: inherit;
-    }
-    .guide-btn-next {
-      flex: 2; padding: 10px; border-radius: 12px; font-size: 13px; font-weight: 800; cursor: pointer;
-      background: ${isDark ? "linear-gradient(135deg,#a78bfa,#f472b6)" : "linear-gradient(135deg,#f97316,#ec4899)"};
-      border: 1px solid rgba(255,255,255,0.22); color: #fff;
-      box-shadow: 0 4px 14px ${isDark ? "rgba(167,139,250,0.4)" : "rgba(249,115,22,0.35)"};
-      font-family: inherit;
-    }
-    .guide-btn-skip:active,.guide-btn-next:active { transform: scale(0.94); }
-  `;
-  document.head.appendChild(s);
-}
-
 function injectSearchCountStyles() {
   if (document.getElementById("searchCountStyles")) return;
   const style = document.createElement("style");
@@ -573,23 +517,6 @@ const translations = {
     guideNext: "Далее",
     guideSkip: "Пропустить",
     guideFinish: "Готово",
-    guideSteps: [
-      {
-        element: ".top-cards",
-        title: "Карточки сводки",
-        desc: "Баланс, доходы, расходы и начальная сумма.",
-      },
-      {
-        element: ".fab",
-        title: "Добавить операцию",
-        desc: "Зелёная кнопка — добавить доход или расход.",
-      },
-      {
-        element: ".bottom-nav",
-        title: "Навигация",
-        desc: "Переключение между разделами приложения.",
-      },
-    ],
     compareTitle: "📊 Сравнение с прошлым месяцем",
     compareIncome: "Доходы",
     compareExpense: "Расходы",
@@ -1128,23 +1055,6 @@ const translations = {
     guideNext: "Next",
     guideSkip: "Skip",
     guideFinish: "Finish",
-    guideSteps: [
-      {
-        element: ".top-cards",
-        title: "Summary cards",
-        desc: "Balance, income, expenses and starting amount.",
-      },
-      {
-        element: ".fab",
-        title: "Add transaction",
-        desc: "Green button to add income or expense.",
-      },
-      {
-        element: ".bottom-nav",
-        title: "Navigation",
-        desc: "Switch between sections.",
-      },
-    ],
     compareTitle: "📊 vs Last month",
     compareIncome: "Income",
     compareExpense: "Expenses",
@@ -1682,19 +1592,6 @@ const translations = {
     guideNext: "შემდეგი",
     guideSkip: "გამოტოვება",
     guideFinish: "დასრულება",
-    guideSteps: [
-      {
-        element: ".top-cards",
-        title: "ბარათები",
-        desc: "ბალანსი / ნაშთი, შემოსავალი, ხარჯი და საწყისი თანხა.",
-      },
-      { element: ".fab", title: "დამატება", desc: "ახალი ოპერაციის დამატება." },
-      {
-        element: ".bottom-nav",
-        title: "ნავიგაცია",
-        desc: "სექციებს შორის გადართვა.",
-      },
-    ],
     compareTitle: "📊 გასულ თვესთან",
     compareIncome: "შემოსავალი",
     compareExpense: "ხარჯი",
@@ -2191,7 +2088,12 @@ Object.assign(translations.ka, {
 // IndexedDB helpers – аварийное восстановление данных
 // ============================================================
 const DB_NAME = "BudgetPRO_Backup";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+const DIAGNOSTICS_STORE_NAME = "diagnostics";
+const DIAGNOSTICS_MAX_RECORDS = 10000;
+const DIAGNOSTICS_EXPORT_LIMIT = 10000;
+const DIAGNOSTICS_VIEW_LIMIT = 200;
+let diagnosticsWriteQueue = Promise.resolve();
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -2200,6 +2102,21 @@ function openDB() {
       const db = e.target.result;
       if (!db.objectStoreNames.contains("profiles")) {
         db.createObjectStore("profiles", { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(DIAGNOSTICS_STORE_NAME)) {
+        const diagnosticsStore = db.createObjectStore(DIAGNOSTICS_STORE_NAME, {
+          keyPath: "id",
+        });
+        diagnosticsStore.createIndex("timestamp", "timestamp", { unique: false });
+      } else {
+        const diagnosticsStore = request.transaction.objectStore(
+          DIAGNOSTICS_STORE_NAME,
+        );
+        if (!diagnosticsStore.indexNames.contains("timestamp")) {
+          diagnosticsStore.createIndex("timestamp", "timestamp", {
+            unique: false,
+          });
+        }
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -2286,9 +2203,27 @@ async function loadAllFromIndexedDB() {
       }
     }
     console.log("🔄 Data restored from IndexedDB");
+    logTransactionsDiagnosticEvent(
+      "TX_INDEXEDDB_RESTORE",
+      "loadAllFromIndexedDB",
+      buildTransactionDiagnosticsState(transactions, { includeSample: true }),
+      {
+        restoredKeys: all.map((item) => item.id),
+        restoredCount: all.length,
+      },
+    );
     return true;
   } catch (e) {
     console.warn("IndexedDB load error:", e);
+    logTransactionsDiagnosticEvent(
+      "TX_INDEXEDDB_RESTORE",
+      "loadAllFromIndexedDB:error",
+      buildTransactionDiagnosticsState(transactions, { includeSample: true }),
+      {
+        status: "error",
+        error: String(e?.message || e || "unknown"),
+      },
+    );
     return false;
   }
 }
@@ -2302,6 +2237,315 @@ async function clearIndexedDB() {
     await store.clear();
     await tx.complete;
   } catch (e) {}
+}
+
+function idbRequestToPromise(request) {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function idbTransactionDone(tx) {
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve(true);
+    tx.onabort = () => reject(tx.error || new Error("IndexedDB transaction aborted"));
+    tx.onerror = () => reject(tx.error || new Error("IndexedDB transaction failed"));
+  });
+}
+
+function idbGetAllFromStore(store) {
+  if (typeof store.getAll === "function") {
+    return idbRequestToPromise(store.getAll());
+  }
+  return new Promise((resolve, reject) => {
+    const items = [];
+    const request = store.openCursor();
+    request.onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (!cursor) {
+        resolve(items);
+        return;
+      }
+      items.push(cursor.value);
+      cursor.continue();
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function getDiagnosticTransactionSample(txList, limit = 20) {
+  return (Array.isArray(txList) ? txList : []).slice(0, limit).map((tx) => ({
+    id: tx?.id ?? null,
+    amountRub: tx?.amountRub ?? null,
+    type: tx?.type ?? null,
+    date: tx?.date ?? null,
+  }));
+}
+
+function hashTransactions(txList) {
+  const normalized = (Array.isArray(txList) ? txList : [])
+    .map((tx) => ({
+      id: String(tx?.id ?? ""),
+      amountRub: Number.isFinite(Number(tx?.amountRub)) ? Number(tx.amountRub) : 0,
+      type: String(tx?.type ?? ""),
+      date: String(tx?.date ?? ""),
+    }))
+    .sort((a, b) => {
+      const ak = `${a.id}|${a.type}|${a.date}|${a.amountRub}`;
+      const bk = `${b.id}|${b.type}|${b.date}|${b.amountRub}`;
+      return ak.localeCompare(bk);
+    });
+  const input = normalized
+    .map((tx) => `${tx.id}|${tx.amountRub}|${tx.type}|${tx.date}`)
+    .join("||");
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a_${(hash >>> 0).toString(16).padStart(8, "0")}`;
+}
+
+function buildTransactionDiagnosticsState(
+  txList = transactions,
+  { includeSample = false } = {},
+) {
+  const list = Array.isArray(txList) ? txList : [];
+  let incomeTotal = 0;
+  let expenseTotal = 0;
+  list.forEach((tx) => {
+    const amount = Number.isFinite(Number(tx?.amountRub)) ? Number(tx.amountRub) : 0;
+    if (tx?.type === "income") incomeTotal += amount;
+    else expenseTotal += amount;
+  });
+  const state = {
+    txCount: list.length,
+    incomeTotal: Math.round(incomeTotal * 100) / 100,
+    expenseTotal: Math.round(expenseTotal * 100) / 100,
+    balanceTotal: Math.round((incomeTotal - expenseTotal) * 100) / 100,
+    hash: hashTransactions(list),
+  };
+  if (includeSample) {
+    state.sample = getDiagnosticTransactionSample(list, 20);
+  }
+  return state;
+}
+
+function compactTransactionDiagnosticsState(state) {
+  if (!state) return null;
+  const compact = {
+    txCount: Number(state.txCount || 0),
+    incomeTotal: Number(state.incomeTotal || 0),
+    expenseTotal: Number(state.expenseTotal || 0),
+    balanceTotal: Number(state.balanceTotal || 0),
+    hash: String(state.hash || ""),
+  };
+  if (Array.isArray(state.sample)) {
+    compact.sample = state.sample;
+  }
+  return compact;
+}
+
+function enqueueDiagnosticsRecord(record) {
+  diagnosticsWriteQueue = diagnosticsWriteQueue
+    .then(() => persistDiagnosticsRecord(record))
+    .catch((e) => {
+      console.warn("Diagnostics persist failed", e);
+    });
+  return diagnosticsWriteQueue;
+}
+
+async function persistDiagnosticsRecord(record) {
+  const db = await openDB();
+  const tx = db.transaction(DIAGNOSTICS_STORE_NAME, "readwrite");
+  const store = tx.objectStore(DIAGNOSTICS_STORE_NAME);
+  store.put(record);
+  const total = await idbRequestToPromise(store.count());
+  const overflow = Math.max(0, total - DIAGNOSTICS_MAX_RECORDS);
+  if (overflow > 0) {
+    const index = store.index("timestamp");
+    let removed = 0;
+    await new Promise((resolve, reject) => {
+      const request = index.openCursor();
+      request.onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (!cursor || removed >= overflow) {
+          resolve(true);
+          return;
+        }
+        store.delete(cursor.primaryKey);
+        removed += 1;
+        cursor.continue();
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+  await idbTransactionDone(tx);
+}
+
+function logTransactionsDiagnosticEvent(
+  event,
+  source,
+  state = null,
+  details = {},
+) {
+  const snapshot = compactTransactionDiagnosticsState(
+    state || buildTransactionDiagnosticsState(transactions),
+  );
+  const record = {
+    id: `diag_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`,
+    timestamp: Date.now(),
+    event,
+    source,
+    authUserId: getAuthUserId(`DIAGNOSTICS:${event}:${source}`) || null,
+    profileId: activeProfileId || null,
+    txCount: snapshot.txCount,
+    incomeTotal: snapshot.incomeTotal,
+    expenseTotal: snapshot.expenseTotal,
+    balanceTotal: snapshot.balanceTotal,
+    hash: snapshot.hash,
+    details,
+  };
+  enqueueDiagnosticsRecord(record);
+  return record;
+}
+
+function logTransactionsDiagnosticTransition(
+  event,
+  source,
+  beforeState,
+  afterState,
+  details = {},
+) {
+  const safeBefore = compactTransactionDiagnosticsState(beforeState);
+  const safeAfter = compactTransactionDiagnosticsState(afterState);
+  logTransactionsDiagnosticEvent(event, source, safeAfter, {
+    before: safeBefore,
+    after: safeAfter,
+    ...details,
+  });
+  if ((safeBefore?.hash || "") !== (safeAfter?.hash || "")) {
+    logTransactionsDiagnosticEvent("TX_HASH_CHANGED", source, safeAfter, {
+      triggerEvent: event,
+      before: safeBefore,
+      after: safeAfter,
+      ...details,
+    });
+  }
+}
+
+async function getDiagnosticsRecords(limit = DIAGNOSTICS_EXPORT_LIMIT) {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(DIAGNOSTICS_STORE_NAME, "readonly");
+    const store = tx.objectStore(DIAGNOSTICS_STORE_NAME);
+    const all = await idbGetAllFromStore(store);
+    await idbTransactionDone(tx);
+    return (Array.isArray(all) ? all : [])
+      .sort((a, b) => Number(b?.timestamp || 0) - Number(a?.timestamp || 0))
+      .slice(0, limit);
+  } catch (e) {
+    console.warn("Diagnostics load failed", e);
+    return [];
+  }
+}
+
+function isDiagnosticsCriticalEvent(record) {
+  const event = String(record?.event || "");
+  return (
+    event === "TX_HASH_CHANGED" ||
+    event === "TX_REPLACE" ||
+    event.includes("RESTORE") ||
+    event.includes("RECOVERY")
+  );
+}
+
+function getDiagnosticsFilterMatcher(mode) {
+  switch (mode) {
+    case "errors":
+      return (record) =>
+        /ERROR/i.test(String(record?.event || "")) || !!record?.details?.error;
+    case "hash":
+      return (record) => String(record?.event || "") === "TX_HASH_CHANGED";
+    case "restore":
+      return (record) => {
+        const event = String(record?.event || "");
+        return event.includes("RESTORE") || event.includes("RECOVERY");
+      };
+    case "load":
+      return (record) => {
+        const event = String(record?.event || "");
+        return event.includes("LOAD") || event.includes("SWITCH_PROFILE");
+      };
+    default:
+      return () => true;
+  }
+}
+
+async function exportDiagnosticsLogs() {
+  const records = await getDiagnosticsRecords(DIAGNOSTICS_EXPORT_LIMIT);
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    authUserId: getAuthUserId("exportDiagnosticsLogs") || null,
+    profileId: activeProfileId || null,
+    total: records.length,
+    records,
+  };
+  const fileName = `budgetpro_diagnostics_${new Date()
+    .toISOString()
+    .slice(0, 16)
+    .replace("T", "_")
+    .replace(/:/g, "-")}.json`;
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: "application/json",
+  });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function formatDiagnosticsDate(timestamp) {
+  const date = new Date(Number(timestamp || 0));
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString(currentLang === "ka" ? "ka-GE" : currentLang === "en" ? "en-US" : "ru-RU");
+}
+
+async function buildDiagnosticsReportText() {
+  const records = await getDiagnosticsRecords(DIAGNOSTICS_EXPORT_LIMIT);
+  const authUserId = getAuthUserId("buildDiagnosticsReportText") || "null";
+  const profileId = activeProfileId || "null";
+  const lastHashChanged = records.find((record) => record?.event === "TX_HASH_CHANGED");
+  const lastRestore = records.find((record) => record?.event === "TX_RESTORE");
+  const lastIndexedDbRestore = records.find(
+    (record) => record?.event === "TX_INDEXEDDB_RESTORE",
+  );
+  const lastRecovery = records.find((record) => record?.event === "TX_RECOVERY");
+  const criticalRecords = records.filter(isDiagnosticsCriticalEvent).slice(0, 20);
+  const renderRecord = (record) => {
+    if (!record) return "нет";
+    return `${formatDiagnosticsDate(record.timestamp)} | ${record.event} | ${
+      record.source || "—"
+    } | tx=${record.txCount} | income=${record.incomeTotal} | expense=${record.expenseTotal} | hash=${record.hash}`;
+  };
+  return [
+    `Дата: ${new Date().toLocaleString(currentLang === "ka" ? "ka-GE" : currentLang === "en" ? "en-US" : "ru-RU")}`,
+    `Профиль: ${profileId}`,
+    `Пользователь: ${authUserId}`,
+    "",
+    `Последнее изменение hash: ${renderRecord(lastHashChanged)}`,
+    `Последний TX_RESTORE: ${renderRecord(lastRestore)}`,
+    `Последний TX_INDEXEDDB_RESTORE: ${renderRecord(lastIndexedDbRestore)}`,
+    `Последний TX_RECOVERY: ${renderRecord(lastRecovery)}`,
+    "",
+    "Последние 20 критических событий:",
+    criticalRecords.length
+      ? criticalRecords.map((record) => `- ${renderRecord(record)}`).join("\n")
+      : "- нет",
+  ].join("\n");
 }
 
 function t(k) {
@@ -2378,9 +2622,9 @@ function forceHeroChipLayout(root = document) {
     });
 
     wrap.querySelectorAll(".hc-label").forEach((label) => {
-      label.style.setProperty("white-space", "normal", "important");
-      label.style.setProperty("overflow", "visible", "important");
-      label.style.setProperty("text-overflow", "clip", "important");
+      label.style.setProperty("white-space", "nowrap", "important");
+      label.style.setProperty("overflow", "hidden", "important");
+      label.style.setProperty("text-overflow", "ellipsis", "important");
       label.style.setProperty("line-height", "1.1", "important");
       label.style.setProperty("min-height", "0", "important");
       label.style.setProperty("display", "flex", "important");
@@ -2409,6 +2653,7 @@ function perm(p) {
 function setLanguage(lang) {
   if (!translations[lang]) return;
   currentLang = lang;
+  saveGuideRuntimeState({ language: lang });
   localStorage.setItem("lang", lang);
   document.documentElement.lang = lang;
   applyTranslations();
@@ -2423,6 +2668,7 @@ function setLanguage(lang) {
   setTab(currentTab);
   updateHeaderButtons();
   if (typeof updateOfflineBar === "function") setTimeout(updateOfflineBar, 100);
+  scheduleGuideResume("language-change", 320);
 }
 
 const localeMap = { ru: "ru-RU", en: "en-US", ka: "ka-GE" };
@@ -2476,6 +2722,17 @@ function applyTranslations() {
 let transactions = [];
 
 let startBalanceRub = 70000;
+function logStartBalanceWrite(source, oldValue, newValue) {
+  console.log(
+    "[START_BALANCE_WRITE]",
+    `SOURCE=${source}`,
+    "OLD=",
+    oldValue,
+    "NEW=",
+    newValue,
+    new Error().stack,
+  );
+}
 let displayCurrency = "GEL";
 let currencyWebSocket = null;
 let currencyWsReconnectTimer = null;
@@ -2489,6 +2746,8 @@ let exchangeRates = {
 };
 let notebookPages = [];
 let currentTab = "home";
+let currentSettingsView = "home";
+let currentDiagnosticsFilter = "all";
 let editingOpIndex = null;
 let editingNoteId = null;
 let addType = "expense";
@@ -2567,6 +2826,36 @@ async function syncNativeRecurringReminderNotificationsIfNeeded() {
   if (!hasActiveRecurringReminderIntervals()) return;
   await syncNativeRecurringReminderNotifications();
 }
+let nativeRecurringReminderSyncPromise = null;
+let nativeRecurringReminderSyncQueued = false;
+let nativeRecurringReminderSyncDebounceTimer = null;
+const NATIVE_RECURRING_REMINDER_SYNC_DEBOUNCE_MS = 4000;
+function queueNativeRecurringReminderNotificationsSync() {
+  if (!isNativeReminderRuntime()) return Promise.resolve();
+  if (nativeRecurringReminderSyncPromise) {
+    nativeRecurringReminderSyncQueued = true;
+    return nativeRecurringReminderSyncPromise;
+  }
+  nativeRecurringReminderSyncPromise = (async () => {
+    do {
+      nativeRecurringReminderSyncQueued = false;
+      await syncNativeRecurringReminderNotifications();
+    } while (nativeRecurringReminderSyncQueued);
+  })().finally(() => {
+    nativeRecurringReminderSyncPromise = null;
+  });
+  return nativeRecurringReminderSyncPromise;
+}
+function debounceNativeRecurringReminderNotificationsSync() {
+  if (!isNativeReminderRuntime()) return;
+  if (nativeRecurringReminderSyncDebounceTimer) {
+    clearTimeout(nativeRecurringReminderSyncDebounceTimer);
+  }
+  nativeRecurringReminderSyncDebounceTimer = setTimeout(() => {
+    nativeRecurringReminderSyncDebounceTimer = null;
+    queueNativeRecurringReminderNotificationsSync().catch(() => {});
+  }, NATIVE_RECURRING_REMINDER_SYNC_DEBOUNCE_MS);
+}
 let customReminderDate = localStorage.getItem("customReminderDate") || "";
 let customReminderTime = localStorage.getItem("customReminderTime") || "";
 let customReminderText = localStorage.getItem("customReminderText") || "";
@@ -2617,8 +2906,6 @@ let simpleMode = localStorage.getItem("simpleMode") === "true";
 let fontSize = localStorage.getItem("fontSize") || "normal";
 let animationsEnabled = localStorage.getItem("animationsEnabled") !== "false";
 let hapticEnabled = localStorage.getItem("hapticEnabled") !== "false";
-let guideSteps = [];
-let curGuideStep = 0;
 
 // ============================================================
 // ИКОНКИ И ЦВЕТА
@@ -5823,7 +6110,20 @@ function isInitialBalanceTx(tx) {
   );
 }
 function normalizeFinancialState() {
-  startBalanceRub = Math.max(0, cleanMoneyValue(startBalanceRub));
+  const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  logTransactionsDiag("[TX_SOURCE]", "normalizeFinancialState:start");
+  logTransactionsDiag("[TX_BEFORE]", "normalizeFinancialState:before-normalize");
+  const normalizedStartBalanceRub = Math.max(0, cleanMoneyValue(startBalanceRub));
+  if (normalizedStartBalanceRub !== startBalanceRub) {
+    logStartBalanceWrite(
+      "normalizeFinancialState",
+      startBalanceRub,
+      normalizedStartBalanceRub,
+    );
+  }
+  startBalanceRub = normalizedStartBalanceRub;
   const seenIds = new Set();
   const clean = [];
   for (const tx of transactions || []) {
@@ -5856,7 +6156,29 @@ function normalizeFinancialState() {
       lockedInitial: true,
     });
   }
+  logTransactionsDiag("[TX_BEFORE]", "normalizeFinancialState:before-transactions-assign", {
+    nextTransactionsLength: clean.length,
+    nextTransactions: clean.slice(0, 20).map((tx) => ({
+      id: tx?.id ?? null,
+      amountRub: tx?.amountRub ?? null,
+      type: tx?.type ?? null,
+      date: tx?.date ?? null,
+    })),
+  });
+  const diagnosticsAfterState = buildTransactionDiagnosticsState(clean, {
+    includeSample: true,
+  });
   transactions = clean;
+  logTransactionsDiag("[TX_AFTER]", "normalizeFinancialState:after-transactions-assign");
+  logTransactionsDiagnosticTransition(
+    "TX_NORMALIZE",
+    "normalizeFinancialState",
+    diagnosticsBeforeState,
+    diagnosticsAfterState,
+    {
+      kind: "normalize",
+    },
+  );
 }
 function getMoneyTransactions() {
   return (transactions || []).filter((tx) => !isInitialBalanceTx(tx));
@@ -5946,78 +6268,309 @@ function getTransactionsForPeriod(period) {
 // ============================================================
 // ЗАГРУЗКА / СОХРАНЕНИЕ
 // ============================================================
-function getProfileStorageKey(pid) {
+function getLegacyProfileStorageKey(pid) {
   return "budget_profile_" + (pid || activeProfileId);
 }
-function getGlobalStorageKey() {
+function getLegacyGlobalStorageKey() {
   return "budget_pro_global";
+}
+function getLegacyMessagesStorageKey() {
+  return MSG_KEY;
+}
+function getLegacyGoalsStorageKey() {
+  return "budgetpro_goals";
+}
+function getUserGlobalStorageKey(authUserId) {
+  return `budget_user_global::${authUserId}`;
+}
+function getUserProfileStorageKey(authUserId, profileId) {
+  return `budget_user_profile::${authUserId}::${profileId}`;
+}
+function getUserMessagesStorageKey(authUserId) {
+  return `budget_user_messages::${authUserId}`;
+}
+function getUserGoalsStorageKey(authUserId) {
+  return `budget_user_goals::${authUserId}`;
+}
+function getUserMigrationMarkerKey(authUserId) {
+  return `budget_user_migrated::${authUserId}`;
+}
+function getProfileStorageKey(pid, authUserId = getAuthUserId("getProfileStorageKey")) {
+  const resolvedProfileId = pid || activeProfileId;
+  return authUserId
+    ? getUserProfileStorageKey(authUserId, resolvedProfileId)
+    : getLegacyProfileStorageKey(resolvedProfileId);
+}
+function getGlobalStorageKey(authUserId = getAuthUserId("getGlobalStorageKey")) {
+  return authUserId
+    ? getUserGlobalStorageKey(authUserId)
+    : getLegacyGlobalStorageKey();
+}
+function getMessagesStorageKey(authUserId = getAuthUserId("getMessagesStorageKey")) {
+  return authUserId
+    ? getUserMessagesStorageKey(authUserId)
+    : getLegacyMessagesStorageKey();
+}
+function getGoalsStorageKey(authUserId = getAuthUserId("getGoalsStorageKey")) {
+  return authUserId
+    ? getUserGoalsStorageKey(authUserId)
+    : getLegacyGoalsStorageKey();
+}
+function getRemoteAuthUserId(source = "getRemoteAuthUserId") {
+  const authUserId = getAuthUserId(source);
+  console.log("[REMOTE_USER_ID]", "VALUE=", authUserId || "null", "SOURCE=", source);
+  return authUserId;
+}
+function logSupportOwnerTrace(source, payload = {}) {
+  const authUserId =
+    payload.authUserId !== undefined
+      ? payload.authUserId
+      : getAuthUserId(`SUPPORT_OWNER_TRACE:${source}`);
+  const firebasePath =
+    payload.firebasePath !== undefined
+      ? payload.firebasePath
+      : getFirebaseMessagesPath(authUserId);
+  const messagesKey =
+    payload.messagesKey !== undefined
+      ? payload.messagesKey
+      : getMessagesStorageKey(authUserId);
+  console.log("[SUPPORT_OWNER_TRACE]", {
+    source,
+    authUserId: authUserId ?? null,
+    activeProfileId: payload.activeProfileId ?? activeProfileId ?? null,
+    fromProfile: payload.fromProfile ?? null,
+    fromProfileName: payload.fromProfileName ?? null,
+    firebasePath: firebasePath ?? null,
+    messagesKey: messagesKey ?? null,
+  });
+}
+
+function getTransactionsDiagSnapshot(limit = 20) {
+  return (Array.isArray(transactions) ? transactions : []).slice(0, limit).map((tx) => ({
+    id: tx?.id ?? null,
+    amountRub: tx?.amountRub ?? null,
+    type: tx?.type ?? null,
+    date: tx?.date ?? null,
+  }));
+}
+
+function logTransactionsDiag(tag, source, extra = {}) {
+  console.log(tag, {
+    source,
+    authUserId: getAuthUserId(`TX_DIAG:${source}`),
+    activeProfileId: extra.activeProfileId ?? activeProfileId ?? null,
+    transactionsLength: Array.isArray(transactions) ? transactions.length : 0,
+    transactions: getTransactionsDiagSnapshot(20),
+    ...extra,
+  });
+}
+function logProfileMessageTrace(source, payload = {}) {
+  const authUserId =
+    payload.authUserId !== undefined
+      ? payload.authUserId
+      : getAuthUserId(`PROFILE_MESSAGE_TRACE:${source}`);
+  const activeProfile =
+    profiles.find((p) => String(p?.id || "") === String(activeProfileId || "")) || null;
+  const profileId =
+    payload.profileId !== undefined
+      ? payload.profileId
+      : activeProfile?.id ?? activeProfileId ?? null;
+  const profileName =
+    payload.profileName !== undefined
+      ? payload.profileName
+      : activeProfile?.name ?? null;
+  const firebasePath =
+    payload.firebasePath !== undefined
+      ? payload.firebasePath
+      : getFirebaseMessagesPath(authUserId);
+  const messagesKey =
+    payload.messagesKey !== undefined
+      ? payload.messagesKey
+      : getMessagesStorageKey(authUserId);
+  console.log("[PROFILE_MESSAGE_TRACE]", {
+    source,
+    authUserId: authUserId ?? null,
+    activeProfileId: payload.activeProfileId ?? activeProfileId ?? null,
+    profileId: profileId ?? null,
+    fromProfile: payload.fromProfile ?? null,
+    fromProfileName: payload.fromProfileName ?? null,
+    profileName: profileName ?? null,
+    firebasePath: firebasePath ?? null,
+    messagesKey: messagesKey ?? null,
+  });
+}
+function logMsgTrace(source, payload = {}) {
+  console.log("[MSG_TRACE]", {
+    source,
+    id: payload.id ?? null,
+    message: payload.message ?? null,
+    authUserId: payload.authUserId ?? getAuthUserId(`MSG_TRACE:${source}`) ?? null,
+    activeProfileId: payload.activeProfileId ?? activeProfileId ?? null,
+    fromProfile: payload.fromProfile ?? null,
+    fromProfileName: payload.fromProfileName ?? null,
+  });
+}
+function getFirebaseMessagesPath(authUserId = getRemoteAuthUserId("getFirebaseMessagesPath")) {
+  if (!authUserId) return null;
+  const path = `budgetpro_users/${authUserId}/messages`;
+  console.log("[FIREBASE_NAMESPACE]", "TYPE=", "messages", "PATH=", path);
+  return path;
+}
+function getFirebaseAllDataPath(authUserId = getRemoteAuthUserId("getFirebaseAllDataPath")) {
+  if (!authUserId) return null;
+  const path = `budgetpro_users/${authUserId}/all_data`;
+  console.log("[FIREBASE_NAMESPACE]", "TYPE=", "all_data", "PATH=", path);
+  return path;
+}
+function migrateLegacyStorageToUserNamespace(authUserId) {
+  if (!authUserId) {
+    console.log("[MIGRATION_SKIPPED]", "REASON=", "missing-auth-user-id");
+    return false;
+  }
+  const markerKey = getUserMigrationMarkerKey(authUserId);
+  if (localStorage.getItem(markerKey) === "1") {
+    console.log("[MIGRATION_SKIPPED]", "AUTH_USER_ID=", authUserId, "REASON=", "marker-exists");
+    return false;
+  }
+  const nextGlobalKey = getUserGlobalStorageKey(authUserId);
+  const nextMessagesKey = getUserMessagesStorageKey(authUserId);
+  const nextGoalsKey = getUserGoalsStorageKey(authUserId);
+  const hasUserNamespaceData =
+    !!localStorage.getItem(nextGlobalKey) ||
+    !!localStorage.getItem(nextMessagesKey) ||
+    !!localStorage.getItem(nextGoalsKey);
+  if (hasUserNamespaceData) {
+    localStorage.setItem(markerKey, "1");
+    console.log(
+      "[MIGRATION_SKIPPED]",
+      "AUTH_USER_ID=",
+      authUserId,
+      "REASON=",
+      "user-namespace-already-populated",
+    );
+    return false;
+  }
+  console.log("[MIGRATION_START]", "AUTH_USER_ID=", authUserId);
+  const legacyGlobalRaw = localStorage.getItem(getLegacyGlobalStorageKey());
+  let migratedProfiles = 0;
+  if (legacyGlobalRaw) {
+    localStorage.setItem(nextGlobalKey, legacyGlobalRaw);
+    try {
+      const parsedGlobal = JSON.parse(legacyGlobalRaw);
+      const legacyProfiles = Array.isArray(parsedGlobal?.profiles)
+        ? parsedGlobal.profiles
+        : [];
+      legacyProfiles.forEach((profile) => {
+        const profileId = String(profile?.id || "").trim();
+        if (!profileId) return;
+        const legacyProfileRaw = localStorage.getItem(
+          getLegacyProfileStorageKey(profileId),
+        );
+        if (!legacyProfileRaw) return;
+        localStorage.setItem(
+          getUserProfileStorageKey(authUserId, profileId),
+          legacyProfileRaw,
+        );
+        migratedProfiles += 1;
+      });
+    } catch (e) {}
+  }
+  const legacyMessagesRaw = localStorage.getItem(getLegacyMessagesStorageKey());
+  if (legacyMessagesRaw) {
+    localStorage.setItem(nextMessagesKey, legacyMessagesRaw);
+  }
+  const legacyGoalsRaw = localStorage.getItem(getLegacyGoalsStorageKey());
+  if (legacyGoalsRaw) {
+    localStorage.setItem(nextGoalsKey, legacyGoalsRaw);
+  }
+  localStorage.setItem(markerKey, "1");
+  console.log(
+    "[MIGRATION_DONE]",
+    "AUTH_USER_ID=",
+    authUserId,
+    "PROFILES=",
+    migratedProfiles,
+    "GLOBAL=",
+    legacyGlobalRaw ? 1 : 0,
+    "MESSAGES=",
+    legacyMessagesRaw ? 1 : 0,
+    "GOALS=",
+    legacyGoalsRaw ? 1 : 0,
+  );
+  return true;
 }
 
 function loadProfiles() {
-  const raw = localStorage.getItem(getGlobalStorageKey());
-  if (!raw) {
-    profiles = [
-      {
-        id: "default",
-        name: "Main profile",
-        emoji: "👤",
-        color: "#2d6a4f",
-        role: "owner",
-      },
-    ];
-    activeProfileId = "default";
-    // Migrate from old single-profile format
-    const old = localStorage.getItem("budget_pro_full");
-    if (old) {
-      try {
-        const d = JSON.parse(old);
-        localStorage.setItem(getProfileStorageKey("default"), old);
-        if (d.displayCurrency) displayCurrency = d.displayCurrency;
-        if (d.exchangeRates)
-          exchangeRates = { ...exchangeRates, ...d.exchangeRates };
-      } catch (e) {}
-    }
-    return;
-  }
   try {
-    const g = JSON.parse(raw);
-    let globalThemeMigrated = false;
-    profiles = g.profiles || [
-      { id: "default", name: "Main profile", emoji: "👤", color: "#2d6a4f" },
-    ];
-    const defaultProfile = profiles.find((p) => p.id === "default");
-    if (
-      defaultProfile &&
-      (!defaultProfile.name || defaultProfile.name === "Я")
-    ) {
-      defaultProfile.name = "Main profile";
+    const globalKey = getGlobalStorageKey();
+    console.log("[USER_NAMESPACE_LOAD]", "TYPE=", "global", "KEY=", globalKey);
+    const raw = localStorage.getItem(globalKey);
+    if (!raw) {
+      profiles = [
+        {
+          id: "default",
+          name: "Main profile",
+          emoji: "👤",
+          color: "#2d6a4f",
+          role: "owner",
+        },
+      ];
+      activeProfileId = "default";
+      // Migrate from old single-profile format
+      const old = localStorage.getItem("budget_pro_full");
+      if (old) {
+        try {
+          const d = JSON.parse(old);
+          localStorage.setItem(getProfileStorageKey("default"), old);
+          if (d.displayCurrency) displayCurrency = d.displayCurrency;
+          if (d.exchangeRates)
+            exchangeRates = { ...exchangeRates, ...d.exchangeRates };
+        } catch (e) {}
+      }
+      return;
     }
-    activeProfileId = g.activeProfileId || "default";
-    if (g.sharedAccessProfile) sharedAccessProfile = g.sharedAccessProfile;
-    pinHash = g.pinHash || null;
-    pinEnabled = g.pinEnabled || false;
-    biometryEnabled = g.biometryEnabled || false;
-    biometryCredId = g.biometryCredId || null;
-    colorTheme = g.colorTheme || localStorage.getItem("colorTheme") || "dark";
-    if (colorTheme === "default") {
-      colorTheme = "dark";
-      localStorage.setItem("colorTheme", "dark");
-      g.colorTheme = "dark";
-      globalThemeMigrated = true;
-    }
-    displayCurrency = g.displayCurrency || "GEL";
-    if (g.exchangeRates)
-      exchangeRates = { ...exchangeRates, ...g.exchangeRates };
-    if (colorTheme) applyColorTheme(colorTheme);
-    if (globalThemeMigrated) {
-      saveGlobal();
-    }
+    try {
+      const g = JSON.parse(raw);
+      let globalThemeMigrated = false;
+      profiles = g.profiles || [
+        { id: "default", name: "Main profile", emoji: "👤", color: "#2d6a4f" },
+      ];
+      const defaultProfile = profiles.find((p) => p.id === "default");
+      if (
+        defaultProfile &&
+        (!defaultProfile.name || defaultProfile.name === "Я")
+      ) {
+        defaultProfile.name = "Main profile";
+      }
+      activeProfileId = g.activeProfileId || "default";
+      if (g.sharedAccessProfile) sharedAccessProfile = g.sharedAccessProfile;
+      pinHash = g.pinHash || null;
+      pinEnabled = g.pinEnabled || false;
+      biometryEnabled = g.biometryEnabled || false;
+      biometryCredId = g.biometryCredId || null;
+      colorTheme = g.colorTheme || localStorage.getItem("colorTheme") || "dark";
+      if (colorTheme === "default") {
+        colorTheme = "dark";
+        localStorage.setItem("colorTheme", "dark");
+        g.colorTheme = "dark";
+        globalThemeMigrated = true;
+      }
+      displayCurrency = g.displayCurrency || "GEL";
+      if (g.exchangeRates)
+        exchangeRates = { ...exchangeRates, ...g.exchangeRates };
+      if (colorTheme) applyColorTheme(colorTheme);
+      if (globalThemeMigrated) {
+        saveGlobal();
+      }
+    } catch (e) {}
   } catch (e) {}
 }
 
 function saveGlobal() {
+  const globalKey = getGlobalStorageKey();
+  console.log("[USER_NAMESPACE_SAVE]", "TYPE=", "global", "KEY=", globalKey);
   localStorage.setItem(
-    getGlobalStorageKey(),
+    globalKey,
     JSON.stringify({
       profiles,
       activeProfileId,
@@ -6034,79 +6587,198 @@ function saveGlobal() {
 }
 
 function loadProfileData(pid) {
-  const key = getProfileStorageKey(pid);
-  const raw = localStorage.getItem(key);
-  if (!raw) {
-    transactions = [];
-    startBalanceRub = 0;
-    notebookPages = [];
-    categories = JSON.parse(JSON.stringify(window.initialCategories));
-    incomeCategories = {
-      ხელფასი: { subcats: [] },
-      საჩუქარი: { subcats: [] },
-      ფრილანსი: { subcats: [] },
-    };
-    calcHistory = [];
-    convHistory = [];
-    userTemplates = [];
-    frequentStats = {};
-    categoryCustomizations = {};
-    categoryBudgets = {};
-    recurringOps = [];
-    return;
-  }
   try {
-    const d = JSON.parse(raw);
-    transactions = d.transactions || [];
-    startBalanceRub = d.startBalanceRub ?? 0;
-    if (d.notebookPages) notebookPages = d.notebookPages;
-    if (d.categories) categories = migrateLegacyCategoryNames(d.categories);
-    if (d.categoryCustomizations)
-      categoryCustomizations = d.categoryCustomizations;
-    if (d.incomeCategories) {
-      if (Array.isArray(d.incomeCategories)) {
-        incomeCategories = {};
-        d.incomeCategories.forEach((c2) => {
-          incomeCategories[c2] = { subcats: [] };
-        });
-      } else incomeCategories = migrateLegacyCategoryNames(d.incomeCategories);
-    }
-    calcHistory = d.calcHistory || [];
-    convHistory = d.convHistory || [];
-    userTemplates = d.userTemplates || [];
-    frequentStats = d.frequentStats || {};
-    categoryBudgets = d.categoryBudgets || {};
-    recurringOps = d.recurringOps || [];
-    supportMessages = d.supportMessages || [];
-    categoryCustomizations = d.categoryCustomizations || {};
-    transactions.forEach((tx) => {
-      if (
-        tx.category === "Начальная сумма" ||
-        tx.category === "Starting amount" ||
-        tx.category === "საწყისი თანხა"
-      )
-        tx._initial = true;
+    const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+      includeSample: true,
     });
-    normalizeFinancialState();
-  } catch (e) {}
+    logTransactionsDiag("[TX_SOURCE]", "loadProfileData:start", {
+      requestedProfileId: pid ?? null,
+    });
+    const key = getProfileStorageKey(pid);
+    console.log("[USER_NAMESPACE_LOAD]", "TYPE=", "profile", "KEY=", key);
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+      logTransactionsDiag("[TX_BEFORE]", "loadProfileData:no-profile:before-transactions-assign", {
+        requestedProfileId: pid ?? null,
+      });
+      transactions = [];
+      logTransactionsDiag("[TX_AFTER]", "loadProfileData:no-profile:after-transactions-assign", {
+        requestedProfileId: pid ?? null,
+      });
+      const diagnosticsAfterState = buildTransactionDiagnosticsState(transactions, {
+        includeSample: true,
+      });
+      logTransactionsDiagnosticTransition(
+        "TX_REPLACE",
+        "loadProfileData:no-profile",
+        diagnosticsBeforeState,
+        diagnosticsAfterState,
+        {
+          requestedProfileId: pid ?? null,
+          storageKey: key,
+          origin: "localStorage",
+          storageStatus: "empty",
+        },
+      );
+      logTransactionsDiagnosticTransition(
+        "TX_LOAD_PROFILE",
+        "loadProfileData:no-profile",
+        diagnosticsBeforeState,
+        diagnosticsAfterState,
+        {
+          requestedProfileId: pid ?? null,
+          storageKey: key,
+          origin: "localStorage",
+          storageStatus: "empty",
+        },
+      );
+      logStartBalanceWrite("loadProfileData:no-profile", startBalanceRub, 0);
+      startBalanceRub = 0;
+      notebookPages = [];
+      categories = JSON.parse(JSON.stringify(window.initialCategories));
+      incomeCategories = {
+        ხელფასი: { subcats: [] },
+        საჩუქარი: { subcats: [] },
+        ფრილანსი: { subcats: [] },
+      };
+      calcHistory = [];
+      convHistory = [];
+      userTemplates = [];
+      frequentStats = {};
+      categoryCustomizations = {};
+      categoryBudgets = {};
+      recurringOps = [];
+      return;
+    }
+    try {
+      const d = JSON.parse(raw);
+      const incomingTransactions = d.transactions || [];
+      logTransactionsDiag("[TX_BEFORE]", "loadProfileData:profile-storage:before-transactions-assign", {
+        requestedProfileId: pid ?? null,
+        parsedTransactionsLength: Array.isArray(d?.transactions) ? d.transactions.length : 0,
+        parsedTransactions: (Array.isArray(d?.transactions) ? d.transactions : [])
+          .slice(0, 20)
+          .map((tx) => ({
+            id: tx?.id ?? null,
+            amountRub: tx?.amountRub ?? null,
+            type: tx?.type ?? null,
+            date: tx?.date ?? null,
+          })),
+      });
+      const diagnosticsIncomingState = buildTransactionDiagnosticsState(
+        incomingTransactions,
+        { includeSample: true },
+      );
+      transactions = incomingTransactions;
+      logTransactionsDiag("[TX_AFTER]", "loadProfileData:profile-storage:after-transactions-assign", {
+        requestedProfileId: pid ?? null,
+      });
+      logTransactionsDiagnosticTransition(
+        "TX_REPLACE",
+        "loadProfileData:profile-storage",
+        diagnosticsBeforeState,
+        diagnosticsIncomingState,
+        {
+          requestedProfileId: pid ?? null,
+          storageKey: key,
+          origin: "localStorage",
+        },
+      );
+      const nextStartBalanceRub = d.startBalanceRub ?? 0;
+      logStartBalanceWrite(
+        "loadProfileData:profile-storage",
+        startBalanceRub,
+        nextStartBalanceRub,
+      );
+      startBalanceRub = nextStartBalanceRub;
+      if (d.notebookPages) notebookPages = d.notebookPages;
+      if (d.categories) categories = migrateLegacyCategoryNames(d.categories);
+      if (d.categoryCustomizations)
+        categoryCustomizations = d.categoryCustomizations;
+      if (d.incomeCategories) {
+        if (Array.isArray(d.incomeCategories)) {
+          incomeCategories = {};
+          d.incomeCategories.forEach((c2) => {
+            incomeCategories[c2] = { subcats: [] };
+          });
+        } else incomeCategories = migrateLegacyCategoryNames(d.incomeCategories);
+      }
+      calcHistory = d.calcHistory || [];
+      convHistory = d.convHistory || [];
+      userTemplates = d.userTemplates || [];
+      frequentStats = d.frequentStats || {};
+      categoryBudgets = d.categoryBudgets || {};
+      recurringOps = d.recurringOps || [];
+      supportMessages = d.supportMessages || [];
+      categoryCustomizations = d.categoryCustomizations || {};
+      transactions.forEach((tx) => {
+        if (
+          tx.category === "Начальная сумма" ||
+          tx.category === "Starting amount" ||
+          tx.category === "საწყისი თანხა"
+        )
+          tx._initial = true;
+      });
+      logTransactionsDiag("[TX_BEFORE]", "loadProfileData:before-normalizeFinancialState", {
+        requestedProfileId: pid ?? null,
+      });
+      normalizeFinancialState();
+      logTransactionsDiag("[TX_AFTER]", "loadProfileData:after-normalizeFinancialState", {
+        requestedProfileId: pid ?? null,
+      });
+      const diagnosticsAfterState = buildTransactionDiagnosticsState(transactions, {
+        includeSample: true,
+      });
+      logTransactionsDiagnosticTransition(
+        "TX_LOAD_PROFILE",
+        "loadProfileData:complete",
+        diagnosticsBeforeState,
+        diagnosticsAfterState,
+        {
+          requestedProfileId: pid ?? null,
+          storageKey: key,
+          origin: "localStorage",
+        },
+      );
+    } catch (e) {}
 
-  // Проверка флага новых сообщений для владельца
-  if (
-    activeProfileId === pid &&
-    localStorage.getItem("has_new_support_messages") === "true" &&
-    isCreator()
-  ) {
-    setTimeout(() => {
-      showToast("📬 " + t("newUserMessages"), "success", 3000);
-      localStorage.removeItem("has_new_support_messages");
-    }, 500);
-  }
+    // Проверка флага новых сообщений для владельца
+    if (
+      activeProfileId === pid &&
+      localStorage.getItem("has_new_support_messages") === "true" &&
+      isCreator()
+    ) {
+      setTimeout(() => {
+        showToast("📬 " + t("newUserMessages"), "success", 3000);
+        localStorage.removeItem("has_new_support_messages");
+      }, 500);
+    }
+  } catch (e) {}
 }
 
 function saveProfileData() {
+  const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  logTransactionsDiag("[TX_SOURCE]", "saveProfileData:start");
+  logTransactionsDiag("[TX_BEFORE]", "saveProfileData:before-normalizeFinancialState");
   normalizeFinancialState();
+  logTransactionsDiag("[TX_AFTER]", "saveProfileData:after-normalizeFinancialState");
+  const diagnosticsAfterState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  const profileKey = getProfileStorageKey();
+  console.log("[USER_NAMESPACE_SAVE]", "TYPE=", "profile", "KEY=", profileKey);
+  console.log(
+    "[PROFILE_SAVE]",
+    "PROFILE=",
+    activeProfileId,
+    "START_BALANCE=",
+    startBalanceRub,
+    new Error().stack,
+  );
   localStorage.setItem(
-    getProfileStorageKey(),
+    profileKey,
     JSON.stringify({
       transactions,
       startBalanceRub,
@@ -6123,9 +6795,28 @@ function saveProfileData() {
       supportMessages, // <-- добавили
     }),
   );
+  logTransactionsDiag("[TX_AFTER]", "saveProfileData:after-localStorage-setItem", {
+    profileKey,
+  });
+  logTransactionsDiagnosticTransition(
+    "TX_SAVE_PROFILE",
+    "saveProfileData",
+    diagnosticsBeforeState,
+    diagnosticsAfterState,
+    {
+      profileKey,
+    },
+  );
 }
 
 function switchProfile(pid) {
+  const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  const previousProfileId = activeProfileId;
+  logTransactionsDiag("[TX_SOURCE]", "switchProfile:start", {
+    targetProfileId: pid ?? null,
+  });
   const targetProf = profiles.find((p) => p.id === pid);
   if (!targetProf) return;
 
@@ -6139,7 +6830,11 @@ function switchProfile(pid) {
     };
   }
 
+  logTransactionsDiag("[TX_BEFORE]", "switchProfile:before-saveProfileData", {
+    targetProfileId: pid ?? null,
+  });
   saveProfileData(); // сохраняем текущий профиль перед сменой
+  console.log("[PROFILE_SWITCH]", "FROM=", activeProfileId, "TO=", pid);
   activeProfileId = pid;
 
   // Сбрасываем категории и загружаем данные нового профиля
@@ -6149,7 +6844,26 @@ function switchProfile(pid) {
     Подарок: { subcats: [] },
     Фриланс: { subcats: [] },
   };
+  logTransactionsDiag("[TX_BEFORE]", "switchProfile:before-loadProfileData", {
+    targetProfileId: pid ?? null,
+  });
   loadProfileData(pid);
+  logTransactionsDiag("[TX_AFTER]", "switchProfile:after-loadProfileData", {
+    targetProfileId: pid ?? null,
+  });
+  const diagnosticsAfterState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  logTransactionsDiagnosticTransition(
+    "TX_SWITCH_PROFILE",
+    "switchProfile",
+    diagnosticsBeforeState,
+    diagnosticsAfterState,
+    {
+      previousProfileId: previousProfileId ?? null,
+      targetProfileId: pid ?? null,
+    },
+  );
   saveGlobal();
   syncStartBalanceTransaction();
   applyRecurringOps();
@@ -6169,25 +6883,85 @@ function switchProfile(pid) {
       localStorage.removeItem("has_new_support_messages");
     }
   }, 100); // небольшая задержка, чтобы тост профиля не перебивал
+  scheduleGuideResume("switch-profile", 420);
 }
 
 async function recoverMissingDataInBackground() {
-  if (backgroundRecoveryStarted) return false;
-  backgroundRecoveryStarted = true;
-
-  let restored = false;
-
   try {
-    const idbRestored = await loadAllFromIndexedDB();
-    if (idbRestored) {
-      loadProfiles();
-      loadProfileData(activeProfileId);
-      showToast(t("restoredFromBackup"), "success");
-      restored = true;
+    const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+      includeSample: true,
+    });
+    logTransactionsDiag("[TX_SOURCE]", "recoverMissingDataInBackground:start");
+    logTransactionsDiagnosticEvent(
+      "TX_RECOVERY",
+      "recoverMissingDataInBackground:start",
+      diagnosticsBeforeState,
+      {
+        stage: "start",
+      },
+    );
+    if (backgroundRecoveryStarted) return false;
+    backgroundRecoveryStarted = true;
+
+    let restored = false;
+
+    try {
+      const idbRestored = await loadAllFromIndexedDB();
+      if (idbRestored) {
+        loadProfiles();
+        let indexedDbStartBalance = null;
+        try {
+          const indexedDbRaw = localStorage.getItem(
+            getProfileStorageKey(activeProfileId),
+          );
+          indexedDbStartBalance = indexedDbRaw
+            ? JSON.parse(indexedDbRaw)?.startBalanceRub
+            : null;
+        } catch (e) {}
+        console.log(
+          "[RESTORE_SOURCE]",
+          "SOURCE=IndexedDB",
+          "START_BALANCE=",
+          indexedDbStartBalance,
+        );
+        loadProfileData(activeProfileId);
+        const diagnosticsAfterState = buildTransactionDiagnosticsState(
+          transactions,
+          { includeSample: true },
+        );
+        logTransactionsDiagnosticTransition(
+          "TX_RESTORE",
+          "recoverMissingDataInBackground:indexeddb",
+          diagnosticsBeforeState,
+          diagnosticsAfterState,
+          {
+            restoreSource: "IndexedDB",
+          },
+        );
+        logTransactionsDiagnosticEvent(
+          "TX_INDEXEDDB_RESTORE",
+          "recoverMissingDataInBackground:indexeddb",
+          diagnosticsAfterState,
+          {
+            restoreSource: "IndexedDB",
+          },
+        );
+        showToast(t("restoredFromBackup"), "success");
+        restored = true;
+      }
+    } catch (e) {
+      console.warn("IndexedDB restore failed", e);
+      logTransactionsDiagnosticEvent(
+        "TX_RECOVERY",
+        "recoverMissingDataInBackground:indexeddb-error",
+        buildTransactionDiagnosticsState(transactions, { includeSample: true }),
+        {
+          stage: "indexeddb",
+          status: "error",
+          error: String(e?.message || e || "unknown"),
+        },
+      );
     }
-  } catch (e) {
-    console.warn("IndexedDB restore failed", e);
-  }
 
   if (!restored && transactions.length === 0) {
     const fbCfg = JSON.parse(
@@ -6196,21 +6970,98 @@ async function recoverMissingDataInBackground() {
     if (fbCfg.databaseURL) {
       try {
         if (typeof initFirebase === "function") await initFirebase();
-        const snap = await _fbDB.ref("budgetpro_all_data").once("value");
+        const firebaseAllDataPath = getFirebaseAllDataPath(
+          getRemoteAuthUserId("recoverMissingDataInBackground:firebase"),
+        );
+        if (!firebaseAllDataPath) throw new Error("Missing authUserId for Firebase restore");
+        const snap = await _fbDB.ref(firebaseAllDataPath).once("value");
         const cloudData = snap.val();
         if (
           cloudData &&
           cloudData.transactions &&
           cloudData.transactions.length > 0
         ) {
+        console.log(
+          "[RESTORE_SOURCE]",
+          "SOURCE=Firebase",
+          "START_BALANCE=",
+          cloudData.startBalanceRub,
+        );
+          logTransactionsDiag("[TX_BEFORE]", "recoverMissingDataInBackground:firebase:before-transactions-assign", {
+            incomingTransactionsLength: Array.isArray(cloudData?.transactions)
+              ? cloudData.transactions.length
+              : 0,
+            incomingTransactions: (Array.isArray(cloudData?.transactions)
+              ? cloudData.transactions
+              : [])
+              .slice(0, 20)
+              .map((tx) => ({
+                id: tx?.id ?? null,
+                amountRub: tx?.amountRub ?? null,
+                type: tx?.type ?? null,
+                date: tx?.date ?? null,
+              })),
+          });
+          const diagnosticsFirebaseIncomingState = buildTransactionDiagnosticsState(
+            cloudData.transactions,
+            { includeSample: true },
+          );
           transactions = cloudData.transactions;
-          startBalanceRub = cloudData.startBalanceRub ?? startBalanceRub;
+          logTransactionsDiag("[TX_AFTER]", "recoverMissingDataInBackground:firebase:after-transactions-assign");
+          logTransactionsDiagnosticTransition(
+            "TX_REPLACE",
+            "recoverMissingDataInBackground:firebase",
+            diagnosticsBeforeState,
+            diagnosticsFirebaseIncomingState,
+            {
+              restoreSource: "Firebase",
+            },
+          );
+          const restoredStartBalanceRub =
+            cloudData.startBalanceRub ?? startBalanceRub;
+          logStartBalanceWrite(
+            "recoverMissingDataInBackground:firebase",
+            startBalanceRub,
+            restoredStartBalanceRub,
+          );
+          startBalanceRub = restoredStartBalanceRub;
           saveProfileData();
+          const diagnosticsAfterState = buildTransactionDiagnosticsState(
+            transactions,
+            { includeSample: true },
+          );
+          logTransactionsDiagnosticTransition(
+            "TX_RESTORE",
+            "recoverMissingDataInBackground:firebase",
+            diagnosticsBeforeState,
+            diagnosticsAfterState,
+            {
+              restoreSource: "Firebase",
+            },
+          );
+          logTransactionsDiagnosticEvent(
+            "TX_FIREBASE_RESTORE",
+            "recoverMissingDataInBackground:firebase",
+            diagnosticsAfterState,
+            {
+              restoreSource: "Firebase",
+            },
+          );
           showToast(t("restoredFromFirebase"), "success");
           restored = true;
         }
       } catch (e) {
         console.warn("Firebase restore failed", e);
+        logTransactionsDiagnosticEvent(
+          "TX_RECOVERY",
+          "recoverMissingDataInBackground:firebase-error",
+          buildTransactionDiagnosticsState(transactions, { includeSample: true }),
+          {
+            stage: "firebase",
+            status: "error",
+            error: String(e?.message || e || "unknown"),
+          },
+        );
       }
     }
   }
@@ -6240,10 +7091,10 @@ async function recoverMissingDataInBackground() {
           ) {
             Object.entries(backup.allProfilesData).forEach(([pid, data]) => {
               try {
-                localStorage.setItem(
-                  "budget_profile_" + pid,
-                  JSON.stringify(data),
-                );
+                  localStorage.setItem(
+                    getProfileStorageKey(pid),
+                    JSON.stringify(data),
+                  );
               } catch (e) {
                 console.warn("Failed to restore profile data for", pid, e);
               }
@@ -6254,11 +7105,83 @@ async function recoverMissingDataInBackground() {
           saveGlobal();
 
           // 4. Загружаем данные активного профиля в память
+          console.log(
+            "[RESTORE_SOURCE]",
+            "SOURCE=Full Backup",
+            "START_BALANCE=",
+            backup.allProfilesData?.[activeProfileId]?.startBalanceRub,
+          );
           loadProfileData(activeProfileId);
+          const diagnosticsAfterState = buildTransactionDiagnosticsState(
+            transactions,
+            { includeSample: true },
+          );
+          logTransactionsDiagnosticTransition(
+            "TX_RESTORE",
+            "recoverMissingDataInBackground:jsonbin-full",
+            diagnosticsBeforeState,
+            diagnosticsAfterState,
+            {
+              restoreSource: "JSONBin",
+              backupType: backup.type,
+            },
+          );
+          logTransactionsDiagnosticEvent(
+            "TX_JSONBIN_RESTORE",
+            "recoverMissingDataInBackground:jsonbin-full",
+            diagnosticsAfterState,
+            {
+              restoreSource: "JSONBin",
+              backupType: backup.type,
+            },
+          );
         } else {
           // ── Старый формат (full_backup): восстанавливаем только активный профиль ──
+          console.log(
+            "[RESTORE_SOURCE]",
+            "SOURCE=JSONBin",
+            "START_BALANCE=",
+            backup.startBalanceRub,
+          );
+          logTransactionsDiag("[TX_BEFORE]", "recoverMissingDataInBackground:jsonbin-legacy:before-transactions-assign", {
+            incomingTransactionsLength: Array.isArray(backup?.transactions)
+              ? backup.transactions.length
+              : 0,
+            incomingTransactions: (Array.isArray(backup?.transactions)
+              ? backup.transactions
+              : [])
+              .slice(0, 20)
+              .map((tx) => ({
+                id: tx?.id ?? null,
+                amountRub: tx?.amountRub ?? null,
+                type: tx?.type ?? null,
+                date: tx?.date ?? null,
+              })),
+          });
+          const diagnosticsJsonBinIncomingState = buildTransactionDiagnosticsState(
+            backup.transactions,
+            { includeSample: true },
+          );
           transactions = backup.transactions;
-          startBalanceRub = backup.startBalanceRub ?? startBalanceRub;
+          logTransactionsDiag("[TX_AFTER]", "recoverMissingDataInBackground:jsonbin-legacy:after-transactions-assign");
+          logTransactionsDiagnosticTransition(
+            "TX_REPLACE",
+            "recoverMissingDataInBackground:jsonbin-legacy",
+            diagnosticsBeforeState,
+            diagnosticsJsonBinIncomingState,
+            {
+              restoreSource: "JSONBin",
+              backupType: backup.type || "legacy",
+            },
+          );
+          const restoredStartBalanceRub =
+            backup.startBalanceRub ?? startBalanceRub;
+          logStartBalanceWrite(
+            "recoverMissingDataInBackground:jsonbin-legacy",
+            startBalanceRub,
+            restoredStartBalanceRub,
+          );
+          startBalanceRub = restoredStartBalanceRub;
           notebookPages = backup.notebookPages || [];
           categories = backup.categories || categories;
           incomeCategories = backup.incomeCategories || incomeCategories;
@@ -6270,6 +7193,29 @@ async function recoverMissingDataInBackground() {
           categoryBudgets = backup.categoryBudgets || {};
           recurringOps = backup.recurringOps || [];
           saveProfileData();
+          const diagnosticsAfterState = buildTransactionDiagnosticsState(
+            transactions,
+            { includeSample: true },
+          );
+          logTransactionsDiagnosticTransition(
+            "TX_RESTORE",
+            "recoverMissingDataInBackground:jsonbin-legacy",
+            diagnosticsBeforeState,
+            diagnosticsAfterState,
+            {
+              restoreSource: "JSONBin",
+              backupType: backup.type || "legacy",
+            },
+          );
+          logTransactionsDiagnosticEvent(
+            "TX_JSONBIN_RESTORE",
+            "recoverMissingDataInBackground:jsonbin-legacy",
+            diagnosticsAfterState,
+            {
+              restoreSource: "JSONBin",
+              backupType: backup.type || "legacy",
+            },
+          );
         }
 
         showToast(t("restoredFromCloud"), "success");
@@ -6277,20 +7223,44 @@ async function recoverMissingDataInBackground() {
       }
     } catch (e) {
       console.warn("JSONBin restore failed", e);
+      logTransactionsDiagnosticEvent(
+        "TX_RECOVERY",
+        "recoverMissingDataInBackground:jsonbin-error",
+        buildTransactionDiagnosticsState(transactions, { includeSample: true }),
+        {
+          stage: "jsonbin",
+          status: "error",
+          error: String(e?.message || e || "unknown"),
+        },
+      );
     }
   }
 
-  if (!restored) return false;
+    if (!restored) return false;
 
-  syncStartBalanceTransaction();
-  applyRecurringOps();
-  updateTopBlocks();
-  if (appInitDone && currentTab === "home") setTab("home");
-  return true;
+    syncStartBalanceTransaction();
+    applyRecurringOps();
+    updateTopBlocks();
+    if (appInitDone && currentTab === "home") setTab("home");
+    return true;
+  } catch (e) {}
 }
 
 function loadAll() {
-  loadProfiles();
+  try {
+    const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+      includeSample: true,
+    });
+    logTransactionsDiag("[TX_SOURCE]", "loadAll:start");
+    const authUserId = getAuthUserId("loadAll");
+    if (!isGuestMode() && !authUserId) {
+      console.log("[USER_NAMESPACE_LOAD]", "TYPE=", "loadAll", "STATUS=", "missing-auth-user-id");
+      return false;
+    }
+    if (authUserId) {
+      migrateLegacyStorageToUserNamespace(authUserId);
+    }
+    loadProfiles();
 
   // Принудительно назначаем роли, если их нет
   profiles.forEach((p) => {
@@ -6303,6 +7273,9 @@ function loadAll() {
   saveGlobal();
 
   loadProfileData(activeProfileId);
+  logTransactionsDiag("[TX_AFTER]", "loadAll:after-loadProfileData", {
+    loadedProfileId: activeProfileId ?? null,
+  });
 
   // Если активный профиль гостевой, но мы не в гостевом режиме, переключаемся на владельца
   const activeProf = profiles.find((p) => p.id === activeProfileId);
@@ -6314,6 +7287,9 @@ function loadAll() {
       activeProfileId = ownerProfile.id;
       saveGlobal();
       loadProfileData(ownerProfile.id);
+      logTransactionsDiag("[TX_AFTER]", "loadAll:after-owner-loadProfileData", {
+        loadedProfileId: ownerProfile.id ?? null,
+      });
     }
   }
 
@@ -6323,26 +7299,39 @@ function loadAll() {
   updateTopBlocks(); // обновляем цифры на главной
   if (appInitDone && currentTab === "home") setTab("home"); // перерисовываем главную
 
-  if (transactions.length === 0) {
-    setTimeout(() => {
-      recoverMissingDataInBackground().catch((e) => {
-        console.warn("Background restore failed", e);
-      });
-    }, 120);
-  }
+    if (transactions.length === 0) {
+      setTimeout(() => {
+        recoverMissingDataInBackground().catch((e) => {
+          console.warn("Background restore failed", e);
+        });
+      }, 120);
+    }
+    const diagnosticsAfterState = buildTransactionDiagnosticsState(transactions, {
+      includeSample: true,
+    });
+    logTransactionsDiagnosticTransition(
+      "TX_LOAD_ALL",
+      "loadAll",
+      diagnosticsBeforeState,
+      diagnosticsAfterState,
+      {
+        authUserId,
+        loadedProfileId: activeProfileId ?? null,
+      },
+    );
+    logTransactionsDiag("[TX_AFTER]", "loadAll:complete");
+    return true;
+  } catch (e) {}
+  return false;
 }
 
-function saveAll() {
-  normalizeFinancialState();
-  saveProfileData();
-  saveGlobal();
-  saveAllToIndexedDB().catch(() => {});
-
+function buildBackupPayload() {
+  const authUserId = getRemoteAuthUserId("buildBackupPayload");
   // Автосохранение в JSONBin — полный бэкап всех профилей
   // Собираем данные каждого профиля из LocalStorage
   const allProfilesData = {};
   profiles.forEach((p) => {
-    const key = "budget_profile_" + p.id;
+    const key = getProfileStorageKey(p.id);
     const raw = localStorage.getItem(key);
     if (raw) {
       try {
@@ -6369,6 +7358,8 @@ function saveAll() {
 
   const backup = {
     type: "full_backup_v2",
+    schemaVersion: 3,
+    userId: authUserId,
     // Глобальные данные
     profiles: profiles,
     activeProfileId: activeProfileId,
@@ -6392,10 +7383,56 @@ function saveAll() {
     recurringOps: recurringOps,
     timestamp: Date.now(),
   };
+  console.log("[BACKUP_USER_ID]", "VALUE=", authUserId || "null", "SOURCE=", "buildBackupPayload");
+  console.log("[BACKUP_PAYLOAD]", "START_BALANCE=", startBalanceRub);
+  return backup;
+}
+
+function saveAll() {
+  const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  logTransactionsDiag("[TX_SOURCE]", "saveAll:start");
+  logTransactionsDiag("[TX_BEFORE]", "saveAll:before-normalizeFinancialState");
+  normalizeFinancialState();
+  logTransactionsDiag("[TX_AFTER]", "saveAll:after-normalizeFinancialState");
+  const diagnosticsAfterState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  console.log(
+    "[SAVE_ALL]",
+    "START_BALANCE=",
+    startBalanceRub,
+    new Error().stack,
+  );
+  saveProfileData();
+  saveGlobal();
+  saveAllToIndexedDB().catch(() => {});
+  const backup = buildBackupPayload();
   jsonBinSaveBackup(backup).catch(() => {});
+  logTransactionsDiagnosticTransition(
+    "TX_SAVE_ALL",
+    "saveAll",
+    diagnosticsBeforeState,
+    diagnosticsAfterState,
+    {
+      savedToIndexedDb: true,
+      savedToJsonBin: true,
+    },
+  );
+  logTransactionsDiag("[TX_AFTER]", "saveAll:complete");
 }
 
 function syncStartBalanceTransaction() {
+  console.log(
+    "[START_BALANCE_WRITE]",
+    "SOURCE=syncStartBalanceTransaction",
+    "OLD=",
+    startBalanceRub,
+    "NEW=",
+    startBalanceRub,
+    new Error().stack,
+  );
   normalizeFinancialState();
   transactions.sort((a, b) => (a.date || "").localeCompare(b.date || ""));
 }
@@ -6656,6 +7693,7 @@ function updateHeader() {
   // Update slogan
   const sl = document.getElementById("appSlogan");
   if (sl) sl.textContent = t("slogan");
+  setTimeout(() => ensureSupportButton(), 0);
 }
 function addHeaderButtons() {
   ["headerGuideBtn", "headerHelpBtn", "headerLangBtn", "themeToggle"].forEach(
@@ -6776,6 +7814,12 @@ function updateTopBlocks() {
 // ВКЛАДКИ
 // ============================================================
 function setTab(tab, onRendered) {
+  let renderCompleted = false;
+  const completeRender = () => {
+    if (renderCompleted) return;
+    renderCompleted = true;
+    if (typeof onRendered === "function") onRendered();
+  };
   currentTab = tab;
   traceApp("setTab", { tab, simpleMode });
   traceLayoutSnapshot(`setTab:${tab}`);
@@ -6806,54 +7850,66 @@ function setTab(tab, onRendered) {
     document.getElementById("moreNavBtnSimple")?.classList.add("active");
   }
   const content = document.getElementById("mainContent");
-  if (!content) return;
+  if (!content) {
+    setTimeout(completeRender, 0);
+    return;
+  }
   content.classList.remove("tab-anim");
   content.style.transition = "opacity 0.2s ease, transform 0.2s ease";
   content.style.opacity = "0";
   content.style.transform = "translateY(6px) scale(0.995)";
   window.setTimeout(() => {
-    if (heroWrap)
-      heroWrap.style.display = tab === "home" && !simpleMode ? "" : "none";
-    window.scrollTo({ top: 0, behavior: "auto" });
-    switch (tab) {
-      case "home":
-        renderHome();
-        setTimeout(() => {
-          ensureHomeHeroStable();
-          updateHeroDebugOverlay();
-        }, 30);
-        break;
-      case "stats":
-        renderStats();
-        break;
-      case "tools":
-        renderTools();
-        break;
-      case "notebook":
-        renderNotebook();
-        break;
-      case "categories":
-        renderCategories();
-        break;
-      case "settings":
-        renderSettings();
-        break;
+    try {
+      if (heroWrap)
+        heroWrap.style.display = tab === "home" && !simpleMode ? "" : "none";
+      window.scrollTo({ top: 0, behavior: "auto" });
+      switch (tab) {
+        case "home":
+          renderHome();
+          setTimeout(() => {
+            ensureHomeHeroStable();
+            updateHeroDebugOverlay();
+          }, 30);
+          break;
+        case "stats":
+          renderStats();
+          break;
+        case "tools":
+          renderTools();
+          break;
+        case "notebook":
+          renderNotebook();
+          break;
+        case "categories":
+          renderCategories();
+          break;
+        case "settings":
+          currentSettingsView = "home";
+          renderSettings();
+          break;
+      }
+      content.classList.remove("tab-anim");
+      void content.offsetWidth;
+      content.classList.add("tab-anim");
+      content.style.transition =
+        "opacity 0.4s ease, transform 0.4s cubic-bezier(.2,.85,.25,1)";
+      requestAnimationFrame(() => {
+        content.style.opacity = "1";
+        content.style.transform = "translateY(0) scale(1)";
+      });
+      // Clear transition after animation completes so it doesn't interfere with JS updates
+      setTimeout(() => {
+        content.style.transition = "";
+        content.style.transform = "";
+      }, 430);
+      if (!(appBooting && tab === "home")) {
+        scheduleGuideResume(`tab:${tab}`, 280);
+      }
+    } catch (e) {
+      console.error("[SET_TAB_RENDER_FAILED]", { tab, error: e });
+    } finally {
+      setTimeout(completeRender, 60);
     }
-    content.classList.remove("tab-anim");
-    void content.offsetWidth;
-    content.classList.add("tab-anim");
-    content.style.transition =
-      "opacity 0.4s ease, transform 0.4s cubic-bezier(.2,.85,.25,1)";
-    requestAnimationFrame(() => {
-      content.style.opacity = "1";
-      content.style.transform = "translateY(0) scale(1)";
-    });
-    // Clear transition after animation completes so it doesn't interfere with JS updates
-    setTimeout(() => {
-      content.style.transition = "";
-      content.style.transform = "";
-    }, 430);
-    if (typeof onRendered === "function") setTimeout(onRendered, 60);
   }, 170);
 }
 
@@ -7021,7 +8077,7 @@ function renderSimpleHome() {
 
   const recentHtml = `
     <!-- ── ПОСЛЕДНИЕ ЗАПИСИ ── -->
-    <div class="sm-recent-block">
+    <div class="sm-recent-block" id="guideHistoryAnchor">
       <div class="sm-section-title" style="margin-top:16px">${T.recent}</div>
       ${
         recent.length
@@ -7165,10 +8221,10 @@ function renderSimpleHome() {
 
   // ── Обработчики ──
   // Кнопки «Получил» / «Потратил»
-  mc.querySelector(".sm-add-income")?.addEventListener("click", () =>
+  bindTapSafeAction(mc.querySelector(".sm-add-income"), () =>
     openAddModal("income"),
   );
-  mc.querySelector(".sm-add-expense")?.addEventListener("click", () =>
+  bindTapSafeAction(mc.querySelector(".sm-add-expense"), () =>
     openAddModal("expense"),
   );
   mc.querySelector("#simpleVoiceBtn")?.addEventListener("click", () => {
@@ -7178,9 +8234,7 @@ function renderSimpleHome() {
 
   // Быстрые категории
   mc.querySelectorAll(".sm-quick-btn").forEach((btn) => {
-    btn.addEventListener("click", () =>
-      openAddModal("expense", btn.dataset.cat),
-    );
+    bindTapSafeAction(btn, () => openAddModal("expense", btn.dataset.cat));
     btn.addEventListener(
       "touchstart",
       () => {
@@ -7295,7 +8349,7 @@ function renderHome() {
     </div>
   </div>`;
 
-  html += `<div class="history-btn-wrap"><button class="history-btn" id="showAllHistoryBtn">${t("allHistory")}</button><div class="history-btn-hint">💡 ${t("historyHint")}</div></div><div id="opsList"></div>`;
+  html += `<div class="history-btn-wrap" id="guideHistoryAnchor"><button class="history-btn" id="showAllHistoryBtn">${t("allHistory")}</button><div class="history-btn-hint">💡 ${t("historyHint")}</div></div><div id="opsList"></div>`;
   document.getElementById("mainContent").innerHTML = html;
   document.getElementById("mainContent").classList.add("tab-anim");
   restoreHomeHeroIfNeeded();
@@ -7514,6 +8568,7 @@ function renderOpsList() {
           const _dt1 = transactions[_di1];
           transactions.splice(_di1, 1);
           if (_dt1 && _dt1._initial) {
+            logStartBalanceWrite("deleteOp:list", startBalanceRub, 0);
             startBalanceRub = 0;
             localStorage.removeItem("startBalanceRub");
           }
@@ -7705,6 +8760,7 @@ function addSwipeToDelete(container) {
                 const _dt2 = transactions[idxRef];
                 transactions.splice(idxRef, 1);
                 if (_dt2 && _dt2._initial) {
+                  logStartBalanceWrite("deleteOp:swipe", startBalanceRub, 0);
                   startBalanceRub = 0;
                   localStorage.removeItem("startBalanceRub");
                 }
@@ -7817,6 +8873,7 @@ function showFullHistory() {
           const _dt3 = transactions[_di3];
           transactions.splice(_di3, 1);
           if (_dt3 && _dt3._initial) {
+            logStartBalanceWrite("deleteOp:history", startBalanceRub, 0);
             startBalanceRub = 0;
             localStorage.removeItem("startBalanceRub");
           }
@@ -7860,6 +8917,13 @@ function showFullHistory() {
 // ============================================================
 function openDatePicker(initialDate, onSelect, options = {}) {
   const multiple = !!options.multiple;
+  const parentModalId =
+    typeof options.parentModalId === "string" ? options.parentModalId : "";
+  const parentModal = parentModalId
+    ? document.getElementById(parentModalId)
+    : null;
+  const parentSheet = parentModal?.querySelector(".add-modal-sheet, .modal");
+  const embedInsideParent = !!parentSheet;
   const now = new Date();
   const fallbackDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   let selectedDates = multiple
@@ -7915,12 +8979,66 @@ function openDatePicker(initialDate, onSelect, options = {}) {
           }[currentLang]
         }</div>`
       : "";
-    return `<div class="datepicker-header"><button class="datepicker-nav" id="dpPrev">←</button><span class="datepicker-month">${months[vM]} ${vY}</span><button class="datepicker-nav" id="dpNext">→</button></div><div class="datepicker-weekdays">${weekdays.map((w) => `<div class="datepicker-weekday">${w}</div>`).join("")}</div><div class="datepicker-days">${dh}</div>${selectedSummary}`;
+    const applyBtn = multiple
+      ? `<div class="datepicker-top-actions"><button class="btn-primary" id="dpApply">${
+          {
+            ru: "Применить выбранные даты",
+            en: "Apply selected dates",
+            ka: "არჩეული თარიღების დადასტურება",
+          }[currentLang]
+        }</button></div>`
+      : "";
+    return `<div class="datepicker-header"><button class="datepicker-nav" id="dpPrev">←</button><span class="datepicker-month">${months[vM]} ${vY}</span><button class="datepicker-nav" id="dpNext">→</button></div>${applyBtn}<div class="datepicker-weekdays">${weekdays.map((w) => `<div class="datepicker-weekday">${w}</div>`).join("")}</div><div class="datepicker-days">${dh}</div>${selectedSummary}`;
   }
   const modal = createModal(
     "datepickerModal",
     t("pickDate"),
-    `<div class="datepicker-content"><div id="dpCal">${rc()}</div><div class="datepicker-actions">${
+    `<style>
+      #datepickerModal .datepicker-content{
+        width:100%;
+        min-width:0;
+      }
+      #datepickerModal .datepicker-top-actions{
+        display:grid;
+        grid-template-columns:minmax(0,1fr);
+        gap:8px;
+        width:100%;
+        margin:10px 0 8px;
+      }
+      #datepickerModal .datepicker-top-actions .btn-primary{
+        width:100%;
+        min-width:0;
+        max-width:100%;
+        padding:12px 14px;
+        white-space:normal;
+        overflow-wrap:anywhere;
+        word-break:break-word;
+        text-align:center;
+        line-height:1.25;
+      }
+      #datepickerModal .datepicker-actions{
+        display:grid;
+        grid-template-columns:minmax(0,1fr);
+        gap:8px;
+        width:100%;
+        margin-top:12px;
+      }
+      #datepickerModal .datepicker-actions.multiple{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+      #datepickerModal .datepicker-actions .btn-primary,
+      #datepickerModal .datepicker-actions .btn-secondary{
+        width:100%;
+        min-width:0;
+        max-width:100%;
+        padding:12px 14px;
+        white-space:normal;
+        overflow-wrap:anywhere;
+        word-break:break-word;
+        text-align:center;
+        line-height:1.25;
+      }
+    </style><div class="datepicker-content"><div id="dpCal">${rc()}</div><div class="datepicker-actions${multiple ? " multiple" : ""}"><button class="btn-secondary" id="dpCancel">${t("cancel")}</button>${
       multiple
         ? `<button class="btn-secondary" id="dpClear">${
             {
@@ -7928,21 +9046,40 @@ function openDatePicker(initialDate, onSelect, options = {}) {
               en: "Clear all dates",
               ka: "ყველა თარიღის მოხსნა",
             }[currentLang]
-          }</button><button class="btn-primary" id="dpApply">${
-            {
-              ru: "Применить выбранные даты",
-              en: "Apply selected dates",
-              ka: "არჩეული თარიღების დადასტურება",
-            }[currentLang]
           }</button>`
         : ""
-    }<button class="btn-secondary" id="dpCancel">${t("cancel")}</button></div></div>`,
+    }</div></div>`,
   );
-  document.body.appendChild(modal);
+  if (embedInsideParent && parentSheet) {
+    parentSheet.style.position = parentSheet.style.position || "relative";
+    modal.classList.add("embedded-datepicker-modal");
+    modal.style.position = "absolute";
+    modal.style.inset = "0";
+    modal.style.zIndex = "60";
+    modal.style.padding = "12px";
+    modal.style.background = "rgba(15,23,42,0.16)";
+    modal.style.backdropFilter = "blur(2px)";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
+    const modalCard = modal.querySelector(".modal");
+    if (modalCard) {
+      modalCard.style.width = "min(100%, 420px)";
+      modalCard.style.maxWidth = "100%";
+      modalCard.style.maxHeight = "calc(100% - 24px)";
+      modalCard.style.margin = "0 auto";
+    }
+    parentSheet.appendChild(modal);
+  } else {
+    document.body.appendChild(modal);
+  }
   openModal("datepickerModal");
   function upd() {
     document.getElementById("dpCal").innerHTML = rc();
     att();
+    document.getElementById("dpApply")?.addEventListener("click", () => {
+      closeModal("datepickerModal");
+      onSelect(selectedDates);
+    });
     document.getElementById("dpPrev").addEventListener("click", () => {
       vM--;
       if (vM < 0) {
@@ -7979,10 +9116,6 @@ function openDatePicker(initialDate, onSelect, options = {}) {
       );
   }
   upd();
-  document.getElementById("dpApply")?.addEventListener("click", () => {
-    closeModal("datepickerModal");
-    onSelect(selectedDates);
-  });
   document.getElementById("dpClear")?.addEventListener("click", () => {
     selectedDates = [];
     upd();
@@ -7990,6 +9123,117 @@ function openDatePicker(initialDate, onSelect, options = {}) {
   document
     .getElementById("dpCancel")
     .addEventListener("click", () => closeModal("datepickerModal"));
+}
+
+function bindTapSafeAction(el, handler, options = {}) {
+  if (!el || typeof handler !== "function") return;
+  const threshold = Number(options.threshold || 10);
+  const state = {
+    tracking: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    suppressUntil: 0,
+  };
+
+  const begin = (x, y, pointerId = null) => {
+    state.tracking = true;
+    state.pointerId = pointerId;
+    state.startX = x;
+    state.startY = y;
+  };
+
+  const maybeSuppress = (x, y) => {
+    if (!state.tracking) return;
+    if (
+      Math.abs(x - state.startX) > threshold ||
+      Math.abs(y - state.startY) > threshold
+    ) {
+      state.suppressUntil = Date.now() + 450;
+      state.tracking = false;
+      state.pointerId = null;
+    }
+  };
+
+  const end = (x, y, pointerId = null) => {
+    if (
+      state.pointerId !== null &&
+      pointerId !== null &&
+      state.pointerId !== pointerId
+    ) {
+      return;
+    }
+    maybeSuppress(x, y);
+    state.tracking = false;
+    state.pointerId = null;
+  };
+
+  el.addEventListener("pointerdown", (e) => {
+    if (e.button !== undefined && e.button !== 0) return;
+    begin(e.clientX, e.clientY, e.pointerId ?? null);
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (
+      state.pointerId !== null &&
+      e.pointerId !== undefined &&
+      state.pointerId !== e.pointerId
+    ) {
+      return;
+    }
+    maybeSuppress(e.clientX, e.clientY);
+  });
+  el.addEventListener("pointerup", (e) => {
+    end(e.clientX, e.clientY, e.pointerId ?? null);
+  });
+  el.addEventListener("pointercancel", () => {
+    state.suppressUntil = Date.now() + 450;
+    state.tracking = false;
+    state.pointerId = null;
+  });
+  el.addEventListener(
+    "touchstart",
+    (e) => {
+      const touch = e.touches?.[0];
+      if (!touch) return;
+      begin(touch.clientX, touch.clientY, null);
+    },
+    { passive: true },
+  );
+  el.addEventListener(
+    "touchmove",
+    (e) => {
+      const touch = e.touches?.[0];
+      if (!touch) return;
+      maybeSuppress(touch.clientX, touch.clientY);
+    },
+    { passive: true },
+  );
+  el.addEventListener(
+    "touchend",
+    (e) => {
+      const touch = e.changedTouches?.[0];
+      if (!touch) return;
+      end(touch.clientX, touch.clientY, null);
+    },
+    { passive: true },
+  );
+  el.addEventListener(
+    "touchcancel",
+    () => {
+      state.suppressUntil = Date.now() + 450;
+      state.tracking = false;
+      state.pointerId = null;
+    },
+    { passive: true },
+  );
+  el.addEventListener("click", (e) => {
+    if (Date.now() < state.suppressUntil) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    handler(e);
+  });
 }
 
 function openTimePickerCompact(initialTime, onSelect) {
@@ -8075,7 +9319,13 @@ function openEditModal(idx) {
       return;
     }
     if (isInitialBalanceTx(transactions[editingOpIndex])) {
-      startBalanceRub = toRub(a);
+      const nextStartBalanceRub = toRub(a);
+      logStartBalanceWrite(
+        "openEditModal:save-initial-balance",
+        startBalanceRub,
+        nextStartBalanceRub,
+      );
+      startBalanceRub = nextStartBalanceRub;
       syncStartBalanceTransaction();
       saveAll();
       updateTopBlocks();
@@ -8107,6 +9357,7 @@ function openEditModal(idx) {
         const _dt4 = transactions[editingOpIndex];
         transactions.splice(editingOpIndex, 1);
         if (_dt4 && _dt4._initial) {
+          logStartBalanceWrite("openEditModal:delete-initial-balance", startBalanceRub, 0);
           startBalanceRub = 0;
           localStorage.removeItem("startBalanceRub");
         }
@@ -8131,7 +9382,7 @@ function openSalaryModal() {
     <div class="section-hint">${t("salaryModalHint")}</div>
     <div class="field-group">
       <label class="field-label">${t("salary_label")} (${sym()})</label>
-      <input type="text" id="salaryAmount" class="modal-input" value="${initialAmount}" inputmode="decimal" autofocus>
+      <input type="text" id="salaryAmount" class="modal-input" value="${initialAmount}" inputmode="decimal" readonly>
     </div>
     <div class="quick-numpad">
       <div class="numpad-row"><button class="numpad-btn" data-salary-numpad="1">1</button><button class="numpad-btn" data-salary-numpad="2">2</button><button class="numpad-btn" data-salary-numpad="3">3</button></div>
@@ -8145,12 +9396,21 @@ function openSalaryModal() {
   document.body.appendChild(modal);
   openModal("salaryModal");
   let salaryDraft = initialAmount;
+  let salaryDraftPristine = true;
   const salaryInput = document.getElementById("salaryAmount");
   modal.querySelectorAll("[data-salary-numpad]").forEach((btn) =>
     btn.addEventListener("click", () => {
       const v = btn.dataset.salaryNumpad;
-      if (v === "clear") salaryDraft = "";
-      else if (v === "backspace") salaryDraft = salaryDraft.slice(0, -1);
+      if (v === "clear") {
+        salaryDraft = "";
+        salaryDraftPristine = false;
+      } else if (v === "backspace") {
+        salaryDraft = salaryDraftPristine ? "" : salaryDraft.slice(0, -1);
+        salaryDraftPristine = false;
+      } else if (salaryDraftPristine) {
+        salaryDraft = v === "." ? "0." : v;
+        salaryDraftPristine = false;
+      }
       else if (v === ".") {
         if (!salaryDraft.includes(".")) salaryDraft += v;
       } else salaryDraft += v;
@@ -8160,6 +9420,7 @@ function openSalaryModal() {
   if (salaryInput) {
     salaryInput.addEventListener("input", (e) => {
       salaryDraft = e.target.value;
+      salaryDraftPristine = false;
     });
   }
   document.getElementById("saveSalaryBtn")?.addEventListener("click", () => {
@@ -8168,7 +9429,13 @@ function openSalaryModal() {
       showToast(t("enterPositive"), "error");
       return;
     }
-    startBalanceRub = toRub(v);
+    const nextStartBalanceRub = toRub(v);
+    logStartBalanceWrite(
+      "openSalaryModal:save",
+      startBalanceRub,
+      nextStartBalanceRub,
+    );
+    startBalanceRub = nextStartBalanceRub;
     syncStartBalanceTransaction();
 
     saveAll();
@@ -8767,6 +10034,56 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
   if (document.getElementById("addModal")) return;
   if (Date.now() - addModalLastClosedAt < 450) return;
   addModalCommitted = false;
+  if (!document.getElementById("addModalUiCSS")) {
+    const uiStyle = document.createElement("style");
+    uiStyle.id = "addModalUiCSS";
+    uiStyle.textContent = `
+      #addModal .modal-body{
+        min-width:0;
+      }
+      #addModal .date-input-wrapper{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        min-width:0;
+      }
+      #addModal .date-input-wrapper .modal-input{
+        flex:1 1 auto;
+        min-width:0;
+      }
+      #addModal .datepicker-btn{
+        flex:0 0 auto;
+        min-width:44px;
+        min-height:44px;
+      }
+      #addModal .quick-dates{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:10px;
+      }
+      #addModal .quick-date-btn{
+        flex:0 1 auto;
+        min-width:0;
+        min-height:36px;
+        padding:8px 12px;
+        border-radius:12px;
+        border:1.5px solid var(--cream-border);
+        background:var(--card-bg);
+        color:var(--text);
+        font:inherit;
+        font-size:13px;
+        font-weight:800;
+        line-height:1.15;
+        white-space:normal;
+        overflow-wrap:anywhere;
+      }
+      #addModal .quick-date-btn:active{
+        transform:scale(.98);
+      }
+    `;
+    document.head.appendChild(uiStyle);
+  }
   traceApp("openAddModal", {
     defaultType,
     presetCategory,
@@ -8860,18 +10177,25 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
   const af = document.getElementById("addAmount");
   if (af) af.addEventListener("input", (e) => (ca = e.target.value));
   document.getElementById("addDateBtn").addEventListener("click", () =>
-    openDatePicker(document.getElementById("addDate").value, (d) => {
-      document.getElementById("addDate").value = d;
-      document.getElementById("addDateDisplay").value = fmtDate(d);
-    }),
+    openDatePicker(
+      document.getElementById("addDate").value,
+      (d) => {
+        document.getElementById("addDate").value = d;
+        document.getElementById("addDateDisplay").value = fmtDate(d);
+      },
+      { parentModalId: "addModal" },
+    ),
   );
   document.querySelectorAll(".quick-date-btn").forEach((btn) =>
     btn.addEventListener("click", () => {
       let nd = new Date();
+      let ds = "";
       if (btn.dataset.qd === "yesterday") nd.setDate(nd.getDate() - 1);
-      else if (btn.dataset.qd === "startOfMonth")
+      else if (btn.dataset.qd === "startOfMonth") {
         nd = new Date(nd.getFullYear(), nd.getMonth(), 1);
-      const ds = nd.toISOString().slice(0, 10);
+        ds = `${nd.getFullYear()}-${String(nd.getMonth() + 1).padStart(2, "0")}-${String(nd.getDate()).padStart(2, "0")}`;
+      }
+      if (!ds) ds = nd.toISOString().slice(0, 10);
       document.getElementById("addDate").value = ds;
       document.getElementById("addDateDisplay").value = fmtDate(ds);
     }),
@@ -10175,7 +11499,7 @@ function renderProfilesBody() {
       }
 
       const isActive = p.id === activeProfileId;
-      const pRaw = localStorage.getItem("budget_profile_" + p.id);
+      const pRaw = localStorage.getItem(getProfileStorageKey(p.id));
       let pTxCount = 0,
         pBalance = 0;
       if (pRaw) {
@@ -10217,17 +11541,21 @@ function renderProfilesBody() {
       }
 
       return `<div style="display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:8px;background:${
-        isActive ? "var(--primary-pale)" : "var(--cream-dark)"
-      };border-radius:16px;border:2px solid ${
-        isActive ? "var(--primary)" : "var(--cream-border)"
-      };">
+        isActive
+          ? "color-mix(in srgb, var(--primary-pale) 60%, var(--settings-surface-strong, var(--card-bg)))"
+          : "var(--settings-surface-strong, var(--cream-dark))"
+      };border-radius:16px;border:1.5px solid ${
+        isActive
+          ? "color-mix(in srgb, var(--primary) 42%, var(--settings-border-strong, var(--cream-border)))"
+          : "var(--settings-border, var(--cream-border))"
+      };box-shadow:var(--settings-shadow-soft, var(--shadow-sm));">
       <div style="width:44px;height:44px;border-radius:50%;background:${accentColor};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">${
         p.emoji || "👤"
       }</div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:15px;font-weight:800;color:var(--text);">${esc(p.name)}${
           isActive
-            ? ` <span style="font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-pale);padding:2px 8px;border-radius:99px;">${t("profileActive")}</span>`
+            ? ` <span style="font-size:11px;font-weight:700;color:var(--primary);background:color-mix(in srgb, var(--primary-pale) 72%, var(--settings-surface-strong, var(--card-bg)));padding:2px 8px;border-radius:99px;border:1px solid color-mix(in srgb, var(--primary) 18%, var(--settings-border, var(--cream-border)));">${t("profileActive")}</span>`
             : ""
         }</div>
         <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${pTxCount} ${t("statsRec")} · ${fmt(pBalance)}</div>
@@ -10467,680 +11795,2309 @@ function openEditTemplateModal(tplIdx) {
   });
 }
 
-function renderSettings() {
-  // === Принудительно убираем обрезание для галочек тем ===
-  setTimeout(() => {
-    document.querySelectorAll(".set-theme-check").forEach((check) => {
-      let el = check.parentElement;
-      while (el && el !== document.body) {
-        el.style.setProperty("overflow", "visible", "important");
-        el.style.setProperty("clip", "unset", "important");
-        el = el.parentElement;
+function ensureSettingsHomeStyles() {
+  if (document.getElementById("settingsHomeStyles")) return;
+  const style = document.createElement("style");
+  style.id = "settingsHomeStyles";
+  style.textContent = `
+    .settings-home-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: 8px;
+    }
+    .settings-home-hero {
+      padding: 18px 18px 16px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--primary-pale), var(--card-bg));
+      border: 1.5px solid var(--cream-border);
+      box-shadow: var(--shadow-sm);
+    }
+    .settings-home-kicker {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .settings-home-title {
+      font-size: 24px;
+      font-weight: 950;
+      color: var(--text);
+      line-height: 1.15;
+      margin: 0 0 8px;
+    }
+    .settings-home-subtitle {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-soft);
+      margin: 0;
+    }
+    .settings-home-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .settings-home-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      width: 100%;
+      padding: 18px 16px;
+      border-radius: 22px;
+      border: 1.5px solid var(--cream-border);
+      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      text-align: left;
+      color: inherit;
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+      font-family: inherit;
+    }
+    .settings-home-card:active {
+      transform: scale(.985);
+    }
+    .settings-home-card:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+    .settings-home-card-ico {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 24px;
+      background: linear-gradient(135deg, var(--primary-pale), var(--cream-dark));
+      border: 1px solid var(--cream-border);
+    }
+    .settings-home-card-copy {
+      flex: 1;
+      min-width: 0;
+    }
+    .settings-home-card-title {
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.3;
+      color: var(--text);
+      margin: 0 0 6px;
+    }
+    .settings-home-card-desc {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-soft);
+      margin: 0;
+    }
+    .settings-home-card-arrow {
+      align-self: center;
+      flex-shrink: 0;
+      font-size: 20px;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+    .settings-home-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 14px 16px 4px;
+    }
+    .settings-home-legacy-btn {
+      width: 100%;
+      min-height: 52px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1.5px dashed var(--cream-border);
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .settings-home-note {
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .settings-placeholder-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .settings-placeholder-card {
+      padding: 20px 18px;
+      border-radius: 24px;
+      border: 1.5px solid var(--cream-border);
+      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      box-shadow: var(--shadow-sm);
+    }
+    .settings-placeholder-icon {
+      font-size: 36px;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .settings-placeholder-title {
+      margin: 0 0 10px;
+      font-size: 22px;
+      font-weight: 950;
+      color: var(--text);
+    }
+    .settings-placeholder-text {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--text-soft);
+    }
+    .settings-placeholder-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .settings-subpage-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: 8px;
+      min-width: 0;
+    }
+    .settings-subpage-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 18px 16px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, var(--primary-pale), var(--card-bg));
+      border: 1.5px solid var(--cream-border);
+      box-shadow: var(--shadow-sm);
+    }
+    .settings-subpage-back {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1.5px solid var(--cream-border);
+      background: var(--card-bg);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 900;
+      box-shadow: var(--shadow-sm);
+      font-family: inherit;
+    }
+    .settings-subpage-copy {
+      min-width: 0;
+      flex: 1;
+    }
+    .settings-subpage-kicker {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .settings-subpage-title {
+      font-size: 24px;
+      font-weight: 950;
+      line-height: 1.15;
+      color: var(--text);
+      margin: 0 0 6px;
+    }
+    .settings-subpage-desc {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text-soft);
+      margin: 0;
+    }
+    .account-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .account-card {
+      padding: 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--cream-border);
+      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      box-shadow: var(--shadow-sm);
+    }
+    .account-card-title {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.3;
+      color: var(--text);
+    }
+    .account-kv-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .account-kv-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--cream-dark);
+      border: 1px solid var(--cream-border);
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+    .account-kv-row strong {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: right;
+      word-break: break-word;
+    }
+    .account-profile-active {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .account-profile-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+      color: #fff;
+    }
+    .account-profile-copy {
+      min-width: 0;
+      flex: 1;
+    }
+    .account-profile-name {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .account-profile-meta {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .account-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .account-actions-grid.single {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .account-actions-grid .btn-primary,
+    .account-actions-grid .btn-secondary {
+      width: 100%;
+      min-width: 0;
+      min-height: 42px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: normal;
+      line-height: 1.25;
+    }
+    .account-profiles-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .account-muted-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin: 0;
+    }
+    .security-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .security-card {
+      padding: 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--cream-border);
+      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      box-shadow: var(--shadow-sm);
+    }
+    .security-card-title {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.3;
+      color: var(--text);
+    }
+    .security-status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .security-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--cream-dark);
+      border: 1px solid var(--cream-border);
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+    .security-status-row strong {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: right;
+    }
+    .security-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .security-inline-note {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .appearance-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .appearance-hero {
+      padding: 18px;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at top right, var(--primary-pale), transparent 45%),
+        linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      border: 1.5px solid var(--cream-border);
+      box-shadow: var(--shadow-sm);
+    }
+    .appearance-hero-title {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 950;
+      line-height: 1.15;
+      color: var(--text);
+    }
+    .appearance-hero-subtitle {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-soft);
+    }
+    .appearance-card {
+      padding: 18px;
+      border-radius: 24px;
+      border: 1.5px solid var(--cream-border);
+      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      box-shadow: var(--shadow-sm);
+    }
+    .appearance-card.hero-card {
+      padding: 20px 18px;
+    }
+    .appearance-card.danger-card {
+      border-color: var(--expense-pale);
+      background: linear-gradient(145deg, var(--card-bg), var(--expense-pale));
+    }
+    .appearance-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .appearance-card-copy {
+      min-width: 0;
+      flex: 1;
+    }
+    .appearance-card-kicker {
+      margin: 0 0 6px;
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .appearance-card-desc {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--text-soft);
+    }
+    .appearance-current-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--primary-pale);
+      color: var(--primary);
+      border: 1px solid var(--cream-border);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .appearance-segmented {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .appearance-option {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 54px;
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1.5px solid var(--cream-border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .appearance-option:active {
+      transform: scale(.985);
+    }
+    .appearance-option.active {
+      border-color: var(--primary);
+      background: var(--primary-pale);
+      color: var(--primary);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.06);
+    }
+    .appearance-option-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .appearance-option-sub {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .appearance-option.active .appearance-option-sub,
+    .appearance-option.active .appearance-chip-note {
+      color: var(--primary);
+    }
+    .appearance-theme-mode {
+      min-height: 72px;
+      align-items: stretch;
+      justify-content: flex-start;
+      padding: 14px;
+      text-align: left;
+    }
+    .appearance-theme-mode-ico {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+      background: linear-gradient(135deg, var(--primary-pale), var(--cream-dark));
+      border: 1px solid var(--cream-border);
+    }
+    .appearance-theme-mode-copy {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      min-width: 0;
+      gap: 4px;
+    }
+    .appearance-swatches {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .appearance-swatch {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      min-height: 84px;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1.5px solid var(--cream-border);
+      background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--swatch-accent) 18%, transparent), transparent 48%),
+        linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      color: var(--text);
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
+      text-align: left;
+    }
+    .appearance-swatch:active {
+      transform: scale(.985);
+    }
+    .appearance-swatch.active {
+      border-color: var(--swatch-accent);
+      box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+    }
+    .appearance-swatch-preview {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.88), transparent 38%),
+        linear-gradient(135deg, var(--swatch-accent), var(--swatch-med));
+      border: 3px solid rgba(255,255,255,0.68);
+      box-shadow: 0 10px 18px rgba(0,0,0,0.14);
+    }
+    .appearance-swatch-preview::after {
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border-radius: 50%;
+      background: var(--swatch-base);
+      opacity: 0.9;
+    }
+    .appearance-swatch-copy {
+      min-width: 0;
+      flex: 1;
+    }
+    .appearance-swatch-title {
+      display: block;
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.25;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .appearance-swatch-meta {
+      display: block;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--text-soft);
+    }
+    .appearance-swatch-check {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--swatch-accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.16);
+    }
+    .appearance-chip-grid,
+    .appearance-font-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .appearance-chip-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .appearance-font-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .appearance-chip {
+      min-height: 60px;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      text-align: left;
+      gap: 4px;
+      padding: 12px 14px;
+    }
+    .appearance-chip-prefix {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .appearance-chip-title {
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.2;
+      color: currentColor;
+    }
+    .appearance-chip-note {
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-muted);
+    }
+    .appearance-font-option {
+      min-height: 88px;
+      flex-direction: column;
+      gap: 8px;
+      padding: 14px 10px;
+    }
+    .appearance-font-letter {
+      line-height: 1;
+      font-weight: 950;
+      color: currentColor;
+    }
+    .appearance-font-option[data-size="small"] .appearance-font-letter {
+      font-size: 18px;
+    }
+    .appearance-font-option[data-size="normal"] .appearance-font-letter {
+      font-size: 22px;
+    }
+    .appearance-font-option[data-size="large"] .appearance-font-letter {
+      font-size: 28px;
+    }
+    .appearance-font-option[data-size="xl"] .appearance-font-letter {
+      font-size: 34px;
+    }
+    .appearance-font-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: currentColor;
+    }
+    .appearance-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .appearance-danger-btn {
+      width: 100%;
+      min-height: 54px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1.5px solid var(--expense-color);
+      background: var(--expense-pale);
+      color: var(--expense-color);
+      font-size: 14px;
+      font-weight: 900;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .data-sync-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+    }
+    .data-sync-grid {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+    }
+    .data-sync-card {
+      padding: 16px;
+      border-radius: 22px;
+      border: 1.5px solid var(--cream-border);
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent 34%),
+        linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      box-shadow: var(--shadow-sm);
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    .data-sync-card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .data-sync-card-copy {
+      min-width: 0;
+      flex: 1;
+    }
+    .data-sync-card-title {
+      margin: 0 0 6px;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.25;
+      color: var(--text);
+    }
+    .data-sync-card-desc {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-soft);
+    }
+    .data-sync-card-kicker {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 40px;
+      padding: 0 10px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary-pale), var(--cream-dark));
+      border: 1px solid var(--cream-border);
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .data-sync-open-btn {
+      width: 100%;
+      min-height: 42px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .diagnostics-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+      overflow: visible;
+    }
+    body .diagnostics-chip {
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      flex: 0 1 auto;
+      padding: 8px 12px !important;
+      border-radius: 999px;
+      border: 1px solid var(--settings-border);
+      background: var(--settings-surface-strong);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px !important;
+      font-weight: 800;
+      line-height: 1.15;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: var(--settings-shadow-soft);
+      transition: border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+    }
+    body .diagnostics-chip:active {
+      transform: scale(.98);
+    }
+    .diagnostics-actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    body .diagnostics-action-btn {
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      flex: 1 1 180px;
+      min-height: 42px;
+      padding: 10px 14px !important;
+      border-radius: 14px;
+      border: 1px solid var(--settings-border);
+      background: var(--settings-surface-strong);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px !important;
+      font-weight: 900;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: var(--settings-shadow-soft);
+      transition: border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+    }
+    body .diagnostics-action-btn:active {
+      transform: scale(.98);
+    }
+    body .diagnostics-action-btn-primary {
+      background: color-mix(in srgb, var(--primary-pale) 74%, var(--settings-surface-strong));
+      border-color: color-mix(in srgb, var(--primary) 22%, var(--settings-border));
+      color: var(--text);
+    }
+    .diagnostics-table-wrap {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      border: 1.5px solid var(--cream-border);
+      border-radius: 18px;
+      background: var(--settings-surface-strong);
+    }
+    .diagnostics-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+    body.simple-mode .diagnostics-chip.btn-secondary,
+    body.simple-mode .diagnostics-chip,
+    body.simple-mode .diagnostics-action-btn.btn-primary,
+    body.simple-mode .diagnostics-action-btn.btn-secondary,
+    body.simple-mode .diagnostics-action-btn {
+      font-size: 13px !important;
+      padding: 10px 12px !important;
+      line-height: 1.15 !important;
+    }
+    .data-sync-status-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--cream-dark);
+      border: 1px solid var(--cream-border);
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+    .data-sync-status-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .data-sync-status-pill {
+      display: inline-flex;
+      align-items: center;
+      align-self: flex-start;
+      min-height: 30px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--primary-pale);
+      border: 1px solid var(--cream-border);
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .data-sync-status-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .data-sync-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--cream-dark);
+      border: 1px solid var(--cream-border);
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+    .data-sync-status-row strong {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      text-align: right;
+    }
+    .data-sync-details {
+      border-radius: 16px;
+      background: var(--cream-dark);
+      border: 1px solid var(--cream-border);
+      overflow: hidden;
+    }
+    .data-sync-details summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .data-sync-details summary::-webkit-details-marker {
+      display: none;
+    }
+    .data-sync-details-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 14px 14px;
+    }
+    .data-sync-details-toggle {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+    .notifications-page {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 8px;
+    }
+    .notifications-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .notifications-topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .notifications-back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid var(--cream-border);
+      background: var(--card-bg);
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .notifications-topbar-copy {
+      min-width: 0;
+      flex: 1;
+    }
+    .notifications-topbar-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 950;
+      line-height: 1.05;
+      color: var(--text);
+    }
+    .notifications-status-line {
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--text-muted);
+      font-weight: 800;
+    }
+    .notifications-card {
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid var(--cream-border);
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 36%),
+        linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      box-shadow: var(--shadow-sm);
+    }
+    .notifications-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .notifications-card-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 950;
+      line-height: 1.15;
+      color: var(--text);
+    }
+    .notifications-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 800;
+    }
+    .notifications-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .notifications-reminder-card {
+      padding: 10px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--cream-border);
+      background: color-mix(in srgb, var(--card-bg) 88%, var(--cream-dark));
+    }
+    .notifications-reminder-card.pending {
+      border-color: color-mix(in srgb, var(--primary) 20%, var(--cream-border));
+    }
+    .notifications-reminder-card.done {
+      opacity: 1;
+      background: color-mix(in srgb, var(--card-bg) 94%, var(--cream-dark));
+      border-color: color-mix(in srgb, var(--cream-border) 90%, rgba(15,23,42,0.1));
+    }
+    .notifications-reminder-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .notifications-reminder-main {
+      min-width: 0;
+      flex: 1;
+    }
+    .notifications-reminder-name {
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1.2;
+      color: var(--text);
+      margin: 0 0 3px;
+      word-break: break-word;
+    }
+    .notifications-reminder-subline {
+      font-size: 12px;
+      line-height: 1.25;
+      color: var(--text-soft);
+      word-break: break-word;
+    }
+    .notifications-reminder-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .notifications-mini-btn {
+      min-width: 34px;
+      min-height: 34px;
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid var(--cream-border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .notifications-mini-btn.edit {
+      background: var(--primary-pale);
+      color: var(--primary);
+      border-color: color-mix(in srgb, var(--primary) 22%, transparent);
+    }
+    .notifications-mini-btn.delete {
+      background: var(--expense-pale);
+      color: var(--expense-color);
+      border-color: color-mix(in srgb, var(--expense-color) 22%, transparent);
+    }
+    .notifications-create-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .notifications-inline-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .notifications-quick-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .notifications-quick-btn {
+      padding: 7px 10px;
+      border: 1px solid var(--cream-border);
+      border-radius: 999px;
+      background: var(--cream-dark);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .notifications-submit-btn {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .notifications-chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .notifications-chip-label {
+      position: relative;
+      cursor: pointer;
+    }
+    .notifications-chip-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .notifications-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 13px;
+      border-radius: 999px;
+      border: 1px solid var(--cream-border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1;
+      transition: background .16s ease, color .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .notifications-chip-label:active .notifications-chip,
+    .notifications-weekday-btn:active,
+    .notifications-utility-btn:active,
+    .notifications-mini-btn:active,
+    .notifications-back-btn:active {
+      transform: scale(.98);
+    }
+    .notifications-chip-input:checked + .notifications-chip,
+    .notifications-chip-label.active .notifications-chip {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 10px 22px rgba(37,99,235,0.24);
+    }
+    .notifications-weekday-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .notifications-weekday-title {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--text);
+    }
+    .notifications-weekdays-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .notifications-weekday-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .notifications-weekday-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 8px;
+      border-radius: 14px;
+      border: 1px solid var(--cream-border);
+      background: var(--cream-dark);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .notifications-weekday-btn[aria-pressed="true"] {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 68%, #ffffff),
+        color-mix(in srgb, var(--primary-med) 82%, #ffffff)
+      );
+      color: #0f172a;
+      border-color: color-mix(in srgb, var(--primary) 82%, rgba(15,23,42,0.12));
+      box-shadow: 0 12px 24px rgba(37,99,235,0.22), 0 0 0 1px rgba(255,255,255,0.32) inset;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.28);
+    }
+    body.dark .notifications-weekday-btn {
+      background: color-mix(in srgb, var(--card-bg) 88%, rgba(255,255,255,0.04));
+      color: #e5eefc;
+      border-color: rgba(255,255,255,0.12);
+    }
+    body.dark .notifications-weekday-btn[aria-pressed="true"] {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--primary) 62%, rgba(15,23,42,0.96)),
+        color-mix(in srgb, var(--primary-med) 74%, rgba(30,41,59,0.98))
+      );
+      color: #f8fafc;
+      border-color: color-mix(in srgb, var(--primary-light) 58%, rgba(255,255,255,0.16));
+      box-shadow: 0 12px 26px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .notifications-tools-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .notifications-utility-btn {
+      min-height: 42px;
+      padding: 9px 10px;
+      border-radius: 14px;
+      border: 1px solid var(--cream-border);
+      background: var(--card-bg);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .notifications-settings-note {
+      margin-top: 8px;
+      font-size: 11px;
+      line-height: 1.35;
+      color: var(--text-muted);
+      font-weight: 800;
+    }
+    .notifications-section-toggle {
+      border-radius: 18px;
+    }
+    .notifications-section-toggle summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .notifications-section-toggle summary::-webkit-details-marker {
+      display: none;
+    }
+    .notifications-summary-label {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .notifications-summary-arrow {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text-muted);
+      transition: transform .16s ease;
+    }
+    .notifications-section-toggle[open] .notifications-summary-arrow {
+      transform: rotate(180deg);
+    }
+    .notifications-section-body {
+      margin-top: 10px;
+    }
+    .notifications-diagnostics {
+      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
+      border-radius: 18px;
+      padding: 12px;
+      border: 1px solid var(--cream-border);
+    }
+    .settings-home-wrap,
+    .settings-subpage-wrap,
+    .notifications-page {
+      --settings-surface: color-mix(in srgb, var(--card-bg) 96%, #ffffff 4%);
+      --settings-surface-strong: color-mix(in srgb, var(--card-bg) 92%, #ffffff 8%);
+      --settings-surface-soft: color-mix(in srgb, var(--cream-dark) 84%, #ffffff 16%);
+      --settings-border: color-mix(in srgb, var(--cream-border) 82%, rgba(15,23,42,0.16));
+      --settings-border-strong: color-mix(in srgb, var(--cream-border) 62%, rgba(15,23,42,0.22));
+      --settings-shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.07);
+      --settings-shadow-strong: 0 16px 34px rgba(15, 23, 42, 0.1);
+      --settings-highlight: rgba(255,255,255,0.72);
+    }
+    body.dark .settings-home-wrap,
+    body.dark .settings-subpage-wrap,
+    body.dark .notifications-page {
+      --settings-surface: #141a26;
+      --settings-surface-strong: #1a2230;
+      --settings-surface-soft: #111827;
+      --settings-border: rgba(255,255,255,0.12);
+      --settings-border-strong: rgba(255,255,255,0.18);
+      --settings-shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.28);
+      --settings-shadow-strong: 0 18px 38px rgba(0, 0, 0, 0.36);
+      --settings-highlight: rgba(255,255,255,0.08);
+    }
+    .settings-home-hero,
+    .settings-subpage-header {
+      background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--primary-pale) 84%, transparent), transparent 44%),
+        linear-gradient(145deg, var(--settings-surface-strong), var(--settings-surface));
+      border-color: var(--settings-border-strong);
+      box-shadow: var(--settings-shadow-strong);
+    }
+    .settings-home-card,
+    .settings-placeholder-card,
+    .account-card,
+    .security-card,
+    .appearance-card,
+    .data-sync-card,
+    .notifications-card {
+      background:
+        linear-gradient(180deg, var(--settings-highlight), transparent 22%),
+        linear-gradient(145deg, var(--settings-surface), var(--settings-surface-soft));
+      border-color: var(--settings-border);
+      box-shadow: var(--settings-shadow-soft);
+    }
+    .settings-home-card:hover,
+    .settings-home-card:focus-visible,
+    .appearance-swatch.active,
+    .appearance-option.active {
+      box-shadow: var(--settings-shadow-strong);
+    }
+    .settings-home-card-ico,
+    .data-sync-card-kicker,
+    .appearance-theme-mode-ico {
+      background: linear-gradient(145deg, var(--settings-surface-strong), var(--settings-surface-soft));
+      border-color: var(--settings-border);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.24);
+    }
+    .settings-home-legacy-btn,
+    .settings-subpage-back,
+    .notifications-back-btn,
+    .notifications-mini-btn,
+    .notifications-utility-btn {
+      background: var(--settings-surface-strong);
+      border-color: var(--settings-border);
+      box-shadow: var(--settings-shadow-soft);
+    }
+    .account-kv-row,
+    .security-status-row,
+    .data-sync-status-row,
+    .data-sync-status-note,
+    .data-sync-details,
+    .notifications-reminder-card,
+    .notifications-quick-btn,
+    .notifications-chip,
+    .notifications-weekday-btn {
+      background: var(--settings-surface-strong);
+      border-color: var(--settings-border);
+    }
+    .data-sync-status-pill,
+    .appearance-current-pill {
+      background: color-mix(in srgb, var(--primary-pale) 74%, var(--settings-surface-strong));
+      border-color: color-mix(in srgb, var(--primary) 20%, var(--settings-border));
+      color: var(--text);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.24);
+    }
+    .data-sync-details,
+    .notifications-diagnostics {
+      box-shadow: var(--settings-shadow-soft);
+    }
+    .settings-home-card-title,
+    .account-card-title,
+    .security-card-title,
+    .appearance-card-kicker,
+    .data-sync-card-title,
+    .notifications-card-title {
+      color: var(--text);
+    }
+    .settings-home-card-desc,
+    .settings-home-subtitle,
+    .settings-subpage-desc,
+    .account-muted-note,
+    .security-inline-note,
+    .appearance-card-desc,
+    .data-sync-card-desc,
+    .notifications-card-meta,
+    .notifications-settings-note,
+    .settings-home-note {
+      color: color-mix(in srgb, var(--text) 74%, var(--text-soft));
+    }
+    body.dark .settings-home-note,
+    body.dark .notifications-settings-note,
+    body.dark .data-sync-card-desc,
+    body.dark .settings-home-card-desc,
+    body.dark .settings-subpage-desc {
+      color: rgba(226, 232, 240, 0.88);
+    }
+    .settings-home-card-arrow,
+    .notifications-card-meta,
+    .data-sync-details-toggle,
+    .settings-home-kicker,
+    .settings-subpage-kicker {
+      color: color-mix(in srgb, var(--text) 52%, var(--text-muted));
+    }
+    .data-sync-open-btn.btn-secondary,
+    .btn-secondary.data-sync-open-btn {
+      background: var(--settings-surface-strong);
+      border-color: var(--settings-border);
+      color: var(--text);
+    }
+    .notifications-debug {
+      margin-top: 8px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 11px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      background: rgba(0,0,0,.04);
+      padding: 8px;
+      border-radius: 12px;
+    }
+    @media (max-width: 640px) {
+      .settings-home-grid {
+        grid-template-columns: 1fr;
       }
-    });
-  }, 0);
-  const cs = getCreatorSettings();
-  const canContact = cs.contactEnabled !== false;
-  const L = currentLang;
+      .settings-home-card {
+        padding: 16px 14px;
+      }
+      .settings-subpage-header {
+        padding: 16px 14px;
+      }
+      .settings-subpage-title {
+        font-size: 21px;
+      }
+      .appearance-hero,
+      .appearance-card,
+      .appearance-card.hero-card {
+        padding: 16px 14px;
+      }
+      .appearance-hero-title {
+        font-size: 21px;
+      }
+      .data-sync-card {
+        padding: 14px;
+      }
+      .data-sync-card-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .data-sync-card-kicker {
+        align-self: flex-start;
+      }
+      .diagnostics-chip-row,
+      .diagnostics-actions-row {
+        gap: 6px;
+      }
+      .diagnostics-chip-row {
+        justify-content: flex-start;
+      }
+      body .diagnostics-chip {
+        flex: 0 1 calc(50% - 6px);
+      }
+      body .diagnostics-chip {
+        font-size: 11px !important;
+        padding: 7px 10px !important;
+      }
+      body .diagnostics-action-btn {
+        font-size: 12px !important;
+        padding: 10px 12px !important;
+        flex: 1 1 calc(50% - 6px);
+      }
+      .appearance-swatches,
+      .appearance-chip-grid,
+      .appearance-font-grid {
+        grid-template-columns: 1fr;
+      }
+      .appearance-card-head,
+      .appearance-toggle-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .appearance-current-pill {
+        align-self: flex-start;
+      }
+      .notifications-card {
+        padding: 10px;
+      }
+      .notifications-topbar,
+      .notifications-reminder-top,
+      .notifications-weekday-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .notifications-inline-grid,
+      .notifications-tools-grid {
+        grid-template-columns: 1fr;
+      }
+      .notifications-weekday-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .notifications-reminder-actions {
+        align-self: flex-start;
+      }
+      .notifications-topbar-title {
+        font-size: 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      body .diagnostics-chip {
+        flex-basis: 100%;
+      }
+      body .diagnostics-action-btn {
+        flex-basis: 100%;
+        min-width: 0 !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
 
-  // ── Активный профиль ──
-  const activeProf = profiles.find((p) => p.id === activeProfileId) || {
-    name: "Main profile",
-    emoji: "👤",
-    color: "#a78bfa",
+function getSettingsHomeSections() {
+  const byLang = {
+    ru: [
+      {
+        id: "account",
+        icon: "👤",
+        title: "Аккаунт и профили",
+        desc: "Управление аккаунтом, профилями и доступом",
+        action: openSettingsAccount,
+      },
+      {
+        id: "security",
+        icon: "🔒",
+        title: "Безопасность",
+        desc: "PIN, биометрия и защита доступа к приложению",
+        action: openSettingsSecurity,
+      },
+      {
+        id: "appearance",
+        icon: "🎨",
+        title: "Внешний вид",
+        desc: "Тема, язык, валюта и удобство интерфейса",
+        action: openSettingsAppearance,
+      },
+      {
+        id: "notifications",
+        icon: "🔔",
+        title: "Уведомления и напоминания",
+        desc: "Разрешения, напоминания и будущая настройка уведомлений",
+        action: openSettingsNotifications,
+      },
+      {
+        id: "data",
+        icon: "☁️",
+        title: "Данные и синхронизация",
+        desc: "Резервные копии, импорт, экспорт и восстановление",
+        action: openSettingsData,
+      },
+      {
+        id: "diagnostics",
+        icon: "🧪",
+        title: "Диагностика данных",
+        desc: "История изменений операций, загрузок и восстановлений",
+        action: openSettingsDiagnostics,
+      },
+      {
+        id: "automation",
+        icon: "🧩",
+        title: "Автоматизация",
+        desc: "Бюджеты, шаблоны и повторяющиеся операции",
+        action: openSettingsAutomation,
+      },
+      {
+        id: "planning",
+        icon: "📈",
+        title: "Планирование",
+        desc: "Цели и планирование бюджета",
+        action: openSettingsPlanning,
+      },
+      {
+        id: "advanced",
+        icon: "🧰",
+        title: "Инструменты",
+        desc: "Калькулятор, конвертер валют и сканер чеков",
+        action: openSettingsAdvanced,
+      },
+      {
+        id: "reports",
+        icon: "📤",
+        title: "Отчёты и экспорт",
+        desc: "Экспорт и отправка финансовых данных",
+        action: openSettingsReports,
+      },
+      {
+        id: "support",
+        icon: "💬",
+        title: "Поддержка",
+        desc: "Связь с разработчиком и помощь по приложению",
+        action: openSettingsSupport,
+      },
+      {
+        id: "about",
+        icon: "ℹ️",
+        title: "О приложении",
+        desc: "Информация о BudgetPRO и будущие системные сведения",
+        action: openSettingsAbout,
+      },
+    ],
+    en: [
+      {
+        id: "account",
+        icon: "👤",
+        title: "Account & Profiles",
+        desc: "Manage your account, profiles, and shared access",
+        action: openSettingsAccount,
+      },
+      {
+        id: "security",
+        icon: "🔒",
+        title: "Security",
+        desc: "PIN, biometry, and app access protection",
+        action: openSettingsSecurity,
+      },
+      {
+        id: "appearance",
+        icon: "🎨",
+        title: "Appearance",
+        desc: "Theme, language, currency, and interface comfort",
+        action: openSettingsAppearance,
+      },
+      {
+        id: "notifications",
+        icon: "🔔",
+        title: "Notifications & Reminders",
+        desc: "Permissions, reminders, and future notification setup",
+        action: openSettingsNotifications,
+      },
+      {
+        id: "data",
+        icon: "☁️",
+        title: "Data & Sync",
+        desc: "Backups, import, export, and recovery tools",
+        action: openSettingsData,
+      },
+      {
+        id: "diagnostics",
+        icon: "🧪",
+        title: "Data Diagnostics",
+        desc: "Transaction change history, loads, and restores",
+        action: openSettingsDiagnostics,
+      },
+      {
+        id: "automation",
+        icon: "🧩",
+        title: "Automation",
+        desc: "Budgets, templates, and recurring transactions",
+        action: openSettingsAutomation,
+      },
+      {
+        id: "planning",
+        icon: "📈",
+        title: "Planning",
+        desc: "Goals and budget planning",
+        action: openSettingsPlanning,
+      },
+      {
+        id: "advanced",
+        icon: "🧰",
+        title: "Tools",
+        desc: "Calculator, currency converter, and receipt scanner",
+        action: openSettingsAdvanced,
+      },
+      {
+        id: "reports",
+        icon: "📤",
+        title: "Reports & Export",
+        desc: "Export and send financial data",
+        action: openSettingsReports,
+      },
+      {
+        id: "support",
+        icon: "💬",
+        title: "Support",
+        desc: "Contact the developer and get help with the app",
+        action: openSettingsSupport,
+      },
+      {
+        id: "about",
+        icon: "ℹ️",
+        title: "About",
+        desc: "BudgetPRO info and future system details",
+        action: openSettingsAbout,
+      },
+    ],
+    ka: [
+      {
+        id: "account",
+        icon: "👤",
+        title: "ანგარიში და პროფილები",
+        desc: "ანგარიშის, პროფილების და წვდომების მართვა",
+        action: openSettingsAccount,
+      },
+      {
+        id: "security",
+        icon: "🔒",
+        title: "უსაფრთხოება",
+        desc: "PIN, ბიომეტრია და აპზე წვდომის დაცვა",
+        action: openSettingsSecurity,
+      },
+      {
+        id: "appearance",
+        icon: "🎨",
+        title: "გარეგნობა",
+        desc: "თემა, ენა, ვალუტა და ინტერფეისის კომფორტი",
+        action: openSettingsAppearance,
+      },
+      {
+        id: "notifications",
+        icon: "🔔",
+        title: "შეტყობინებები და შეხსენებები",
+        desc: "ნებართვები, შეხსენებები და მომავალი კონფიგურაცია",
+        action: openSettingsNotifications,
+      },
+      {
+        id: "data",
+        icon: "☁️",
+        title: "მონაცემები და სინქრონიზაცია",
+        desc: "სარეზერვო ასლები, იმპორტი, ექსპორტი და აღდგენა",
+        action: openSettingsData,
+      },
+      {
+        id: "diagnostics",
+        icon: "🧪",
+        title: "მონაცემების დიაგნოსტიკა",
+        desc: "ოპერაციების ცვლილებების, ჩატვირთვის და აღდგენის ისტორია",
+        action: openSettingsDiagnostics,
+      },
+      {
+        id: "automation",
+        icon: "🧩",
+        title: "ავტომატიზაცია",
+        desc: "ბიუჯეტები, შაბლონები და განმეორებადი ოპერაციები",
+        action: openSettingsAutomation,
+      },
+      {
+        id: "planning",
+        icon: "📈",
+        title: "დაგეგმვა",
+        desc: "მიზნები და ბიუჯეტის დაგეგმვა",
+        action: openSettingsPlanning,
+      },
+      {
+        id: "advanced",
+        icon: "🧰",
+        title: "ინსტრუმენტები",
+        desc: "კალკულატორი, ვალუტის კონვერტერი და ჩეკის სკანერი",
+        action: openSettingsAdvanced,
+      },
+      {
+        id: "reports",
+        icon: "📤",
+        title: "ანგარიშები და ექსპორტი",
+        desc: "ფინანსური მონაცემების ექსპორტი და გაგზავნა",
+        action: openSettingsReports,
+      },
+      {
+        id: "support",
+        icon: "💬",
+        title: "მხარდაჭერა",
+        desc: "დეველოპერთან კავშირი და დახმარება აპის შესახებ",
+        action: openSettingsSupport,
+      },
+      {
+        id: "about",
+        icon: "ℹ️",
+        title: "აპის შესახებ",
+        desc: "ინფორმაცია BudgetPRO-ზე და მომავალი სისტემური დეტალები",
+        action: openSettingsAbout,
+      },
+    ],
   };
-  let totalInc = 0,
-    totalExp = 0;
-  transactions.forEach((tx) => {
-    if (tx.type === "income") totalInc += tx.amountRub;
-    else totalExp += tx.amountRub;
-  });
-  const profBal = totalInc - totalExp;
-  const profBalStr =
-    (profBal >= 0 ? "+" : "−") + sym() + fmt(Math.abs(profBal));
-  const currentUserEmail = getCurrentUserEmail();
-  const guestModeActive = isGuestMode();
-  const creatorActive = isCreator();
-  const accountStatusLabel = guestModeActive
-    ? t("guestAccount")
-    : creatorActive
-      ? t("creatorAccount")
-      : currentUserEmail
-        ? t("emailAccount")
-        : "";
+  return byLang[currentLang] || byLang.ru;
+}
+
+function openSettingsView(view) {
+  currentSettingsView = view;
+  if (currentTab === "settings") renderSettings();
+  scheduleGuideResume("settings-view", 260);
+}
+
+function openSettingsHome() {
+  openSettingsView("home");
+}
+
+function openSettingsAccount() {
+  openSettingsView("account");
+}
+
+function openSettingsAppearance() {
+  openSettingsView("appearance");
+}
+
+function openSettingsNotifications() {
+  openSettingsView("notifications");
+}
+
+function openSettingsSecurity() {
+  openSettingsView("security");
+}
+
+function openSettingsData() {
+  openSettingsView("data");
+}
+
+function openSettingsDiagnostics() {
+  openSettingsView("diagnostics");
+}
+
+function openSettingsAutomation() {
+  openSettingsView("automation");
+}
+
+function openSettingsPlanning() {
+  openSettingsView("planning");
+}
+
+function openSettingsAdvanced() {
+  openSettingsView("advanced");
+}
+
+function openSettingsReports() {
+  openSettingsView("reports");
+}
+
+function openSettingsSupport() {
+  openSettingsView("support");
+}
+
+function openSettingsAbout() {
+  openSettingsView("about");
+}
+
+function openSettingsLegacy() {
+  openSettingsView("legacy");
+}
+
+function renderSettingsHome() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings Home",
+      title: "Настройки BudgetPRO",
+      subtitle:
+        "Все ключевые разделы BudgetPRO собраны в одном месте для быстрого и понятного доступа.",
+      legacyBtn: "Открыть текущие полные настройки",
+      note: "Полный экран настроек по-прежнему доступен без ограничений.",
+    },
+    en: {
+      kicker: "Settings Home",
+      title: "BudgetPRO Settings",
+      subtitle:
+        "All key BudgetPRO sections are collected in one place for faster and clearer access.",
+      legacyBtn: "Open current full settings",
+      note: "The full settings screen remains available without limitations.",
+    },
+    ka: {
+      kicker: "Settings Home",
+      title: "BudgetPRO პარამეტრები",
+      subtitle:
+        "BudgetPRO-ის მთავარი პარამეტრები ერთ სივრცეშია თავმოყრილი სწრაფი და მკაფიო წვდომისთვის.",
+      legacyBtn: "გახსენით მიმდინარე სრული პარამეტრები",
+      note: "პარამეტრების სრული ეკრანი კვლავ სრულად ხელმისაწვდომია.",
+    },
+  }[currentLang] || {
+    kicker: "Settings Home",
+    title: "Настройки BudgetPRO",
+    subtitle:
+      "Все ключевые разделы BudgetPRO собраны в одном месте для быстрого и понятного доступа.",
+    legacyBtn: "Открыть текущие полные настройки",
+    note: "Полный экран настроек по-прежнему доступен без ограничений.",
+  };
 
   const html = `
-  <!-- ═══ ПРОФИЛЬ ═══ -->
-  <div class="set-profile-card" id="sec-profiles">
-    <div class="set-prof-av" style="background:${activeProf.color || "#a78bfa"}">${activeProf.emoji || "👤"}</div>
-    <div class="set-prof-info">
-      <div class="set-prof-name">${esc(activeProf.name || "Main profile")}</div>
-      <div class="set-prof-sub">${transactions.filter((t) => !t._initial).length} ${
-        { ru: "записей", en: "records", ka: "ჩანაწ." }[L]
-      } · ${profBalStr}</div>
-    </div>
-    <button class="set-prof-switch" id="profileSwitchBtn">
-      ${profiles.length > 1 ? { ru: "Сменить", en: "Switch", ka: "შეცვ." }[L] : { ru: "Добавить", en: "Add", ka: "დამ." }[L]}
-    </button>
-  </div>
-
-  ${
-    accountStatusLabel
-      ? `
-  <div class="set-card" style="padding:16px 18px;margin-top:12px;">
-    <div style="font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;">${t("accountStatus")}</div>
-    <div style="font-size:18px;font-weight:900;color:var(--text);">${accountStatusLabel}</div>
-    ${
-      currentUserEmail
-        ? `<a href="mailto:${esc(currentUserEmail)}" style="display:inline-block;margin-top:8px;font-size:14px;font-weight:700;color:var(--primary);text-decoration:none;word-break:break-word;">${esc(currentUserEmail)}</a>`
-        : ""
-    }
-  </div>`
-      : ""
-  }
-
-  <!-- ═══ УПРОЩЁННЫЙ РЕЖИМ (самая заметная кнопка) ═══ -->
-  <div class="set-simple-toggle" id="sec-access">
-    <div class="set-simple-left">
-      <div class="set-simple-ico">🌟</div>
-      <div>
-        <div class="set-simple-title">${t("simpleMode")}</div>
-        <div class="set-simple-sub">${t("simpleModeDesc")}</div>
+    <div class="settings-home-wrap">
+      <div class="settings-home-hero">
+        <div class="settings-home-kicker">${esc(copy.kicker)}</div>
+        <h1 class="settings-home-title">${esc(copy.title)}</h1>
+        <p class="settings-home-subtitle">${esc(copy.subtitle)}</p>
       </div>
-    </div>
-    <label class="switch"><input type="checkbox" id="simpleModeToggle" ${simpleMode ? "checked" : ""}><span class="slider round"></span></label>
-  </div>
-
-  <!-- ═══ ОФОРМЛЕНИЕ ═══ -->
-  <div class="set-section-title" id="sec-appearance">${{ ru: "🎨 Оформление", en: "🎨 Appearance", ka: "🎨 გარემო" }[L]}</div>
-  <div class="set-card">
-    <div class="set-row">
-      <div class="set-row-ico">🌙</div>
-      <div class="set-row-label">${t("theme")}</div>
-      <select id="themeSelect" class="settings-select set-inline-select">
-        <option value="light">${t("light")}</option>
-        <option value="dark">${t("dark")}</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- Свотчи тем прямо на экране -->
-  <div class="set-themes-wrap">
-    <div class="set-themes-label">${t("themeDay")}</div>
-    <div class="set-themes-row">
-      ${["white", "default", "sunset", "ocean"]
-        .map((k) => {
-          const th = COLOR_THEMES[k];
-          const labels = tObj("themeLabels");
-          const descs = tObj("themeDescs");
-          const icons = {
-            white: "☀️",
-            default: "🌅",
-            sunset: "💫",
-            ocean: "🌊",
-          };
-          const acc = th.accent || th.vars["--primary"] || "#a78bfa";
-          const med = th.vars["--primary-med"] || acc;
-          const active = colorTheme === k;
-          return `<button class="set-theme-sw${active ? " active" : ""}" data-theme="${k}" style="${active ? "border-color:" + acc + ";" : ""}">
-          <div class="set-theme-dot" style="background:linear-gradient(135deg,${acc},${med})">${icons[k]}</div>
-          <div class="set-theme-lbl">${labels[k] || k}</div>
-          ${active ? `<div class="set-theme-check" style="background:${acc}">✓</div>` : ""}
-        </button>`;
-        })
-        .join("")}
-    </div>
-    <div class="set-themes-label" style="margin-top:12px">${t("themeNight")}</div>
-    <div class="set-themes-row">
-      ${["dark", "navy", "gold"]
-        .map((k) => {
-          const th = COLOR_THEMES[k];
-          const labels = tObj("themeLabels");
-          const descs = tObj("themeDescs");
-          const icons = { dark: "🌙", navy: "🌌", gold: "✨" };
-          const acc = th.accent || th.vars["--primary"] || "#a78bfa";
-          const med = th.vars["--primary-med"] || acc;
-          const active = colorTheme === k;
-          return `<button class="set-theme-sw${active ? " active" : ""}" data-theme="${k}" style="${active ? "border-color:" + acc + ";" : ""}">
-          <div class="set-theme-dot" style="background:linear-gradient(135deg,${acc},${med})">${icons[k]}</div>
-          <div class="set-theme-lbl">${labels[k] || k}</div>
-          ${active ? `<div class="set-theme-check" style="background:${acc}">✓</div>` : ""}
-        </button>`;
-        })
-        .join("")}
-    </div>
-    <button class="set-reset-theme-btn" id="resetThemeBtn">${t("resetThemeBtn")}</button>
-  </div>
-
-  <!-- ═══ ОСНОВНЫЕ ═══ -->
-  <div class="set-section-title" id="sec-general">${{ ru: "⚙️ Основные", en: "⚙️ General", ka: "⚙️ ზოგადი" }[L]}</div>
-  <div class="set-card">
-    <div class="set-row">
-      <div class="set-row-ico">💱</div>
-      <div class="set-row-label">${t("currency")}</div>
-      <select id="currencySelect" class="settings-select set-inline-select">
-        <option value="RUB">🇷🇺 ${t("currRUB")}</option>
-        <option value="USD">🇺🇸 ${t("currUSD")}</option>
-        <option value="EUR">🇪🇺 ${t("currEUR")}</option>
-        <option value="GEL">🇬🇪 ${t("currGEL")}</option>
-        <option value="GBP">🇬🇧 ${t("currGBP")}</option>
-        <option value="KZT">🇰🇿 ${t("currKZT")}</option>
-      </select>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">🌍</div>
-      <div class="set-row-label">${t("language")}</div>
-      <select id="langSelect" class="settings-select set-inline-select">
-        <option value="ru">🇷🇺 Русский</option>
-        <option value="en">🇬🇧 English</option>
-        <option value="ka">🇬🇪 ქართული</option>
-      </select>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">📳</div>
-      <div class="set-row-label">${t("hapticLabel")}</div>
-      <label class="switch"><input type="checkbox" id="hapticToggle" ${hapticEnabled ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">✨</div>
-      <div class="set-row-label">${t("animationsLabel")}</div>
-      <label class="switch"><input type="checkbox" id="animationsToggle" ${animationsEnabled ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">📌</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${{ ru: "Быстрые предложения", en: "Quick suggestions", ka: "სწრაფი წინ." }[L]}</span>
-        <span class="set-row-sub">${{ ru: "Шаблоны в форме добавления", en: "Templates in add form", ka: "შაბლონები ფორმაში" }[L]}</span>
-      </div>
-      <label class="switch"><input type="checkbox" id="suggestionsToggle" ${suggestionsEnabled ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">🕐</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${{ ru: "12-часовой формат", en: "12-hour format", ka: "12-სთ. ფორმატი" }[L]}</span>
-        <span class="set-row-sub">AM/PM</span>
-      </div>
-      <label class="switch"><input type="checkbox" id="time12hToggle" ${localStorage.getItem("timeFormat12h") === "true" ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-  </div>
-
-  <!-- Размер шрифта -->
-  <div class="set-card" style="padding:14px 16px">
-    <div class="set-row-label" style="margin-bottom:10px;font-size:14px;font-weight:700">${t("fontSizeLabel")}</div>
-    <div class="font-size-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;align-items:stretch;">
-      ${["small", "normal", "large", "xl"]
-        .map(
-          (s) => `<button class="font-size-btn set-font-btn" data-size="${s}"
-        style="min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.15;padding:10px 8px;border-radius:12px;border:2px solid ${fontSize === s ? "var(--primary)" : "var(--cream-border)"};
-        background:${fontSize === s ? "var(--primary-pale)" : "var(--cream-dark)"};
-        font-size:${s === "small" ? "12px" : s === "normal" ? "14px" : s === "large" ? "17px" : "20px"};
-        font-weight:700;cursor:pointer;font-family:inherit;color:var(--text);">
-        ${t("font" + s.charAt(0).toUpperCase() + s.slice(1))}</button>`,
-        )
-        .join("")}
-    </div>
-  </div>
-
-  <!-- ═══ БЕЗОПАСНОСТЬ ═══ -->
-  <div class="set-section-title" id="sec-security">${{ ru: "🔒 Безопасность", en: "🔒 Security", ka: "🔒 უსაფრთხ." }[L]}</div>
-  <div class="set-card">
-    <div class="set-row">
-      <div class="set-row-ico">🔐</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${t("pinCode")}</span>
-        <span class="set-row-sub">${{ ru: "Защитите от чужих глаз", en: "Protect from others", ka: "სხვებისგან დასაცავად" }[L]}</span>
-      </div>
-      <label class="switch"><input type="checkbox" id="pinToggle" ${pinEnabled ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-    ${
-      pinEnabled
-        ? `<div class="set-row set-row-divider">
-      <div class="set-row-ico">🔑</div>
-      <div class="set-row-label">${t("pinChange")}</div>
-      <button class="set-action-btn" id="changePinBtn">›</button>
-    </div>`
-        : ""
-    }
-    <div class="set-row set-row-divider" id="biometryCard">
-      <div class="set-row-ico">👆</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${t("biometryTitle")}</span>
-        <span class="set-row-sub" id="bioStatusText">${t("loading")}</span>
-      </div>
-      <label class="switch"><input type="checkbox" id="biometryToggle" ${biometryEnabled ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-  </div>
-
-  <!-- ═══ ГОЛОС И ФУНКЦИИ ═══ -->
-  <div class="set-section-title">${{ ru: "✨ Расширенные функции", en: "✨ Advanced", ka: "✨ გაფართ." }[L]}</div>
-  <div class="set-card">
-    <div class="set-row">
-      <div class="set-row-ico">🎤</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${{ ru: "Голосовой ввод", en: "Voice input", ka: "ხმოვ. შეყ." }[L]}</span>
-        <span class="set-row-sub">Chrome ${{ ru: "на Android", en: "on Android", ka: "Android-ზე" }[L]}</span>
-      </div>
-      <label class="switch"><input type="checkbox" id="showVoiceBtnToggle" ${localStorage.getItem("showVoiceBtn") !== "false" ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">🗣️</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${{ ru: "Режим распознавания", en: "Recognition mode", ka: "ამოცნობის რეჟიმი" }[L]}</span>
-        <span class="set-row-sub">${getVoiceInputModeLabels()[getVoiceInputMode()].hint}</span>
-      </div>
-      <select id="voiceModeSelect" class="settings-select set-inline-select" style="max-width:136px;">
-        ${Object.entries(getVoiceInputModeLabels())
+      <div class="settings-home-grid">
+        ${getSettingsHomeSections()
           .map(
-            ([value, item]) =>
-              `<option value="${value}"${getVoiceInputMode() === value ? " selected" : ""}>${esc(item.label)}</option>`,
-          )
-          .join("")}
-      </select>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">🎯</div>
-      <div class="set-row-label set-row-label-sub">
-        <span>${{ ru: "Кнопка целей", en: "Goals button", ka: "მიზნების ღ." }[L]}</span>
-        <span class="set-row-sub">${{ ru: "Плавающая кнопка", en: "Floating button", ka: "მცოც. ღილ." }[L]}</span>
-      </div>
-      <label class="switch"><input type="checkbox" id="showGoalsBtnToggle" ${localStorage.getItem("showGoalsBtn") !== "false" ? "checked" : ""}><span class="slider round"></span></label>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">🎤</div>
-      <div class="set-row-label">${{ ru: "Использовать голос сейчас", en: "Use voice now", ka: "ხმა ახლა" }[L]}</div>
-      <button class="set-action-btn" id="voiceDirectBtn">›</button>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">🎯</div>
-      <div class="set-row-label">${{ ru: "Открыть цели", en: "Open goals", ka: "მიზნები" }[L]}</div>
-      <button class="set-action-btn" id="goalsDirectBtn">›</button>
-    </div>
-  </div>
-
-  <!-- ═══ ПРОФИЛИ ═══ -->
-  <div class="set-section-title">${{ ru: "👤 Профили", en: "👤 Profiles", ka: "👤 პროფ." }[L]}</div>
-  <div class="set-card">
-    <div class="set-card-body" id="profilesBody">
-      ${renderProfilesBody()}
-      ${
-        profiles.length < 10
-          ? `<button class="set-full-btn set-full-btn-primary" id="addProfileBtn" style="margin-top:10px">${t("addProfile")}</button>`
-          : `<div style="color:var(--text-muted);font-size:13px;margin-top:8px">${t("profilesMax")}</div>`
-      }
-      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--cream-border)">
-        <button class="set-full-btn" id="connectProfileBtn">🔗 ${t("connectProfile")}</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ БЮДЖЕТЫ И ШАБЛОНЫ ═══ -->
-  <div class="set-section-title" id="sec-budgets">${{ ru: "💰 Бюджеты", en: "💰 Budgets", ka: "💰 ბიუჯ." }[L]}</div>
-  <div class="set-card">
-    <div class="set-card-body" id="budgetsBody">${renderBudgetsBody()}</div>
-    <button class="set-full-btn set-full-btn-primary" id="addBudgetBtn" style="margin:0 16px 14px">${t("addBudget")}</button>
-  </div>
-  <div class="set-section-title">${{ ru: "🔄 Повторяющиеся", en: "🔄 Recurring", ka: "🔄 განმეო." }[L]}</div>
-  <div class="set-card">
-    <div class="set-card-body" id="recurringBody">${renderRecurringBody()}</div>
-    <button class="set-full-btn set-full-btn-primary" id="addRecurringBtn" style="margin:0 16px 14px">${t("addRecurring")}</button>
-  </div>
-  <div class="set-section-title">${{ ru: "📋 Шаблоны", en: "📋 Templates", ka: "📋 შაბლ." }[L]}</div>
-  <div class="set-card">
-    <div class="set-card-body" id="templatesBody">${renderTemplatesBody()}</div>
-  </div>
-
-  <!-- ═══ ДАННЫЕ ═══ -->
-  <div class="set-section-title" id="sec-data">${{ ru: "💾 Данные", en: "💾 Data", ka: "💾 მონ." }[L]}</div>
-  <div class="set-card">
-    <div class="set-row">
-      <div class="set-row-ico">🔄</div>
-      <div class="set-row-label">${t("updateRates")}</div>
-      <button class="set-action-btn" id="refreshRatesBtn">›</button>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">📤</div>
-      <div class="set-row-label">${t("exportJSON")}</div>
-      <button class="set-action-btn" id="exportJSONBtn">›</button>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">📥</div>
-      <div class="set-row-label">${t("importJSON")}</div>
-      <button class="set-action-btn" id="importJSONBtn">›</button>
-    </div>
-    <input type="file" id="importFileInput" accept=".json" style="display:none">
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">📊</div>
-      <div class="set-row-label">${t("exportCSV")}</div>
-      <button class="set-action-btn" id="exportCSVBtn">›</button>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">📄</div>
-      <div class="set-row-label">${t("exportPDF")}</div>
-      <button class="set-action-btn" id="exportPDFBtn">›</button>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">☁️</div>
-      <div class="set-row-label">${t("cloudSave")}</div>
-      <button class="set-action-btn" id="cloudSaveBtn">›</button>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">⬇️</div>
-      <div class="set-row-label">${t("cloudLoad")}</div>
-      <button class="set-action-btn" id="cloudLoadBtn">›</button>
-    </div>
-    <div class="set-row set-row-divider">
-      <div class="set-row-ico">🔌</div>
-      <div class="set-row-label">${{ ru: "Переподключить WebSocket", en: "Reconnect WebSocket", ka: "WebSocket" }[L]}</div>
-      <button class="set-action-btn" id="reconnectWsBtn">›</button>
-    </div>
-  </div>
-
-  <!-- ═══ НАПОМИНАНИЯ ═══ -->
-  <div class="set-section-title">${t("reminders")}</div>
-  <div class="set-card" style="padding:16px">
-    <div style="border-radius:12px;padding:12px 14px;margin-bottom:14px;background:${
-      (isNativeReminderRuntime() &&
-        localStorage.getItem("nativeReminderPermission") === "granted") ||
-      (typeof Notification !== "undefined" &&
-        Notification.permission === "granted")
-        ? "var(--income-pale)"
-        : "var(--cream-dark)"
-    };
-      border:1.5px solid ${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? "var(--income-color)" : "var(--cream-border)"};">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:22px;">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? "✅" : (isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied") ? "🚫" : "🔔"}</span>
-        <span style="font-size:14px;font-weight:700;color:var(--text);">${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? t("notifGranted") : (isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "denied") || (typeof Notification !== "undefined" && Notification.permission === "denied") ? t("notifDenied") : t("notifDefault")}</span>
-        ${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") !== "granted") || (typeof Notification !== "undefined" && Notification.permission !== "granted") ? `<button id="requestNotifBtn" class="btn-primary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${t("notifRequest")}</button>` : ""}
-        ${(isNativeReminderRuntime() && localStorage.getItem("nativeReminderPermission") === "granted") || (typeof Notification !== "undefined" && Notification.permission === "granted") ? `<button id="notifDisableBtn" class="btn-secondary" style="margin-left:auto;padding:8px 14px;font-size:13px;">${{ ru: "Отключить уведомления", en: "Disable notifications", ka: "შეტყობინებების გამორთვა" }[L]}</button>` : ""}
-      </div>
-    </div>
-    <div id="namedRemindersList">
-      ${(() => {
-        const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
-        if (!list.length)
-          return `<div style="font-size:13px;color:var(--text-muted);padding:8px 0 16px;">${t("noReminders")}</div>`;
-        return list
-          .map(
-            (
-              r,
-              i,
-            ) => `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:${r.fired ? "var(--cream-dark)" : "var(--income-pale)"};border:1.5px solid ${r.fired ? "var(--cream-border)" : "var(--income-color)"};border-radius:12px;margin-bottom:8px;">
-          <div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.name || "🔔")}</div>
-          <div style="font-size:11px;color:var(--text-muted);">${new Date(r.ts).toLocaleString(L === "en" ? "en-US" : L === "ka" ? "ka-GE" : "ru-RU")}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">${esc(getReminderDeliveryModeLabel(r.deliveryMode || "sound_vibration", L))}${r.soundChoice ? ` · ${esc(getReminderSoundChoiceLabel(r.soundChoice, L))}` : ""}</div></div>
-          <span style="font-size:12px;color:${r.fired ? "var(--text-muted)" : "var(--income-color)"};font-weight:700;">${r.fired ? { ru: "✓ Готово", en: "✓ Done", ka: "✓ შეს." }[L] : { ru: "⏰ Ждёт", en: "⏰ Pending", ka: "⏰ ელ." }[L]}</span>
-          <button class="named-reminder-edit" data-idx="${i}" style="background:var(--primary-pale);border:none;border-radius:8px;width:28px;height:28px;color:var(--primary);cursor:pointer;font-size:14px;flex-shrink:0;">✎</button>
-          <button class="named-reminder-del" data-idx="${i}" style="background:var(--expense-pale);border:none;border-radius:8px;width:28px;height:28px;color:var(--expense-color);cursor:pointer;font-size:14px;flex-shrink:0;">✕</button>
-        </div>`,
-          )
-          .join("");
-      })()}
-    </div>
-    <details style="margin:8px 0 12px;background:var(--cream-dark);border-radius:12px;padding:12px;border:1px dashed var(--cream-border);">
-      <summary style="cursor:pointer;font-size:13px;font-weight:800;color:var(--text);">${{ ru: "Диагностика уведомлений", en: "Notification diagnostics", ka: "შეტყობინებების დიაგნოსტიკა" }[L]}</summary>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-        <button id="refreshReminderDebugBtn" class="btn-secondary" style="padding:10px 12px;font-size:12px;">${{ ru: "Обновить диагностику", en: "Refresh diagnostics", ka: "დიაგნოსტიკის განახლება" }[L]}</button>
-        <button id="hardClearReminderDebugBtn" class="btn-secondary" style="padding:10px 12px;font-size:12px;color:var(--expense-color);border-color:var(--expense-color);">${{ ru: "Жёстко очистить хвосты", en: "Hard clear leftovers", ka: "ნარჩენების მკაცრი გასუფთავება" }[L]}</button>
-      </div>
-      <pre id="reminderDebugText" style="margin-top:10px;white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.45;color:var(--text-muted);background:rgba(0,0,0,.04);padding:10px;border-radius:10px;">...</pre>
-    </details>
-    <details open style="background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);margin-top:4px">
-      <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;">
-        <span>${{ ru: "Добавить напоминание", en: "Add a reminder", ka: "შეხსენების დამატება" }[L]}</span>
-        <span style="color:var(--text-muted);font-size:12px;">${{ ru: "Развернуть или свернуть", en: "Expand or collapse", ka: "გაშლა ან შეკეცვა" }[L]}</span>
-      </summary>
-      <input type="hidden" id="editingReminderId" value="">
-      <div class="field-group" style="margin-bottom:10px"><label class="field-label">${t("reminderName")}</label>
-        <input type="text" id="newReminderName" class="modal-input" placeholder="${t("reminderNamePlaceholder")}"></div>
-      <div class="field-group" style="margin-bottom:10px"><label class="field-label">${{ ru: "Режим уведомления", en: "Notification mode", ka: "შეტყობინების რეჟიმი" }[L]}</label>
-        <select id="reminderDeliveryMode" class="modal-input">
-          <option value="sound_vibration">${{ ru: "🔔📳 Звук и вибрация", en: "🔔📳 Sound and vibration", ka: "🔔📳 ხმა და ვიბრაცია" }[L]}</option>
-          <option value="sound_only">${{ ru: "🔔 Только звук", en: "🔔 Sound only", ka: "🔔 მხოლოდ ხმა" }[L]}</option>
-          <option value="vibration_only">${{ ru: "📳 Только вибрация", en: "📳 Vibration only", ka: "📳 მხოლოდ ვიბრაცია" }[L]}</option>
-          <option value="silent">${{ ru: "🔕 Без звука и без вибрации", en: "🔕 No sound and no vibration", ka: "🔕 უხმოდ და ვიბრაციის გარეშე" }[L]}</option>
-        </select></div>
-      <div class="field-group" style="margin-bottom:10px"><label class="field-label">${{ ru: "Выберите мелодию уведомления", en: "Choose a notification melody", ka: "აირჩიეთ შეტყობინების მელოდია" }[L]}</label>
-        <div style="font-size:12px;color:var(--text-muted);font-weight:700;margin:0 0 8px 0;">${{ ru: "Это поле открывает список мелодий для уведомления. Здесь выбирается, какой звук будет использоваться.", en: "This field opens the list of melodies for the notification. This is where you choose which sound will be used.", ka: "ეს ველი ხსნის შეტყობინების მელოდიების სიას. აქ ირჩევთ რომელი ხმა იქნება გამოყენებული." }[L]}</div>
-        <div style="display:flex;gap:8px;align-items:stretch;flex-wrap:wrap">
-          <select id="reminderSoundChoice" class="modal-input" style="flex:1;min-height:60px;font-size:17px;font-weight:900;border-width:3px;box-shadow:0 8px 24px rgba(0,0,0,.08)">
-            <option value="">🔕 ${
-              {
-                ru: "Без выбранной мелодии",
-                en: "No selected melody",
-                ka: "არჩეული მელოდიის გარეშე",
-              }[L]
-            }</option>${Array.from({ length: 14 }, (_, i) => {
-              const icons = [
-                "🎵",
-                "🎶",
-                "🔔",
-                "✨",
-                "⚡",
-                "🌊",
-                "💎",
-                "🔥",
-                "🌙",
-                "🚀",
-                "🪶",
-                "🐣",
-                "📟",
-                "🔋",
-              ];
-              return `<option value="sound_${i + 1}">${icons[i]} ${
-                {
-                  ru: `Звук ${i + 1}`,
-                  en: `Sound ${i + 1}`,
-                  ka: `ხმა ${i + 1}`,
-                }[L]
-              }</option>`;
-            }).join("")}</select>
-          <button type="button" id="previewReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">▶️ ${{ ru: "Проба", en: "Preview", ka: "მოსმენა" }[L]}</button>
-          <button type="button" id="stopReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">⏹ ${{ ru: "Стоп", en: "Stop", ka: "შეჩერება" }[L]}</button>
-          <button type="button" id="resetReminderSoundBtn" class="btn-secondary" style="padding:11px 12px;white-space:nowrap">↺ ${{ ru: "Сброс", en: "Reset", ka: "გასუფთავება" }[L]}</button>
-        </div>
-        <div id="selectedReminderSoundCard" style="margin-top:10px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,var(--primary-pale),var(--cream-dark));border:2px solid var(--primary);box-shadow:0 8px 24px rgba(0,0,0,.08);">
-          <div style="font-size:12px;color:var(--text-muted);font-weight:800;">${{ ru: "Сейчас выбрано", en: "Currently selected", ka: "ამჟამად არჩეული" }[L]}</div>
-          <div id="selectedReminderSoundText" style="margin-top:6px;font-size:18px;font-weight:900;color:var(--text);line-height:1.25;"></div>
-          <div id="selectedReminderModeText" style="margin-top:6px;font-size:14px;font-weight:700;color:var(--primary);line-height:1.3;"></div>
-        </div></div>
-      <div class="field-group" style="margin-bottom:12px"><label class="field-label">${t("reminderDateTime")}</label>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="hidden" id="newReminderDatetime" value="">
-          <button type="button" id="reminderDateBtn" class="modal-input" style="flex:1;min-width:0;min-height:52px;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);"><span id="reminderDateText">${t("chooseDate")}</span></button>
-          <button type="button" id="reminderTimeBtn" class="modal-input" style="flex:1;min-width:0;min-height:52px;text-align:left;background:var(--cream-dark);border:2px solid var(--cream-border);border-radius:var(--radius-md);padding:12px 14px;cursor:pointer;font-family:inherit;font-size:15px;color:var(--text);"><span id="reminderTimeText">${t("chooseTimeBtn")}</span></button>
-          <input type="time" id="nativeTimeInput" class="modal-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" value="">
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
-          ${[
-            {
-              min: 1,
-              label: { ru: "Через 1 минуту", en: "In 1 minute", ka: "1 წუთში" },
-            },
-            {
-              min: 5,
-              label: { ru: "Через 5 минут", en: "In 5 minutes", ka: "5 წუთში" },
-            },
-            {
-              min: 10,
-              label: {
-                ru: "Через 10 минут",
-                en: "In 10 minutes",
-                ka: "10 წუთში",
-              },
-            },
-          ]
-            .map(
-              (opt) =>
-                `<button type="button" class="reminder-quick-time-btn" data-min="${opt.min}" style="padding:8px 10px;border:none;border-radius:999px;background:var(--primary-pale);color:var(--primary);font-size:12px;font-weight:800;cursor:pointer;">⏱ ${opt.label[L] || opt.label.ru}</button>`,
-            )
-            .join("")}
-      </div></div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:stretch">
-        <button id="addNamedReminderBtn" class="btn-primary" style="min-width:0;padding:13px 10px;white-space:normal;line-height:1.2;overflow-wrap:anywhere;">⏰ <span id="addNamedReminderBtnText">${t("scheduleReminder")}</span></button>
-        <button id="testNotifBtn" class="btn-secondary" style="min-width:0;padding:13px 10px;font-size:12px;white-space:normal;line-height:1.2;overflow-wrap:anywhere;">🔔 ${{ ru: "Проверить уведомления", en: "Test notifications", ka: "შეტყობინებების ტესტი" }[L]}</button>
-      </div>
-    </details>
-    <!-- Интервальные напоминания -->
-    <details style="margin-top:16px;background:var(--cream-dark);border-radius:14px;padding:14px;border:1.5px solid var(--cream-border);" open>
-      <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px">
-        <span>${{ ru: "Повторяющиеся напоминания", en: "Recurring reminders", ka: "განმეორებადი შეხსენებები" }[L]}</span>
-        <span style="color:var(--text-muted);font-size:12px;">${{ ru: "Выберите интервалы и дни", en: "Choose intervals and days", ka: "აირჩიეთ ინტერვალები და დღეები" }[L]}</span>
-      </summary>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px">
-        ${[
-          {
-            val: "1min",
-            label: {
-              ru: "Каждую минуту",
-              en: "Every minute",
-              ka: "ყოველ წუთში",
-            },
-          },
-          {
-            val: "5min",
-            label: {
-              ru: "Каждые 5 минут",
-              en: "Every 5 minutes",
-              ka: "ყოველ 5 წუთში",
-            },
-          },
-          {
-            val: "10min",
-            label: {
-              ru: "Каждые 10 минут",
-              en: "Every 10 minutes",
-              ka: "ყოველ 10 წუთში",
-            },
-          },
-          {
-            val: "15min",
-            label: {
-              ru: "Каждые 15 минут",
-              en: "Every 15 minutes",
-              ka: "ყოველ 15 წუთში",
-            },
-          },
-          {
-            val: "30min",
-            label: {
-              ru: "Каждые 30 минут",
-              en: "Every 30 minutes",
-              ka: "ყოველ 30 წუთში",
-            },
-          },
-          {
-            val: "1h",
-            label: { ru: "Каждый час", en: "Every hour", ka: "ყოველ საათში" },
-          },
-          {
-            val: "2h",
-            label: {
-              ru: "Каждые 2 часа",
-              en: "Every 2 hours",
-              ka: "ყოველ 2 საათში",
-            },
-          },
-          {
-            val: "5h",
-            label: {
-              ru: "Каждые 5 часов",
-              en: "Every 5 hours",
-              ka: "ყოველ 5 საათში",
-            },
-          },
-          {
-            val: "daily",
-            label: { ru: "Каждый день", en: "Every day", ka: "ყოველდღე" },
-          },
-          {
-            val: "every3days",
-            label: {
-              ru: "Каждые 3 дня",
-              en: "Every 3 days",
-              ka: "ყოველ 3 დღეში",
-            },
-          },
-          {
-            val: "weekly",
-            label: {
-              ru: "Каждую неделю",
-              en: "Every week",
-              ka: "ყოველ კვირაში",
-            },
-          },
-        ]
-          .map(
-            (
-              opt,
-            ) => `<label style="display:flex;align-items:center;gap:12px;padding:11px 12px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:12px;cursor:pointer;">
-            <input type="checkbox" class="reminder-interval-checkbox" data-val="${opt.val}" ${reminderIntervals?.[opt.val] ? "checked" : ""} style="width:18px;height:18px;accent-color:var(--primary);flex-shrink:0;">
-            <span style="font-size:14px;font-weight:600;color:var(--text)">${opt.label[L] || opt.label.ru}</span>
-          </label>`,
+            (section) => `
+              <button class="settings-home-card" type="button" data-settings-home="${esc(section.id)}">
+                <div class="settings-home-card-ico">${section.icon}</div>
+                <div class="settings-home-card-copy">
+                  <div class="settings-home-card-title">${esc(section.title)}</div>
+                  <p class="settings-home-card-desc">${esc(section.desc)}</p>
+                </div>
+                <div class="settings-home-card-arrow">›</div>
+              </button>
+            `,
           )
           .join("")}
       </div>
-      <div style="margin-top:14px;padding:12px;background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:12px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;">
-          <div style="font-size:13px;font-weight:800;color:var(--text);">${{ ru: "Дни недели для повторов", en: "Weekdays for recurring reminders", ka: "კვირის დღეები განმეორებადი შეხსენებებისთვის" }[L]}</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button type="button" id="selectAllReminderWeekdaysBtn" style="border:none;background:var(--primary-pale);color:var(--primary);padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;">${{ ru: "Выбрать все дни", en: "Select all days", ka: "ყველა დღის არჩევა" }[L]}</button>
-            <button type="button" id="resetReminderWeekdaysBtn" style="border:none;background:var(--expense-pale);color:var(--expense-color);padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800;cursor:pointer;">${{ ru: "Снять все дни", en: "Clear all days", ka: "ყველა დღის მოხსნა" }[L]}</button>
-          </div>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-          ${getReminderWeekdayOptions(L)
-            .map(
-              (day) =>
-                `<button type="button" class="reminder-weekday-btn" data-day="${day.value}" aria-pressed="${reminderWeekdays.includes(day.value) ? "true" : "false"}" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:999px;border:1.5px solid ${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-border)"};background:${reminderWeekdays.includes(day.value) ? "var(--primary)" : "var(--cream-dark)"};color:${reminderWeekdays.includes(day.value) ? "#ffffff" : "var(--text)"};font-size:13px;font-weight:800;cursor:pointer;box-shadow:${reminderWeekdays.includes(day.value) ? "0 8px 20px rgba(37,99,235,0.28)" : "none"};">${reminderWeekdays.includes(day.value) ? `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.22);color:#ffffff;font-size:12px;font-weight:900;flex-shrink:0;">✓</span>` : `<span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.08)" : "rgba(15,23,42,0.06)"};color:${document.body.classList.contains("dark") ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.45)"};font-size:12px;font-weight:900;flex-shrink:0;">•</span>`}<span>${day.full}</span></button>`,
-            )
-            .join("")}
-        </div>
+      <div class="settings-home-footer">
+        <button class="settings-home-legacy-btn" id="openLegacySettingsBtn" type="button">${esc(copy.legacyBtn)}</button>
+        <div class="settings-home-note">${esc(copy.note)}</div>
       </div>
-    </details>
-  </div>
-
-  ${
-    canContact
-      ? `
-  <div class="set-section-title">${t("supportTitle")}</div>
-  <div class="set-card">
-    <div class="set-row"><div class="set-row-ico">💬</div><div class="set-row-label">${t("supportTitle")}</div><button class="set-action-btn" id="openSupportBtn">›</button></div>
-  </div>`
-      : ``
-  }
-
-  <div class="set-section-title">${t("accountStatus")}</div>
-  <div class="set-card">
-    ${
-      guestModeActive
-        ? `<div class="set-row">
-      <div class="set-row-ico">📧</div>
-      <div class="set-row-label">${t("signInWithEmail")}</div>
-      <button class="set-action-btn" id="signInWithEmailBtn">›</button>
-    </div>`
-        : `<div class="set-row">
-      <div class="set-row-ico">↩️</div>
-      <div class="set-row-label">${t("logout")}</div>
-      <button class="set-action-btn" id="logoutBtn">›</button>
-    </div>`
-    }
-  </div>
-
-  <!-- ═══ ОПАСНАЯ ЗОНА ═══ -->
-  <div class="set-section-title" style="color:#f87171">${t("dangerZone")}</div>
-  <div class="set-card set-danger-card">
-    <div class="set-row">
-      <div class="set-row-ico">🗑</div>
-      <div class="set-row-label" style="color:#f87171">${t("resetAll")}</div>
-      <button class="set-action-btn set-action-danger" id="clearAllBtn">›</button>
     </div>
-  </div>
-
-  <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">${t("appFooterVersion")}</div>`;
+  `;
 
   document.getElementById("mainContent").innerHTML = html;
 
-  // ── Восстанавливаем значения select-ов ──
+  document.querySelectorAll("[data-settings-home]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const section = getSettingsHomeSections().find(
+        (item) => item.id === btn.dataset.settingsHome,
+      );
+      if (section?.action) section.action();
+    });
+  });
+  document
+    .getElementById("openLegacySettingsBtn")
+    ?.addEventListener("click", openSettingsLegacy);
+}
+
+function getAppearanceSettingsMarkup() {
+  const L = currentLang;
+  const timeFormat12h = localStorage.getItem("timeFormat12h") === "true";
+  const themeMode = document.body.classList.contains("dark") ? "dark" : "light";
+  const themeLabels = tObj("themeLabels");
+  const copy = {
+    ru: {
+      heroTitle: "🎨 Внешний вид",
+      heroSubtitle: "Настройте внешний вид BudgetPRO под себя",
+      themeTitle: "🌙 Тема приложения",
+      themeDesc: "Переключайте светлую и тёмную тему сразу, без дополнительных меню.",
+      colorTitle: "🎨 Цветовая схема",
+      colorDesc: "Выберите визуальный стиль интерфейса и сразу увидьте активную палитру.",
+      languageTitle: "🌍 Язык",
+      languageDesc: "Текущий язык интерфейса доступен в одно касание.",
+      currencyTitle: "💱 Валюта",
+      currencyDesc: "Выберите валюту отображения для сумм по всему приложению.",
+      timeTitle: "🕒 Время",
+      timeDesc: "Переключайте формат времени так, как вам привычнее.",
+      fontTitle: "🔠 Размер текста",
+      fontDesc: "Сделайте интерфейс компактнее или крупнее для комфортного чтения.",
+      simpleTitle: "⚡ Упрощённый режим",
+      simpleDesc: "Более спокойный и упрощённый интерфейс для ежедневного использования.",
+      voiceBtnTitle: "🎤 Показывать кнопку голосового ввода",
+      voiceBtnDesc: "Управляет плавающей кнопкой голосового ввода на главном экране.",
+      resetTitle: "♻ Сброс оформления",
+      resetDesc: "Вернуть текущую тему оформления к базовой цветовой схеме.",
+      light: "Светлая",
+      dark: "Тёмная",
+      lightSub: "Дневной режим",
+      darkSub: "Ночной режим",
+      time24: "24 часа",
+      time12: "12 часов",
+      resetAction: "Сбросить оформление",
+      themeGroups: {
+        light: "Светлые темы",
+        dark: "Тёмные темы",
+      },
+    },
+    en: {
+      heroTitle: "🎨 Appearance",
+      heroSubtitle: "Adjust the BudgetPRO look and feel to match you",
+      themeTitle: "🌙 App Theme",
+      themeDesc: "Switch between light and dark mode instantly without extra menus.",
+      colorTitle: "🎨 Color Scheme",
+      colorDesc: "Pick a visual style and instantly see which palette is active.",
+      languageTitle: "🌍 Language",
+      languageDesc: "The current interface language is available in one tap.",
+      currencyTitle: "💱 Currency",
+      currencyDesc: "Choose the display currency used across the app.",
+      timeTitle: "🕒 Time",
+      timeDesc: "Switch the time format the way you prefer.",
+      fontTitle: "🔠 Text Size",
+      fontDesc: "Make the interface more compact or larger for easier reading.",
+      simpleTitle: "⚡ Simple Mode",
+      simpleDesc: "A calmer, simplified interface for everyday use.",
+      voiceBtnTitle: "🎤 Show voice input button",
+      voiceBtnDesc: "Controls the floating voice input button on the home screen.",
+      resetTitle: "♻ Reset Appearance",
+      resetDesc: "Return the current theme setup to the base color scheme.",
+      light: "Light",
+      dark: "Dark",
+      lightSub: "Day mode",
+      darkSub: "Night mode",
+      time24: "24 hours",
+      time12: "12 hours",
+      resetAction: "Reset appearance",
+      themeGroups: {
+        light: "Light themes",
+        dark: "Dark themes",
+      },
+    },
+    ka: {
+      heroTitle: "🎨 გარეგნობა",
+      heroSubtitle: "მოარგეთ BudgetPRO-ის ვიზუალი თქვენს გემოვნებას",
+      themeTitle: "🌙 აპის თემა",
+      themeDesc: "მყისიერად გადართეთ ნათელ და ბნელ თემებს შორის დამატებითი მენიუს გარეშე.",
+      colorTitle: "🎨 ფერების სქემა",
+      colorDesc: "აირჩიეთ ვიზუალური სტილი და მაშინვე ნახეთ აქტიური პალიტრა.",
+      languageTitle: "🌍 ენა",
+      languageDesc: "ინტერფეისის მიმდინარე ენა ერთ შეხებაშია ხელმისაწვდომი.",
+      currencyTitle: "💱 ვალუტა",
+      currencyDesc: "აირჩიეთ ვალუტა, რომლითაც თანხები გამოჩნდება მთელ აპში.",
+      timeTitle: "🕒 დრო",
+      timeDesc: "გადართეთ დროის ფორმატი ისე, როგორც თქვენთვის მოსახერხებელია.",
+      fontTitle: "🔠 ტექსტის ზომა",
+      fontDesc: "გააკეთეთ ინტერფეისი უფრო კომპაქტური ან უფრო დიდი მარტივი კითხვისთვის.",
+      simpleTitle: "⚡ გამარტივებული რეჟიმი",
+      simpleDesc: "უფრო მშვიდი და გამარტივებული ინტერფეისი ყოველდღიური გამოყენებისთვის.",
+      voiceBtnTitle: "🎤 ხმოვანი შეყვანის ღილაკის ჩვენება",
+      voiceBtnDesc: "მართავს მთავარ ეკრანზე ხმოვანი შეყვანის მცურავ ღილაკს.",
+      resetTitle: "♻ გაფორმების განულება",
+      resetDesc: "დააბრუნეთ მიმდინარე თემა საბაზისო ფერთა სქემაზე.",
+      light: "ნათელი",
+      dark: "მუქი",
+      lightSub: "დღის რეჟიმი",
+      darkSub: "ღამის რეჟიმი",
+      time24: "24 საათი",
+      time12: "12 საათი",
+      resetAction: "გაფორმების განულება",
+      themeGroups: {
+        light: "ნათელი თემები",
+        dark: "მუქი თემები",
+      },
+    },
+  }[L];
+  const themeSections = [
+    { label: copy.themeGroups.light, items: ["white", "default", "sunset", "ocean"] },
+    { label: copy.themeGroups.dark, items: ["dark", "navy", "gold"] },
+  ];
+  const languages = [
+    { value: "ru", flag: "🇷🇺", label: "Русский" },
+    { value: "en", flag: "🇺🇸", label: "English" },
+    { value: "ka", flag: "🇬🇪", label: "ქართული" },
+  ];
+  const currencies = [
+    { value: "GEL", symbol: "₾", label: "GEL" },
+    { value: "USD", symbol: "$", label: "USD" },
+    { value: "EUR", symbol: "€", label: "EUR" },
+    { value: "RUB", symbol: "₽", label: "RUB" },
+    { value: "GBP", symbol: "£", label: "GBP" },
+    { value: "KZT", symbol: "₸", label: "KZT" },
+  ];
+  const fontLabels = {
+    small: t("fontSmall"),
+    normal: t("fontNormal"),
+    large: t("fontLarge"),
+    xl: t("fontXl"),
+  };
+  const showVoiceBtn = getFloatingBtnSetting("showVoiceBtn");
+  return `
+    <div class="appearance-screen">
+      <div class="appearance-hero">
+        <h2 class="appearance-hero-title">${esc(copy.heroTitle)}</h2>
+        <p class="appearance-hero-subtitle">${esc(copy.heroSubtitle)}</p>
+      </div>
+
+      <section class="appearance-card hero-card">
+        <div class="appearance-card-head">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.themeTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.themeDesc)}</p>
+          </div>
+          <div class="appearance-current-pill">${themeMode === "dark" ? esc(copy.dark) : esc(copy.light)}</div>
+        </div>
+        <div class="appearance-segmented">
+          <button class="appearance-option appearance-theme-mode${themeMode === "light" ? " active" : ""}" type="button" data-theme-mode="light">
+            <span class="appearance-theme-mode-ico">☀️</span>
+            <span class="appearance-theme-mode-copy">
+              <span class="appearance-option-label">${esc(copy.light)}</span>
+              <span class="appearance-option-sub">${esc(copy.lightSub)}</span>
+            </span>
+          </button>
+          <button class="appearance-option appearance-theme-mode${themeMode === "dark" ? " active" : ""}" type="button" data-theme-mode="dark">
+            <span class="appearance-theme-mode-ico">🌙</span>
+            <span class="appearance-theme-mode-copy">
+              <span class="appearance-option-label">${esc(copy.dark)}</span>
+              <span class="appearance-option-sub">${esc(copy.darkSub)}</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-card-head">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.colorTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.colorDesc)}</p>
+          </div>
+          <div class="appearance-current-pill">${esc(themeLabels[colorTheme] || colorTheme)}</div>
+        </div>
+        ${themeSections
+          .map((group) => {
+            const swatches = group.items
+              .map((k) => {
+                const th = COLOR_THEMES[k];
+                const active = colorTheme === k;
+                const acc = th.accent || th.vars["--primary"] || "#a78bfa";
+                const med = th.vars["--primary-med"] || acc;
+                const base =
+                  th.vars["--card-bg"] ||
+                  th.vars["--cream"] ||
+                  "rgba(255,255,255,0.92)";
+                return `
+                  <button
+                    class="appearance-swatch set-theme-sw${active ? " active" : ""}"
+                    type="button"
+                    data-theme="${k}"
+                    style="--swatch-accent:${acc};--swatch-med:${med};--swatch-base:${base};"
+                  >
+                    <span class="appearance-swatch-preview"></span>
+                    <span class="appearance-swatch-copy">
+                      <span class="appearance-swatch-title">${esc(themeLabels[k] || k)}</span>
+                      <span class="appearance-swatch-meta">${esc(group.label)}</span>
+                    </span>
+                    ${active ? `<span class="appearance-swatch-check">✓</span>` : ""}
+                  </button>
+                `;
+              })
+              .join("");
+            return `<div class="appearance-swatches">${swatches}</div>`;
+          })
+          .join("")}
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-card-head">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.languageTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.languageDesc)}</p>
+          </div>
+          <div class="appearance-current-pill">${esc(languages.find((item) => item.value === currentLang)?.label || currentLang)}</div>
+        </div>
+        <div class="appearance-chip-grid">
+          ${languages
+            .map(
+              (lang) => `
+                <button class="appearance-option appearance-chip${currentLang === lang.value ? " active" : ""}" type="button" data-language-choice="${lang.value}">
+                  <span class="appearance-chip-prefix">${lang.flag}</span>
+                  <span class="appearance-chip-title">${esc(lang.label)}</span>
+                </button>
+              `,
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-card-head">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.currencyTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.currencyDesc)}</p>
+          </div>
+          <div class="appearance-current-pill">${esc(displayCurrency)}</div>
+        </div>
+        <div class="appearance-chip-grid">
+          ${currencies
+            .map(
+              (currency) => `
+                <button class="appearance-option appearance-chip${displayCurrency === currency.value ? " active" : ""}" type="button" data-currency-choice="${currency.value}">
+                  <span class="appearance-chip-prefix">${esc(currency.symbol)}</span>
+                  <span class="appearance-chip-title">${esc(currency.label)}</span>
+                </button>
+              `,
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-card-head">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.timeTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.timeDesc)}</p>
+          </div>
+          <div class="appearance-current-pill">${timeFormat12h ? esc(copy.time12) : esc(copy.time24)}</div>
+        </div>
+        <div class="appearance-segmented">
+          <button class="appearance-option${!timeFormat12h ? " active" : ""}" type="button" data-time-format="24">${esc(copy.time24)}</button>
+          <button class="appearance-option${timeFormat12h ? " active" : ""}" type="button" data-time-format="12">${esc(copy.time12)}</button>
+        </div>
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-card-head">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.fontTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.fontDesc)}</p>
+          </div>
+          <div class="appearance-current-pill">${esc(fontLabels[fontSize] || fontSize)}</div>
+        </div>
+        <div class="appearance-font-grid">
+          ${["small", "normal", "large", "xl"]
+            .map(
+              (s) => `
+                <button class="appearance-option appearance-font-option font-size-btn set-font-btn${fontSize === s ? " active" : ""}" type="button" data-size="${s}">
+                  <span class="appearance-font-letter">A</span>
+                  <span class="appearance-font-name">${esc(fontLabels[s])}</span>
+                </button>
+              `,
+            )
+            .join("")}
+        </div>
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-toggle-row">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.simpleTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.simpleDesc)}</p>
+          </div>
+          <label class="switch"><input type="checkbox" id="simpleModeToggle" ${simpleMode ? "checked" : ""}><span class="slider round"></span></label>
+        </div>
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-toggle-row">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.voiceBtnTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.voiceBtnDesc)}</p>
+          </div>
+          <label class="switch"><input type="checkbox" id="showVoiceBtnToggle" ${showVoiceBtn ? "checked" : ""}><span class="slider round"></span></label>
+        </div>
+      </section>
+
+      <section class="appearance-card danger-card">
+        <div class="appearance-card-head">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.resetTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.resetDesc)}</p>
+          </div>
+        </div>
+        <button class="appearance-danger-btn" id="resetThemeBtn" type="button">${esc(copy.resetAction)}</button>
+      </section>
+
+      <select id="themeSelect" hidden aria-hidden="true">
+        <option value="light"${themeMode === "light" ? " selected" : ""}>${t("light")}</option>
+        <option value="dark"${themeMode === "dark" ? " selected" : ""}>${t("dark")}</option>
+      </select>
+      <select id="currencySelect" hidden aria-hidden="true">
+        <option value="RUB"${displayCurrency === "RUB" ? " selected" : ""}>${t("currRUB")}</option>
+        <option value="USD"${displayCurrency === "USD" ? " selected" : ""}>${t("currUSD")}</option>
+        <option value="EUR"${displayCurrency === "EUR" ? " selected" : ""}>${t("currEUR")}</option>
+        <option value="GEL"${displayCurrency === "GEL" ? " selected" : ""}>${t("currGEL")}</option>
+        <option value="GBP"${displayCurrency === "GBP" ? " selected" : ""}>${t("currGBP")}</option>
+        <option value="KZT"${displayCurrency === "KZT" ? " selected" : ""}>${t("currKZT")}</option>
+      </select>
+      <select id="langSelect" hidden aria-hidden="true">
+        <option value="ru"${currentLang === "ru" ? " selected" : ""}>Русский</option>
+        <option value="en"${currentLang === "en" ? " selected" : ""}>English</option>
+        <option value="ka"${currentLang === "ka" ? " selected" : ""}>ქართული</option>
+      </select>
+      <input type="checkbox" id="time12hToggle" hidden aria-hidden="true" ${timeFormat12h ? "checked" : ""}>
+    </div>
+  `;
+}
+
+function bindAppearanceSettingsHandlers() {
   const cs2 = document.getElementById("currencySelect");
   if (cs2) cs2.value = displayCurrency;
   const ts = document.getElementById("themeSelect");
@@ -11148,8 +14105,76 @@ function renderSettings() {
     ts.value = document.body.classList.contains("dark") ? "dark" : "light";
   const ls = document.getElementById("langSelect");
   if (ls) ls.value = currentLang;
+  const refreshAppearanceStates = () => {
+    const currentThemeMode = document.body.classList.contains("dark")
+      ? "dark"
+      : "light";
+    document.querySelectorAll("[data-theme-mode]").forEach((btn) => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.themeMode === currentThemeMode,
+      );
+    });
+    document.querySelectorAll("[data-language-choice]").forEach((btn) => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.languageChoice === currentLang,
+      );
+    });
+    document.querySelectorAll("[data-currency-choice]").forEach((btn) => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.currencyChoice === displayCurrency,
+      );
+    });
+    document.querySelectorAll("[data-time-format]").forEach((btn) => {
+      btn.classList.toggle(
+        "active",
+        btn.dataset.timeFormat ===
+          (localStorage.getItem("timeFormat12h") === "true" ? "12" : "24"),
+      );
+    });
+    document.querySelectorAll(".font-size-btn, .set-font-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.size === fontSize);
+    });
+  };
 
-  // ── Валюта ──
+  document.querySelectorAll("[data-theme-mode]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!ts) return;
+      ts.value = btn.dataset.themeMode;
+      ts.dispatchEvent(new Event("change"));
+      refreshAppearanceStates();
+    });
+  });
+
+  document.querySelectorAll("[data-language-choice]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!ls) return;
+      ls.value = btn.dataset.languageChoice;
+      ls.dispatchEvent(new Event("change"));
+    });
+  });
+
+  document.querySelectorAll("[data-currency-choice]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (!cs2) return;
+      cs2.value = btn.dataset.currencyChoice;
+      cs2.dispatchEvent(new Event("change"));
+      refreshAppearanceStates();
+    });
+  });
+
+  document.querySelectorAll("[data-time-format]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const toggle = document.getElementById("time12hToggle");
+      if (!toggle) return;
+      toggle.checked = btn.dataset.timeFormat === "12";
+      toggle.dispatchEvent(new Event("change"));
+      refreshAppearanceStates();
+    });
+  });
+
   cs2?.addEventListener("change", (e) => {
     displayCurrency = e.target.value;
     saveAll();
@@ -11157,7 +14182,6 @@ function renderSettings() {
     showToast(t("currencyChanged"));
   });
 
-  // ── Тема (тёмная/светлая) ──
   ts?.addEventListener("change", (e) => {
     const isDark = e.target.value === "dark";
     if (isDark) {
@@ -11169,12 +14193,11 @@ function renderSettings() {
     }
     localStorage.setItem("theme", e.target.value);
     showToast(t("themeChanged"));
+    refreshAppearanceStates();
   });
 
-  // ── Язык ──
   ls?.addEventListener("change", (e) => setLanguage(e.target.value));
 
-  // ── Свотчи тем ──
   document.querySelectorAll(".set-theme-sw").forEach((btn) => {
     btn.addEventListener("click", () => {
       applyColorTheme(btn.dataset.theme);
@@ -11185,7 +14208,6 @@ function renderSettings() {
     });
   });
 
-  // ── Сброс темы ──
   document.getElementById("resetThemeBtn")?.addEventListener("click", () => {
     applyColorTheme(
       document.body.classList.contains("dark") ? "dark" : "default",
@@ -11194,58 +14216,6 @@ function renderSettings() {
     setTimeout(() => renderSettings(), 300);
   });
 
-  // ── Профиль ──
-  document.getElementById("profileSwitchBtn")?.addEventListener("click", () => {
-    document
-      .getElementById("profilesBody")
-      ?.scrollIntoView({ behavior: "smooth" });
-  });
-  document.getElementById("logoutBtn")?.addEventListener("click", () => {
-    askConfirm(t("logout"), () => logout(), { icon: "↩️" });
-  });
-  document
-    .getElementById("signInWithEmailBtn")
-    ?.addEventListener("click", () => showAuthScreen());
-
-  // ── PIN ──
-  document
-    .getElementById("pinToggle")
-    ?.addEventListener("change", async (e) => {
-      if (e.target.checked) {
-        const created = await openPinSetModal();
-        if (!created) e.target.checked = false;
-      } else {
-        askConfirm(t("pinDisable"), async () => {
-          pinHash = null;
-          pinEnabled = false;
-          saveAll();
-          showToast(t("pinDisabled"));
-          renderSettings();
-        });
-        e.target.checked = pinEnabled;
-      }
-    });
-  document
-    .getElementById("changePinBtn")
-    ?.addEventListener("click", async () => {
-      if (biometryEnabled && biometryCredId) {
-        const ok = await biometryVerify();
-        if (!ok) {
-          showToast(
-            {
-              ru: "Сначала подтвердите личность отпечатком пальца или распознаванием лица.",
-              en: "First confirm your identity with fingerprint or face recognition.",
-              ka: "ჯერ დაადასტურეთ პირადობა თითის ანაბეჭდით ან სახის ამოცნობით.",
-            }[currentLang],
-            "error",
-          );
-          return;
-        }
-      }
-      openPinSetModal(true);
-    });
-
-  // ── Упрощённый режим ──
   document
     .getElementById("simpleModeToggle")
     ?.addEventListener("change", (e) => {
@@ -11254,45 +14224,18 @@ function renderSettings() {
       renderSettings();
     });
 
-  // ── Анимации ──
   document
-    .getElementById("animationsToggle")
+    .getElementById("showVoiceBtnToggle")
     ?.addEventListener("change", (e) => {
-      animationsEnabled = e.target.checked;
-      localStorage.setItem("animationsEnabled", animationsEnabled);
-      showToast(t("saved"));
+      const enabled = !!e.target.checked;
+      syncVoiceButtonEnabled(enabled);
+      if (enabled) {
+        if (!document.getElementById("voiceInputBtn")) addVoiceButton();
+        return;
+      }
+      document.getElementById("voiceInputBtn")?.remove();
     });
 
-  // ── Вибрация ──
-  document.getElementById("hapticToggle")?.addEventListener("change", (e) => {
-    hapticEnabled = e.target.checked;
-    localStorage.setItem("hapticEnabled", hapticEnabled);
-    if (hapticEnabled) haptic("medium");
-    showToast(t("saved"));
-  });
-
-  // ── Предложения ──
-  document
-    .getElementById("suggestionsToggle")
-    ?.addEventListener("change", (e) => {
-      suggestionsEnabled = e.target.checked;
-      localStorage.setItem("suggestionsEnabled", suggestionsEnabled);
-      showToast(
-        suggestionsEnabled
-          ? {
-              ru: "Предложения включены",
-              en: "Suggestions on",
-              ka: "ჩართულია",
-            }[currentLang]
-          : {
-              ru: "Предложения скрыты",
-              en: "Suggestions off",
-              ka: "გამორთულია",
-            }[currentLang],
-      );
-    });
-
-  // ── 12ч формат ──
   document
     .getElementById("time12hToggle")
     ?.addEventListener("change", function () {
@@ -11308,51 +14251,6 @@ function renderSettings() {
       );
     });
 
-  // ── Голос ──
-  document
-    .getElementById("showVoiceBtnToggle")
-    ?.addEventListener("change", function () {
-      localStorage.setItem("showVoiceBtn", this.checked ? "true" : "false");
-      addVoiceButton();
-      haptic("light");
-      showToast(t("saved"));
-    });
-  document
-    .getElementById("voiceModeSelect")
-    ?.addEventListener("change", function () {
-      const next = setVoiceInputMode(this.value);
-      const labels = getVoiceInputModeLabels();
-      haptic("light");
-      showToast(
-        {
-          ru: `Режим: ${labels[next].label}`,
-          en: `Mode: ${labels[next].label}`,
-          ka: `რეჟიმი: ${labels[next].label}`,
-        }[currentLang] || `Mode: ${labels[next].label}`,
-        "success",
-      );
-      renderSettings();
-    });
-  document.getElementById("voiceDirectBtn")?.addEventListener("click", () => {
-    haptic("medium");
-    startVoiceInput();
-  });
-
-  // ── Цели ──
-  document
-    .getElementById("showGoalsBtnToggle")
-    ?.addEventListener("change", function () {
-      localStorage.setItem("showGoalsBtn", this.checked ? "true" : "false");
-      addGoalsNavButton();
-      haptic("light");
-      showToast(t("saved"));
-    });
-  document.getElementById("goalsDirectBtn")?.addEventListener("click", () => {
-    haptic("medium");
-    openGoalsModal();
-  });
-
-  // ── Размер шрифта ──
   document.querySelectorAll(".font-size-btn, .set-font-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       applyFontSize(btn.dataset.size);
@@ -11361,129 +14259,60 @@ function renderSettings() {
     });
   });
 
-  // ── Бюджеты ──
-  document
-    .getElementById("addBudgetBtn")
-    ?.addEventListener("click", openAddBudgetModal);
+  refreshAppearanceStates();
+}
 
-  // ── Повторяющиеся ──
-  document
-    .getElementById("addRecurringBtn")
-    ?.addEventListener("click", openAddRecurringModal);
+function renderSettingsAppearanceScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "🎨 Внешний вид",
+      desc: "Настройте внешний вид BudgetPRO под себя.",
+      back: "Назад",
+    },
+    en: {
+      kicker: "Settings",
+      title: "🎨 Appearance",
+      desc: "Adjust the BudgetPRO look and feel to match you.",
+      back: "Back",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "🎨 გარეგნობა",
+      desc: "მოარგეთ BudgetPRO-ის ვიზუალი თქვენს გემოვნებას.",
+      back: "უკან",
+    },
+  }[currentLang];
 
-  // ── Шаблоны ──
-  document
-    .getElementById("templatesBody")
-    ?.querySelectorAll(".tpl-delete-btn")
-    .forEach((btn) => {
-      btn.addEventListener("click", () => {
-        askConfirm(
-          t("deleteTemplate"),
-          () => {
-            removeUserTemplate(parseInt(btn.dataset.id));
-            renderSettings();
-            showToast(t("deleted"));
-          },
-          { icon: "🗑️" },
-        );
-      });
-    });
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsAppearanceBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      ${getAppearanceSettingsMarkup()}
+    </div>
+  `;
 
-  // ── Данные ──
   document
-    .getElementById("refreshRatesBtn")
-    ?.addEventListener("click", async () => {
-      const rb = document.getElementById("refreshRatesBtn");
-      if (rb) rb.textContent = t("loading");
-      try {
-        const rr = await fetch(
-          "https://api.exchangerate-api.com/v4/latest/RUB",
-        );
-        const dd = await rr.json();
-        for (const c of ["USD", "EUR", "GEL", "GBP", "KZT"])
-          exchangeRates[c] = dd.rates[c] || exchangeRates[c];
-        saveAll();
-        updateTopBlocks();
-        showToast(t("ratesUpdated"));
-      } catch (e) {
-        showToast(t("error"), "error");
-      }
-      if (rb) rb.textContent = "🔄 " + t("updateRates");
-    });
-  document
-    .getElementById("reconnectWsBtn")
-    ?.addEventListener("click", () => showToast(t("websocketReconnect")));
-  document
-    .getElementById("exportCSVBtn")
-    ?.addEventListener("click", exportToCSV);
-  document
-    .getElementById("exportJSONBtn")
-    ?.addEventListener("click", exportToJSON);
-  document
-    .getElementById("exportPDFBtn")
-    ?.addEventListener("click", exportToPDF);
-  document.getElementById("cloudSaveBtn")?.addEventListener("click", cloudSave);
-  document.getElementById("cloudLoadBtn")?.addEventListener("click", cloudLoad);
-  const ifiEl = document.getElementById("importFileInput");
-  document
-    .getElementById("importJSONBtn")
-    ?.addEventListener("click", () => ifiEl?.click());
-  ifiEl?.addEventListener("change", (e) => {
-    const ff = e.target.files[0];
-    if (ff) {
-      importFromJSON(ff);
-      ifiEl.value = "";
-    }
+    .getElementById("settingsAppearanceBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  bindAppearanceSettingsHandlers();
+}
+
+function bindSettingsAccountProfileHandlers() {
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    askConfirm(t("logout"), () => logout(), { icon: "↩️" });
   });
-
-  // ── Очистить всё ──
-  document.getElementById("clearAllBtn")?.addEventListener("click", () => {
-    askConfirm(
-      t("resetConfirmMsg"),
-      async () => {
-        transactions = [];
-        startBalanceRub = 0;
-        notebookPages = [];
-        categories = JSON.parse(JSON.stringify(window.initialCategories));
-        incomeCategories = {
-          Зарплата: { subcats: [] },
-          Подарок: { subcats: [] },
-          Фриланс: { subcats: [] },
-        };
-        calcHistory = [];
-        convHistory = [];
-        userTemplates = [];
-        frequentStats = {};
-        categoryCustomizations = {};
-        categoryBudgets = {};
-        recurringOps = [];
-        localStorage.removeItem("welcomeSeen");
-        await clearIndexedDB();
-        saveAll();
-        showToast(t("allDataDeleted"));
-        setTimeout(() => {
-          setTab("home");
-          updateTopBlocks();
-        }, 500);
-      },
-      {
-        icon: "⚠️",
-        title: t("resetConfirmTitle"),
-        yesText: {
-          ru: "Удалить навсегда",
-          en: "Delete forever",
-          ka: "სამ. წაშლა",
-        }[currentLang],
-      },
-    );
-  });
-
-  // ── Поддержка ──
   document
-    .getElementById("openSupportBtn")
-    ?.addEventListener("click", () => openSupportModal());
+    .getElementById("signInWithEmailBtn")
+    ?.addEventListener("click", () => showAuthScreen("settings:signInWithEmailBtn"));
 
-  // ── Профили ──
   const pbElNew = document.getElementById("profilesBody");
   if (pbElNew) {
     pbElNew
@@ -11541,8 +14370,214 @@ function renderSettings() {
         else showToast(t("noMainProfileFound"), "error");
       });
   }
+}
 
-  // ── Биометрия ──
+function renderSettingsAccountScreen() {
+  ensureSettingsHomeStyles();
+  const activeProf = profiles.find((p) => p.id === activeProfileId) || {
+    name: "Main profile",
+    emoji: "👤",
+    color: "#a78bfa",
+  };
+  const currentUserEmail = getCurrentUserEmail();
+  const pendingEmail = String(localStorage.getItem(AUTH_PENDING_EMAIL_KEY) || "")
+    .trim()
+    .toLowerCase();
+  const guestModeActive = isGuestMode();
+  const creatorActive = isCreator();
+  const accountStatusLabel = guestModeActive
+    ? t("guestAccount")
+    : creatorActive
+      ? t("creatorAccount")
+      : currentUserEmail
+        ? t("emailAccount")
+        : null;
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "👤 Аккаунт и профили",
+      desc: "Текущий аккаунт, активный профиль и управление профилями.",
+      back: "Назад",
+      accountTitle: "Текущий аккаунт",
+      accountStatus: "Статус",
+      accountEmail: "Email",
+      magicStatus: "Magic Link",
+      notSignedIn: "Не авторизован",
+      noEmail: "Нет email",
+      magicActive: "Сессия активна",
+      magicPending: "Ожидает подтверждения",
+      magicInactive: "Не активен",
+      activeProfileTitle: "Активный профиль",
+      activeProfileCount: "Профилей",
+      profilesTitle: "Профили",
+      createTitle: "Создать профиль",
+      createHint: "Используется текущее окно создания профиля.",
+    },
+    en: {
+      kicker: "Settings",
+      title: "👤 Account & Profiles",
+      desc: "Current account, active profile, and profile management.",
+      back: "Back",
+      accountTitle: "Current account",
+      accountStatus: "Status",
+      accountEmail: "Email",
+      magicStatus: "Magic Link",
+      notSignedIn: "Not signed in",
+      noEmail: "No email",
+      magicActive: "Session active",
+      magicPending: "Pending confirmation",
+      magicInactive: "Inactive",
+      activeProfileTitle: "Active profile",
+      activeProfileCount: "Profiles",
+      profilesTitle: "Profiles",
+      createTitle: "Create profile",
+      createHint: "Uses the current profile creation flow.",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "👤 ანგარიში და პროფილები",
+      desc: "მიმდინარე ანგარიში, აქტიური პროფილი და პროფილების მართვა.",
+      back: "უკან",
+      accountTitle: "მიმდინარე ანგარიში",
+      accountStatus: "სტატუსი",
+      accountEmail: "Email",
+      magicStatus: "Magic Link",
+      notSignedIn: "ავტორიზებული არ არის",
+      noEmail: "Email არ არის",
+      magicActive: "სესია აქტიურია",
+      magicPending: "დადასტურების მოლოდინშია",
+      magicInactive: "არააქტიურია",
+      activeProfileTitle: "აქტიური პროფილი",
+      activeProfileCount: "პროფილი",
+      profilesTitle: "პროფილები",
+      createTitle: "პროფილის შექმნა",
+      createHint: "იყენებს პროფილის შექმნის მიმდინარე ფანჯარას.",
+    },
+  }[currentLang];
+  const magicLinkStatus = (() => {
+    if (isAuthenticated()) return copy.magicActive;
+    if (pendingEmail) {
+      const remainingMs = getMagicLinkResendRemainingMs();
+      return remainingMs > 0
+        ? `${copy.magicPending} · ${formatMagicLinkResendTime(remainingMs)}`
+        : copy.magicPending;
+    }
+    return copy.magicInactive;
+  })();
+  const visibleEmail = currentUserEmail || pendingEmail || copy.noEmail;
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsAccountBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="account-screen">
+        <section class="account-card">
+          <h2 class="account-card-title">${esc(copy.accountTitle)}</h2>
+          <div class="account-kv-list">
+            <div class="account-kv-row">
+              <span>${esc(copy.accountStatus)}</span>
+              <strong>${esc(accountStatusLabel || copy.notSignedIn)}</strong>
+            </div>
+            <div class="account-kv-row">
+              <span>${esc(copy.accountEmail)}</span>
+              <strong>${esc(visibleEmail)}</strong>
+            </div>
+            <div class="account-kv-row">
+              <span>${esc(copy.magicStatus)}</span>
+              <strong>${esc(magicLinkStatus)}</strong>
+            </div>
+          </div>
+          <div class="account-actions-grid single">
+            ${
+              guestModeActive
+                ? `<button class="btn-primary" id="signInWithEmailBtn" type="button">${esc(t("signInWithEmail"))}</button>`
+                : `<button class="btn-secondary" id="logoutBtn" type="button">${esc(t("logout"))}</button>`
+            }
+          </div>
+        </section>
+
+        <section class="account-card">
+          <h2 class="account-card-title">${esc(copy.activeProfileTitle)}</h2>
+          <div class="account-profile-active">
+            <div class="account-profile-avatar" style="background:${activeProf.color || "#a78bfa"}">${activeProf.emoji || "👤"}</div>
+            <div class="account-profile-copy">
+              <div class="account-profile-name">${esc(activeProf.name || "Main profile")}</div>
+              <p class="account-profile-meta">${profiles.length} · ${esc(copy.activeProfileCount)}</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="account-card">
+          <h2 class="account-card-title">${esc(copy.profilesTitle)}</h2>
+          <div class="account-profiles-wrap" id="profilesBody">${renderProfilesBody()}</div>
+        </section>
+
+        <section class="account-card">
+          <h2 class="account-card-title">${esc(copy.createTitle)}</h2>
+          <p class="account-muted-note">${esc(copy.createHint)}</p>
+          <div class="account-actions-grid">
+            ${
+              profiles.length < 10
+                ? `<button class="btn-primary" id="addProfileBtn" type="button">${esc(t("addProfile"))}</button>`
+                : `<button class="btn-secondary" type="button" disabled>${esc(t("profilesMax"))}</button>`
+            }
+            <button class="btn-secondary" id="connectProfileBtn" type="button">${esc(t("connectProfile"))}</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsAccountBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  bindSettingsAccountProfileHandlers();
+}
+
+function bindSettingsSecurityHandlers() {
+  document
+    .getElementById("pinToggle")
+    ?.addEventListener("change", async (e) => {
+      if (e.target.checked) {
+        const created = await openPinSetModal();
+        if (!created) e.target.checked = false;
+      } else {
+        askConfirm(t("pinDisable"), async () => {
+          pinHash = null;
+          pinEnabled = false;
+          saveAll();
+          showToast(t("pinDisabled"));
+          renderSettings();
+        });
+        e.target.checked = pinEnabled;
+      }
+    });
+  document
+    .getElementById("changePinBtn")
+    ?.addEventListener("click", async () => {
+      if (biometryEnabled && biometryCredId) {
+        const ok = await biometryVerify();
+        if (!ok) {
+          showToast(
+            {
+              ru: "Сначала подтвердите личность отпечатком пальца или распознаванием лица.",
+              en: "First confirm your identity with fingerprint or face recognition.",
+              ka: "ჯერ დაადასტურეთ პირადობა თითის ანაბეჭდით ან სახის ამოცნობით.",
+            }[currentLang],
+            "error",
+          );
+          return;
+        }
+      }
+      openPinSetModal(true);
+    });
+
   (async () => {
     if (!document.getElementById("biometryCard")) return;
     const avl = await isBiometryAvailable();
@@ -11632,8 +14667,1880 @@ function renderSettings() {
       ),
     );
   })();
+}
 
-  // ── Уведомления ──
+function renderSettingsSecurityScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "🔒 Безопасность",
+      desc: "PIN и биометрия без изменения существующей логики.",
+      back: "Назад",
+      statusTitle: "Статус защиты",
+      pinState: "PIN-код",
+      bioState: "Биометрия",
+      enabled: "Включён",
+      disabled: "Выключен",
+      pinTitle: "PIN-код",
+      pinDesc: "Используется существующая настройка PIN.",
+      bioTitle: "Биометрия",
+      bioDesc: "Используется существующая биометрическая защита устройства.",
+      autoLockTitle: "Автоблокировка",
+      autoLockDesc: "Существующая настройка не найдена в проекте.",
+    },
+    en: {
+      kicker: "Settings",
+      title: "🔒 Security",
+      desc: "PIN and biometry without changing the existing logic.",
+      back: "Back",
+      statusTitle: "Protection status",
+      pinState: "PIN",
+      bioState: "Biometry",
+      enabled: "Enabled",
+      disabled: "Disabled",
+      pinTitle: "PIN",
+      pinDesc: "Uses the existing PIN setup.",
+      bioTitle: "Biometry",
+      bioDesc: "Uses the existing device biometric protection.",
+      autoLockTitle: "Auto-lock",
+      autoLockDesc: "No existing auto-lock setting was found in the project.",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "🔒 უსაფრთხოება",
+      desc: "PIN და ბიომეტრია არსებული ლოგიკის შეცვლის გარეშე.",
+      back: "უკან",
+      statusTitle: "დაცვის სტატუსი",
+      pinState: "PIN-კოდი",
+      bioState: "ბიომეტრია",
+      enabled: "ჩართულია",
+      disabled: "გამორთულია",
+      pinTitle: "PIN-კოდი",
+      pinDesc: "იყენებს PIN-ის არსებულ დაყენებას.",
+      bioTitle: "ბიომეტრია",
+      bioDesc: "იყენებს მოწყობილობის არსებულ ბიომეტრიულ დაცვას.",
+      autoLockTitle: "ავტობლოკირება",
+      autoLockDesc: "პროექტში არსებული ავტობლოკირების პარამეტრი ვერ მოიძებნა.",
+    },
+  }[currentLang];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsSecurityBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="security-screen">
+        <section class="security-card">
+          <h2 class="security-card-title">${esc(copy.statusTitle)}</h2>
+          <div class="security-status-list">
+            <div class="security-status-row">
+              <span>${esc(copy.pinState)}</span>
+              <strong>${esc(pinEnabled ? copy.enabled : copy.disabled)}</strong>
+            </div>
+            <div class="security-status-row">
+              <span>${esc(copy.bioState)}</span>
+              <strong>${esc(biometryEnabled ? copy.enabled : copy.disabled)}</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="security-card">
+          <h2 class="security-card-title">${esc(copy.pinTitle)}</h2>
+          <p class="security-inline-note">${esc(copy.pinDesc)}</p>
+          <div class="set-card" style="margin-top:10px;">
+            <div class="set-row">
+              <div class="set-row-ico">🔐</div>
+              <div class="set-row-label set-row-label-sub">
+                <span>${t("pinCode")}</span>
+                <span class="set-row-sub">${{ ru: "Защитите от чужих глаз", en: "Protect from others", ka: "სხვებისგან დასაცავად" }[currentLang]}</span>
+              </div>
+              <label class="switch"><input type="checkbox" id="pinToggle" ${pinEnabled ? "checked" : ""}><span class="slider round"></span></label>
+            </div>
+            ${
+              pinEnabled
+                ? `<div class="set-row set-row-divider">
+              <div class="set-row-ico">🔑</div>
+              <div class="set-row-label">${t("pinChange")}</div>
+              <button class="set-action-btn" id="changePinBtn">›</button>
+            </div>`
+                : ""
+            }
+          </div>
+        </section>
+
+        <section class="security-card">
+          <h2 class="security-card-title">${esc(copy.bioTitle)}</h2>
+          <p class="security-inline-note">${esc(copy.bioDesc)}</p>
+          <div class="set-card" style="margin-top:10px;">
+            <div class="set-row" id="biometryCard">
+              <div class="set-row-ico">👆</div>
+              <div class="set-row-label set-row-label-sub">
+                <span>${t("biometryTitle")}</span>
+                <span class="set-row-sub" id="bioStatusText">${t("loading")}</span>
+              </div>
+              <label class="switch"><input type="checkbox" id="biometryToggle" ${biometryEnabled ? "checked" : ""}><span class="slider round"></span></label>
+            </div>
+          </div>
+        </section>
+
+        <section class="security-card">
+          <h2 class="security-card-title">${esc(copy.autoLockTitle)}</h2>
+          <p class="security-inline-note">${esc(copy.autoLockDesc)}</p>
+        </section>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsSecurityBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  bindSettingsSecurityHandlers();
+}
+
+function renderSettingsDataScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "☁️ Данные и синхронизация",
+      desc: "Управление резервными копиями, импортом, экспортом и облачной синхронизацией.",
+      back: "Назад",
+      statusTitle: "☁️ Состояние синхронизации",
+      statusDesc: "Только реальные данные о текущем состоянии синхронизации.",
+      exportTitle: "📤 Экспорт данных",
+      exportDesc: "Экспорт бюджета и настроек.",
+      importTitle: "📥 Импорт данных",
+      importDesc: "Импорт данных из файла или резервной копии.",
+      backupsTitle: "☁️ Резервные копии",
+      backupsDesc: "Создание и восстановление резервных копий.",
+      diagnosticsTitle: "🧪 Диагностика",
+      diagnosticsDesc: "Проверка состояния синхронизации.",
+      backupCreate: "Создать резервную копию",
+      backupRestore: "Восстановить резервную копию",
+      diagnosticsShow: "Показать",
+      diagnosticsHide: "Скрыть",
+      diagnosticsNetwork: "Статус сети",
+      diagnosticsBackup: "Статус резервной копии",
+      diagnosticsBackupTime: "Время резервной копии",
+      diagnosticsRelay: "JSONBin relay",
+      diagnosticsChecking: "Проверка...",
+      diagnosticsConfigured: "Настроен",
+      diagnosticsNotConfigured: "Не настроен",
+      syncOnline: "🟢 Онлайн",
+      syncOffline: "📴 Офлайн",
+      syncBackup: "Резервная копия",
+      syncBackupTime: "Время копии",
+      syncAvailable: "Доступна",
+      syncUnavailable: "Не найдена",
+      syncChecking: "Проверка...",
+      open: "Открыть",
+    },
+    en: {
+      kicker: "Settings",
+      title: "☁️ Data & Sync",
+      desc: "Manage backups, import, export, and cloud sync.",
+      back: "Back",
+      statusTitle: "☁️ Sync status",
+      statusDesc: "Only real sync data already available in the app.",
+      exportTitle: "📤 Export data",
+      exportDesc: "Export your budget and settings.",
+      importTitle: "📥 Import data",
+      importDesc: "Import data from a file or backup.",
+      backupsTitle: "☁️ Backups",
+      backupsDesc: "Create and restore backups.",
+      diagnosticsTitle: "🧪 Diagnostics",
+      diagnosticsDesc: "Check sync health and state.",
+      backupCreate: "Create backup",
+      backupRestore: "Restore backup",
+      diagnosticsShow: "Show",
+      diagnosticsHide: "Hide",
+      diagnosticsNetwork: "Network status",
+      diagnosticsBackup: "Backup status",
+      diagnosticsBackupTime: "Backup time",
+      diagnosticsRelay: "JSONBin relay",
+      diagnosticsChecking: "Checking...",
+      diagnosticsConfigured: "Configured",
+      diagnosticsNotConfigured: "Not configured",
+      syncOnline: "🟢 Online",
+      syncOffline: "📴 Offline",
+      syncBackup: "Backup",
+      syncBackupTime: "Backup time",
+      syncAvailable: "Available",
+      syncUnavailable: "Not found",
+      syncChecking: "Checking...",
+      open: "Open",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "☁️ მონაცემები და სინქრონიზაცია",
+      desc: "სარეზერვო ასლების, იმპორტის, ექსპორტისა და ღრუბლოვანი სინქრონიზაციის მართვა.",
+      back: "უკან",
+      statusTitle: "☁️ სინქრონიზაციის სტატუსი",
+      statusDesc: "ნაჩვენებია მხოლოდ უკვე არსებული რეალური სინქრონიზაციის მონაცემები.",
+      exportTitle: "📤 მონაცემების ექსპორტი",
+      exportDesc: "ბიუჯეტის და პარამეტრების ექსპორტი.",
+      importTitle: "📥 მონაცემების იმპორტი",
+      importDesc: "მონაცემების იმპორტი ფაილიდან ან სარეზერვო ასლიდან.",
+      backupsTitle: "☁️ სარეზერვო ასლები",
+      backupsDesc: "სარეზერვო ასლების შექმნა და აღდგენა.",
+      diagnosticsTitle: "🧪 დიაგნოსტიკა",
+      diagnosticsDesc: "სინქრონიზაციის მდგომარეობის შემოწმება.",
+      backupCreate: "სარეზერვო ასლის შექმნა",
+      backupRestore: "სარეზერვო ასლის აღდგენა",
+      diagnosticsShow: "ჩვენება",
+      diagnosticsHide: "დამალვა",
+      diagnosticsNetwork: "ქსელის სტატუსი",
+      diagnosticsBackup: "სარეზერვო ასლის სტატუსი",
+      diagnosticsBackupTime: "სარეზერვო ასლის დრო",
+      diagnosticsRelay: "JSONBin relay",
+      diagnosticsChecking: "შემოწმება...",
+      diagnosticsConfigured: "კონფიგურირებულია",
+      diagnosticsNotConfigured: "არ არის კონფიგურირებული",
+      syncOnline: "🟢 ონლაინ",
+      syncOffline: "📴 ოფლაინი",
+      syncBackup: "სარეზერვო ასლი",
+      syncBackupTime: "ასლის დრო",
+      syncAvailable: "ხელმისაწვდომია",
+      syncUnavailable: "ვერ მოიძებნა",
+      syncChecking: "შემოწმება...",
+      open: "გახსნა",
+    },
+  }[currentLang];
+  const syncStatusMarkup = getDataSyncStatusMarkup(copy);
+  const cards = [
+    {
+      icon: "☁️",
+      title: copy.statusTitle,
+      desc: copy.statusDesc,
+      content: syncStatusMarkup,
+    },
+    {
+      icon: "📤",
+      title: copy.exportTitle,
+      desc: copy.exportDesc,
+      button: copy.open,
+      buttonId: "dataSyncExportBtn",
+    },
+    {
+      icon: "📥",
+      title: copy.importTitle,
+      desc: copy.importDesc,
+      button: copy.open,
+      buttonId: "dataSyncImportBtn",
+    },
+    {
+      icon: "☁️",
+      title: copy.backupsTitle,
+      desc: copy.backupsDesc,
+      actions: [
+        {
+          id: "dataSyncBackupCreateBtn",
+          label: copy.backupCreate,
+        },
+        {
+          id: "dataSyncBackupRestoreBtn",
+          label: copy.backupRestore,
+        },
+      ],
+    },
+    {
+      icon: "🧪",
+      title: copy.diagnosticsTitle,
+      desc: copy.diagnosticsDesc,
+      content: getDataSyncDiagnosticsMarkup(copy),
+    },
+  ];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsDataBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          ${cards
+            .map(
+              (card) => `
+                <section class="data-sync-card">
+                  <div class="data-sync-card-head">
+                    <div class="data-sync-card-copy">
+                      <h3 class="data-sync-card-title">${esc(card.title)}</h3>
+                      <p class="data-sync-card-desc">${esc(card.desc)}</p>
+                    </div>
+                    <div class="data-sync-card-kicker" aria-hidden="true">${card.icon}</div>
+                  </div>
+                  ${
+                    card.actions
+                      ? `<div class="settings-stack-actions">${card.actions
+                          .map(
+                            (action) =>
+                              `<button class="btn-primary data-sync-open-btn" id="${action.id}" type="button">${esc(action.label)}</button>`,
+                          )
+                          .join("")}</div>`
+                      : card.content
+                      ? card.content
+                      : card.button
+                      ? `<button class="btn-primary data-sync-open-btn" type="button"${card.buttonId ? ` id="${card.buttonId}"` : ""}>${esc(card.button)}</button>`
+                      : `<div class="data-sync-status-note">${esc(card.badge || "")}</div>`
+                  }
+                </section>
+              `,
+            )
+            .join("")}
+        </div>
+        <input type="file" id="dataSyncImportFileInput" accept=".json" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsDataBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document
+    .getElementById("dataSyncExportBtn")
+    ?.addEventListener("click", exportToJSON);
+  const dataSyncImportFileInput = document.getElementById(
+    "dataSyncImportFileInput",
+  );
+  document
+    .getElementById("dataSyncImportBtn")
+    ?.addEventListener("click", () => dataSyncImportFileInput?.click());
+  dataSyncImportFileInput?.addEventListener("change", (e) => {
+    const ff = e.target.files[0];
+    if (ff) {
+      importFromJSON(ff);
+      dataSyncImportFileInput.value = "";
+    }
+  });
+  const runDataSyncBackupCreate = async () => {
+    normalizeFinancialState();
+    saveProfileData();
+    saveGlobal();
+    saveAllToIndexedDB().catch(() => {});
+    const backup = buildBackupPayload();
+    const ok = await jsonBinSaveBackup(backup);
+    await hydrateDataSyncStatusCard(copy);
+    if (ok) {
+      showToast(t("saved"));
+    }
+    return ok;
+  };
+  document
+    .getElementById("dataSyncBackupCreateBtn")
+    ?.addEventListener("click", runDataSyncBackupCreate);
+  document
+    .getElementById("dataSyncBackupRestoreBtn")
+    ?.addEventListener("click", cloudLoad);
+  hydrateDataSyncStatusCard(copy);
+  bindDataSyncDiagnostics(copy);
+}
+
+function getDataSyncStatusMarkup(copy) {
+  const onlineLabel = navigator.onLine ? copy.syncOnline : copy.syncOffline;
+  return `
+    <div class="data-sync-status-panel" id="dataSyncStatusPanel">
+      <div class="data-sync-status-pill" id="dataSyncOnlineState">${esc(onlineLabel)}</div>
+      <div class="data-sync-status-list">
+        <div class="data-sync-status-row">
+          <span>${esc(copy.syncBackup)}</span>
+          <strong id="dataSyncBackupState">${esc(copy.syncChecking)}</strong>
+        </div>
+        <div class="data-sync-status-row" id="dataSyncBackupTimeRow" style="display:none;">
+          <span>${esc(copy.syncBackupTime)}</span>
+          <strong id="dataSyncBackupTimeValue"></strong>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function hydrateDataSyncStatusCard(copy) {
+  const onlineEl = document.getElementById("dataSyncOnlineState");
+  if (onlineEl) {
+    onlineEl.textContent = navigator.onLine ? copy.syncOnline : copy.syncOffline;
+  }
+  const backupStateEl = document.getElementById("dataSyncBackupState");
+  const backupTimeRow = document.getElementById("dataSyncBackupTimeRow");
+  const backupTimeValueEl = document.getElementById("dataSyncBackupTimeValue");
+  if (!backupStateEl) return;
+  try {
+    const backup = await jsonBinLoadBackup();
+    if (backup) {
+      backupStateEl.textContent = copy.syncAvailable;
+      const backupTs = backup.timestamp || backup.exportDate;
+      if (backupTs && backupTimeRow && backupTimeValueEl) {
+        const backupDate = new Date(backupTs);
+        if (!Number.isNaN(backupDate.getTime())) {
+          backupTimeValueEl.textContent = backupDate.toLocaleString(currentLang);
+          backupTimeRow.style.display = "";
+        }
+      }
+      return;
+    }
+  } catch (e) {}
+  backupStateEl.textContent = copy.syncUnavailable;
+  if (backupTimeRow) backupTimeRow.style.display = "none";
+}
+
+function getDataSyncDiagnosticsMarkup(copy) {
+  return `
+    <details class="data-sync-details" id="dataSyncDiagnosticsDetails">
+      <summary>
+        <span>${esc(copy.diagnosticsTitle)}</span>
+        <span class="data-sync-details-toggle" id="dataSyncDiagnosticsToggleLabel">▼ ${esc(copy.diagnosticsShow)}</span>
+      </summary>
+      <div class="data-sync-details-body">
+        <div class="data-sync-status-row">
+          <span>${esc(copy.diagnosticsNetwork)}</span>
+          <strong id="dataSyncDiagNetwork">${esc(copy.diagnosticsChecking)}</strong>
+        </div>
+        <div class="data-sync-status-row">
+          <span>${esc(copy.diagnosticsBackup)}</span>
+          <strong id="dataSyncDiagBackup">${esc(copy.diagnosticsChecking)}</strong>
+        </div>
+        <div class="data-sync-status-row" id="dataSyncDiagBackupTimeRow" style="display:none;">
+          <span>${esc(copy.diagnosticsBackupTime)}</span>
+          <strong id="dataSyncDiagBackupTime"></strong>
+        </div>
+        <div class="data-sync-status-row">
+          <span>${esc(copy.diagnosticsRelay)}</span>
+          <strong id="dataSyncDiagRelay">${esc(copy.diagnosticsChecking)}</strong>
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function bindDataSyncDiagnostics(copy) {
+  const details = document.getElementById("dataSyncDiagnosticsDetails");
+  const toggleLabel = document.getElementById("dataSyncDiagnosticsToggleLabel");
+  if (!details || !toggleLabel) return;
+  const syncToggleLabel = () => {
+    toggleLabel.textContent = details.open
+      ? `▲ ${copy.diagnosticsHide}`
+      : `▼ ${copy.diagnosticsShow}`;
+  };
+  syncToggleLabel();
+  details.addEventListener("toggle", () => {
+    syncToggleLabel();
+    if (details.open) hydrateDataSyncDiagnostics(copy);
+  });
+}
+
+async function hydrateDataSyncDiagnostics(copy) {
+  const networkEl = document.getElementById("dataSyncDiagNetwork");
+  const backupEl = document.getElementById("dataSyncDiagBackup");
+  const backupTimeRow = document.getElementById("dataSyncDiagBackupTimeRow");
+  const backupTimeEl = document.getElementById("dataSyncDiagBackupTime");
+  const relayEl = document.getElementById("dataSyncDiagRelay");
+
+  if (networkEl) {
+    networkEl.textContent = navigator.onLine ? copy.syncOnline : copy.syncOffline;
+  }
+
+  if (relayEl) {
+    const jsonBinConfig = getJsonBinConfig();
+    relayEl.textContent = jsonBinConfig?.key
+      ? copy.diagnosticsConfigured
+      : copy.diagnosticsNotConfigured;
+  }
+
+  if (backupEl) backupEl.textContent = copy.diagnosticsChecking;
+  try {
+    const backup = await jsonBinLoadBackup();
+    if (backup) {
+      if (backupEl) backupEl.textContent = copy.syncAvailable;
+      const backupTs = backup.timestamp || backup.exportDate;
+      if (backupTs && backupTimeRow && backupTimeEl) {
+        const backupDate = new Date(backupTs);
+        if (!Number.isNaN(backupDate.getTime())) {
+          backupTimeEl.textContent = backupDate.toLocaleString(currentLang);
+          backupTimeRow.style.display = "";
+        }
+      }
+      return;
+    }
+  } catch (e) {}
+  if (backupEl) backupEl.textContent = copy.syncUnavailable;
+  if (backupTimeRow) backupTimeRow.style.display = "none";
+}
+
+function getDiagnosticsScreenCopy() {
+  return {
+    ru: {
+      kicker: "Settings",
+      title: "🧪 Диагностика данных",
+      desc: "Постоянная история изменений операций, загрузок и восстановлений.",
+      back: "Назад",
+      exportLogs: "Экспорт логов",
+      copyReport: "Скопировать отчёт",
+      filterAll: "Все",
+      filterErrors: "Ошибки",
+      filterHash: "Изменение hash",
+      filterRestore: "Восстановление",
+      filterLoad: "Загрузка",
+      recentTitle: "Последние 200 событий",
+      recentDesc: "События хранятся в IndexedDB store diagnostics.",
+      empty: "Событий пока нет",
+      loading: "Загрузка...",
+      time: "Время",
+      event: "Событие",
+      source: "Источник",
+      txCount: "Операций",
+      income: "Доход",
+      expense: "Расход",
+      hash: "Hash",
+      copied: "Отчёт скопирован",
+      exported: "Логи экспортированы",
+      copyFailed: "Не удалось скопировать отчёт",
+    },
+    en: {
+      kicker: "Settings",
+      title: "🧪 Data Diagnostics",
+      desc: "Persistent history of transaction changes, loads, and restores.",
+      back: "Back",
+      exportLogs: "Export logs",
+      copyReport: "Copy report",
+      filterAll: "All",
+      filterErrors: "Errors",
+      filterHash: "Hash changes",
+      filterRestore: "Restore",
+      filterLoad: "Load",
+      recentTitle: "Latest 200 events",
+      recentDesc: "Events are stored in the IndexedDB diagnostics store.",
+      empty: "No events yet",
+      loading: "Loading...",
+      time: "Time",
+      event: "Event",
+      source: "Source",
+      txCount: "Transactions",
+      income: "Income",
+      expense: "Expense",
+      hash: "Hash",
+      copied: "Report copied",
+      exported: "Logs exported",
+      copyFailed: "Failed to copy report",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "🧪 მონაცემების დიაგნოსტიკა",
+      desc: "ოპერაციების ცვლილებების, ჩატვირთვის და აღდგენის მუდმივი ისტორია.",
+      back: "უკან",
+      exportLogs: "ლოგების ექსპორტი",
+      copyReport: "ანგარიშის კოპირება",
+      filterAll: "ყველა",
+      filterErrors: "შეცდომები",
+      filterHash: "Hash ცვლილება",
+      filterRestore: "აღდგენა",
+      filterLoad: "ჩატვირთვა",
+      recentTitle: "ბოლო 200 მოვლენა",
+      recentDesc: "მოვლენები ინახება IndexedDB diagnostics store-ში.",
+      empty: "მოვლენები ჯერ არ არის",
+      loading: "იტვირთება...",
+      time: "დრო",
+      event: "მოვლენა",
+      source: "წყარო",
+      txCount: "ოპერაციები",
+      income: "შემოსავალი",
+      expense: "ხარჯი",
+      hash: "Hash",
+      copied: "ანგარიში დაკოპირდა",
+      exported: "ლოგები ექსპორტირდა",
+      copyFailed: "ანგარიშის კოპირება ვერ მოხერხდა",
+    },
+  }[currentLang];
+}
+
+function renderDiagnosticsTableRows(records, copy) {
+  if (!records.length) {
+    return `<tr><td colspan="3" style="padding:18px 12px;text-align:center;color:var(--text-muted);">${esc(copy.empty)}</td></tr>`;
+  }
+  return records
+    .map(
+      (record) => `
+        <tr>
+          <td style="padding:10px 12px;vertical-align:top;font-size:12px;color:var(--text-muted);white-space:nowrap;">${esc(formatDiagnosticsDate(record.timestamp))}</td>
+          <td style="padding:10px 12px;vertical-align:top;font-size:12px;font-weight:800;color:var(--text);white-space:nowrap;">${esc(record.event || "—")}</td>
+          <td style="padding:10px 12px;vertical-align:top;font-size:12px;color:var(--text);white-space:nowrap;">${esc(record.source || "—")}</td>
+        </tr>
+      `,
+    )
+    .join("");
+}
+
+async function hydrateDiagnosticsScreen(copy) {
+  const tableBody = document.getElementById("diagnosticsTableBody");
+  if (!tableBody) return;
+  tableBody.innerHTML = `<tr><td colspan="3" style="padding:18px 12px;text-align:center;color:var(--text-muted);">${esc(copy.loading)}</td></tr>`;
+  const matcher = getDiagnosticsFilterMatcher(currentDiagnosticsFilter);
+  const records = (await getDiagnosticsRecords(DIAGNOSTICS_VIEW_LIMIT)).filter(matcher);
+  if (currentSettingsView !== "diagnostics") return;
+  tableBody.innerHTML = renderDiagnosticsTableRows(records, copy);
+  document.querySelectorAll("[data-diagnostics-filter]").forEach((btn) => {
+    const active = btn.getAttribute("data-diagnostics-filter") === currentDiagnosticsFilter;
+    btn.style.borderColor = active
+      ? "color-mix(in srgb, var(--primary) 22%, var(--settings-border))"
+      : "var(--settings-border)";
+    btn.style.background = active
+      ? "color-mix(in srgb, var(--primary-pale) 74%, var(--settings-surface-strong))"
+      : "var(--settings-surface-strong)";
+    btn.style.color = active ? "var(--text)" : "var(--text)";
+  });
+}
+
+function renderSettingsDiagnosticsScreen() {
+  ensureSettingsHomeStyles();
+  const copy = getDiagnosticsScreenCopy();
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsDiagnosticsBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          <section class="data-sync-card" style="grid-column:1/-1;">
+            <div class="data-sync-card-head">
+              <div class="data-sync-card-copy">
+                <h3 class="data-sync-card-title">${esc(copy.recentTitle)}</h3>
+                <p class="data-sync-card-desc">${esc(copy.recentDesc)}</p>
+              </div>
+              <div class="data-sync-card-kicker" aria-hidden="true">🧪</div>
+            </div>
+            <div class="diagnostics-chip-row">
+              <button type="button" class="diagnostics-chip" data-diagnostics-filter="all">${esc(copy.filterAll)}</button>
+              <button type="button" class="diagnostics-chip" data-diagnostics-filter="errors">${esc(copy.filterErrors)}</button>
+              <button type="button" class="diagnostics-chip" data-diagnostics-filter="hash">${esc(copy.filterHash)}</button>
+              <button type="button" class="diagnostics-chip" data-diagnostics-filter="restore">${esc(copy.filterRestore)}</button>
+              <button type="button" class="diagnostics-chip" data-diagnostics-filter="load">${esc(copy.filterLoad)}</button>
+            </div>
+            <div class="diagnostics-actions-row">
+              <button class="diagnostics-action-btn diagnostics-action-btn-primary" id="diagnosticsExportBtn" type="button">${esc(copy.exportLogs)}</button>
+              <button class="diagnostics-action-btn" id="diagnosticsCopyBtn" type="button">${esc(copy.copyReport)}</button>
+            </div>
+            <div class="diagnostics-table-wrap">
+              <table class="diagnostics-table">
+                <thead>
+                  <tr style="background:var(--settings-surface-soft);">
+                    <th style="padding:12px;text-align:left;font-size:11px;font-weight:900;color:var(--text-muted);text-transform:uppercase;">${esc(copy.time)}</th>
+                    <th style="padding:12px;text-align:left;font-size:11px;font-weight:900;color:var(--text-muted);text-transform:uppercase;">${esc(copy.event)}</th>
+                    <th style="padding:12px;text-align:left;font-size:11px;font-weight:900;color:var(--text-muted);text-transform:uppercase;">${esc(copy.source)}</th>
+                  </tr>
+                </thead>
+                <tbody id="diagnosticsTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsDiagnosticsBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document.querySelectorAll("[data-diagnostics-filter]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentDiagnosticsFilter = btn.getAttribute("data-diagnostics-filter") || "all";
+      hydrateDiagnosticsScreen(copy);
+    });
+  });
+  document
+    .getElementById("diagnosticsExportBtn")
+    ?.addEventListener("click", async () => {
+      await exportDiagnosticsLogs();
+      showToast(copy.exported, "success");
+    });
+  document
+    .getElementById("diagnosticsCopyBtn")
+    ?.addEventListener("click", async () => {
+      try {
+        const report = await buildDiagnosticsReportText();
+        await navigator.clipboard.writeText(report);
+        showToast(copy.copied, "success");
+      } catch (e) {
+        showToast(copy.copyFailed, "error");
+      }
+    });
+  hydrateDiagnosticsScreen(copy);
+}
+
+function renderSettingsAutomationScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "⚙️ Автоматизация",
+      desc: "Бюджеты, регулярные операции и шаблоны без изменения существующей логики.",
+      back: "Назад",
+      budgetsTitle: "📊 Бюджеты",
+      budgetsDesc: "Управление лимитами и периодами бюджета.",
+      recurringTitle: "🔄 Регулярные операции",
+      recurringDesc: "Повторяющиеся доходы и расходы.",
+      templatesTitle: "📋 Шаблоны",
+      templatesDesc: "Сохранённые шаблоны быстрых операций.",
+    },
+    en: {
+      kicker: "Settings",
+      title: "⚙️ Automation",
+      desc: "Budgets, recurring operations, and templates with existing logic preserved.",
+      back: "Back",
+      budgetsTitle: "📊 Budgets",
+      budgetsDesc: "Manage budget limits and periods.",
+      recurringTitle: "🔄 Recurring operations",
+      recurringDesc: "Recurring income and expense entries.",
+      templatesTitle: "📋 Templates",
+      templatesDesc: "Saved quick-entry templates.",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "⚙️ ავტომატიზაცია",
+      desc: "ბიუჯეტები, რეგულარული ოპერაციები და შაბლონები არსებული ლოგიკის შეცვლის გარეშე.",
+      back: "უკან",
+      budgetsTitle: "📊 ბიუჯეტები",
+      budgetsDesc: "ბიუჯეტის ლიმიტებისა და პერიოდების მართვა.",
+      recurringTitle: "🔄 რეგულარული ოპერაციები",
+      recurringDesc: "განმეორებადი შემოსავლები და ხარჯები.",
+      templatesTitle: "📋 შაბლონები",
+      templatesDesc: "სწრაფი ოპერაციების შენახული შაბლონები.",
+    },
+  }[currentLang];
+  const cards = [
+    {
+      icon: "📊",
+      title: copy.budgetsTitle,
+      desc: copy.budgetsDesc,
+      content: `
+        <div class="set-card-body" id="automationBudgetsBody">${renderBudgetsBody()}</div>
+        <div class="settings-stack-actions">
+          <button class="btn-primary data-sync-open-btn" id="addBudgetBtn" type="button">${esc(t("addBudget"))}</button>
+        </div>
+      `,
+    },
+    {
+      icon: "🔄",
+      title: copy.recurringTitle,
+      desc: copy.recurringDesc,
+      content: `
+        <div class="set-card-body" id="automationRecurringBody">${renderRecurringBody()}</div>
+        <div class="settings-stack-actions">
+          <button class="btn-primary data-sync-open-btn" id="addRecurringBtn" type="button">${esc(t("addRecurring"))}</button>
+        </div>
+      `,
+    },
+    {
+      icon: "📋",
+      title: copy.templatesTitle,
+      desc: copy.templatesDesc,
+      content: `<div class="set-card-body" id="automationTemplatesBody">${renderTemplatesBody()}</div>`,
+    },
+  ];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsAutomationBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          ${cards
+            .map(
+              (card) => `
+                <section class="data-sync-card">
+                  <div class="data-sync-card-head">
+                    <div class="data-sync-card-copy">
+                      <h3 class="data-sync-card-title">${esc(card.title)}</h3>
+                      <p class="data-sync-card-desc">${esc(card.desc)}</p>
+                    </div>
+                    <div class="data-sync-card-kicker" aria-hidden="true">${card.icon}</div>
+                  </div>
+                  ${card.content ? card.content : ""}
+                </section>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsAutomationBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document
+    .getElementById("addBudgetBtn")
+    ?.addEventListener("click", openAddBudgetModal);
+  document
+    .getElementById("addRecurringBtn")
+    ?.addEventListener("click", openAddRecurringModal);
+  document
+    .getElementById("automationBudgetsBody")
+    ?.addEventListener("click", (e) => {
+      const periodBtn = e.target.closest("[data-bp]");
+      if (!periodBtn) return;
+      localStorage.setItem("budget_period", periodBtn.dataset.bp);
+      renderSettings();
+    });
+  document
+    .getElementById("automationTemplatesBody")
+    ?.querySelectorAll(".tpl-delete-btn")
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        askConfirm(
+          t("deleteTemplate"),
+          () => {
+            removeUserTemplate(parseInt(btn.dataset.id));
+            renderSettings();
+            showToast(t("deleted"));
+          },
+          { icon: "🗑️" },
+        );
+      });
+    });
+}
+
+function renderSettingsPlanningScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "📈 Планирование",
+      desc: "Цели и планирование бюджета.",
+      back: "Назад",
+      goalsTitle: "🎯 Мои цели",
+      goalsDesc: "Управление целями и быстрый переход к существующему модальному окну.",
+      ruleTitle: "📊 Правило 50/30/20",
+      ruleDesc: "Открывает существующий мастер распределения бюджета по правилу 50/30/20.",
+      open: "Открыть",
+    },
+    en: {
+      kicker: "Settings",
+      title: "📈 Planning",
+      desc: "Goals and budget planning.",
+      back: "Back",
+      goalsTitle: "🎯 My Goals",
+      goalsDesc: "Manage goals and open the existing goals modal.",
+      ruleTitle: "📊 50/30/20 Rule",
+      ruleDesc: "Opens the existing guided 50/30/20 budget split flow.",
+      open: "Open",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "📈 დაგეგმვა",
+      desc: "მიზნები და ბიუჯეტის დაგეგმვა.",
+      back: "უკან",
+      goalsTitle: "🎯 ჩემი მიზნები",
+      goalsDesc: "მიზნების მართვა და არსებული მიზნების მოდალის გახსნა.",
+      ruleTitle: "📊 50/30/20 წესი",
+      ruleDesc: "ხსნის ბიუჯეტის განაწილების არსებულ 50/30/20 flow-ს.",
+      open: "გახსნა",
+    },
+  }[currentLang];
+  const cards = [
+    {
+      icon: "🎯",
+      title: copy.goalsTitle,
+      desc: copy.goalsDesc,
+      button: copy.open,
+      buttonId: "planningGoalsBtn",
+    },
+    {
+      icon: "📊",
+      title: copy.ruleTitle,
+      desc: copy.ruleDesc,
+      button: copy.open,
+      buttonId: "planningRuleBtn",
+    },
+  ];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsPlanningBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          ${cards
+            .map(
+              (card) => `
+                <section class="data-sync-card">
+                  <div class="data-sync-card-head">
+                    <div class="data-sync-card-copy">
+                      <h3 class="data-sync-card-title">${esc(card.title)}</h3>
+                      <p class="data-sync-card-desc">${esc(card.desc)}</p>
+                    </div>
+                    <div class="data-sync-card-kicker" aria-hidden="true">${card.icon}</div>
+                  </div>
+                  <button class="btn-primary data-sync-open-btn" type="button"${card.buttonId ? ` id="${card.buttonId}"` : ""}>${esc(card.button)}</button>
+                </section>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsPlanningBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document
+    .getElementById("planningGoalsBtn")
+    ?.addEventListener("click", openGoalsModal);
+  document
+    .getElementById("planningRuleBtn")
+    ?.addEventListener("click", openBudget503020Modal);
+}
+
+function renderSettingsToolsScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "🧰 Инструменты",
+      desc: "Калькулятор, конвертер валют и сканер чеков.",
+      back: "Назад",
+      calculatorTitle: "🧮 Калькулятор",
+      calculatorDesc: "Открывает существующий tab с калькулятором BudgetPRO.",
+      converterTitle: "💱 Конвертер валют",
+      converterDesc: "Открывает существующий tab с конвертером валют.",
+      scannerTitle: "🧾 Сканер чеков",
+      scannerDesc: "Открывает существующий сканер чеков без изменения логики OCR.",
+      open: "Открыть",
+    },
+    en: {
+      kicker: "Settings",
+      title: "🧰 Tools",
+      desc: "Calculator, currency converter, and receipt scanner.",
+      back: "Back",
+      calculatorTitle: "🧮 Calculator",
+      calculatorDesc: "Opens the existing BudgetPRO calculator tab.",
+      converterTitle: "💱 Currency Converter",
+      converterDesc: "Opens the existing currency converter tab.",
+      scannerTitle: "🧾 Receipt Scanner",
+      scannerDesc: "Opens the existing receipt scanner without changing OCR logic.",
+      open: "Open",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "🧰 ინსტრუმენტები",
+      desc: "კალკულატორი, ვალუტის კონვერტერი და ჩეკის სკანერი.",
+      back: "უკან",
+      calculatorTitle: "🧮 კალკულატორი",
+      calculatorDesc: "ხსნის BudgetPRO-ს არსებულ კალკულატორის tab-ს.",
+      converterTitle: "💱 ვალუტის კონვერტერი",
+      converterDesc: "ხსნის ვალუტის კონვერტერის არსებულ tab-ს.",
+      scannerTitle: "🧾 ჩეკის სკანერი",
+      scannerDesc: "ხსნის ჩეკის არსებულ სკანერს OCR ლოგიკის შეცვლის გარეშე.",
+      open: "გახსნა",
+    },
+  }[currentLang];
+  const cards = [
+    {
+      icon: "🧮",
+      title: copy.calculatorTitle,
+      desc: copy.calculatorDesc,
+      button: copy.open,
+      buttonId: "toolsCalculatorBtn",
+    },
+    {
+      icon: "💱",
+      title: copy.converterTitle,
+      desc: copy.converterDesc,
+      button: copy.open,
+      buttonId: "toolsConverterBtn",
+    },
+    {
+      icon: "🧾",
+      title: copy.scannerTitle,
+      desc: copy.scannerDesc,
+      button: copy.open,
+      buttonId: "toolsScannerBtn",
+    },
+  ];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsToolsBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          ${cards
+            .map(
+              (card) => `
+                <section class="data-sync-card">
+                  <div class="data-sync-card-head">
+                    <div class="data-sync-card-copy">
+                      <h3 class="data-sync-card-title">${esc(card.title)}</h3>
+                      <p class="data-sync-card-desc">${esc(card.desc)}</p>
+                    </div>
+                    <div class="data-sync-card-kicker" aria-hidden="true">${card.icon}</div>
+                  </div>
+                  <button class="btn-primary data-sync-open-btn" type="button"${card.buttonId ? ` id="${card.buttonId}"` : ""}>${esc(card.button)}</button>
+                </section>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsToolsBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document
+    .getElementById("toolsCalculatorBtn")
+    ?.addEventListener("click", () => {
+      haptic("medium");
+      setTab("tools");
+    });
+  document
+    .getElementById("toolsConverterBtn")
+    ?.addEventListener("click", () => {
+      haptic("medium");
+      setTab("tools");
+    });
+  document.getElementById("toolsScannerBtn")?.addEventListener("click", () => {
+    haptic("medium");
+    openReceiptScanner();
+  });
+}
+
+function renderSettingsReportsScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "📤 Отчёты и экспорт",
+      desc: "Экспорт и отправка финансовых данных.",
+      back: "Назад",
+      sheetsTitle: "📄 Google Sheets",
+      sheetsDesc: "Открывает существующий экспорт истории операций в таблицу.",
+      emailTitle: "📧 Отчёт на Email",
+      emailDesc: "Открывает существующую отправку финансового отчёта.",
+      open: "Открыть",
+    },
+    en: {
+      kicker: "Settings",
+      title: "📤 Reports & Export",
+      desc: "Export and send financial data.",
+      back: "Back",
+      sheetsTitle: "📄 Google Sheets",
+      sheetsDesc: "Opens the existing transaction history export to spreadsheets.",
+      emailTitle: "📧 Email Report",
+      emailDesc: "Opens the existing financial report sending flow.",
+      open: "Open",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "📤 ანგარიშები და ექსპორტი",
+      desc: "ფინანსური მონაცემების ექსპორტი და გაგზავნა.",
+      back: "უკან",
+      sheetsTitle: "📄 Google Sheets",
+      sheetsDesc: "ხსნის ოპერაციების ისტორიის არსებულ ექსპორტს ცხრილში.",
+      emailTitle: "📧 Email ანგარიში",
+      emailDesc: "ხსნის ფინანსური ანგარიშის გაგზავნის არსებულ flow-ს.",
+      open: "გახსნა",
+    },
+  }[currentLang];
+  const cards = [
+    {
+      icon: "📄",
+      title: copy.sheetsTitle,
+      desc: copy.sheetsDesc,
+      button: copy.open,
+      buttonId: "reportsSheetsBtn",
+    },
+    {
+      icon: "📧",
+      title: copy.emailTitle,
+      desc: copy.emailDesc,
+      button: copy.open,
+      buttonId: "reportsEmailBtn",
+    },
+  ];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsReportsBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          ${cards
+            .map(
+              (card) => `
+                <section class="data-sync-card">
+                  <div class="data-sync-card-head">
+                    <div class="data-sync-card-copy">
+                      <h3 class="data-sync-card-title">${esc(card.title)}</h3>
+                      <p class="data-sync-card-desc">${esc(card.desc)}</p>
+                    </div>
+                    <div class="data-sync-card-kicker" aria-hidden="true">${card.icon}</div>
+                  </div>
+                  <button class="btn-primary data-sync-open-btn" type="button"${card.buttonId ? ` id="${card.buttonId}"` : ""}>${esc(card.button)}</button>
+                </section>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsReportsBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document
+    .getElementById("reportsSheetsBtn")
+    ?.addEventListener("click", openGoogleSheetsExport);
+  document
+    .getElementById("reportsEmailBtn")
+    ?.addEventListener("click", openEmailReportModal);
+}
+
+function renderSettingsAboutScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "ℹ️ О приложении",
+      desc: "Только реальные сведения о текущем состоянии BudgetPRO на этом устройстве.",
+      back: "Назад",
+      unavailable: "Недоступно",
+      versionTitle: "📱 Версия приложения",
+      accountTitle: "👤 Аккаунт",
+      profileTitle: "📂 Активный профиль",
+      languageTitle: "🌐 Язык",
+      themeTitle: "🎨 Тема",
+      currencyTitle: "💱 Валюта",
+      storageTitle: "💾 Хранение данных",
+      platformTitle: "📱 Платформа",
+      guest: "Гость",
+      authenticated: "Авторизован",
+      creator: "Creator mode",
+      authUnavailable: "Не авторизован",
+      localStorage: "LocalStorage",
+      indexedDb: "IndexedDB",
+      jsonBinBackup: "JSONBin Backup",
+      platformAndroid: "Android",
+      platformWeb: "Web",
+      platformDesktop: "Desktop Browser",
+    },
+    en: {
+      kicker: "Settings",
+      title: "ℹ️ About",
+      desc: "Only real information about the current BudgetPRO state on this device.",
+      back: "Back",
+      unavailable: "Unavailable",
+      versionTitle: "📱 App version",
+      accountTitle: "👤 Account",
+      profileTitle: "📂 Active profile",
+      languageTitle: "🌐 Language",
+      themeTitle: "🎨 Theme",
+      currencyTitle: "💱 Currency",
+      storageTitle: "💾 Data storage",
+      platformTitle: "📱 Platform",
+      guest: "Guest",
+      authenticated: "Authenticated",
+      creator: "Creator mode",
+      authUnavailable: "Not signed in",
+      localStorage: "LocalStorage",
+      indexedDb: "IndexedDB",
+      jsonBinBackup: "JSONBin Backup",
+      platformAndroid: "Android",
+      platformWeb: "Web",
+      platformDesktop: "Desktop Browser",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "ℹ️ აპის შესახებ",
+      desc: "მხოლოდ რეალური ცნობები BudgetPRO-ის მიმდინარე მდგომარეობაზე ამ მოწყობილობაზე.",
+      back: "უკან",
+      unavailable: "მიუწვდომელია",
+      versionTitle: "📱 აპის ვერსია",
+      accountTitle: "👤 ანგარიში",
+      profileTitle: "📂 აქტიური პროფილი",
+      languageTitle: "🌐 ენა",
+      themeTitle: "🎨 თემა",
+      currencyTitle: "💱 ვალუტა",
+      storageTitle: "💾 მონაცემების შენახვა",
+      platformTitle: "📱 პლატფორმა",
+      guest: "სტუმარი",
+      authenticated: "ავტორიზებულია",
+      creator: "Creator mode",
+      authUnavailable: "არ არის ავტორიზებული",
+      localStorage: "LocalStorage",
+      indexedDb: "IndexedDB",
+      jsonBinBackup: "JSONBin Backup",
+      platformAndroid: "Android",
+      platformWeb: "Web",
+      platformDesktop: "Desktop Browser",
+    },
+  }[currentLang];
+  const languageLabels = {
+    ru: "Русский",
+    en: "English",
+    ka: "ქართული",
+  };
+  const themeLabels = tObj("themeLabels");
+  const footerVersion = t("appFooterVersion");
+  const versionMatch = String(footerVersion || "").match(/v[\d.]+/i);
+  const versionValue = versionMatch?.[0] || copy.unavailable;
+  const currentUserEmail = getCurrentUserEmail();
+  const authValue = isCreator()
+    ? copy.creator
+    : isGuestMode()
+      ? copy.guest
+      : isAuthenticated()
+        ? currentUserEmail || copy.authenticated
+        : copy.authUnavailable;
+  const activeProfile =
+    profiles.find((profile) => profile.id === activeProfileId) || null;
+  const profileValue = activeProfile?.name || copy.unavailable;
+  const languageValue = languageLabels[currentLang] || currentLang || copy.unavailable;
+  const themeValue = themeLabels[colorTheme] || colorTheme || copy.unavailable;
+  const currencyValue = displayCurrency || copy.unavailable;
+  const storageValues = [copy.localStorage, copy.indexedDb];
+  if (getJsonBinConfig()?.key) storageValues.push(copy.jsonBinBackup);
+  const platformKind = window.Capacitor?.getPlatform?.();
+  const isMobileBrowser = /Android|iPhone|iPad|iPod|Mobile/i.test(
+    navigator.userAgent || "",
+  );
+  const platformValue =
+    platformKind === "android"
+      ? copy.platformAndroid
+      : platformKind === "web"
+        ? isMobileBrowser
+          ? copy.platformWeb
+          : copy.platformDesktop
+        : !platformKind
+          ? isMobileBrowser
+            ? copy.platformWeb
+            : copy.platformDesktop
+          : platformKind;
+  const cards = [
+    { icon: "📱", title: copy.versionTitle, value: versionValue },
+    { icon: "👤", title: copy.accountTitle, value: authValue },
+    { icon: "📂", title: copy.profileTitle, value: profileValue },
+    { icon: "🌐", title: copy.languageTitle, value: languageValue },
+    { icon: "🎨", title: copy.themeTitle, value: themeValue },
+    { icon: "💱", title: copy.currencyTitle, value: currencyValue },
+    {
+      icon: "💾",
+      title: copy.storageTitle,
+      content: `
+        <div class="data-sync-status-list">
+          ${storageValues
+            .map(
+              (item) => `
+                <div class="data-sync-status-row">
+                  <strong>${esc(item)}</strong>
+                </div>
+              `,
+            )
+            .join("")}
+        </div>
+      `,
+    },
+    { icon: "📱", title: copy.platformTitle, value: platformValue || copy.unavailable },
+  ];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsAboutBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          ${cards
+            .map(
+              (card) => `
+                <section class="data-sync-card">
+                  <div class="data-sync-card-head">
+                    <div class="data-sync-card-copy">
+                      <h3 class="data-sync-card-title">${esc(card.title)}</h3>
+                      ${
+                        card.value
+                          ? `<p class="data-sync-card-desc" style="margin-top:8px;font-size:15px;font-weight:700;color:var(--text);">${esc(card.value)}</p>`
+                          : ""
+                      }
+                    </div>
+                    <div class="data-sync-card-kicker" aria-hidden="true">${card.icon}</div>
+                  </div>
+                  ${card.content || ""}
+                </section>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsAboutBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+}
+
+function renderSettingsSupportScreen() {
+  ensureSettingsHomeStyles();
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "🆘 Поддержка",
+      desc: "Только существующие каналы связи и поддержки, уже работающие в BudgetPRO.",
+      back: "Назад",
+      statusTitle: "📡 Статус поддержки",
+      statusDesc: "Текущее состояние приёма сообщений и встроенного чата.",
+      contactTitle: "💬 Связаться с разработчиком",
+      contactDesc: "Открывает существующий чат или панель поддержки без новой логики.",
+      statusAvailable: "Сообщения доступны",
+      statusDisabled: "Сообщения отключены",
+      statusInApp: "Встроенный чат включён",
+      statusExternal: "Только текущий support flow",
+      statusUnread: "Непрочитанные сообщения",
+      statusNone: "Нет",
+      open: "Открыть",
+    },
+    en: {
+      kicker: "Settings",
+      title: "🆘 Support",
+      desc: "Only existing support channels and messaging already working in BudgetPRO.",
+      back: "Back",
+      statusTitle: "📡 Support status",
+      statusDesc: "Current state of message intake and the built-in chat.",
+      contactTitle: "💬 Contact developer",
+      contactDesc: "Opens the existing support chat or creator panel without new logic.",
+      statusAvailable: "Messages available",
+      statusDisabled: "Messages disabled",
+      statusInApp: "Built-in chat enabled",
+      statusExternal: "Current support flow only",
+      statusUnread: "Unread messages",
+      statusNone: "None",
+      open: "Open",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "🆘 მხარდაჭერა",
+      desc: "მხოლოდ უკვე არსებული და მომუშავე მხარდაჭერის არხები BudgetPRO-ში.",
+      back: "უკან",
+      statusTitle: "📡 მხარდაჭერის სტატუსი",
+      statusDesc: "შეტყობინებების მიღებისა და ჩაშენებული ჩატის მიმდინარე მდგომარეობა.",
+      contactTitle: "💬 დეველოპერთან დაკავშირება",
+      contactDesc: "ხსნის უკვე არსებულ მხარდაჭერის ჩატს ან creator-panel-ს ახალი ლოგიკის გარეშე.",
+      statusAvailable: "შეტყობინებები ხელმისაწვდომია",
+      statusDisabled: "შეტყობინებები გამორთულია",
+      statusInApp: "ჩაშენებული ჩატი ჩართულია",
+      statusExternal: "მხოლოდ მიმდინარე support flow",
+      statusUnread: "წაუკითხავი შეტყობინებები",
+      statusNone: "არ არის",
+      open: "გახსნა",
+    },
+  }[currentLang];
+  const cs = getCreatorSettings();
+  const allMessages = getAllMessages();
+  const supportEnabled = cs.contactEnabled !== false;
+  const unreadCount = isCreator()
+    ? allMessages.filter((msg) => !msg.readByCreator).length
+    : allMessages.filter(
+        (msg) =>
+          msg.fromProfile === activeProfileId &&
+          hasUnreadCreatorMessages(msg),
+      ).length;
+  const statusMarkup = `
+    <div class="data-sync-status-list">
+      <div class="data-sync-status-row">
+        <span>${esc(copy.statusTitle)}</span>
+        <strong>${esc(supportEnabled ? copy.statusAvailable : copy.statusDisabled)}</strong>
+      </div>
+      <div class="data-sync-status-row">
+        <span>Chat</span>
+        <strong>${esc(cs.inAppMessages ? copy.statusInApp : copy.statusExternal)}</strong>
+      </div>
+      <div class="data-sync-status-row">
+        <span>${esc(copy.statusUnread)}</span>
+        <strong>${esc(unreadCount ? String(unreadCount) : copy.statusNone)}</strong>
+      </div>
+    </div>
+  `;
+  const cards = [
+    {
+      icon: "📡",
+      title: copy.statusTitle,
+      desc: copy.statusDesc,
+      content: statusMarkup,
+    },
+    {
+      icon: "💬",
+      title: copy.contactTitle,
+      desc: copy.contactDesc,
+      button: copy.open,
+      buttonId: "settingsSupportOpenBtn",
+    },
+  ];
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsSupportBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="data-sync-screen">
+        <div class="data-sync-grid">
+          ${cards
+            .map(
+              (card) => `
+                <section class="data-sync-card">
+                  <div class="data-sync-card-head">
+                    <div class="data-sync-card-copy">
+                      <h3 class="data-sync-card-title">${esc(card.title)}</h3>
+                      <p class="data-sync-card-desc">${esc(card.desc)}</p>
+                    </div>
+                    <div class="data-sync-card-kicker" aria-hidden="true">${card.icon}</div>
+                  </div>
+                  ${
+                    card.content
+                      ? card.content
+                      : `<button class="btn-primary data-sync-open-btn" type="button"${card.buttonId ? ` id="${card.buttonId}"` : ""}>${esc(card.button)}</button>`
+                  }
+                </section>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsSupportBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document
+    .getElementById("settingsSupportOpenBtn")
+    ?.addEventListener("click", openSupportModal);
+}
+
+function getReminderPermissionSnapshot() {
+  const nativeState = isNativeReminderRuntime()
+    ? localStorage.getItem("nativeReminderPermission")
+    : null;
+  const browserState =
+    typeof Notification !== "undefined" ? Notification.permission : "denied";
+  const state = nativeState || browserState || "default";
+  const granted = state === "granted";
+  const denied = state === "denied";
+  return {
+    state,
+    granted,
+    denied,
+    icon: granted ? "✅" : denied ? "🚫" : "🔔",
+    label: granted ? t("notifGranted") : denied ? t("notifDenied") : t("notifDefault"),
+  };
+}
+
+function getNotificationsSettingsMarkup() {
+  const L = currentLang;
+  const permission = getReminderPermissionSnapshot();
+  const namedList = JSON.parse(localStorage.getItem("namedReminders") || "[]");
+  const soundChoice = getSavedRecurringReminderSoundChoice();
+  const soundLabel = soundChoice
+    ? getReminderSoundChoiceLabel(soundChoice, L)
+    : {
+        ru: "🔕 Мелодия не выбрана",
+        en: "🔕 No melody selected",
+        ka: "🔕 მელოდია არჩეული არ არის",
+      }[L];
+  const modeLabel = getReminderDeliveryModeLabel(
+    getSavedRecurringReminderDeliveryMode(),
+    L,
+  );
+  const activeCount = namedList.filter(
+    (r) => !r.fired && Number(r.ts) > Date.now(),
+  ).length;
+  const formatReminderShortDate = (ts) => {
+    const date = new Date(ts);
+    if (Number.isNaN(date.getTime())) return "";
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const startOfTarget = new Date(date);
+    startOfTarget.setHours(0, 0, 0, 0);
+    const diffDays = Math.round(
+      (startOfTarget.getTime() - startOfToday.getTime()) / 86400000,
+    );
+    const timeText = date.toLocaleTimeString(
+      L === "en" ? "en-US" : L === "ka" ? "ka-GE" : "ru-RU",
+      { hour: "2-digit", minute: "2-digit" },
+    );
+    const dayLabel = {
+      ru:
+        diffDays === 0
+          ? "Сегодня"
+          : diffDays === 1
+            ? "Завтра"
+            : date.toLocaleDateString("ru-RU", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+              }),
+      en:
+        diffDays === 0
+          ? "Today"
+          : diffDays === 1
+            ? "Tomorrow"
+            : date.toLocaleDateString("en-US", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+              }),
+      ka:
+        diffDays === 0
+          ? "დღეს"
+          : diffDays === 1
+            ? "ხვალ"
+            : date.toLocaleDateString("ka-GE", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+              }),
+    }[L];
+    return `${dayLabel} ${timeText}`;
+  };
+  const copy = {
+    ru: {
+      heroTitle: "🔔 Напоминания",
+      createTitle: "➕ Создать напоминание",
+      activeTitle: "🔔 Активные напоминания",
+      recurringTitle: "🔁 Повторяющиеся напоминания",
+      weekdaysTitle: "Дни недели",
+      settingsTitle: "⚙ Уведомления",
+      diagnosticsTitle: "🛠 Диагностика",
+      request: t("notifRequest"),
+      disable: "Отключить уведомления",
+      noReminders: t("noReminders"),
+      edit: "Редактировать",
+      remove: "Удалить",
+      refreshDiag: "Обновить диагностику",
+      clearDiag: "Жёстко очистить хвосты",
+      preview: "Проба",
+      stop: "Стоп",
+      reset: "Сброс",
+      testBtn: "Отправить тестовое уведомление",
+      selectAllDays: "Выбрать все дни",
+      clearAllDays: "Снять все дни",
+      activeNow: "Активно",
+      soundNow: "Звук",
+      permissionsNow: "Разрешения",
+      yes: "Да",
+      no: "Нет",
+      createNow: "Создать напоминание",
+      soundField: "🔊 Звук",
+      modeField: "📳 Режим",
+      permField: "📱 Разрешения",
+      testField: "🧪 Тест",
+      chipsHint: "Нажмите интервалы, которые хотите включить",
+      weekdaysHint: "Выберите дни, когда повторы разрешены",
+      settingsMeta: "Текущие звук и режим применяются без изменения существующей логики уведомлений.",
+    },
+    en: {
+      heroTitle: "🔔 Reminders",
+      createTitle: "➕ Create reminder",
+      activeTitle: "🔔 Active reminders",
+      recurringTitle: "🔁 Recurring reminders",
+      weekdaysTitle: "Weekdays",
+      settingsTitle: "⚙ Notifications",
+      diagnosticsTitle: "🛠 Diagnostics",
+      request: t("notifRequest"),
+      disable: "Disable notifications",
+      noReminders: t("noReminders"),
+      edit: "Edit",
+      remove: "Delete",
+      refreshDiag: "Refresh diagnostics",
+      clearDiag: "Hard clear leftovers",
+      preview: "Preview",
+      stop: "Stop",
+      reset: "Reset",
+      testBtn: "Send test notification",
+      selectAllDays: "Select all days",
+      clearAllDays: "Clear all days",
+      activeNow: "Active",
+      soundNow: "Sound",
+      permissionsNow: "Permissions",
+      yes: "Yes",
+      no: "No",
+      createNow: "Create reminder",
+      soundField: "🔊 Sound",
+      modeField: "📳 Mode",
+      permField: "📱 Permissions",
+      testField: "🧪 Test",
+      chipsHint: "Tap the intervals you want to enable",
+      weekdaysHint: "Choose which weekdays recurring reminders may use",
+      settingsMeta: "The current sound and mode stay connected to the existing notification logic.",
+    },
+    ka: {
+      heroTitle: "🔔 შეხსენებები",
+      createTitle: "➕ შეხსენების შექმნა",
+      activeTitle: "🔔 აქტიური შეხსენებები",
+      recurringTitle: "🔁 განმეორებადი შეხსენებები",
+      weekdaysTitle: "კვირის დღეები",
+      settingsTitle: "⚙ შეტყობინებები",
+      diagnosticsTitle: "🛠 დიაგნოსტიკა",
+      request: t("notifRequest"),
+      disable: "შეტყობინებების გამორთვა",
+      noReminders: t("noReminders"),
+      edit: "რედაქტირება",
+      remove: "წაშლა",
+      refreshDiag: "დიაგნოსტიკის განახლება",
+      clearDiag: "ნარჩენების მკაცრი გასუფთავება",
+      preview: "მოსმენა",
+      stop: "შეჩერება",
+      reset: "გასუფთავება",
+      testBtn: "სატესტო შეტყობინების გაგზავნა",
+      selectAllDays: "ყველა დღის არჩევა",
+      clearAllDays: "ყველა დღის მოხსნა",
+      activeNow: "აქტიური",
+      soundNow: "ხმა",
+      permissionsNow: "ნებართვები",
+      yes: "კი",
+      no: "არა",
+      createNow: "შეხსენების შექმნა",
+      soundField: "🔊 ხმა",
+      modeField: "📳 რეჟიმი",
+      permField: "📱 ნებართვები",
+      testField: "🧪 ტესტი",
+      chipsHint: "მონიშნეთ ინტერვალები, რომლებიც გსურთ ჩართოთ",
+      weekdaysHint: "აირჩიეთ კვირის დღეები, როცა განმეორებები დაშვებულია",
+      settingsMeta: "მიმდინარე ხმა და რეჟიმი ისევ არსებულ შეტყობინებების ლოგიკას იყენებს.",
+    },
+  }[L];
+  const recurringOptions = [
+    { val: "1min", short: { ru: "1м", en: "1m", ka: "1წ" }, full: { ru: "Каждую минуту", en: "Every minute", ka: "ყოველ წუთში" } },
+    { val: "5min", short: { ru: "5м", en: "5m", ka: "5წ" }, full: { ru: "Каждые 5 минут", en: "Every 5 minutes", ka: "ყოველ 5 წუთში" } },
+    { val: "10min", short: { ru: "10м", en: "10m", ka: "10წ" }, full: { ru: "Каждые 10 минут", en: "Every 10 minutes", ka: "ყოველ 10 წუთში" } },
+    { val: "15min", short: { ru: "15м", en: "15m", ka: "15წ" }, full: { ru: "Каждые 15 минут", en: "Every 15 minutes", ka: "ყოველ 15 წუთში" } },
+    { val: "30min", short: { ru: "30м", en: "30m", ka: "30წ" }, full: { ru: "Каждые 30 минут", en: "Every 30 minutes", ka: "ყოველ 30 წუთში" } },
+    { val: "1h", short: { ru: "1ч", en: "1h", ka: "1სთ" }, full: { ru: "Каждый час", en: "Every hour", ka: "ყოველ საათში" } },
+    { val: "2h", short: { ru: "2ч", en: "2h", ka: "2სთ" }, full: { ru: "Каждые 2 часа", en: "Every 2 hours", ka: "ყოველ 2 საათში" } },
+    { val: "5h", short: { ru: "5ч", en: "5h", ka: "5სთ" }, full: { ru: "Каждые 5 часов", en: "Every 5 hours", ka: "ყოველ 5 საათში" } },
+    { val: "daily", short: { ru: "День", en: "Day", ka: "დღე" }, full: { ru: "Каждый день", en: "Every day", ka: "ყოველდღე" } },
+    { val: "every3days", short: { ru: "3д", en: "3d", ka: "3დ" }, full: { ru: "Каждые 3 дня", en: "Every 3 days", ka: "ყოველ 3 დღეში" } },
+    { val: "weekly", short: { ru: "Неделя", en: "Week", ka: "კვირა" }, full: { ru: "Каждую неделю", en: "Every week", ka: "ყოველ კვირაში" } },
+  ];
+  const quickTimeOptions = [
+    { min: 1, label: { ru: "Через 1 минуту", en: "In 1 minute", ka: "1 წუთში" } },
+    { min: 5, label: { ru: "Через 5 минут", en: "In 5 minutes", ka: "5 წუთში" } },
+    { min: 10, label: { ru: "Через 10 минут", en: "In 10 minutes", ka: "10 წუთში" } },
+  ];
+  return `
+    <div class="notifications-screen">
+      <div class="notifications-topbar">
+        <button id="settingsNotificationsBackBtn" class="notifications-back-btn" type="button" aria-label="${esc({ ru: "Назад", en: "Back", ka: "უკან" }[L])}">←</button>
+        <div class="notifications-topbar-copy">
+          <h2 class="notifications-topbar-title">${esc(copy.heroTitle)}</h2>
+        </div>
+      </div>
+      <div class="notifications-status-line">
+        ${esc(copy.activeNow)}: ${activeCount} • ${esc(copy.soundNow)}: ${esc(soundChoice ? getReminderSoundChoiceLabel(soundChoice, L) : "🔕")} • ${esc(copy.permissionsNow)}: ${esc(permission.granted ? copy.yes : copy.no)}
+      </div>
+
+      <section class="notifications-card">
+        <div class="notifications-card-head">
+          <h3 class="notifications-card-title">${esc(copy.createTitle)}</h3>
+        </div>
+        <input type="hidden" id="editingReminderId" value="">
+        <div class="notifications-create-grid">
+          <input type="text" id="newReminderName" class="modal-input" placeholder="${t("reminderNamePlaceholder")}">
+          <div class="notifications-inline-grid">
+            <button type="button" id="reminderDateBtn" class="modal-input" style="text-align:left;"><span id="reminderDateText">${t("chooseDate")}</span></button>
+            <button type="button" id="reminderTimeBtn" class="modal-input" style="text-align:left;"><span id="reminderTimeText">${t("chooseTimeBtn")}</span></button>
+            <input type="hidden" id="newReminderDatetime" value="">
+            <input type="time" id="nativeTimeInput" class="modal-input" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;" value="">
+          </div>
+          <div class="notifications-quick-row">
+            ${quickTimeOptions
+              .map(
+                (opt) =>
+                  `<button type="button" class="reminder-quick-time-btn notifications-quick-btn" data-min="${opt.min}">+${opt.min}м</button>`,
+              )
+              .join("")}
+          </div>
+          <button id="addNamedReminderBtn" class="btn-primary notifications-submit-btn">⏰ <span id="addNamedReminderBtnText">${esc(copy.createNow)}</span></button>
+        </div>
+      </section>
+
+      <section class="notifications-card">
+        <div class="notifications-card-head">
+          <h3 class="notifications-card-title">${esc(copy.activeTitle)}</h3>
+          <div class="notifications-card-meta">${activeCount}/${namedList.length}</div>
+        </div>
+        <div id="namedRemindersList" class="notifications-list">
+          ${(() => {
+            if (!namedList.length) {
+              return `<div class="notifications-card-desc">${esc(copy.noReminders)}</div>`;
+            }
+            return namedList
+              .sort((a, b) => Number(a.fired) - Number(b.fired) || Number(a.ts) - Number(b.ts))
+              .map((r, i) => {
+                const pending = !r.fired && Number(r.ts) > Date.now();
+                return `
+                  <article class="notifications-reminder-card ${pending ? "pending" : "done"}">
+                    <div class="notifications-reminder-top">
+                      <div class="notifications-reminder-main">
+                        <div class="notifications-reminder-name">🔔 ${esc(r.name || "")}</div>
+                        <div class="notifications-reminder-subline">${esc(formatReminderShortDate(r.ts))}</div>
+                      </div>
+                      <div class="notifications-reminder-actions">
+                        <button class="notifications-mini-btn edit named-reminder-edit" data-idx="${i}" type="button" aria-label="${esc(copy.edit)}">✏️</button>
+                        <button class="notifications-mini-btn delete named-reminder-del" data-idx="${i}" type="button" aria-label="${esc(copy.remove)}">🗑️</button>
+                      </div>
+                    </div>
+                  </article>
+                `;
+              })
+              .join("");
+          })()}
+        </div>
+      </section>
+
+      <section class="notifications-card">
+        <div class="notifications-card-head">
+          <h3 class="notifications-card-title">${esc(copy.recurringTitle)}</h3>
+          <div class="notifications-card-meta">${Object.values(reminderIntervals || {}).filter(Boolean).length}</div>
+        </div>
+        <div class="notifications-chip-grid">
+          ${recurringOptions
+            .map(
+              (opt) => `
+                <label class="notifications-chip-label ${reminderIntervals?.[opt.val] ? "active" : ""}" title="${esc(opt.full[L] || opt.full.ru)}">
+                  <input type="checkbox" class="notifications-chip-input reminder-interval-checkbox" data-val="${opt.val}" ${reminderIntervals?.[opt.val] ? "checked" : ""}>
+                  <span class="notifications-chip">${esc(opt.short[L] || opt.short.ru)}</span>
+                </label>
+              `,
+            )
+            .join("")}
+        </div>
+        <div class="notifications-settings-note">${esc(copy.chipsHint)}</div>
+      </section>
+
+      <section class="notifications-card">
+        <div class="notifications-weekday-row">
+          <div class="notifications-weekday-title">${esc(copy.weekdaysTitle)}</div>
+          <div class="notifications-weekdays-actions">
+            <button type="button" id="selectAllReminderWeekdaysBtn" class="notifications-quick-btn">${esc(copy.selectAllDays)}</button>
+            <button type="button" id="resetReminderWeekdaysBtn" class="notifications-quick-btn" style="background:var(--expense-pale);color:var(--expense-color);border-color:color-mix(in srgb, var(--expense-color) 20%, transparent);">${esc(copy.clearAllDays)}</button>
+          </div>
+        </div>
+        <div class="notifications-weekday-grid">
+          ${getReminderWeekdayOptions(L)
+            .map(
+              (day) =>
+                `<button type="button" class="reminder-weekday-btn notifications-weekday-btn" data-day="${day.value}" aria-pressed="${reminderWeekdays.includes(day.value) ? "true" : "false"}">${esc((day.short || day.full || "").toUpperCase())}</button>`,
+            )
+            .join("")}
+        </div>
+        <div class="notifications-settings-note">${esc(copy.weekdaysHint)}</div>
+      </section>
+
+      <section class="notifications-card">
+        <div class="notifications-card-head">
+          <h3 class="notifications-card-title">${esc(copy.settingsTitle)}</h3>
+        </div>
+        <div class="notifications-tools-grid" id="notificationsToolsGrid">
+          <select id="reminderSoundChoice" class="modal-input" aria-label="${esc(copy.soundField)}">
+            <option value="">${esc(copy.soundField)}</option>
+            ${Array.from({ length: 14 }, (_, i) => {
+              const val = `sound_${i + 1}`;
+              return `<option value="${val}" ${soundChoice === val ? "selected" : ""}>${esc(getReminderSoundChoiceLabel(val, L))}</option>`;
+            }).join("")}
+          </select>
+          <select id="reminderDeliveryMode" class="modal-input" aria-label="${esc(copy.modeField)}">
+            <option value="sound_vibration" ${getSavedRecurringReminderDeliveryMode() === "sound_vibration" ? "selected" : ""}>${getReminderDeliveryModeLabel("sound_vibration", L)}</option>
+            <option value="sound_only" ${getSavedRecurringReminderDeliveryMode() === "sound_only" ? "selected" : ""}>${getReminderDeliveryModeLabel("sound_only", L)}</option>
+            <option value="vibration_only" ${getSavedRecurringReminderDeliveryMode() === "vibration_only" ? "selected" : ""}>${getReminderDeliveryModeLabel("vibration_only", L)}</option>
+            <option value="silent" ${getSavedRecurringReminderDeliveryMode() === "silent" ? "selected" : ""}>${getReminderDeliveryModeLabel("silent", L)}</option>
+          </select>
+          <button type="button" id="previewReminderSoundBtn" class="notifications-utility-btn">${esc(copy.preview)}</button>
+          <button type="button" id="stopReminderSoundBtn" class="notifications-utility-btn">${esc(copy.stop)}</button>
+          <button type="button" id="resetReminderSoundBtn" class="notifications-utility-btn">${esc(copy.reset)}</button>
+          ${
+            !permission.granted
+              ? `<button id="requestNotifBtn" class="btn-primary notifications-utility-btn" type="button">${permission.icon} ${esc(copy.request)}</button>`
+              : `<button id="notifDisableBtn" class="notifications-utility-btn" type="button">${esc(copy.permField)}: ${esc(copy.yes)}</button>`
+          }
+          <button id="testNotifBtn" class="notifications-utility-btn" type="button">${esc(copy.testField)}</button>
+        </div>
+        <div id="selectedReminderSoundCard" class="notifications-settings-note">
+          <span id="selectedReminderSoundText">${esc(soundLabel)}</span>
+          <span id="selectedReminderModeText"> • ${esc(modeLabel)}</span>
+        </div>
+      </section>
+
+      <details class="notifications-diagnostics notifications-section-toggle" id="notificationsDiagnostics">
+        <summary>
+          <span class="notifications-summary-label">${esc(copy.diagnosticsTitle)}</span>
+          <span class="notifications-summary-arrow">▼</span>
+        </summary>
+        <div class="notifications-section-body">
+          <div class="notifications-actions">
+            <button id="refreshReminderDebugBtn" class="btn-secondary" type="button">${esc(copy.refreshDiag)}</button>
+            <button id="hardClearReminderDebugBtn" class="btn-secondary" type="button" style="color:var(--expense-color);border-color:var(--expense-color);">${esc(copy.clearDiag)}</button>
+          </div>
+          <pre id="reminderDebugText" class="notifications-debug">...</pre>
+        </div>
+      </details>
+    </div>
+  `;
+}
+
+function bindNotificationsSettingsHandlers() {
+  const L = currentLang;
+  const diagnosticsDetails = document.getElementById("notificationsDiagnostics");
   const reminderDateBtn = document.getElementById("reminderDateBtn");
   const reminderTimeBtn = document.getElementById("reminderTimeBtn");
   const nativeTimeInput = document.getElementById("nativeTimeInput");
@@ -11659,6 +16566,7 @@ function renderSettings() {
   const reminderDateText = document.getElementById("reminderDateText");
   const reminderTimeText = document.getElementById("reminderTimeText");
   const newReminderDatetime = document.getElementById("newReminderDatetime");
+  let reminderDebugLoaded = false;
   if (nativeTimeInput && !nativeTimeInput.value) {
     const nowForTimeField = new Date();
     nativeTimeInput.value = `${String(nowForTimeField.getHours()).padStart(2, "0")}:${String(nowForTimeField.getMinutes()).padStart(2, "0")}`;
@@ -11898,10 +16806,10 @@ function renderSettings() {
       const day = parseInt(btn.dataset.day, 10);
       const active = reminderWeekdays.includes(day);
       btn.setAttribute("aria-pressed", active ? "true" : "false");
-      btn.style.borderColor = active ? "var(--primary)" : "var(--cream-border)";
-      btn.style.background = active ? "var(--primary)" : "var(--cream-dark)";
-      btn.style.color = active ? "#ffffff" : "var(--text)";
-      btn.style.boxShadow = active ? "0 8px 20px rgba(37,99,235,0.28)" : "none";
+      btn.style.borderColor = "";
+      btn.style.background = "";
+      btn.style.color = "";
+      btn.style.boxShadow = "";
       const mark = btn.querySelector("span");
       if (mark) {
         mark.textContent = active ? "✓" : "•";
@@ -11926,6 +16834,8 @@ function renderSettings() {
         "reminderWeekdays",
         JSON.stringify(reminderWeekdays),
       );
+      reminderDebugLoaded = false;
+      debounceNativeRecurringReminderNotificationsSync();
       updateReminderWeekdayButtons();
     });
   });
@@ -11937,6 +16847,8 @@ function renderSettings() {
         "reminderWeekdays",
         JSON.stringify(reminderWeekdays),
       );
+      reminderDebugLoaded = false;
+      debounceNativeRecurringReminderNotificationsSync();
       updateReminderWeekdayButtons();
     });
   document
@@ -11947,6 +16859,8 @@ function renderSettings() {
         "reminderWeekdays",
         JSON.stringify(reminderWeekdays),
       );
+      reminderDebugLoaded = false;
+      debounceNativeRecurringReminderNotificationsSync();
       updateReminderWeekdayButtons();
     });
   if (!getSelectedReminderDates().length && !nativeTimeInput?.value) {
@@ -11973,12 +16887,6 @@ function renderSettings() {
     });
   });
   document
-    .getElementById("notifHelpBtn")
-    ?.addEventListener("click", openNotificationHelpModal);
-  document
-    .getElementById("notifEnableBtn")
-    ?.addEventListener("click", handleNotifBtnClick);
-  document
     .getElementById("notifDisableBtn")
     ?.addEventListener("click", async () => {
       remindersEnabled = false;
@@ -11990,7 +16898,7 @@ function renderSettings() {
           "reminderIntervals",
           JSON.stringify(reminderIntervals),
         );
-        await syncNativeRecurringReminderNotifications();
+        queueNativeRecurringReminderNotificationsSync().catch(() => {});
       }
       renderSettings();
       showToast(
@@ -12054,11 +16962,24 @@ function renderSettings() {
       out.push(`debugError: ${String((e && e.message) || e)}`);
     }
     const el = document.getElementById("reminderDebugText");
-    if (el) el.textContent = out.join("\n");
+    if (el) {
+      el.textContent = out.join("\n");
+      reminderDebugLoaded = true;
+    }
   };
+  const ensureReminderDebugTextLoaded = async () => {
+    if (reminderDebugLoaded) return;
+    await updateReminderDebugText();
+  };
+  diagnosticsDetails?.addEventListener("toggle", () => {
+    if (diagnosticsDetails.open) ensureReminderDebugTextLoaded();
+  });
   document
     .getElementById("refreshReminderDebugBtn")
-    ?.addEventListener("click", updateReminderDebugText);
+    ?.addEventListener("click", async () => {
+      reminderDebugLoaded = false;
+      await updateReminderDebugText();
+    });
   document
     .getElementById("hardClearReminderDebugBtn")
     ?.addEventListener("click", async () => {
@@ -12080,9 +17001,7 @@ function renderSettings() {
         "success",
       );
     });
-  updateReminderDebugText();
 
-  // ── Интервальные напоминания ──
   document.querySelectorAll(".reminder-interval-checkbox").forEach((cb) => {
     cb.addEventListener("change", async () => {
       if (!reminderIntervals) reminderIntervals = {};
@@ -12091,8 +17010,8 @@ function renderSettings() {
         "reminderIntervals",
         JSON.stringify(reminderIntervals),
       );
-      if (isNativeReminderRuntime())
-        await syncNativeRecurringReminderNotifications();
+      reminderDebugLoaded = false;
+      debounceNativeRecurringReminderNotificationsSync();
       showToast(
         {
           ru: "Параметры повторяющихся напоминаний сохранены.",
@@ -12121,23 +17040,23 @@ function renderSettings() {
       renderSettings();
       showToast(
         {
-          ru: "Напоминание удалено. Оно больше не появится в шторке уведомлений телефона.",
+          ru: "Напоминание удалено. Оно больше не появится в шторке телефона.",
           en: "The reminder has been deleted. It will no longer appear in your phone notification shade.",
-          ka: "შეხსენება წაიშალა. ის ტელეფონის შეტყობინებებში აღარ გამოჩნდება.",
+          ka: "შეხსენება წაიშალა. ის აღარ გამოჩნდება ტელეფონის შეტყობინებებში.",
         }[currentLang],
+        "success",
       );
     });
   });
-
   document.querySelectorAll(".named-reminder-edit").forEach((btn) => {
     btn.addEventListener("click", () => {
       const idx = parseInt(btn.dataset.idx, 10);
       const list = JSON.parse(localStorage.getItem("namedReminders") || "[]");
       const item = list[idx];
       if (!item) return;
-      const dt = new Date(item.ts || Date.now());
-      const dateValue = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
-      const timeValue = `${String(dt.getHours()).padStart(2, "0")}:${String(dt.getMinutes()).padStart(2, "0")}`;
+      const date = new Date(item.ts);
+      const dateValue = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      const timeValue = `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
       const modal = createModal(
         "editReminderModal",
         {
@@ -12288,63 +17207,67 @@ function renderSettings() {
     });
   });
 
-  document
-    .getElementById("testNotifBtn")
-    ?.addEventListener("click", async () => {
-      const title = {
-        ru: "🔔 Тестовое уведомление BudgetPRO",
-        en: "🔔 BudgetPRO test notification",
-        ka: "🔔 BudgetPRO ტესტური შეტყობინება",
-      }[currentLang];
-      const body = {
-        ru: "Это полное тестовое уведомление BudgetPRO. Если вы видите его в шторке телефона, значит напоминания настроены правильно и будут приходить в указанное время.",
-        en: "This is a full BudgetPRO test notification. If you can see it in your phone notification shade, reminders are configured correctly and will arrive at the scheduled time.",
-        ka: "ეს არის BudgetPRO-ს სრული სატესტო შეტყობინება. თუ მას ტელეფონის შეტყობინებებში ხედავთ, შეხსენებები სწორად არის გამართული და დანიშნულ დროს მოვა.",
-      }[currentLang];
-      if (isNativeReminderRuntime()) {
-        const state = await requestReminderPermission();
-        if (state !== "granted") {
-          showToast(
-            {
-              ru: "Сначала разрешите уведомления. Без этого тест не сможет появиться в шторке телефона.",
-              en: "Please allow notifications first. Without that, the test cannot appear in your phone notification shade.",
-              ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე ტესტი ტელეფონის შეტყობინებებში ვერ გამოჩნდება.",
-            }[currentLang],
-            "error",
-          );
-          return;
-        }
-        await ensureReminderNotificationChannel();
-        await getLocalNotificationsPlugin().schedule({
-          notifications: [
-            {
-              id: 909001,
-              title,
-              body,
-              schedule: {
-                at: new Date(Date.now() + 2500),
-                allowWhileIdle: true,
-              },
-              channelId: "budget-reminders",
-              autoCancel: true,
-              smallIcon: "ic_launcher_foreground",
-              extra: { reminderType: "test" },
-            },
-          ],
-        });
+  const testNotificationHandler = async () => {
+    const title = {
+      ru: "🔔 Тестовое уведомление BudgetPRO",
+      en: "🔔 BudgetPRO test notification",
+      ka: "🔔 BudgetPRO ტესტური შეტყობინება",
+    }[currentLang];
+    const body = {
+      ru: "Это полное тестовое уведомление BudgetPRO. Если вы видите его в шторке телефона, значит напоминания настроены правильно и будут приходить в указанное время.",
+      en: "This is a full BudgetPRO test notification. If you can see it in your phone notification shade, reminders are configured correctly and will arrive at the scheduled time.",
+      ka: "ეს არის BudgetPRO-ს სრული სატესტო შეტყობინება. თუ მას ტელეფონის შეტყობინებებში ხედავთ, შეხსენებები სწორად არის გამართული და დანიშნულ დროს მოვა.",
+    }[currentLang];
+    if (isNativeReminderRuntime()) {
+      const state = await requestReminderPermission();
+      if (state !== "granted") {
         showToast(
           {
-            ru: "Тестовое уведомление запланировано на ближайшие секунды. Сверните приложение и проверьте шторку телефона.",
-            en: "The test notification has been scheduled for the next few seconds. Minimize the app and check your phone notification shade.",
-            ka: "სატესტო შეტყობინება უახლოეს წამებზე დაიგეგმა. დაკეცეთ აპი და შეამოწმეთ ტელეფონის შეტყობინებები.",
+            ru: "Сначала разрешите уведомления. Без этого тест не сможет появиться в шторке телефона.",
+            en: "Please allow notifications first. Without that, the test cannot appear in your phone notification shade.",
+            ka: "ჯერ შეტყობინებების ნებართვა ჩართეთ. ამის გარეშე ტესტი ტელეფონის შეტყობინებებში ვერ გამოჩნდება.",
           }[currentLang],
-          "success",
+          "error",
         );
         return;
       }
-      showStickyNotification(title, body, "budget-reminder-test");
-      showToast(body, "success", 5000);
-    });
+      await ensureReminderNotificationChannel();
+      await getLocalNotificationsPlugin().schedule({
+        notifications: [
+          {
+            id: 909001,
+            title,
+            body,
+            schedule: {
+              at: new Date(Date.now() + 2500),
+              allowWhileIdle: true,
+            },
+            channelId: "budget-reminders",
+            autoCancel: true,
+            smallIcon: "ic_launcher_foreground",
+            extra: { reminderType: "test" },
+          },
+        ],
+      });
+      showToast(
+        {
+          ru: "Тестовое уведомление запланировано на ближайшие секунды. Сверните приложение и проверьте шторку телефона.",
+          en: "The test notification has been scheduled for the next few seconds. Minimize the app and check your phone notification shade.",
+          ka: "სატესტო შეტყობინება უახლოეს წამებზე დაიგეგმა. დაკეცეთ აპი და შეამოწმეთ ტელეფონის შეტყობინებები.",
+        }[currentLang],
+        "success",
+      );
+      return;
+    }
+    showStickyNotification(title, body, "budget-reminder-test");
+    showToast(body, "success", 5000);
+  };
+  document
+    .getElementById("testNotifBtn")
+    ?.addEventListener("click", testNotificationHandler);
+  document
+    .getElementById("testNotifSecondaryBtn")
+    ?.addEventListener("click", testNotificationHandler);
 
   document
     .getElementById("addNamedReminderBtn")
@@ -12509,6 +17432,393 @@ function renderSettings() {
         "success",
       );
     });
+}
+
+function renderSettingsNotificationsScreen() {
+  ensureSettingsHomeStyles();
+  document.getElementById("mainContent").innerHTML = `
+    <div class="notifications-page">
+      ${getNotificationsSettingsMarkup()}
+    </div>
+  `;
+
+  document
+    .getElementById("settingsNotificationsBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  bindNotificationsSettingsHandlers();
+}
+
+function renderSettingsPlaceholder(sectionKey) {
+  ensureSettingsHomeStyles();
+  const sections = {
+    account: {
+      icon: "👤",
+      title: {
+        ru: "Аккаунт и профили",
+        en: "Account & Profiles",
+        ka: "ანგარიში და პროფილები",
+      },
+    },
+    appearance: {
+      icon: "🎨",
+      title: {
+        ru: "Внешний вид",
+        en: "Appearance",
+        ka: "გარეგნობა",
+      },
+    },
+    notifications: {
+      icon: "🔔",
+      title: {
+        ru: "Уведомления и напоминания",
+        en: "Notifications & Reminders",
+        ka: "შეტყობინებები და შეხსენებები",
+      },
+    },
+    security: {
+      icon: "🔒",
+      title: {
+        ru: "Безопасность",
+        en: "Security",
+        ka: "უსაფრთხოება",
+      },
+    },
+    data: {
+      icon: "☁️",
+      title: {
+        ru: "Данные и синхронизация",
+        en: "Data & Sync",
+        ka: "მონაცემები და სინქრონიზაცია",
+      },
+    },
+    automation: {
+      icon: "🧩",
+      title: {
+        ru: "Автоматизация",
+        en: "Automation",
+        ka: "ავტომატიზაცია",
+      },
+    },
+    advanced: {
+      icon: "🧰",
+      title: {
+        ru: "Инструменты",
+        en: "Tools",
+        ka: "ინსტრუმენტები",
+      },
+    },
+    support: {
+      icon: "💬",
+      title: {
+        ru: "Поддержка",
+        en: "Support",
+        ka: "მხარდაჭერა",
+      },
+    },
+    about: {
+      icon: "ℹ️",
+      title: {
+        ru: "О приложении",
+        en: "About",
+        ka: "აპის შესახებ",
+      },
+    },
+  };
+  const section = sections[sectionKey] || sections.about;
+  const text = {
+    ru: "Раздел будет перенесен сюда на следующем этапе. Текущая рабочая версия настроек пока доступна через отдельную кнопку ниже.",
+    en: "This section will be moved here in the next step. The current working settings screen is still available using the button below.",
+    ka: "ეს სექცია შემდეგ ეტაპზე გადმოვა აქ. პარამეტრების მიმდინარე სამუშაო ვერსია ქვემოთ არსებული ღილაკით ჯერ ისევ ხელმისაწვდომია.",
+  };
+  const buttons = {
+    ru: {
+      back: "← Назад к Settings Home",
+      legacy: "Открыть текущие полные настройки",
+    },
+    en: {
+      back: "← Back to Settings Home",
+      legacy: "Open current full settings",
+    },
+    ka: {
+      back: "← Settings Home-ზე დაბრუნება",
+      legacy: "მიმდინარე სრული პარამეტრების გახსნა",
+    },
+  };
+  const localizedButtons = buttons[currentLang] || buttons.ru;
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-placeholder-wrap">
+      <div class="settings-placeholder-card">
+        <div class="settings-placeholder-icon">${section.icon}</div>
+        <h1 class="settings-placeholder-title">${esc(section.title[currentLang] || section.title.ru)}</h1>
+        <p class="settings-placeholder-text">${esc(text[currentLang] || text.ru)}</p>
+      </div>
+      <div class="settings-placeholder-actions">
+        <button class="btn-secondary" id="settingsPlaceholderBackBtn" type="button">${esc(localizedButtons.back)}</button>
+        <button class="btn-primary" id="settingsPlaceholderLegacyBtn" type="button">${esc(localizedButtons.legacy)}</button>
+      </div>
+    </div>
+  `;
+
+  document
+    .getElementById("settingsPlaceholderBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+  document
+    .getElementById("settingsPlaceholderLegacyBtn")
+    ?.addEventListener("click", openSettingsLegacy);
+}
+
+function renderSettings() {
+  switch (currentSettingsView) {
+    case "home":
+      renderSettingsHome();
+      break;
+    case "account":
+      renderSettingsAccountScreen();
+      break;
+    case "security":
+      renderSettingsSecurityScreen();
+      break;
+    case "appearance":
+      renderSettingsAppearanceScreen();
+      break;
+    case "notifications":
+      renderSettingsNotificationsScreen();
+      break;
+    case "data":
+      renderSettingsDataScreen();
+      break;
+    case "diagnostics":
+      renderSettingsDiagnosticsScreen();
+      break;
+    case "automation":
+      renderSettingsAutomationScreen();
+      break;
+    case "planning":
+      renderSettingsPlanningScreen();
+      break;
+    case "advanced":
+      renderSettingsToolsScreen();
+      break;
+    case "reports":
+      renderSettingsReportsScreen();
+      break;
+    case "support":
+      renderSettingsSupportScreen();
+      break;
+    case "about":
+      renderSettingsAboutScreen();
+      break;
+    case "legacy":
+    default:
+      renderSettingsLegacy();
+      break;
+  }
+}
+
+function renderSettingsLegacy() {
+  // === Принудительно убираем обрезание для галочек тем ===
+  setTimeout(() => {
+    document.querySelectorAll(".set-theme-check").forEach((check) => {
+      let el = check.parentElement;
+      while (el && el !== document.body) {
+        el.style.setProperty("overflow", "visible", "important");
+        el.style.setProperty("clip", "unset", "important");
+        el = el.parentElement;
+      }
+    });
+  }, 0);
+  const cs = getCreatorSettings();
+  const canContact = cs.contactEnabled !== false;
+  const L = currentLang;
+  const legacyBackLabel =
+    {
+      ru: "← Назад к настройкам",
+      en: "← Back to settings",
+      ka: "← პარამეტრებში დაბრუნება",
+    }[L] || "← Назад к настройкам";
+
+  const html = `
+  <div style="margin-bottom:14px;">
+    <button id="legacySettingsBackBtn" type="button" style="display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:10px 14px;border-radius:14px;border:1.5px solid var(--cream-border);background:var(--card-bg);color:var(--text);font:inherit;font-size:13px;font-weight:800;cursor:pointer;">
+      ${esc(legacyBackLabel)}
+    </button>
+  </div>
+  <!-- ═══ ОСНОВНЫЕ ═══ -->
+  <div class="set-section-title" id="sec-general">${{ ru: "⚙️ Основные", en: "⚙️ General", ka: "⚙️ ზოგადი" }[L]}</div>
+  <div class="set-card">
+    <div class="set-row">
+      <div class="set-row-ico">📳</div>
+      <div class="set-row-label">${t("hapticLabel")}</div>
+      <label class="switch"><input type="checkbox" id="hapticToggle" ${hapticEnabled ? "checked" : ""}><span class="slider round"></span></label>
+    </div>
+    <div class="set-row set-row-divider">
+      <div class="set-row-ico">✨</div>
+      <div class="set-row-label">${t("animationsLabel")}</div>
+      <label class="switch"><input type="checkbox" id="animationsToggle" ${animationsEnabled ? "checked" : ""}><span class="slider round"></span></label>
+    </div>
+    <div class="set-row set-row-divider">
+      <div class="set-row-ico">📌</div>
+      <div class="set-row-label set-row-label-sub">
+        <span>${{ ru: "Быстрые предложения", en: "Quick suggestions", ka: "სწრაფი წინ." }[L]}</span>
+        <span class="set-row-sub">${{ ru: "Шаблоны в форме добавления", en: "Templates in add form", ka: "შაბლონები ფორმაში" }[L]}</span>
+      </div>
+      <label class="switch"><input type="checkbox" id="suggestionsToggle" ${suggestionsEnabled ? "checked" : ""}><span class="slider round"></span></label>
+    </div>
+  </div>
+
+  <!-- ═══ ДАННЫЕ ═══ -->
+  <div class="set-section-title" id="sec-data">${{ ru: "💾 Данные", en: "💾 Data", ka: "💾 მონ." }[L]}</div>
+  <div class="set-card">
+    <div class="set-row">
+      <div class="set-row-ico">🔄</div>
+      <div class="set-row-label">${t("updateRates")}</div>
+      <button class="set-action-btn" id="refreshRatesBtn">›</button>
+    </div>
+    <div class="set-row set-row-divider">
+      <div class="set-row-ico">📊</div>
+      <div class="set-row-label">${t("exportCSV")}</div>
+      <button class="set-action-btn" id="exportCSVBtn">›</button>
+    </div>
+    <div class="set-row set-row-divider">
+      <div class="set-row-ico">📄</div>
+      <div class="set-row-label">${t("exportPDF")}</div>
+      <button class="set-action-btn" id="exportPDFBtn">›</button>
+    </div>
+    <div class="set-row set-row-divider">
+      <div class="set-row-ico">🔌</div>
+      <div class="set-row-label">${{ ru: "Переподключить WebSocket", en: "Reconnect WebSocket", ka: "WebSocket" }[L]}</div>
+      <button class="set-action-btn" id="reconnectWsBtn">›</button>
+    </div>
+  </div>
+
+  <!-- ═══ ОПАСНАЯ ЗОНА ═══ -->
+  <div class="set-section-title" style="color:#f87171">${t("dangerZone")}</div>
+  <div class="set-card set-danger-card">
+    <div class="set-row">
+      <div class="set-row-ico">🗑</div>
+      <div class="set-row-label" style="color:#f87171">${t("resetAll")}</div>
+      <button class="set-action-btn set-action-danger" id="clearAllBtn">›</button>
+    </div>
+  </div>
+  `;
+
+  document.getElementById("mainContent").innerHTML = html;
+  document
+    .getElementById("legacySettingsBackBtn")
+    ?.addEventListener("click", openSettingsHome);
+
+  // ── Анимации ──
+  document
+    .getElementById("animationsToggle")
+    ?.addEventListener("change", (e) => {
+      animationsEnabled = e.target.checked;
+      localStorage.setItem("animationsEnabled", animationsEnabled);
+      showToast(t("saved"));
+    });
+
+  // ── Вибрация ──
+  document.getElementById("hapticToggle")?.addEventListener("change", (e) => {
+    hapticEnabled = e.target.checked;
+    localStorage.setItem("hapticEnabled", hapticEnabled);
+    if (hapticEnabled) haptic("medium");
+    showToast(t("saved"));
+  });
+
+  // ── Предложения ──
+  document
+    .getElementById("suggestionsToggle")
+    ?.addEventListener("change", (e) => {
+      suggestionsEnabled = e.target.checked;
+      localStorage.setItem("suggestionsEnabled", suggestionsEnabled);
+      showToast(
+        suggestionsEnabled
+          ? {
+              ru: "Предложения включены",
+              en: "Suggestions on",
+              ka: "ჩართულია",
+            }[currentLang]
+          : {
+              ru: "Предложения скрыты",
+              en: "Suggestions off",
+              ka: "გამორთულია",
+            }[currentLang],
+      );
+    });
+
+  // ── Данные ──
+  document
+    .getElementById("refreshRatesBtn")
+    ?.addEventListener("click", async () => {
+      const rb = document.getElementById("refreshRatesBtn");
+      if (rb) rb.textContent = t("loading");
+      try {
+        const rr = await fetch(
+          "https://api.exchangerate-api.com/v4/latest/RUB",
+        );
+        const dd = await rr.json();
+        for (const c of ["USD", "EUR", "GEL", "GBP", "KZT"])
+          exchangeRates[c] = dd.rates[c] || exchangeRates[c];
+        saveAll();
+        updateTopBlocks();
+        showToast(t("ratesUpdated"));
+      } catch (e) {
+        showToast(t("error"), "error");
+      }
+      if (rb) rb.textContent = "🔄 " + t("updateRates");
+    });
+  document
+    .getElementById("reconnectWsBtn")
+    ?.addEventListener("click", () => showToast(t("websocketReconnect")));
+  document
+    .getElementById("exportCSVBtn")
+    ?.addEventListener("click", exportToCSV);
+  document
+    .getElementById("exportPDFBtn")
+    ?.addEventListener("click", exportToPDF);
+
+  // ── Очистить всё ──
+  document.getElementById("clearAllBtn")?.addEventListener("click", () => {
+    askConfirm(
+      t("resetConfirmMsg"),
+      async () => {
+        transactions = [];
+        logStartBalanceWrite("clearAllBtn", startBalanceRub, 0);
+        startBalanceRub = 0;
+        notebookPages = [];
+        categories = JSON.parse(JSON.stringify(window.initialCategories));
+        incomeCategories = {
+          Зарплата: { subcats: [] },
+          Подарок: { subcats: [] },
+          Фриланс: { subcats: [] },
+        };
+        calcHistory = [];
+        convHistory = [];
+        userTemplates = [];
+        frequentStats = {};
+        categoryCustomizations = {};
+        categoryBudgets = {};
+        recurringOps = [];
+        localStorage.removeItem("welcomeSeen");
+        await clearIndexedDB();
+        saveAll();
+        showToast(t("allDataDeleted"));
+        setTimeout(() => {
+          setTab("home");
+          updateTopBlocks();
+        }, 500);
+      },
+      {
+        icon: "⚠️",
+        title: t("resetConfirmTitle"),
+        yesText: {
+          ru: "Удалить навсегда",
+          en: "Delete forever",
+          ka: "სამ. წაშლა",
+        }[currentLang],
+      },
+    );
+  });
 
   attachCreatorHandlers();
 }
@@ -12570,8 +17880,7 @@ function renderBudgetsBody() {
       ${over ? `<div style="font-size:11px;color:var(--expense-color);font-weight:700;margin-top:2px;">${t("budgetOverLimit")}</div>` : pct >= 80 ? `<div style="font-size:11px;color:var(--gold);font-weight:700;margin-top:2px;">⚠️ ${t("budgetWarning80")} (${pct}%)</div>` : ""}
     </div>`;
       })
-      .join("") +
-    "<script>document.querySelectorAll('.budget-del-btn').forEach(b=>b.addEventListener('click',()=>{askConfirm(t('budgetDeleteConfirm'),()=>{delete categoryBudgets[b.dataset.cat];saveAll();renderSettings();},{icon:'🗑️'})}));document.querySelectorAll('[data-bp]').forEach(b=>b.addEventListener('click',()=>{localStorage.setItem('budget_period',b.dataset.bp);renderSettings();}));<\/script>"
+      .join("")
   );
 }
 
@@ -12838,6 +18147,10 @@ function importFromJSON(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
     try {
+      const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+        includeSample: true,
+      });
+      logTransactionsDiag("[TX_SOURCE]", "importFromJSON:reader-onload");
       const d = JSON.parse(e.target.result);
       if (!d.transactions || !d.categories) {
         showToast(t("invalidFormat"), "error");
@@ -12846,8 +18159,41 @@ function importFromJSON(file) {
       askConfirm(
         `Импортировать? ${d.transactions?.length || 0} операций.`,
         () => {
+          logTransactionsDiag("[TX_BEFORE]", "importFromJSON:before-transactions-assign", {
+            incomingTransactionsLength: Array.isArray(d?.transactions)
+              ? d.transactions.length
+              : 0,
+            incomingTransactions: (Array.isArray(d?.transactions) ? d.transactions : [])
+              .slice(0, 20)
+              .map((tx) => ({
+                id: tx?.id ?? null,
+                amountRub: tx?.amountRub ?? null,
+                type: tx?.type ?? null,
+                date: tx?.date ?? null,
+              })),
+          });
+          const diagnosticsIncomingState = buildTransactionDiagnosticsState(
+            d.transactions || [],
+            { includeSample: true },
+          );
           transactions = d.transactions || [];
-          startBalanceRub = d.startBalanceRub ?? 70000;
+          logTransactionsDiag("[TX_AFTER]", "importFromJSON:after-transactions-assign");
+          logTransactionsDiagnosticTransition(
+            "TX_REPLACE",
+            "importFromJSON:replace",
+            diagnosticsBeforeState,
+            diagnosticsIncomingState,
+            {
+              origin: "json-file",
+            },
+          );
+          const nextStartBalanceRub = d.startBalanceRub ?? 70000;
+          logStartBalanceWrite(
+            "importFromJSON",
+            startBalanceRub,
+            nextStartBalanceRub,
+          );
+          startBalanceRub = nextStartBalanceRub;
           displayCurrency = d.displayCurrency || "GEL";
           if (d.exchangeRates) exchangeRates = d.exchangeRates;
           notebookPages = d.notebookPages || [];
@@ -12866,6 +18212,20 @@ function importFromJSON(file) {
           }
           syncStartBalanceTransaction();
           saveAll();
+          const diagnosticsAfterState = buildTransactionDiagnosticsState(
+            transactions,
+            { includeSample: true },
+          );
+          logTransactionsDiagnosticTransition(
+            "TX_IMPORT_JSON",
+            "importFromJSON:complete",
+            diagnosticsBeforeState,
+            diagnosticsAfterState,
+            {
+              origin: "json-file",
+            },
+          );
+          logTransactionsDiag("[TX_AFTER]", "importFromJSON:after-saveAll");
           updateTopBlocks();
           setTab("home");
           showToast(t("importedOk"));
@@ -12873,6 +18233,15 @@ function importFromJSON(file) {
         { icon: "📥", title: "Импорт", yesText: "Заменить" },
       );
     } catch (e) {
+      logTransactionsDiagnosticEvent(
+        "TX_IMPORT_JSON",
+        "importFromJSON:error",
+        buildTransactionDiagnosticsState(transactions, { includeSample: true }),
+        {
+          status: "error",
+          error: String(e?.message || e || "unknown"),
+        },
+      );
       showToast(t("importError"), "error");
     }
   };
@@ -13006,6 +18375,10 @@ function cloudLoad() {
   document.getElementById("clLoad").addEventListener("click", () => {
     const link = document.getElementById("cloudLinkInput").value.trim();
     try {
+      const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+        includeSample: true,
+      });
+      logTransactionsDiag("[TX_SOURCE]", "cloudLoad:click");
       const b64 = link.replace("data:application/json;base64,", "");
       const json = decodeURIComponent(atob(b64));
       const d = JSON.parse(json);
@@ -13013,8 +18386,41 @@ function cloudLoad() {
         showToast(t("invalidFormat"), "error");
         return;
       }
+      logTransactionsDiag("[TX_BEFORE]", "cloudLoad:before-transactions-assign", {
+        incomingTransactionsLength: Array.isArray(d?.transactions)
+          ? d.transactions.length
+          : 0,
+        incomingTransactions: (Array.isArray(d?.transactions) ? d.transactions : [])
+          .slice(0, 20)
+          .map((tx) => ({
+            id: tx?.id ?? null,
+            amountRub: tx?.amountRub ?? null,
+            type: tx?.type ?? null,
+            date: tx?.date ?? null,
+          })),
+      });
+      const diagnosticsIncomingState = buildTransactionDiagnosticsState(
+        d.transactions || [],
+        { includeSample: true },
+      );
       transactions = d.transactions || [];
-      startBalanceRub = d.startBalanceRub ?? 70000;
+      logTransactionsDiag("[TX_AFTER]", "cloudLoad:after-transactions-assign");
+      logTransactionsDiagnosticTransition(
+        "TX_REPLACE",
+        "cloudLoad:replace",
+        diagnosticsBeforeState,
+        diagnosticsIncomingState,
+        {
+          origin: "cloud-load",
+        },
+      );
+      const nextStartBalanceRub = d.startBalanceRub ?? 70000;
+      logStartBalanceWrite(
+        "cloudLoad",
+        startBalanceRub,
+        nextStartBalanceRub,
+      );
+      startBalanceRub = nextStartBalanceRub;
       displayCurrency = d.displayCurrency || "GEL";
       if (d.exchangeRates) exchangeRates = d.exchangeRates;
       notebookPages = d.notebookPages || [];
@@ -13027,11 +18433,34 @@ function cloudLoad() {
       recurringOps = d.recurringOps || [];
       syncStartBalanceTransaction();
       saveAll();
+      const diagnosticsAfterState = buildTransactionDiagnosticsState(
+        transactions,
+        { includeSample: true },
+      );
+      logTransactionsDiagnosticTransition(
+        "TX_CLOUD_LOAD",
+        "cloudLoad:complete",
+        diagnosticsBeforeState,
+        diagnosticsAfterState,
+        {
+          origin: "cloud-load",
+        },
+      );
+      logTransactionsDiag("[TX_AFTER]", "cloudLoad:after-saveAll");
       updateTopBlocks();
       closeModal("cloudLoadModal");
       setTab("home");
       showToast(t("cloudLoaded"));
     } catch (e) {
+      logTransactionsDiagnosticEvent(
+        "TX_CLOUD_LOAD",
+        "cloudLoad:error",
+        buildTransactionDiagnosticsState(transactions, { includeSample: true }),
+        {
+          status: "error",
+          error: String(e?.message || e || "unknown"),
+        },
+      );
       showToast(t("cloudLoadError"), "error");
     }
   });
@@ -13201,6 +18630,51 @@ function openNotificationClockModal(options = {}) {
   const clockPanel = "var(--cream)";
   const clockBorder = "var(--cream-border)";
   const html = `
+    <style>
+      .notification-clock-fields-grid{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+        margin-top:12px;
+      }
+      .notification-clock-number-grid{
+        display:grid;
+        grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr) minmax(0,.8fr);
+        gap:6px;
+        align-items:center;
+      }
+      .notification-clock-number-input{
+        width:100%;
+        min-width:0;
+        max-width:100%;
+        box-sizing:border-box;
+        padding:10px clamp(4px,1.8vw,8px);
+        overflow:visible;
+        text-align:center;
+        line-height:1.2;
+        font-size:clamp(18px,5vw,20px);
+        font-weight:950;
+        letter-spacing:0;
+        font-variant-numeric:tabular-nums;
+        appearance:textfield;
+        -webkit-appearance:none;
+        -moz-appearance:textfield;
+      }
+      .notification-clock-number-grid > .btn-secondary{
+        width:100%;
+        min-width:0;
+      }
+      .notification-clock-number-input::-webkit-outer-spin-button,
+      .notification-clock-number-input::-webkit-inner-spin-button{
+        -webkit-appearance:none;
+        margin:0;
+      }
+      @media (max-width: 360px){
+        .notification-clock-fields-grid{
+          grid-template-columns:minmax(0,1fr);
+        }
+      }
+    </style>
     <div id="notificationClockRoot" style="position:relative;overflow:hidden;border-radius:22px;padding:18px;background:${clockSurface};color:var(--text);box-shadow:0 18px 45px rgba(0,0,0,.22);border:1.5px solid var(--cream-border);">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
         <div>
@@ -13226,20 +18700,20 @@ function openNotificationClockModal(options = {}) {
         <button type="button" id="notificationClockSecondsBtn" class="btn-secondary" style="padding:11px 6px;font-size:11px;font-weight:900;white-space:normal;line-height:1.15;min-width:0;overflow-wrap:anywhere;">${esc(L.showSeconds)}: ${savedSeconds ? "ON" : "OFF"}</button>
         <button type="button" id="notificationClockAnalogBtn" class="btn-secondary" style="padding:11px 6px;font-size:11px;font-weight:900;white-space:normal;line-height:1.15;min-width:0;overflow-wrap:anywhere;">${esc(L.analog)}: ${savedAnalog ? "ON" : "OFF"}</button>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+      <div class="notification-clock-fields-grid">
         <div style="border-radius:16px;padding:10px;background:${clockPanel};border:1px solid var(--cream-border);">
           <div style="font-size:11px;font-weight:900;opacity:.72;margin-bottom:8px;">${esc(L.hour)}</div>
-          <div style="display:grid;grid-template-columns:42px 1fr 42px;gap:6px;align-items:center;">
+          <div class="notification-clock-number-grid">
             <button type="button" id="notificationClockHourMinus" class="btn-secondary" style="padding:10px 0;font-size:18px;">−</button>
-            <input id="notificationClockHourInput" class="modal-input" type="number" min="0" max="23" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:950;padding:10px 4px;">
+            <input id="notificationClockHourInput" class="modal-input notification-clock-number-input" type="number" min="0" max="23" inputmode="numeric">
             <button type="button" id="notificationClockHourPlus" class="btn-secondary" style="padding:10px 0;font-size:18px;">+</button>
           </div>
         </div>
         <div style="border-radius:16px;padding:10px;background:${clockPanel};border:1px solid var(--cream-border);">
           <div style="font-size:11px;font-weight:900;opacity:.72;margin-bottom:8px;">${esc(L.minute)}</div>
-          <div style="display:grid;grid-template-columns:42px 1fr 42px;gap:6px;align-items:center;">
+          <div class="notification-clock-number-grid">
             <button type="button" id="notificationClockMinuteMinus" class="btn-secondary" style="padding:10px 0;font-size:18px;">−</button>
-            <input id="notificationClockMinuteInput" class="modal-input" type="number" min="0" max="59" inputmode="numeric" style="text-align:center;font-size:20px;font-weight:950;padding:10px 4px;">
+            <input id="notificationClockMinuteInput" class="modal-input notification-clock-number-input" type="number" min="0" max="59" inputmode="numeric">
             <button type="button" id="notificationClockMinutePlus" class="btn-secondary" style="padding:10px 0;font-size:18px;">+</button>
           </div>
         </div>
@@ -14279,109 +19753,6 @@ function showHelpModal() {
   document.body.appendChild(modal);
   openModal("helpModal");
 }
-((guideSteps = []), (curGuideStep = 0));
-function showGuideStep(i) {
-  if (i >= guideSteps.length) {
-    finishGuide();
-    return;
-  }
-  const s = guideSteps[i];
-  const tgt = document.querySelector(s.element);
-  if (!tgt) {
-    console.warn("Guide: элемент не найден", s.element);
-    showGuideStep(i + 1);
-    return;
-  }
-
-  // Прокручиваем элемент в центр экрана с учётом шапки
-  const headerOffset = 70; // высота фиксированной шапки (можно подкорректировать)
-  const elementPosition = tgt.getBoundingClientRect().top + window.scrollY;
-  const offsetPosition =
-    elementPosition -
-    headerOffset -
-    (window.innerHeight / 2 - tgt.offsetHeight / 2);
-
-  window.scrollTo({
-    top: offsetPosition,
-    behavior: "smooth",
-  });
-
-  // Даём время на прокрутку
-  setTimeout(() => {
-    const r = tgt.getBoundingClientRect();
-    if (r.width === 0 || r.height === 0) {
-      console.warn("Guide: элемент не видим", s.element);
-      showGuideStep(i + 1);
-      return;
-    }
-
-    // Удаляем старые элементы гайда
-    document
-      .querySelectorAll(".guide-highlight, .guide-tooltip")
-      .forEach((e) => e.remove());
-
-    // Подсветка с затемнением вокруг
-    const hi = document.createElement("div");
-    hi.className = "guide-highlight";
-    hi.style.left = r.left + "px";
-    hi.style.top = r.top + "px";
-    hi.style.width = r.width + "px";
-    hi.style.height = r.height + "px";
-    document.body.appendChild(hi);
-
-    // Тултип с подсказкой
-    const tip = document.createElement("div");
-    tip.className = "guide-tooltip";
-    tip.innerHTML = `
-      <div class="guide-tooltip-title">${esc(s.title)}</div>
-      <div class="guide-tooltip-desc">${esc(s.desc)}</div>
-      <div class="guide-tooltip-actions">
-        <button class="guide-btn-skip">${t("guideSkip")}</button>
-        <button class="guide-btn-next">${i === guideSteps.length - 1 ? t("guideFinish") : t("guideNext")}</button>
-      </div>
-    `;
-    document.body.appendChild(tip);
-
-    // Позиционирование тултипа
-    const tr = tip.getBoundingClientRect();
-    let left = r.left + r.width / 2 - tr.width / 2;
-    let top = r.bottom + 12;
-
-    left = Math.max(12, Math.min(left, window.innerWidth - tr.width - 12));
-    if (top + tr.height > window.innerHeight - 20) {
-      top = r.top - tr.height - 12;
-    }
-    if (top < 12) {
-      top = window.innerHeight / 2 - tr.height / 2;
-    }
-
-    tip.style.left = left + "px";
-    tip.style.top = top + "px";
-
-    const nextBtn = tip.querySelector(".guide-btn-next");
-    const skipBtn = tip.querySelector(".guide-btn-skip");
-
-    const cleanup = () => {
-      hi.remove();
-      tip.remove();
-    };
-
-    nextBtn.addEventListener("click", () => {
-      cleanup();
-      showGuideStep(i + 1);
-    });
-    skipBtn.addEventListener("click", () => {
-      cleanup();
-      finishGuide();
-    });
-  }, 300);
-}
-function finishGuide() {
-  localStorage.setItem("guideShown", "true");
-  document
-    .querySelectorAll(".guide-overlay,.guide-highlight,.guide-tooltip")
-    .forEach((e) => e.remove());
-}
 
 // ============================================================
 // ВСПОМОГАТЕЛЬНЫЕ
@@ -14418,32 +19789,27 @@ function createModal(id, title, bodyHtml) {
           transition: opacity 320ms ease-out;
         }
         #addModal .add-modal-sheet {
-          transform: translate3d(0,118%,0) scale(.985);
+          transform: translateY(0);
           opacity: 0;
-          transition:
-            transform 680ms cubic-bezier(.16,1,.24,1),
-            opacity 360ms ease-out;
-          will-change: transform, opacity !important;
+          transition: opacity 140ms ease-out;
+          will-change: opacity !important;
           backface-visibility: hidden !important;
-          contain: layout paint style !important;
           transform-origin: bottom center !important;
         }
         #addModal.open .add-modal-overlay {
           opacity: 1 !important;
         }
         #addModal.open .add-modal-sheet {
-          transform: translate3d(0,0,0) scale(1) !important;
+          transform: translateY(0) !important;
           opacity: 1 !important;
         }
         #addModal.closing .add-modal-overlay {
           opacity: 0 !important;
         }
         #addModal.closing .add-modal-sheet {
-          transform: translate3d(0,110%,0) scale(.99) !important;
+          transform: translateY(0) !important;
           opacity: 0 !important;
-          transition:
-            transform 300ms cubic-bezier(.4,0,.2,1),
-            opacity 220ms ease !important;
+          transition: opacity 140ms ease-out !important;
         }
         #addModal .add-modal-sheet.dragging {
           transition: none !important;
@@ -14457,7 +19823,7 @@ function createModal(id, title, bodyHtml) {
     const addSheet = ov.querySelector(".add-modal-sheet");
     const addOverlay = ov.querySelector(".add-modal-overlay");
     if (addSheet) {
-      addSheet.style.willChange = "transform, opacity";
+      addSheet.style.willChange = "opacity";
     }
     if (addOverlay) {
       addOverlay.style.willChange = "opacity";
@@ -14563,7 +19929,6 @@ function openModal(id) {
       m.classList.remove("closing");
       m.classList.remove("open");
       m.classList.add("opening");
-      void m.offsetHeight;
       const sheet = m.querySelector(".add-modal-sheet");
       const modalBody = m.querySelector(".modal-body");
       if (sheet) {
@@ -14572,7 +19937,7 @@ function openModal(id) {
         sheet.style.transition = "";
         sheet.style.transform = "translateY(105%)";
         sheet.style.opacity = "0";
-        sheet.style.willChange = "transform, opacity";
+        sheet.style.willChange = "opacity";
         sheet.scrollTop = 0;
       }
       if (modalBody) {
@@ -14581,7 +19946,6 @@ function openModal(id) {
           modalBody.scrollTo({ top: 0, behavior: "instant" });
         }
       }
-      if (sheet) void sheet.offsetHeight;
       requestAnimationFrame(() => {
         m.classList.add("open");
         if (modalBody) {
@@ -14598,6 +19962,9 @@ function openModal(id) {
         }
       }, 960);
     } else {
+      if (m.classList.contains("embedded-datepicker-modal")) {
+        m.style.display = "flex";
+      }
       m.classList.remove("closing");
       requestAnimationFrame(() => {
         m.classList.add("open");
@@ -14606,6 +19973,7 @@ function openModal(id) {
     document.body.style.overflow = "hidden";
     traceApp("openModal", { id });
     traceLayoutSnapshot(`openModal:${id}`);
+    scheduleGuideResume(`openModal:${id}`, id === "addModal" ? 420 : 260);
   }
 }
 
@@ -14643,9 +20011,11 @@ function createHeroWrapNode() {
       role="button"
       tabindex="0"
     >
-      <div class="hero-label" data-i18n="balance">${t("balance")}</div>
-      <div class="hero-value" id="balanceValue">${balD.toFixed(2)} ${s}</div>
-      <div class="hero-sub" id="heroTrend"></div>
+      <div id="balanceHeroFocus">
+        <div class="hero-label" data-i18n="balance">${t("balance")}</div>
+        <div class="hero-value" id="balanceValue">${balD.toFixed(2)} ${s}</div>
+        <div class="hero-sub" id="heroTrend"></div>
+      </div>
       <div class="hero-chips">
         <div
           id="incomeCard"
@@ -15011,7 +20381,10 @@ function closeModal(id) {
       m.classList.remove("open");
       setTimeout(() => m.remove(), 350);
     }
-    document.body.style.overflow = "";
+    const keepBodyLocked = !!document.querySelector(
+      ".modal-overlay.open, .add-modal-host.open",
+    );
+    document.body.style.overflow = keepBodyLocked ? "hidden" : "";
     traceLayoutSnapshot(`closeModal:${id}`);
     updateHeroDebugOverlay();
     if (id === "addModal") addModalCommitted = false;
@@ -15020,6 +20393,7 @@ function closeModal(id) {
       traceApp("closeModal-recover-home", { id });
       scheduleHomeRecoveryAfterAddCancel();
     }
+    scheduleGuideResume(`closeModal:${id}`, id === "addModal" ? 520 : 300);
   }
 }
 
@@ -15264,9 +20638,11 @@ function init() {
   traceApp("init", { currentLang, simpleMode, currentTab });
   updateHeader();
   addHeaderButtons();
+  ensureSupportButton();
   document.documentElement.lang = currentLang;
   // Apply time-based theme before manual override check
   applyColorTheme(colorTheme || localStorage.getItem("colorTheme") || "dark");
+  initLuxuryBackground();
   // After init, check time-based theme (respects existing setting)
   setTimeout(applyTimeBasedTheme, 200);
   applyFontSize(fontSize || "normal");
@@ -15346,7 +20722,7 @@ function init() {
     );
     if (card) card.click();
   });
-  document.getElementById("fabBtn").addEventListener("click", (e) => {
+  bindTapSafeAction(document.getElementById("fabBtn"), (e) => {
     if (isVoiceDragSuppressed()) {
       e.preventDefault();
       e.stopPropagation();
@@ -15356,16 +20732,17 @@ function init() {
   });
   // ── Инициализация push-уведомлений ──
 
-  appBooting = false;
-  setTab("home");
-  startDeferredBackgroundServices();
-  ensureHeroWrapGuard();
-  setTimeout(() => ensureHomeHeroStable(8, 150), 120);
+  setTab("home", () => {
+    appBooting = false;
+    startDeferredBackgroundServices();
+    ensureHeroWrapGuard();
+    setTimeout(() => ensureHomeHeroStable(8, 150), 120);
+  });
 
   // ── Обработчики обеих навигаций ──
   const fabBtnSimple = document.getElementById("fabBtnSimple");
   if (fabBtnSimple)
-    fabBtnSimple.addEventListener("click", (e) => {
+    bindTapSafeAction(fabBtnSimple, (e) => {
       if (isVoiceDragSuppressed()) {
         e.preventDefault();
         e.stopPropagation();
@@ -15534,7 +20911,7 @@ function init() {
             }
           }
           // Удаляем данные профиля из localStorage
-          localStorage.removeItem("budget_profile_" + pid);
+          localStorage.removeItem(getProfileStorageKey(pid));
           profiles = profiles.filter((p) => p.id !== pid);
           saveGlobal();
           renderSettings();
@@ -15546,6 +20923,9 @@ function init() {
   });
   // Проверка новых сообщений при возвращении на вкладку
   document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      restartRealtimeListener().catch(() => {});
+    }
     if (
       !document.hidden &&
       isCreator() &&
@@ -15867,10 +21247,36 @@ function openProfileEditModal(prof) {
       renderSettings();
       showToast("✅ " + name);
     } else {
+      logProfileMessageTrace("openProfileEditModal:before-save", {
+        authUserId: getAuthUserId("openProfileEditModal:before-save"),
+        profileId: prof?.id ?? null,
+        fromProfile: activeProfileId ?? null,
+        fromProfileName: prof?.name ?? null,
+        profileName: name,
+        firebasePath: getFirebaseMessagesPath(
+          getAuthUserId("openProfileEditModal:before-save"),
+        ),
+        messagesKey: getMessagesStorageKey(
+          getAuthUserId("openProfileEditModal:before-save"),
+        ),
+      });
       prof.name = name;
       prof.emoji = selEmoji;
       prof.color = selColor;
       saveGlobal();
+      logProfileMessageTrace("openProfileEditModal:after-save", {
+        authUserId: getAuthUserId("openProfileEditModal:after-save"),
+        profileId: prof?.id ?? null,
+        fromProfile: activeProfileId ?? null,
+        fromProfileName: prof?.name ?? null,
+        profileName: prof?.name ?? null,
+        firebasePath: getFirebaseMessagesPath(
+          getAuthUserId("openProfileEditModal:after-save"),
+        ),
+        messagesKey: getMessagesStorageKey(
+          getAuthUserId("openProfileEditModal:after-save"),
+        ),
+      });
       closeModal("profileEditModal");
       renderSettings();
       showToast(t("saved"));
@@ -16346,31 +21752,92 @@ function parseJwtPayload(token) {
   }
 }
 
-function getAuthSession() {
+function parseAuthUserIdFromToken(token) {
+  const payload = parseJwtPayload(token);
+  const authUserId =
+    payload && typeof payload.sub === "string" ? payload.sub.trim() : "";
+  return authUserId || null;
+}
+
+function logAuthDiag(tag, source, session) {
+  const safeSession =
+    session && typeof session === "object"
+      ? {
+          email: String(session.email || ""),
+          expires_at: Number(session.expires_at || 0),
+        }
+      : { email: "", expires_at: 0 };
+  console.log(
+    tag,
+    "EMAIL=",
+    safeSession.email,
+    "EXPIRES_AT=",
+    safeSession.expires_at,
+    "NOW=",
+    Math.floor(Date.now() / 1000),
+    "SOURCE=",
+    source,
+  );
+}
+
+let authRefreshPromise = null;
+let authAppStateListenerInstalled = false;
+
+function getAuthSession(source = "getAuthSession") {
   try {
     const raw = localStorage.getItem(AUTH_SESSION_KEY);
-    if (!raw) return null;
+    if (!raw) {
+      logAuthDiag("[AUTH_LOAD]", source, null);
+      return null;
+    }
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-    return {
+    if (!parsed || typeof parsed !== "object") {
+      logAuthDiag("[AUTH_LOAD]", source, null);
+      return null;
+    }
+    const session = {
       access_token: String(parsed.access_token || ""),
       refresh_token: String(parsed.refresh_token || ""),
       expires_at: Number(parsed.expires_at || 0),
       email: String(parsed.email || ""),
+      authUserId: String(
+        parsed.authUserId ||
+          parseAuthUserIdFromToken(parsed.access_token || "") ||
+          "",
+      ),
     };
+    logAuthDiag("[AUTH_LOAD]", source, session);
+    return session;
   } catch (e) {
+    logAuthDiag("[AUTH_LOAD]", source, null);
     return null;
   }
 }
 
-function saveAuthSession(session) {
+function saveAuthSession(session, source = "saveAuthSession") {
+  const authUserId =
+    String(
+      session?.authUserId || parseAuthUserIdFromToken(session?.access_token || ""),
+    ).trim() || "";
   const safeSession = {
     access_token: String(session?.access_token || ""),
     refresh_token: String(session?.refresh_token || ""),
     expires_at: Number(session?.expires_at || 0),
     email: String(session?.email || ""),
+    authUserId,
   };
+  logAuthDiag("[AUTH_SAVE]", source, safeSession);
   localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(safeSession));
+}
+
+function getAuthUserId(source = "getAuthUserId") {
+  const session = getAuthSession(`${source}:session`);
+  const authUserId =
+    String(
+      session?.authUserId || parseAuthUserIdFromToken(session?.access_token || ""),
+    ).trim() || null;
+  console.log("[AUTH_USER_ID]", "VALUE=", authUserId || "null", "SOURCE=", source);
+  return authUserId;
 }
 
 function isGuestMode() {
@@ -16386,7 +21853,7 @@ function setGuestMode(enabled) {
 }
 
 function getCurrentUserEmail() {
-  return String(getAuthSession()?.email || "")
+  return String(getAuthSession("getCurrentUserEmail")?.email || "")
     .trim()
     .toLowerCase();
 }
@@ -16403,7 +21870,7 @@ function isCreatorEmail(email) {
 }
 
 function getCreatorSessionMarker() {
-  const session = getAuthSession();
+  const session = getAuthSession("getCreatorSessionMarker");
   if (!session?.access_token || !session?.expires_at) return "";
   return `${session.email || ""}:${session.expires_at}`;
 }
@@ -16419,19 +21886,170 @@ function showCreatorWelcomeToastIfNeeded() {
   localStorage.setItem(CREATOR_WELCOME_SHOWN_KEY, marker);
 }
 
+function resetRuntimeStateForOwnershipSwitch(source = "resetRuntimeStateForOwnershipSwitch") {
+  console.log("[USER_NAMESPACE_LOAD]", "TYPE=", "runtime-reset", "SOURCE=", source);
+  const diagnosticsBeforeState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  transactions = [];
+  notebookPages = [];
+  supportMessages = [];
+  categories = JSON.parse(JSON.stringify(window.initialCategories || {}));
+  incomeCategories = {
+    ხელფასი: { subcats: [] },
+    საჩუქარი: { subcats: [] },
+    ფრილანსი: { subcats: [] },
+  };
+  calcHistory = [];
+  convHistory = [];
+  userTemplates = [];
+  frequentStats = {};
+  categoryCustomizations = {};
+  categoryBudgets = {};
+  recurringOps = [];
+  profiles = [
+    {
+      id: "default",
+      name: "Main profile",
+      emoji: "👤",
+      color: "#2d6a4f",
+      role: "owner",
+    },
+  ];
+  activeProfileId = "default";
+  const diagnosticsAfterState = buildTransactionDiagnosticsState(transactions, {
+    includeSample: true,
+  });
+  logTransactionsDiagnosticTransition(
+    "TX_REPLACE",
+    source,
+    diagnosticsBeforeState,
+    diagnosticsAfterState,
+    {
+      origin: "runtime-reset",
+    },
+  );
+  logStartBalanceWrite(`${source}:reset`, startBalanceRub, 0);
+  startBalanceRub = 0;
+  if (_fbDB && _fbListener) {
+    try {
+      const firebaseMessagesPath = getFirebaseMessagesPath(
+        getRemoteAuthUserId(`${source}:firebase-detach`),
+      );
+      if (firebaseMessagesPath) {
+        _fbDB.ref(firebaseMessagesPath).off("value", _fbListener);
+      }
+    } catch (e) {}
+  }
+  _fbListener = null;
+  _fbDB = null;
+}
+
 function logout() {
-  clearAuthSession();
+  resetRuntimeStateForOwnershipSwitch("logout");
+  clearAuthSession("logout");
   const overlay = document.getElementById("authScreen");
   if (overlay) overlay.remove();
-  showAuthScreen();
+  showAuthScreen("logout");
   showToast(t("signedOut"), "success");
 }
 
-function clearAuthSession() {
+function clearAuthSession(source = "clearAuthSession") {
+  logAuthDiag("[AUTH_REMOVE]", source, getAuthSession(source + ":before-remove"));
   localStorage.removeItem(AUTH_SESSION_KEY);
   localStorage.removeItem(AUTH_PENDING_EMAIL_KEY);
   localStorage.removeItem(GUEST_MODE_KEY);
   localStorage.removeItem(CREATOR_WELCOME_SHOWN_KEY);
+}
+
+function isAuthSessionExpired(session) {
+  return !session?.expires_at || Number(session.expires_at) * 1000 <= Date.now();
+}
+
+function getAuthApiBase() {
+  return "https://budget-pro-lski.vercel.app/api/auth";
+}
+
+async function refreshAuthSession(source = "refreshAuthSession") {
+  if (authRefreshPromise) {
+    logAuthDiag(
+      "[AUTH_REFRESH_SKIPPED]",
+      `${source}:inflight`,
+      getAuthSession(`${source}:inflight-session`),
+    );
+    return await authRefreshPromise;
+  }
+
+  const currentSession = getAuthSession(`${source}:current-session`);
+  if (!currentSession?.refresh_token) {
+    logAuthDiag("[AUTH_REFRESH_SKIPPED]", `${source}:missing-refresh-token`, currentSession);
+    return false;
+  }
+
+  if (!isAuthSessionExpired(currentSession)) {
+    logAuthDiag("[AUTH_REFRESH_SKIPPED]", `${source}:token-still-valid`, currentSession);
+    return true;
+  }
+
+  authRefreshPromise = (async () => {
+    logAuthDiag("[AUTH_REFRESH_START]", source, currentSession);
+    try {
+      const response = await fetch(`${getAuthApiBase()}/refresh-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          refresh_token: currentSession.refresh_token,
+        }),
+      });
+
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (e) {
+        data = null;
+      }
+
+      const nextSession =
+        data && data.session && typeof data.session === "object"
+          ? {
+              access_token: String(data.session.access_token || ""),
+              refresh_token: String(data.session.refresh_token || ""),
+              expires_at: Number(data.session.expires_at || 0),
+              email: String(data.session.email || currentSession.email || ""),
+              authUserId: String(
+                data.session.authUserId ||
+                  parseAuthUserIdFromToken(data.session.access_token || "") ||
+                  currentSession.authUserId ||
+                  "",
+              ),
+            }
+          : null;
+
+      if (
+        !response.ok ||
+        !data?.ok ||
+        !nextSession?.access_token ||
+        !nextSession?.refresh_token ||
+        !nextSession?.expires_at
+      ) {
+        logAuthDiag("[AUTH_REFRESH_FAILED]", `${source}:${data?.error || "refresh_failed"}`, currentSession);
+        return false;
+      }
+
+      saveAuthSession(nextSession, `${source}:saveAuthSession`);
+      logAuthDiag("[AUTH_REFRESH_SUCCESS]", source, nextSession);
+      return true;
+    } catch (e) {
+      logAuthDiag("[AUTH_REFRESH_FAILED]", `${source}:network-error`, currentSession);
+      return false;
+    } finally {
+      authRefreshPromise = null;
+    }
+  })();
+
+  return await authRefreshPromise;
 }
 
 function getMagicLinkResendUntil() {
@@ -16626,10 +22244,18 @@ function showMagicLinkRateLimitModal() {
 }
 
 function isAuthenticated() {
-  const session = getAuthSession();
+  const session = getAuthSession("isAuthenticated");
   if (!session?.access_token) return false;
   if (!session?.expires_at) return false;
-  return session.expires_at * 1000 > Date.now();
+  const now = Date.now();
+  const isValid = session.expires_at * 1000 > now;
+  if (!isValid) {
+    logAuthDiag("[AUTH_EXPIRED]", "isAuthenticated", session);
+    if (session.refresh_token) {
+      logAuthDiag("[AUTH_REFRESH]", "isAuthenticated:no-auto-refresh", session);
+    }
+  }
+  return isValid;
 }
 
 async function handleAuthCallback() {
@@ -16641,6 +22267,8 @@ async function handleAuthCallback() {
   const errorCode = params.get("error_code") || "";
   const error = params.get("error") || "";
   if (errorCode === "otp_expired" || error === "access_denied") {
+    const expiredSession = getAuthSession("handleAuthCallback:expired-link");
+    logAuthDiag("[AUTH_EXPIRED]", "handleAuthCallback:expired-link", expiredSession);
     localStorage.removeItem(AUTH_PENDING_EMAIL_KEY);
     history.replaceState(
       null,
@@ -16666,17 +22294,29 @@ async function handleAuthCallback() {
   const payload = parseJwtPayload(accessToken);
   const email =
     payload && typeof payload.email === "string" ? payload.email : "";
+  const authUserId =
+    String(
+      (payload && typeof payload.sub === "string" ? payload.sub : "") || "",
+    ).trim() || null;
 
-  console.log("[BP_AUTH_EMAIL]", email);
+console.log("[BP_AUTH_EMAIL]", email);
 
 saveAuthSession({
     access_token: accessToken,
     refresh_token: refreshToken,
     expires_at: Math.floor(Date.now() / 1000) + expiresIn,
     email,
-  });
+    authUserId,
+  }, "handleAuthCallback");
 
-console.log("[BP_AUTH_SESSION]", JSON.stringify(getAuthSession()));
+console.log(
+  "[BP_AUTH_SESSION]",
+  JSON.stringify(getAuthSession("handleAuthCallback:after-save")),
+);
+logAuthDiag("[AUTH_REFRESH]", "handleAuthCallback:received-refresh-token", {
+  email,
+  expires_at: Math.floor(Date.now() / 1000) + expiresIn,
+});
 
   setGuestMode(false);
   localStorage.removeItem(CREATOR_WELCOME_SHOWN_KEY);
@@ -16725,7 +22365,8 @@ async function sendMagicLink(email) {
   return data || { ok: true };
 }
 
-function showAuthScreen() {
+function showAuthScreen(source = "showAuthScreen") {
+  logAuthDiag("[AUTH_SHOW_LOGIN]", source, getAuthSession(source + ":session"));
   ensureAuthUiStyles();
   clearAuthResendTimer();
   const existing = document.getElementById("authScreen");
@@ -16894,7 +22535,7 @@ function showAuthScreen() {
       currentLang = "ru";
       localStorage.setItem("lang", "ru");
       document.documentElement.lang = "ru";
-      showAuthScreen();
+      showAuthScreen("showAuthScreen:lang-ru");
     }),
   );
   languageRow.appendChild(
@@ -16902,7 +22543,7 @@ function showAuthScreen() {
       currentLang = "en";
       localStorage.setItem("lang", "en");
       document.documentElement.lang = "en";
-      showAuthScreen();
+      showAuthScreen("showAuthScreen:lang-en");
     }),
   );
   languageRow.appendChild(
@@ -16910,7 +22551,7 @@ function showAuthScreen() {
       currentLang = "ka";
       localStorage.setItem("lang", "ka");
       document.documentElement.lang = "ka";
-      showAuthScreen();
+      showAuthScreen("showAuthScreen:lang-ka");
     }),
   );
 
@@ -16919,7 +22560,7 @@ function showAuthScreen() {
       document.body.classList.remove("dark");
       localStorage.setItem("theme", "light");
       if (COLOR_THEMES[colorTheme]?.dark) applyColorTheme("default");
-      showAuthScreen();
+      showAuthScreen("showAuthScreen:theme-day");
     }),
   );
   themeRow.appendChild(
@@ -16927,7 +22568,7 @@ function showAuthScreen() {
       document.body.classList.add("dark");
       localStorage.setItem("theme", "dark");
       if (!COLOR_THEMES[colorTheme]?.dark) applyColorTheme("dark");
-      showAuthScreen();
+      showAuthScreen("showAuthScreen:theme-night");
     }),
   );
 
@@ -17041,7 +22682,7 @@ function showAuthScreen() {
   button.addEventListener("click", submit);
   guestButton.addEventListener("click", () => {
     clearAuthResendTimer();
-    clearAuthSession();
+    clearAuthSession("showAuthScreen:guest-mode");
     setGuestMode(true);
     overlay.remove();
     if ((pinEnabled && pinHash) || biometryEnabled) {
@@ -17121,24 +22762,67 @@ function setupAppUrlOpenListener() {
   });
 }
 
+function setupAuthAppStateListener() {
+  if (authAppStateListenerInstalled) return;
+  const AppPlugin = window.Capacitor?.Plugins?.App;
+  if (!AppPlugin || typeof AppPlugin.addListener !== "function") return;
+  authAppStateListenerInstalled = true;
+
+  AppPlugin.addListener("appStateChange", async ({ isActive }) => {
+    if (!isActive || appBooting) return;
+    const session = getAuthSession("appStateChange:active");
+    if (!session?.refresh_token || !isAuthSessionExpired(session)) {
+      logAuthDiag("[AUTH_REFRESH_SKIPPED]", "appStateChange:active:no-refresh-needed", session);
+      await restartRealtimeListener();
+      return;
+    }
+    const refreshed = await refreshAuthSession("appStateChange:active");
+    if (refreshed) {
+      await restartRealtimeListener();
+      return;
+    }
+    clearAuthSession("appStateChange:active:refresh-failed");
+    showAuthScreen("appStateChange:active:refresh-failed");
+  });
+}
+
 async function bootApp() {
   appBooting = true;
   traceApp("boot-start", { currentTab, currentLang });
   traceLayoutSnapshot("boot:start");
   const hasFreshAuth = await handleAuthCallback();
+  if (checkShareLink()) return;
+  if (!isGuestMode()) {
+    const bootSession = getAuthSession("bootApp:before-auth-gate");
+    if (bootSession?.refresh_token && isAuthSessionExpired(bootSession)) {
+      const refreshed = await refreshAuthSession("bootApp");
+      if (!refreshed) {
+        clearAuthSession("bootApp:refresh-failed");
+        showAuthScreen("bootApp:refresh-failed");
+        return;
+      }
+    } else {
+      logAuthDiag("[AUTH_REFRESH_SKIPPED]", "bootApp:no-refresh-needed", bootSession);
+    }
+  }
+  if (!isGuestMode() && !isAuthenticated()) {
+    showAuthScreen("bootApp:not-authenticated");
+    return;
+  }
+  const authUserId = getAuthUserId("bootApp:after-auth-gate");
+  if (!isGuestMode() && !authUserId) {
+    showAuthScreen("bootApp:missing-auth-user-id");
+    return;
+  }
   await loadAll();
   traceApp("boot-loadAll-done", {
     transactions: transactions.length,
     profiles: profiles.length,
     activeProfileId,
+    authUserId,
   });
   traceLayoutSnapshot("boot:loadAll-done");
   scheduleBootLayoutTracing();
-  if (checkShareLink()) return;
-  if (!isGuestMode() && !isAuthenticated()) {
-    showAuthScreen();
-    return;
-  }
   const finishAuthorizedBoot = () => {
     init();
     if (hasFreshAuth) showCreatorWelcomeToastIfNeeded();
@@ -17316,8 +23000,8 @@ async function showShareWelcomeScreen(pkg) {
       categoryBudgets: {},
       recurringOps: [],
     };
-    if (!localStorage.getItem("budget_profile_" + newId))
-      localStorage.setItem("budget_profile_" + newId, JSON.stringify(empty));
+    if (!localStorage.getItem(getProfileStorageKey(newId)))
+      localStorage.setItem(getProfileStorageKey(newId), JSON.stringify(empty));
     sharedAccessProfile = {
       profileId: newId,
       perms: pkg.perms || { ...DEFAULT_PERMS },
@@ -17356,7 +23040,7 @@ function exitGuestMode() {
     profiles.push(ownProfile);
     // Инициализируем пустые данные для нового профиля
     localStorage.setItem(
-      "budget_profile_" + newId,
+      getProfileStorageKey(newId),
       JSON.stringify({
         transactions: [],
         startBalanceRub: 0,
@@ -17526,7 +23210,7 @@ function openSupportModal() {
         </div>
       </div>
 
-      <button class="btn-secondary" id="exitCreatorBtn" style="margin-bottom:12px; width:100%;">🚪 Выйти из режима создателя</button>
+      <button class="btn-secondary" id="exitCreatorBtn" style="margin-bottom:12px; width:100%;">🚪 Закрыть панель создателя</button>
 
       <div class="modal-actions">
         <button class="btn-secondary" id="supCancel">${t("cancel")}</button>
@@ -17611,9 +23295,23 @@ function openSupportModal() {
     // Функция рендеринга сообщений
     function renderMessages() {
       const ownerData = JSON.parse(
-        localStorage.getItem("budget_profile_" + activeProfileId) || "{}",
+        localStorage.getItem(getProfileStorageKey(activeProfileId)) || "{}",
       );
-      const msgs = ownerData.supportMessages || [];
+      const msgs = getAllMessages().sort(
+        (a, b) => new Date(b.date) - new Date(a.date),
+      );
+      const syncLegacySupportMessagesFromCentral = (transform) => {
+        const centralAll = getAllMessages({ includeDeleted: true });
+        const nextCentral = transform(
+          Array.isArray(centralAll) ? centralAll.map((m) => ({ ...m })) : [],
+        );
+        saveAllMessages(nextCentral);
+        ownerData.supportMessages = buildLegacySupportMessagesMirror(nextCentral);
+        localStorage.setItem(
+          getProfileStorageKey(activeProfileId),
+          JSON.stringify(ownerData),
+        );
+      };
       const listDiv = document.getElementById("messagesList");
       const countSpan = document.getElementById("msgCount");
       if (countSpan) countSpan.textContent = msgs.length;
@@ -17700,18 +23398,68 @@ function openSupportModal() {
               }
 
               const subject = `Re: ${msg.category} (ответ от поддержки)`;
-              const body = `Здравствуйте, ${msg.name}!\n\n${replyText}\n\n---\nВаше обращение:\n"${msg.message}"`;
+	              const body = `Здравствуйте, ${msg.name}!\n\n${replyText}\n\n---\nВаше обращение:\n"${msg.message}"`;
+	              const replyAt = new Date().toISOString();
 
-              openContactUrl(channel, userContact, subject, body);
-              msg.replied = true;
-              localStorage.setItem(
-                "budget_profile_" + activeProfileId,
-                JSON.stringify(ownerData),
-              );
-              closeModal("replyModal");
-              renderMessages();
-              showToast(t("replySent"));
-            });
+	              openContactUrl(channel, userContact, subject, body);
+	              const centralAll = getAllMessages();
+	              const centralIdx = centralAll.findIndex(
+	                (m2) => String(m2?.id) === String(msg?.id),
+	              );
+	              const nextReplyState = appendCreatorFollowUp(
+                  {
+                    ...(centralIdx >= 0 ? centralAll[centralIdx] : msg),
+                    id: msg?.id,
+                    name: msg?.name ?? null,
+                    email: msg?.email ?? null,
+                    phone: msg?.phone ?? null,
+                    category: msg?.category ?? null,
+                    message: msg?.message ?? null,
+                    readByCreator: true,
+                    fromProfile: msg?.fromProfile ?? null,
+                    fromProfileName: msg?.fromProfileName ?? msg?.name ?? null,
+                    date: msg?.date ?? new Date().toISOString(),
+                  },
+                  replyText,
+                  replyAt,
+                );
+	              const nextReplyRecord = {
+                  ...nextReplyState,
+	                id: msg?.id,
+	                name: msg?.name ?? null,
+	                email: msg?.email ?? null,
+	                phone: msg?.phone ?? null,
+	                category: msg?.category ?? null,
+	                message: msg?.message ?? null,
+	                readByCreator: true,
+	                fromProfile: msg?.fromProfile ?? null,
+	                fromProfileName: msg?.fromProfileName ?? msg?.name ?? null,
+	                date: msg?.date ?? new Date().toISOString(),
+	              };
+	              if (centralIdx >= 0) {
+	                centralAll[centralIdx] = mergeSupportMessageRecord(
+	                  centralAll[centralIdx],
+	                  nextReplyRecord,
+	                );
+	              } else {
+	                centralAll.push(nextReplyRecord);
+	              }
+	              saveAllMessages(centralAll);
+	              msg.replied = true;
+	              msg.creatorReply = nextReplyRecord.creatorReply;
+	              msg.creatorMessages = nextReplyRecord.creatorMessages;
+	              msg.replyDate = nextReplyRecord.replyDate;
+	              msg.replyReadByUser = nextReplyRecord.replyReadByUser;
+	              try {
+		                localStorage.setItem(
+		                  getProfileStorageKey(activeProfileId),
+		                  JSON.stringify(ownerData),
+		                );
+	              } catch (e) {}
+	              closeModal("replyModal");
+	              renderMessages();
+	              showToast(t("replySent"));
+	            });
 
           document
             .getElementById("cancelReplyBtn")
@@ -17725,13 +23473,25 @@ function openSupportModal() {
         btn.addEventListener("click", () => {
           const msgId = btn.dataset.msgid;
           const msg = msgs.find((m) => m.id === msgId);
-          if (msg) {
-            msg.replied = true;
+          if (msg?.creatorReply) {
+            syncLegacySupportMessagesFromCentral((centralAll) => {
+              const idx = centralAll.findIndex(
+                (m) => String(m?.id) === String(msgId),
+              );
+              if (idx >= 0) {
+                centralAll[idx] = mergeSupportMessageRecord(centralAll[idx], {
+                  replied: true,
+                  creatorReply: msg.creatorReply,
+                  replyDate: msg.replyDate ?? centralAll[idx]?.replyDate ?? null,
+                  replyReadByUser:
+                    typeof centralAll[idx]?.replyReadByUser === "boolean"
+                      ? centralAll[idx].replyReadByUser
+                      : false,
+                });
+              }
+              return centralAll;
+            });
           }
-          localStorage.setItem(
-            "budget_profile_" + activeProfileId,
-            JSON.stringify(ownerData),
-          );
           renderMessages();
         });
       });
@@ -17739,9 +23499,12 @@ function openSupportModal() {
       listDiv.querySelectorAll(".delete-msg-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
           const msgId = btn.dataset.msgid;
-          ownerData.supportMessages = msgs.filter((m) => m.id !== msgId);
+          deleteSupportMessageById(msgId);
+          ownerData.supportMessages = buildLegacySupportMessagesMirror(
+            getAllMessages({ includeDeleted: true }),
+          );
           localStorage.setItem(
-            "budget_profile_" + activeProfileId,
+            getProfileStorageKey(activeProfileId),
             JSON.stringify(ownerData),
           );
           renderMessages();
@@ -17902,10 +23665,8 @@ function openSupportModal() {
       return;
     }
 
-    const ownerKey = "budget_profile_" + ownerProfile.id;
+    const ownerKey = getProfileStorageKey(ownerProfile.id);
     const ownerData = JSON.parse(localStorage.getItem(ownerKey) || "{}");
-    const messages = ownerData.supportMessages || [];
-
     const newMsg = {
       id: Date.now() + Math.random().toString(36),
       name: f.name,
@@ -17917,8 +23678,12 @@ function openSupportModal() {
       replied: false,
       fromProfile: activeProfileId,
     };
-    messages.push(newMsg);
-    ownerData.supportMessages = messages;
+    const centralAll = getAllMessages();
+    centralAll.push(newMsg);
+    saveAllMessages(centralAll);
+    ownerData.supportMessages = buildLegacySupportMessagesMirror(
+      getAllMessages({ includeDeleted: true }),
+    );
     localStorage.setItem(ownerKey, JSON.stringify(ownerData));
 
     if (activeProfileId === ownerProfile.id) {
@@ -18164,6 +23929,7 @@ function openNotificationHelpModal() {
 }
 
 setupAppUrlOpenListener();
+setupAuthAppStateListener();
 bootApp();
 setTimeout(updateOfflineBar, 600);
 
@@ -18220,8 +23986,7 @@ function updateSupportBadge() {
       count = msgs.filter(
         (m) =>
           m.fromProfile === activeProfileId &&
-          m.creatorReply &&
-          !m.replyReadByUser,
+          hasUnreadCreatorMessages(m),
       ).length;
     }
     if (count > 0) {
@@ -18384,11 +24149,28 @@ function openEnhancedSupportModal() {
 function openUserChatPanel() {
   const ownerProf = profiles.find((p) => p.role === "owner");
   const ownerData = ownerProf
-    ? JSON.parse(localStorage.getItem("budget_profile_" + ownerProf.id) || "{}")
+    ? JSON.parse(localStorage.getItem(getProfileStorageKey(ownerProf.id)) || "{}")
     : {};
   // Use central message store
   const allMsgs = getAllMessages();
   const myMsgs = allMsgs.filter((m) => m.fromProfile === activeProfileId);
+  const visibleMsgs = filterVisibleUserChatMessages(myMsgs, activeProfileId);
+  console.log("[SUPPORT_USER_CHAT]", {
+    activeProfileId,
+    allMsgsLength: allMsgs.length,
+    myMsgsLength: myMsgs.length,
+    visibleMsgsLength: visibleMsgs.length,
+    clearedAt: getUserChatClearedAt(activeProfileId),
+    messages: myMsgs.map((m) => ({
+      id: m?.id ?? null,
+      fromProfile: m?.fromProfile ?? null,
+      creatorReply: m?.creatorReply ?? null,
+      creatorMessagesCount: Array.isArray(m?.creatorMessages)
+        ? m.creatorMessages.length
+        : 0,
+      replied: typeof m?.replied === "boolean" ? m.replied : false,
+    })),
+  });
   const lang = currentLang;
 
   const L = {
@@ -18443,13 +24225,12 @@ function openUserChatPanel() {
   // Mark creator replies as read for this user
   let changed = false;
   const centralMsgsRead = getAllMessages();
-  centralMsgsRead.forEach((m) => {
+  centralMsgsRead.forEach((m, idx) => {
     if (
       m.fromProfile === activeProfileId &&
-      m.creatorReply &&
-      !m.replyReadByUser
+      hasUnreadCreatorMessages(m)
     ) {
-      m.replyReadByUser = true;
+      centralMsgsRead[idx] = markCreatorMessagesRead(m);
       changed = true;
     }
   });
@@ -18473,9 +24254,9 @@ function openUserChatPanel() {
     </div>`;
 
   const feedHtml =
-    myMsgs.length === 0
+    visibleMsgs.length === 0
       ? `<div style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 10px;">${lc.empty}</div>`
-      : myMsgs.map((m) => renderChatBubble(m, lc)).join("");
+      : visibleMsgs.map((m) => renderChatBubble(m, lc)).join("");
 
   const chatHtml = `
     <div style="display:flex;flex-direction:column;gap:0;">
@@ -18487,6 +24268,12 @@ function openUserChatPanel() {
           <div style="font-size:11px;color:var(--text-muted);">⏱ ${lc.status}</div>
         </div>
         <div id="userChatOnline" style="width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.25);flex-shrink:0;"></div>
+        <div style="position:relative;flex-shrink:0;">
+          <button id="userChatMenuBtn" type="button" class="btn-secondary" aria-haspopup="true" aria-expanded="false" style="width:34px;height:34px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;line-height:1;">⋮</button>
+          <div id="userChatMenu" style="display:none;position:absolute;top:40px;right:0;min-width:180px;background:#111827;border:1px solid rgba(255,255,255,0.14);border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,0.42);padding:6px;z-index:5;opacity:1;backdrop-filter:none;">
+            <button id="userChatClearHistoryBtn" type="button" style="display:flex;align-items:center;justify-content:flex-start;width:100%;padding:10px 12px;border-radius:10px;font-size:12px;font-weight:800;color:#f9fafb;background:#1f2937;border:1px solid rgba(255,255,255,0.12);text-align:left;opacity:1;box-shadow:none;backdrop-filter:none;appearance:none;-webkit-appearance:none;">🗑 ${lang === "ru" ? "Очистить историю" : lang === "ka" ? "ისტორიის გასუფთავება" : "Clear history"}</button>
+          </div>
+        </div>
       </div>
 
       <!-- Chat feed -->
@@ -18520,6 +24307,64 @@ function openUserChatPanel() {
   const modal = createModal("userChatModal", lc.title, chatHtml);
   document.body.appendChild(modal);
   openModal("userChatModal");
+
+  const closeUserChatMenu = () => {
+    const menu = document.getElementById("userChatMenu");
+    const btn = document.getElementById("userChatMenuBtn");
+    if (menu) menu.style.display = "none";
+    if (btn) btn.setAttribute("aria-expanded", "false");
+  };
+
+  const openUserChatClearConfirm = () => {
+    closeUserChatMenu();
+    const confirmHtml = `
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="font-size:14px;line-height:1.5;color:var(--text);">${lang === "ru" ? "Удалить историю чата?" : lang === "ka" ? "წავშალოთ ჩატის ისტორია?" : "Delete chat history?"}</div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;">
+          <button id="userChatClearCancelBtn" type="button" class="btn-secondary" style="padding:10px 14px;border-radius:12px;">${lang === "ru" ? "Отмена" : lang === "ka" ? "გაუქმება" : "Cancel"}</button>
+          <button id="userChatClearConfirmBtn" type="button" style="padding:10px 14px;border-radius:12px;background:var(--expense-color);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;">${lang === "ru" ? "Удалить" : lang === "ka" ? "წაშლა" : "Delete"}</button>
+        </div>
+      </div>`;
+    const confirmModal = createModal(
+      "userChatClearConfirmModal",
+      lang === "ru" ? "Очистка истории" : lang === "ka" ? "ისტორიის გასუფთავება" : "Clear history",
+      confirmHtml,
+    );
+    document.body.appendChild(confirmModal);
+    openModal("userChatClearConfirmModal");
+    document
+      .getElementById("userChatClearCancelBtn")
+      ?.addEventListener("click", () => closeModal("userChatClearConfirmModal"));
+    document
+      .getElementById("userChatClearConfirmBtn")
+      ?.addEventListener("click", () => {
+        clearUserChatHistory(activeProfileId);
+        refreshUserPanelIfOpen();
+        closeModal("userChatClearConfirmModal");
+      });
+  };
+
+  document.getElementById("userChatMenuBtn")?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const menu = document.getElementById("userChatMenu");
+    const btn = document.getElementById("userChatMenuBtn");
+    if (!menu || !btn) return;
+    const nextOpen = menu.style.display === "none" || !menu.style.display;
+    menu.style.display = nextOpen ? "block" : "none";
+    btn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+  });
+
+  document
+    .getElementById("userChatClearHistoryBtn")
+    ?.addEventListener("click", openUserChatClearConfirm);
+
+  modal.addEventListener("click", (event) => {
+    const menu = document.getElementById("userChatMenu");
+    const btn = document.getElementById("userChatMenuBtn");
+    if (!menu || !btn) return;
+    if (menu.contains(event.target) || btn.contains(event.target)) return;
+    closeUserChatMenu();
+  });
 
   // Template click → fill textarea
   document.querySelectorAll(".chat-tpl-btn").forEach((btn) => {
@@ -18560,22 +24405,22 @@ function renderChatBubble(m, lc) {
     );
   let html = `
     <div style="display:flex;justify-content:flex-end;">
-      <div style="max-width:85%;background:linear-gradient(135deg,var(--primary),var(--primary-med));color:white;padding:10px 14px;border-radius:18px 18px 4px 18px;box-shadow:var(--shadow-sm);">
-        <div style="font-size:14px;line-height:1.5;">${esc(m.message)}</div>
-        <div style="font-size:10px;opacity:0.7;margin-top:5px;text-align:right;">${fmt(m.date)} ${m.creatorReply ? "✓✓" : "✓"}</div>
+      <div style="max-width:85%;background:linear-gradient(135deg,var(--primary),var(--primary-med));color:white;padding:10px 14px;border-radius:18px 18px 4px 18px;box-shadow:var(--shadow-sm);min-width:0;overflow:hidden;">
+        <div style="font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;">${esc(m.message)}</div>
+        <div style="font-size:10px;opacity:0.7;margin-top:5px;text-align:right;">${fmt(m.date)} ${getCreatorMessagesList(m).length ? "✓✓" : "✓"}</div>
       </div>
     </div>`;
-  if (m.creatorReply) {
+  getCreatorMessagesList(m).forEach((replyEntry) => {
     html += `
-    <div style="display:flex;gap:8px;align-items:flex-end;">
-      <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f59e0b);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👨‍💻</div>
-      <div style="max-width:85%;background:var(--card-bg);border:1.5px solid var(--cream-border);padding:10px 14px;border-radius:18px 18px 18px 4px;box-shadow:var(--shadow-sm);">
-        <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lc ? lc.dev : "Разработчик"}</div>
-        <div style="font-size:14px;line-height:1.5;color:var(--text);">${esc(m.creatorReply)}</div>
-        <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${fmt(m.replyDate || m.date)}</div>
-      </div>
-    </div>`;
-  }
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f59e0b);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👨‍💻</div>
+        <div style="max-width:85%;background:var(--card-bg);border:1.5px solid var(--cream-border);padding:10px 14px;border-radius:18px 18px 18px 4px;box-shadow:var(--shadow-sm);min-width:0;overflow:hidden;">
+          <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lc ? lc.dev : "Разработчик"}</div>
+          <div style="font-size:14px;line-height:1.5;color:var(--text);white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;">${esc(replyEntry.text)}</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${fmt(replyEntry.createdAt || m.replyDate || m.date)}</div>
+        </div>
+      </div>`;
+  });
   return html;
 }
 
@@ -18617,6 +24462,9 @@ function getJsonBinConfig() {
 }
 
 function getJsonBinApiBase() {
+  if (window.Capacitor?.getPlatform?.() === "android") {
+    return "https://budget-pro-lski.vercel.app/api/jsonbin";
+  }
   return "/api/jsonbin";
 }
 
@@ -18648,13 +24496,134 @@ async function jsonBinSaveMessages(msgs) {
     return;
   }
   try {
+    const authUserId = getRemoteAuthUserId("jsonBinSaveMessages");
+    const traceMsg = Array.isArray(msgs) && msgs.length ? msgs[msgs.length - 1] : null;
+    logMsgTrace("jsonBinSaveMessages", {
+      id: traceMsg?.id ?? null,
+      message: traceMsg?.message ?? null,
+      authUserId,
+      activeProfileId,
+      fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+      fromProfileName:
+        traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+    });
+    logSupportOwnerTrace("jsonBinSaveMessages", {
+      authUserId,
+      fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+      fromProfileName:
+        traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+      firebasePath: getFirebaseMessagesPath(authUserId),
+      messagesKey: getMessagesStorageKey(authUserId),
+    });
+    logProfileMessageTrace("jsonBinSaveMessages", {
+      authUserId,
+      profileId:
+        traceMsg?.profileId ??
+        traceMsg?.profile_id ??
+        traceMsg?.fromProfile ??
+        traceMsg?.from_profile ??
+        null,
+      fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+      fromProfileName:
+        traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+      profileName:
+        profiles.find((p) => String(p?.id || "") === String(activeProfileId || ""))?.name ??
+        null,
+      firebasePath: getFirebaseMessagesPath(authUserId),
+      messagesKey: getMessagesStorageKey(authUserId),
+    });
+    if (!authUserId) {
+      console.log("[REMOTE_SAVE]", "TYPE=", "messages", "STATUS=", "skipped-missing-user-id");
+      return false;
+    }
+    console.log("[MESSAGES_USER_ID]", "VALUE=", authUserId, "SOURCE=", "jsonBinSaveMessages");
+    const transportMsgs = Array.isArray(msgs)
+      ? msgs.map((m) => ({
+          id: m?.id ?? null,
+          user_id: m?.userId ?? m?.user_id ?? authUserId,
+          profile_id:
+            m?.profileId ??
+            m?.profile_id ??
+            m?.fromProfile ??
+            m?.from_profile ??
+            null,
+          name: m?.name ?? null,
+          email: m?.email ?? null,
+          phone: m?.phone ?? null,
+          category: m?.category ?? null,
+          message: m?.message ?? null,
+          creator_reply: m?.creatorReply ?? m?.creator_reply ?? null,
+          creator_messages: (Array.isArray(m?.creatorMessages)
+            ? m.creatorMessages
+            : Array.isArray(m?.creator_messages)
+              ? m.creator_messages
+              : []
+          ).map((entry) => ({
+            id: entry?.id ?? null,
+            text: entry?.text ?? null,
+            created_at: entry?.createdAt ?? entry?.created_at ?? null,
+            read_by_user:
+              typeof entry?.readByUser === "boolean"
+                ? entry.readByUser
+                : typeof entry?.read_by_user === "boolean"
+                  ? entry.read_by_user
+                  : false,
+          })),
+          replied: typeof m?.replied === "boolean" ? m.replied : false,
+          read_by_creator:
+            typeof m?.readByCreator === "boolean"
+              ? m.readByCreator
+              : typeof m?.read_by_creator === "boolean"
+                ? m.read_by_creator
+                : false,
+          reply_read_by_user:
+            typeof m?.replyReadByUser === "boolean"
+              ? m.replyReadByUser
+              : typeof m?.reply_read_by_user === "boolean"
+                ? m.reply_read_by_user
+                : false,
+          created_at: m?.date ?? m?.created_at ?? new Date().toISOString(),
+          reply_date: m?.replyDate ?? m?.reply_date ?? null,
+          from_profile: m?.fromProfile ?? m?.from_profile ?? null,
+          from_profile_name:
+            m?.fromProfileName ?? m?.from_profile_name ?? null,
+          deleted_at: m?.deletedAt ?? m?.deleted_at ?? null,
+          is_deleted: Boolean(m?.isDeleted || m?.is_deleted || m?.deletedAt || m?.deleted_at),
+        }))
+      : [];
+    const replyPayload = getReplyStateLogPayload(transportMsgs);
+    if (replyPayload.length) {
+      console.log("[REPLY_REMOTE_SAVE]", {
+        target: "jsonbin",
+        messages: replyPayload.map((m) => ({
+          id: m.id,
+          creatorReply: m.creatorReply,
+          replyDate: m.replyDate,
+        })),
+      });
+    }
     const r = await fetch(`${getJsonBinApiBase()}/messages`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ messages: msgs, updated: Date.now() }),
+      body: JSON.stringify({
+        user_id: authUserId,
+        messages: transportMsgs,
+        updated: Date.now(),
+      }),
     });
+    console.log(
+      "[REMOTE_SAVE]",
+      "TYPE=",
+      "messages",
+      "USER_ID=",
+      authUserId,
+      "STATUS=",
+      r.status,
+      "COUNT=",
+      transportMsgs.length,
+    );
     return r.ok;
   } catch (e) {
     console.warn("JSONBin save:", e.message);
@@ -18665,27 +24634,85 @@ async function jsonBinSaveMessages(msgs) {
 async function jsonBinSaveBackup(data) {
   if (localStorage.getItem("jsonbin_disabled") === "true") {
     console.log("⛔ JSONBin синхронизация отключена пользователем");
-    return;
+    return false;
   }
   try {
-    await fetch(`${getJsonBinApiBase()}/backup`, {
+    const authUserId = getRemoteAuthUserId("jsonBinSaveBackup");
+    if (!authUserId) {
+      console.log("[REMOTE_SAVE]", "TYPE=", "backup", "STATUS=", "skipped-missing-user-id");
+      return false;
+    }
+    console.log("[BACKUP_USER_ID]", "VALUE=", authUserId, "SOURCE=", "jsonBinSaveBackup");
+    console.log(
+      "[BACKUP_SAVE]",
+      "START_BALANCE=",
+      data?.startBalanceRub,
+      data?.allProfilesData?.[activeProfileId]?.startBalanceRub,
+    );
+    const r = await fetch(`${getJsonBinApiBase()}/backup`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        user_id: authUserId,
+        backup: data,
+      }),
     });
+    console.log(
+      "[REMOTE_SAVE]",
+      "TYPE=",
+      "backup",
+      "USER_ID=",
+      authUserId,
+      "STATUS=",
+      r.status,
+    );
+    if (!r.ok) {
+      console.warn("JSONBin backup failed with status:", r.status);
+      return false;
+    }
     console.log("☁️ Данные сохранены в JSONBin");
+    return true;
   } catch (e) {
     console.warn("JSONBin backup failed:", e);
+    return false;
   }
 }
 
 async function jsonBinLoadBackup() {
   try {
-    const r = await fetch(`${getJsonBinApiBase()}/backup`);
+    const authUserId = getRemoteAuthUserId("jsonBinLoadBackup");
+    if (!authUserId) {
+      console.log("[REMOTE_LOAD]", "TYPE=", "backup", "STATUS=", "skipped-missing-user-id");
+      return null;
+    }
+    console.log("[BACKUP_USER_ID]", "VALUE=", authUserId, "SOURCE=", "jsonBinLoadBackup");
+    const r = await fetch(
+      `${getJsonBinApiBase()}/backup?user_id=${encodeURIComponent(authUserId)}`,
+    );
     if (!r.ok) return null;
     const data = await r.json();
+    console.log(
+      "[REMOTE_LOAD]",
+      "TYPE=",
+      "backup",
+      "USER_ID=",
+      authUserId,
+      "STATUS=",
+      r.status,
+      "HAS_RECORD=",
+      data?.record ? "1" : "0",
+    );
+    console.log(
+      "[START_BALANCE_WRITE]",
+      "SOURCE=jsonBinLoadBackup",
+      "OLD=",
+      startBalanceRub,
+      "NEW=",
+      data?.record?.startBalanceRub,
+      new Error().stack,
+    );
     return data.record || null;
   } catch (e) {
     return null;
@@ -18695,13 +24722,560 @@ async function jsonBinLoadBackup() {
 async function jsonBinLoadMessages() {
   if (location.protocol === "file:") return;
   try {
-    const r = await fetch(`${getJsonBinApiBase()}/messages`);
+    const authUserId = getRemoteAuthUserId("jsonBinLoadMessages");
+    logSupportOwnerTrace("jsonBinLoadMessages", {
+      authUserId,
+      firebasePath: getFirebaseMessagesPath(authUserId),
+      messagesKey: getMessagesStorageKey(authUserId),
+    });
+    if (!authUserId) {
+      console.log("[REMOTE_LOAD]", "TYPE=", "messages", "STATUS=", "skipped-missing-user-id");
+      return null;
+    }
+    console.log("[MESSAGES_USER_ID]", "VALUE=", authUserId, "SOURCE=", "jsonBinLoadMessages");
+    const r = await fetch(
+      `${getJsonBinApiBase()}/messages?user_id=${encodeURIComponent(authUserId)}`,
+    );
     if (!r.ok) return null;
     const data = await r.json();
-    return data.messages || null;
+    if (!Array.isArray(data.messages)) return null;
+    console.log(
+      "[REMOTE_LOAD]",
+      "TYPE=",
+      "messages",
+      "USER_ID=",
+      authUserId,
+      "STATUS=",
+      r.status,
+      "COUNT=",
+      data.messages.length,
+    );
+    console.log(
+      "[SUPPORT_GET]",
+      data.messages.length,
+      data.messages.map((m) => ({
+        id: m?.id ?? null,
+        from_profile: m?.from_profile ?? null,
+        fromProfile: m?.fromProfile ?? null,
+        creator_reply: m?.creator_reply ?? null,
+        replied: typeof m?.replied === "boolean" ? m.replied : false,
+      })),
+    );
+    const normalizedRemoteMsgs = data.messages.map((m) =>
+      normalizeSupportMessageRecord({
+        ...m,
+        userId: m?.userId ?? m?.user_id ?? authUserId,
+        profileId:
+          m?.profileId ??
+          m?.profile_id ??
+          m?.fromProfile ??
+          m?.from_profile ??
+          null,
+      }),
+    );
+    const replyPayload = getReplyStateLogPayload(normalizedRemoteMsgs);
+    if (replyPayload.length) {
+      console.log("[REPLY_REMOTE_LOAD]", {
+        source: "jsonbin",
+        messages: replyPayload.map((m) => ({
+          id: m.id,
+          creatorReply: m.creatorReply,
+          replyDate: m.replyDate,
+        })),
+      });
+    }
+    return normalizedRemoteMsgs;
   } catch (e) {
     return null;
   }
+}
+
+function normalizeSupportMessageRecord(m) {
+  const creatorReply = m?.creatorReply ?? m?.creator_reply ?? null;
+  const replyDate = m?.replyDate ?? m?.reply_date ?? null;
+  const deletedAt = m?.deletedAt ?? m?.deleted_at ?? null;
+  const normalizeCreatorMessageEntry = (entry, fallbackIndex = 0) => {
+    const text = String(entry?.text ?? "").trim();
+    if (!text) return null;
+    return {
+      id:
+        String(
+          entry?.id ||
+            `cm_${entry?.createdAt ?? entry?.created_at ?? replyDate ?? fallbackIndex}_${text.slice(0, 12)}`,
+        ).trim(),
+      text,
+      createdAt: String(
+        entry?.createdAt ??
+          entry?.created_at ??
+          replyDate ??
+          m?.date ??
+          new Date().toISOString(),
+      ),
+      readByUser:
+        typeof entry?.readByUser === "boolean"
+          ? entry.readByUser
+          : typeof entry?.read_by_user === "boolean"
+            ? entry.read_by_user
+            : typeof m?.replyReadByUser === "boolean"
+              ? m.replyReadByUser
+              : typeof m?.reply_read_by_user === "boolean"
+                ? m.reply_read_by_user
+                : false,
+    };
+  };
+  const creatorMessagesRaw = Array.isArray(m?.creatorMessages)
+    ? m.creatorMessages
+    : Array.isArray(m?.creator_messages)
+      ? m.creator_messages
+      : [];
+  const creatorMessagesMap = new Map();
+  creatorMessagesRaw.forEach((entry, index) => {
+    const normalized = normalizeCreatorMessageEntry(entry, index);
+    if (!normalized) return;
+    const key = normalized.id || `${normalized.createdAt}::${normalized.text}`;
+    const existing = creatorMessagesMap.get(key);
+    if (!existing) {
+      creatorMessagesMap.set(key, normalized);
+      return;
+    }
+    creatorMessagesMap.set(key, {
+      ...existing,
+      ...normalized,
+      readByUser: Boolean(existing.readByUser || normalized.readByUser),
+    });
+  });
+  if (creatorReply && creatorMessagesMap.size === 0) {
+    const seeded = normalizeCreatorMessageEntry(
+      {
+        id: `cm_seed_${replyDate ?? m?.date ?? "legacy"}`,
+        text: creatorReply,
+        createdAt: replyDate ?? m?.date ?? new Date().toISOString(),
+        readByUser:
+          typeof m?.replyReadByUser === "boolean"
+            ? m.replyReadByUser
+            : typeof m?.reply_read_by_user === "boolean"
+              ? m.reply_read_by_user
+              : false,
+      },
+      0,
+    );
+    if (seeded) creatorMessagesMap.set(seeded.id, seeded);
+  }
+  const creatorMessages = Array.from(creatorMessagesMap.values()).sort(
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+  );
+  const primaryCreatorMessage = creatorMessages[0] || null;
+  const resolvedCreatorReply = creatorReply ?? primaryCreatorMessage?.text ?? null;
+  const resolvedReplyDate =
+    replyDate ?? primaryCreatorMessage?.createdAt ?? null;
+  const resolvedReplyReadByUser = creatorMessages.length
+    ? creatorMessages.every((entry) => entry.readByUser)
+    : typeof m?.replyReadByUser === "boolean"
+      ? m.replyReadByUser
+      : typeof m?.reply_read_by_user === "boolean"
+        ? m.reply_read_by_user
+        : false;
+  return {
+    id: m?.id ?? null,
+    userId: m?.userId ?? m?.user_id ?? null,
+    profileId:
+      m?.profileId ??
+      m?.profile_id ??
+      m?.fromProfile ??
+      m?.from_profile ??
+      null,
+    name: m?.name ?? null,
+    email: m?.email ?? null,
+    phone: m?.phone ?? null,
+    category: m?.category ?? null,
+    message: m?.message ?? null,
+    creatorReply: resolvedCreatorReply,
+    creatorMessages,
+    replied: Boolean(
+      (typeof m?.replied === "boolean" ? m.replied : false) ||
+        resolvedCreatorReply ||
+        resolvedReplyDate ||
+        creatorMessages.length,
+    ),
+    readByCreator:
+      typeof m?.readByCreator === "boolean"
+        ? m.readByCreator
+        : typeof m?.read_by_creator === "boolean"
+          ? m.read_by_creator
+          : false,
+    replyReadByUser: resolvedReplyReadByUser,
+    fromProfile: m?.fromProfile ?? m?.from_profile ?? null,
+    fromProfileName: m?.fromProfileName ?? m?.from_profile_name ?? null,
+    date: m?.date ?? m?.created_at ?? new Date().toISOString(),
+    replyDate: resolvedReplyDate,
+    deletedAt,
+    isDeleted: Boolean(m?.isDeleted || m?.is_deleted || deletedAt),
+  };
+}
+
+function getCreatorMessagesList(msg) {
+  return normalizeSupportMessageRecord(msg).creatorMessages || [];
+}
+
+function hasUnreadCreatorMessages(msg) {
+  return getCreatorMessagesList(msg).some((entry) => !entry.readByUser);
+}
+
+function markCreatorMessagesRead(msg) {
+  const normalized = normalizeSupportMessageRecord(msg);
+  return {
+    ...normalized,
+    creatorMessages: normalized.creatorMessages.map((entry) => ({
+      ...entry,
+      readByUser: true,
+    })),
+    replyReadByUser: true,
+  };
+}
+
+function markCreatorMessageReadByCreator(msg) {
+  const normalized = normalizeSupportMessageRecord(msg);
+  if (normalized.readByCreator) return normalized;
+  return {
+    ...normalized,
+    readByCreator: true,
+  };
+}
+
+function markCreatorDialogMessagesReadByCreator(profileId) {
+  const selectedProfile = String(profileId || "");
+  if (!selectedProfile) return false;
+  const allMsgs = getAllMessages();
+  let changed = false;
+  const nextAll = allMsgs.map((msg) => {
+    if (String(msg?.fromProfile || "") !== selectedProfile) return msg;
+    if (msg?.readByCreator) return msg;
+    changed = true;
+    return markCreatorMessageReadByCreator(msg);
+  });
+  if (!changed) return false;
+  saveAllMessages(nextAll);
+  return true;
+}
+
+function getUserChatClearedAt(profileId) {
+  const selectedProfile = String(profileId || "");
+  if (!selectedProfile) return 0;
+  const raw = localStorage.getItem(
+    `budgetpro_user_chat_cleared_at::${selectedProfile}`,
+  );
+  const ts = Number(raw || 0);
+  return Number.isFinite(ts) && ts > 0 ? ts : 0;
+}
+
+function getMessageLastActivityAt(message) {
+  const normalized = normalizeSupportMessageRecord(message || {});
+  const timestamps = [
+    Date.parse(String(normalized?.date || "")),
+    Date.parse(String(message?.created_at || "")),
+    Date.parse(String(normalized?.replyDate || "")),
+    ...getCreatorMessagesList(normalized).map((entry) =>
+      Date.parse(String(entry?.createdAt || "")),
+    ),
+  ].filter((ts) => Number.isFinite(ts));
+  return timestamps.length ? Math.max(...timestamps) : 0;
+}
+
+function filterVisibleUserChatMessages(messages, profileId) {
+  const clearedAt = getUserChatClearedAt(profileId);
+  return (Array.isArray(messages) ? messages : []).filter(
+    (msg) => {
+      if (!clearedAt) return true;
+      const lastActivityAt = getMessageLastActivityAt(msg);
+      return lastActivityAt ? lastActivityAt > clearedAt : true;
+    },
+  );
+}
+
+function setUserChatClearedAt(profileId, ts) {
+  const selectedProfile = String(profileId || "");
+  if (!selectedProfile) return 0;
+  const nextTs = Number(ts || Date.now());
+  try {
+    localStorage.setItem(
+      `budgetpro_user_chat_cleared_at::${selectedProfile}`,
+      String(nextTs),
+    );
+  } catch (e) {}
+  return nextTs;
+}
+
+function clearUserChatHistory(profileId) {
+  return setUserChatClearedAt(profileId, Date.now());
+}
+
+function isUserChatNearBottom(el) {
+  if (!el) return true;
+  return el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+}
+
+function appendCreatorFollowUp(record, replyText, createdAt = new Date().toISOString()) {
+  const normalized = normalizeSupportMessageRecord(record || {});
+  const text = String(replyText || "").trim();
+  if (!text) return normalized;
+  const nextCreatorMessage = {
+    id: `cm_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    text,
+    createdAt,
+    readByUser: false,
+  };
+  const creatorMessages = [...(normalized.creatorMessages || [])];
+  const duplicate = creatorMessages.some(
+    (entry) =>
+      String(entry?.text || "").trim() === nextCreatorMessage.text &&
+      String(entry?.createdAt || "") === String(nextCreatorMessage.createdAt || ""),
+  );
+  if (!duplicate) creatorMessages.push(nextCreatorMessage);
+  if (!normalized.creatorReply) {
+    return normalizeSupportMessageRecord({
+      ...normalized,
+      creatorReply: nextCreatorMessage.text,
+      replyDate: createdAt,
+      replied: true,
+      replyReadByUser: false,
+      creatorMessages,
+    });
+  }
+  return normalizeSupportMessageRecord({
+    ...normalized,
+    replied: true,
+    replyReadByUser: false,
+    creatorMessages,
+  });
+}
+
+function isSupportMessageDeleted(msg) {
+  return Boolean(msg?.isDeleted || msg?.is_deleted || msg?.deletedAt || msg?.deleted_at);
+}
+
+function getReplyStateLogPayload(msgs) {
+  return (Array.isArray(msgs) ? msgs : [])
+    .map((m) => normalizeSupportMessageRecord(m))
+    .filter(
+      (m) =>
+        m?.id != null &&
+        (m.creatorReply ||
+          m.replyDate ||
+          m.replied ||
+          m.replyReadByUser),
+    )
+    .map((m) => ({
+      id: m.id,
+      creatorReply: m.creatorReply,
+      replyDate: m.replyDate,
+      replyReadByUser: m.replyReadByUser,
+      replied: m.replied,
+      creatorMessagesCount: Array.isArray(m.creatorMessages)
+        ? m.creatorMessages.length
+        : 0,
+    }));
+}
+
+function mergeSupportMessageRecord(existing, incoming) {
+  const prev = normalizeSupportMessageRecord(existing || {});
+  const next = normalizeSupportMessageRecord(incoming || {});
+  const merged = {
+    ...prev,
+    ...next,
+  };
+  const prevHasReply = typeof prev.creatorReply === "string" && prev.creatorReply.length > 0;
+  const nextHasReply = typeof next.creatorReply === "string" && next.creatorReply.length > 0;
+
+  if (prevHasReply && !nextHasReply) {
+    merged.creatorReply = prev.creatorReply;
+  } else if (nextHasReply) {
+    merged.creatorReply = next.creatorReply;
+  } else {
+    merged.creatorReply = null;
+  }
+
+  if (prev.replyDate && !next.replyDate) {
+    merged.replyDate = prev.replyDate;
+  } else if (next.replyDate) {
+    merged.replyDate = next.replyDate;
+  } else {
+    merged.replyDate = null;
+  }
+
+  merged.replied = Boolean(
+    prev.replied ||
+      next.replied ||
+      merged.creatorReply ||
+      merged.replyDate ||
+      (Array.isArray(prev.creatorMessages) && prev.creatorMessages.length) ||
+      (Array.isArray(next.creatorMessages) && next.creatorMessages.length),
+  );
+  const creatorMessagesByKey = new Map();
+  [...(prev.creatorMessages || []), ...(next.creatorMessages || [])].forEach(
+    (entry, index) => {
+      const normalizedEntry = {
+        id: String(entry?.id || `cm_merge_${index}`).trim(),
+        text: String(entry?.text || "").trim(),
+        createdAt: String(
+          entry?.createdAt ||
+            prev.replyDate ||
+            next.replyDate ||
+            new Date().toISOString(),
+        ),
+        readByUser: Boolean(entry?.readByUser),
+      };
+      if (!normalizedEntry.text) return;
+      const key =
+        normalizedEntry.id ||
+        `${normalizedEntry.createdAt}::${normalizedEntry.text}`;
+      const existing = creatorMessagesByKey.get(key);
+      if (!existing) {
+        creatorMessagesByKey.set(key, normalizedEntry);
+        return;
+      }
+      creatorMessagesByKey.set(key, {
+        ...existing,
+        ...normalizedEntry,
+        readByUser: Boolean(existing.readByUser || normalizedEntry.readByUser),
+      });
+    },
+  );
+  merged.creatorMessages = Array.from(creatorMessagesByKey.values()).sort(
+    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+  );
+  if (!merged.creatorReply && merged.creatorMessages[0]?.text) {
+    merged.creatorReply = merged.creatorMessages[0].text;
+  }
+  if (!merged.replyDate && merged.creatorMessages[0]?.createdAt) {
+    merged.replyDate = merged.creatorMessages[0].createdAt;
+  }
+  merged.replyReadByUser = merged.creatorMessages.length
+    ? merged.creatorMessages.every((entry) => entry.readByUser)
+    : Boolean(prev.replyReadByUser || next.replyReadByUser);
+  merged.readByCreator = Boolean(prev.readByCreator || next.readByCreator);
+  merged.fromProfile = next.fromProfile ?? prev.fromProfile ?? null;
+  merged.fromProfileName = next.fromProfileName ?? prev.fromProfileName ?? null;
+  merged.date = next.date ?? prev.date ?? new Date().toISOString();
+  if (prev.deletedAt && !next.deletedAt) {
+    merged.deletedAt = prev.deletedAt;
+  } else if (next.deletedAt) {
+    merged.deletedAt = next.deletedAt;
+  } else {
+    merged.deletedAt = null;
+  }
+  merged.isDeleted = Boolean(prev.isDeleted || next.isDeleted || merged.deletedAt);
+  const replyBefore = {
+    creatorReply: prev.creatorReply,
+    replyDate: prev.replyDate,
+    replyReadByUser: prev.replyReadByUser,
+    replied: prev.replied,
+  };
+  const replyIncoming = {
+    creatorReply: next.creatorReply,
+    replyDate: next.replyDate,
+    replyReadByUser: next.replyReadByUser,
+    replied: next.replied,
+  };
+  const replyResult = {
+    creatorReply: merged.creatorReply,
+    replyDate: merged.replyDate,
+    replyReadByUser: merged.replyReadByUser,
+    replied: merged.replied,
+  };
+  if (
+    JSON.stringify(replyBefore) !== JSON.stringify(replyIncoming) ||
+    JSON.stringify(replyBefore) !== JSON.stringify(replyResult)
+  ) {
+    console.log("[REPLY_MERGE]", {
+      id: merged.id,
+      before: replyBefore,
+      incoming: replyIncoming,
+      result: replyResult,
+    });
+  }
+  return merged;
+}
+
+function mergeSupportMessageCollections(existingMsgs, incomingMsgs) {
+  const merged = [];
+  const idToIndex = new Map();
+  const pushOrMerge = (msg) => {
+    const normalized = normalizeSupportMessageRecord(msg);
+    const key = normalized.id == null ? `__idx__${merged.length}` : String(normalized.id);
+    const existingIdx = idToIndex.get(key);
+    if (existingIdx == null) {
+      idToIndex.set(key, merged.length);
+      merged.push(normalized);
+      return;
+    }
+    merged[existingIdx] = mergeSupportMessageRecord(merged[existingIdx], normalized);
+  };
+  (Array.isArray(existingMsgs) ? existingMsgs : []).forEach(pushOrMerge);
+  (Array.isArray(incomingMsgs) ? incomingMsgs : []).forEach(pushOrMerge);
+  return merged;
+}
+
+function buildLegacySupportMessagesMirror(msgs) {
+  return (Array.isArray(msgs) ? msgs : [])
+    .map((m) => normalizeSupportMessageRecord(m))
+    .filter((m) => !isSupportMessageDeleted(m))
+    .map((m) => ({
+      id: m.id,
+      name: m.name,
+      email: m.email,
+      phone: m.phone,
+      category: m.category,
+      message: m.message,
+      creatorReply: m.creatorReply,
+      creatorMessages: m.creatorMessages,
+      replied: m.replied,
+      readByCreator: m.readByCreator,
+      replyReadByUser: m.replyReadByUser,
+      fromProfile: m.fromProfile,
+      fromProfileName: m.fromProfileName,
+      date: m.date,
+      replyDate: m.replyDate,
+    }));
+}
+
+function migrateLegacySupportMessagesToCentral(profileId, legacyMsgs) {
+  const authUserId = getAuthUserId("migrateLegacySupportMessagesToCentral") || "guest";
+  const migrationKey = `budgetpro_messages_legacy_migrated::${authUserId}::${profileId || "default"}`;
+  if (localStorage.getItem(migrationKey) === "true") return false;
+  const legacyList = Array.isArray(legacyMsgs) ? legacyMsgs : [];
+  const centralAll = getAllMessages({ includeDeleted: true });
+  if (centralAll.length > 0) {
+    localStorage.setItem(migrationKey, "true");
+    return false;
+  }
+  const deletedIds = new Set(
+    centralAll
+      .filter((m) => isSupportMessageDeleted(m) && m?.id != null)
+      .map((m) => String(m.id)),
+  );
+  const importableLegacy = legacyList.filter((m) => {
+    const id = m?.id;
+    return id != null && !deletedIds.has(String(id));
+  });
+  const merged = mergeSupportMessageCollections(centralAll, importableLegacy);
+  localStorage.setItem(migrationKey, "true");
+  if (JSON.stringify(centralAll) === JSON.stringify(merged)) return false;
+  saveAllMessages(merged);
+  return true;
+}
+
+function deleteSupportMessageById(id) {
+  const existingAll = getAllMessages({ includeDeleted: true });
+  const existingRecord = existingAll.find((m) => String(m?.id) === String(id));
+  const tombstone = mergeSupportMessageRecord(existingRecord || { id }, {
+    id,
+    deletedAt: new Date().toISOString(),
+    isDeleted: true,
+  });
+  const nextAll = existingAll.filter((m) => String(m?.id) !== String(id));
+  nextAll.push(tombstone);
+  saveAllMessages(nextAll);
+  return nextAll;
 }
 
 // Poll JSONBin every 30 seconds when messages panel is open
@@ -18713,8 +25287,24 @@ function startJsonBinPoller() {
   _jsonBinPoller = setInterval(async () => {
     const msgs = await jsonBinLoadMessages();
     if (msgs) {
+      const mergedMsgs = mergeSupportMessageCollections(
+        getAllMessages({ includeDeleted: true }),
+        msgs,
+      );
       try {
-        localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+        localStorage.setItem(
+          getMessagesStorageKey(),
+          JSON.stringify(mergedMsgs),
+        );
+        console.log(
+          "[USER_MESSAGES_SAVE]",
+          "SOURCE=",
+          "startJsonBinPoller",
+          "KEY=",
+          getMessagesStorageKey(),
+          "COUNT=",
+          mergedMsgs.length,
+        );
       } catch (e) {}
       updateSupportBadge();
       refreshCreatorPanelIfOpen();
@@ -18781,26 +25371,76 @@ function loadScript(src) {
   });
 }
 
+async function restartRealtimeListener() {
+  if (_fbDB && _fbListener) {
+    try {
+      const authUserId = getRemoteAuthUserId("restartRealtimeListener:detach");
+      const firebaseMessagesPath = getFirebaseMessagesPath(authUserId);
+      if (firebaseMessagesPath) {
+        _fbDB.ref(firebaseMessagesPath).off("value", _fbListener);
+      }
+    } catch (e) {}
+    _fbListener = null;
+  }
+  return startRealtimeListener();
+}
+
 // Start real-time listener for new messages
 async function startRealtimeListener() {
   const ok = await initFirebase();
   if (!ok || _fbListener) return;
   try {
-    const ref = _fbDB.ref("budgetpro_messages");
+    const authUserId = getRemoteAuthUserId("startRealtimeListener");
+    const firebaseMessagesPath = getFirebaseMessagesPath(authUserId);
+    logSupportOwnerTrace("startRealtimeListener", {
+      authUserId,
+      firebasePath: firebaseMessagesPath,
+      messagesKey: getMessagesStorageKey(authUserId),
+    });
+    if (!firebaseMessagesPath) return;
+    const ref = _fbDB.ref(firebaseMessagesPath);
     _fbListener = ref.on("value", (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
       const msgs = Object.values(data).sort(
         (a, b) => new Date(a.date) - new Date(b.date),
       );
+      const replyPayload = getReplyStateLogPayload(msgs);
+      if (replyPayload.length) {
+        console.log("[REPLY_REMOTE_LOAD]", {
+          source: "firebase",
+          messages: replyPayload.map((m) => ({
+            id: m.id,
+            creatorReply: m.creatorReply,
+            replyDate: m.replyDate,
+          })),
+        });
+      }
+      const mergedMsgs = mergeSupportMessageCollections(
+        getAllMessages({ includeDeleted: true }),
+        msgs,
+      );
       // Save to localStorage as cache
       try {
-        localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+        localStorage.setItem(
+          getMessagesStorageKey(),
+          JSON.stringify(mergedMsgs),
+        );
+        console.log(
+          "[USER_MESSAGES_SAVE]",
+          "SOURCE=",
+          "startRealtimeListener",
+          "KEY=",
+          getMessagesStorageKey(),
+          "COUNT=",
+          mergedMsgs.length,
+        );
       } catch (e) {}
       updateSupportBadge();
       refreshCreatorPanelIfOpen();
       refreshUserPanelIfOpen();
     });
+    console.log("[REMOTE_LOAD]", "TYPE=", "firebase-listener", "PATH=", firebaseMessagesPath);
     console.log("✅ Real-time listener active");
   } catch (e) {
     console.warn("Listener failed:", e.message);
@@ -18810,25 +25450,29 @@ async function startRealtimeListener() {
 async function warmMessageCaches() {
   const msgs = await jsonBinLoadMessages();
   if (msgs && msgs.length > 0) {
-    const localMsgs = getAllMessages();
-    // Merge: keep local + remote, deduplicate by id
-    const idSet = new Set(localMsgs.map((m) => m.id));
-    let changed = false;
-    msgs.forEach((m) => {
-      if (!idSet.has(m.id)) {
-        localMsgs.push(m);
-        changed = true;
-      }
-    });
-    if (changed) {
+    const localMsgs = getAllMessages({ includeDeleted: true });
+    const mergedMsgs = mergeSupportMessageCollections(localMsgs, msgs);
+    if (JSON.stringify(localMsgs) !== JSON.stringify(mergedMsgs)) {
       try {
-        localStorage.setItem(MSG_KEY, JSON.stringify(localMsgs));
+        localStorage.setItem(
+          getMessagesStorageKey(),
+          JSON.stringify(mergedMsgs),
+        );
+        console.log(
+          "[USER_MESSAGES_SAVE]",
+          "SOURCE=",
+          "warmMessageCaches",
+          "KEY=",
+          getMessagesStorageKey(),
+          "COUNT=",
+          mergedMsgs.length,
+        );
       } catch (e) {}
       updateSupportBadge();
     }
   }
-  // Start polling if creator panel may open
-  if (isCreator()) startJsonBinPoller();
+  // Start polling as a fallback transport for both creator and user sessions
+  startJsonBinPoller();
 }
 
 // ── Local fallback (same device) ──────────────────────────────
@@ -18845,15 +25489,62 @@ try {
 // getAllMessages defined above
 
 function saveAllMessages(msgs) {
+  const existingDeleted = getAllMessages({ includeDeleted: true }).filter((m) =>
+    isSupportMessageDeleted(m),
+  );
+  const normalizedMsgs = mergeSupportMessageCollections(existingDeleted, msgs);
+  const messagesKey = getMessagesStorageKey();
+  const traceMsg = normalizedMsgs.length ? normalizedMsgs[normalizedMsgs.length - 1] : null;
+  logMsgTrace("saveAllMessages", {
+    id: traceMsg?.id ?? null,
+    message: traceMsg?.message ?? null,
+    authUserId: getAuthUserId("saveAllMessages"),
+    activeProfileId,
+    fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+    fromProfileName:
+      traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+  });
+  logProfileMessageTrace("saveAllMessages", {
+    authUserId: getAuthUserId("saveAllMessages"),
+    profileId:
+      traceMsg?.profileId ??
+      traceMsg?.profile_id ??
+      traceMsg?.fromProfile ??
+      traceMsg?.from_profile ??
+      null,
+    fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+    fromProfileName:
+      traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+    profileName:
+      profiles.find((p) => String(p?.id || "") === String(activeProfileId || ""))?.name ??
+      null,
+    firebasePath: getFirebaseMessagesPath(getAuthUserId("saveAllMessages")),
+    messagesKey,
+  });
+  const replyPayload = getReplyStateLogPayload(normalizedMsgs);
+  if (replyPayload.length) {
+    console.log("[REPLY_LOCAL_SAVE]", {
+      messages: replyPayload,
+    });
+  }
   // SYNCHRONOUS localStorage save
   try {
-    localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
+    localStorage.setItem(messagesKey, JSON.stringify(normalizedMsgs));
   } catch (e) {
     console.error("MSG save failed", e);
   }
   console.log(
+    "[USER_MESSAGES_SAVE]",
+    "SOURCE=",
+    "saveAllMessages",
+    "KEY=",
+    messagesKey,
+    "COUNT=",
+    normalizedMsgs.length,
+  );
+  console.log(
     "[Messages] Saved",
-    msgs.length,
+    normalizedMsgs.length,
     "messages to localStorage. Key:",
     MSG_KEY,
   );
@@ -18863,15 +25554,40 @@ function saveAllMessages(msgs) {
   try {
     _msgChannel?.postMessage({ type: "msg_update", ts: Date.now() });
   } catch (e) {}
-  _saveToFirebase(msgs);
-  jsonBinSaveMessages(msgs).catch(() => {});
+  if (replyPayload.length) {
+    console.log("[REPLY_REMOTE_SAVE]", {
+      target: "firebase",
+      messages: replyPayload.map((m) => ({
+        id: m.id,
+        creatorReply: m.creatorReply,
+        replyDate: m.replyDate,
+      })),
+    });
+  }
+  _saveToFirebase(normalizedMsgs);
+  jsonBinSaveMessages(normalizedMsgs).catch(() => {});
 }
 
-function getAllMessages() {
+function getAllMessages(options = {}) {
   try {
-    const raw = localStorage.getItem(MSG_KEY);
+    const messagesKey = getMessagesStorageKey();
+    const raw = localStorage.getItem(messagesKey);
     const msgs = JSON.parse(raw || "[]");
-    return msgs;
+    if (!Array.isArray(msgs)) return [];
+    const normalizedMsgs = msgs.map((m) => normalizeSupportMessageRecord(m));
+    const result = options?.includeDeleted
+      ? normalizedMsgs
+      : normalizedMsgs.filter((m) => !isSupportMessageDeleted(m));
+    console.log(
+      "[USER_MESSAGES_LOAD]",
+      "KEY=",
+      messagesKey,
+      "COUNT=",
+      result.length,
+      "INCLUDE_DELETED=",
+      options?.includeDeleted ? "1" : "0",
+    );
+    return result;
   } catch (e) {
     return [];
   }
@@ -18882,12 +25598,71 @@ function _saveToFirebase(msgs) {
   initFirebase().then((ok) => {
     if (!ok || !_fbDB) return;
     try {
+      const authUserId = getRemoteAuthUserId("_saveToFirebase");
+      const firebaseMessagesPath = getFirebaseMessagesPath(authUserId);
+      const traceMsg = Array.isArray(msgs) && msgs.length ? msgs[msgs.length - 1] : null;
+      logMsgTrace("_saveToFirebase", {
+        id: traceMsg?.id ?? null,
+        message: traceMsg?.message ?? null,
+        authUserId,
+        activeProfileId,
+        fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+        fromProfileName:
+          traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+      });
+      logSupportOwnerTrace("_saveToFirebase", {
+        authUserId,
+        fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+        fromProfileName:
+          traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+        firebasePath: firebaseMessagesPath,
+        messagesKey: getMessagesStorageKey(authUserId),
+      });
+      logProfileMessageTrace("_saveToFirebase", {
+        authUserId,
+        profileId:
+          traceMsg?.profileId ??
+          traceMsg?.profile_id ??
+          traceMsg?.fromProfile ??
+          traceMsg?.from_profile ??
+          null,
+        fromProfile: traceMsg?.fromProfile ?? traceMsg?.from_profile ?? null,
+        fromProfileName:
+          traceMsg?.fromProfileName ?? traceMsg?.from_profile_name ?? null,
+        profileName:
+          profiles.find((p) => String(p?.id || "") === String(activeProfileId || ""))?.name ??
+          null,
+        firebasePath: firebaseMessagesPath,
+        messagesKey: getMessagesStorageKey(authUserId),
+      });
+      if (!firebaseMessagesPath) return;
       const obj = {};
       msgs.forEach((m) => {
-        obj[String(m.id).replace(/[.#$/\[\]]/g, "_")] = m;
+        const normalizedMessage = normalizeSupportMessageRecord({
+          ...m,
+          userId: m?.userId ?? m?.user_id ?? authUserId,
+          profileId:
+            m?.profileId ??
+            m?.profile_id ??
+            m?.fromProfile ??
+            m?.from_profile ??
+            null,
+        });
+        obj[String(normalizedMessage.id).replace(/[.#$/\[\]]/g, "_")] = normalizedMessage;
       });
+      console.log(
+        "[REMOTE_SAVE]",
+        "TYPE=",
+        "firebase",
+        "USER_ID=",
+        authUserId,
+        "PATH=",
+        firebaseMessagesPath,
+        "COUNT=",
+        Object.keys(obj).length,
+      );
       _fbDB
-        .ref("budgetpro_messages")
+        .ref(firebaseMessagesPath)
         .set(obj)
         .catch((e) => console.warn("FB write:", e.message));
     } catch (e) {
@@ -18913,132 +25688,454 @@ setInterval(() => {
 }, 5000);
 
 // Refresh creator panel messages list without closing the modal
+function getCreatorDialogUiCopy(lang) {
+  return (
+    {
+      ru: {
+        empty: "Нет диалогов",
+        dialogsLabel: "диалогов",
+        unknownProfile: "Профиль без имени",
+        youLabel: "Вы",
+        creatorLabel: "Разработчик",
+        accountLabel: "Аккаунт",
+        sameAccountLabel: "Тот же аккаунт",
+        profilesInAccountLabel: "Профилей в аккаунте",
+        dialogsInAccountLabel: "диалога",
+      },
+      en: {
+        empty: "No dialogs",
+        dialogsLabel: "dialogs",
+        unknownProfile: "Unnamed profile",
+        youLabel: "You",
+        creatorLabel: "Developer",
+        accountLabel: "Account",
+        sameAccountLabel: "Same account",
+        profilesInAccountLabel: "Profiles in account",
+        dialogsInAccountLabel: "dialogs",
+      },
+      ka: {
+        empty: "დიალოგები არ არის",
+        dialogsLabel: "დიალოგი",
+        unknownProfile: "უსახელო პროფილი",
+        youLabel: "თქვენ",
+        creatorLabel: "დეველოპერი",
+        accountLabel: "ანგარიში",
+        sameAccountLabel: "იგივე ანგარიში",
+        profilesInAccountLabel: "პროფილი ანგარიშში",
+        dialogsInAccountLabel: "დიალოგი",
+      },
+    }[lang] || {
+      empty: "No dialogs",
+      dialogsLabel: "dialogs",
+      unknownProfile: "Unnamed profile",
+      youLabel: "You",
+      creatorLabel: "Developer",
+      accountLabel: "Account",
+      sameAccountLabel: "Same account",
+      profilesInAccountLabel: "Profiles in account",
+      dialogsInAccountLabel: "dialogs",
+    }
+  );
+}
+
+function getCreatorDialogActivity(msg, copy) {
+  const messageAt = new Date(msg?.date || 0);
+  const creatorMessages = getCreatorMessagesList(msg);
+  const latestCreatorMessage = creatorMessages.length
+    ? creatorMessages[creatorMessages.length - 1]
+    : null;
+  const replyAt = latestCreatorMessage?.createdAt
+    ? new Date(latestCreatorMessage.createdAt)
+    : msg?.creatorReply
+      ? new Date(msg?.replyDate || msg?.date || 0)
+      : null;
+  const messageValid = !Number.isNaN(messageAt.getTime());
+  const replyValid = replyAt && !Number.isNaN(replyAt.getTime());
+  if (
+    replyValid &&
+    (!messageValid || replyAt.getTime() >= messageAt.getTime())
+  ) {
+    return {
+      at: replyAt,
+      text: latestCreatorMessage?.text || msg.creatorReply || "",
+      authorLabel: copy.creatorLabel,
+    };
+  }
+  return {
+    at: messageValid ? messageAt : new Date(0),
+    text: msg?.message || "",
+    authorLabel: copy.youLabel,
+  };
+}
+
+function getCreatorDialogs(messages, lang) {
+  const copy = getCreatorDialogUiCopy(lang);
+  const toOwnerKey = (userId) => {
+    const raw = String(userId || "").trim();
+    return raw || "";
+  };
+  const toOwnerShortId = (userId) => {
+    const normalized = toOwnerKey(userId).replace(/[^a-zA-Z0-9]/g, "");
+    return normalized ? "#" + normalized.slice(0, 6).toUpperCase() : "";
+  };
+  const ownerStats = new Map();
+  (messages || []).forEach((msg) => {
+    const ownerKey = toOwnerKey(msg?.userId);
+    if (!ownerKey) return;
+    const existing =
+      ownerStats.get(ownerKey) ||
+      {
+        dialogKeys: new Set(),
+        profileKeys: new Set(),
+        profileNames: new Map(),
+      };
+    const dialogKey = String(msg?.fromProfile || `legacy_${msg?.id || Date.now()}`);
+    const profileKey = String(
+      msg?.profileId ?? msg?.fromProfile ?? `legacy_${msg?.id || Date.now()}`,
+    );
+    const profileName = String(
+      msg?.fromProfileName || msg?.name || copy.unknownProfile,
+    ).trim();
+    existing.dialogKeys.add(dialogKey);
+    existing.profileKeys.add(profileKey);
+    if (profileName && !existing.profileNames.has(profileKey)) {
+      existing.profileNames.set(profileKey, profileName);
+    }
+    ownerStats.set(ownerKey, existing);
+  });
+  const dialogs = new Map();
+  (messages || []).forEach((msg) => {
+    const key = String(msg?.fromProfile || `legacy_${msg?.id || Date.now()}`);
+    const activity = getCreatorDialogActivity(msg, copy);
+    const current = dialogs.get(key);
+    const ownerKey = toOwnerKey(msg?.userId);
+    const ownerMeta = ownerKey ? ownerStats.get(ownerKey) : null;
+    const ownerProfileNamesPreview = ownerMeta
+      ? Array.from(ownerMeta.profileNames.values())
+          .filter(Boolean)
+          .slice(0, 3)
+      : [];
+    if (!current) {
+      dialogs.set(key, {
+        fromProfile: msg?.fromProfile || null,
+        fromProfileName:
+          msg?.fromProfileName || msg?.name || copy.unknownProfile,
+        ownerUserId: ownerKey || null,
+        ownerShortId: ownerKey ? toOwnerShortId(ownerKey) : null,
+        ownerDialogCount: ownerMeta ? ownerMeta.dialogKeys.size : 0,
+        ownerProfilesCount: ownerMeta ? ownerMeta.profileKeys.size : 0,
+        ownerProfileNamesPreview,
+        lastMessage: activity.text,
+        lastMessageId: msg?.id || null,
+        lastMessageAuthor: activity.authorLabel,
+        lastMessageAt: activity.at,
+        unreadCount: msg?.readByCreator ? 0 : 1,
+      });
+      return;
+    }
+    if (!msg?.readByCreator) current.unreadCount += 1;
+    if (activity.at.getTime() >= current.lastMessageAt.getTime()) {
+      current.lastMessage = activity.text;
+      current.lastMessageId = msg?.id || current.lastMessageId || null;
+      current.lastMessageAuthor = activity.authorLabel;
+      current.lastMessageAt = activity.at;
+      current.fromProfileName =
+        msg?.fromProfileName || current.fromProfileName || copy.unknownProfile;
+    }
+    if (!current.ownerUserId && ownerKey) current.ownerUserId = ownerKey;
+    if (!current.ownerShortId && ownerKey) current.ownerShortId = toOwnerShortId(ownerKey);
+    if (ownerMeta) {
+      current.ownerDialogCount = ownerMeta.dialogKeys.size;
+      current.ownerProfilesCount = ownerMeta.profileKeys.size;
+      current.ownerProfileNamesPreview = ownerProfileNamesPreview;
+    }
+  });
+  return Array.from(dialogs.values()).sort(
+    (a, b) => b.lastMessageAt.getTime() - a.lastMessageAt.getTime(),
+  );
+}
+
+function updateCreatorPanelUnreadBadge() {
+  const badge = document.getElementById("creatorUnreadBadge");
+  if (!badge) return;
+  const count = getAllMessages().filter((m) => !m.readByCreator).length;
+  if (count > 0) {
+    badge.textContent = `${count} ${badge.dataset.unreadLabel || ""}`.trim();
+    badge.style.background = "var(--expense-color)";
+    badge.style.color = "white";
+    badge.style.fontWeight = "800";
+  } else {
+    badge.textContent = badge.dataset.emptyLabel || "✓ All read";
+    badge.style.background = "var(--income-pale)";
+    badge.style.color = "var(--income-color)";
+    badge.style.fontWeight = "700";
+  }
+}
+
+function getCreatorPanelListState() {
+  const searchEl = document.getElementById("creatorSearchInput");
+  const activeFilter =
+    document.querySelector(".creator-filter-btn.active")?.dataset.filter ||
+    "all";
+  return {
+    query: String(searchEl?.value || "").trim().toLowerCase(),
+    filter: String(activeFilter || "all"),
+  };
+}
+
+function creatorDialogHasReplies(dialogMessages) {
+  return (dialogMessages || []).some(
+    (msg) =>
+      String(msg?.creatorReply || "").trim() ||
+      getCreatorMessagesList(msg).length > 0,
+  );
+}
+
+function creatorDialogMatchesSearch(dialogMessages, query) {
+  if (!query) return true;
+  return (dialogMessages || []).some((msg) => {
+    const creatorText = getCreatorMessagesList(msg)
+      .map((entry) => String(entry?.text || ""))
+      .join(" ");
+    const haystack = [
+      msg?.name,
+      msg?.email,
+      msg?.phone,
+      msg?.message,
+      msg?.creatorReply,
+      creatorText,
+    ]
+      .map((value) => String(value || "").toLowerCase())
+      .join(" ");
+    return haystack.includes(query);
+  });
+}
+
+function getFilteredCreatorDialogs(messages, lang, options = {}) {
+  const dialogs = getCreatorDialogs(messages, lang);
+  const grouped = new Map();
+  (messages || []).forEach((msg) => {
+    const key = String(msg?.fromProfile || `legacy_${msg?.id || Date.now()}`);
+    const list = grouped.get(key) || [];
+    list.push(msg);
+    grouped.set(key, list);
+  });
+  const query = String(options?.query || "").trim().toLowerCase();
+  const filter = String(options?.filter || "all");
+  return dialogs.filter((dialog) => {
+    const dialogMessages = grouped.get(
+      String(dialog?.fromProfile || `legacy_${dialog?.lastMessageId || ""}`),
+    ) || [];
+    const isUnread = dialogMessages.some((msg) => !msg?.readByCreator);
+    const hasReplies = creatorDialogHasReplies(dialogMessages);
+    const passesSearch = creatorDialogMatchesSearch(dialogMessages, query);
+    if (!passesSearch) return false;
+    if (filter === "unread") return isUnread;
+    if (filter === "pending") return !hasReplies;
+    if (filter === "answered") return hasReplies;
+    return true;
+  });
+}
+
+function getCreatorPanelStats(messages, lang) {
+  const allMessages = Array.isArray(messages) ? messages : [];
+  const dialogs = getCreatorDialogs(allMessages, lang);
+  const profileIds = new Set();
+  const accountIds = new Set();
+  allMessages.forEach((msg) => {
+    const profileKey = String(
+      msg?.profileId ?? msg?.fromProfile ?? msg?.fromProfileName ?? "",
+    ).trim();
+    const accountKey = String(msg?.userId || "").trim();
+    if (profileKey) profileIds.add(profileKey);
+    if (accountKey) accountIds.add(accountKey);
+  });
+  return {
+    messages: allMessages.length,
+    unread: allMessages.filter((msg) => !msg?.readByCreator).length,
+    dialogs: dialogs.length,
+    profiles: profileIds.size,
+    accounts: accountIds.size,
+  };
+}
+
+function updateCreatorPanelStats(messages, lang) {
+  const stats = getCreatorPanelStats(messages, lang);
+  const mapping = {
+    creatorStatMessages: stats.messages,
+    creatorStatUnread: stats.unread,
+    creatorStatDialogs: stats.dialogs,
+    creatorStatProfiles: stats.profiles,
+    creatorStatAccounts: stats.accounts,
+  };
+  Object.entries(mapping).forEach(([id, value]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = String(value);
+  });
+}
+
+function renderCreatorDialogListMarkup(messages, lang, options = {}) {
+  const copy = getCreatorDialogUiCopy(lang);
+  const dialogs = getFilteredCreatorDialogs(messages, lang, options);
+  if (!dialogs.length) {
+    return `<div data-empty="1" style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${copy.empty}</div></div>`;
+  }
+  const locale =
+    lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU";
+  return dialogs
+    .map((dialog) => {
+      const timeLabel = dialog.lastMessageAt.toLocaleString(locale, {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+      const preview = `${dialog.lastMessageAuthor}: ${dialog.lastMessage || ""}`;
+      const showOwnerBadge =
+        Boolean(dialog.ownerUserId) && Number(dialog.ownerDialogCount || 0) > 1;
+      const ownerProfilesPreview = Array.isArray(dialog.ownerProfileNamesPreview)
+        ? dialog.ownerProfileNamesPreview.join(", ")
+        : "";
+      return `
+        <div class="creator-dialog-card" data-dialog-profile="${esc(String(dialog.fromProfile || ""))}" data-message-id="${esc(String(dialog.lastMessageId || ""))}" style="background:var(--card-bg);border-radius:18px;padding:14px 16px;border:1.5px solid ${dialog.unreadCount ? "var(--primary)" : "var(--cream-border)"};box-shadow:${dialog.unreadCount ? "var(--shadow-md)" : "var(--shadow-sm)"};display:flex;align-items:flex-start;gap:12px;">
+          <div style="width:42px;height:42px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">👤</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:6px;">
+              <div style="font-weight:900;font-size:14px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(dialog.fromProfileName || copy.unknownProfile)}</div>
+              <div style="font-size:11px;color:var(--text-muted);flex-shrink:0;white-space:nowrap;">${esc(timeLabel)}</div>
+            </div>
+            ${
+              showOwnerBadge
+                ? `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+                    <span style="font-size:11px;font-weight:800;color:var(--primary);background:var(--primary-pale);border:1px solid var(--gold-border);border-radius:999px;padding:3px 8px;">${esc(dialog.ownerShortId || "")}</span>
+                    <span style="font-size:11px;color:var(--text-muted);font-weight:700;">${esc(copy.sameAccountLabel)} · ${esc(String(dialog.ownerDialogCount || 0))} ${esc(copy.dialogsInAccountLabel)}</span>
+                  </div>
+                  ${
+                    ownerProfilesPreview
+                      ? `<div style="font-size:11px;line-height:1.45;color:var(--text-muted);margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;">${esc(ownerProfilesPreview)}</div>`
+                      : ""
+                  }`
+                : ""
+            }
+            <div style="font-size:13px;line-height:1.5;color:var(--text-soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;">${esc(preview)}</div>
+          </div>
+          ${
+            dialog.unreadCount
+              ? `<div style="min-width:24px;height:24px;padding:0 8px;border-radius:999px;background:var(--expense-color);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${dialog.unreadCount}</div>`
+              : ""
+          }
+        </div>
+      `;
+    })
+    .join("");
+}
+
 function refreshCreatorPanelIfOpen() {
   const list = document.getElementById("creatorMsgList");
-  if (!list) return;
-
-  const msgs = getAllMessages().sort(
+  const focusedScreen = document.getElementById("creatorFocusedScreen");
+  if (!list && !focusedScreen) return;
+  updateCreatorPanelUnreadBadge();
+  const allMessages = getAllMessages().sort(
     (a, b) => new Date(b.date) - new Date(a.date),
   );
+  updateCreatorPanelStats(allMessages, currentLang);
+  if (
+    focusedScreen?.dataset.active === "1" &&
+    typeof window._refreshCreatorFocusedScreen === "function"
+  ) {
+    window._refreshCreatorFocusedScreen();
+    return;
+  }
+  if (
+    list.dataset.view === "history" &&
+    typeof window._renderCreatorDialogHistory === "function"
+  ) {
+    const profileId = list.dataset.dialogProfile || "";
+    const nextSignature =
+      typeof window._getCreatorDialogSignature === "function"
+        ? window._getCreatorDialogSignature(profileId)
+        : "";
+    if (nextSignature !== (list.dataset.dialogSignature || "")) {
+      window._renderCreatorDialogHistory(profileId, list.dataset.selectedMessageId || "", {
+        forceFocusedMode: list.dataset.focusedMode === "1",
+        expandedMessageId: list.dataset.expandedMessageId || "",
+        preserveScroll: true,
+      });
+    }
+    return;
+  }
+
+  const msgs = allMessages;
   console.log(
     "[Messages] refreshCreatorPanel: total",
     msgs.length,
     "msgs in store",
   );
   const lang = currentLang;
-  const lc = {
-    ru: { empty: "Нет сообщений", new: "🆕", del: "🗑" },
-    en: { empty: "No messages", new: "🆕", del: "🗑" },
-    ka: { empty: "შეტყობინება არ არის", new: "🆕", del: "🗑" },
-  }[lang] || { empty: "No messages", new: "🆕", del: "🗑" };
-
-  const currentIds = new Set(
-    [...list.querySelectorAll(".creator-msg-card")].map((c) => c.dataset.msgid),
-  );
-  const newMsgs = msgs.filter((m) => !currentIds.has(String(m.id)));
-  console.log("[Messages] New cards to render:", newMsgs.length);
-
-  if (newMsgs.length === 0) {
-    // Update count even if no new msgs
-    const countEl = document.getElementById("crMsgCount");
-    if (countEl)
-      countEl.textContent =
-        msgs.length +
-        " " +
-        { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
-    return;
-  }
-
-  // Remove empty placeholder
-  list.querySelector("[data-empty='1']")?.remove();
-  list.querySelector("[data-empty]")?.remove();
-
-  newMsgs.forEach((m) => {
-    const dt = new Date(m.date).toLocaleString(
-      lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
-      { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
-    );
-    const card = document.createElement("div");
-    card.className = "creator-msg-card";
-    card.dataset.msgid = String(m.id);
-    card.style.cssText =
-      "background:var(--card-bg);border-radius:16px;padding:14px;border:2px solid var(--primary);box-shadow:0 2px 16px rgba(45,106,79,0.12);animation:fadeUp 0.35s ease both;margin-bottom:10px;";
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div style="width:38px;height:38px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👤</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:800;font-size:14px;display:flex;align-items:center;gap:6px;">${esc(m.name)}<span style="background:var(--primary);color:white;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;">${lc.new}</span></div>
-          <div style="font-size:11px;color:var(--text-muted);">${dt}</div>
-        </div>
-        <button class="cr-del-inline" data-mid="${m.id}" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--text-muted);padding:6px;flex-shrink:0;">${lc.del}</button>
-      </div>
-      <div style="background:var(--cream-dark);border-radius:10px;padding:12px;font-size:14px;line-height:1.6;word-break:break-word;">${esc(m.message)}</div>
-      ${m.creatorReply ? `<div style="margin-top:8px;border-left:3px solid var(--primary);padding:8px 12px;background:var(--primary-pale);border-radius:0 10px 10px 0;font-size:13px;word-break:break-word;">${esc(m.creatorReply)}</div>` : ""}
-    `;
-    list.insertBefore(card, list.firstChild);
-
-    card.querySelector(".cr-del-inline")?.addEventListener("click", () => {
-      const all = getAllMessages();
-      saveAllMessages(all.filter((x) => String(x.id) !== String(m.id)));
-      card.remove();
-    });
-  });
-
-  // Update count
+  const copy = getCreatorDialogUiCopy(lang);
+  const listState = getCreatorPanelListState();
+  const dialogs = getFilteredCreatorDialogs(msgs, lang, listState);
+  console.log("[Messages] Dialogs to render:", dialogs.length);
+  list.innerHTML = renderCreatorDialogListMarkup(msgs, lang, listState);
+  window._bindCreatorDialogCards?.();
   const countEl = document.getElementById("crMsgCount");
   if (countEl)
-    countEl.textContent =
-      msgs.length +
-      " " +
-      { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
+    countEl.textContent = dialogs.length + " " + copy.dialogsLabel;
 }
 
 // Refresh user chat feed with new replies from creator
 function refreshUserPanelIfOpen() {
   const feed = document.getElementById("userChatFeed");
   if (!feed) return;
-  const msgs = getAllMessages().filter(
+  const previousScrollTop = feed.scrollTop;
+  const shouldStickBottom = isUserChatNearBottom(feed);
+  const allUserMsgs = getAllMessages().filter(
     (m) => m.fromProfile === activeProfileId,
   );
-  msgs.forEach((m) => {
-    if (m.creatorReply && !m.replyReadByUser) {
-      // Check if reply bubble already shown
-      const existingReply = feed.querySelector(`[data-reply-for="${m.id}"]`);
-      if (!existingReply) {
-        const lang = currentLang;
-        const devLabel = {
-          ru: "Разработчик",
-          en: "Developer",
-          ka: "შემქმნელი",
-        }[lang];
-        const dt = new Date(m.replyDate || m.date).toLocaleString(
-          lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
-          { hour: "2-digit", minute: "2-digit" },
-        );
-        const bubble = document.createElement("div");
-        bubble.dataset.replyFor = m.id;
-        bubble.style.cssText =
-          "display:flex;gap:8px;align-items:flex-end;animation:fadeUp 0.3s ease both;";
-        bubble.innerHTML = `
-          <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#f59e0b);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">👨‍💻</div>
-          <div style="max-width:85%;background:var(--card-bg);border:1.5px solid var(--cream-border);padding:10px 14px;border-radius:18px 18px 18px 4px;box-shadow:var(--shadow-sm);">
-            <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${devLabel}</div>
-            <div style="font-size:14px;line-height:1.5;color:var(--text);">${esc(m.creatorReply)}</div>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${dt}</div>
-          </div>`;
-        feed.appendChild(bubble);
-        feed.scrollTop = feed.scrollHeight;
-        // Mark as read
-        m.replyReadByUser = true;
-        const all = getAllMessages();
-        const idx = all.findIndex((x) => x.id === m.id);
-        if (idx >= 0) {
-          all[idx].replyReadByUser = true;
-          saveAllMessages(all);
-        }
-      }
-    }
+  const msgs = filterVisibleUserChatMessages(allUserMsgs, activeProfileId);
+  console.log("[SUPPORT_REFRESH]", {
+    activeProfileId,
+    msgsLength: msgs.length,
+    clearedAt: getUserChatClearedAt(activeProfileId),
+    messages: msgs.map((m) => ({
+      id: m?.id ?? null,
+      fromProfile: m?.fromProfile ?? null,
+      creatorReply: m?.creatorReply ?? null,
+      creatorMessagesCount: Array.isArray(m?.creatorMessages)
+        ? m.creatorMessages.length
+        : 0,
+      replyReadByUser: typeof m?.replyReadByUser === "boolean" ? m.replyReadByUser : false,
+    })),
   });
+  const lang = currentLang;
+  const lc = {
+    ru: { dev: "Разработчик Ираклий", empty: "Начните диалог! Выберите шаблон ниже или напишите свой вопрос." },
+    en: { dev: "Developer Irakli", empty: "Start the chat! Choose a template below or write your own question." },
+    ka: { dev: "შემქმნელი ირაკლი", empty: "დაიწყეთ ჩატი! აირჩიეთ შაბლონი ან ჩაწერეთ კითხვა." },
+  }[lang];
+  feed.innerHTML = msgs.length
+    ? msgs.map((m) => renderChatBubble(m, lc)).join("")
+    : `<div data-empty="1" style="text-align:center;color:var(--text-muted);font-size:13px;padding:20px 10px;">${lc.empty}</div>`;
+  if (shouldStickBottom) {
+    feed.scrollTop = feed.scrollHeight;
+  } else {
+    feed.scrollTop = previousScrollTop;
+  }
+  const unreadReplyIds = msgs
+    .filter((m) => hasUnreadCreatorMessages(m))
+    .map((m) => String(m.id));
+  if (!unreadReplyIds.length) return;
+  const all = getAllMessages();
+  let changed = false;
+  all.forEach((msg, idx) => {
+    if (!unreadReplyIds.includes(String(msg?.id))) return;
+    all[idx] = markCreatorMessagesRead(msg);
+    changed = true;
+  });
+  if (changed) {
+    saveAllMessages(all);
+    updateSupportBadge();
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -19134,6 +26231,38 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgsDep) {
     "ID:",
     newMsg.id,
   );
+  console.log("[SUPPORT_SEND]", {
+    activeProfileId,
+    id: newMsg.id,
+    fromProfile: newMsg.fromProfile,
+    fromProfileName: newMsg.fromProfileName,
+  });
+  logMsgTrace("sendUserMessage", {
+    id: newMsg.id,
+    message: newMsg.message,
+    authUserId: getAuthUserId("sendUserMessage"),
+    activeProfileId,
+    fromProfile: newMsg.fromProfile,
+    fromProfileName: newMsg.fromProfileName,
+  });
+  logProfileMessageTrace("sendUserMessage", {
+    authUserId: getAuthUserId("sendUserMessage"),
+    profileId: profiles.find((p) => p.id === activeProfileId)?.id ?? activeProfileId ?? null,
+    fromProfile: newMsg.fromProfile,
+    fromProfileName: newMsg.fromProfileName,
+    profileName:
+      profiles.find((p) => String(p?.id || "") === String(activeProfileId || ""))?.name ??
+      null,
+    firebasePath: getFirebaseMessagesPath(getAuthUserId("sendUserMessage")),
+    messagesKey: getMessagesStorageKey(getAuthUserId("sendUserMessage")),
+  });
+  logSupportOwnerTrace("sendUserMessage", {
+    authUserId: getAuthUserId("sendUserMessage"),
+    fromProfile: newMsg.fromProfile,
+    fromProfileName: newMsg.fromProfileName,
+    firebasePath: getFirebaseMessagesPath(getAuthUserId("sendUserMessage")),
+    messagesKey: getMessagesStorageKey(getAuthUserId("sendUserMessage")),
+  });
   saveAllMessages(allMsgs);
   // Force immediate badge update
   setTimeout(updateSupportBadge, 100);
@@ -19141,9 +26270,12 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgsDep) {
   // Also save in feed for immediate UI update
   const feed = document.getElementById("userChatFeed");
   if (feed) {
+    const shouldStickBottom = isUserChatNearBottom(feed);
     feed.querySelector("[data-empty]")?.remove();
     feed.insertAdjacentHTML("beforeend", renderChatBubble(newMsg, lc));
-    feed.scrollTop = feed.scrollHeight;
+    if (shouldStickBottom) {
+      feed.scrollTop = feed.scrollHeight;
+    }
   }
   if (msgEl) msgEl.value = "";
   document.querySelectorAll(".chat-tpl-btn").forEach((b) => {
@@ -19165,52 +26297,90 @@ function sendUserMessage(lc, ownerProf, ownerData, allMsgsDep) {
 // ================================================================
 function openCreatorChatPanel() {
   const ownerData = JSON.parse(
-    localStorage.getItem("budget_profile_" + activeProfileId) || "{}",
+    localStorage.getItem(getProfileStorageKey(activeProfileId)) || "{}",
   );
   // Use central message store (single source of truth)
   const msgs = getAllMessages().sort(
     (a, b) => new Date(b.date) - new Date(a.date),
   );
-  // Backwards compat: also check old profile-based messages
-  const oldProfileMsgs = ownerData.supportMessages || [];
-  if (oldProfileMsgs.length > 0) {
-    const existingIds = new Set(msgs.map((m) => m.id));
-    const merged = getAllMessages();
-    oldProfileMsgs.forEach((m) => {
-      if (!existingIds.has(m.id)) merged.push(m);
-    });
-    if (merged.length > msgs.length) {
-      saveAllMessages(merged);
-      msgs.splice(
-        0,
-        msgs.length,
-        ...merged.sort((a, b) => new Date(b.date) - new Date(a.date)),
-      );
-    }
+  const traceMsg = msgs.length ? msgs[0] : null;
+  logMsgTrace("openCreatorChatPanel", {
+    id: traceMsg?.id ?? null,
+    message: traceMsg?.message ?? null,
+    authUserId: getAuthUserId("openCreatorChatPanel"),
+    activeProfileId,
+    fromProfile: traceMsg?.fromProfile ?? null,
+    fromProfileName: traceMsg?.fromProfileName ?? null,
+  });
+  logProfileMessageTrace("openCreatorChatPanel", {
+    authUserId: getAuthUserId("openCreatorChatPanel"),
+    profileId:
+      traceMsg?.profileId ??
+      traceMsg?.profile_id ??
+      traceMsg?.fromProfile ??
+      traceMsg?.from_profile ??
+      null,
+    fromProfile: traceMsg?.fromProfile ?? null,
+    fromProfileName: traceMsg?.fromProfileName ?? null,
+    profileName:
+      profiles.find((p) => String(p?.id || "") === String(activeProfileId || ""))?.name ??
+      null,
+    firebasePath: getFirebaseMessagesPath(getAuthUserId("openCreatorChatPanel")),
+    messagesKey: getMessagesStorageKey(getAuthUserId("openCreatorChatPanel")),
+  });
+  logSupportOwnerTrace("openCreatorChatPanel", {
+    authUserId: getAuthUserId("openCreatorChatPanel"),
+    fromProfile: traceMsg?.fromProfile ?? null,
+    fromProfileName: traceMsg?.fromProfileName ?? null,
+    firebasePath: getFirebaseMessagesPath(getAuthUserId("openCreatorChatPanel")),
+    messagesKey: getMessagesStorageKey(getAuthUserId("openCreatorChatPanel")),
+  });
+  // Legacy supportMessages can seed the central store only once.
+  if (migrateLegacySupportMessagesToCentral(activeProfileId, ownerData.supportMessages)) {
+    msgs.splice(
+      0,
+      msgs.length,
+      ...getAllMessages().sort((a, b) => new Date(b.date) - new Date(a.date)),
+    );
   }
   const lang = currentLang;
   const cs = getCreatorSettings();
   const unread = msgs.filter((m) => !m.readByCreator).length;
-  if (unread > 0) {
-    // Mark as read in localStorage directly - DON'T call saveAllMessages here
-    // (it would trigger refreshCreatorPanelIfOpen on non-existent DOM)
-    msgs.forEach((m) => {
-      m.readByCreator = true;
-    });
-    try {
-      localStorage.setItem(MSG_KEY, JSON.stringify(msgs));
-    } catch (e) {}
-  }
+  const dialogs = getCreatorDialogs(msgs, lang);
   updateSupportBadge();
 
-  const TT = CREATOR_TEMPLATES[lang] || CREATOR_TEMPLATES.ru;
+  const QUICK_REPLY_TEMPLATES = {
+    ru: [
+      "Здравствуйте! Спасибо за обращение.",
+      "Ваше сообщение получено и находится в обработке.",
+      "Пожалуйста, опишите проблему подробнее.",
+      "Пожалуйста, проверьте, что у вас установлена последняя версия приложения.",
+      "Проблема передана разработчику.",
+    ],
+    en: [
+      "Hello! Thank you for contacting us.",
+      "Your message has been received and is being reviewed.",
+      "Please describe the issue in more detail.",
+      "Please make sure you are using the latest version of the application.",
+      "The issue has been forwarded to the developer.",
+    ],
+    ka: [
+      "გამარჯობა! მადლობა რომ დაგვიკავშირდით.",
+      "თქვენი შეტყობინება მიღებულია და უკვე დამუშავების პროცესშია.",
+      "გთხოვთ, უფრო დეტალურად აღწეროთ პრობლემა.",
+      "გთხოვთ, შეამოწმოთ აპლიკაციის უახლესი ვერსია.",
+      "პრობლემა გადაეცა დეველოპერს.",
+    ],
+  };
   const L = {
     ru: {
       title: "👑 Панель создателя",
       empty: "Нет входящих сообщений",
+      dialogsLabel: "диалогов",
       del: "🗑",
       replyBtn: "💬 Ответить",
       editReply: "✏️ Изменить ответ",
+      followUpBtn: "➕ Продолжить",
       sendReply: "➤ Отправить ответ",
       cancelReply: "Отмена",
       replyPh: "Введите ответ...",
@@ -19220,16 +26390,35 @@ function openCreatorChatPanel() {
       toggleLabel: "Приём сообщений",
       inAppLabel: "Сообщения в приложении",
       save: "💾 Сохранить настройки",
-      exit: "🚪 Выйти из режима создателя",
+      exit: "🚪 Закрыть панель создателя",
       unreadBadge: "непрочитанных",
       new: "🆕",
+      back: "← Назад к диалогам",
+      messagesLabel: "сообщений",
+      focusedThreadLabel: "Обращение",
+      replyHistoryLabel: "История ответов",
+      supportSettingsTitle: "⚙️ Настройки поддержки",
+      searchPh: "Поиск по имени, email, телефону, сообщению...",
+      filterAll: "Все",
+      filterUnread: "Непрочитанные",
+      filterPending: "Без ответа",
+      filterAnswered: "Отвеченные",
+      statMessages: "Сообщений",
+      statUnread: "Непрочитано",
+      statDialogs: "Диалогов",
+      statProfiles: "Профилей",
+      statAccounts: "Аккаунтов",
+      templatesBtn: "📋 Шаблоны",
+      templatesTitle: "Шаблоны ответов",
     },
     en: {
       title: "👑 Creator Panel",
       empty: "No incoming messages",
+      dialogsLabel: "dialogs",
       del: "🗑",
       replyBtn: "💬 Reply",
       editReply: "✏️ Edit reply",
+      followUpBtn: "➕ Follow up",
       sendReply: "➤ Send reply",
       cancelReply: "Cancel",
       replyPh: "Type your reply...",
@@ -19239,16 +26428,35 @@ function openCreatorChatPanel() {
       toggleLabel: "Accept messages",
       inAppLabel: "In-app messages",
       save: "💾 Save settings",
-      exit: "🚪 Exit creator mode",
+      exit: "🚪 Close Creator Panel",
       unreadBadge: "unread",
       new: "🆕",
+      back: "← Back to dialogs",
+      messagesLabel: "messages",
+      focusedThreadLabel: "Conversation",
+      replyHistoryLabel: "Reply history",
+      supportSettingsTitle: "⚙️ Support settings",
+      searchPh: "Search by name, email, phone, message...",
+      filterAll: "All",
+      filterUnread: "Unread",
+      filterPending: "No reply",
+      filterAnswered: "Answered",
+      statMessages: "Messages",
+      statUnread: "Unread",
+      statDialogs: "Dialogs",
+      statProfiles: "Profiles",
+      statAccounts: "Accounts",
+      templatesBtn: "📋 Templates",
+      templatesTitle: "Reply templates",
     },
     ka: {
       title: "👑 შემქმნელის პანელი",
       empty: "შემოსული შეტყობინებები არ არის",
+      dialogsLabel: "დიალოგი",
       del: "🗑",
       replyBtn: "💬 პასუხი",
       editReply: "✏️ შეცვლა",
+      followUpBtn: "➕ გაგრძელება",
       sendReply: "➤ გაგზავნა",
       cancelReply: "გაუქმება",
       replyPh: "ჩაწერეთ პასუხი...",
@@ -19261,38 +26469,88 @@ function openCreatorChatPanel() {
       exit: "🚪 რეჟიმიდან გასვლა",
       unreadBadge: "წაუკითხავი",
       new: "🆕",
+      back: "← დიალოგებზე დაბრუნება",
+      messagesLabel: "შეტყობინება",
+      focusedThreadLabel: "მიმართვა",
+      replyHistoryLabel: "პასუხების ისტორია",
+      supportSettingsTitle: "⚙️ მხარდაჭერის პარამეტრები",
+      searchPh: "ძებნა სახელით, ელფოსტით, ტელეფონით, შეტყობინებით...",
+      filterAll: "ყველა",
+      filterUnread: "წაუკითხავი",
+      filterPending: "უპასუხოდ",
+      filterAnswered: "პასუხები",
+      statMessages: "შეტყობინება",
+      statUnread: "წაუკითხავი",
+      statDialogs: "დიალოგი",
+      statProfiles: "პროფილი",
+      statAccounts: "ანგარიში",
+      templatesBtn: "📋 შაბლონები",
+      templatesTitle: "პასუხის შაბლონები",
     },
   };
   const lc = L[lang] || L.ru;
+  let supportSettingsExpanded = false;
+  const panelStats = getCreatorPanelStats(msgs, lang);
+  const quickReplyTemplates =
+    QUICK_REPLY_TEMPLATES[lang] || QUICK_REPLY_TEMPLATES.en;
+  const creatorFocusedDrafts = Object.create(null);
+  const creatorFocusedState = {
+    profileId: "",
+    selectedMessageId: "",
+    fullHistory: false,
+  };
+  const creatorFocusedTopCollapsed = Object.create(null);
+  const getCreatorChatModalEl = () =>
+    document.getElementById("creatorChatModal");
+  const getCreatorPanelViewLock = () =>
+    String(getCreatorChatModalEl()?.dataset.creatorViewLock || "");
+  const setCreatorPanelViewLock = (value) => {
+    const modalEl = getCreatorChatModalEl();
+    if (!modalEl) return;
+    if (value) {
+      modalEl.dataset.creatorViewLock = value;
+    } else {
+      delete modalEl.dataset.creatorViewLock;
+    }
+  };
 
-  const makeTplPills = (msgId, cat, items) =>
-    `<div style="margin-bottom:8px;">
-      <div style="font-size:10px;font-weight:800;color:var(--primary);margin-bottom:4px;letter-spacing:0.4px;">${cat}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:5px;">
-        ${items
-          .map(
-            (txt, i) =>
-              `<button class="cr-tpl cr-tpl-${msgId}" data-text="${txt.replace(/"/g, "&quot;")}"
-            style="font-size:10px;padding:4px 9px;border-radius:14px;border:1px solid var(--cream-border);background:var(--cream-dark);cursor:pointer;transition:all 0.15s;text-align:left;white-space:normal;line-height:1.4;">${txt}</button>`,
-          )
-          .join("")}
-      </div>
-    </div>`;
-
-  const renderMsg = (m) => {
+  const renderMsg = (m, options = {}) => {
+    const isCollapsed = options?.collapsed === true;
+    const isActive = options?.active === true;
+    const showReplyComposer = options?.showReplyComposer === true;
+    const isFocusedReplyView = showReplyComposer === true;
     const isNew = !m.readByCreator;
+    const creatorMessages = getCreatorMessagesList(m);
     const dt = new Date(m.date).toLocaleString(
       lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
       { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
     );
+    const collapsedPreview = String(m?.message || "").trim();
+    if (isCollapsed) {
+      return `
+      <div class="creator-msg-card" data-msgid="${m.id}" data-collapsed="1" style="background:var(--card-bg);border-radius:18px;padding:14px 16px;border:1.5px solid ${isActive ? "var(--gold)" : isNew ? "var(--primary)" : "var(--cream-border)"};box-shadow:${isActive ? "var(--shadow-md)" : isNew ? "var(--shadow-sm)" : "var(--shadow-sm)"};cursor:pointer;opacity:0.96;animation:fadeUp 0.3s ease both;">
+        <div style="display:flex;align-items:flex-start;gap:10px;min-width:0;">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">👤</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;">
+              <div style="font-weight:900;font-size:13px;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(m.name || m.fromProfileName || lc.back)}</div>
+              <div style="font-size:10px;color:var(--text-muted);flex-shrink:0;white-space:nowrap;">${dt}</div>
+            </div>
+            <div style="font-size:12px;line-height:1.45;color:var(--text-soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word;">${esc(collapsedPreview)}</div>
+          </div>
+        </div>
+      </div>`;
+    }
     const replyBoxId = `reply-box-${m.id}`;
     const taId = `reply-ta-${m.id}`;
     const sendBtnId = `reply-send-${m.id}`;
     const cancelId = `reply-cancel-${m.id}`;
+    const tplToggleId = `reply-templates-toggle-${m.id}`;
+    const tplPanelId = `reply-templates-panel-${m.id}`;
     return `
-      <div class="creator-msg-card" data-msgid="${m.id}" style="background:var(--card-bg);border-radius:18px;padding:16px;border:1.5px solid ${isNew ? "var(--primary)" : "var(--cream-border)"};box-shadow:${isNew ? "var(--shadow-md)" : "var(--shadow-sm)"};animation:fadeUp 0.3s ease both;">
+      <div class="creator-msg-card" data-msgid="${m.id}" style="background:var(--card-bg);border-radius:18px;padding:${isFocusedReplyView ? "12px" : "16px"};border:1.5px solid ${isNew ? "var(--primary)" : "var(--cream-border)"};box-shadow:${isNew ? "var(--shadow-md)" : "var(--shadow-sm)"};animation:fadeUp 0.3s ease both;">
         <!-- Header row -->
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="display:${isFocusedReplyView ? "none" : "flex"};align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;min-width:0;">
           <div style="width:38px;height:38px;border-radius:50%;background:var(--primary-pale);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">👤</div>
           <div style="flex:1;min-width:0;">
             <div style="font-weight:900;font-size:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -19305,99 +26563,599 @@ function openCreatorChatPanel() {
         </div>
 
         <!-- User message bubble -->
-        <!-- JSONBin.io setup (easier alternative) -->
-        <div style="background:var(--primary-pale);border-radius:12px;padding:14px;margin-bottom:14px;border-left:4px solid var(--primary);">
-          <div style="font-weight:800;font-size:14px;margin-bottom:6px;">🪣 JSONBin.io — ${lang === "ru" ? "Простой вариант (рекомендуется)" : lang === "ka" ? "მარტივი ვარიანტი (რეკომენდებული)" : "Easy option (recommended)"}</div>
-          <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">
-            ${lang === "ru" ? "1. Зайдите на jsonbin.io → Зарегистрируйтесь бесплатно<br>2. API Keys → Create Access Key (выберите все права)<br>3. Вставьте ключ ниже и нажмите 💾" : lang === "ka" ? "1. jsonbin.io → უფასო რეგისტრაცია<br>2. API Keys → Create Access Key<br>3. ჩასვით გასაღები ქვემოთ" : "1. Go to jsonbin.io → Register free<br>2. API Keys → Create Access Key<br>3. Paste your key below"}
-          </div>
-          <div style="display:flex;gap:8px;">
-            <input id="jbKeyInput" class="modal-input" type="text" style="flex:1;font-size:12px;"
-              placeholder="${lang === "ru" ? "Ваш X-Master-Key из jsonbin.io" : lang === "ka" ? "X-Master-Key jsonbin.io-დან" : "Your X-Master-Key from jsonbin.io"}"
-              value="${(() => {
-                try {
-                  return (
-                    JSON.parse(
-                      localStorage.getItem("budgetpro_jsonbin") || "{}",
-                    ).key || ""
-                  );
-                } catch (e) {
-                  return "";
-                }
-              })()}">
-            <button id="jbSaveBtn" class="btn-primary" style="padding:12px 16px;font-size:13px;">💾</button>
-          </div>
-          <div id="jbStatus" style="font-size:11px;color:var(--text-muted);margin-top:6px;">
-            ${(() => {
-              try {
-                const c = JSON.parse(
-                  localStorage.getItem("budgetpro_jsonbin") || "{}",
-                );
-                return c.binId
-                  ? "✅ Bin: " + c.binId
-                  : c.key
-                    ? lang === "ru"
-                      ? "Ключ сохранён, bin создастся при первом сообщении"
-                      : lang === "ka"
-                        ? "გასაღები შენახულია"
-                        : "Key saved, bin creates on first message"
-                    : lang === "ru"
-                      ? "Не настроено"
-                      : lang === "ka"
-                        ? "არ არის კონფიგურირებული"
-                        : "Not configured";
-              } catch (e) {
-                return "";
-              }
-            })()}
-          </div>
-        </div>
-
-        <div style="background:var(--cream-dark);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:12px;">${esc(m.message)}</div>
-
-        <!-- Existing reply (if any) -->
+        <div style="background:var(--cream-dark);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;margin-bottom:${isFocusedReplyView ? "6px" : "12px"};">${esc(m.message)}</div>
         ${
-          m.creatorReply
-            ? `
-          <div class="cr-existing-reply-${m.id}" style="border-left:3px solid var(--primary);padding-left:12px;margin-bottom:10px;background:var(--primary-pale);border-radius:0 12px 12px 0;padding:10px 12px 10px 14px;">
-            <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang === "ru" ? "Ваш ответ:" : lang === "en" ? "Your reply:" : "თქვენი პასუხი:"}</div>
-            <div style="font-size:13px;color:var(--text);">${esc(m.creatorReply)}</div>
-          </div>`
+          isFocusedReplyView
+            ? `<div style="font-size:10px;color:var(--text-muted);margin:0 2px 6px;">${esc(dt)}</div>`
             : ""
         }
 
         <!-- Reply button (opens reply box) -->
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button class="cr-reply-toggle btn-secondary" data-msgid="${m.id}" style="font-size:13px;padding:8px 16px;border-radius:20px;flex-shrink:0;">
-            ${m.creatorReply ? lc.editReply : lc.replyBtn}
+        <div style="display:${showReplyComposer ? "none" : "flex"};gap:8px;align-items:center;flex-wrap:wrap;min-width:0;margin-bottom:${showReplyComposer ? "0" : "0"};">
+          <button class="cr-reply-toggle btn-secondary" data-msgid="${m.id}" style="font-size:13px;padding:8px 16px;border-radius:20px;flex-shrink:0;max-width:100%;white-space:normal;">
+            ${creatorMessages.length ? lc.followUpBtn : m.creatorReply ? lc.editReply : lc.replyBtn}
           </button>
-          ${m.replied ? `<span style="font-size:11px;color:var(--income-color);font-weight:700;">✓ ${lang === "ru" ? "Отвечено" : lang === "en" ? "Replied" : "გაიგზავნა"}</span>` : ""}
+          ${m.replied ? `<span style="font-size:11px;color:var(--income-color);font-weight:700;max-width:100%;overflow-wrap:anywhere;">✓ ${lang === "ru" ? "Отвечено" : lang === "en" ? "Replied" : "გაიგზავნა"}</span>` : ""}
         </div>
 
         <!-- REPLY BOX (hidden by default, opens on button click) -->
-        <div id="${replyBoxId}" style="display:none;margin-top:12px;border-top:1px solid var(--cream-border);padding-top:12px;">
-          <!-- Template categories -->
-          <div style="margin-bottom:10px;">
-            <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:8px;">📌 ${lang === "ru" ? "Шаблоны ответов" : lang === "en" ? "Reply templates" : "პასუხის შაბლონები"}:</div>
-            ${makeTplPills(m.id, lc.catA, TT.answers)}
-            ${makeTplPills(m.id, lc.catC, TT.confirmations)}
-            ${makeTplPills(m.id, lc.catF, TT.followups)}
-          </div>
-          <!-- Textarea + send -->
-          <div style="display:flex;gap:8px;align-items:flex-end;">
-            <textarea id="${taId}" class="modal-textarea" rows="3" placeholder="${lc.replyPh}" style="flex:1;resize:none;font-size:13px;padding:10px 14px;border-radius:14px;"></textarea>
-            <div style="display:flex;flex-direction:column;gap:6px;">
-              <button id="${sendBtnId}" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-med));color:white;border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);transition:all 0.2s;" title="${lc.sendReply}">➤</button>
-              <button id="${cancelId}" style="width:48px;height:48px;border-radius:50%;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:11px;cursor:pointer;color:var(--text-muted);">✕</button>
+        <div id="${replyBoxId}" style="display:${showReplyComposer ? "block" : "none"};margin-top:${showReplyComposer ? "6px" : "12px"};border-top:${showReplyComposer ? "none" : "1px solid var(--cream-border)"};padding-top:${showReplyComposer ? "0" : "12px"};">
+          <div style="display:flex;flex-direction:column;gap:6px;min-width:0;">
+            <textarea id="${taId}" class="modal-textarea" rows="5" placeholder="${lc.replyPh}" style="flex:1 1 auto;min-width:0;width:100%;min-height:120px;resize:vertical;font-size:13px;padding:12px 14px;border-radius:14px;"></textarea>
+            <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap;min-width:0;">
+              <button id="${tplToggleId}" type="button" class="btn-secondary" style="padding:10px 12px;border-radius:14px;font-size:12px;font-weight:700;max-width:100%;white-space:normal;">${lc.templatesBtn}</button>
+              <button id="${sendBtnId}" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-med));color:white;border:none;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);transition:all 0.2s;flex-shrink:0;" title="${lc.sendReply}">➤</button>
+              <button id="${cancelId}" style="width:48px;height:48px;border-radius:50%;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:11px;cursor:pointer;color:var(--text-muted);flex-shrink:0;">✕</button>
+            </div>
+            <div id="${tplPanelId}" style="display:none;background:var(--cream);border:1px solid var(--cream-border);border-radius:16px;box-shadow:var(--shadow-sm);padding:8px;max-width:100%;overflow:hidden;">
+              <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin:2px 4px 8px;">${esc(lc.templatesTitle)}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;min-width:0;">
+                ${quickReplyTemplates
+                  .map(
+                    (txt) =>
+                      `<button type="button" class="cr-quick-template" data-msgid="${m.id}" data-text="${esc(txt).replace(/"/g, "&quot;")}" style="text-align:left;padding:9px 10px;border-radius:12px;border:1px solid var(--cream-border);background:var(--cream-dark);color:var(--text);font-size:12px;line-height:1.35;cursor:pointer;white-space:normal;overflow-wrap:anywhere;flex:1 1 220px;min-width:0;">${esc(txt)}</button>`,
+                  )
+                  .join("")}
+              </div>
             </div>
           </div>
         </div>
+        
+        <!-- Existing reply (if any) -->
+        ${creatorMessages.length ? `<div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin:12px 0 10px;">${esc(lc.replyHistoryLabel)}</div>` : ""}
+        ${creatorMessages
+          .map(
+            (entry, index) => `
+          <div class="cr-existing-reply-${m.id}" style="border-left:3px solid var(--primary);padding-left:12px;margin-bottom:10px;background:var(--primary-pale);border-radius:0 12px 12px 0;padding:10px 12px 10px 14px;">
+            <div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang === "ru" ? `Ваш ответ #${index + 1}:` : lang === "en" ? `Your reply #${index + 1}:` : `თქვენი პასუხი #${index + 1}:`}</div>
+            <div style="font-size:13px;color:var(--text);">${esc(entry.text)}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${new Date(entry.createdAt || m.replyDate || m.date).toLocaleString(
+              lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+              { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
+            )}</div>
+          </div>`,
+          )
+          .join("")}
       </div>`;
   };
 
+  const getDialogHistorySignature = (profileId) => {
+    const selectedProfile = String(profileId || "");
+    return getAllMessages()
+      .filter((m) => String(m?.fromProfile || "") === selectedProfile)
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .map((m) =>
+        [
+          m?.id ?? "",
+          m?.message ?? "",
+          m?.creatorReply ?? "",
+          (getCreatorMessagesList(m) || [])
+            .map((entry) => `${entry.id}|${entry.text}|${entry.createdAt}|${entry.readByUser ? "1" : "0"}`)
+            .join("~"),
+          m?.replyDate ?? "",
+          m?.replied ? "1" : "0",
+          m?.readByCreator ? "1" : "0",
+          m?.replyReadByUser ? "1" : "0",
+          m?.date ?? "",
+        ].join("|"),
+      )
+      .join("||");
+  };
+
+  const getDialogMessagesForProfile = (profileId) =>
+    getAllMessages()
+      .filter((m) => String(m?.fromProfile || "") === String(profileId || ""))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const getFocusedStateSignature = (profileId, selectedMessageId, fullHistory) =>
+    fullHistory
+      ? `full:${getDialogHistorySignature(profileId)}`
+      : `focused:${getDialogMessagesForProfile(profileId)
+          .filter((m) => String(m?.id || "") === String(selectedMessageId || ""))
+          .map((m) =>
+            [
+              m?.id ?? "",
+              m?.message ?? "",
+              m?.creatorReply ?? "",
+              (getCreatorMessagesList(m) || [])
+                .map((entry) => `${entry.id}|${entry.text}|${entry.createdAt}|${entry.readByUser ? "1" : "0"}`)
+                .join("~"),
+              m?.replyDate ?? "",
+              m?.replied ? "1" : "0",
+              m?.readByCreator ? "1" : "0",
+              m?.date ?? "",
+            ].join("|"),
+          )
+          .join("||")}`;
+
+  const getFocusedThreadEl = () =>
+    document.getElementById("creatorFocusedThread");
+
+  const isFocusedScreenActive = () =>
+    document.getElementById("creatorFocusedScreen")?.dataset.active === "1";
+
+  const syncFocusedDraftFromDom = () => {
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    const ta = document.getElementById("creatorFocusedTextarea");
+    const messageId = String(
+      focusedScreen?.dataset.selectedMessageId ||
+        creatorFocusedState.selectedMessageId ||
+        "",
+    );
+    if (!messageId || !ta) return;
+    creatorFocusedDrafts[messageId] = ta.value;
+  };
+
+  const isNearBottom = (el) => {
+    if (!el) return true;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 48;
+  };
+
+  const renderFocusedReplyItems = (messageRecord) => {
+    const creatorMessages = getCreatorMessagesList(messageRecord);
+    if (!creatorMessages.length) {
+      return `<div style="font-size:12px;color:var(--text-muted);padding:8px 2px;">${lang === "ru" ? "Ответов пока нет." : lang === "ka" ? "პასუხები ჯერ არ არის." : "No replies yet."}</div>`;
+    }
+    return creatorMessages
+      .map((entry, index) => {
+        const dt = new Date(
+          entry.createdAt || messageRecord.replyDate || messageRecord.date,
+        ).toLocaleString(
+          lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+          { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
+        );
+        return `
+          <div style="display:flex;justify-content:flex-end;">
+            <div style="max-width:min(100%,520px);background:var(--primary-pale);border:1px solid var(--primary-soft);border-radius:18px 18px 6px 18px;padding:10px 12px;box-shadow:var(--shadow-sm);">
+              <div style="font-size:13px;line-height:1.55;color:var(--text);word-break:break-word;">${esc(entry.text)}</div>
+              <div style="font-size:10px;color:var(--text-muted);margin-top:6px;text-align:right;">${lang === "ru" ? `Ответ #${index + 1}` : lang === "ka" ? `პასუხი #${index + 1}` : `Reply #${index + 1}`} · ${esc(dt)}</div>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+  };
+
+  const renderFullHistoryItems = (dialogMsgs, selectedMessageId) =>
+    dialogMsgs
+      .map((msg) => {
+        const dt = new Date(msg.date).toLocaleString(
+          lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+          { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
+        );
+        const creatorMessages = getCreatorMessagesList(msg);
+        return `
+          <div style="display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:18px;border:1px solid ${String(msg?.id || "") === String(selectedMessageId || "") ? "var(--gold-border)" : "var(--cream-border)"};background:${String(msg?.id || "") === String(selectedMessageId || "") ? "linear-gradient(180deg,var(--gold-pale),var(--card-bg))" : "var(--card-bg)"};box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:flex-start;">
+              <div style="max-width:min(100%,540px);background:var(--cream-dark);border-radius:18px 18px 18px 6px;padding:11px 13px;">
+                <div style="font-size:13px;line-height:1.55;color:var(--text);word-break:break-word;">${esc(msg.message || "")}</div>
+                <div style="font-size:10px;color:var(--text-muted);margin-top:6px;">${esc(dt)}</div>
+              </div>
+            </div>
+            ${
+              creatorMessages.length
+                ? `<div style="display:flex;flex-direction:column;gap:8px;">${renderFocusedReplyItems(msg)}</div>`
+                : `<div style="font-size:11px;color:var(--text-muted);padding-left:4px;">${lang === "ru" ? "Без ответов" : lang === "ka" ? "პასუხის გარეშე" : "No replies yet"}</div>`
+            }
+          </div>
+        `;
+      })
+      .join("");
+
+  const renderFocusedThreadMarkup = (profileId, selectedMessageId, fullHistory) => {
+    const dialogMsgs = getDialogMessagesForProfile(profileId);
+    const selectedMsg =
+      dialogMsgs.find(
+        (msg) => String(msg?.id || "") === String(selectedMessageId || ""),
+      ) || dialogMsgs[dialogMsgs.length - 1] || null;
+    if (!selectedMsg) {
+      return `<div style="text-align:center;padding:24px 12px;color:var(--text-muted);">${lc.empty}</div>`;
+    }
+    if (fullHistory) {
+      return `
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;padding:2px 2px 6px;">
+          ${lang === "ru" ? "Вся история профиля" : lang === "ka" ? "პროფილის მთელი ისტორია" : "Full profile history"}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          ${renderFullHistoryItems(dialogMsgs, selectedMsg.id)}
+        </div>
+      `;
+    }
+    return `
+      <div style="font-size:11px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;padding:2px 2px 6px;">
+        ${esc(lc.replyHistoryLabel)}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        ${renderFocusedReplyItems(selectedMsg)}
+      </div>
+    `;
+  };
+
+  const isFocusedTopCollapsed = (messageId) =>
+    creatorFocusedTopCollapsed[String(messageId || "")] === true;
+
+  const renderFocusedNav = (messageId, fullHistory) => {
+    const collapsed = isFocusedTopCollapsed(messageId);
+    const collapseLabel = collapsed
+      ? lang === "ru"
+        ? "▲ Развернуть"
+        : lang === "ka"
+          ? "▲ გაშლა"
+          : "▲ Expand"
+      : lang === "ru"
+        ? "▼ Свернуть"
+        : lang === "ka"
+          ? "▼ შეკეცვა"
+          : "▼ Collapse";
+    return `
+      <div style="background:var(--cream-dark);border-radius:16px;padding:10px 12px;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;">
+          <button id="creatorFocusedBackBtn" class="btn-secondary" type="button" style="padding:8px 14px;border-radius:18px;flex-shrink:0;background:var(--primary-pale);border:1.5px solid var(--gold-border);color:var(--primary);box-shadow:var(--shadow-sm);font-weight:800;max-width:100%;white-space:normal;">${esc(lc.back)}</button>
+          <button id="creatorFocusedHistoryBtn" class="btn-secondary" type="button" style="padding:8px 14px;border-radius:18px;flex-shrink:0;background:${fullHistory ? "var(--primary-pale)" : "var(--cream-dark)"};border:1.5px solid ${fullHistory ? "var(--gold-border)" : "var(--cream-border)"};color:${fullHistory ? "var(--primary)" : "var(--text)"};box-shadow:var(--shadow-sm);font-weight:800;max-width:100%;white-space:normal;">${lang === "ru" ? "📜 Вся история" : lang === "ka" ? "📜 მთელი ისტორია" : "📜 Full history"}</button>
+        </div>
+        <button id="creatorFocusedTopToggleBtn" type="button" class="btn-secondary" style="padding:7px 10px;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0;">${collapseLabel}</button>
+      </div>
+    `;
+  };
+
+  const renderFocusedLastMessage = (selectedMsg, dialogMsgs) => {
+    const messageId = String(selectedMsg?.id || "");
+    const collapsed = isFocusedTopCollapsed(messageId);
+    console.log("[TOP_COLLAPSE_RENDER]", {
+      messageId,
+      collapsed,
+    });
+    if (collapsed) return "";
+    const dt = new Date(selectedMsg.date).toLocaleString(
+      lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU",
+      { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" },
+    );
+    const selectedIndex = dialogMsgs.findIndex(
+      (msg) => String(msg?.id || "") === messageId,
+    );
+    return `
+      <div style="background:var(--cream-dark);border-radius:18px;padding:12px 14px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;font-weight:800;color:var(--text);">${esc(selectedMsg.name || selectedMsg.fromProfileName || getCreatorDialogUiCopy(lang).unknownProfile)}</div>
+        <div style="font-size:14px;line-height:1.58;color:var(--text);word-break:break-word;">${esc(selectedMsg.message || "")}</div>
+        <div style="font-size:10px;color:var(--text-muted);">${esc(dt)} · ${lang === "ru" ? `Обращение ${selectedIndex + 1} из ${dialogMsgs.length}` : lang === "ka" ? `მიმართვა ${selectedIndex + 1} / ${dialogMsgs.length}` : `Conversation ${selectedIndex + 1} of ${dialogMsgs.length}`}</div>
+      </div>
+    `;
+  };
+
+  const updateFocusedTopBlock = (selectedMsg, dialogMsgs, fullHistory) => {
+    const focusedNavEl = document.getElementById("creatorFocusedNav");
+    const focusedLastMessageEl = document.getElementById("creatorFocusedLastMessage");
+    if (!focusedNavEl || !focusedLastMessageEl || !selectedMsg) return;
+    focusedNavEl.innerHTML = renderFocusedNav(String(selectedMsg.id || ""), fullHistory);
+    focusedLastMessageEl.innerHTML = renderFocusedLastMessage(selectedMsg, dialogMsgs);
+  };
+
+  const syncFocusedHeaderScrollFx = () => {
+    const threadEl = getFocusedThreadEl();
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    if (!threadEl || !focusedScreen) return;
+    threadEl.onscroll = () => {
+      focusedScreen.dataset.threadNearBottom = isNearBottom(threadEl) ? "1" : "0";
+      focusedScreen.dataset.threadScrollTop = String(threadEl.scrollTop || 0);
+    };
+  };
+
+  const syncFocusedThread = ({
+    profileId,
+    selectedMessageId,
+    fullHistory,
+    preserveScroll = true,
+    force = false,
+    shouldScrollToBottom = false,
+  }) => {
+    const threadEl = getFocusedThreadEl();
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    if (!threadEl || !focusedScreen) return;
+    const previousScrollTop = threadEl.scrollTop;
+    const wasNearBottom = isNearBottom(threadEl);
+    const nextSignature = getFocusedStateSignature(
+      profileId,
+      selectedMessageId,
+      fullHistory,
+    );
+    if (!force && nextSignature === (focusedScreen.dataset.threadSignature || "")) {
+      if (shouldScrollToBottom) {
+        requestAnimationFrame(() => {
+          threadEl.scrollTo({
+            top: threadEl.scrollHeight,
+            behavior: "smooth",
+          });
+        });
+      }
+      return;
+    }
+    threadEl.innerHTML = renderFocusedThreadMarkup(
+      profileId,
+      selectedMessageId,
+      fullHistory,
+    );
+    focusedScreen.dataset.threadSignature = nextSignature;
+    if (shouldScrollToBottom || focusedScreen.dataset.pendingScrollToBottom === "1") {
+      focusedScreen.dataset.pendingScrollToBottom = "0";
+      requestAnimationFrame(() => {
+        threadEl.scrollTo({
+          top: threadEl.scrollHeight,
+          behavior: "smooth",
+        });
+      });
+    } else if (preserveScroll && !wasNearBottom) {
+      threadEl.scrollTop = previousScrollTop;
+    } else if (preserveScroll && wasNearBottom) {
+      threadEl.scrollTop = threadEl.scrollHeight;
+    } else {
+      threadEl.scrollTop = 0;
+    }
+    focusedScreen.dataset.threadNearBottom = isNearBottom(threadEl) ? "1" : "0";
+    focusedScreen.dataset.threadScrollTop = String(threadEl.scrollTop || 0);
+    syncFocusedHeaderScrollFx();
+  };
+
+  const renderFocusedScreen = (
+    profileId,
+    selectedMessageId = "",
+    options = {},
+  ) => {
+    const dialogsScreen = document.getElementById("creatorDialogsScreen");
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    const focusedNavEl = document.getElementById("creatorFocusedNav");
+    const focusedMessageEl = document.getElementById("creatorFocusedLastMessage");
+    const focusedComposerEl = document.getElementById("creatorFocusedComposer");
+    if (!dialogsScreen || !focusedScreen || !focusedNavEl || !focusedMessageEl || !focusedComposerEl) {
+      return;
+    }
+    setCreatorPanelViewLock("focused");
+    syncFocusedDraftFromDom();
+    const dialogMsgs = getDialogMessagesForProfile(profileId);
+    if (!dialogMsgs.length) {
+      dialogsScreen.style.display = "";
+      focusedScreen.style.display = "none";
+      focusedScreen.dataset.active = "0";
+      setCreatorPanelViewLock("");
+      renderDialogList();
+      return;
+    }
+    const resolvedSelectedMessageId = String(
+      selectedMessageId || options?.selectedMessageId || dialogMsgs[dialogMsgs.length - 1]?.id || "",
+    );
+    const selectedMsg =
+      dialogMsgs.find(
+        (msg) => String(msg?.id || "") === resolvedSelectedMessageId,
+      ) || dialogMsgs[dialogMsgs.length - 1];
+    if (!selectedMsg) return;
+    const fullHistory = options?.fullHistory === true;
+    creatorFocusedState.profileId = String(profileId || "");
+    creatorFocusedState.selectedMessageId = String(selectedMsg.id || "");
+    creatorFocusedState.fullHistory = fullHistory;
+    dialogsScreen.style.display = "none";
+    focusedScreen.style.display = "flex";
+    focusedScreen.dataset.active = "1";
+    focusedScreen.dataset.profileId = creatorFocusedState.profileId;
+    focusedScreen.dataset.selectedMessageId = creatorFocusedState.selectedMessageId;
+    focusedScreen.dataset.fullHistory = fullHistory ? "1" : "0";
+    focusedScreen.dataset.view = "focused";
+    updateFocusedTopBlock(selectedMsg, dialogMsgs, fullHistory);
+    focusedComposerEl.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0;">
+        <textarea id="creatorFocusedTextarea" class="modal-textarea" rows="5" placeholder="${esc(lc.replyPh)}" style="width:100%;min-height:120px;resize:vertical;font-size:13px;padding:12px 14px;border-radius:16px;"></textarea>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button id="creatorFocusedTemplatesBtn" type="button" class="btn-secondary" style="padding:10px 14px;border-radius:14px;font-size:12px;font-weight:800;white-space:normal;">${esc(lc.templatesBtn)}</button>
+          <button id="creatorFocusedSendBtn" type="button" style="padding:10px 16px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary-med));color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;box-shadow:var(--shadow-md);">➤ ${esc(lc.sendReply)}</button>
+        </div>
+        <div id="creatorFocusedTemplatesPanel" style="display:none;background:var(--cream);border:1px solid var(--cream-border);border-radius:16px;box-shadow:var(--shadow-sm);padding:8px;max-width:100%;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 4px 8px;">
+            <div style="font-size:11px;font-weight:800;color:var(--text-muted);min-width:0;">${esc(lc.templatesTitle)}</div>
+            <button id="creatorFocusedTemplatesCloseBtn" type="button" class="btn-secondary" style="padding:7px 10px;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap;">${lang === "ru" ? "✕ Закрыть" : lang === "ka" ? "✕ დახურვა" : "✕ Close"}</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;min-width:0;">
+            ${quickReplyTemplates
+              .map(
+                (txt) =>
+                  `<button type="button" class="creator-focused-template-btn" data-text="${esc(txt).replace(/"/g, "&quot;")}" style="text-align:left;padding:9px 10px;border-radius:12px;border:1px solid var(--cream-border);background:var(--cream-dark);color:var(--text);font-size:12px;line-height:1.35;cursor:pointer;white-space:normal;overflow-wrap:anywhere;flex:1 1 220px;min-width:0;">${esc(txt)}</button>`,
+              )
+              .join("")}
+          </div>
+        </div>
+      </div>
+    `;
+    const ta = document.getElementById("creatorFocusedTextarea");
+    const historyBtn = document.getElementById("creatorFocusedHistoryBtn");
+    if (historyBtn) {
+      historyBtn.style.background = fullHistory
+        ? "var(--primary-pale)"
+        : "var(--cream-dark)";
+      historyBtn.style.borderColor = fullHistory
+        ? "var(--gold-border)"
+        : "var(--cream-border)";
+      historyBtn.style.color = fullHistory ? "var(--primary)" : "var(--text)";
+    }
+    if (ta) {
+      ta.value = creatorFocusedDrafts[creatorFocusedState.selectedMessageId] || "";
+      ta.oninput = () => {
+        creatorFocusedDrafts[creatorFocusedState.selectedMessageId] = ta.value;
+      };
+    }
+    syncFocusedThread({
+      profileId: creatorFocusedState.profileId,
+      selectedMessageId: creatorFocusedState.selectedMessageId,
+      fullHistory,
+      preserveScroll: options?.preserveScroll === true,
+      force: true,
+      shouldScrollToBottom: options?.shouldScrollToBottom === true,
+    });
+    reattach();
+    requestAnimationFrame(() => {
+      const screen = document.getElementById("creatorFocusedScreen");
+      if (screen?.dataset.active === "1") {
+        setCreatorPanelViewLock("");
+      }
+    });
+  };
+
+  const hideFocusedScreen = ({ refreshDialogs = true } = {}) => {
+    syncFocusedDraftFromDom();
+    const dialogsScreen = document.getElementById("creatorDialogsScreen");
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    if (!dialogsScreen || !focusedScreen) return;
+    focusedScreen.style.display = "none";
+    focusedScreen.dataset.active = "0";
+    focusedScreen.dataset.profileId = "";
+    focusedScreen.dataset.selectedMessageId = "";
+    focusedScreen.dataset.fullHistory = "0";
+    focusedScreen.dataset.threadSignature = "";
+    dialogsScreen.style.display = "";
+    setCreatorPanelViewLock("");
+    creatorFocusedState.profileId = "";
+    creatorFocusedState.selectedMessageId = "";
+    creatorFocusedState.fullHistory = false;
+    if (refreshDialogs) renderDialogList();
+  };
+
+  const renderDialogList = (messages = null) => {
+    const listEl = document.getElementById("creatorMsgList");
+    if (!listEl) return;
+    const nextMsgs = Array.isArray(messages)
+      ? messages
+      : getAllMessages().sort((a, b) => new Date(b.date) - new Date(a.date));
+    const listState = getCreatorPanelListState();
+    const nextDialogs = getFilteredCreatorDialogs(nextMsgs, lang, listState);
+    const copy = getCreatorDialogUiCopy(lang);
+    updateCreatorPanelStats(nextMsgs, lang);
+    const dialogsScreen = document.getElementById("creatorDialogsScreen");
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    const viewLock = getCreatorPanelViewLock();
+    if (dialogsScreen && viewLock !== "focused") dialogsScreen.style.display = "";
+    if (focusedScreen?.dataset.active !== "1") {
+      if (focusedScreen) focusedScreen.style.display = "none";
+    }
+    listEl.dataset.view = "dialogs";
+    listEl.dataset.dialogProfile = "";
+    listEl.innerHTML = renderCreatorDialogListMarkup(nextMsgs, lang, listState);
+    const countEl = document.getElementById("crMsgCount");
+    if (countEl)
+      countEl.textContent = nextDialogs.length + " " + copy.dialogsLabel;
+    window._bindCreatorDialogCards?.();
+  };
+
+  const renderDialogHistory = (
+    profileId,
+    selectedMessageId = "",
+    options = {},
+  ) =>
+    renderFocusedScreen(profileId, selectedMessageId, {
+      fullHistory: options?.forceFocusedMode === false,
+      preserveScroll: options?.preserveScroll === true,
+      shouldScrollToBottom: options?.shouldScrollToBottom === true,
+    });
+
+  const bindCreatorDialogCards = () => {
+    document.querySelectorAll(".creator-dialog-card").forEach((card) => {
+      card.onclick = () => {
+        const messageId = String(card.dataset.messageId || "");
+        const profileId = String(card.dataset.dialogProfile || "");
+        setCreatorPanelViewLock("focused");
+        renderFocusedScreen(profileId, messageId, {
+          fullHistory: false,
+          preserveScroll: false,
+        });
+        if (messageId) {
+          const allMsgs = getAllMessages();
+          const msgIdx = allMsgs.findIndex(
+            (msg) => String(msg?.id || "") === messageId,
+          );
+          if (msgIdx >= 0 && !allMsgs[msgIdx]?.readByCreator) {
+            allMsgs[msgIdx] = markCreatorMessageReadByCreator(allMsgs[msgIdx]);
+            saveAllMessages(allMsgs);
+            updateSupportBadge();
+          }
+        }
+      };
+    });
+  };
+
+  window._renderCreatorDialogHistory = renderDialogHistory;
+  window._getCreatorDialogSignature = getDialogHistorySignature;
+  window._bindCreatorDialogCards = bindCreatorDialogCards;
+  window._refreshCreatorFocusedScreen = (options = {}) => {
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    if (!focusedScreen || focusedScreen.dataset.active !== "1") return;
+    const profileId = String(
+      focusedScreen.dataset.profileId || creatorFocusedState.profileId || "",
+    );
+    const selectedMessageId = String(
+      focusedScreen.dataset.selectedMessageId ||
+        creatorFocusedState.selectedMessageId ||
+        "",
+    );
+    const fullHistory =
+      String(focusedScreen.dataset.fullHistory || "") === "1" ||
+      creatorFocusedState.fullHistory === true;
+    const dialogMsgs = getDialogMessagesForProfile(profileId);
+    if (!dialogMsgs.length) {
+      hideFocusedScreen({ refreshDialogs: true });
+      return;
+    }
+    const nextSelectedId = dialogMsgs.some(
+      (msg) => String(msg?.id || "") === selectedMessageId,
+    )
+      ? selectedMessageId
+      : String(dialogMsgs[dialogMsgs.length - 1]?.id || "");
+    const focusedNavEl = document.getElementById("creatorFocusedNav");
+    const focusedMessageEl = document.getElementById("creatorFocusedLastMessage");
+    const currentNavMarkup = focusedNavEl?.innerHTML || "";
+    const currentMessageMarkup = focusedMessageEl?.innerHTML || "";
+    const nextSelectedMsg =
+      dialogMsgs.find(
+        (msg) => String(msg?.id || "") === String(nextSelectedId || ""),
+      ) || null;
+    if (!nextSelectedMsg) return;
+    const nextNavMarkup = renderFocusedNav(nextSelectedId, fullHistory);
+    const nextMessageMarkup = renderFocusedLastMessage(nextSelectedMsg, dialogMsgs);
+    creatorFocusedState.profileId = profileId;
+    creatorFocusedState.selectedMessageId = nextSelectedId;
+    creatorFocusedState.fullHistory = fullHistory;
+    focusedScreen.dataset.profileId = profileId;
+    focusedScreen.dataset.selectedMessageId = nextSelectedId;
+    focusedScreen.dataset.fullHistory = fullHistory ? "1" : "0";
+    if (
+      focusedNavEl &&
+      focusedMessageEl &&
+      (currentNavMarkup !== nextNavMarkup || currentMessageMarkup !== nextMessageMarkup)
+    ) {
+      focusedNavEl.innerHTML = nextNavMarkup;
+      focusedMessageEl.innerHTML = nextMessageMarkup;
+      console.log("[TOP_COLLAPSE_REATTACH]", {
+        source: "_refreshCreatorFocusedScreen",
+        selectedMessageId: nextSelectedId,
+        collapsed: isFocusedTopCollapsed(nextSelectedId),
+        toggleExists: !!document.getElementById("creatorFocusedTopToggleBtn"),
+      });
+      reattach();
+    }
+    syncFocusedThread({
+      profileId,
+      selectedMessageId: nextSelectedId,
+      fullHistory,
+      preserveScroll: options?.preserveScroll !== false,
+      force: options?.force === true,
+      shouldScrollToBottom: options?.shouldScrollToBottom === true,
+    });
+    const ta = document.getElementById("creatorFocusedTextarea");
+    if (ta) {
+      ta.oninput = () => {
+        creatorFocusedDrafts[nextSelectedId] = ta.value;
+      };
+    }
+  };
+
   const html = `
+    <div id="creatorDialogsScreen" style="display:none;flex-direction:column;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:2px;">
     <!-- Settings -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+    <div id="creatorSettingsGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
       <div style="background:var(--gold-pale);border-radius:14px;padding:12px;border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:12px;font-weight:800;">${lc.toggleLabel}</div>
         <label class="switch"><input type="checkbox" id="csToggle" ${cs.contactEnabled ? "checked" : ""}><span class="slider"></span></label>
@@ -19409,24 +27167,28 @@ function openCreatorChatPanel() {
     </div>
 
     <!-- App URL field -->
-    <div style="margin-bottom:12px;">
+    <div id="creatorAppUrlWrap" style="margin-bottom:12px;">
       <label style="font-size:12px;font-weight:800;color:var(--text-muted);display:block;margin-bottom:5px;">🔗 ${{ ru: "URL приложения для ссылок", en: "App URL for share links", ka: "აპის URL ბმულებისთვის" }[lang]}</label>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;min-width:0;">
         <input type="url" id="creatorAppUrlInput" class="modal-input" value="${getAppUrl()}" placeholder="https://motserelia.github.io/" style="flex:1;font-size:13px;">
         <button id="saveCreatorUrl" style="padding:0 14px;border-radius:14px;background:var(--primary);color:white;border:none;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
       </div>
     </div>
-
-
-
-        <!-- JSONBin.io setup (always visible) -->
+    <div id="creatorSupportSettingsWrap" style="margin-bottom:14px;">
+      <button id="supportSettingsToggle" type="button" aria-expanded="false" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:16px;border:1.5px solid var(--cream-border);background:var(--card-bg);color:var(--text);font:inherit;font-size:13px;font-weight:900;cursor:pointer;box-shadow:var(--shadow-sm);">
+        <span>${lc.supportSettingsTitle}</span>
+        <span id="supportSettingsToggleIcon" style="font-size:15px;line-height:1;flex-shrink:0;">▼</span>
+      </button>
+      <div id="supportSettingsPanel" style="max-height:0;opacity:0;overflow:hidden;pointer-events:none;transition:max-height .28s ease, opacity .2s ease, margin-top .2s ease; margin-top:0;">
+        <div style="padding-top:12px;">
+        <!-- JSONBin.io setup -->
     <div style="background:var(--primary-pale);border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid var(--primary);">
       <div style="font-weight:800;font-size:14px;margin-bottom:6px;">🪣 JSONBin.io — ${lang === "ru" ? "Простой вариант (рекомендуется)" : lang === "ka" ? "მარტივი ვარიანტი (რეკომენდებული)" : "Easy option (recommended)"}</div>
       <div style="font-size:12px;color:var(--text-soft);margin-bottom:10px;">
         ${lang === "ru" ? "1. Зайдите на jsonbin.io → Зарегистрируйтесь бесплатно<br>2. API Keys → Create Access Key (выберите все права)<br>3. Вставьте ключ ниже и нажмите 💾" : lang === "ka" ? "1. jsonbin.io → უფასო რეგისტრაცია<br>2. API Keys → Create Access Key<br>3. ჩასვით გასაღები ქვემოთ" : "1. Go to jsonbin.io → Register free<br>2. API Keys → Create Access Key<br>3. Paste your key below"}
       </div>
-      <div style="display:flex;gap:8px;">
-        <input id="jbKeyInput" class="modal-input" type="text" style="flex:1;font-size:12px;"
+      <div style="display:flex;gap:8px;flex-wrap:wrap;min-width:0;">
+        <input id="jbKeyInput" class="modal-input" type="text" style="flex:1 1 220px;min-width:0;font-size:12px;"
           placeholder="${lang === "ru" ? "Ваш X-Master-Key из jsonbin.io" : lang === "ka" ? "X-Master-Key jsonbin.io-დან" : "Your X-Master-Key from jsonbin.io"}"
           value="${(() => {
             try {
@@ -19479,8 +27241,8 @@ function openCreatorChatPanel() {
           }[lang]
         }
       </div>
-      <div style="display:flex;gap:6px;margin-bottom:6px;">
-        <input type="url" id="fbUrlInput" class="modal-input" value="${getFirebaseConfig().databaseURL || ""}" placeholder="https://your-project-default-rtdb.firebaseio.com" style="font-size:11px;flex:1;">
+      <div style="display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;min-width:0;">
+        <input type="url" id="fbUrlInput" class="modal-input" value="${getFirebaseConfig().databaseURL || ""}" placeholder="https://your-project-default-rtdb.firebaseio.com" style="font-size:11px;flex:1 1 220px;min-width:0;">
         <button id="saveFbBtn" style="padding:8px 12px;border-radius:12px;background:#ea4335;color:white;border:none;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
         <button id="testFbBtn" style="padding:8px 10px;border-radius:12px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🧪</button>
       </div>
@@ -19492,68 +27254,158 @@ function openCreatorChatPanel() {
       <div style="font-size:12px;font-weight:800;color:#2ca5e0;margin-bottom:8px;">✈️ Telegram — ${{ ru: "push-уведомления (дополнительно)", en: "push notifications (optional)", ka: "push შეტყობინებები (სურვილისამებრ)" }[lang]}</div>
       <div style="display:flex;flex-direction:column;gap:6px;">
         <input type="text" id="tgTokenInput" class="modal-input" value="${getTelegramConfig().token || ""}" placeholder="Bot token: 1234567890:AAF..." style="font-size:11px;">
-        <div style="display:flex;gap:6px;">
-          <input type="text" id="tgChatInput" class="modal-input" value="${getTelegramConfig().chatId || ""}" placeholder="Chat ID" style="font-size:11px;flex:1;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;min-width:0;">
+          <input type="text" id="tgChatInput" class="modal-input" value="${getTelegramConfig().chatId || ""}" placeholder="Chat ID" style="font-size:11px;flex:1 1 160px;min-width:0;">
           <button id="saveTgBtn" style="padding:8px 12px;border-radius:12px;background:#2ca5e0;color:white;border:none;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;">💾</button>
           <button id="testTgBtn" style="padding:8px 10px;border-radius:12px;background:var(--cream-dark);border:1.5px solid var(--cream-border);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">🧪</button>
         </div>
       </div>
     </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="creatorSearchWrap" style="margin-bottom:12px;">
+      <input id="creatorSearchInput" class="modal-input" type="search" placeholder="${esc(lc.searchPh)}" style="font-size:13px;">
+    </div>
+
+    <div id="creatorFilterBar" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="creator-filter-btn active" data-filter="all" type="button" style="padding:8px 12px;border-radius:999px;border:1.5px solid var(--primary);background:var(--primary-pale);color:var(--primary);font-size:12px;font-weight:800;cursor:pointer;">${esc(lc.filterAll)}</button>
+      <button class="creator-filter-btn" data-filter="unread" type="button" style="padding:8px 12px;border-radius:999px;border:1.5px solid var(--cream-border);background:var(--card-bg);color:var(--text);font-size:12px;font-weight:800;cursor:pointer;">${esc(lc.filterUnread)}</button>
+      <button class="creator-filter-btn" data-filter="pending" type="button" style="padding:8px 12px;border-radius:999px;border:1.5px solid var(--cream-border);background:var(--card-bg);color:var(--text);font-size:12px;font-weight:800;cursor:pointer;">${esc(lc.filterPending)}</button>
+      <button class="creator-filter-btn" data-filter="answered" type="button" style="padding:8px 12px;border-radius:999px;border:1.5px solid var(--cream-border);background:var(--card-bg);color:var(--text);font-size:12px;font-weight:800;cursor:pointer;">${esc(lc.filterAnswered)}</button>
+    </div>
+
+    <div id="creatorStatsBar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:12px;">
+      <div style="background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:14px;padding:10px 12px;">
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;">${esc(lc.statMessages)}</div>
+        <div id="creatorStatMessages" style="font-size:18px;font-weight:900;color:var(--text);">${panelStats.messages}</div>
+      </div>
+      <div style="background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:14px;padding:10px 12px;">
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;">${esc(lc.statUnread)}</div>
+        <div id="creatorStatUnread" style="font-size:18px;font-weight:900;color:var(--text);">${panelStats.unread}</div>
+      </div>
+      <div style="background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:14px;padding:10px 12px;">
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;">${esc(lc.statDialogs)}</div>
+        <div id="creatorStatDialogs" style="font-size:18px;font-weight:900;color:var(--text);">${panelStats.dialogs}</div>
+      </div>
+      <div style="background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:14px;padding:10px 12px;">
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;">${esc(lc.statProfiles)}</div>
+        <div id="creatorStatProfiles" style="font-size:18px;font-weight:900;color:var(--text);">${panelStats.profiles}</div>
+      </div>
+      <div style="background:var(--card-bg);border:1.5px solid var(--cream-border);border-radius:14px;padding:10px 12px;">
+        <div style="font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;">${esc(lc.statAccounts)}</div>
+        <div id="creatorStatAccounts" style="font-size:18px;font-weight:900;color:var(--text);">${panelStats.accounts}</div>
+      </div>
+    </div>
 
     <!-- Stats bar -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-      <div id="crMsgCount" style="font-size:13px;font-weight:700;color:var(--text-muted);">${msgs.length} ${{ ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang]}</div>
-      ${unread > 0 ? `<span style="background:var(--expense-color);color:white;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;">${unread} ${lc.unreadBadge}</span>` : `<span style="background:var(--income-pale);color:var(--income-color);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">✓ All read</span>`}
+    <div id="creatorSummaryBar" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+      <div id="crMsgCount" style="font-size:13px;font-weight:700;color:var(--text-muted);">${dialogs.length} ${lc.dialogsLabel}</div>
+      <span id="creatorUnreadBadge" data-unread-label="${esc(lc.unreadBadge)}" data-empty-label="✓ All read" style="background:${unread > 0 ? "var(--expense-color)" : "var(--income-pale)"};color:${unread > 0 ? "white" : "var(--income-color)"};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:${unread > 0 ? "800" : "700"};">${unread > 0 ? `${unread} ${esc(lc.unreadBadge)}` : "✓ All read"}</span>
       <button id="crRefreshBtn" title="${{ ru: "Обновить", en: "Refresh", ka: "განახლება" }[lang]}" style="margin-left:auto;background:var(--cream-dark);border:1.5px solid var(--cream-border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">🔄 ${{ ru: "Обновить", en: "Refresh", ka: "განახლება" }[lang]}</button>
     </div>
     <!-- Auto-refresh notice -->
     <div id="crAutoRefresh" style="font-size:11px;color:var(--text-muted);margin-bottom:10px;">⚡ ${{ ru: "Автообновление каждые 4 секунды", en: "Auto-refresh every 4 seconds", ka: "ავტო-განახლება 4 წამში" }[lang]}</div>
 
     <!-- Messages list -->
-    <div id="creatorMsgList" style="display:flex;flex-direction:column;gap:12px;max-height:55vh;overflow-y:auto;padding:2px 2px 2px 0;">
-      ${
-        msgs.length === 0
-          ? `<div data-empty="1" style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div><div style="font-size:13px;margin-top:8px;color:var(--text-muted);">${{ ru: "Сообщения обновляются автоматически каждые 4 секунды", en: "Messages refresh automatically every 4 seconds", ka: "შეტყობინებები განახლდება ავტომატურად 4 წამში" }[lang]}</div></div>`
-          : msgs.map(renderMsg).join("")
-      }
+    <div id="creatorMsgList" style="display:flex;flex-direction:column;gap:12px;min-height:0;padding:2px 2px 2px 0;">
+      ${renderCreatorDialogListMarkup(msgs, lang)}
     </div>
 
     <!-- Bottom actions -->
-    <div style="display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--cream-border);">
+    <div style="display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid var(--cream-border);flex-wrap:wrap;">
       <button class="btn-primary" id="saveCS" style="flex:1;">${lc.save}</button>
       <button class="btn-secondary" id="exitCrMode" style="flex:1;color:var(--expense-color);">${lc.exit}</button>
+    </div>
+    </div>
+
+    <div id="creatorFocusedScreen" style="display:none;position:relative;flex-direction:column;gap:12px;flex:1;min-height:0;overflow:hidden;">
+      <div id="creatorFocusedTop" style="display:flex;flex-direction:column;gap:8px;flex-shrink:0;">
+        <div id="creatorFocusedNav" style="min-width:0;"></div>
+        <div id="creatorFocusedLastMessage" style="min-width:0;"></div>
+      </div>
+      <div id="creatorFocusedThread" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:2px;"></div>
+      <div id="creatorFocusedComposer" style="flex-shrink:0;border-top:1px solid var(--cream-border);padding-top:10px;background:var(--modal-bg, transparent);"></div>
     </div>`;
 
   const modal = createModal("creatorChatModal", lc.title, html);
+  modal.style.visibility = "hidden";
+  modal.style.pointerEvents = "none";
+  modal.dataset.creatorViewLock = "dialogs-init";
   document.body.appendChild(modal);
+  const modalBody = modal.querySelector(".modal-body");
+  if (modalBody) {
+    modalBody.style.display = "flex";
+    modalBody.style.flexDirection = "column";
+    modalBody.style.minHeight = "0";
+    modalBody.style.overflow = "hidden";
+  }
+  const modalCard = modal.querySelector(".modal");
+  if (modalCard) {
+    modalCard.style.display = "flex";
+    modalCard.style.flexDirection = "column";
+  }
+  renderDialogList(msgs);
   openModal("creatorChatModal");
+  requestAnimationFrame(() => {
+    setCreatorPanelViewLock("");
+    modal.style.visibility = "";
+    modal.style.pointerEvents = "";
+  });
+  updateCreatorPanelUnreadBadge();
+  const syncSupportSettingsPanel = () => {
+    const panel = document.getElementById("supportSettingsPanel");
+    const toggle = document.getElementById("supportSettingsToggle");
+    const icon = document.getElementById("supportSettingsToggleIcon");
+    if (!panel || !toggle || !icon) return;
+    toggle.setAttribute("aria-expanded", supportSettingsExpanded ? "true" : "false");
+    icon.textContent = supportSettingsExpanded ? "▲" : "▼";
+    panel.style.opacity = supportSettingsExpanded ? "1" : "0";
+    panel.style.pointerEvents = supportSettingsExpanded ? "auto" : "none";
+    panel.style.marginTop = supportSettingsExpanded ? "10px" : "0";
+    panel.style.maxHeight = supportSettingsExpanded ? panel.scrollHeight + "px" : "0";
+  };
+  document.getElementById("supportSettingsToggle")?.addEventListener("click", () => {
+    supportSettingsExpanded = !supportSettingsExpanded;
+    syncSupportSettingsPanel();
+  });
+  syncSupportSettingsPanel();
+  const syncCreatorFilterButtons = () => {
+    document.querySelectorAll(".creator-filter-btn").forEach((btn) => {
+      const active = btn.classList.contains("active");
+      btn.style.borderColor = active ? "var(--primary)" : "var(--cream-border)";
+      btn.style.background = active ? "var(--primary-pale)" : "var(--card-bg)";
+      btn.style.color = active ? "var(--primary)" : "var(--text)";
+    });
+  };
+  document.getElementById("creatorSearchInput")?.addEventListener("input", () => {
+    if (!isFocusedScreenActive()) renderDialogList();
+  });
+  document.querySelectorAll(".creator-filter-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document
+        .querySelectorAll(".creator-filter-btn")
+        .forEach((node) => node.classList.remove("active"));
+      btn.classList.add("active");
+      syncCreatorFilterButtons();
+      if (!isFocusedScreenActive()) renderDialogList();
+    });
+  });
+  syncCreatorFilterButtons();
 
   // Auto-refresh every 2 seconds while panel is open
   const _creatorAutoRefresh = setInterval(() => {
     const list2 = document.getElementById("creatorMsgList");
-    if (!list2) {
+    const focusedScreen = document.getElementById("creatorFocusedScreen");
+    if (!list2 && !focusedScreen) {
       clearInterval(_creatorAutoRefresh);
       return;
     }
-    const freshMsgs2 = getAllMessages().sort(
-      (a, b) => new Date(b.date) - new Date(a.date),
-    );
-    const curIds2 = new Set(
-      [...list2.querySelectorAll(".creator-msg-card")].map(
-        (c) => c.dataset.msgid,
-      ),
-    );
-    const newOnes = freshMsgs2.filter((m) => !curIds2.has(String(m.id)));
-    if (newOnes.length > 0) {
-      // New messages arrived — full re-render
-      const cntEl = document.getElementById("crMsgCount");
-      if (cntEl)
-        cntEl.textContent =
-          freshMsgs2.length +
-          " " +
-          { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
-      list2.innerHTML = freshMsgs2.map(renderMsg).join("");
-      reattach();
+    if (focusedScreen?.dataset.active === "1") {
+      window._refreshCreatorFocusedScreen?.({ preserveScroll: true });
+    } else {
+      renderDialogList();
     }
     updateSupportBadge();
   }, 2000);
@@ -19567,23 +27419,13 @@ function openCreatorChatPanel() {
   // Save settings
   // Refresh messages in creator panel
   document.getElementById("crRefreshBtn")?.addEventListener("click", () => {
-    const freshMsgs = getAllMessages().sort(
-      (a, b) => new Date(b.date) - new Date(a.date),
-    );
-    const list = document.getElementById("creatorMsgList");
-    const countEl = document.getElementById("crMsgCount");
-    if (countEl)
-      countEl.textContent =
-        freshMsgs.length +
-        " " +
-        { ru: "сообщений", en: "messages", ka: "შეტყობინება" }[lang];
-    if (list) {
-      if (freshMsgs.length === 0) {
-        list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-muted);"><div style="font-size:48px;margin-bottom:12px;">📭</div><div style="font-size:15px;font-weight:700;">${lc.empty}</div></div>`;
-      } else {
-        list.innerHTML = freshMsgs.map(renderMsg).join("");
-        reattach();
-      }
+    if (isFocusedScreenActive()) {
+      window._refreshCreatorFocusedScreen?.({
+        preserveScroll: true,
+        force: true,
+      });
+    } else {
+      renderDialogList();
     }
     showToast(
       { ru: "✅ Обновлено", en: "✅ Refreshed", ka: "✅ განახლდა" }[lang],
@@ -19608,6 +27450,7 @@ function openCreatorChatPanel() {
     );
     closeModal("creatorChatModal");
     updateSupportBadge();
+    ensureSupportButton();
   });
 
   // Exit creator mode
@@ -19621,8 +27464,8 @@ function openCreatorChatPanel() {
     closeModal("creatorChatModal");
     showToast(
       {
-        ru: "👋 Режим создателя выключен",
-        en: "👋 Creator mode off",
+        ru: "✅ Панель создателя закрыта",
+        en: "✅ Creator Panel closed",
         ka: "👋 გამორთულია",
       }[lang],
     );
@@ -19765,18 +27608,284 @@ function openCreatorChatPanel() {
         );
       }
     });
+
+    const focusedBackBtn = document.getElementById("creatorFocusedBackBtn");
+    if (focusedBackBtn) {
+      focusedBackBtn.onclick = () => {
+        hideFocusedScreen({ refreshDialogs: true });
+      };
+    }
+
+    const focusedHistoryBtn = document.getElementById("creatorFocusedHistoryBtn");
+    if (focusedHistoryBtn) {
+      focusedHistoryBtn.onclick = () => {
+        syncFocusedDraftFromDom();
+        const focusedScreen = document.getElementById("creatorFocusedScreen");
+        const profileId = String(
+          focusedScreen?.dataset.profileId || creatorFocusedState.profileId || "",
+        );
+        const selectedMessageId = String(
+          focusedScreen?.dataset.selectedMessageId ||
+            creatorFocusedState.selectedMessageId ||
+            "",
+        );
+        const nextFullHistory =
+          !(
+            String(focusedScreen?.dataset.fullHistory || "") === "1" ||
+            creatorFocusedState.fullHistory === true
+          );
+        renderFocusedScreen(profileId, selectedMessageId, {
+          fullHistory: nextFullHistory,
+          preserveScroll: false,
+        });
+        const btn = document.getElementById("creatorFocusedHistoryBtn");
+        if (btn) {
+          btn.style.background = nextFullHistory
+            ? "var(--primary-pale)"
+            : "var(--cream-dark)";
+          btn.style.borderColor = nextFullHistory
+            ? "var(--gold-border)"
+            : "var(--cream-border)";
+          btn.style.color = nextFullHistory ? "var(--primary)" : "var(--text)";
+        }
+      };
+    }
+
+    const focusedTemplatesBtn = document.getElementById("creatorFocusedTemplatesBtn");
+    const syncFocusedTemplatesPanel = (open) => {
+      const panel = document.getElementById("creatorFocusedTemplatesPanel");
+      if (!panel) return;
+      panel.style.display = open ? "block" : "none";
+    };
+    if (focusedTemplatesBtn) {
+      focusedTemplatesBtn.onclick = (event) => {
+        event.stopPropagation();
+        const panel = document.getElementById("creatorFocusedTemplatesPanel");
+        if (!panel) return;
+        syncFocusedTemplatesPanel(panel.style.display === "none");
+      };
+    }
+
+    const focusedTemplatesCloseBtn = document.getElementById(
+      "creatorFocusedTemplatesCloseBtn",
+    );
+    if (focusedTemplatesCloseBtn) {
+      focusedTemplatesCloseBtn.onclick = (event) => {
+        event.stopPropagation();
+        syncFocusedTemplatesPanel(false);
+      };
+    }
+
+    const focusedTopToggleBtn = document.getElementById(
+      "creatorFocusedTopToggleBtn",
+    );
+    console.log("[TOP_COLLAPSE_REATTACH]", {
+      source: "reattach",
+      selectedMessageId: String(
+        document.getElementById("creatorFocusedScreen")?.dataset.selectedMessageId ||
+          creatorFocusedState.selectedMessageId ||
+          "",
+      ),
+      toggleExists: !!focusedTopToggleBtn,
+      collapsed: isFocusedTopCollapsed(
+        document.getElementById("creatorFocusedScreen")?.dataset.selectedMessageId ||
+          creatorFocusedState.selectedMessageId ||
+          "",
+      ),
+    });
+    if (focusedTopToggleBtn) {
+      focusedTopToggleBtn.onclick = () => {
+        const focusedScreen = document.getElementById("creatorFocusedScreen");
+        const profileId = String(
+          focusedScreen?.dataset.profileId || creatorFocusedState.profileId || "",
+        );
+        const selectedMessageId = String(
+          focusedScreen?.dataset.selectedMessageId ||
+            creatorFocusedState.selectedMessageId ||
+            "",
+        );
+        if (!selectedMessageId) return;
+        console.log("[TOP_COLLAPSE_CLICK]", {
+          selectedMessageId,
+          currentCollapsed: isFocusedTopCollapsed(selectedMessageId),
+        });
+        creatorFocusedTopCollapsed[selectedMessageId] =
+          !isFocusedTopCollapsed(selectedMessageId);
+        console.log("[TOP_COLLAPSE_STATE]", {
+          selectedMessageId,
+          nextCollapsed: creatorFocusedTopCollapsed[selectedMessageId] === true,
+        });
+        const dialogMsgs = getDialogMessagesForProfile(profileId);
+        const selectedMsg =
+          dialogMsgs.find(
+            (msg) => String(msg?.id || "") === String(selectedMessageId || ""),
+          ) || null;
+        const focusedNavEl = document.getElementById("creatorFocusedNav");
+        const focusedLastMessageEl = document.getElementById("creatorFocusedLastMessage");
+        if (selectedMsg && focusedNavEl && focusedLastMessageEl) {
+          updateFocusedTopBlock(
+            selectedMsg,
+            dialogMsgs,
+            String(focusedScreen?.dataset.fullHistory || "") === "1" ||
+              creatorFocusedState.fullHistory === true,
+          );
+          reattach();
+        }
+      };
+    }
+
+    document.querySelectorAll(".creator-focused-template-btn").forEach((btn) => {
+      btn.onclick = () => {
+        const ta = document.getElementById("creatorFocusedTextarea");
+        const focusedScreen = document.getElementById("creatorFocusedScreen");
+        const messageId = String(
+          focusedScreen?.dataset.selectedMessageId ||
+            creatorFocusedState.selectedMessageId ||
+            "",
+        );
+        if (ta) {
+          const templateText = String(btn.dataset.text || "").trim();
+          ta.value = ta.value.trim()
+            ? `${ta.value.replace(/\s+$/, "")}\n${templateText}`
+            : templateText;
+          creatorFocusedDrafts[messageId] = ta.value;
+        }
+        syncFocusedTemplatesPanel(false);
+      };
+    });
+
+    const focusedSendBtn = document.getElementById("creatorFocusedSendBtn");
+    if (focusedSendBtn) {
+      focusedSendBtn.onclick = () => {
+        const focusedScreen = document.getElementById("creatorFocusedScreen");
+        const profileId = String(
+          focusedScreen?.dataset.profileId || creatorFocusedState.profileId || "",
+        );
+        const selectedMessageId = String(
+          focusedScreen?.dataset.selectedMessageId ||
+            creatorFocusedState.selectedMessageId ||
+            "",
+        );
+        const ta = document.getElementById("creatorFocusedTextarea");
+        const replyText = ta?.value.trim() || "";
+        if (!replyText) {
+          showToast(
+            {
+              ru: "Введите текст ответа",
+              en: "Enter reply text",
+              ka: "შეიყვანეთ პასუხი",
+            }[lang],
+            "error",
+          );
+          return;
+        }
+        const centralAll = getAllMessages();
+        const centralIdx = centralAll.findIndex(
+          (m) => String(m?.id || "") === selectedMessageId,
+        );
+        if (centralIdx < 0) {
+          showToast(
+            {
+              ru: "Сообщение не найдено",
+              en: "Message not found",
+              ka: "შეტყობინება ვერ მოიძებნა",
+            }[lang],
+            "error",
+          );
+          return;
+        }
+        const threadEl = getFocusedThreadEl();
+        const shouldStickBottom = isNearBottom(threadEl);
+        const msgObj = centralAll[centralIdx];
+        const updatedMsg = appendCreatorFollowUp(
+          msgObj,
+          replyText,
+          new Date().toISOString(),
+        );
+        centralAll[centralIdx] = updatedMsg;
+        creatorFocusedDrafts[selectedMessageId] = "";
+        if (ta) ta.value = "";
+        if (focusedScreen) {
+          focusedScreen.dataset.threadSignature = "";
+          focusedScreen.dataset.pendingScrollToBottom = shouldStickBottom ? "1" : "0";
+        }
+        console.log("[SUPPORT_REPLY]", {
+          id: selectedMessageId,
+          fromProfile: updatedMsg.fromProfile,
+          fromProfileName: updatedMsg.fromProfileName,
+          creatorReply: updatedMsg.creatorReply,
+          activeProfileId,
+        });
+        syncFocusedThread({
+          profileId,
+          selectedMessageId,
+          fullHistory:
+            String(focusedScreen?.dataset.fullHistory || "") === "1" ||
+            creatorFocusedState.fullHistory === true,
+          preserveScroll: !shouldStickBottom,
+          force: true,
+          shouldScrollToBottom: shouldStickBottom,
+        });
+        saveAllMessages(centralAll);
+        syncFocusedTemplatesPanel(false);
+        showToast(
+          {
+            ru: "✅ Ответ отправлен!",
+            en: "✅ Reply sent!",
+            ka: "✅ გაიგზავნა!",
+          }[lang],
+          "success",
+        );
+        haptic("success");
+        updateSupportBadge();
+        if (
+          typeof Notification !== "undefined" &&
+          Notification.permission === "granted"
+        ) {
+          new Notification(
+            "💬 " +
+              {
+                ru: `Ответ для ${msgObj.name}`,
+                en: `Reply for ${msgObj.name}`,
+                ka: `პასუხი ${msgObj.name}-სთვის`,
+              }[lang],
+          );
+        }
+      };
+    }
+
     // Delete
     document.querySelectorAll(".cr-del-btn").forEach((btn) => {
       btn.onclick = () => {
         const id = btn.dataset.msgid;
-        ownerData.supportMessages = (ownerData.supportMessages || []).filter(
-          (m) => m.id !== id,
-        );
-        localStorage.setItem(
-          "budget_profile_" + activeProfileId,
-          JSON.stringify(ownerData),
-        );
-        btn.closest(".creator-msg-card")?.remove();
+        deleteSupportMessageById(id);
+        const listEl = document.getElementById("creatorMsgList");
+        if (listEl?.dataset.view === "history") {
+          const currentSelectedId = String(listEl.dataset.selectedMessageId || "");
+          const currentExpandedId = String(listEl.dataset.expandedMessageId || "");
+          const remainingMsgs = getAllMessages()
+            .filter(
+              (m) =>
+                String(m?.fromProfile || "") ===
+                String(listEl.dataset.dialogProfile || ""),
+            )
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+          const fallbackId = String(
+            remainingMsgs[remainingMsgs.length - 1]?.id || "",
+          );
+          renderDialogHistory(
+            listEl.dataset.dialogProfile || "",
+            currentSelectedId === id ? fallbackId : currentSelectedId,
+            {
+              forceFocusedMode: listEl.dataset.focusedMode === "1",
+              expandedMessageId:
+                currentExpandedId === id ? fallbackId : currentExpandedId,
+              preserveScroll: true,
+            },
+          );
+        } else {
+          btn.closest(".creator-msg-card")?.remove();
+        }
         showToast(
           "🗑 " + { ru: "Удалено", en: "Deleted", ka: "წაიშალა" }[lang],
         );
@@ -19795,7 +27904,12 @@ function openCreatorChatPanel() {
           const ta = document.getElementById("reply-ta-" + id);
           // Use central store (not stale ownerData)
           const msgObj = getAllMessages().find((m) => m.id === id);
-          if (ta && msgObj?.creatorReply && !ta.value)
+          if (
+            ta &&
+            msgObj?.creatorReply &&
+            !getCreatorMessagesList(msgObj).length &&
+            !ta.value
+          )
             ta.value = msgObj.creatorReply;
           ta?.focus();
           box.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -19805,22 +27919,32 @@ function openCreatorChatPanel() {
       };
     });
 
-    // Template pills → fill textarea
-    document.querySelectorAll(".cr-tpl").forEach((btn) => {
+    document.querySelectorAll("[id^='reply-templates-toggle-']").forEach((btn) => {
+      btn.onclick = (event) => {
+        event.stopPropagation();
+        const id = btn.id.replace("reply-templates-toggle-", "");
+        const panel = document.getElementById("reply-templates-panel-" + id);
+        if (!panel) return;
+        const shouldOpen = panel.style.display === "none";
+        document.querySelectorAll("[id^='reply-templates-panel-']").forEach((node) => {
+          node.style.display = "none";
+        });
+        panel.style.display = shouldOpen ? "block" : "none";
+      };
+    });
+
+    document.querySelectorAll(".cr-quick-template").forEach((btn) => {
       btn.onclick = () => {
-        const id = btn.className.match(/cr-tpl-([^\s]+)/)?.[1];
-        if (!id) return;
+        const id = String(btn.dataset.msgid || "");
         const ta = document.getElementById("reply-ta-" + id);
         if (ta) {
-          ta.value = btn.dataset.text;
-          ta.focus();
+          const templateText = String(btn.dataset.text || "").trim();
+          ta.value = ta.value.trim()
+            ? `${ta.value.replace(/\s+$/, "")}\n${templateText}`
+            : templateText;
         }
-        document.querySelectorAll(`.cr-tpl-${id}`).forEach((b) => {
-          b.style.background = "var(--cream-dark)";
-          b.style.borderColor = "var(--cream-border)";
-        });
-        btn.style.background = "var(--primary-pale)";
-        btn.style.borderColor = "var(--primary)";
+        const panel = document.getElementById("reply-templates-panel-" + id);
+        if (panel) panel.style.display = "none";
       };
     });
 
@@ -19857,11 +27981,21 @@ function openCreatorChatPanel() {
           return;
         }
         const msgObj = centralAll[centralIdx];
-        msgObj.creatorReply = replyText;
-        msgObj.replied = true;
-        msgObj.replyDate = new Date().toISOString();
-        msgObj.replyReadByUser = false;
+        const updatedMsg = appendCreatorFollowUp(
+          msgObj,
+          replyText,
+          new Date().toISOString(),
+        );
+        centralAll[centralIdx] = updatedMsg;
+        if (ta) ta.value = "";
         // Save back — this triggers real-time sync to user
+        console.log("[SUPPORT_REPLY]", {
+          id,
+          fromProfile: updatedMsg.fromProfile,
+          fromProfileName: updatedMsg.fromProfileName,
+          creatorReply: updatedMsg.creatorReply,
+          activeProfileId,
+        });
         saveAllMessages(centralAll);
 
         // Update UI in place
@@ -19869,15 +28003,18 @@ function openCreatorChatPanel() {
         if (box) box.style.display = "none";
         const card = document.querySelector(`[data-msgid="${id}"]`);
         if (card) {
-          const existingDiv = card.querySelector(`.cr-existing-reply-${id}`);
-          const newReplyHtml = `<div class="cr-existing-reply-${id}" style="border-left:3px solid var(--primary);margin-bottom:10px;background:var(--primary-pale);border-radius:0 12px 12px 0;padding:10px 12px 10px 14px;"><div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang === "ru" ? "Ваш ответ:" : lang === "en" ? "Your reply:" : "თქვენი პასუხი:"}</div><div style="font-size:13px;color:var(--text);">${esc(replyText)}</div></div>`;
-          if (existingDiv) existingDiv.outerHTML = newReplyHtml;
-          else
-            card
-              .querySelector(".cr-reply-toggle")
-              ?.insertAdjacentHTML("beforebegin", newReplyHtml);
+          const replyHtml = getCreatorMessagesList(updatedMsg)
+            .map(
+              (entry, index) =>
+                `<div class="cr-existing-reply-${id}" style="border-left:3px solid var(--primary);margin-bottom:10px;background:var(--primary-pale);border-radius:0 12px 12px 0;padding:10px 12px 10px 14px;"><div style="font-size:11px;font-weight:800;color:var(--primary);margin-bottom:4px;">${lang === "ru" ? `Ваш ответ #${index + 1}:` : lang === "en" ? `Your reply #${index + 1}:` : `თქვენი პასუხი #${index + 1}:`}</div><div style="font-size:13px;color:var(--text);">${esc(entry.text)}</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px;">${new Date(entry.createdAt || updatedMsg.replyDate || updatedMsg.date).toLocaleString(lang === "ka" ? "ka-GE" : lang === "en" ? "en-US" : "ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</div></div>`,
+            )
+            .join("");
+          card.querySelectorAll(`.cr-existing-reply-${id}`).forEach((node) => node.remove());
+          card
+            .querySelector(".cr-reply-toggle")
+            ?.insertAdjacentHTML("beforebegin", replyHtml);
           const toggleBtn2 = card.querySelector(".cr-reply-toggle");
-          if (toggleBtn2) toggleBtn2.textContent = lc.editReply;
+          if (toggleBtn2) toggleBtn2.textContent = lc.followUpBtn;
         }
 
         showToast(
@@ -20646,14 +28783,15 @@ function showOnboarding() {
 // ──────────────────────────────────────────────────────────────
 (function initSwipeToAdd() {
   let startY = 0,
+    startX = 0,
     startTime = 0;
-  const THRESHOLD = 90; // px
-  const MAX_DURATION = 350; // ms
+  const TAP_THRESHOLD = 10; // px
 
   document.addEventListener(
     "touchstart",
     (e) => {
       const touch = e.touches[0];
+      startX = touch.clientX;
       startY = touch.clientY;
       startTime = Date.now();
     },
@@ -20664,23 +28802,10 @@ function showOnboarding() {
     "touchend",
     (e) => {
       const touch = e.changedTouches[0];
+      const dx = Math.abs(startX - touch.clientX);
       const dy = startY - touch.clientY; // positive = swipe up
       const dt = Date.now() - startTime;
-      // Only trigger from bottom 30% of screen, fast upward swipe
-      if (
-        dy > THRESHOLD &&
-        dt < MAX_DURATION &&
-        startY > window.innerHeight * 0.65
-      ) {
-        // Don't trigger if a modal is open or inside a scrollable area
-        if (document.querySelector(".modal-overlay.open")) return;
-        if (
-          e.target.closest(".modal, .modal-overlay, .bottom-nav, #mainContent")
-        )
-          return;
-        // Trigger FAB
-        document.getElementById("fabBtn")?.click();
-      }
+      if (dx > TAP_THRESHOLD || Math.abs(dy) > TAP_THRESHOLD || dt > 350) return;
     },
     { passive: true },
   );
@@ -20711,6 +28836,7 @@ function safeDeleteOp(idx) {
           const _dt5 = transactions[idx];
           transactions.splice(idx, 1);
           if (_dt5 && _dt5._initial) {
+            logStartBalanceWrite("safeDeleteOp", startBalanceRub, 0);
             startBalanceRub = 0;
             localStorage.removeItem("startBalanceRub");
           }
@@ -21330,28 +29456,6 @@ function injectNewToolButtons() {
   document.getElementById("newToolsBlock")?.remove();
   if (currentTab !== "tools") return;
   const lang = currentLang;
-  const labels = {
-    scanner: {
-      ru: "📸 Сканировать чек",
-      en: "📸 Scan receipt",
-      ka: "📸 ჩეკის სკანირება",
-    },
-    rule: {
-      ru: "⚖️ Правило 50/30/20",
-      en: "⚖️ 50/30/20 Rule",
-      ka: "⚖️ 50/30/20 წესი",
-    },
-    sheets: {
-      ru: "📊 Экспорт в Google Таблицы",
-      en: "📊 Google Sheets export",
-      ka: "📊 Google Sheets-ი",
-    },
-    email: {
-      ru: "📧 Отчёт на email",
-      en: "📧 Email report",
-      ka: "📧 Email ანგარიში",
-    },
-  };
   const block = document.createElement("div");
   block.id = "newToolsBlock";
   block.style.cssText =
@@ -21366,44 +29470,11 @@ function injectNewToolButtons() {
       </span>
       <span class="ntb-arrow">›</span>
     </button>
-    <button class="new-tool-btn" id="newRuleBtn">
-      <span class="ntb-icon">⚖️</span>
-      <span class="ntb-text">
-        <span class="ntb-title">${lang === "ru" ? "Правило 50/30/20" : lang === "en" ? "50/30/20 Rule" : "50/30/20 წესი"}</span>
-        <span class="ntb-sub">${lang === "ru" ? "Умное распределение бюджета по Баффету" : lang === "en" ? "Smart budget split by Buffett" : "ბაფეტის ბიუჯეტის განაწილება"}</span>
-      </span>
-      <span class="ntb-arrow">›</span>
-    </button>
-    <button class="new-tool-btn" id="newSheetsBtn">
-      <span class="ntb-icon">📊</span>
-      <span class="ntb-text">
-        <span class="ntb-title">${lang === "ru" ? "Google Таблицы" : lang === "en" ? "Google Sheets" : "Google Sheets"}</span>
-        <span class="ntb-sub">${lang === "ru" ? "Экспорт всей истории в таблицу" : lang === "en" ? "Export full history to spreadsheet" : "ისტორიის ექსპორტი ცხრილში"}</span>
-      </span>
-      <span class="ntb-arrow">›</span>
-    </button>
-    <button class="new-tool-btn" id="newEmailBtn">
-      <span class="ntb-icon">📧</span>
-      <span class="ntb-text">
-        <span class="ntb-title">${lang === "ru" ? "Отчёт на email" : lang === "en" ? "Email Report" : "Email ანგარიში"}</span>
-        <span class="ntb-sub">${lang === "ru" ? "Ежемесячный финансовый отчёт на почту" : lang === "en" ? "Monthly financial report by email" : "ყოველთვიური ანგარიში"}</span>
-      </span>
-      <span class="ntb-arrow">›</span>
-    </button>
   `;
   content.appendChild(block);
   document
     .getElementById("newScanBtn")
     ?.addEventListener("click", openReceiptScanner);
-  document
-    .getElementById("newRuleBtn")
-    ?.addEventListener("click", openBudget503020Modal);
-  document
-    .getElementById("newSheetsBtn")
-    ?.addEventListener("click", openGoogleSheetsExport);
-  document
-    .getElementById("newEmailBtn")
-    ?.addEventListener("click", openEmailReportModal);
 }
 
 // Hook into setTab to inject buttons when tools tab is shown
@@ -21439,7 +29510,7 @@ if (!window._toolsHookInstalled) {
     "position:fixed;inset:0;z-index:999999;",
     "background:linear-gradient(160deg,var(--primary) 0%,#1a4731 60%,#0f2318 100%);",
     "display:flex;flex-direction:column;align-items:center;justify-content:center;",
-    "gap:16px;transition:opacity 0.5s ease, transform 0.5s ease;",
+    "gap:16px;transition:opacity 0.18s ease, transform 0.18s ease;",
   ].join("");
 
   const style = document.createElement("style");
@@ -21474,11 +29545,11 @@ if (!window._toolsHookInstalled) {
   `;
   document.body.appendChild(splash);
 
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     splash.style.opacity = "0";
     splash.style.transform = "scale(1.05)";
-    setTimeout(() => splash.remove(), 500);
-  }, 900);
+    setTimeout(() => splash.remove(), 180);
+  });
 })();
 
 // ═══════════════════════════════════════════════════════════════
@@ -24913,13 +32984,23 @@ setTimeout(checkSmartSuggestions, 8000); // and on load
 // ═══════════════════════════════════════════════════════════════
 function getGoals() {
   try {
-    return JSON.parse(localStorage.getItem("budgetpro_goals") || "[]");
+    const goalsKey = getGoalsStorageKey();
+    const raw = localStorage.getItem(goalsKey);
+    const goals = JSON.parse(raw || "[]");
+    console.log(
+      `[USER_NAMESPACE_LOAD] TYPE=goals KEY=${goalsKey} COUNT=${Array.isArray(goals) ? goals.length : 0}`,
+    );
+    return Array.isArray(goals) ? goals : [];
   } catch (e) {
     return [];
   }
 }
 function saveGoals(goals) {
-  localStorage.setItem("budgetpro_goals", JSON.stringify(goals));
+  const goalsKey = getGoalsStorageKey();
+  console.log(
+    `[USER_NAMESPACE_SAVE] TYPE=goals KEY=${goalsKey} COUNT=${Array.isArray(goals) ? goals.length : 0}`,
+  );
+  localStorage.setItem(goalsKey, JSON.stringify(Array.isArray(goals) ? goals : []));
 }
 
 function openGoalsModal(options = {}) {
@@ -26266,31 +34347,8 @@ saveAll = function () {
 const _origInjectTools = injectNewToolButtons;
 injectNewToolButtons = function () {
   _origInjectTools();
-  const block = document.getElementById("newToolsBlock");
-  if (!block || document.getElementById("partnerModeBtn")) return;
-  const lang = currentLang;
-  const btn = document.createElement("button");
-  btn.className = "new-tool-btn";
-  btn.id = "partnerModeBtn";
-  btn.innerHTML = `<span class="ntb-icon">💑</span><span class="ntb-text"><span class="ntb-title">${{ ru: "Партнёрский режим", en: "Partner Mode", ka: "პარტნიორის რეჟიმი" }[lang]}</span><span class="ntb-sub">${{ ru: "Общий бюджет с партнёром в реальном времени", en: "Shared real-time budget with partner", ka: "საერთო ბიუჯეტი პარტნიორთან" }[lang]}</span></span><span class="ntb-arrow">›</span>`;
-  btn.addEventListener("click", () => {
-    haptic("medium");
-    openPartnerMode();
-  });
-  block.appendChild(btn);
-
-  // Also add goals button
-  if (!document.getElementById("goalsToolBtn")) {
-    const gb = document.createElement("button");
-    gb.className = "new-tool-btn";
-    gb.id = "goalsToolBtn";
-    gb.innerHTML = `<span class="ntb-icon">🎯</span><span class="ntb-text"><span class="ntb-title">${{ ru: "Мои цели", en: "My Goals", ka: "ჩემი მიზნები" }[lang]}</span><span class="ntb-sub">${{ ru: "Откладывайте на мечты с прогресс-баром", en: "Save for dreams with progress bar", ka: "დაზოგეთ ოცნებებისთვის" }[lang]}</span></span><span class="ntb-arrow">›</span>`;
-    gb.addEventListener("click", () => {
-      haptic("medium");
-      openGoalsModal();
-    });
-    block.appendChild(gb);
-  }
+  document.getElementById("partnerModeBtn")?.remove();
+  document.getElementById("goalsToolBtn")?.remove();
 };
 
 // ██████████████████████████████████████████████████████████████
@@ -26669,7 +34727,1201 @@ setTimeout(initTooltips, 1000);
 // ══════════════════════════════════════════════════════════════
 // 📚 ИНТЕРАКТИВНЫЙ ГИД — пошаговое обучение
 // ══════════════════════════════════════════════════════════════
-const GUIDE_TOPICS = {
+function guideNextFrame() {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+async function guideWaitFor(checker, options = {}) {
+  const timeout = Number(options.timeout || 2600);
+  const interval = Number(options.interval || 40);
+  const startedAt = Date.now();
+  while (Date.now() - startedAt <= timeout) {
+    const result = checker();
+    if (result) return result;
+    await new Promise((resolve) => setTimeout(resolve, interval));
+    await guideNextFrame();
+  }
+  return null;
+}
+
+const GUIDE_RUNTIME_STORAGE_KEY = "budgetpro_guide_runtime_v3";
+const GUIDE_COMPLETED_STORAGE_KEY = "budgetpro_guide_completed_v3";
+let activeGuideInstance = null;
+let guideResumeTimer = null;
+let guideControlledNavigationDepth = 0;
+
+function isGuideInstanceOpen() {
+  if (
+    !activeGuideInstance ||
+    typeof activeGuideInstance.isAlive !== "function" ||
+    !activeGuideInstance.isAlive()
+  ) {
+    return false;
+  }
+  const card = document.getElementById("gCard");
+  if (!card || !card.isConnected) return false;
+  const style = window.getComputedStyle(card);
+  return (
+    style.display !== "none" &&
+    style.visibility !== "hidden" &&
+    Number(style.opacity || "1") > 0 &&
+    (card.classList.contains("g-visible") || card.classList.contains("g-sheet"))
+  );
+}
+
+function isGuideControlledNavigationActive() {
+  return guideControlledNavigationDepth > 0;
+}
+
+async function runWithGuideControlledNavigation(work) {
+  guideControlledNavigationDepth++;
+  try {
+    return await work();
+  } finally {
+    guideControlledNavigationDepth = Math.max(
+      0,
+      guideControlledNavigationDepth - 1,
+    );
+  }
+}
+
+function getDefaultGuideRuntimeState() {
+  return {
+    active: false,
+    mode: "topics",
+    topicId: null,
+    stepId: null,
+    language: currentLang,
+    completed: false,
+    updatedAt: 0,
+  };
+}
+
+function loadGuideRuntimeState() {
+  try {
+    const raw = localStorage.getItem(GUIDE_RUNTIME_STORAGE_KEY);
+    if (!raw) return getDefaultGuideRuntimeState();
+    const parsed = JSON.parse(raw);
+    return { ...getDefaultGuideRuntimeState(), ...(parsed || {}) };
+  } catch (e) {
+    return getDefaultGuideRuntimeState();
+  }
+}
+
+function saveGuideRuntimeState(patch = {}) {
+  const nextState = {
+    ...loadGuideRuntimeState(),
+    ...patch,
+    language: currentLang,
+    updatedAt: Date.now(),
+  };
+  try {
+    localStorage.setItem(GUIDE_RUNTIME_STORAGE_KEY, JSON.stringify(nextState));
+  } catch (e) {}
+  return nextState;
+}
+
+function installGuideScrollDiagnostics() {
+  if (window.__guideScrollDiagnosticsInstalled) return;
+  window.__guideScrollDiagnosticsInstalled = true;
+
+  const getGuideScrollContext = () => {
+    let runtime = null;
+    try {
+      runtime = loadGuideRuntimeState();
+    } catch (e) {}
+    return {
+      topicId: runtime?.topicId || null,
+      stepId: runtime?.stepId || null,
+    };
+  };
+
+  const logJson = (label, payload) => {
+    console.log(`${label} ${JSON.stringify(payload)}`);
+  };
+
+  const isBasicsTraceContext = (ctx) =>
+    ctx?.topicId === "basics" &&
+    (ctx?.stepId === "history" || ctx?.stepId === "balance");
+
+  const maybeLogFirstScrollAfterPlacement = (source, extra = {}) => {
+    const marker = window.__guideFirstScrollAfterPlacementMarker;
+    if (!marker || marker.logged) return;
+    marker.logged = true;
+    const ctx = getGuideScrollContext();
+    logJson("[FIRST_SCROLL_AFTER_PLACEMENT]", {
+      source,
+      markerTopicId: marker.topicId || null,
+      markerStepId: marker.stepId || null,
+      topicId: ctx.topicId,
+      stepId: ctx.stepId,
+      scrollY: window.scrollY,
+      timestamp: Date.now(),
+      ...extra,
+    });
+  };
+
+  const originalScrollBy = window.scrollBy.bind(window);
+  window.scrollBy = function (...args) {
+    const ctx = getGuideScrollContext();
+    const beforeScrollY = window.scrollY;
+    const timestamp = Date.now();
+    const stack = new Error().stack || "";
+    const result = originalScrollBy(...args);
+    const afterScrollY = window.scrollY;
+    maybeLogFirstScrollAfterPlacement("window.scrollBy", {
+      args,
+      beforeScrollY,
+      afterScrollY,
+    });
+    if (isBasicsTraceContext(ctx)) {
+      logJson("[SCROLL_CALL]", {
+        functionName: "window.scrollBy",
+        line: null,
+        topicId: ctx.topicId,
+        stepId: ctx.stepId,
+        beforeScrollY,
+        afterScrollY,
+        delta: afterScrollY - beforeScrollY,
+        args,
+        timestamp,
+        stack,
+      });
+    }
+    return result;
+  };
+
+  const originalScrollTo = window.scrollTo.bind(window);
+  window.scrollTo = function (...args) {
+    const ctx = getGuideScrollContext();
+    const beforeScrollY = window.scrollY;
+    const timestamp = Date.now();
+    const stack = new Error().stack || "";
+    const result = originalScrollTo(...args);
+    const afterScrollY = window.scrollY;
+    maybeLogFirstScrollAfterPlacement("window.scrollTo", {
+      args,
+      beforeScrollY,
+      afterScrollY,
+    });
+    if (isBasicsTraceContext(ctx)) {
+      logJson("[SCROLL_CALL]", {
+        functionName: "window.scrollTo",
+        line: null,
+        topicId: ctx.topicId,
+        stepId: ctx.stepId,
+        beforeScrollY,
+        afterScrollY,
+        delta: afterScrollY - beforeScrollY,
+        args,
+        timestamp,
+        stack,
+      });
+    }
+    return result;
+  };
+
+  const originalScrollIntoView = Element.prototype.scrollIntoView;
+  Element.prototype.scrollIntoView = function (...args) {
+    const ctx = getGuideScrollContext();
+    const beforeScrollY = window.scrollY;
+    const timestamp = Date.now();
+    const stack = new Error().stack || "";
+    const result = originalScrollIntoView.apply(this, args);
+    const afterScrollY = window.scrollY;
+    maybeLogFirstScrollAfterPlacement("Element.scrollIntoView", {
+      args,
+      beforeScrollY,
+      afterScrollY,
+      targetTag: this?.tagName || null,
+      targetId: this?.id || null,
+      targetClass:
+        typeof this?.className === "string"
+          ? this.className
+          : String(this?.className || ""),
+    });
+    if (isBasicsTraceContext(ctx)) {
+      logJson("[SCROLL_CALL]", {
+        functionName: "Element.scrollIntoView",
+        line: null,
+        topicId: ctx.topicId,
+        stepId: ctx.stepId,
+        beforeScrollY,
+        afterScrollY,
+        delta: afterScrollY - beforeScrollY,
+        args,
+        timestamp,
+        stack,
+        targetTag: this?.tagName || null,
+        targetId: this?.id || null,
+        targetClass:
+          typeof this?.className === "string"
+            ? this.className
+            : String(this?.className || ""),
+      });
+    }
+    return result;
+  };
+
+  window.addEventListener(
+    "scroll",
+    (event) => {
+      const ctx = getGuideScrollContext();
+      maybeLogFirstScrollAfterPlacement("scroll-event", {
+        isTrusted: !!event.isTrusted,
+      });
+      logJson("[SCROLL_EVENT]", {
+        topicId: ctx.topicId,
+        stepId: ctx.stepId,
+        scrollY: window.scrollY,
+        isTrusted: !!event.isTrusted,
+        timestamp: Date.now(),
+      });
+    },
+    { passive: true },
+  );
+
+  if (window.visualViewport) {
+    const emitVisualViewportLog = (source) => {
+      const ctx = getGuideScrollContext();
+      logJson("[VISUAL_VIEWPORT]", {
+        source,
+        topicId: ctx.topicId,
+        stepId: ctx.stepId,
+        pageTop: window.visualViewport.pageTop,
+        offsetTop: window.visualViewport.offsetTop,
+        height: window.visualViewport.height,
+        timestamp: Date.now(),
+      });
+    };
+    window.visualViewport.addEventListener("scroll", () =>
+      emitVisualViewportLog("scroll"),
+    );
+    window.visualViewport.addEventListener("resize", () =>
+      emitVisualViewportLog("resize"),
+    );
+  }
+
+  logJson("[SCROLL_BEHAVIOR]", {
+    documentElement: getComputedStyle(document.documentElement).scrollBehavior,
+    body: getComputedStyle(document.body).scrollBehavior,
+    timestamp: Date.now(),
+  });
+}
+installGuideScrollDiagnostics();
+
+function resetGuideRuntimeState() {
+  try {
+    localStorage.removeItem(GUIDE_RUNTIME_STORAGE_KEY);
+  } catch (e) {}
+}
+
+function isGuideRuntimeActive() {
+  return !!loadGuideRuntimeState().active;
+}
+
+function markGuideCompleted() {
+  try {
+    localStorage.setItem(GUIDE_COMPLETED_STORAGE_KEY, "1");
+  } catch (e) {}
+}
+
+function hasCompletedGuide() {
+  try {
+    return localStorage.getItem(GUIDE_COMPLETED_STORAGE_KEY) === "1";
+  } catch (e) {
+    return false;
+  }
+}
+
+function scheduleGuideResume(reason = "ui-change", delay = 220) {
+  if (!isGuideRuntimeActive()) return;
+  if (appBooting || isGuideInstanceOpen() || isGuideControlledNavigationActive()) {
+    clearTimeout(guideResumeTimer);
+    guideResumeTimer = null;
+    return;
+  }
+  clearTimeout(guideResumeTimer);
+  guideResumeTimer = null;
+  guideResumeTimer = setTimeout(() => {
+    guideResumeTimer = null;
+    if (appBooting || isGuideInstanceOpen() || isGuideControlledNavigationActive()) {
+      return;
+    }
+    if (!isGuideRuntimeActive()) return;
+    try {
+      openInteractiveGuide({ forceResume: true, reason });
+    } catch (e) {
+      console.warn("[GUIDE_RESUME_FAILED]", reason, e);
+    }
+  }, delay);
+}
+
+function cleanupGuideArtifacts() {
+  document.getElementById("gSpotlightRoot")?.remove();
+  document.getElementById("gCard")?.remove();
+  document.getElementById("gCSS")?.remove();
+  document
+    .querySelectorAll("[data-guide-temp-target]")
+    .forEach((el) => el.remove());
+}
+
+function getGuideViewportMetrics() {
+  const vv = window.visualViewport;
+  const left = vv?.offsetLeft || 0;
+  const top = vv?.offsetTop || 0;
+  const width = vv?.width || window.innerWidth;
+  const height = vv?.height || window.innerHeight;
+  return {
+    left,
+    top,
+    width,
+    height,
+    right: left + width,
+    bottom: top + height,
+  };
+}
+
+function isGuideElementVisible(el) {
+  if (!el || !el.isConnected) return false;
+  const style = window.getComputedStyle(el);
+  if (
+    style.display === "none" ||
+    style.visibility === "hidden" ||
+    style.visibility === "collapse" ||
+    Number(style.opacity || "1") === 0
+  ) {
+    return false;
+  }
+  const rect = el.getBoundingClientRect();
+  return rect.width > 0 && rect.height > 0;
+}
+
+function isGuideFixedElement(el) {
+  if (!el) return false;
+  const style = window.getComputedStyle(el);
+  return style.position === "fixed" || style.position === "sticky";
+}
+
+function expandGuideAncestors(el) {
+  if (!el) return;
+  let node = el.parentElement;
+  while (node) {
+    if (node.tagName === "DETAILS" && !node.open) node.open = true;
+    node = node.parentElement;
+  }
+}
+
+function getGuideOcclusionInsets(options = {}) {
+  const viewport = getGuideViewportMetrics();
+  const margin = Number(options.margin || 12);
+  const reserveBottom = Number(options.reserveBottom || 0);
+  const ignoreElements = Array.isArray(options.ignoreElements)
+    ? options.ignoreElements.filter(Boolean)
+    : [];
+  const shouldIgnore = (el) =>
+    ignoreElements.some(
+      (ignored) =>
+        ignored === el ||
+        ignored.contains?.(el) ||
+        el?.contains?.(ignored),
+    );
+  const topSelectors = [
+    ".app-header",
+    ".header-actions",
+    ".notifications-topbar",
+    ".settings-subpage-header",
+    ".settings-home-hero",
+    ".modal-overlay.open .modal-header",
+    ".add-modal-host.open .modal-header",
+    ".modal-overlay.open .modal-handle",
+    ".add-modal-host.open .more-handle",
+  ];
+  const bottomSelectors = [
+    ".bottom-nav",
+    "#mainNav",
+    "#simpleNav",
+    "#fabBtn",
+    "#fabBtnSimple",
+    ".modal-overlay.open .modal-actions",
+    ".add-modal-host.open .modal-actions",
+  ];
+  let topInset = viewport.top + margin;
+  let bottomInset = viewport.bottom - margin - reserveBottom;
+  topSelectors.forEach((selector) => {
+    document.querySelectorAll(selector).forEach((el) => {
+      if (shouldIgnore(el)) return;
+      if (!isGuideElementVisible(el)) return;
+      const rect = el.getBoundingClientRect();
+      const pinned = isGuideFixedElement(el) || rect.top <= viewport.top + 28;
+      if (!pinned) return;
+      if (rect.bottom > topInset) topInset = rect.bottom + margin;
+    });
+  });
+  bottomSelectors.forEach((selector) => {
+    document.querySelectorAll(selector).forEach((el) => {
+      if (shouldIgnore(el)) return;
+      if (!isGuideElementVisible(el)) return;
+      const rect = el.getBoundingClientRect();
+      const pinned = isGuideFixedElement(el) || rect.bottom >= viewport.bottom - 28;
+      if (!pinned) return;
+      if (rect.top < bottomInset) bottomInset = rect.top - margin;
+    });
+  });
+  return { topInset, bottomInset, viewport };
+}
+
+function isGuideTargetReadable(el, options = {}) {
+  if (!isGuideElementVisible(el)) return false;
+  const rect = el.getBoundingClientRect();
+  const { topInset, bottomInset, viewport } = getGuideOcclusionInsets(options);
+  const visibleTop = Math.max(rect.top, topInset);
+  const visibleBottom = Math.min(rect.bottom, bottomInset);
+  const visibleHeight = visibleBottom - visibleTop;
+  if (visibleHeight < Math.min(rect.height, 24)) return false;
+  const clampX = (value) =>
+    Math.min(Math.max(value, viewport.left + 6), viewport.right - 6);
+  const clampY = (value) =>
+    Math.min(
+      Math.max(value, Math.max(viewport.top + 6, visibleTop + 4)),
+      Math.min(viewport.bottom - 6, visibleBottom - 4),
+    );
+  const samplePoints = [
+    [rect.left + rect.width / 2, visibleTop + visibleHeight / 2],
+    [rect.left + rect.width / 2, visibleTop + Math.min(14, visibleHeight / 2)],
+    [rect.left + rect.width / 2, visibleBottom - Math.min(14, visibleHeight / 2)],
+    [rect.left + Math.min(Math.max(rect.width * 0.18, 10), rect.width / 2), visibleTop + visibleHeight / 2],
+    [rect.right - Math.min(Math.max(rect.width * 0.18, 10), rect.width / 2), visibleTop + visibleHeight / 2],
+  ];
+  let hitCount = 0;
+  let centerHit = false;
+  samplePoints.forEach(([rawX, rawY], index) => {
+    const hit = document.elementFromPoint(clampX(rawX), clampY(rawY));
+    const matched = !!hit && (hit === el || el.contains(hit));
+    if (matched) {
+      hitCount++;
+      if (index === 0) centerHit = true;
+    }
+  });
+  return centerHit && hitCount >= 3;
+}
+
+function isGuideTargetViewportVisible(el, options = {}) {
+  if (!isGuideElementVisible(el)) return false;
+  const rect = el.getBoundingClientRect();
+  const { topInset, bottomInset, viewport } = getGuideOcclusionInsets(options);
+  const visibleLeft = Math.max(rect.left, viewport.left + 6);
+  const visibleRight = Math.min(rect.right, viewport.right - 6);
+  const visibleTop = Math.max(rect.top, topInset);
+  const visibleBottom = Math.min(rect.bottom, bottomInset);
+  const visibleWidth = visibleRight - visibleLeft;
+  const visibleHeight = visibleBottom - visibleTop;
+  if (visibleWidth <= 0 || visibleHeight <= 0) return false;
+  const visibleArea = visibleWidth * visibleHeight;
+  const totalArea = Math.max(rect.width * rect.height, 1);
+  const visibleRatio = visibleArea / totalArea;
+  return (
+    visibleHeight >= Math.min(Math.max(rect.height * 0.24, 36), rect.height) &&
+    visibleWidth >= Math.min(Math.max(rect.width * 0.3, 36), rect.width) &&
+    (visibleRatio >= 0.22 || visibleArea >= 3200)
+  );
+}
+
+async function waitForGuideViewportStability(target, options = {}) {
+  const maxChecks = Number(options.maxChecks || 4);
+  const threshold = Number(options.threshold || 1);
+  let stableCount = 0;
+  let prevRect = target?.getBoundingClientRect?.() || null;
+  let prevScrollX = window.scrollX;
+  let prevScrollY = window.scrollY;
+  for (let i = 0; i < maxChecks; i++) {
+    await guideNextFrame();
+    await guideNextFrame();
+    if (!target || !target.isConnected) return;
+    const nextRect = target.getBoundingClientRect();
+    const dx = Math.abs(nextRect.left - (prevRect?.left || 0));
+    const dy = Math.abs(nextRect.top - (prevRect?.top || 0));
+    const dw = Math.abs(nextRect.width - (prevRect?.width || 0));
+    const dh = Math.abs(nextRect.height - (prevRect?.height || 0));
+    const dsx = Math.abs(window.scrollX - prevScrollX);
+    const dsy = Math.abs(window.scrollY - prevScrollY);
+    if (
+      dx <= threshold &&
+      dy <= threshold &&
+      dw <= threshold &&
+      dh <= threshold &&
+      dsx <= threshold &&
+      dsy <= threshold
+    ) {
+      stableCount++;
+      if (stableCount >= 2) return;
+    } else {
+      stableCount = 0;
+    }
+    prevRect = nextRect;
+    prevScrollX = window.scrollX;
+    prevScrollY = window.scrollY;
+  }
+}
+
+async function ensureTargetVisible(resolveTarget, options = {}) {
+  const stepId = options.stepId || null;
+  const topicId = options.topicId || null;
+  const isBalanceTrace = topicId === "basics" && stepId === "balance";
+  const stepTraceLabel =
+    topicId === "basics" && stepId === "history"
+      ? "[HISTORY_SCROLL_TRACE]"
+      : topicId === "basics" && stepId === "balance"
+        ? "[BALANCE_SCROLL_TRACE]"
+        : null;
+  const debugFunctionName = "ensureTargetVisible";
+  const timeout = Number(options.timeout || 3200);
+  const reserveBottom = Number(options.reserveBottom || 0);
+  const margin = Number(options.margin || 12);
+  const ignoreElements = Array.isArray(options.ignoreElements)
+    ? options.ignoreElements.filter(Boolean)
+    : [];
+  const onProgrammaticScroll =
+    typeof options.onProgrammaticScroll === "function"
+      ? options.onProgrammaticScroll
+      : null;
+  const emitScrollCallLog = (payload) => {
+    if (!stepTraceLabel) return;
+    console.log(`[SCROLL_CALL] ${JSON.stringify(payload)}`);
+  };
+  const captureScrollCall = async (meta, fn) => {
+    const beforeScrollY = window.scrollY;
+    const stack = new Error().stack || "";
+    const result = await fn();
+    const afterScrollY = window.scrollY;
+    emitScrollCallLog({
+      functionName: meta.functionName,
+      line: meta.line,
+      topicId,
+      stepId,
+      beforeScrollY,
+      afterScrollY,
+      delta: afterScrollY - beforeScrollY,
+      stack,
+    });
+    return result;
+  };
+  console.log(
+    `[ENSURE_VISIBLE_ENTER] ${JSON.stringify({
+      topicId,
+      stepId,
+      scrollY: window.scrollY,
+    })}`,
+  );
+  if (stepTraceLabel) {
+    console.log(
+      `${stepTraceLabel} ${JSON.stringify({
+        stepId,
+        scrollY: window.scrollY,
+        timestamp: Date.now(),
+        phase: "before_ensure_visible",
+      })}`,
+    );
+  }
+  const noteProgrammaticScroll = (extraMs = 0) => {
+    onProgrammaticScroll?.(extraMs);
+  };
+  const target = await guideWaitFor(() => {
+    const el = typeof resolveTarget === "function" ? resolveTarget() : resolveTarget;
+    if (!el) return null;
+    expandGuideAncestors(el);
+    return isGuideElementVisible(el) ? el : null;
+  }, { timeout, interval: 60 });
+  if (!target) {
+    if (isBalanceTrace) {
+      console.log(
+        `[GUIDE_BALANCE_NULL_REASON] ${JSON.stringify({
+          stepId,
+          reason: "missing-target",
+          visibleCheck: false,
+          readableCheck: false,
+          viewportVisibleCheck: false,
+          rectTop: null,
+          rectBottom: null,
+          rectHeight: null,
+          scrollY: window.scrollY,
+          topInset: null,
+          bottomInset: null,
+        })}`,
+      );
+    }
+    if (stepId === "history" || stepId === "add_button") {
+      console.log(
+        `[GUIDE_VISIBLE_FAIL] ${JSON.stringify({
+          stepId,
+          attempt: -1,
+          visibleCheck: false,
+          readableCheck: false,
+          viewportVisibleCheck: false,
+          reason: "target-not-found-in-guide-wait",
+        })}`,
+      );
+    }
+    console.log(
+      `[ENSURE_VISIBLE_EXIT] ${JSON.stringify({
+        topicId,
+        stepId,
+        scrollY: window.scrollY,
+        result: "target-not-found",
+      })}`,
+    );
+    if (stepTraceLabel) {
+      console.log(
+        `${stepTraceLabel} ${JSON.stringify({
+          stepId,
+          scrollY: window.scrollY,
+          timestamp: Date.now(),
+          phase: "after_ensure_visible",
+          result: "target-not-found",
+        })}`,
+      );
+    }
+    return null;
+  }
+
+  async function applyBasicsViewportComfortAlignment(element) {
+    if (topicId !== "basics" || !element) return null;
+    console.log(
+      `[BASICS_ALIGNMENT_ENTER] ${JSON.stringify({
+        topicId,
+        stepId,
+        scrollY: window.scrollY,
+      })}`,
+    );
+    const readabilityOptions = { reserveBottom, margin, ignoreElements };
+    const { topInset, bottomInset, viewport } = getGuideOcclusionInsets({
+      reserveBottom,
+      margin,
+      ignoreElements,
+    });
+    const usableHeight = Math.max(120, bottomInset - topInset);
+    const currentRect = element.getBoundingClientRect();
+    let delta = 0;
+
+    if (stepId === "balance") {
+      const desiredTop = topInset + usableHeight * 0.34;
+      const tolerance = 40;
+      if (currentRect.top < desiredTop - tolerance || currentRect.top > desiredTop + tolerance) {
+        delta = currentRect.top - desiredTop;
+      }
+    } else if (stepId === "history") {
+      const desiredTop = topInset + usableHeight * 0.6;
+      const tolerance = 36;
+      if (currentRect.top < desiredTop - tolerance || currentRect.top > desiredTop + tolerance) {
+        delta = currentRect.top - desiredTop;
+      }
+      const opsList =
+        document.getElementById("opsList") ||
+        document.querySelector(".sm-recent-block");
+      const opsRect = opsList?.getBoundingClientRect?.() || null;
+      if (opsRect && opsRect.height > 0) {
+        const desiredOpsTop = Math.min(bottomInset - 96, topInset + usableHeight * 0.78);
+        if (opsRect.top > desiredOpsTop) {
+          delta = Math.max(delta, opsRect.top - desiredOpsTop);
+        }
+      }
+    }
+
+    if (Math.abs(delta) > 2 && !isGuideFixedElement(element)) {
+      noteProgrammaticScroll(700);
+      await captureScrollCall(
+        {
+          functionName: "applyBasicsViewportComfortAlignment",
+          line: 35152,
+        },
+        () =>
+          window.scrollBy({
+            top: delta,
+            behavior: "auto",
+          }),
+      );
+      await waitForGuideViewportStability(element);
+      noteProgrammaticScroll(240);
+    }
+
+    const rect = element.getBoundingClientRect();
+    console.log(
+      `[BASICS_ALIGNMENT_EXIT] ${JSON.stringify({
+        topicId,
+        stepId,
+        scrollY: window.scrollY,
+        rectTop: rect.top,
+        rectBottom: rect.bottom,
+        rectHeight: rect.height,
+      })}`,
+    );
+    return {
+      element,
+      rect,
+      viewport: getGuideViewportMetrics(),
+      visible: isGuideElementVisible(element),
+      readable: isGuideTargetReadable(element, readabilityOptions),
+      viewportVisible: isGuideTargetViewportVisible(element, readabilityOptions),
+    };
+  }
+
+  for (let attempt = 0; attempt < 6; attempt++) {
+    expandGuideAncestors(target);
+    const rect = target.getBoundingClientRect();
+    const { topInset, bottomInset } = getGuideOcclusionInsets({
+      reserveBottom,
+      margin,
+      ignoreElements,
+    });
+    if (!isGuideFixedElement(target)) {
+      noteProgrammaticScroll();
+      if (topicId === "basics" && stepId === "history") {
+        const viewportHeight =
+          window.innerHeight || document.documentElement.clientHeight || 0;
+        const absoluteTop = window.scrollY + rect.top;
+        const targetScrollY =
+          rect.height > 240
+            ? Math.max(0, absoluteTop - topInset - 24)
+            : Math.max(0, absoluteTop - Math.max(0, (viewportHeight - rect.height) / 2));
+        await captureScrollCall(
+          {
+            functionName: debugFunctionName,
+            line: 35181,
+          },
+          () =>
+            window.scrollTo({
+              top: targetScrollY,
+              behavior: "instant",
+            }),
+        );
+      } else {
+        await captureScrollCall(
+          {
+            functionName: debugFunctionName,
+            line: 35181,
+          },
+          () =>
+            target.scrollIntoView({
+              block: rect.height > 240 ? "start" : "center",
+              inline: "nearest",
+              behavior: "auto",
+            }),
+        );
+      }
+      await waitForGuideViewportStability(target);
+    }
+    const nextRect = target.getBoundingClientRect();
+    if (nextRect.top < topInset) {
+      noteProgrammaticScroll();
+      await captureScrollCall(
+        {
+          functionName: debugFunctionName,
+          line: 35191,
+        },
+        () =>
+          window.scrollBy({
+            top: nextRect.top - topInset - 8,
+            behavior: "auto",
+          }),
+      );
+      await waitForGuideViewportStability(target);
+    } else if (nextRect.bottom > bottomInset) {
+      noteProgrammaticScroll();
+      await captureScrollCall(
+        {
+          functionName: debugFunctionName,
+          line: 35198,
+        },
+        () =>
+          window.scrollBy({
+            top: nextRect.bottom - bottomInset + 8,
+            behavior: "auto",
+          }),
+      );
+      await waitForGuideViewportStability(target);
+    }
+    const readabilityOptions = { reserveBottom, margin, ignoreElements };
+    const visibleCheck = isGuideElementVisible(target);
+    const readableCheck = isGuideTargetReadable(target, readabilityOptions);
+    const viewportVisibleCheck = isGuideTargetViewportVisible(
+      target,
+      readabilityOptions,
+    );
+    if (stepId === "history" || stepId === "add_button") {
+      const logRect = target.getBoundingClientRect();
+      console.log(
+        `[GUIDE_VISIBLE_ATTEMPT] ${JSON.stringify({
+          stepId,
+          attempt,
+          scrollY: window.scrollY,
+          rectTop: logRect.top,
+          rectBottom: logRect.bottom,
+          rectHeight: logRect.height,
+          visibleCheck,
+          readableCheck,
+          viewportVisibleCheck,
+          topInset,
+          bottomInset,
+        })}`,
+      );
+    }
+    if (
+      readableCheck ||
+      viewportVisibleCheck
+    ) {
+      const alignedState = await applyBasicsViewportComfortAlignment(target);
+      if (alignedState?.visible && (alignedState.readable || alignedState.viewportVisible)) {
+        if (isBalanceTrace) {
+          console.log(
+            `[GUIDE_BALANCE_SUCCESS] ${JSON.stringify({
+              stepId,
+              visibleCheck: !!alignedState.visible,
+              readableCheck: !!alignedState.readable,
+              viewportVisibleCheck: !!alignedState.viewportVisible,
+              rectTop: alignedState.rect?.top ?? null,
+              rectBottom: alignedState.rect?.bottom ?? null,
+              rectHeight: alignedState.rect?.height ?? null,
+              scrollY: window.scrollY,
+            })}`,
+          );
+        }
+        if (stepId === "history" || stepId === "add_button") {
+          console.log(
+            `[GUIDE_VISIBLE_SUCCESS] ${JSON.stringify({
+              stepId,
+              attempt,
+              rectTop: alignedState.rect.top,
+              rectBottom: alignedState.rect.bottom,
+            })}`,
+          );
+        }
+        if (stepTraceLabel) {
+          console.log(
+            `${stepTraceLabel} ${JSON.stringify({
+              stepId,
+              scrollY: window.scrollY,
+              timestamp: Date.now(),
+              phase: "after_ensure_visible",
+              result: "success",
+            })}`,
+          );
+        }
+        return {
+          element: alignedState.element,
+          rect: alignedState.rect,
+          viewport: alignedState.viewport,
+        };
+      }
+      if (stepId === "history" || stepId === "add_button") {
+        const successRect = target.getBoundingClientRect();
+        console.log(
+          `[GUIDE_VISIBLE_SUCCESS] ${JSON.stringify({
+            stepId,
+            attempt,
+            rectTop: successRect.top,
+            rectBottom: successRect.bottom,
+          })}`,
+        );
+      }
+      if (isBalanceTrace) {
+        const successRect = target.getBoundingClientRect();
+        console.log(
+          `[GUIDE_BALANCE_SUCCESS] ${JSON.stringify({
+            stepId,
+            visibleCheck,
+            readableCheck,
+            viewportVisibleCheck,
+            rectTop: successRect.top,
+            rectBottom: successRect.bottom,
+            rectHeight: successRect.height,
+            scrollY: window.scrollY,
+          })}`,
+        );
+      }
+      console.log(
+        `[ENSURE_VISIBLE_EXIT] ${JSON.stringify({
+          topicId,
+          stepId,
+          scrollY: window.scrollY,
+          result: "success",
+        })}`,
+      );
+      if (stepTraceLabel) {
+        console.log(
+          `${stepTraceLabel} ${JSON.stringify({
+            stepId,
+            scrollY: window.scrollY,
+            timestamp: Date.now(),
+            phase: "after_ensure_visible",
+            result: "success",
+          })}`,
+        );
+      }
+      return {
+        element: target,
+        rect: target.getBoundingClientRect(),
+        viewport: getGuideViewportMetrics(),
+      };
+    }
+  }
+
+  const readabilityOptions = { reserveBottom, margin, ignoreElements };
+  await waitForGuideViewportStability(target, { maxChecks: 5 });
+  let finalInsets = getGuideOcclusionInsets({
+    reserveBottom,
+    margin,
+    ignoreElements,
+  });
+  let finalRect = target.getBoundingClientRect();
+  if (
+    topicId === "basics" &&
+    stepId === "balance" &&
+    (finalRect.bottom < finalInsets.topInset || finalRect.top < 0)
+  ) {
+    const desiredTop = Math.round(window.innerHeight * 0.28);
+    noteProgrammaticScroll();
+    await captureScrollCall(
+      {
+        functionName: debugFunctionName,
+        line: 35668,
+      },
+      () =>
+        window.scrollTo({
+          top: Math.max(0, window.scrollY + finalRect.top - desiredTop),
+          behavior: "instant",
+        }),
+    );
+    await waitForGuideViewportStability(target);
+    finalInsets = getGuideOcclusionInsets({
+      reserveBottom,
+      margin,
+      ignoreElements,
+    });
+    finalRect = target.getBoundingClientRect();
+  }
+  const finalVisible = isGuideElementVisible(target);
+  const finalReadable = isGuideTargetReadable(target, readabilityOptions);
+  const finalViewportVisible = isGuideTargetViewportVisible(
+    target,
+    readabilityOptions,
+  );
+  const alignedFinalState =
+    finalVisible && (finalReadable || finalViewportVisible)
+      ? await applyBasicsViewportComfortAlignment(target)
+      : null;
+  const finalState =
+    alignedFinalState?.visible &&
+    (alignedFinalState.readable || alignedFinalState.viewportVisible)
+      ? alignedFinalState
+      : null;
+  if (isBalanceTrace && !finalVisible) {
+    console.log(
+      `[GUIDE_BALANCE_NULL_REASON] ${JSON.stringify({
+        stepId,
+        reason: "final-visible-failed",
+        visibleCheck: finalVisible,
+        readableCheck: finalReadable,
+        viewportVisibleCheck: finalViewportVisible,
+        rectTop: finalRect.top,
+        rectBottom: finalRect.bottom,
+        rectHeight: finalRect.height,
+        scrollY: window.scrollY,
+        topInset: readabilityOptions ? finalInsets.topInset : null,
+        bottomInset: readabilityOptions ? finalInsets.bottomInset : null,
+      })}`,
+    );
+  } else if (isBalanceTrace && finalVisible && !finalReadable && !finalViewportVisible) {
+    console.log(
+      `[GUIDE_BALANCE_NULL_REASON] ${JSON.stringify({
+        stepId,
+        reason: "final-readable-failed",
+        visibleCheck: finalVisible,
+        readableCheck: finalReadable,
+        viewportVisibleCheck: finalViewportVisible,
+        rectTop: finalRect.top,
+        rectBottom: finalRect.bottom,
+        rectHeight: finalRect.height,
+        scrollY: window.scrollY,
+        topInset: finalInsets.topInset,
+        bottomInset: finalInsets.bottomInset,
+      })}`,
+    );
+  }
+  if ((stepId === "history" || stepId === "add_button") && !(finalVisible && (finalReadable || finalViewportVisible))) {
+    console.log(
+      `[GUIDE_VISIBLE_FAIL] ${JSON.stringify({
+        stepId,
+        attempt: 6,
+        visibleCheck: finalVisible,
+        readableCheck: finalReadable,
+        viewportVisibleCheck: finalViewportVisible,
+        reason: !finalVisible ? "not-visible-after-final-pass" : "not-readable-after-final-pass",
+      })}`,
+    );
+  }
+  const finalResult = finalState
+    ? {
+        element: finalState.element,
+        rect: finalState.rect,
+        viewport: finalState.viewport,
+      }
+    : finalVisible && (finalReadable || finalViewportVisible)
+      ? {
+          element: target,
+          rect: target.getBoundingClientRect(),
+          viewport: getGuideViewportMetrics(),
+        }
+      : null;
+  if (isBalanceTrace && finalResult) {
+    const finalRect = finalResult.rect;
+    console.log(
+      `[GUIDE_BALANCE_SUCCESS] ${JSON.stringify({
+        stepId,
+        visibleCheck: finalVisible,
+        readableCheck: finalReadable,
+        viewportVisibleCheck: finalViewportVisible,
+        rectTop: finalRect?.top ?? null,
+        rectBottom: finalRect?.bottom ?? null,
+        rectHeight: finalRect?.height ?? null,
+        scrollY: window.scrollY,
+      })}`,
+    );
+  }
+  console.log(
+    `[ENSURE_VISIBLE_EXIT] ${JSON.stringify({
+      topicId,
+      stepId,
+      scrollY: window.scrollY,
+      result: finalResult ? "success" : "null",
+    })}`,
+  );
+  if (stepTraceLabel) {
+    console.log(
+      `${stepTraceLabel} ${JSON.stringify({
+        stepId,
+        scrollY: window.scrollY,
+        timestamp: Date.now(),
+        phase: "after_ensure_visible",
+        result: finalResult ? "success" : "null",
+      })}`,
+    );
+  }
+  return finalResult;
+}
+
+function computeGuidePlacement(targetRect, cardSize, options = {}) {
+  const gap = Number(options.gap || 14);
+  const margin = Number(options.margin || 12);
+  const viewport = getGuideViewportMetrics();
+  const reserveBottom = Number(options.reserveBottom || 0);
+  const topInset = viewport.top + margin;
+  const bottomInset = viewport.bottom - margin - reserveBottom;
+  const maxCardWidth = Math.min(cardSize.width, viewport.width - margin * 2);
+  const maxCardHeight = Math.min(cardSize.height, viewport.height - margin * 2);
+  const centerX = targetRect.left + targetRect.width / 2;
+  const centerY = targetRect.top + targetRect.height / 2;
+  const candidates = [
+    {
+      side: "bottom",
+      fits:
+        targetRect.bottom + gap + maxCardHeight <= bottomInset &&
+        maxCardWidth <= viewport.width - margin * 2,
+      top: targetRect.bottom + gap,
+      left: Math.min(
+        Math.max(centerX - maxCardWidth / 2, viewport.left + margin),
+        viewport.right - maxCardWidth - margin,
+      ),
+    },
+    {
+      side: "top",
+      fits:
+        targetRect.top - gap - maxCardHeight >= topInset &&
+        maxCardWidth <= viewport.width - margin * 2,
+      top: targetRect.top - maxCardHeight - gap,
+      left: Math.min(
+        Math.max(centerX - maxCardWidth / 2, viewport.left + margin),
+        viewport.right - maxCardWidth - margin,
+      ),
+    },
+    {
+      side: "right",
+      fits:
+        targetRect.right + gap + maxCardWidth <= viewport.right - margin &&
+        maxCardHeight <= bottomInset - topInset,
+      top: Math.min(
+        Math.max(centerY - maxCardHeight / 2, topInset),
+        bottomInset - maxCardHeight,
+      ),
+      left: targetRect.right + gap,
+    },
+    {
+      side: "left",
+      fits:
+        targetRect.left - gap - maxCardWidth >= viewport.left + margin &&
+        maxCardHeight <= bottomInset - topInset,
+      top: Math.min(
+        Math.max(centerY - maxCardHeight / 2, topInset),
+        bottomInset - maxCardHeight,
+      ),
+      left: targetRect.left - maxCardWidth - gap,
+    },
+  ];
+  const fitted = candidates.find((candidate) => candidate.fits);
+  if (fitted) {
+    return {
+      mode: "floating",
+      side: fitted.side,
+      top: fitted.top,
+      left: fitted.left,
+      width: maxCardWidth,
+      maxHeight: Math.min(maxCardHeight, bottomInset - topInset),
+    };
+  }
+  const sheetWidth = Math.min(420, viewport.width - margin * 2);
+  return {
+    mode: "sheet",
+    side: "bottom",
+    left: Math.min(
+      Math.max(viewport.left + margin, centerX - sheetWidth / 2),
+      viewport.right - sheetWidth - margin,
+    ),
+    top: Math.max(topInset, bottomInset - maxCardHeight),
+    width: sheetWidth,
+    maxHeight: Math.min(maxCardHeight, bottomInset - topInset),
+  };
+}
+
+function computeGuideSpotlightFrame(targetRect, options = {}) {
+  const viewport = getGuideViewportMetrics();
+  const maxPadX = Number(options.maxPadX || 24);
+  const maxPadY = Number(options.maxPadY || 22);
+  const minPadX = Number(options.minPadX || 14);
+  const minPadY = Number(options.minPadY || 12);
+  const padX = Math.min(
+    maxPadX,
+    Math.max(minPadX, Math.round(targetRect.width * 0.08)),
+  );
+  const padY = Math.min(
+    maxPadY,
+    Math.max(minPadY, Math.round(targetRect.height * 0.12)),
+  );
+  const left = Math.max(viewport.left + 6, targetRect.left - padX);
+  const top = Math.max(viewport.top + 6, targetRect.top - padY);
+  const right = Math.min(viewport.right - 6, targetRect.right + padX);
+  const bottom = Math.min(viewport.bottom - 6, targetRect.bottom + padY);
+  const width = Math.max(28, right - left);
+  const height = Math.max(28, bottom - top);
+  const radius = Math.min(
+    24,
+    Math.max(12, Math.round(Math.min(width, height) * 0.22)),
+  );
+  return { left, top, width, height, radius };
+}
+
+let guideTopicsCache = null;
+function getGuideTopics() {
+  if (guideTopicsCache) return guideTopicsCache;
+  guideTopicsCache = {
   ru: [
     // ── ОСНОВЫ ───────────────────────────────────────────────────
     {
@@ -26801,13 +36053,15 @@ const GUIDE_TOPICS = {
           emoji: "🎯",
           title: "Что такое бюджет?",
           nav: "settings",
-          action: "budgetsBody",
+          settingsView: "automation",
+          action: "automationBudgetsBody",
           text: "Бюджет — ежемесячный лимит на категорию. Например «Рестораны — не более 200₾». Приложение предупреждает при превышении 80%.",
         },
         {
           emoji: "➕",
           title: "Добавить лимит",
           nav: "settings",
+          settingsView: "automation",
           action: "addBudgetBtn",
           text: "Нажмите «+ Добавить бюджет» — выберите категорию и введите лимит в месяц. Можно настроить любое количество категорий.",
         },
@@ -26823,13 +36077,15 @@ const GUIDE_TOPICS = {
           emoji: "🔔",
           title: "Включить уведомления",
           nav: "settings",
-          action: "notifEnableBtn",
+          settingsView: "notifications",
+          action: "notificationsToolsGrid",
           text: "Нажмите эту кнопку — браузер запросит разрешение. Обязательно нажмите «Разрешить» в диалоге!",
         },
         {
           emoji: "🧪",
           title: "Проверить уведомления",
           nav: "settings",
+          settingsView: "notifications",
           action: "testNotifBtn",
           text: "Кнопка «Тест» — сразу отправляет тестовое уведомление. Убедитесь что они работают на вашем устройстве.",
         },
@@ -26837,6 +36093,7 @@ const GUIDE_TOPICS = {
           emoji: "📝",
           title: "Название напоминания",
           nav: "settings",
+          settingsView: "notifications",
           action: "newReminderName",
           text: "Введите что нужно сделать — например «Записать расходы» или «Оплатить аренду».",
         },
@@ -26844,13 +36101,15 @@ const GUIDE_TOPICS = {
           emoji: "📅",
           title: "Дата и время",
           nav: "settings",
-          action: "newReminderDatetime",
+          settingsView: "notifications",
+          action: "reminderDateBtn",
           text: "Выберите точный момент — нажмите на поле даты и времени. Можно выбрать сегодняшнюю дату для проверки.",
         },
         {
           emoji: "⏰",
           title: "Запланировать",
           nav: "settings",
+          settingsView: "notifications",
           action: "addNamedReminderBtn",
           text: "Нажмите «Запланировать» — напоминание сохранится. Придёт в выбранное время даже если вы закрыли приложение.",
         },
@@ -26858,6 +36117,7 @@ const GUIDE_TOPICS = {
           emoji: "🔁",
           title: "Повторяющиеся напоминания",
           nav: "settings",
+          settingsView: "notifications",
           scrollTo: ".reminder-interval-checkbox",
           text: "Отметьте галочкой интервал — каждый час, раз в день, раз в неделю. Такие напоминания приходят регулярно.",
         },
@@ -26873,6 +36133,7 @@ const GUIDE_TOPICS = {
           emoji: "👥",
           title: "Раздел Профили",
           nav: "settings",
+          settingsView: "account",
           action: "profilesBody",
           text: "Несколько профилей — для разных людей или кошельков. У каждого свои операции, бюджеты и настройки.",
         },
@@ -26880,6 +36141,7 @@ const GUIDE_TOPICS = {
           emoji: "➕",
           title: "Добавить профиль",
           nav: "settings",
+          settingsView: "account",
           action: "addProfileBtn",
           text: "Нажмите «Добавить профиль» — введите имя и выберите цвет. Переключайтесь между профилями в любое время.",
         },
@@ -27072,13 +36334,15 @@ const GUIDE_TOPICS = {
           emoji: "🎯",
           title: "What is a budget?",
           nav: "settings",
-          action: "budgetsBody",
+          settingsView: "automation",
+          action: "automationBudgetsBody",
           text: "A budget is a monthly limit for a category, for example Restaurants up to 200 GEL. The app warns you after 80%.",
         },
         {
           emoji: "➕",
           title: "Add a limit",
           nav: "settings",
+          settingsView: "automation",
           action: "addBudgetBtn",
           text: "Tap Add budget, choose a category, and set a monthly limit. You can do this for as many categories as you want.",
         },
@@ -27093,13 +36357,15 @@ const GUIDE_TOPICS = {
           emoji: "🔔",
           title: "Enable notifications",
           nav: "settings",
-          action: "notifEnableBtn",
+          settingsView: "notifications",
+          action: "notificationsToolsGrid",
           text: "Tap this button and let the browser request permission. Make sure to choose Allow.",
         },
         {
           emoji: "🧪",
           title: "Test notifications",
           nav: "settings",
+          settingsView: "notifications",
           action: "testNotifBtn",
           text: "The test button sends a sample notification right away so you can confirm it works on your device.",
         },
@@ -27107,6 +36373,7 @@ const GUIDE_TOPICS = {
           emoji: "📝",
           title: "Reminder name",
           nav: "settings",
+          settingsView: "notifications",
           action: "newReminderName",
           text: "Enter what should be done, for example Record expenses or Pay rent.",
         },
@@ -27114,13 +36381,15 @@ const GUIDE_TOPICS = {
           emoji: "📅",
           title: "Date and time",
           nav: "settings",
-          action: "newReminderDatetime",
+          settingsView: "notifications",
+          action: "reminderDateBtn",
           text: "Choose the exact moment when the reminder should fire. You can even set today's date for testing.",
         },
         {
           emoji: "⏰",
           title: "Schedule it",
           nav: "settings",
+          settingsView: "notifications",
           action: "addNamedReminderBtn",
           text: "Tap Schedule and the reminder will be saved. It can arrive even if the app is closed.",
         },
@@ -27128,6 +36397,7 @@ const GUIDE_TOPICS = {
           emoji: "🔁",
           title: "Recurring reminders",
           nav: "settings",
+          settingsView: "notifications",
           scrollTo: ".reminder-interval-checkbox",
           text: "Enable an interval like hourly, daily, or weekly to receive repeated reminders automatically.",
         },
@@ -27142,6 +36412,7 @@ const GUIDE_TOPICS = {
           emoji: "👥",
           title: "Profiles section",
           nav: "settings",
+          settingsView: "account",
           action: "profilesBody",
           text: "Use multiple profiles for different people or wallets. Each profile has its own transactions, budgets, and settings.",
         },
@@ -27149,6 +36420,7 @@ const GUIDE_TOPICS = {
           emoji: "➕",
           title: "Add profile",
           nav: "settings",
+          settingsView: "account",
           action: "addProfileBtn",
           text: "Tap Add profile, enter a name, choose a color, and switch between profiles whenever you need.",
         },
@@ -27339,13 +36611,15 @@ const GUIDE_TOPICS = {
           emoji: "🎯",
           title: "რა არის ბიუჯეტი?",
           nav: "settings",
-          action: "budgetsBody",
+          settingsView: "automation",
+          action: "automationBudgetsBody",
           text: "ბიუჯეტი არის კატეგორიის თვიური ზღვარი, მაგალითად რესტორნები მაქსიმუმ 200 GEL. აპი 80%-ის შემდეგ გაფრთხილებთ.",
         },
         {
           emoji: "➕",
           title: "ლიმიტის დამატება",
           nav: "settings",
+          settingsView: "automation",
           action: "addBudgetBtn",
           text: "დააჭირეთ ბიუჯეტის დამატებას, აირჩიეთ კატეგორია და მიუთითეთ თვიური ზღვარი. კატეგორიების რაოდენობა შეზღუდული არ არის.",
         },
@@ -27360,13 +36634,15 @@ const GUIDE_TOPICS = {
           emoji: "🔔",
           title: "შეტყობინებების ჩართვა",
           nav: "settings",
-          action: "notifEnableBtn",
+          settingsView: "notifications",
+          action: "notificationsToolsGrid",
           text: "დააჭირეთ ამ ღილაკს და ბრაუზერს ნებართვის მოთხოვნის საშუალება მიეცით. აუცილებლად აირჩიეთ Allow.",
         },
         {
           emoji: "🧪",
           title: "ტესტის გაშვება",
           nav: "settings",
+          settingsView: "notifications",
           action: "testNotifBtn",
           text: "ტესტის ღილაკი მაშინვე აგზავნის სატესტო შეტყობინებას, რომ შეამოწმოთ მუშაობს თუ არა თქვენს მოწყობილობაზე.",
         },
@@ -27374,6 +36650,7 @@ const GUIDE_TOPICS = {
           emoji: "📝",
           title: "შეხსენების სახელი",
           nav: "settings",
+          settingsView: "notifications",
           action: "newReminderName",
           text: "ჩაწერეთ რა უნდა გაკეთდეს, მაგალითად ხარჯების ჩაწერა ან ქირის გადახდა.",
         },
@@ -27381,13 +36658,15 @@ const GUIDE_TOPICS = {
           emoji: "📅",
           title: "თარიღი და დრო",
           nav: "settings",
-          action: "newReminderDatetime",
+          settingsView: "notifications",
+          action: "reminderDateBtn",
           text: "აირჩიეთ ზუსტი დრო, როდის უნდა მოვიდეს შეხსენება. ტესტისთვის დღევანდელი დღეც შეგიძლიათ მიუთითოთ.",
         },
         {
           emoji: "⏰",
           title: "დაგეგმვა",
           nav: "settings",
+          settingsView: "notifications",
           action: "addNamedReminderBtn",
           text: "დააჭირეთ დაგეგმვას და შეხსენება შეინახება. ის შეიძლება მაშინაც მოვიდეს, როცა აპი დახურულია.",
         },
@@ -27395,6 +36674,7 @@ const GUIDE_TOPICS = {
           emoji: "🔁",
           title: "განმეორებადი შეხსენებები",
           nav: "settings",
+          settingsView: "notifications",
           scrollTo: ".reminder-interval-checkbox",
           text: "ჩართეთ ინტერვალი, როგორიცაა საათობრივი, ყოველდღიური ან ყოველკვირეული, რომ შეხსენება რეგულარულად მოვიდეს.",
         },
@@ -27409,6 +36689,7 @@ const GUIDE_TOPICS = {
           emoji: "👥",
           title: "პროფილების განყოფილება",
           nav: "settings",
+          settingsView: "account",
           action: "profilesBody",
           text: "რამდენიმე პროფილი გამოგადგებათ სხვადასხვა ადამიანისთვის ან საფულისთვის. თითოეულს საკუთარი ოპერაციები, ბიუჯეტები და პარამეტრები აქვს.",
         },
@@ -27416,6 +36697,7 @@ const GUIDE_TOPICS = {
           emoji: "➕",
           title: "პროფილის დამატება",
           nav: "settings",
+          settingsView: "account",
           action: "addProfileBtn",
           text: "დააჭირეთ პროფილის დამატებას, შეიყვანეთ სახელი, აირჩიეთ ფერი და პროფილებს შორის თავისუფლად გადაერთეთ.",
         },
@@ -27478,6 +36760,1107 @@ const GUIDE_TOPICS = {
       ],
     },
   ],
+  };
+  return guideTopicsCache;
+}
+
+function guideL10n(ru, en, ka) {
+  return { ru, en, ka };
+}
+
+function guideText(value, lang) {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  return value[lang] || value.ru || value.en || value.ka || "";
+}
+
+function openGuideShareModal() {
+  const prof = profiles.find((p) => p.id === activeProfileId) || profiles[0];
+  if (prof && typeof openShareModal === "function") openShareModal(prof);
+}
+
+function openGuideCreatorPanel() {
+  if (typeof openSupportModal === "function") openSupportModal();
+}
+
+function openGuideCreatorFocusedReply() {
+  if (typeof openCreatorChatPanel !== "function") return;
+  openCreatorChatPanel();
+  const focusFirstDialog = (attempts = 18) => {
+    const textarea = document.getElementById("creatorFocusedTextarea");
+    if (textarea) return;
+    const firstDialog = document.querySelector(".creator-dialog-card");
+    if (firstDialog) {
+      firstDialog.click();
+      return;
+    }
+    if (attempts <= 1) return;
+    requestAnimationFrame(() => focusFirstDialog(attempts - 1));
+  };
+  requestAnimationFrame(() => focusFirstDialog());
+}
+
+function openGuideAction(actionName) {
+  const actions = {
+    openAddExpenseModal: () => openAddModal("expense"),
+    openGoalsModal: () => openGoalsModal(),
+    openReceiptScanner: () => openReceiptScanner(),
+    openGoogleSheetsExport: () => openGoogleSheetsExport(),
+    openEmailReportModal: () => openEmailReportModal(),
+    openUserChatPanel: () => openUserChatPanel(),
+    openCreatorChatPanel: () => openCreatorChatPanel(),
+    openSupportModal: () => openSupportModal(),
+    openConnectModal: () => openConnectModal(),
+    openShareModal: () => openGuideShareModal(),
+    openPartnerMode: () => openPartnerMode(),
+    openBudgetRule: () => openBudget503020Modal(),
+    openCloudLoadModal: () => cloudLoad(),
+    openGuideCreatorPanel: () => openGuideCreatorPanel(),
+    openGuideCreatorFocusedReply: () => openGuideCreatorFocusedReply(),
+    openHelpModal: () => showHelpModal(),
+  };
+  try {
+    actions[actionName]?.();
+  } catch (e) {
+    console.warn("[GUIDE_OPEN_ACTION_FAILED]", actionName, e);
+  }
+}
+
+function getGuideOpenActionMountTargets(actionName) {
+  return {
+    openAddExpenseModal: ["#addModal", "#addModal .modal-body"],
+    openGoalsModal: ["#goalsModal", "#goalAddBtn"],
+    openReceiptScanner: ["#scanModal", "#receiptInput"],
+    openUserChatPanel: ["#userChatModal", "#userChatFeed", "#chatMsgInput"],
+    openCreatorChatPanel: [
+      "#creatorChatModal",
+      "#creatorSearchInput",
+      "#creatorFocusedTextarea",
+    ],
+    openGuideCreatorFocusedReply: ["#creatorChatModal", "#creatorFocusedScreen", "#creatorFocusedTextarea"],
+    openSupportModal: ["#supportModal", "#supMsg"],
+    openConnectModal: ["#connectModal", "#connectCodeInput"],
+    openShareModal: ["#shareModal", "#createShareLinkBtn"],
+    openPartnerMode: ["#partnerModal", "#partnerStatus", "#partnerAddTx"],
+    openCloudLoadModal: ["#cloudLoadModal", "#cloudLinkInput"],
+    openGuideCreatorPanel: ["#supportModal", "#messagesList"],
+    openHelpModal: ["#helpModal", "#helpModal .modal-body"],
+  }[actionName] || [];
+}
+
+function shouldIncludeGuideTopic(topic) {
+  if (!topic?.when) return true;
+  if (topic.when === "creator") return isCreator();
+  if (topic.when === "voiceButton") return !!document.getElementById("voiceInputBtn");
+  return true;
+}
+
+const GUIDE_TOPIC_BLUEPRINT = [
+  {
+    id: "basics",
+    icon: "🏠",
+    title: guideL10n("Основы приложения", "App basics", "აპის საფუძვლები"),
+    steps: [
+      {
+        id: "welcome",
+        nav: "home",
+        selector: "#heroCardWrap",
+        title: guideL10n("Добро пожаловать!", "Welcome!", "მოგესალმებით!"),
+        text: guideL10n(
+          "Это главный экран BudgetPRO. Здесь вы видите баланс, быстрые итоги и последние операции. Начните отсюда, чтобы понять текущее состояние бюджета.",
+          "This is the main BudgetPRO screen. Here you see your balance, quick totals, and recent activity. Start here to understand your budget at a glance.",
+          "ეს არის BudgetPRO-ის მთავარი ეკრანი. აქ ხედავთ ბალანსს, სწრაფ შეჯამებას და ბოლო ოპერაციებს. დაიწყეთ აქედან, რომ ბიუჯეტის მიმდინარე სურათი დაინახოთ.",
+        ),
+      },
+      {
+        id: "starting_amount",
+        nav: "home",
+        action: "salaryCard",
+        title: guideL10n("Начальная сумма", "Starting amount", "საწყისი თანხა"),
+        text: guideL10n(
+          "Нажмите сюда, если хотите указать, сколько денег у вас было на старте. После этого BudgetPRO сможет считать реальный баланс, а не только суммы новых операций.",
+          "Tap here to set how much money you had at the start. After that, BudgetPRO can calculate your real balance instead of only tracking new transactions.",
+          "დააჭირეთ აქ, თუ გსურთ მიუთითოთ რამდენი ფული გქონდათ დასაწყისში. ამის შემდეგ BudgetPRO რეალურ ბალანსს დაითვლის და არა მხოლოდ ახალ ოპერაციებს.",
+        ),
+      },
+      {
+        id: "balance",
+        nav: "home",
+        action: "balanceValue",
+        title: guideL10n("Текущий баланс", "Current balance", "მიმდინარე ბალანსი"),
+        text: guideL10n(
+          "Это итог: начальная сумма + доходы − расходы. Проверяйте эту карточку, чтобы быстро понять, остаётесь ли вы в плюсе после новых трат.",
+          "This is the result: starting amount + income − expenses. Check this card to quickly see whether you are still positive after new spending.",
+          "ეს არის შედეგი: საწყისი თანხა + შემოსავლები − ხარჯები. ამ ბარათით სწრაფად მიხვდებით, რჩებით თუ არა პლუსში ახალი ხარჯების შემდეგ.",
+        ),
+      },
+      {
+        id: "history",
+        nav: "home",
+        scrollTo: "#opsList, .sm-recent-block, .history-btn-wrap",
+        title: guideL10n("История операций", "Transaction history", "ოპერაციების ისტორია"),
+        text: guideL10n(
+          "Ниже находится список расходов и доходов. Нажмите на запись, чтобы отредактировать её, и используйте историю как ежедневный журнал движения денег.",
+          "Below is the list of your expenses and income. Tap any entry to edit it and use the history as your daily money log.",
+          "ქვემოთ არის თქვენი ხარჯებისა და შემოსავლების სია. დააჭირეთ ჩანაწერს რედაქტირებისთვის და გამოიყენეთ ისტორია ყოველდღიური ფინანსური ჟურნალივით.",
+        ),
+      },
+      {
+        id: "add_button",
+        nav: "home",
+        action: "fabBtn",
+        title: guideL10n("Добавить операцию", "Add a transaction", "ოპერაციის დამატება"),
+        text: guideL10n(
+          "Нажмите кнопку «+», чтобы добавить новый расход или доход. Именно отсюда начинается основной ежедневный сценарий работы с приложением.",
+          "Tap the + button to add a new expense or income. This is the main daily action flow in the app.",
+          "დააჭირეთ «+» ღილაკს ახალი ხარჯის ან შემოსავლის დასამატებლად. ეს არის აპის მთავარი ყოველდღიური მოქმედება.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "operations",
+    icon: "➕",
+    title: guideL10n("Добавление операций", "Adding transactions", "ოპერაციების დამატება"),
+    steps: [
+      {
+        id: "open_modal",
+        nav: "home",
+        openAction: "openAddExpenseModal",
+        action: "addCategorySelect",
+        title: guideL10n("Выберите категорию", "Choose a category", "აირჩიეთ კატეგორია"),
+        text: guideL10n(
+          "Сначала выберите категорию расхода или дохода. Это нужно, чтобы статистика и бюджеты позже правильно распределяли операции по смыслу.",
+          "First choose the expense or income category. This makes later statistics and budgets group transactions correctly.",
+          "ჯერ აირჩიეთ ხარჯის ან შემოსავლის კატეგორია. ასე სტატისტიკა და ბიუჯეტები შემდეგ სწორად დააჯგუფებს ოპერაციებს.",
+        ),
+      },
+      {
+        id: "amount",
+        nav: "home",
+        openAction: "openAddExpenseModal",
+        action: "addAmount",
+        title: guideL10n("Введите сумму", "Enter the amount", "შეიყვანეთ თანხა"),
+        text: guideL10n(
+          "Введите сумму вручную или используйте цифровую клавиатуру ниже. После сохранения эта операция сразу изменит баланс и статистику.",
+          "Enter the amount manually or use the keypad below. After saving, the transaction immediately updates your balance and statistics.",
+          "შეიყვანეთ თანხა ხელით ან გამოიყენეთ ქვემოთ მოცემული კლავიატურა. შენახვის შემდეგ ოპერაცია მაშინვე შეცვლის ბალანსს და სტატისტიკას.",
+        ),
+      },
+      {
+        id: "date",
+        nav: "home",
+        openAction: "openAddExpenseModal",
+        action: "addDateBtn",
+        title: guideL10n("Укажите дату", "Pick a date", "აირჩიეთ თარიღი"),
+        text: guideL10n(
+          "Нажмите сюда, чтобы выбрать точную дату операции. Это важно, если вы вносите траты задним числом или готовите статистику за нужный период.",
+          "Tap here to choose the exact transaction date. This matters if you are entering older spending or building accurate period reports.",
+          "დააჭირეთ აქ ოპერაციის ზუსტი თარიღის ასარჩევად. ეს მნიშვნელოვანია, თუ ძველ ხარჯებს ამატებთ ან ზუსტ პერიოდულ ანგარიშს ამზადებთ.",
+        ),
+      },
+      {
+        id: "save",
+        nav: "home",
+        openAction: "openAddExpenseModal",
+        action: "saveAddBtn",
+        title: guideL10n("Сохраните операцию", "Save the transaction", "შეინახეთ ოპერაცია"),
+        text: guideL10n(
+          "Когда всё заполнено, нажмите «Добавить». BudgetPRO сохранит операцию, обновит баланс и покажет её в истории текущего профиля.",
+          "When everything is filled in, tap Add. BudgetPRO saves the transaction, updates the balance, and shows it in this profile's history.",
+          "როდესაც ყველაფერი შევსებულია, დააჭირეთ დამატებას. BudgetPRO შეინახავს ოპერაციას, განაახლებს ბალანსს და აჩვენებს მას მიმდინარე პროფილის ისტორიაში.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "stats",
+    icon: "📊",
+    title: guideL10n("Статистика", "Statistics", "სტატისტიკა"),
+    steps: [
+      {
+        id: "month_status",
+        nav: "stats",
+        scrollTo: ".stat-status-card",
+        title: guideL10n("Итог периода", "Period result", "პერიოდის შედეგი"),
+        text: guideL10n(
+          "Здесь видно, закончился ли период в плюсе или минусе. Сначала смотрите сюда, чтобы быстро понять общую финансовую картину.",
+          "Here you can see whether the period ended positive or negative. Start here to understand the overall financial result quickly.",
+          "აქ ხედავთ, პერიოდი პლუსში დასრულდა თუ მინუსში. პირველად აქ შეხედეთ, რომ მთლიან ფინანსურ შედეგს სწრაფად მიხვდეთ.",
+        ),
+      },
+      {
+        id: "kpis",
+        nav: "stats",
+        scrollTo: ".stat-kpi-grid",
+        title: guideL10n("Ключевые цифры", "Key numbers", "მთავარი ციფრები"),
+        text: guideL10n(
+          "Эти показатели помогают сравнить баланс, доходы и расходы без открытия отдельных экранов. Используйте их как быстрый финансовый чек.",
+          "These numbers let you compare balance, income, and expenses without opening other screens. Use them as a quick financial check.",
+          "ეს მაჩვენებლები გაძლევთ საშუალებას შეადაროთ ბალანსი, შემოსავლები და ხარჯები სხვა ეკრანების გახსნის გარეშე. გამოიყენეთ როგორც სწრაფი ფინანსური შემოწმება.",
+        ),
+      },
+      {
+        id: "period_switch",
+        nav: "stats",
+        scrollTo: ".stats-period-btns",
+        title: guideL10n("Смените период", "Change the period", "შეცვალეთ პერიოდი"),
+        text: guideL10n(
+          "Нажмите Неделя, Месяц или Год, чтобы пересчитать всю статистику. Это удобно, когда вы хотите сравнить краткосрочные и долгосрочные результаты.",
+          "Tap Week, Month, or Year to recalculate the whole statistics page. This helps compare short-term and long-term results.",
+          "დააჭირეთ კვირა, თვე ან წელი, რომ მთელი სტატისტიკა გადათვალოთ. ასე შეგიძლიათ მოკლე და გრძელი პერიოდის შედეგები შეადაროთ.",
+        ),
+      },
+      {
+        id: "trend",
+        nav: "stats",
+        scrollTo: ".stat-chart-card",
+        title: guideL10n("Следите за динамикой", "Track the trend", "დააკვირდით დინამიკას"),
+        text: guideL10n(
+          "Этот график показывает, как менялись доходы и расходы по месяцам. Используйте его, чтобы замечать устойчивые привычки, а не только разовые траты.",
+          "This chart shows how income and expenses changed over time. Use it to notice habits, not only one-off purchases.",
+          "ეს გრაფიკი აჩვენებს როგორ იცვლებოდა შემოსავლები და ხარჯები დროთა განმავლობაში. გამოიყენეთ ჩვევების შესამჩნევად და არა მხოლოდ ერთჯერადი ხარჯებისთვის.",
+        ),
+      },
+      {
+        id: "categories",
+        nav: "stats",
+        scrollTo: ".pie-chart-card",
+        title: guideL10n("Поймите структуру трат", "Understand spending structure", "გაიგეთ ხარჯების სტრუქტურა"),
+        text: guideL10n(
+          "Круговая диаграмма показывает, какие категории забирают больше всего денег. После анализа проще решить, где сокращать расходы.",
+          "The pie chart shows which categories take the largest share of money. After that, it becomes easier to decide where to cut back.",
+          "წრიული დიაგრამა აჩვენებს, რომელი კატეგორიები იღებს ფულის ყველაზე დიდ ნაწილს. ამის შემდეგ უფრო მარტივია გადაწყვიტოთ სად შეამციროთ ხარჯები.",
+        ),
+      },
+      {
+        id: "tips",
+        nav: "stats",
+        scrollTo: ".stat-tips-card",
+        title: guideL10n("Читайте советы", "Read the tips", "წაიკითხეთ რჩევები"),
+        text: guideL10n(
+          "Здесь BudgetPRO показывает автоматические рекомендации на основе ваших операций. Это быстрый способ получить подсказки без ручного анализа.",
+          "Here BudgetPRO shows automatic recommendations based on your transactions. It is a quick way to get guidance without manual analysis.",
+          "აქ BudgetPRO გაჩვენებთ ავტომატურ რეკომენდაციებს თქვენი ოპერაციების მიხედვით. ეს არის სწრაფი გზა რჩევების მისაღებად ხელით ანალიზის გარეშე.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "notebook",
+    icon: "📔",
+    title: guideL10n("Блокнот", "Notebook", "ბლოკნოტი"),
+    steps: [
+      {
+        id: "open_tab",
+        nav: "notebook",
+        action: "newNotebookBtn",
+        title: guideL10n("Создайте страницу", "Create a page", "შექმენით გვერდი"),
+        text: guideL10n(
+          "Нажмите эту кнопку, чтобы создать новую заметку. Блокнот полезен для списков покупок, финансовых идей и планов, которые не должны быть операциями.",
+          "Tap this button to create a new note. The notebook is useful for shopping lists, finance ideas, and plans that should not become transactions.",
+          "დააჭირეთ ამ ღილაკს ახალი ჩანაწერის შესაქმნელად. ბლოკნოტი გამოგადგებათ საყიდლების სიებისთვის, ფინანსური იდეებისთვის და გეგმებისთვის, რომლებიც ოპერაციები არ არის.",
+        ),
+      },
+      {
+        id: "note_list",
+        nav: "notebook",
+        scrollTo: "#notebookList",
+        title: guideL10n("Список заметок", "Your note list", "ჩანაწერების სია"),
+        text: guideL10n(
+          "Здесь появятся все страницы блокнота. Откройте любую карточку, чтобы отредактировать содержимое, дату и заголовок.",
+          "All notebook pages appear here. Open any card to edit its content, date, and title.",
+          "აქ გამოჩნდება ბლოკნოტის ყველა გვერდი. გახსენით ნებისმიერი ბარათი, რომ შეცვალოთ შინაარსი, თარიღი და სათაური.",
+        ),
+      },
+      {
+        id: "editor",
+        nav: "notebook",
+        openAction: "openHelpModal",
+        selector: "#helpModal .modal-body",
+        title: guideL10n("Справка и повторный доступ", "Help and repeat access", "დახმარება და ხელახალი წვდომა"),
+        text: guideL10n(
+          "Если позже захотите вспомнить функции приложения, возвращайтесь к справке и интерактивному гиду из шапки. Это ваш быстрый способ повторить обучение.",
+          "If you want to revisit features later, return to the help and interactive guide from the header. It is the fastest way to repeat the training.",
+          "თუ მოგვიანებით ფუნქციების გახსენება დაგჭირდებათ, დაბრუნდით დახმარებასა და ინტერაქტიურ გიდთან ზედა ნაწილიდან. ეს არის სწავლების სწრაფად გამეორების გზა.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "settings_home",
+    icon: "⚙️",
+    title: guideL10n("Главные настройки", "Settings home", "მთავარი პარამეტრები"),
+    steps: [
+      {
+        id: "home",
+        nav: "settings",
+        settingsView: "home",
+        scrollTo: ".settings-home-hero",
+        title: guideL10n("Это карта настроек", "This is the settings map", "ეს არის პარამეტრების რუკა"),
+        text: guideL10n(
+          "Здесь собраны все ключевые разделы BudgetPRO. Используйте этот экран как центральную точку входа в профили, безопасность, резервные копии и остальные системные функции.",
+          "All major BudgetPRO sections are collected here. Use this screen as the central entry point to profiles, security, backups, and other system features.",
+          "აქ თავმოყრილია BudgetPRO-ის ყველა მთავარი განყოფილება. გამოიყენეთ ეს ეკრანი როგორც ცენტრალური შესასვლელი პროფილებში, უსაფრთხოებაში, ასლებში და სხვა სისტემურ ფუნქციებში.",
+        ),
+      },
+      {
+        id: "account_card",
+        nav: "settings",
+        settingsView: "home",
+        selector: '[data-settings-home="account"]',
+        title: guideL10n("Профили и аккаунт", "Profiles and account", "პროფილები და ანგარიში"),
+        text: guideL10n(
+          "Нажмите эту карточку, когда хотите переключать профили, добавлять новые или настраивать общий доступ. Это главный раздел для структуры ваших данных.",
+          "Tap this card when you want to switch profiles, add new ones, or configure shared access. It is the main section for your data structure.",
+          "დააჭირეთ ამ ბარათს, როცა გსურთ პროფილების გადართვა, ახლის დამატება ან გაზიარებული წვდომის დაყენება. ეს არის თქვენი მონაცემების მთავარი სტრუქტურული განყოფილება.",
+        ),
+      },
+      {
+        id: "data_card",
+        nav: "settings",
+        settingsView: "home",
+        selector: '[data-settings-home="data"]',
+        title: guideL10n("Данные и синхронизация", "Data and sync", "მონაცემები და სინქრონიზაცია"),
+        text: guideL10n(
+          "Нажмите сюда, если хотите создавать резервные копии, восстанавливать данные или проверять синхронизацию. Это основной раздел защиты ваших финансовых записей.",
+          "Tap here if you want to create backups, restore data, or inspect syncing. It is the main place for protecting your financial records.",
+          "დააჭირეთ აქ, თუ გსურთ ასლების შექმნა, მონაცემების აღდგენა ან სინქრონიზაციის შემოწმება. ეს არის თქვენი ფინანსური ჩანაწერების დაცვის მთავარი ადგილი.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "appearance",
+    icon: "🎨",
+    title: guideL10n("Внешний вид", "Appearance", "გარეგნობა"),
+    steps: [
+      {
+        id: "theme_mode",
+        nav: "settings",
+        settingsView: "appearance",
+        selector: '[data-theme-mode="dark"]',
+        title: guideL10n("Смените тему", "Switch theme mode", "შეცვალეთ თემა"),
+        text: guideL10n(
+          "Выберите светлую или тёмную тему в одно касание. После переключения интерфейс сразу перестроится под более комфортный режим чтения.",
+          "Choose light or dark mode in one tap. The interface immediately switches to the mode that is more comfortable for you.",
+          "აირჩიეთ ნათელი ან ბნელი თემა ერთი შეხებით. ამის შემდეგ ინტერფეისი მაშინვე მოერგება თქვენთვის უფრო კომფორტულ ხედვას.",
+        ),
+      },
+      {
+        id: "language",
+        nav: "settings",
+        settingsView: "appearance",
+        selector: '[data-language-choice="en"]',
+        title: guideL10n("Поменяйте язык", "Change the language", "შეცვალეთ ენა"),
+        text: guideL10n(
+          "Нажмите на нужный язык, если интерфейс должен быть на русском, английском или грузинском. Guide продолжит работу и после смены языка.",
+          "Tap the language you want if the interface should be in Russian, English, or Georgian. The guide continues even after language changes.",
+          "დააჭირეთ სასურველ ენას, თუ ინტერფეისი უნდა იყოს რუსულად, ინგლისურად ან ქართულად. გიდი ენის ცვლილების შემდეგაც აგრძელებს მუშაობას.",
+        ),
+      },
+      {
+        id: "currency",
+        nav: "settings",
+        settingsView: "appearance",
+        selector: '[data-currency-choice="USD"]',
+        title: guideL10n("Выберите валюту", "Choose the currency", "აირჩიეთ ვალუტა"),
+        text: guideL10n(
+          "Выберите валюту отображения, в которой удобнее читать суммы. Это меняет показ значений по всему приложению, но не ломает сохранённые операции.",
+          "Choose the display currency that is easiest for you to read. This updates values across the app without breaking saved transactions.",
+          "აირჩიეთ საჩვენებელი ვალუტა, რომელშიც თანხების წაკითხვა თქვენთვის უფრო მოსახერხებელია. ეს ცვლის ჩვენებას მთელ აპში, მაგრამ არ აზიანებს შენახულ ოპერაციებს.",
+        ),
+      },
+      {
+        id: "voice_toggle",
+        nav: "settings",
+        settingsView: "appearance",
+        action: "showVoiceBtnToggle",
+        title: guideL10n("Управляйте голосовой кнопкой", "Control the voice button", "აკონტროლეთ ხმოვანი ღილაკი"),
+        text: guideL10n(
+          "Этот переключатель показывает или скрывает плавающую кнопку голосового ввода на главном экране. Полезно, если вы хотите ускорить добавление операций голосом.",
+          "This toggle shows or hides the floating voice input button on the home screen. Use it if you want faster voice-based transaction entry.",
+          "ეს ჩამრთველი აჩვენებს ან მალავს მთავარ ეკრანზე ხმოვანი შეყვანის მცურავ ღილაკს. გამოიყენეთ, თუ გინდათ ოპერაციების უფრო სწრაფად დამატება ხმით.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "security",
+    icon: "🔒",
+    title: guideL10n("Безопасность", "Security", "უსაფრთხოება"),
+    steps: [
+      {
+        id: "status",
+        nav: "settings",
+        settingsView: "security",
+        scrollTo: ".security-screen",
+        title: guideL10n("Проверяйте статус защиты", "Check the protection status", "შეამოწმეთ დაცვის სტატუსი"),
+        text: guideL10n(
+          "Здесь видно, включены ли PIN-код, биометрия и автоблокировка. Открывайте этот экран, если хотите быстро проверить базовый уровень защиты приложения.",
+          "Here you can see whether PIN, biometrics, and auto-lock are enabled. Open this screen whenever you want to review your protection level.",
+          "აქ ხედავთ ჩართულია თუ არა PIN-ი, ბიომეტრია და ავტობლოკი. გახსენით ეს ეკრანი, როცა გინდათ აპის დაცვის დონე სწრაფად გადაამოწმოთ.",
+        ),
+      },
+      {
+        id: "pin",
+        nav: "settings",
+        settingsView: "security",
+        selector: ".security-card:nth-of-type(2)",
+        title: guideL10n("Настройте PIN", "Set up a PIN", "დააყენეთ PIN"),
+        text: guideL10n(
+          "Используйте этот блок, чтобы включить PIN-код. После настройки BudgetPRO будет спрашивать его при входе и лучше защищать ваши личные данные.",
+          "Use this block to enable a PIN. After setup, BudgetPRO asks for it on entry and protects your personal data more reliably.",
+          "გამოიყენეთ ეს ბლოკი PIN-ის ჩასართავად. დაყენების შემდეგ BudgetPRO შესვლისას მას მოგთხოვთ და თქვენს პირად მონაცემებს უკეთ დაიცავს.",
+        ),
+      },
+      {
+        id: "auto_lock",
+        nav: "settings",
+        settingsView: "security",
+        selector: ".security-card:last-of-type",
+        title: guideL10n("Включите автоблокировку", "Enable auto-lock", "ჩართეთ ავტობლოკი"),
+        text: guideL10n(
+          "Автоблокировка полезна, если вы часто оставляете телефон без присмотра. После короткого простоя приложение снова запросит подтверждение входа.",
+          "Auto-lock is useful if you often leave your phone unattended. After a short idle period, the app asks for entry confirmation again.",
+          "ავტობლოკი გამოგადგებათ, თუ ტელეფონს ხშირად უყურადღებოდ ტოვებთ. მცირე უმოქმედობის შემდეგ აპი ისევ მოითხოვს შესვლის დადასტურებას.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "data_sync",
+    icon: "☁️",
+    title: guideL10n("Данные и резервные копии", "Data and backups", "მონაცემები და ასლები"),
+    steps: [
+      {
+        id: "overview",
+        nav: "settings",
+        settingsView: "data",
+        scrollTo: ".data-sync-screen",
+        title: guideL10n("Здесь живут копии и восстановление", "Backups and restore live here", "აქ არის ასლები და აღდგენა"),
+        text: guideL10n(
+          "Этот раздел нужен, чтобы сохранять ваши данные, восстанавливать их после сбоя и проверять актуальное состояние синхронизации.",
+          "This section is where you save your data, restore it after problems, and check the current sync state.",
+          "ეს განყოფილება საჭიროა თქვენი მონაცემების შესანახად, პრობლემის შემდეგ აღსადგენად და სინქრონიზაციის მდგომარეობის შესამოწმებლად.",
+        ),
+      },
+      {
+        id: "backup_create",
+        nav: "settings",
+        settingsView: "data",
+        action: "dataSyncBackupCreateBtn",
+        title: guideL10n("Создайте резервную копию", "Create a backup", "შექმენით ასლი"),
+        text: guideL10n(
+          "Нажмите эту кнопку, чтобы сохранить текущие данные в резервную копию. Делайте это перед крупными изменениями, импортом или сменой устройства.",
+          "Tap this button to save your current data into a backup. Do it before major changes, imports, or moving to another device.",
+          "დააჭირეთ ამ ღილაკს, რომ მიმდინარე მონაცემები სარეზერვო ასლში შეინახოთ. გააკეთეთ ეს დიდი ცვლილებების, იმპორტის ან მოწყობილობის შეცვლის წინ.",
+        ),
+      },
+      {
+        id: "backup_restore",
+        nav: "settings",
+        settingsView: "data",
+        action: "dataSyncBackupRestoreBtn",
+        title: guideL10n("Восстановите данные", "Restore data", "აღადგინეთ მონაცემები"),
+        text: guideL10n(
+          "Если данные пропали или устройство поменялось, используйте восстановление. Перед этим убедитесь, что понимаете, какую копию хотите вернуть.",
+          "If data disappeared or the device changed, use restore here. Before restoring, make sure you know which backup you want to bring back.",
+          "თუ მონაცემები გაქრა ან მოწყობილობა შეიცვალა, გამოიყენეთ აქ აღდგენა. აღდგენამდე დარწმუნდით, რომ ზუსტად იცით რომელი ასლის დაბრუნება გსურთ.",
+        ),
+      },
+      {
+        id: "cloud_modal",
+        nav: "settings",
+        settingsView: "data",
+        openAction: "openCloudLoadModal",
+        selector: "#cloudLoadModal .modal-body",
+        title: guideL10n("Загрузка из облака", "Load from cloud", "ჩატვირთვა ღრუბლიდან"),
+        text: guideL10n(
+          "В этом окне можно загрузить backup-ссылку и восстановить данные из облачного источника. Полезно, если вы переносите BudgetPRO между устройствами.",
+          "This modal lets you paste a backup link and restore data from a cloud source. It is useful when moving BudgetPRO between devices.",
+          "ამ ფანჯარაში შეგიძლიათ ჩასვათ ასლის ბმული და აღადგინოთ მონაცემები ღრუბლოვანი წყაროდან. ეს გამოგადგებათ BudgetPRO-ის მოწყობილობებს შორის გადასატანად.",
+        ),
+      },
+      {
+        id: "diagnostics_entry",
+        nav: "settings",
+        settingsView: "home",
+        selector: '[data-settings-home="diagnostics"]',
+        title: guideL10n("Если что-то пошло не так", "If something went wrong", "თუ რამე ვერ იმუშავა"),
+        text: guideL10n(
+          "Когда backup или восстановление ведут себя неожиданно, переходите в Диагностику данных. Там сохраняется история технических событий для разбирательства.",
+          "If backup or restore behaves unexpectedly, go to Data Diagnostics. It keeps a technical history that helps investigate problems.",
+          "თუ ასლი ან აღდგენა უცნაურად იქცევა, გადადით მონაცემების დიაგნოსტიკაში. იქ ინახება ტექნიკური ისტორია პრობლემის გასარკვევად.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "diagnostics",
+    icon: "🧪",
+    title: guideL10n("Диагностика данных", "Data diagnostics", "მონაცემების დიაგნოსტიკა"),
+    steps: [
+      {
+        id: "open",
+        nav: "settings",
+        settingsView: "diagnostics",
+        selector: ".diagnostics-chip-row",
+        title: guideL10n("Фильтруйте события", "Filter the events", "გაფილტრეთ მოვლენები"),
+        text: guideL10n(
+          "Используйте фильтры сверху, чтобы быстро выделить ошибки, изменение hash, восстановление или загрузку данных. Это помогает искать источник проблем без ручного чтения всего журнала.",
+          "Use the filters at the top to isolate errors, hash changes, restores, or load events. This makes it easier to find the source of a problem without reading the whole log manually.",
+          "გამოიყენეთ ზედა ფილტრები, რომ სწრაფად გამოყოთ შეცდომები, hash-ის ცვლილება, აღდგენა ან ჩატვირთვა. ასე პრობლემის წყაროს პოვნა მთელი ჟურნალის ხელით წაკითხვის გარეშე შეგიძლიათ.",
+        ),
+      },
+      {
+        id: "export",
+        nav: "settings",
+        settingsView: "diagnostics",
+        action: "diagnosticsExportBtn",
+        title: guideL10n("Экспортируйте журнал", "Export the log", "გაიტანეთ ჟურნალი"),
+        text: guideL10n(
+          "Нажмите «Экспорт логов», если хотите сохранить технический отчёт и отправить его разработчику, в Telegram, WhatsApp или в ChatGPT для разбора.",
+          "Tap Export logs if you want to save the technical report and send it to the developer, Telegram, WhatsApp, or ChatGPT for analysis.",
+          "დააჭირეთ ლოგების ექსპორტს, თუ გსურთ ტექნიკური ანგარიში შეინახოთ და გაუგზავნოთ დეველოპერს, Telegram-ს, WhatsApp-ს ან ChatGPT-ს გასაანალიზებლად.",
+        ),
+      },
+      {
+        id: "copy",
+        nav: "settings",
+        settingsView: "diagnostics",
+        action: "diagnosticsCopyBtn",
+        title: guideL10n("Скопируйте краткий отчёт", "Copy a short report", "დააკოპირეთ მოკლე ანგარიში"),
+        text: guideL10n(
+          "Эта кнопка создаёт короткий текстовый отчёт с ключевыми событиями. Используйте его, когда нужен быстрый диагноз без полного JSON-файла.",
+          "This button creates a short text report with the most important events. Use it when you need a quick diagnosis without the full JSON file.",
+          "ეს ღილაკი ქმნის მოკლე ტექსტურ ანგარიშს მთავარ მოვლენებთან ერთად. გამოიყენეთ, როცა სწრაფი დიაგნოზი გჭირდებათ სრული JSON ფაილის გარეშე.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "automation",
+    icon: "⚙️",
+    title: guideL10n("Автоматизация", "Automation", "ავტომატიზაცია"),
+    steps: [
+      {
+        id: "budgets",
+        nav: "settings",
+        settingsView: "automation",
+        action: "automationBudgetsBody",
+        title: guideL10n("Бюджеты по категориям", "Category budgets", "კატეგორიული ბიუჯეტები"),
+        text: guideL10n(
+          "Здесь вы задаёте лимиты, например на продукты или рестораны. После этого BudgetPRO сможет предупреждать, когда вы приближаетесь к перерасходу.",
+          "Here you define limits for categories like groceries or restaurants. After that, BudgetPRO can warn you before overspending.",
+          "აქ ადგენთ ლიმიტებს კატეგორიებისთვის, მაგალითად პროდუქტებზე ან რესტორნებზე. ამის შემდეგ BudgetPRO გაგაფრთხილებთ, სანამ ზედმეტს დახარჯავთ.",
+        ),
+      },
+      {
+        id: "add_budget",
+        nav: "settings",
+        settingsView: "automation",
+        action: "addBudgetBtn",
+        title: guideL10n("Добавьте бюджет", "Add a budget", "დაამატეთ ბიუჯეტი"),
+        text: guideL10n(
+          "Нажмите сюда, чтобы создать новый лимит. Укажите категорию и сумму, а приложение начнёт сравнивать реальные траты с вашим планом.",
+          "Tap here to create a new limit. Pick the category and amount, and the app will compare actual spending against your plan.",
+          "დააჭირეთ აქ ახალი ლიმიტის შესაქმნელად. აირჩიეთ კატეგორია და თანხა, შემდეგ აპი რეალურ ხარჯებს თქვენს გეგმას შეადარებს.",
+        ),
+      },
+      {
+        id: "recurring",
+        nav: "settings",
+        settingsView: "automation",
+        action: "addRecurringBtn",
+        title: guideL10n("Регулярные операции", "Recurring transactions", "რეგულარული ოპერაციები"),
+        text: guideL10n(
+          "Используйте регулярные операции для аренды, подписок, зарплаты и других повторяющихся записей. Это экономит время и снижает риск забыть важный платёж.",
+          "Use recurring transactions for rent, subscriptions, salary, and other repeating entries. This saves time and reduces the chance of forgetting important payments.",
+          "გამოიყენეთ რეგულარული ოპერაციები ქირის, გამოწერების, ხელფასისა და სხვა განმეორებადი ჩანაწერებისთვის. ეს ზოგავს დროს და ამცირებს მნიშვნელოვანი გადახდების დავიწყების რისკს.",
+        ),
+      },
+      {
+        id: "templates",
+        nav: "settings",
+        settingsView: "automation",
+        action: "automationTemplatesBody",
+        title: guideL10n("Шаблоны быстрых операций", "Quick transaction templates", "სწრაფი ოპერაციების შაბლონები"),
+        text: guideL10n(
+          "Здесь собраны сохранённые шаблоны. Используйте их для повторяющихся трат вроде кофе, такси или ежедневных покупок, чтобы добавлять операции быстрее.",
+          "Saved templates are listed here. Use them for repeated spending like coffee, taxi rides, or daily purchases to add entries faster.",
+          "აქ ინახება შენახული შაბლონები. გამოიყენეთ ისინი განმეორებადი ხარჯებისთვის, მაგალითად ყავა, ტაქსი ან ყოველდღიური შესყიდვები, რათა ოპერაციები უფრო სწრაფად დაამატოთ.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "planning",
+    icon: "📈",
+    title: guideL10n("Планирование", "Planning", "დაგეგმვა"),
+    steps: [
+      {
+        id: "goals_card",
+        nav: "settings",
+        settingsView: "planning",
+        action: "planningGoalsBtn",
+        title: guideL10n("Переход к целям", "Go to goals", "გადადით მიზნებზე"),
+        text: guideL10n(
+          "Нажмите сюда, чтобы открыть модальное окно целей. Оно подходит для накоплений на отпуск, технику, подушку безопасности и любые долгосрочные планы.",
+          "Tap here to open the goals modal. It is useful for saving toward a vacation, gadgets, an emergency fund, or any long-term plan.",
+          "დააჭირეთ აქ, რომ გახსნათ მიზნების ფანჯარა. ის გამოგადგებათ დასვენებისთვის, ტექნიკისთვის, უსაფრთხოების ბუფერისთვის და სხვა გრძელვადიანი გეგმებისთვის.",
+        ),
+      },
+      {
+        id: "rule_card",
+        nav: "settings",
+        settingsView: "planning",
+        action: "planningRuleBtn",
+        title: guideL10n("Правило 50/30/20", "50/30/20 rule", "50/30/20 წესი"),
+        text: guideL10n(
+          "Используйте это правило, если хотите быстро разложить доходы на обязательные траты, личные желания и накопления. Это хороший старт для базового финансового плана.",
+          "Use this rule when you want a fast split between needs, wants, and savings. It is a great starting point for a simple financial plan.",
+          "გამოიყენეთ ეს წესი, თუ გინდათ სწრაფად გაანაწილოთ შემოსავლები აუცილებელ ხარჯებზე, სურვილებზე და დანაზოგზე. ეს არის კარგი საწყისი მარტივი ფინანსური გეგმისთვის.",
+        ),
+      },
+      {
+        id: "goals_modal",
+        nav: "settings",
+        settingsView: "planning",
+        openAction: "openGoalsModal",
+        action: "goalAddBtn",
+        title: guideL10n("Создайте цель накопления", "Create a savings goal", "შექმენით დაგროვების მიზანი"),
+        text: guideL10n(
+          "Нажмите сюда, чтобы создать цель. Например: «Отпуск 3000 ₾». После сохранения BudgetPRO начнёт показывать ваш прогресс накопления.",
+          "Tap here to create a goal. For example: Vacation 3000 GEL. After saving, BudgetPRO starts showing your savings progress.",
+          "დააჭირეთ აქ მიზნის შესაქმნელად. მაგალითად: «დასვენება 3000 ₾». შენახვის შემდეგ BudgetPRO დაიწყებს თქვენი დაგროვების პროგრესის ჩვენებას.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "reports",
+    icon: "📤",
+    title: guideL10n("Отчёты и экспорт", "Reports and export", "ანგარიშები და ექსპორტი"),
+    steps: [
+      {
+        id: "sheets",
+        nav: "settings",
+        settingsView: "reports",
+        action: "reportsSheetsBtn",
+        title: guideL10n("Экспорт в Google Sheets", "Export to Google Sheets", "ექსპორტი Google Sheets-ში"),
+        text: guideL10n(
+          "Используйте эту кнопку, если хотите работать с операциями в таблице: строить свои графики, делиться отчётом или делать внешний анализ.",
+          "Use this button if you want to work with transactions in a spreadsheet: build custom charts, share reports, or run external analysis.",
+          "გამოიყენეთ ეს ღილაკი, თუ გინდათ ოპერაციებთან ცხრილში იმუშაოთ: ააწყოთ გრაფიკები, გააზიაროთ ანგარიში ან გააკეთოთ გარე ანალიზი.",
+        ),
+      },
+      {
+        id: "email",
+        nav: "settings",
+        settingsView: "reports",
+        action: "reportsEmailBtn",
+        title: guideL10n("Отправка отчёта на Email", "Send an email report", "ელფოსტაზე ანგარიშის გაგზავნა"),
+        text: guideL10n(
+          "Нажмите сюда, когда нужно отправить себе или другому человеку финансовую сводку. Это удобно для регулярных отчётов и обсуждения бюджета с партнёром.",
+          "Tap here when you want to send a financial summary to yourself or someone else. It is useful for regular reports and budget discussions with a partner.",
+          "დააჭირეთ აქ, როცა გსურთ ფინანსური შეჯამება გაუგზავნოთ საკუთარ თავს ან სხვას. ეს მოსახერხებელია რეგულარული ანგარიშებისა და პარტნიორთან ბიუჯეტის განხილვისთვის.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "profiles_share",
+    icon: "👥",
+    title: guideL10n("Профили и совместный доступ", "Profiles and shared access", "პროფილები და გაზიარებული წვდომა"),
+    steps: [
+      {
+        id: "profiles_section",
+        nav: "settings",
+        settingsView: "account",
+        action: "profilesBody",
+        title: guideL10n("Это список профилей", "This is the profiles section", "ეს არის პროფილების განყოფილება"),
+        text: guideL10n(
+          "Здесь вы управляете отдельными профилями: например, личным бюджетом, семейным кошельком или разными сценариями учёта.",
+          "This is where you manage separate profiles: for example a personal budget, a family wallet, or different tracking scenarios.",
+          "აქ მართავთ ცალკეულ პროფილებს: მაგალითად პირად ბიუჯეტს, ოჯახურ საფულეს ან აღრიცხვის სხვადასხვა სცენარს.",
+        ),
+      },
+      {
+        id: "add_profile",
+        nav: "settings",
+        settingsView: "account",
+        action: "addProfileBtn",
+        title: guideL10n("Добавьте профиль", "Add a profile", "დაამატეთ პროფილი"),
+        text: guideL10n(
+          "Нажмите «Добавить профиль», если хотите разделить данные по людям или кошелькам. Это помогает не смешивать разные финансовые потоки.",
+          "Tap Add profile if you want to split data between people or wallets. This helps you avoid mixing different financial flows.",
+          "დააჭირეთ პროფილის დამატებას, თუ გინდათ მონაცემები ადამიანების ან საფულეების მიხედვით გაყოთ. ასე სხვადასხვა ფინანსური ნაკადები არ აირევა.",
+        ),
+      },
+      {
+        id: "share_modal",
+        nav: "settings",
+        settingsView: "account",
+        openAction: "openShareModal",
+        action: "createShareLinkBtn",
+        title: guideL10n("Поделитесь профилем", "Share a profile", "გააზიარეთ პროფილი"),
+        text: guideL10n(
+          "Здесь можно создать ссылку или код доступа, чтобы другой человек подключился к вашему профилю. Используйте это для семейного бюджета или совместного контроля расходов.",
+          "Here you can create a link or access code so another person can connect to your profile. Use it for family budgeting or shared spending control.",
+          "აქ შეგიძლიათ შექმნათ ბმული ან წვდომის კოდი, რათა სხვა ადამიანი თქვენს პროფილს დაუკავშირდეს. გამოიყენეთ ეს ოჯახის ბიუჯეტისთვის ან ერთობლივი ხარჯების კონტროლისთვის.",
+        ),
+      },
+      {
+        id: "connect_modal",
+        nav: "settings",
+        settingsView: "account",
+        openAction: "openConnectModal",
+        selector: "#connectCodeInput",
+        title: guideL10n("Подключитесь к чужому профилю", "Connect to a shared profile", "დაუკავშირდით გაზიარებულ პროფილს"),
+        text: guideL10n(
+          "Если вам прислали код или ссылку, используйте это окно. После подключения вы сможете видеть данные профиля с теми разрешениями, которые дал владелец.",
+          "If someone sent you a code or link, use this window. After connecting, you can see profile data with the permissions granted by the owner.",
+          "თუ ვინმემ კოდი ან ბმული გამოგიგზავნათ, გამოიყენეთ ეს ფანჯარა. დაკავშირების შემდეგ პროფილის მონაცემებს იმ ნებართვებით იხილავთ, რაც მფლობელმა მოგცათ.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "support_chat",
+    icon: "💬",
+    title: guideL10n("Поддержка и чат", "Support and chat", "მხარდაჭერა და ჩატი"),
+    steps: [
+      {
+        id: "settings_support",
+        nav: "settings",
+        settingsView: "support",
+        action: "settingsSupportOpenBtn",
+        title: guideL10n("Откройте поддержку", "Open support", "გახსენით მხარდაჭერა"),
+        text: guideL10n(
+          "Нажмите эту кнопку, чтобы связаться с разработчиком. Это основной вход в поддержку: сюда стоит идти с вопросами, ошибками и запросами.",
+          "Tap this button to contact the developer. It is the main support entry point for questions, bug reports, and requests.",
+          "დააჭირეთ ამ ღილაკს დეველოპერთან დასაკავშირებლად. ეს არის მხარდაჭერის მთავარი შესასვლელი კითხვებისთვის, შეცდომებისა და მოთხოვნებისთვის.",
+        ),
+      },
+      {
+        id: "support_form",
+        nav: "settings",
+        settingsView: "support",
+        openAction: "openSupportModal",
+        selector: "#supMsg",
+        title: guideL10n("Опишите проблему", "Describe the issue", "აღწერეთ პრობლემა"),
+        text: guideL10n(
+          "Заполните имя, тему и сообщение. Чем точнее вы опишете проблему или идею, тем быстрее получится полезный ответ.",
+          "Fill in your name, topic, and message. The more clearly you describe the issue or idea, the faster the response becomes useful.",
+          "შეავსეთ სახელი, თემა და შეტყობინება. რაც უფრო ზუსტად აღწერთ პრობლემას ან იდეას, მით უფრო სწრაფად მიიღებთ სასარგებლო პასუხს.",
+        ),
+      },
+      {
+        id: "user_chat_feed",
+        nav: "settings",
+        settingsView: "support",
+        openAction: "openUserChatPanel",
+        action: "userChatFeed",
+        title: guideL10n("Читайте переписку", "Read the conversation", "წაიკითხეთ მიმოწერა"),
+        text: guideL10n(
+          "Здесь видна история ваших сообщений и ответов разработчика. Возвращайтесь сюда, чтобы не терять контекст и отслеживать, на что уже ответили.",
+          "Here you can see the history of your messages and the developer's replies. Return here to keep context and track what has already been answered.",
+          "აქ ჩანს თქვენი შეტყობინებების ისტორია და დეველოპერის პასუხები. დაბრუნდით აქ, რომ კონტექსტი არ დაკარგოთ და დაინახოთ რაზე უკვე გიპასუხეს.",
+        ),
+      },
+      {
+        id: "user_chat_send",
+        nav: "settings",
+        settingsView: "support",
+        openAction: "openUserChatPanel",
+        action: "chatMsgInput",
+        title: guideL10n("Напишите новое сообщение", "Write a new message", "დაწერეთ ახალი შეტყობინება"),
+        text: guideL10n(
+          "Введите вопрос или описание бага здесь, а затем отправьте его кнопкой справа. После отправки сообщение сразу останется в вашей истории чата.",
+          "Type your question or bug description here, then send it with the button on the right. After sending, it immediately stays in your chat history.",
+          "აქ ჩაწერეთ კითხვა ან შეცდომის აღწერა და შემდეგ მარჯვენა ღილაკით გაგზავნეთ. გაგზავნის შემდეგ შეტყობინება მაშინვე დარჩება ჩატის ისტორიაში.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "goals",
+    icon: "🎯",
+    title: guideL10n("Цели накопления", "Savings goals", "დაგროვების მიზნები"),
+    steps: [
+      {
+        id: "launcher",
+        nav: "home",
+        action: "goalsNavBtn",
+        title: guideL10n("Откройте цели", "Open goals", "გახსენით მიზნები"),
+        text: guideL10n(
+          "Нажмите кнопку 🎯, чтобы открыть цели накопления. Это удобный способ отделить ежедневные траты от долгосрочных финансовых планов.",
+          "Tap the 🎯 button to open savings goals. It helps separate daily spending from long-term financial plans.",
+          "დააჭირეთ 🎯 ღილაკს დაგროვების მიზნების გასახსნელად. ეს გეხმარებათ ყოველდღიური ხარჯები გრძელვადიანი გეგმებისგან გამოყოთ.",
+        ),
+      },
+      {
+        id: "create",
+        nav: "home",
+        openAction: "openGoalsModal",
+        action: "goalAddBtn",
+        title: guideL10n("Создайте цель", "Create a goal", "შექმენით მიზანი"),
+        text: guideL10n(
+          "Нажмите сюда, чтобы создать новую цель. Например: «Отпуск 3000 ₾». После создания приложение будет показывать прогресс накопления.",
+          "Tap here to create a new goal. For example: Vacation 3000 GEL. After creating it, the app starts showing your savings progress.",
+          "დააჭირეთ აქ ახალი მიზნის შესაქმნელად. მაგალითად: «დასვენება 3000 ₾». შექმნის შემდეგ აპი დაიწყებს დაგროვების პროგრესის ჩვენებას.",
+        ),
+      },
+      {
+        id: "list",
+        nav: "home",
+        openAction: "openGoalsModal",
+        action: "goalsList",
+        title: guideL10n("Следите за прогрессом", "Track progress", "დააკვირდით პროგრესს"),
+        text: guideL10n(
+          "В этом списке BudgetPRO показывает все цели и ваш текущий прогресс. Так проще видеть, сколько ещё осталось до важной покупки или накопления.",
+          "BudgetPRO shows all goals and your current progress in this list. It makes it easier to see how much remains before an important purchase or savings milestone.",
+          "BudgetPRO აქ აჩვენებს ყველა მიზანს და მიმდინარე პროგრესს. ასე უფრო მარტივია დაინახოთ რამდენი დარჩა მნიშვნელოვან შესყიდვამდე ან დანაზოგის მიღწევამდე.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "voice_input",
+    icon: "🎤",
+    title: guideL10n("Голосовой ввод", "Voice input", "ხმოვანი შეყვანა"),
+    steps: [
+      {
+        id: "voice_button",
+        nav: "home",
+        action: "voiceInputBtn",
+        title: guideL10n("Запустите голосовой ввод", "Start voice input", "დაიწყეთ ხმოვანი შეყვანა"),
+        text: guideL10n(
+          "Нажмите на кнопку 🎤 и произнесите фразу вроде «потратил 25 на продукты». Это самый быстрый способ добавить операцию без ручного ввода.",
+          "Tap the 🎤 button and say something like spent 25 on groceries. This is the fastest way to add a transaction without typing it manually.",
+          "დააჭირეთ 🎤 ღილაკს და თქვით მაგალითად «25 დავხარჯე პროდუქტებზე». ეს არის ყველაზე სწრაფი გზა ოპერაციის ხელით აკრეფის გარეშე დასამატებლად.",
+        ),
+      },
+      {
+        id: "appearance_toggle",
+        nav: "settings",
+        settingsView: "appearance",
+        action: "showVoiceBtnToggle",
+        title: guideL10n("Показывать или скрывать кнопку", "Show or hide the button", "ღილაკის ჩვენება ან დამალვა"),
+        text: guideL10n(
+          "Если кнопка не нужна постоянно, отключите её здесь. Когда захотите вернуть быстрый голосовой ввод, просто включите переключатель обратно.",
+          "If you do not want the button on screen all the time, turn it off here. You can enable it again whenever you want fast voice entry back.",
+          "თუ ღილაკი ყოველთვის ეკრანზე არ გჭირდებათ, გამორთეთ აქ. როცა კვლავ სწრაფი ხმოვანი დამატება დაგჭირდებათ, ჩამრთველი ისევ ჩართეთ.",
+        ),
+      },
+      {
+        id: "draft_modal_hint",
+        nav: "home",
+        action: "voiceInputBtn",
+        title: guideL10n("Что делает кнопка 🎤", "What the 🎤 button does", "რას აკეთებს 🎤 ღილაკი"),
+        text: guideL10n(
+          "Эта кнопка запускает голосовой ввод прямо с главного экрана. Нажмите её, когда хотите быстро надиктовать расход или доход без открытия обычной формы вручную.",
+          "This button starts voice input right from the home screen. Use it when you want to dictate an expense or income quickly without opening the regular form manually.",
+          "ეს ღილაკი მთავარ ეკრანზე უშუალოდ რთავს ხმოვან შეყვანას. გამოიყენეთ, როცა გსურთ ხარჯი ან შემოსავალი სწრაფად უკარნახოთ ჩვეულებრივი ფორმის ხელით გახსნის გარეშე.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "partner_mode",
+    icon: "💑",
+    title: guideL10n("Партнёрский режим", "Partner mode", "პარტნიორის რეჟიმი"),
+    steps: [
+      {
+        id: "open_partner",
+        nav: "tools",
+        openAction: "openPartnerMode",
+        action: "partnerStatus",
+        title: guideL10n("Совместный бюджет в реальном времени", "Real-time shared budget", "რეალურ დროში გაზიარებული ბიუჯეტი"),
+        text: guideL10n(
+          "Партнёрский режим нужен, если два человека хотят видеть и добавлять общие операции. Откройте его, чтобы начать совместный финансовый сценарий.",
+          "Partner mode is for two people who want to see and add shared transactions. Open it to start a collaborative budgeting flow.",
+          "პარტნიორის რეჟიმი საჭიროა მაშინ, როცა ორ ადამიანს სურს საერთო ოპერაციების ნახვა და დამატება. გახსენით, რომ ერთობლივი ბიუჯეტის სცენარი დაიწყოთ.",
+        ),
+      },
+      {
+        id: "partner_actions",
+        nav: "tools",
+        openAction: "openPartnerMode",
+        action: "partnerAddTx",
+        title: guideL10n("Добавляйте общие операции", "Add shared transactions", "დაამატეთ საერთო ოპერაციები"),
+        text: guideL10n(
+          "Используйте кнопку добавления внутри режима, чтобы вносить совместные траты. Это удобно для семьи, пары или любого общего бюджета.",
+          "Use the add button inside the mode to record shared expenses. This is useful for a family, couple, or any joint budget.",
+          "გამოიყენეთ დამატების ღილაკი რეჟიმის შიგნით საერთო ხარჯების დასაფიქსირებლად. ეს გამოგადგებათ ოჯახისთვის, წყვილისთვის ან ნებისმიერი საერთო ბიუჯეტისთვის.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "receipt_scanner",
+    icon: "🧾",
+    title: guideL10n("Сканер чеков", "Receipt scanner", "ჩეკის სკანერი"),
+    steps: [
+      {
+        id: "open_scanner",
+        nav: "tools",
+        openAction: "openReceiptScanner",
+        action: "receiptInput",
+        title: guideL10n("Загрузите чек", "Upload a receipt", "ატვირთეთ ჩეკი"),
+        text: guideL10n(
+          "Нажмите сюда, чтобы выбрать фото чека или снять его камерой. Scanner помогает быстрее переносить покупки в приложение без ручного набора всех позиций.",
+          "Tap here to choose a receipt photo or capture one with the camera. The scanner helps move purchases into the app faster than typing everything manually.",
+          "დააჭირეთ აქ, რომ აირჩიოთ ჩეკის ფოტო ან გადაიღოთ ის კამერით. სკანერი გეხმარებათ შესყიდვები აპში უფრო სწრაფად გადაიტანოთ ხელით აკრეფის გარეშე.",
+        ),
+      },
+      {
+        id: "scan_result",
+        nav: "tools",
+        openAction: "openReceiptScanner",
+        selector: "#scanModal .modal-body",
+        title: guideL10n("Окно сканера чека", "Receipt scanner workspace", "ჩეკის სკანერის ფანჯარა"),
+        text: guideL10n(
+          "Это рабочее окно сканера: здесь вы загружаете фото чека, следите за статусом обработки и переходите к подтверждению суммы после распознавания.",
+          "This is the scanner workspace: here you upload a receipt photo, watch the processing status, and move on to amount confirmation after recognition.",
+          "ეს არის სკანერის სამუშაო ფანჯარა: აქ ტვირთავთ ჩეკის ფოტოს, აკვირდებით დამუშავების სტატუსს და ამოცნობის შემდეგ გადადიხართ თანხის დადასტურებაზე.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "about",
+    icon: "ℹ️",
+    title: guideL10n("О приложении", "About", "აპის შესახებ"),
+    steps: [
+      {
+        id: "about_screen",
+        nav: "settings",
+        settingsView: "about",
+        scrollTo: ".data-sync-screen",
+        title: guideL10n("Проверяйте текущее состояние приложения", "Check the current app state", "შეამოწმეთ აპის მიმდინარე მდგომარეობა"),
+        text: guideL10n(
+          "На этом экране видно версию приложения, активный профиль, язык, тему и платформу. Полезно, когда вы отправляете отчёт о проблеме или хотите проверить среду работы.",
+          "This screen shows the app version, active profile, language, theme, and platform. It is useful when reporting a problem or verifying the current environment.",
+          "ამ ეკრანზე ჩანს აპის ვერსია, აქტიური პროფილი, ენა, თემა და პლატფორმა. ეს გამოგადგებათ პრობლემის ანგარიშის გაგზავნისას ან მიმდინარე გარემოს გადასამოწმებლად.",
+        ),
+      },
+      {
+        id: "repeat_help",
+        nav: "settings",
+        settingsView: "about",
+        action: "headerGuideBtn",
+        title: guideL10n("Как вернуться к обучению", "How to return to training", "როგორ დაბრუნდეთ სწავლებაში"),
+        text: guideL10n(
+          "Если захотите снова пройти обучение, нажмите кнопку гайда в шапке приложения. Она всегда остаётся точкой входа в полный интерактивный тур.",
+          "If you want to go through training again, tap the guide button in the header. It always remains the entry point to the full interactive tour.",
+          "თუ სწავლების ხელახლა გავლა გინდათ, დააჭირეთ გიდის ღილაკს ზედა ნაწილში. ის ყოველთვის რჩება სრული ინტერაქტიული ტურის შესასვლელ წერტილად.",
+        ),
+      },
+    ],
+  },
+  {
+    id: "creator_mode",
+    icon: "👑",
+    when: "creator",
+    title: guideL10n("Creator Mode", "Creator Mode", "Creator Mode"),
+    steps: [
+      {
+        id: "entry",
+        nav: "home",
+        action: "appLogoBtn",
+        title: guideL10n("Точка входа в creator mode", "Entry point to creator mode", "Creator mode-ის შესასვლელი"),
+        text: guideL10n(
+          "Для создателя приложения логотип в шапке остаётся специальной точкой входа. Здесь начинается доступ к creator-функциям и техническим панелям.",
+          "For the app creator, the logo in the header remains a special entry point. This is where access to creator features and technical panels begins.",
+          "აპის შემქმნელისთვის ლოგო ზედა ნაწილში რჩება სპეციალურ შესასვლელად. აქედან იწყება creator ფუნქციებსა და ტექნიკურ პანელებზე წვდომა.",
+        ),
+      },
+      {
+        id: "panel",
+        nav: "settings",
+        settingsView: "support",
+        openAction: "openGuideCreatorPanel",
+        action: "messagesList",
+        title: guideL10n("Панель обращений", "Support inbox panel", "მიმართვების პანელი"),
+        text: guideL10n(
+          "В этой панели создатель видит входящие обращения, отвечает пользователям и управляет каналами поддержки. Это рабочий центр обратной связи.",
+          "In this panel, the creator sees incoming requests, replies to users, and manages support channels. It is the working hub for feedback.",
+          "ამ პანელში შემქმნელი ხედავს შემოსულ მიმართვებს, პასუხობს მომხმარებლებს და მართავს მხარდაჭერის არხებს. ეს არის უკუკავშირის მთავარი სამუშაო ცენტრი.",
+        ),
+      },
+      {
+        id: "creator_chat",
+        nav: "settings",
+        settingsView: "support",
+        openAction: "openCreatorChatPanel",
+        action: "creatorSearchInput",
+        title: guideL10n("Creator Support Chat", "Creator Support Chat", "Creator Support Chat"),
+        text: guideL10n(
+          "Здесь создатель управляет диалогами поддержки: ищет обращения, читает историю и отвечает прямо из focused-screen без перехода в другие разделы.",
+          "Here the creator manages support conversations: searches dialogs, reads history, and replies directly from the focused screen without leaving the flow.",
+          "აქ შემქმნელი მართავს მხარდაჭერის დიალოგებს: ეძებს მიმოწერებს, კითხულობს ისტორიას და პასუხობს პირდაპირ focused-screen-იდან სხვა განყოფილებაში გადასვლის გარეშე.",
+        ),
+      },
+      {
+        id: "creator_reply",
+        nav: "settings",
+        settingsView: "support",
+        openAction: "openGuideCreatorFocusedReply",
+        action: "creatorFocusedTextarea",
+        title: guideL10n("Ответ прямо в диалоге", "Reply inside the dialog", "უპასუხეთ პირდაპირ დიალოგში"),
+        text: guideL10n(
+          "В focused-screen можно написать ответ, использовать шаблоны и отправить сообщение, не теряя историю переписки. Это основной рабочий сценарий creator chat.",
+          "In the focused screen, you can type a reply, use templates, and send the message without losing the conversation history. This is the main creator chat workflow.",
+          "focused-screen-ში შეგიძლიათ დაწეროთ პასუხი, გამოიყენოთ შაბლონები და გაგზავნოთ შეტყობინება მიმოწერის ისტორიის დაკარგვის გარეშე. ეს არის creator chat-ის მთავარი სამუშაო სცენარი.",
+        ),
+      },
+    ],
+  },
+];
+
+guideTopicsCache = null;
+getGuideTopics = function () {
+  const signature = `${isCreator() ? "creator" : "user"}`;
+  if (guideTopicsCache?.__signature === signature) return guideTopicsCache;
+  const buildForLang = (lang) =>
+    GUIDE_TOPIC_BLUEPRINT.filter(shouldIncludeGuideTopic).map((topic) => ({
+      id: topic.id,
+      icon: topic.icon,
+      title: guideText(topic.title, lang),
+      steps: (topic.steps || [])
+        .filter((step) => {
+          if (
+            topic.id === "support_chat" &&
+            step.id === "support_form" &&
+            isCreator()
+          ) {
+            return false;
+          }
+          return true;
+        })
+        .map((step) => ({
+        id: step.id,
+        emoji: step.emoji || topic.icon,
+        nav: step.nav || null,
+        settingsView: step.settingsView || null,
+        action: step.action || null,
+        scroll: step.scroll || null,
+        scrollTo: step.scrollTo || null,
+        selector: step.selector || null,
+        openAction: step.openAction || null,
+        title: guideText(step.title, lang),
+        text: guideText(step.text, lang),
+      })),
+    }));
+  guideTopicsCache = {
+    ru: buildForLang("ru"),
+    en: buildForLang("en"),
+    ka: buildForLang("ka"),
+    __signature: signature,
+  };
+  return guideTopicsCache;
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -27488,26 +37871,192 @@ const GUIDE_TOPICS = {
 // Принцип: переключает вкладку → скроллит к элементу → подсвечивает outline
 // Нет CSS-анимаций на карточке (не ломают JS transform)
 // ════════════════════════════════════════════════════════════════
-function openInteractiveGuide() {
+function openInteractiveGuide(options = {}) {
+  clearTimeout(guideResumeTimer);
+  guideResumeTimer = null;
+  if (isGuideInstanceOpen()) {
+    return activeGuideInstance;
+  }
+  activeGuideInstance = null;
+  cleanupGuideArtifacts();
   const lang = currentLang;
-  const topics = GUIDE_TOPICS[lang] || GUIDE_TOPICS.ru;
-  let topicIdx = null,
+  const guideTopics = getGuideTopics();
+  const topics = guideTopics[lang] || guideTopics.ru;
+  const isManualStart = !!options.forceFreshTopics;
+  const runtimeState = isManualStart
+    ? getDefaultGuideRuntimeState()
+    : loadGuideRuntimeState();
+  let topicIdx = runtimeState.topicId
+      ? topics.findIndex((topic) => topic.id === runtimeState.topicId)
+      : null,
     stepIdx = 0,
     hlEl = null;
+  if (topicIdx < 0) topicIdx = null;
+  if (topicIdx !== null && runtimeState.stepId) {
+    const nextStepIdx = topics[topicIdx]?.steps?.findIndex(
+      (step) => step.id === runtimeState.stepId,
+    );
+    if (nextStepIdx >= 0) stepIdx = nextStepIdx;
+  }
+  let runToken = 0;
+  let activeStepTarget = null;
+  let activePlacement = null;
+  let lastGuideGeometrySnapshot = null;
+  let activeRunToken = 0;
+  let suppressViewportReflowUntil = 0;
+  let guideMode =
+    runtimeState.active && runtimeState.mode === "complete"
+      ? "complete"
+      : topicIdx !== null
+        ? "step"
+        : "topics";
+  const cleanupFns = [];
+
+  function flushGuideCleanupFns() {
+    cleanupFns.splice(0).forEach((fn) => {
+      try {
+        fn();
+      } catch (e) {}
+    });
+  }
+
+  function removeGuideTempTargets() {
+    document
+      .querySelectorAll("[data-guide-temp-target]")
+      .forEach((el) => el.remove());
+  }
+
+  function clearGuideLifecycleState() {
+    runToken++;
+    activeRunToken = 0;
+    clearTimeout(guideResumeTimer);
+    guideResumeTimer = null;
+    flushGuideCleanupFns();
+    removeHL();
+    removeGuideTempTargets();
+    activePlacement = null;
+    activeStepTarget = null;
+    lastGuideGeometrySnapshot = null;
+  }
+
+  function captureGuideGeometrySnapshot() {
+    if (!activeStepTarget || !card.isConnected) return null;
+    const targetRect = activeStepTarget.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const viewport = getGuideViewportMetrics();
+    return {
+      target: {
+        top: targetRect.top,
+        left: targetRect.left,
+        width: targetRect.width,
+        height: targetRect.height,
+      },
+      card: {
+        top: cardRect.top,
+        left: cardRect.left,
+        width: cardRect.width,
+        height: cardRect.height,
+      },
+      viewport: {
+        top: viewport.top,
+        left: viewport.left,
+        width: viewport.width,
+        height: viewport.height,
+      },
+    };
+  }
+
+  function hasGuideGeometryMeaningfullyChanged(snapshot) {
+    const next = captureGuideGeometrySnapshot();
+    if (!snapshot || !next) return true;
+    const nearlyEqual = (a, b) => Math.abs((a || 0) - (b || 0)) <= 1;
+    return !(
+      nearlyEqual(snapshot.target.top, next.target.top) &&
+      nearlyEqual(snapshot.target.left, next.target.left) &&
+      nearlyEqual(snapshot.target.width, next.target.width) &&
+      nearlyEqual(snapshot.target.height, next.target.height) &&
+      nearlyEqual(snapshot.card.top, next.card.top) &&
+      nearlyEqual(snapshot.card.left, next.card.left) &&
+      nearlyEqual(snapshot.card.width, next.card.width) &&
+      nearlyEqual(snapshot.card.height, next.card.height) &&
+      nearlyEqual(snapshot.viewport.top, next.viewport.top) &&
+      nearlyEqual(snapshot.viewport.left, next.viewport.left) &&
+      nearlyEqual(snapshot.viewport.width, next.viewport.width) &&
+      nearlyEqual(snapshot.viewport.height, next.viewport.height)
+    );
+  }
+
+  function destroyGuideUi() {
+    document.getElementById("gSpotlightRoot")?.remove();
+    removeGuideTempTargets();
+    card.remove();
+    styleEl.remove();
+  }
+
+  function getActiveTopic() {
+    return topicIdx !== null ? topics[topicIdx] || null : null;
+  }
+
+  function getActiveStep() {
+    const topic = getActiveTopic();
+    return topic?.steps?.[stepIdx] || null;
+  }
+
+  function syncGuideState(extra = {}) {
+    const topic = getActiveTopic();
+    const step = getActiveStep();
+    saveGuideRuntimeState({
+      active: true,
+      mode: guideMode,
+      topicId: topic?.id || null,
+      stepId: guideMode === "step" ? step?.id || null : null,
+      targetKey:
+        guideMode === "step"
+          ? step?.selector || step?.action || step?.scrollTo || step?.scroll || null
+          : null,
+      completed: guideMode === "complete",
+      ...extra,
+    });
+  }
 
   // ── Styles ───────────────────────────────────────────────────
   const styleEl = document.createElement("style");
   styleEl.id = "gCSS";
   styleEl.textContent = `
     #gCard {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 9100;
-      background: var(--card-bg);
+      position: fixed; z-index: 9100;
+      background: #ffffff;
+      display: flex; flex-direction: column;
+      border: 1.5px solid rgba(15,23,42,0.08);
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: transform .18s ease, left .18s ease, top .18s ease;
+      will-change: left, top, transform;
+    }
+    body.dark #gCard {
+      background: #141a26;
+      border-color: rgba(255,255,255,0.14);
+    }
+    #gCard.g-visible {
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    #gCard.g-sheet {
       border-radius: 20px 20px 0 0;
       box-shadow: 0 -6px 32px rgba(0,0,0,.28);
-      display: flex; flex-direction: column; max-height: 50vh;
-      transform: translateY(100%); transition: transform .3s ease;
     }
-    #gCard.gOpen { transform: translateY(0); }
+    #gCard.g-floating {
+      border-radius: 20px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.28);
+    }
+    #gCard.g-measuring {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      transform: translateY(0) !important;
+    }
     @keyframes gPulse {
       0%,100% { outline-color: #f59e0b; outline-offset: 4px; }
       50%      { outline-color: #fbbf24; outline-offset: 8px; }
@@ -27518,6 +38067,34 @@ function openInteractiveGuide() {
       z-index: 8990;
       animation: gPulse 1.4s ease-in-out infinite;
     }
+    #gSpotlightRoot {
+      position: fixed;
+      inset: 0;
+      z-index: 9075;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .22s ease;
+    }
+    #gSpotlightRoot.g-visible {
+      opacity: 1;
+    }
+    #gSpotlightHole {
+      position: fixed;
+      background: transparent;
+      box-shadow:
+        0 0 0 9999px rgba(8, 15, 27, 0.76),
+        0 0 0 2px rgba(255,255,255,0.16),
+        0 22px 52px rgba(15,23,42,0.34),
+        0 0 34px rgba(255,255,255,0.12);
+      transition:
+        left .22s ease,
+        top .22s ease,
+        width .22s ease,
+        height .22s ease,
+        border-radius .22s ease,
+        box-shadow .22s ease;
+      will-change: left, top, width, height, border-radius;
+    }
   `;
   document.head.appendChild(styleEl);
 
@@ -27525,49 +38102,313 @@ function openInteractiveGuide() {
   const card = document.createElement("div");
   card.id = "gCard";
   document.body.appendChild(card);
-  setTimeout(() => card.classList.add("gOpen"), 30);
+  activeGuideInstance = {
+    isAlive: () => !!card.isConnected,
+    close: () => close(),
+    resume: (resumeOptions = {}) => {
+      if (!card.isConnected) return;
+      const nextState = loadGuideRuntimeState();
+      const nextTopicIdx = nextState.topicId
+        ? topics.findIndex((topic) => topic.id === nextState.topicId)
+        : null;
+      topicIdx = nextTopicIdx >= 0 ? nextTopicIdx : null;
+      if (topicIdx !== null && nextState.stepId) {
+        const nextStepIdx = topics[topicIdx]?.steps?.findIndex(
+          (step) => step.id === nextState.stepId,
+        );
+        if (nextStepIdx >= 0) stepIdx = nextStepIdx;
+      }
+      guideMode = nextState.mode || (topicIdx !== null ? "step" : "topics");
+      if (guideMode === "complete") {
+        renderCompletion();
+      } else if (topicIdx !== null) {
+        runStep({ preserveCardContent: !!resumeOptions.forceResume });
+      } else {
+        renderTopics();
+      }
+    },
+  };
 
   // ── Close ─────────────────────────────────────────────────────
   function close() {
-    removeHL();
-    card.classList.remove("gOpen");
-    setTimeout(() => {
-      card.remove();
-      styleEl.remove();
-    }, 320);
+    activeGuideInstance = null;
+    clearGuideLifecycleState();
+    guideMode = "topics";
+    resetGuideRuntimeState();
+    destroyGuideUi();
   }
 
   // ── Highlight ─────────────────────────────────────────────────
+  function ensureSpotlightNodes() {
+    let root = document.getElementById("gSpotlightRoot");
+    if (!root) {
+      root = document.createElement("div");
+      root.id = "gSpotlightRoot";
+      root.innerHTML = '<div id="gSpotlightHole"></div>';
+      document.body.appendChild(root);
+    }
+    return {
+      root,
+      hole: root.querySelector("#gSpotlightHole"),
+    };
+  }
+
+  function updateSpotlightGeometry(el) {
+    const nodes = ensureSpotlightNodes();
+    if (!el || !isGuideElementVisible(el)) {
+      nodes.root.classList.remove("g-visible");
+      return;
+    }
+    const frame = computeGuideSpotlightFrame(el.getBoundingClientRect());
+    nodes.hole.style.left = `${Math.round(frame.left)}px`;
+    nodes.hole.style.top = `${Math.round(frame.top)}px`;
+    nodes.hole.style.width = `${Math.round(frame.width)}px`;
+    nodes.hole.style.height = `${Math.round(frame.height)}px`;
+    nodes.hole.style.borderRadius = `${Math.round(frame.radius)}px`;
+    nodes.root.classList.add("g-visible");
+  }
+
+  function emitHeroLayoutTrace(label) {
+    const topic = getActiveTopic();
+    const step = getActiveStep();
+    if (topic?.id !== "basics" || step?.id !== "balance") return;
+    const describeEl = (el) => {
+      if (!el) return null;
+      const rect = el.getBoundingClientRect?.();
+      const cs = getComputedStyle(el);
+      return {
+        tagName: el.tagName || null,
+        id: el.id || null,
+        className:
+          typeof el.className === "string"
+            ? el.className
+            : String(el.className || ""),
+        offsetHeight: el.offsetHeight ?? null,
+        clientHeight: el.clientHeight ?? null,
+        scrollHeight: el.scrollHeight ?? null,
+        rect: rect
+          ? {
+              top: rect.top,
+              bottom: rect.bottom,
+              left: rect.left,
+              right: rect.right,
+              width: rect.width,
+              height: rect.height,
+            }
+          : null,
+        height: cs.height,
+        minHeight: cs.minHeight,
+        maxHeight: cs.maxHeight,
+        overflow: cs.overflow,
+        overflowY: cs.overflowY,
+        transform: cs.transform,
+        contain: cs.contain,
+        display: cs.display,
+        flex: cs.flex,
+        flexGrow: cs.flexGrow,
+        flexShrink: cs.flexShrink,
+        flexBasis: cs.flexBasis,
+      };
+    };
+    const balanceValue = document.getElementById("balanceValue");
+    const heroContainer =
+      balanceValue?.closest("#balanceCard") ||
+      document.getElementById("balanceCard");
+    const heroWrap =
+      heroContainer?.closest("#heroCardWrap") ||
+      document.getElementById("heroCardWrap");
+    console.log(
+      `${label} ${JSON.stringify({
+        stepId: step?.id || null,
+        scrollY: window.scrollY,
+        balanceValue: describeEl(balanceValue),
+        heroContainer: describeEl(heroContainer),
+        heroWrap: describeEl(heroWrap),
+      })}`,
+    );
+  }
+
+  function emitHeroContentTrace(label) {
+    const topic = getActiveTopic();
+    const step = getActiveStep();
+    if (topic?.id !== "basics" || step?.id !== "balance") return;
+    const describeContentEl = (el) => {
+      if (!el) return null;
+      const rect = el.getBoundingClientRect?.();
+      const cs = getComputedStyle(el);
+      return {
+        tagName: el.tagName || null,
+        id: el.id || null,
+        className:
+          typeof el.className === "string"
+            ? el.className
+            : String(el.className || ""),
+        offsetHeight: el.offsetHeight ?? null,
+        clientHeight: el.clientHeight ?? null,
+        scrollHeight: el.scrollHeight ?? null,
+        rect: rect
+          ? {
+              top: rect.top,
+              bottom: rect.bottom,
+              left: rect.left,
+              right: rect.right,
+              width: rect.width,
+              height: rect.height,
+            }
+          : null,
+        marginTop: cs.marginTop,
+        marginBottom: cs.marginBottom,
+        paddingTop: cs.paddingTop,
+        paddingBottom: cs.paddingBottom,
+        lineHeight: cs.lineHeight,
+        fontSize: cs.fontSize,
+        overflow: cs.overflow,
+        display: cs.display,
+      };
+    };
+    const balanceCard = document.getElementById("balanceCard");
+    const heroWrap = document.getElementById("heroCardWrap");
+    const heroLabel = balanceCard?.querySelector(".hero-label") || null;
+    const balanceValue = document.getElementById("balanceValue");
+    const heroTrend = document.getElementById("heroTrend");
+    const traceNodes = [
+      { key: "heroWrap", el: heroWrap },
+      { key: "balanceCard", el: balanceCard },
+      { key: "heroLabel", el: heroLabel },
+      { key: "balanceValue", el: balanceValue },
+      { key: "heroTrend", el: heroTrend },
+      { key: "heroLabelParent", el: heroLabel?.parentElement || null },
+      { key: "balanceValueParent", el: balanceValue?.parentElement || null },
+      { key: "heroTrendParent", el: heroTrend?.parentElement || null },
+    ];
+    console.log(
+      `${label} ${JSON.stringify({
+        stepId: step?.id || null,
+        scrollY: window.scrollY,
+        nodes: traceNodes.map(({ key, el }) => ({
+          key,
+          ...describeContentEl(el),
+        })),
+      })}`,
+    );
+  }
+
+  function emitBalanceCardChildrenTrace(label) {
+    const topic = getActiveTopic();
+    const step = getActiveStep();
+    if (topic?.id !== "basics" || step?.id !== "balance") return;
+    const balanceCard = document.getElementById("balanceCard");
+    if (!balanceCard) {
+      console.log(
+        `${label} ${JSON.stringify({
+          stepId: step?.id || null,
+          missing: true,
+        })}`,
+      );
+      return;
+    }
+    const children = Array.from(balanceCard.children || []);
+    const childData = children.map((el, index) => {
+      const rect = el.getBoundingClientRect?.();
+      const cs = getComputedStyle(el);
+      return {
+        index,
+        tagName: el.tagName || null,
+        id: el.id || null,
+        className:
+          typeof el.className === "string"
+            ? el.className
+            : String(el.className || ""),
+        offsetHeight: el.offsetHeight ?? null,
+        clientHeight: el.clientHeight ?? null,
+        scrollHeight: el.scrollHeight ?? null,
+        rectTop: rect?.top ?? null,
+        rectBottom: rect?.bottom ?? null,
+        rectHeight: rect?.height ?? null,
+        position: cs.position,
+        display: cs.display,
+        overflow: cs.overflow,
+        overflowY: cs.overflowY,
+        flex: cs.flex,
+        flexGrow: cs.flexGrow,
+        flexShrink: cs.flexShrink,
+        marginTop: cs.marginTop,
+        marginBottom: cs.marginBottom,
+        paddingTop: cs.paddingTop,
+        paddingBottom: cs.paddingBottom,
+      };
+    });
+    console.log(
+      `${label} ${JSON.stringify({
+        stepId: step?.id || null,
+        clientHeight: balanceCard.clientHeight ?? null,
+        scrollHeight: balanceCard.scrollHeight ?? null,
+        offsetHeight: balanceCard.offsetHeight ?? null,
+        sumChildrenOffsetHeight: children.reduce(
+          (sum, el) => sum + (el?.offsetHeight || 0),
+          0,
+        ),
+        children: childData,
+      })}`,
+    );
+  }
+
+  function emitBalanceCardStyleTrace(label) {
+    const topic = getActiveTopic();
+    const step = getActiveStep();
+    if (topic?.id !== "basics" || step?.id !== "balance") return;
+    const balanceCard = document.getElementById("balanceCard");
+    if (!balanceCard) {
+      console.log(
+        `${label} ${JSON.stringify({
+          stepId: step?.id || null,
+          missing: true,
+        })}`,
+      );
+      return;
+    }
+    const cs = getComputedStyle(balanceCard);
+    console.log(
+      `${label} ${JSON.stringify({
+        stepId: step?.id || null,
+        display: cs.display,
+        position: cs.position,
+        height: cs.height,
+        minHeight: cs.minHeight,
+        maxHeight: cs.maxHeight,
+        width: cs.width,
+        minWidth: cs.minWidth,
+        maxWidth: cs.maxWidth,
+        paddingTop: cs.paddingTop,
+        paddingBottom: cs.paddingBottom,
+        paddingLeft: cs.paddingLeft,
+        paddingRight: cs.paddingRight,
+        marginTop: cs.marginTop,
+        marginBottom: cs.marginBottom,
+        gap: cs.gap,
+        rowGap: cs.rowGap,
+        columnGap: cs.columnGap,
+        alignItems: cs.alignItems,
+        alignContent: cs.alignContent,
+        justifyContent: cs.justifyContent,
+        justifyItems: cs.justifyItems,
+        gridTemplateRows: cs.gridTemplateRows,
+        gridTemplateColumns: cs.gridTemplateColumns,
+        gridAutoRows: cs.gridAutoRows,
+        overflow: cs.overflow,
+        overflowY: cs.overflowY,
+        boxSizing: cs.boxSizing,
+        clientHeight: balanceCard.clientHeight ?? null,
+        scrollHeight: balanceCard.scrollHeight ?? null,
+        offsetHeight: balanceCard.offsetHeight ?? null,
+      })}`,
+    );
+  }
+
   function setHL(el) {
-    removeHL();
     if (!el) return;
     hlEl = el;
-    // Use a separate overlay ring so overflow:hidden on parent doesn't clip it
-    const r = el.getBoundingClientRect();
-    const pad = 6;
-    const ring = document.createElement("div");
-    ring.id = "gHLRing";
-    ring.style.cssText = [
-      "position:fixed;pointer-events:none;",
-      "z-index:9090;border-radius:14px;",
-      `left:${r.left - pad}px;top:${r.top - pad}px;`,
-      `width:${r.width + pad * 2}px;height:${r.height + pad * 2}px;`,
-      "border:3px solid #f59e0b;",
-      "box-shadow:0 0 0 4px rgba(245,158,11,.2),0 0 20px 4px rgba(245,158,11,.15);",
-      "animation:gPulse 1.4s ease-in-out infinite;",
-    ].join("");
-    document.body.appendChild(ring);
-    // Update position on scroll
-    const updatePos = () => {
-      if (!document.getElementById("gHLRing")) return;
-      const r2 = el.getBoundingClientRect();
-      ring.style.left = r2.left - pad + "px";
-      ring.style.top = r2.top - pad + "px";
-      ring.style.width = r2.width + pad * 2 + "px";
-      ring.style.height = r2.height + pad * 2 + "px";
-    };
-    window.addEventListener("scroll", updatePos, { passive: true });
-    ring._removeScroll = () => window.removeEventListener("scroll", updatePos);
+    updateSpotlightGeometry(el);
   }
 
   function removeHL() {
@@ -27575,18 +38416,102 @@ function openInteractiveGuide() {
       hlEl.classList.remove("gHL");
       hlEl = null;
     }
-    const ring = document.getElementById("gHLRing");
-    if (ring) {
-      ring._removeScroll?.();
-      ring.remove();
+    document.getElementById("gSpotlightRoot")?.remove();
+  }
+
+  function ensureGuideTempTarget(actionId) {
+    if (actionId !== "voiceInputBtn" && actionId !== "goalsNavBtn") return null;
+    const realTarget = document.getElementById(actionId);
+    if (realTarget && !realTarget.dataset.guideTempTarget) return realTarget;
+    let temp = document.querySelector(`[data-guide-temp-target="${actionId}"]`);
+    if (temp) return temp;
+    temp = document.createElement("button");
+    temp.type = "button";
+    temp.dataset.guideTempTarget = actionId;
+    temp.setAttribute("aria-hidden", "true");
+    temp.style.cssText = [
+      "position:fixed",
+      "z-index:10000",
+      "width:62px",
+      "height:62px",
+      "border:none",
+      "border-radius:50%",
+      "pointer-events:none",
+      "display:flex",
+      "align-items:center",
+      "justify-content:center",
+      "font-size:30px",
+      "box-shadow:0 18px 36px rgba(15,23,42,.22)",
+      "background:linear-gradient(135deg,var(--primary),var(--primary-light,var(--primary)))",
+      "color:#fff",
+      "opacity:.98",
+    ].join(";");
+    if (actionId === "voiceInputBtn") {
+      temp.textContent = "🎤";
+      temp.style.right = "16px";
+      temp.style.bottom = "96px";
+    } else {
+      temp.textContent = "🎯";
+      temp.style.left = "16px";
+      temp.style.bottom = "96px";
     }
+    document.body.appendChild(temp);
+    return temp;
   }
 
   // ── Find target element ───────────────────────────────────────
   function findTarget(step) {
+    if (step?.nav === "home") {
+      if (step?.id === "welcome") {
+        return (
+          document.querySelector("#heroCardWrap") ||
+          document.querySelector(".simple-hero")
+        );
+      }
+      if (step?.id === "starting_amount") {
+        return (
+          document.getElementById("salaryCard") ||
+          document.querySelector('.simple-hero .sm-chip-tap[data-type="salary"]')
+        );
+      }
+      if (step?.id === "balance") {
+        return (
+          document.getElementById("balanceHeroFocus") ||
+          document.getElementById("balanceValue") ||
+          document.querySelector(".simple-hero .sh-value")
+        );
+      }
+      if (step?.id === "history") {
+        const historyTarget =
+          document.getElementById("guideHistoryAnchor") ||
+          document.getElementById("opsList") ||
+          document.querySelector(".sm-recent-block") ||
+          document.querySelector(".history-btn-wrap") ||
+          document.querySelector(".ops-section-header");
+        return historyTarget;
+      }
+    }
+    if (step?.id === "month_status" && step?.nav === "stats" && !transactions.length) {
+      const emptyStatsTarget = document.querySelector(".stats-empty-state");
+      if (emptyStatsTarget) return emptyStatsTarget;
+    }
+    if (step.selector) {
+      const e = document.querySelector(step.selector);
+      if (e) return e;
+    }
     if (step.action) {
+      if (step.action === "fabBtn") {
+        const fabTarget =
+          document.getElementById("fabBtn") ||
+          document.getElementById("fabBtnSimple");
+        if (fabTarget) return fabTarget;
+      }
       const e = document.getElementById(step.action);
       if (e) return e;
+      if (/^[.#\[]/.test(step.action)) {
+        const bySelector = document.querySelector(step.action);
+        if (bySelector) return bySelector;
+      }
       // Try dynamic floating buttons
       if (step.action === "goalsNavBtn") {
         try {
@@ -27600,6 +38525,12 @@ function openInteractiveGuide() {
       }
       const e2 = document.getElementById(step.action);
       if (e2) return e2;
+      if (/^[.#\[]/.test(step.action)) {
+        const bySelector2 = document.querySelector(step.action);
+        if (bySelector2) return bySelector2;
+      }
+      const tempTarget = ensureGuideTempTarget(step.action);
+      if (tempTarget) return tempTarget;
     }
     if (step.scroll) {
       const e = document.getElementById(step.scroll);
@@ -27608,68 +38539,1150 @@ function openInteractiveGuide() {
     if (step.scrollTo) {
       const e = document.querySelector(step.scrollTo);
       if (e) return e;
+      if (step.scrollTo === ".stat-status-card" && !transactions.length) {
+        const emptyStatsTarget = document.querySelector(".stats-empty-state");
+        if (emptyStatsTarget) return emptyStatsTarget;
+      }
     }
     return null;
   }
 
-  // ── Scroll element into center of screen (above guide card) ────
-  function scrollToEl(el) {
-    if (!el) return;
-    const cardH = (card.offsetHeight || 240) + 24;
-    const viewH = window.innerHeight - cardH;
-    const r = el.getBoundingClientRect();
-    // Absolute position of element center
-    const absCenter = window.scrollY + r.top + r.height / 2;
-    // We want element center to be at viewH/2
-    const targetScrollY = absCenter - viewH / 2;
-    window.scrollTo({ top: Math.max(0, targetScrollY), behavior: "smooth" });
+  function setCardHiddenForMeasure() {
+    card.classList.remove("g-visible", "g-sheet", "g-floating");
+    card.classList.add("g-measuring");
+    card.style.left = "-9999px";
+    card.style.top = "0";
+    card.style.bottom = "auto";
+    card.style.right = "auto";
+    card.style.width = `${Math.min(360, window.innerWidth - 24)}px`;
+    card.style.maxHeight = "60vh";
+  }
+
+  function measureCardSize() {
+    const viewport = getGuideViewportMetrics();
+    return {
+      width: Math.min(card.offsetWidth || 340, viewport.width - 24),
+      height: Math.min(card.offsetHeight || 240, viewport.height - 24),
+    };
+  }
+
+  function applyCardPlacement(placement) {
+    activePlacement = placement;
+    card.classList.remove("g-measuring", "g-sheet", "g-floating");
+    card.classList.add(placement.mode === "sheet" ? "g-sheet" : "g-floating");
+    card.style.width = `${Math.round(placement.width)}px`;
+    card.style.maxHeight = `${Math.round(placement.maxHeight)}px`;
+    card.style.left = `${Math.round(placement.left)}px`;
+    card.style.top = `${Math.round(placement.top)}px`;
+    card.style.right = "auto";
+    card.style.bottom = "auto";
+    card.classList.add("g-visible");
+    if (activeStepTarget) updateSpotlightGeometry(activeStepTarget);
+    lastGuideGeometrySnapshot = captureGuideGeometrySnapshot();
+  }
+
+  function renderPreparingStepCard(step) {
+    if (step?.id === "history" || step?.id === "add_button") {
+      console.log(
+        `[GUIDE_CARD_PREPARING] ${JSON.stringify({
+          topicId: topics[topicIdx]?.id || null,
+          stepId: step?.id || null,
+          currentTab,
+        })}`,
+      );
+    }
+    const labels = {
+      ru: {
+        title: "Подготавливаем шаг...",
+        text: "Открываем нужный экран и готовим подсветку.",
+      },
+      en: {
+        title: "Preparing the step...",
+        text: "Opening the required screen and preparing the highlight.",
+      },
+      ka: {
+        title: "ვამზადებთ ნაბიჯს...",
+        text: "ვხსნით საჭირო ეკრანს და ვამზადებთ მონიშვნას.",
+      },
+    }[lang];
+    const stepTitle = step?.title ? `<div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;">${esc(step.title)}</div>` : "";
+    card.classList.remove("g-measuring", "g-sheet");
+    card.classList.add("g-floating", "g-visible");
+    card.style.width = `${Math.min(340, window.innerWidth - 24)}px`;
+    card.style.maxHeight = "60vh";
+    card.style.left = `${Math.max(12, Math.round((window.innerWidth - Math.min(340, window.innerWidth - 24)) / 2))}px`;
+    card.style.top = `${Math.max(16, Math.round(window.innerHeight * 0.18))}px`;
+    card.style.right = "auto";
+    card.style.bottom = "auto";
+    card.innerHTML = `
+      <div style="padding:16px 16px 14px;">
+        <div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:8px;">${esc(labels.title)}</div>
+        ${stepTitle}
+        <div style="font-size:13px;line-height:1.65;color:var(--text-soft);display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;line-height:1;">⏳</span>
+          <span>${esc(labels.text)}</span>
+        </div>
+      </div>`;
+  }
+
+  async function waitForStepMount(step, token) {
+    const selectors = [
+      ...(step.openAction ? getGuideOpenActionMountTargets(step.openAction) : []),
+      step.selector || null,
+      /^[.#\[]/.test(step.action || "") ? step.action : null,
+      step.scrollTo || null,
+      step.scroll ? `#${step.scroll}` : null,
+    ].filter(Boolean);
+    if (
+      !selectors.length &&
+      !(step.action || step.scroll || step.scrollTo || step.selector)
+    ) {
+      return true;
+    }
+    const timeout =
+      step.openAction === "openCreatorChatPanel"
+        ? 3400
+        : step.openAction
+          ? 2400
+          : 1600;
+    const mounted = await guideWaitFor(() => {
+      if (token !== runToken) return true;
+      const target = findTarget(step);
+      if (target) return true;
+      if (selectors.some((selector) => document.querySelector(selector))) return true;
+      return false;
+    }, { timeout, interval: 50 });
+    if (
+      step?.id === "history" ||
+      step?.id === "balance" ||
+      step?.id === "add_button"
+    ) {
+      console.log(
+        `[GUIDE_MOUNT_RESULT] ${JSON.stringify({
+          stepId: step?.id || null,
+          mounted: !!mounted && token === runToken,
+        })}`,
+      );
+    }
+    return !!mounted && token === runToken;
+  }
+
+  async function applyStepPreconditions(step, token) {
+    return runWithGuideControlledNavigation(async () => {
+      if (step.nav && step.nav !== currentTab) {
+        await new Promise((resolve) => {
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(fallbackTimer);
+            resolve();
+          };
+          const fallbackTimer = setTimeout(finish, 1400);
+          try {
+            setTab(step.nav, finish);
+          } catch (e) {
+            console.error("[GUIDE_SET_TAB_WAIT_FAILED]", {
+              topicId: topics[topicIdx]?.id || null,
+              stepId: step?.id || null,
+              nav: step.nav,
+              error: e,
+            });
+            finish();
+          }
+        });
+        if (token !== runToken) return false;
+        const navReady = await guideWaitFor(() => currentTab === step.nav, {
+          timeout: 1400,
+          interval: 40,
+        });
+        if (!navReady) {
+          console.error("[GUIDE_STEP_NAV_FAILED]", {
+            topicId: topics[topicIdx]?.id || null,
+            stepIdx,
+            nav: step.nav,
+          });
+          return false;
+        }
+        await guideNextFrame();
+        await guideNextFrame();
+      }
+      if (step.nav === "settings" && step.settingsView) {
+        if (currentSettingsView !== step.settingsView) {
+          currentSettingsView = step.settingsView;
+          renderSettings();
+        }
+        if (token !== runToken) return false;
+        const settingsReady = await guideWaitFor(
+          () => currentSettingsView === step.settingsView,
+          {
+            timeout: 1200,
+            interval: 40,
+          },
+        );
+        if (!settingsReady) {
+          console.error("[GUIDE_STEP_SETTINGS_FAILED]", {
+            topicId: topics[topicIdx]?.id || null,
+            stepIdx,
+            settingsView: step.settingsView,
+          });
+          return false;
+        }
+        await guideNextFrame();
+        await guideNextFrame();
+      }
+      if (step.openAction) {
+        openGuideAction(step.openAction);
+        if (token !== runToken) return false;
+        const mountReady = await waitForStepMount(step, token);
+        if (
+          step?.id === "history" ||
+          step?.id === "balance" ||
+          step?.id === "add_button"
+        ) {
+          console.log(
+            `[GUIDE_MOUNT_RESULT_POST] ${JSON.stringify({
+              stepId: step?.id || null,
+              mounted: !!mountReady,
+            })}`,
+          );
+        }
+        if (!mountReady) {
+          console.error("[GUIDE_STEP_OPEN_ACTION_FAILED]", {
+            topicId: topics[topicIdx]?.id || null,
+            stepId: step?.id || null,
+            stepIdx,
+            openAction: step.openAction,
+          });
+          return false;
+        }
+        await guideNextFrame();
+        await guideNextFrame();
+      } else {
+        const targetMounted = await waitForStepMount(step, token);
+        if (
+          step?.id === "history" ||
+          step?.id === "balance" ||
+          step?.id === "add_button"
+        ) {
+          console.log(
+            `[GUIDE_MOUNT_RESULT_POST] ${JSON.stringify({
+              stepId: step?.id || null,
+              mounted: !!targetMounted,
+            })}`,
+          );
+        }
+        if (!targetMounted) {
+          console.error("[GUIDE_STEP_TARGET_MOUNT_FAILED]", {
+            topicId: topics[topicIdx]?.id || null,
+            stepId: step?.id || null,
+            stepIdx,
+            action: step.action || null,
+            selector: step.selector || null,
+          });
+          return false;
+        }
+      }
+      return token === runToken;
+    });
+  }
+
+  function bindViewportReflow(step, token) {
+    const reflowTraceLabel =
+      topics[topicIdx]?.id === "basics" && step?.id === "history"
+        ? "[HISTORY_REFLOW_TRACE]"
+        : topics[topicIdx]?.id === "basics" && step?.id === "balance"
+          ? "[BALANCE_REFLOW_TRACE]"
+          : null;
+    console.log(
+      `[REFLOW_ENTER] ${JSON.stringify({
+        topicId: topics[topicIdx]?.id || null,
+        stepId: step?.id || null,
+        token,
+        scrollY: window.scrollY,
+      })}`,
+    );
+    const shouldSkipPreserveReflow =
+      topics[topicIdx]?.id === "basics" &&
+      (step?.id === "history" || step?.id === "balance");
+    suppressViewportReflowUntil = Math.max(
+      suppressViewportReflowUntil,
+      Date.now() + 260,
+    );
+    const scheduleReflow = (reason) => {
+      console.log(
+        `[SCHEDULE_REFLOW] ${JSON.stringify({
+          topicId: topics[topicIdx]?.id || null,
+          stepId: step?.id || null,
+          token,
+          reason,
+          scrollY: window.scrollY,
+          shouldSkipPreserveReflow,
+        })}`,
+      );
+      if (token !== runToken || topicIdx === null) return;
+      if (shouldSkipPreserveReflow) return;
+      if (activeRunToken || Date.now() < suppressViewportReflowUntil) return;
+      if (activeStepTarget) updateSpotlightGeometry(activeStepTarget);
+      if (!hasGuideGeometryMeaningfullyChanged(lastGuideGeometrySnapshot)) return;
+      window.clearTimeout(handler._timer);
+      handler._timer = window.setTimeout(() => {
+        if (token !== runToken || topicIdx === null) return;
+        if (activeRunToken || Date.now() < suppressViewportReflowUntil) return;
+        if (!hasGuideGeometryMeaningfullyChanged(lastGuideGeometrySnapshot)) return;
+        if (reflowTraceLabel) {
+          console.log(
+            `${reflowTraceLabel} ${JSON.stringify({
+              reason,
+              topicId: topics[topicIdx]?.id || null,
+              stepId: step?.id || null,
+              scrollY: window.scrollY,
+              timestamp: Date.now(),
+            })}`,
+          );
+        }
+        runStep({ preserveCardContent: true });
+      }, 90);
+    };
+    const handler = (reason = "unknown") => {
+      scheduleReflow(reason);
+    };
+    const onWindowResize = () => handler("resize");
+    const onWindowScroll = () => handler("scroll");
+    window.addEventListener("resize", onWindowResize);
+    window.addEventListener("scroll", onWindowScroll, { passive: true });
+    const vv = window.visualViewport;
+    const onViewportResize = () => handler("visualViewport:resize");
+    const onViewportScroll = () => handler("visualViewport:scroll");
+    vv?.addEventListener("resize", onViewportResize);
+    vv?.addEventListener("scroll", onViewportScroll);
+    const domObserver = new MutationObserver((mutations) => {
+      console.log(
+        `[MUTATION_REFLOW] ${JSON.stringify({
+          topicId: topics[topicIdx]?.id || null,
+          stepId: step?.id || null,
+          token,
+          scrollY: window.scrollY,
+          mutations: mutations.length,
+          shouldSkipPreserveReflow,
+        })}`,
+      );
+      if (token !== runToken || topicIdx === null) return;
+      if (shouldSkipPreserveReflow) return;
+      if (activeRunToken || Date.now() < suppressViewportReflowUntil) return;
+      const spotlightRoot = document.getElementById("gSpotlightRoot");
+      const isGuideOwnedNode = (node) => {
+        if (!node || node.nodeType !== 1) return false;
+        if (node === card || card.contains(node)) return true;
+        if (node === spotlightRoot || spotlightRoot?.contains(node)) return true;
+        return false;
+      };
+      const hasRelevantMutation = mutations.some((mutation) => {
+        const targetNode =
+          mutation.target?.nodeType === 1
+            ? mutation.target
+            : mutation.target?.parentElement || null;
+        const changedNodes = [
+          targetNode,
+          ...Array.from(mutation.addedNodes || []),
+          ...Array.from(mutation.removedNodes || []),
+        ].filter(Boolean);
+        if (!changedNodes.length) return false;
+        return changedNodes.some((node) => !isGuideOwnedNode(node));
+      });
+      if (!hasRelevantMutation) return;
+      if (!hasGuideGeometryMeaningfullyChanged(lastGuideGeometrySnapshot)) return;
+      window.clearTimeout(handler._timer);
+      handler._timer = window.setTimeout(() => {
+        if (token !== runToken || topicIdx === null) return;
+        if (activeRunToken || Date.now() < suppressViewportReflowUntil) return;
+        if (!hasGuideGeometryMeaningfullyChanged(lastGuideGeometrySnapshot)) return;
+        if (reflowTraceLabel) {
+          console.log(
+            `${reflowTraceLabel} ${JSON.stringify({
+              reason: "mutation",
+              topicId: topics[topicIdx]?.id || null,
+              stepId: step?.id || null,
+              scrollY: window.scrollY,
+              timestamp: Date.now(),
+            })}`,
+          );
+        }
+        runStep({ preserveCardContent: true });
+      }, 120);
+    });
+    domObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+    cleanupFns.push(() => {
+      console.log(
+        `[REFLOW_EXIT] ${JSON.stringify({
+          topicId: topics[topicIdx]?.id || null,
+          stepId: step?.id || null,
+          token,
+          scrollY: window.scrollY,
+        })}`,
+      );
+      window.removeEventListener("resize", onWindowResize);
+      window.removeEventListener("scroll", onWindowScroll);
+      vv?.removeEventListener("resize", onViewportResize);
+      vv?.removeEventListener("scroll", onViewportScroll);
+      domObserver.disconnect();
+      window.clearTimeout(handler._timer);
+    });
   }
 
   // ── Run a step ────────────────────────────────────────────────
-  function runStep() {
-    renderCard();
+  async function runStep(options = {}) {
+    const preserveCardContent = !!options.preserveCardContent;
+    const emitBasicsStepTrace = (stepId, phase, extra = {}) => {
+      const label =
+        stepId === "history"
+          ? "[HISTORY_SCROLL_TRACE]"
+          : stepId === "balance"
+            ? "[BALANCE_SCROLL_TRACE]"
+            : null;
+      if (!label) return;
+      console.log(
+        `${label} ${JSON.stringify({
+          stepId,
+          scrollY: window.scrollY,
+          timestamp: Date.now(),
+          phase,
+          ...extra,
+        })}`,
+      );
+    };
+    console.log(
+      `[RUNSTEP_ENTER] ${JSON.stringify({
+        topicId: topicIdx !== null ? topics[topicIdx]?.id || null : null,
+        stepId:
+          topicIdx !== null ? topics[topicIdx]?.steps?.[stepIdx]?.id || null : null,
+        preserveCardContent,
+        scrollY: window.scrollY,
+      })}`,
+    );
+    if (preserveCardContent && activeRunToken) return;
+    const token = ++runToken;
+    activeRunToken = token;
+    flushGuideCleanupFns();
     removeHL();
+    removeGuideTempTargets();
+    const topic = topics[topicIdx];
+    const step = topic?.steps?.[stepIdx];
+    if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+      console.log(
+        `[GUIDE_RUNSTEP_START] ${JSON.stringify({
+          topicId: topic?.id || null,
+          stepId: step?.id || null,
+          stepIdx,
+          token,
+          runToken,
+        })}`,
+      );
+    }
+    if (topic?.id === "basics" && step?.id === "add_button") {
+      console.log(
+        `[GUIDE_ADD_BUTTON_START] ${JSON.stringify({
+          topicId: topic?.id || null,
+          stepId: step?.id || null,
+          stepIdx,
+          currentTab,
+          preserveCardContent,
+          token,
+        })}`,
+      );
+    }
+    if (!topic || !step) {
+      console.error("[GUIDE_STEP_INVALID_STATE]", { topicIdx, stepIdx });
+      activeRunToken = 0;
+      renderTopics();
+      return;
+    }
+    const showPreparingState =
+      !preserveCardContent &&
+      topic.id === "basics" &&
+      step.nav &&
+      step.nav !== currentTab;
+    if (!preserveCardContent) {
+      if (showPreparingState) renderPreparingStepCard(step);
+      else renderCard();
+    }
+    if (!showPreparingState) setCardHiddenForMeasure();
+    if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+      console.log(
+        `[GUIDE_CARD_MEASURE] ${JSON.stringify({
+          topicId: topic?.id || null,
+          stepId: step?.id || null,
+          showPreparingState,
+          preserveCardContent,
+          currentTab,
+        })}`,
+      );
+    }
 
-    const step = topics[topicIdx].steps[stepIdx];
-
-    function activate() {
-      let tries = 0;
-      function attempt() {
-        const el = findTarget(step);
-        if (el) {
-          // For fixed-position elements (fab, nav buttons): shrink card so they're visible
-          const style = window.getComputedStyle(el);
-          const isFixed = style.position === "fixed";
-          if (isFixed) {
-            // Shrink guide card to top so fixed elements at bottom are visible
-            card.style.maxHeight = "32vh";
-            setTimeout(() => {
-              card.style.maxHeight = "";
-            }, 4000);
-          } else {
-            scrollToEl(el);
+    try {
+      const ready = await applyStepPreconditions(step, token);
+      if (
+        topic?.id === "basics" &&
+        (step?.id === "history" || step?.id === "balance" || step?.id === "add_button")
+      ) {
+        console.log(
+          `[GUIDE_PRECONDITION_RESULT] ${JSON.stringify({
+            stepId: step?.id || null,
+            result: !!ready && token === runToken,
+          })}`,
+        );
+      }
+      if (!ready || token !== runToken) {
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+          console.log(
+            `[GUIDE_RUNSTEP_RETURN] ${JSON.stringify({
+              stepId: step?.id || null,
+              reason: !ready ? "precondition-failed" : "stale-token-after-preconditions",
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        if (topic?.id === "basics" && step?.id === "add_button") {
+          console.log(
+            `[GUIDE_ADD_BUTTON_RETURN] ${JSON.stringify({
+              reason: !ready ? "precondition-failed" : "stale-token-after-preconditions",
+              topicId: topic?.id || null,
+              stepId: step?.id || null,
+              stepIdx,
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        if (!ready && token === runToken) {
+          console.error("[GUIDE_STEP_PRECONDITION_FAILED]", {
+            topicId: topic?.id || null,
+            stepId: step?.id || null,
+            stepIdx,
+          });
+          if (topic?.id === "basics" && step?.id === "history") {
+            console.log(
+              `[GUIDE_HISTORY_ERROR] ${JSON.stringify({
+                reason: "precondition",
+                topicId: topic?.id || null,
+                stepId: step?.id || null,
+                stepIdx,
+              })}`,
+            );
           }
-          setTimeout(() => setHL(findTarget(step)), isFixed ? 100 : 700);
-        } else if (++tries < 8) {
-          setTimeout(attempt, 200);
+          console.log(
+            `[GUIDE_RENDER_STEP_ERROR] ${JSON.stringify({
+              stepId: step?.id || null,
+              reason: "precondition",
+              stepIdx,
+              token,
+              runToken,
+            })}`,
+          );
+          renderStepError(step, "precondition");
+        }
+        return;
+      }
+      if (showPreparingState) {
+        renderCard();
+        setCardHiddenForMeasure();
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+          console.log(
+            `[GUIDE_CARD_MEASURE] ${JSON.stringify({
+              topicId: topic?.id || null,
+              stepId: step?.id || null,
+              showPreparingState,
+              preserveCardContent,
+              currentTab,
+              phase: "after-preparing-render",
+            })}`,
+          );
         }
       }
-      attempt();
-    }
 
-    if (step.nav && step.nav !== currentTab) {
-      setTab(step.nav, () => setTimeout(activate, 400));
-    } else {
-      activate();
+      const initialTimeout =
+        step.openAction === "openCreatorChatPanel"
+          ? 4600
+          : step.openAction || step.action === "voiceInputBtn" || step.action === "goalsNavBtn"
+            ? 3800
+            : 3200;
+      const getStepTarget = () => {
+        const foundTarget = findTarget(step);
+        if (
+          topic?.id === "basics" &&
+          (step?.id === "history" || step?.id === "balance" || step?.id === "add_button") &&
+          foundTarget
+        ) {
+          console.log(
+            `[GUIDE_TARGET_FOUND] ${JSON.stringify({
+              stepId: step?.id || null,
+              tagName: foundTarget.tagName || null,
+              id: foundTarget.id || null,
+              className:
+                typeof foundTarget.className === "string"
+                  ? foundTarget.className
+                  : String(foundTarget.className || ""),
+            })}`,
+          );
+        }
+        return foundTarget;
+      };
+      let targetState = await ensureTargetVisible(getStepTarget, {
+        topicId: topic?.id || null,
+        stepId: step?.id || null,
+        timeout: initialTimeout,
+        reserveBottom: 0,
+        margin: 12,
+        ignoreElements: [getStepTarget()],
+        onProgrammaticScroll: (extraMs = 0) => {
+          suppressViewportReflowUntil = Date.now() + 260 + Math.max(0, Number(extraMs) || 0);
+        },
+      });
+      if (
+        topic?.id === "basics" &&
+        (step?.id === "history" || step?.id === "balance" || step?.id === "add_button")
+      ) {
+        console.log(
+          `[GUIDE_ENSURE_VISIBLE_RESULT] ${JSON.stringify({
+            stepId: step?.id || null,
+            result: targetState ? "success" : "null",
+          })}`,
+        );
+      }
+      if (topic?.id === "basics" && (step?.id === "history" || step?.id === "balance")) {
+        emitBasicsStepTrace(step.id, "before_placement", {
+          targetFound: !!targetState,
+        });
+      }
+      if (!targetState || token !== runToken) {
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+          console.log(
+            `[GUIDE_RUNSTEP_RETURN] ${JSON.stringify({
+              stepId: step?.id || null,
+              reason: !targetState ? "target-not-found" : "stale-token-after-target",
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        if (topic?.id === "basics" && step?.id === "history" && token === runToken) {
+          console.log(
+            `[GUIDE_HISTORY_ERROR] ${JSON.stringify({
+              reason: "target-not-found",
+              topicId: topic?.id || null,
+              stepId: step?.id || null,
+              stepIdx,
+            })}`,
+          );
+        }
+        if (topic?.id === "basics" && step?.id === "add_button") {
+          console.log(
+            `[GUIDE_ADD_BUTTON_RETURN] ${JSON.stringify({
+              reason: !targetState ? "target-not-found" : "stale-token-after-target",
+              topicId: topic?.id || null,
+              stepId: step?.id || null,
+              stepIdx,
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        console.error("[GUIDE_TARGET_NOT_FOUND]", {
+          topicId: topic.id || null,
+          topicTitle: topic.title || null,
+          stepIdx,
+          stepTitle: step.title || null,
+          action: step.action || null,
+          scroll: step.scroll || null,
+          scrollTo: step.scrollTo || null,
+          nav: step.nav || null,
+          settingsView: step.settingsView || null,
+        });
+        console.log(
+          `[GUIDE_RENDER_STEP_ERROR] ${JSON.stringify({
+            stepId: step?.id || null,
+            reason: "target-not-found",
+            stepIdx,
+            token,
+            runToken,
+          })}`,
+        );
+        renderStepError(step, "target-not-found");
+        return;
+      }
+
+      activeStepTarget = targetState.element;
+      const cardSize = measureCardSize();
+      if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+        console.log(
+          `[GUIDE_PLACEMENT_START] ${JSON.stringify({
+            stepId: step?.id || null,
+          })}`,
+        );
+      }
+      let placement = computeGuidePlacement(targetState.rect, cardSize, {
+        reserveBottom: 0,
+        margin: 12,
+        gap: 14,
+      });
+      const skipSheetReposition =
+        topic.id === "basics" && step.id === "history";
+      if (topic.id === "basics" && step.id === "history") {
+        const { topInset, viewport } = getGuideOcclusionInsets({ margin: 12 });
+        const topFits = targetState.rect.top - 14 - cardSize.height >= topInset;
+        if (topFits) {
+          const width = Math.min(cardSize.width, viewport.width - 24);
+          placement = {
+            mode: "floating",
+            side: "top",
+            top: targetState.rect.top - cardSize.height - 14,
+            left: Math.min(
+              Math.max(
+                targetState.rect.left + targetState.rect.width / 2 - width / 2,
+                viewport.left + 12,
+              ),
+              viewport.right - width - 12,
+            ),
+            width,
+            maxHeight: Math.min(cardSize.height, viewport.height - 24),
+          };
+        }
+      }
+      if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+        console.log(
+          `[GUIDE_PLACEMENT_RESULT] ${JSON.stringify({
+            stepId: step?.id || null,
+            mode: placement?.mode || null,
+            side: placement?.side || null,
+            top: placement?.top ?? null,
+            left: placement?.left ?? null,
+          })}`,
+        );
+      }
+
+      if (
+        placement.mode === "sheet" &&
+        !skipSheetReposition &&
+        !isGuideFixedElement(activeStepTarget)
+      ) {
+        targetState = await ensureTargetVisible(getStepTarget, {
+          topicId: topic?.id || null,
+          stepId: step?.id || null,
+          timeout: Math.max(2200, Math.min(initialTimeout, 4200)),
+          reserveBottom: cardSize.height + 28,
+          margin: 12,
+          ignoreElements: [getStepTarget()],
+          onProgrammaticScroll: (extraMs = 0) => {
+            suppressViewportReflowUntil = Date.now() + 260 + Math.max(0, Number(extraMs) || 0);
+          },
+        });
+        if (!targetState || token !== runToken) {
+          if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+            console.log(
+              `[GUIDE_RUNSTEP_RETURN] ${JSON.stringify({
+                stepId: step?.id || null,
+                reason: !targetState ? "reposition-failed" : "stale-token-after-reposition",
+                token,
+                runToken,
+              })}`,
+            );
+          }
+          if (topic?.id === "basics" && step?.id === "add_button") {
+            console.log(
+              `[GUIDE_ADD_BUTTON_RETURN] ${JSON.stringify({
+                reason: !targetState ? "reposition-failed" : "stale-token-after-reposition",
+                topicId: topic?.id || null,
+                stepId: step?.id || null,
+                stepIdx,
+                token,
+                runToken,
+              })}`,
+            );
+          }
+          console.error("[GUIDE_TARGET_REPOSITION_FAILED]", {
+            topicId: topic.id || null,
+            topicTitle: topic.title || null,
+            stepIdx,
+            stepTitle: step.title || null,
+          });
+          console.log(
+            `[GUIDE_RENDER_STEP_ERROR] ${JSON.stringify({
+              stepId: step?.id || null,
+              reason: "reposition",
+              stepIdx,
+              token,
+              runToken,
+            })}`,
+          );
+          renderStepError(step, "reposition");
+          return;
+        }
+        activeStepTarget = targetState.element;
+        placement = computeGuidePlacement(targetState.rect, cardSize, {
+          reserveBottom: 0,
+          margin: 12,
+          gap: 14,
+        });
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+          console.log(
+            `[GUIDE_PLACEMENT_RESULT] ${JSON.stringify({
+              stepId: step?.id || null,
+              mode: placement?.mode || null,
+              side: placement?.side || null,
+              top: placement?.top ?? null,
+              left: placement?.left ?? null,
+            })}`,
+          );
+        }
+      }
+
+      if (token !== runToken || !activeStepTarget) {
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+          console.log(
+            `[GUIDE_RUNSTEP_RETURN] ${JSON.stringify({
+              stepId: step?.id || null,
+              reason: token !== runToken ? "stale-token-before-place" : "missing-active-step-target",
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        if (topic?.id === "basics" && step?.id === "add_button") {
+          console.log(
+            `[GUIDE_ADD_BUTTON_RETURN] ${JSON.stringify({
+              reason: token !== runToken ? "stale-token-before-place" : "missing-active-step-target",
+              topicId: topic?.id || null,
+              stepId: step?.id || null,
+              stepIdx,
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        return;
+      }
+      emitHeroLayoutTrace("[HERO_LAYOUT_BEFORE]");
+      emitHeroContentTrace("[HERO_CONTENT_TRACE]");
+      emitBalanceCardChildrenTrace("[BALANCE_CARD_CHILDREN]");
+      emitBalanceCardStyleTrace("[BALANCE_CARD_STYLE]");
+      setHL(activeStepTarget);
+      await guideNextFrame();
+      if (token !== runToken) {
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+          console.log(
+            `[GUIDE_RUNSTEP_RETURN] ${JSON.stringify({
+              stepId: step?.id || null,
+              reason: "stale-token-after-next-frame",
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        if (topic?.id === "basics" && step?.id === "add_button") {
+          console.log(
+            `[GUIDE_ADD_BUTTON_RETURN] ${JSON.stringify({
+              reason: "stale-token-after-next-frame",
+              topicId: topic?.id || null,
+              stepId: step?.id || null,
+              stepIdx,
+              token,
+              runToken,
+            })}`,
+          );
+        }
+        return;
+      }
+      if (
+        topic?.id === "basics" &&
+        (step?.id === "history" || step?.id === "balance")
+      ) {
+        const finalRect = activeStepTarget.getBoundingClientRect();
+        console.log(
+          `${
+            step.id === "history" ? "[GUIDE_HISTORY_FINAL]" : "[GUIDE_BALANCE_FINAL]"
+          } ${JSON.stringify({
+            stepId: step?.id || null,
+            targetTag: activeStepTarget?.tagName || null,
+            targetId: activeStepTarget?.id || null,
+            targetClass:
+              typeof activeStepTarget?.className === "string"
+                ? activeStepTarget.className
+                : String(activeStepTarget?.className || ""),
+            rectTop: finalRect.top,
+            rectBottom: finalRect.bottom,
+            rectHeight: finalRect.height,
+            scrollY: window.scrollY,
+            placementMode: placement?.mode || null,
+            placementSide: placement?.side || null,
+            placementTop: placement?.top ?? null,
+            placementLeft: placement?.left ?? null,
+          })}`,
+        );
+      }
+      const beforePlacementScrollY = window.scrollY;
+      applyCardPlacement(placement);
+      emitHeroLayoutTrace("[HERO_LAYOUT_AFTER]");
+      emitHeroContentTrace("[HERO_CONTENT_TRACE]");
+      emitBalanceCardChildrenTrace("[BALANCE_CARD_CHILDREN]");
+      emitBalanceCardStyleTrace("[BALANCE_CARD_STYLE]");
+      console.log(
+        `[AFTER_PLACEMENT] ${JSON.stringify({
+          topicId: topic?.id || null,
+          stepId: step?.id || null,
+          scrollY: window.scrollY,
+        })}`,
+      );
+      if (topic?.id === "basics" && (step?.id === "history" || step?.id === "balance")) {
+        emitBasicsStepTrace(step.id, "after_placement", {
+          placementMode: placement?.mode || null,
+          placementSide: placement?.side || null,
+        });
+      }
+      if (topic?.id === "basics" && step?.id === "history") {
+        window.__guideFirstScrollAfterPlacementMarker = {
+          topicId: topic.id,
+          stepId: step.id,
+          logged: false,
+          timestamp: Date.now(),
+        };
+      }
+      setTimeout(() => {
+        console.log(
+          `[AFTER_PLACEMENT_SCROLL] ${JSON.stringify({
+            topicId: topic?.id || null,
+            stepId: step?.id || null,
+            delayMs: 100,
+            scrollY: window.scrollY,
+          })}`,
+        );
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "balance")) {
+          emitBasicsStepTrace(step.id, "after_100ms");
+        }
+      }, 100);
+      setTimeout(() => {
+        console.log(
+          `[AFTER_PLACEMENT_SCROLL] ${JSON.stringify({
+            topicId: topic?.id || null,
+            stepId: step?.id || null,
+            delayMs: 300,
+            scrollY: window.scrollY,
+          })}`,
+        );
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "balance")) {
+          emitBasicsStepTrace(step.id, "after_300ms");
+        }
+      }, 300);
+      setTimeout(() => {
+        console.log(
+          `[AFTER_PLACEMENT_SCROLL] ${JSON.stringify({
+            topicId: topic?.id || null,
+            stepId: step?.id || null,
+            delayMs: 600,
+            scrollY: window.scrollY,
+          })}`,
+        );
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "balance")) {
+          emitBasicsStepTrace(step.id, "after_600ms");
+        }
+      }, 600);
+      setTimeout(() => {
+        if (topic?.id === "basics" && (step?.id === "history" || step?.id === "balance")) {
+          emitBasicsStepTrace(step.id, "after_1000ms");
+        }
+      }, 1000);
+      if (
+        topic?.id === "basics" &&
+        (step?.id === "history" || step?.id === "balance")
+      ) {
+        const stepIdForScrollLog = step.id;
+        const emitFinalScrollLog = (label, scrollValue) => {
+          console.log(
+            `[GUIDE_FINAL_SCROLL] ${JSON.stringify({
+              stepId: stepIdForScrollLog,
+              phase: label,
+              beforePlacement: beforePlacementScrollY,
+              afterPlacement: window.scrollY,
+              current: scrollValue,
+            })}`,
+          );
+        };
+        emitFinalScrollLog("afterPlacement", window.scrollY);
+        setTimeout(() => {
+          emitFinalScrollLog("after100ms", window.scrollY);
+        }, 100);
+        setTimeout(() => {
+          emitFinalScrollLog("after300ms", window.scrollY);
+        }, 300);
+        setTimeout(() => {
+          emitFinalScrollLog("after600ms", window.scrollY);
+        }, 600);
+      }
+      if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+        console.log(
+          `[GUIDE_CARD_PLACED] ${JSON.stringify({
+            topicId: topic?.id || null,
+            stepId: step?.id || null,
+            mode: placement?.mode || null,
+            side: placement?.side || null,
+            top: placement?.top ?? null,
+            left: placement?.left ?? null,
+            width: placement?.width ?? null,
+            maxHeight: placement?.maxHeight ?? null,
+          })}`,
+        );
+      }
+      bindViewportReflow(step, token);
+    } finally {
+      console.log(
+        `[RUNSTEP_EXIT] ${JSON.stringify({
+          topicId: topic?.id || null,
+          stepId: step?.id || null,
+          token,
+          scrollY: window.scrollY,
+        })}`,
+      );
+      if (activeRunToken === token) activeRunToken = 0;
     }
+  }
+
+  function renderStepError(step, reason) {
+    guideMode = "step";
+    syncGuideState({ lastError: reason || "unknown" });
+    const labels = {
+      ru: {
+        title: "Шаг пока не готов",
+        text: "Нужный экран или элемент ещё не появился. Попробуйте повторить шаг или вернуться к списку тем.",
+        retry: "Повторить шаг",
+        topics: "К темам",
+      },
+      en: {
+        title: "This step is not ready yet",
+        text: "The required screen or element has not appeared yet. Try the step again or go back to the topic list.",
+        retry: "Retry step",
+        topics: "Back to topics",
+      },
+      ka: {
+        title: "ეს ნაბიჯი ჯერ მზად არ არის",
+        text: "საჭირო ეკრანი ან ელემენტი ჯერ არ გამოჩენილა. სცადეთ ნაბიჯის გამეორება ან თემების სიაში დაბრუნება.",
+        retry: "ნაბიჯის გამეორება",
+        topics: "თემებზე დაბრუნება",
+      },
+    }[lang];
+    card.classList.remove("g-measuring", "g-sheet");
+    card.classList.add("g-floating", "g-visible");
+    card.style.width = `${Math.min(360, window.innerWidth - 24)}px`;
+    card.style.maxHeight = "60vh";
+    card.style.left = `${Math.max(12, Math.round((window.innerWidth - Math.min(360, window.innerWidth - 24)) / 2))}px`;
+    card.style.top = `${Math.max(16, Math.round(window.innerHeight * 0.18))}px`;
+    card.innerHTML = `
+      <div style="padding:16px 16px 14px;">
+        <div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:8px;">${esc(labels.title)}</div>
+        <div style="font-size:13px;line-height:1.65;color:var(--text-soft);margin-bottom:14px;">${esc(labels.text)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="gRetryStepBtn" class="btn-primary" type="button" style="flex:1;padding:12px 14px;">${esc(labels.retry)}</button>
+          <button id="gErrorTopicsBtn" class="btn-secondary" type="button" style="flex:1;padding:12px 14px;">${esc(labels.topics)}</button>
+        </div>
+      </div>`;
+    card.querySelector("#gRetryStepBtn")?.addEventListener("click", () => {
+      runStep();
+    });
+    card.querySelector("#gErrorTopicsBtn")?.addEventListener("click", () => {
+      topicIdx = null;
+      stepIdx = 0;
+      renderTopics();
+    });
+  }
+
+  function renderCompletion() {
+    guideMode = "complete";
+    flushGuideCleanupFns();
+    removeHL();
+    removeGuideTempTargets();
+    activePlacement = null;
+    activeStepTarget = null;
+    markGuideCompleted();
+    const labels = {
+      ru: {
+        title: "Обучение завершено",
+        text: "Вы прошли тему до конца. Можно закрыть гид или вернуться к списку тем.",
+        close: "Закрыть",
+        topics: "К темам",
+      },
+      en: {
+        title: "Training complete",
+        text: "You have finished this topic. You can close the guide or return to the topic list.",
+        close: "Close",
+        topics: "Back to topics",
+      },
+      ka: {
+        title: "სწავლება დასრულდა",
+        text: "თემა ბოლომდე გაიარეთ. შეგიძლიათ დახუროთ გიდი ან თემების სიაში დაბრუნდეთ.",
+        close: "დახურვა",
+        topics: "თემებზე დაბრუნება",
+      },
+    }[lang];
+    saveGuideRuntimeState({
+      active: true,
+      mode: "complete",
+      topicId: null,
+      stepId: null,
+      completed: true,
+    });
+    card.classList.remove("g-measuring", "g-sheet");
+    card.classList.add("g-floating", "g-visible");
+    card.style.width = `${Math.min(360, window.innerWidth - 24)}px`;
+    card.style.maxHeight = "60vh";
+    card.style.left = `${Math.max(12, Math.round((window.innerWidth - Math.min(360, window.innerWidth - 24)) / 2))}px`;
+    card.style.top = `${Math.max(16, Math.round(window.innerHeight * 0.18))}px`;
+    card.style.right = "auto";
+    card.style.bottom = "auto";
+    card.innerHTML = `
+      <div style="padding:16px 16px 14px;">
+        <div style="font-size:18px;font-weight:900;color:var(--text);margin-bottom:8px;">✅ ${esc(labels.title)}</div>
+        <div style="font-size:13px;line-height:1.65;color:var(--text-soft);margin-bottom:14px;">${esc(labels.text)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="gCompletionTopicsBtn" class="btn-secondary" type="button" style="flex:1;padding:12px 14px;">${esc(labels.topics)}</button>
+          <button id="gCompletionCloseBtn" class="btn-primary" type="button" style="flex:1;padding:12px 14px;">${esc(labels.close)}</button>
+        </div>
+      </div>`;
+    card.querySelector("#gCompletionTopicsBtn")?.addEventListener("click", () => {
+      guideMode = "topics";
+      topicIdx = null;
+      stepIdx = 0;
+      renderTopics();
+    });
+    card.querySelector("#gCompletionCloseBtn")?.addEventListener("click", () => {
+      close();
+      showToast(`✅ ${labels.title}`, "success");
+    });
   }
 
   // ── Render step card ──────────────────────────────────────────
   function renderCard() {
     const topic = topics[topicIdx];
     const step = topic.steps[stepIdx];
+    if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
+      console.log(
+        `[GUIDE_CARD_RENDER] ${JSON.stringify({
+          topicId: topic?.id || null,
+          stepId: step?.id || null,
+          stepIdx,
+        })}`,
+      );
+    }
+    guideMode = "step";
+    syncGuideState();
     const isLast = stepIdx === topic.steps.length - 1;
     const pct = Math.round(((stepIdx + 1) / topic.steps.length) * 100);
+    const isDarkGuide = document.body.classList.contains("dark");
+    const guideSurfaceSoft = isDarkGuide ? "#1a2230" : "var(--cream-dark)";
+    const guideBorderSoft = isDarkGuide
+      ? "rgba(255,255,255,0.12)"
+      : "var(--cream-border)";
     const LL = {
       ru: {
         back: "← Темы",
@@ -27696,17 +39709,17 @@ function openInteractiveGuide() {
 
     card.innerHTML = `
       <div style="flex-shrink:0;padding:10px 16px 0;">
-        <div style="width:36px;height:4px;background:var(--cream-border);border-radius:99px;margin:0 auto 10px;"></div>
+        <div style="width:36px;height:4px;background:${guideBorderSoft};border-radius:99px;margin:0 auto 10px;"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <button id="gBackBtn" style="background:none;border:none;font-size:12px;font-weight:700;
             color:var(--primary);cursor:pointer;padding:4px 0;">${LL.back}</button>
           <span style="font-size:11px;font-weight:700;color:var(--text-muted);">
             ${topic.icon} ${stepIdx + 1}${LL.of}${topic.steps.length}
           </span>
-          <button id="gXBtn" style="background:var(--cream-dark);border:none;width:28px;height:28px;
+          <button id="gXBtn" style="background:${guideSurfaceSoft};border:none;width:28px;height:28px;
             border-radius:50%;font-size:13px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
-        <div style="height:3px;background:var(--cream-dark);border-radius:99px;overflow:hidden;margin-bottom:0;">
+        <div style="height:3px;background:${guideSurfaceSoft};border-radius:99px;overflow:hidden;margin-bottom:0;">
           <div style="height:100%;width:${pct}%;background:var(--primary);border-radius:99px;transition:width .3s;"></div>
         </div>
       </div>
@@ -27728,18 +39741,30 @@ function openInteractiveGuide() {
 
     card.querySelector("#gXBtn").onclick = close;
     card.querySelector("#gBackBtn").onclick = () => {
-      removeHL();
+      clearGuideLifecycleState();
       topicIdx = null;
+      stepIdx = 0;
       renderTopics();
     };
     card.querySelector("#gPrev")?.addEventListener("click", () => {
+      const currentStepId = topics[topicIdx]?.steps?.[stepIdx]?.id || null;
+      const oldStepIdx = stepIdx;
+      const newStepIdx = stepIdx - 1;
+      const nextStepId = topics[topicIdx]?.steps?.[newStepIdx]?.id || null;
+      console.log(
+        `[GUIDE_PREV_CLICK] ${JSON.stringify({
+          currentStepId,
+          nextStepId,
+          oldStepIdx,
+          newStepIdx,
+        })}`,
+      );
       stepIdx--;
       runStep();
     });
     card.querySelector("#gNext").onclick = () => {
       if (isLast) {
-        topicIdx = null;
-        renderTopics();
+        renderCompletion();
       } else {
         stepIdx++;
         runStep();
@@ -27750,7 +39775,14 @@ function openInteractiveGuide() {
 
   // ── Topic list ────────────────────────────────────────────────
   function renderTopics() {
-    removeHL();
+    clearGuideLifecycleState();
+    guideMode = "topics";
+    syncGuideState({ stepId: null });
+    const isDarkGuide = document.body.classList.contains("dark");
+    const guideSurfaceSoft = isDarkGuide ? "#1a2230" : "var(--cream-dark)";
+    const guideBorderSoft = isDarkGuide
+      ? "rgba(255,255,255,0.12)"
+      : "var(--cream-border)";
     const LL = {
       ru: {
         title: "📚 Интерактивный гид",
@@ -27771,14 +39803,14 @@ function openInteractiveGuide() {
 
     card.innerHTML = `
       <div style="flex-shrink:0;padding:10px 16px 0;">
-        <div style="width:36px;height:4px;background:var(--cream-border);border-radius:99px;margin:0 auto 10px;"></div>
+        <div style="width:36px;height:4px;background:${guideBorderSoft};border-radius:99px;margin:0 auto 10px;"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;
-          padding-bottom:10px;border-bottom:1.5px solid var(--cream-border);">
+          padding-bottom:10px;border-bottom:1.5px solid ${guideBorderSoft};">
           <div>
             <div style="font-size:15px;font-weight:900;color:var(--text);">${LL.title}</div>
             <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">${LL.sub}</div>
           </div>
-          <button id="gX2" style="background:var(--cream-dark);border:none;width:30px;height:30px;
+          <button id="gX2" style="background:${guideSurfaceSoft};border:none;width:30px;height:30px;
             border-radius:50%;font-size:14px;cursor:pointer;color:var(--text-muted);">✕</button>
         </div>
       </div>
@@ -27787,7 +39819,7 @@ function openInteractiveGuide() {
           .map(
             (tp, i) => `
           <button data-ti="${i}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;
-            background:var(--cream-dark);border:1.5px solid var(--cream-border);
+            background:${guideSurfaceSoft};border:1.5px solid ${guideBorderSoft};
             border-radius:14px;cursor:pointer;font-family:inherit;text-align:left;
             width:100%;transition:border-color .15s,background .15s;">
             <span style="font-size:24px;width:40px;height:40px;flex-shrink:0;
@@ -27805,25 +39837,60 @@ function openInteractiveGuide() {
           .join("")}
       </div>`;
 
+    const viewport = getGuideViewportMetrics();
+    const width = Math.min(420, viewport.width - 24);
+    const maxHeight = Math.round(viewport.height * 0.74);
+    card.scrollTop = 0;
+    card.classList.remove("g-visible", "g-sheet", "g-floating");
+    card.classList.add("g-measuring");
+    card.style.left = "-9999px";
+    card.style.top = `${viewport.top}px`;
+    card.style.right = "auto";
+    card.style.bottom = "auto";
+    card.style.width = `${width}px`;
+    card.style.maxHeight = `${maxHeight}px`;
+    const contentHeight = Math.min(card.scrollHeight || 320, maxHeight);
+    card.classList.remove("g-measuring", "g-floating");
+    card.classList.add("g-sheet", "g-visible");
+    card.style.width = `${width}px`;
+    card.style.maxHeight = `${maxHeight}px`;
+    card.style.left = `${Math.round(viewport.left + (viewport.width - width) / 2)}px`;
+    card.style.top = `${Math.max(
+      viewport.top + 12,
+      Math.round(viewport.bottom - contentHeight - 12),
+    )}px`;
+    card.style.right = "auto";
+    card.style.bottom = "auto";
+
     card.querySelector("#gX2").onclick = close;
     card.querySelectorAll("[data-ti]").forEach((btn) => {
       btn.onclick = () => {
-        topicIdx = parseInt(btn.dataset.ti);
+        topicIdx = Number.parseInt(btn.dataset.ti, 10);
         stepIdx = 0;
         runStep();
       };
       btn.onmouseenter = () => (btn.style.borderColor = "var(--primary)");
-      btn.onmouseleave = () => (btn.style.borderColor = "var(--cream-border)");
+      btn.onmouseleave = () => (btn.style.borderColor = guideBorderSoft);
     });
   }
 
-  renderTopics();
+  if (guideMode === "complete") {
+    renderCompletion();
+  } else if (topicIdx !== null) {
+    renderCard();
+    runStep({ preserveCardContent: true });
+  } else {
+    saveGuideRuntimeState({ active: true, mode: "topics", completed: false });
+    renderTopics();
+  }
 }
 
 // Wire guide button in header
 const _origStartGuide = typeof startGuide === "function" ? startGuide : null;
 function startGuide() {
-  openInteractiveGuide();
+  clearTimeout(guideResumeTimer);
+  guideResumeTimer = null;
+  openInteractiveGuide({ forceFreshTopics: true, source: "manual" });
 }
 
 // Add guide to settings (already there via button, now also openable from here)
@@ -27835,7 +39902,7 @@ setTimeout(() => {
 // ══════════════════════════════════════════════════════════════
 // LUXURY BACKGROUND — Animated ambient particles
 // ══════════════════════════════════════════════════════════════
-(function initLuxuryBackground() {
+function initLuxuryBackground() {
   const canvas =
     document.getElementById("luxBg") || document.createElement("canvas");
   if (!canvas.id) {
@@ -28616,4 +40683,4 @@ setTimeout(() => {
       drawFrame();
     }
   });
-})();
+}

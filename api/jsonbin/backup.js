@@ -8,8 +8,15 @@ function readEnv() {
   return {
     supabaseUrl: process.env.SUPABASE_URL || "",
     supabaseKey: process.env.SUPABASE_SECRET_KEY || "",
-    profileId: process.env.JSONBIN_BACKUP_BIN_ID || "",
   };
+}
+
+function getRequestUserId(req) {
+  const queryUserId =
+    typeof req.query?.user_id === "string" ? req.query.user_id.trim() : "";
+  const bodyUserId =
+    typeof req.body?.user_id === "string" ? req.body.user_id.trim() : "";
+  return queryUserId || bodyUserId || "";
 }
 
 async function readJsonBody(req) {
@@ -49,8 +56,8 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { supabaseUrl, supabaseKey, profileId } = readEnv();
-  if (!supabaseUrl || !supabaseKey || !profileId) {
+  const { supabaseUrl, supabaseKey } = readEnv();
+  if (!supabaseUrl || !supabaseKey) {
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.end(
@@ -64,8 +71,15 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === "GET") {
-      const url = `${supabaseUrl}/rest/v1/backups?profile_id=eq.${encodeURIComponent(
-        profileId,
+      const userId = getRequestUserId(req);
+      if (!userId) {
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ ok: false, error: "Missing user_id" }));
+        return;
+      }
+      const url = `${supabaseUrl}/rest/v1/backups?user_id=eq.${encodeURIComponent(
+        userId,
       )}&select=backup_data,updated_at,created_at&order=updated_at.desc&limit=1`;
       const { response, json, text } = await supabaseFetch(url, {
         method: "GET",
@@ -93,19 +107,27 @@ module.exports = async (req, res) => {
 
     if (req.method === "POST" || req.method === "PUT") {
       const payload = await readJsonBody(req);
-      if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      const userId =
+        typeof payload?.user_id === "string" ? payload.user_id.trim() : "";
+      const backupPayload = payload?.backup;
+      if (
+        !userId ||
+        !backupPayload ||
+        typeof backupPayload !== "object" ||
+        Array.isArray(backupPayload)
+      ) {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.end(JSON.stringify({ ok: false, error: "Invalid backup payload" }));
         return;
       }
 
-      // Upsert single row by profile_id (do not set updated_at here if DB handles it)
+      // Upsert single row by user_id (do not set updated_at here if DB handles it)
       const upsertRow = {
-        profile_id: profileId,
-        backup_data: payload,
+        user_id: userId,
+        backup_data: backupPayload,
       };
-      const url = `${supabaseUrl}/rest/v1/backups?on_conflict=profile_id`;
+      const url = `${supabaseUrl}/rest/v1/backups?on_conflict=user_id`;
       const { response, json, text } = await supabaseFetch(url, {
         method: "POST",
         headers: {

@@ -8,8 +8,15 @@ function readEnv() {
   return {
     supabaseUrl: process.env.SUPABASE_URL || "",
     supabaseKey: process.env.SUPABASE_SECRET_KEY || "",
-    profileId: process.env.JSONBIN_MESSAGES_BIN_ID || "",
   };
+}
+
+function getRequestUserId(req) {
+  const queryUserId =
+    typeof req.query?.user_id === "string" ? req.query.user_id.trim() : "";
+  const bodyUserId =
+    typeof req.body?.user_id === "string" ? req.body.user_id.trim() : "";
+  return queryUserId || bodyUserId || "";
 }
 
 async function readJsonBody(req) {
@@ -49,8 +56,8 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { supabaseUrl, supabaseKey, profileId } = readEnv();
-  if (!supabaseUrl || !supabaseKey || !profileId) {
+  const { supabaseUrl, supabaseKey } = readEnv();
+  if (!supabaseUrl || !supabaseKey) {
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.end(
@@ -64,8 +71,15 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === "GET") {
-      const url = `${supabaseUrl}/rest/v1/messages?profile_id=eq.${encodeURIComponent(
-        profileId,
+      const userId = getRequestUserId(req);
+      if (!userId) {
+        res.statusCode = 400;
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.end(JSON.stringify({ ok: false, error: "Missing user_id" }));
+        return;
+      }
+      const url = `${supabaseUrl}/rest/v1/messages?user_id=eq.${encodeURIComponent(
+        userId,
       )}&select=*&order=created_at.desc`;
       const { response, json, text } = await supabaseFetch(url, {
         method: "GET",
@@ -91,8 +105,10 @@ module.exports = async (req, res) => {
 
     if (req.method === "POST") {
       const payload = await readJsonBody(req);
+      const userId =
+        typeof payload?.user_id === "string" ? payload.user_id.trim() : "";
       const messages = payload?.messages;
-      if (!Array.isArray(messages)) {
+      if (!userId || !Array.isArray(messages)) {
         res.statusCode = 400;
         res.setHeader("Content-Type", "application/json; charset=utf-8");
         res.end(
@@ -111,7 +127,9 @@ module.exports = async (req, res) => {
             : `${Date.now()}_${Math.random().toString(36).slice(2)}`);
         return {
           id,
-          profile_id: profileId,
+          user_id: userId,
+          profile_id:
+            m.profile_id ?? m.profileId ?? m.from_profile ?? m.fromProfile ?? null,
           name: m.name ?? null,
           email: m.email ?? null,
           phone: m.phone ?? null,
@@ -127,10 +145,13 @@ module.exports = async (req, res) => {
               : false,
           created_at: m.created_at ?? new Date().toISOString(),
           reply_date: m.reply_date ?? null,
+          from_profile: m.from_profile ?? m.fromProfile ?? null,
+          from_profile_name:
+            m.from_profile_name ?? m.fromProfileName ?? null,
         };
       });
 
-      const url = `${supabaseUrl}/rest/v1/messages?on_conflict=id`;
+      const url = `${supabaseUrl}/rest/v1/messages?on_conflict=id,user_id`;
       const { response, json, text } = await supabaseFetch(url, {
         method: "POST",
         headers: {
