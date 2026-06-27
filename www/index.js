@@ -1,3 +1,5 @@
+console.log("BUILD TEST 2026-06-25 21:52");
+
 function injectSearchCountStyles() {
   if (document.getElementById("searchCountStyles")) return;
   const style = document.createElement("style");
@@ -7815,12 +7817,16 @@ function updateTopBlocks() {
 // ============================================================
 function setTab(tab, onRendered) {
   let renderCompleted = false;
+  const previousTab = currentTab;
   const completeRender = () => {
     if (renderCompleted) return;
     renderCompleted = true;
     if (typeof onRendered === "function") onRendered();
   };
   currentTab = tab;
+  if (previousTab === "settings" && tab !== "settings") {
+    cleanupSettingsCanvasEffects();
+  }
   traceApp("setTab", { tab, simpleMode });
   traceLayoutSnapshot(`setTab:${tab}`);
   updateHeroDebugOverlay();
@@ -8322,6 +8328,17 @@ function renderSimpleHome() {
 }
 
 function renderHome() {
+  const guideState =
+    typeof loadGuideRuntimeState === "function" ? loadGuideRuntimeState() : null;
+  console.log(
+    "[RENDER_HOME] " +
+      JSON.stringify({
+        timestamp: performance.now(),
+        currentGuideTopic: guideState?.topicId ?? null,
+        currentGuideStep: guideState?.stepId ?? null,
+        stack: (new Error().stack || "").replace(/\n/g, "\\n"),
+      }),
+  );
   // setTab уже управляет видимостью heroCardWrap
   // Simple mode redirect
   if (simpleMode) {
@@ -11796,10 +11813,172 @@ function openEditTemplateModal(tplIdx) {
 }
 
 function ensureSettingsHomeStyles() {
-  if (document.getElementById("settingsHomeStyles")) return;
-  const style = document.createElement("style");
+  const style =
+    document.getElementById("settingsHomeStyles") ||
+    document.createElement("style");
   style.id = "settingsHomeStyles";
   style.textContent = `
+    @keyframes settingsGlassFlow {
+      0% {
+        transform: translate3d(-7%, 5%, 0) scale(1.02) rotate(-1.2deg);
+        opacity: .78;
+        background-position:
+          12% 84%,
+          88% 16%,
+          28% 24%,
+          76% 72%,
+          54% 52%,
+          16% 48%,
+          82% 46%,
+          48% 84%;
+        background-size:
+          26% 18%,
+          24% 16%,
+          18% 12%,
+          22% 14%,
+          20% 12%,
+          15% 10%,
+          14% 9%,
+          130% 130%;
+      }
+      50% {
+        transform: translate3d(3%, -2%, 0) scale(1.08) rotate(.8deg);
+        opacity: .94;
+        background-position:
+          42% 66%,
+          58% 22%,
+          48% 38%,
+          62% 54%,
+          46% 58%,
+          34% 44%,
+          66% 52%,
+          52% 50%;
+        background-size:
+          34% 20%,
+          20% 14%,
+          26% 16%,
+          18% 12%,
+          24% 14%,
+          18% 12%,
+          17% 11%,
+          140% 140%;
+      }
+      100% {
+        transform: translate3d(8%, -6%, 0) scale(1.03) rotate(1.4deg);
+        opacity: .82;
+        background-position:
+          84% 18%,
+          16% 88%,
+          74% 32%,
+          24% 78%,
+          58% 36%,
+          72% 58%,
+          28% 36%,
+          56% 18%;
+        background-size:
+          22% 16%,
+          30% 18%,
+          19% 12%,
+          24% 15%,
+          17% 11%,
+          15% 10%,
+          16% 10%,
+          132% 132%;
+      }
+    }
+    @keyframes settingsGlassFlowSecondary {
+      0% {
+        transform: translate3d(6%, -4%, 0) scale(1.05) rotate(1.6deg);
+        opacity: .58;
+        clip-path: inset(4% 6% 8% 5% round 24px);
+        background-position:
+          22% 18%,
+          76% 24%,
+          28% 72%,
+          68% 68%,
+          52% 44%,
+          54% 52%;
+      }
+      50% {
+        transform: translate3d(-4%, 4%, 0) scale(1.12) rotate(-1.1deg);
+        opacity: .76;
+        clip-path: inset(6% 4% 6% 7% round 28px);
+        background-position:
+          48% 28%,
+          54% 34%,
+          40% 58%,
+          58% 62%,
+          46% 54%,
+          50% 50%;
+      }
+      100% {
+        transform: translate3d(-7%, 7%, 0) scale(1.04) rotate(-1.8deg);
+        opacity: .52;
+        clip-path: inset(5% 7% 7% 4% round 26px);
+        background-position:
+          78% 36%,
+          24% 76%,
+          64% 48%,
+          26% 54%,
+          58% 30%,
+          48% 46%;
+      }
+    }
+    @keyframes settingsGlassShimmer {
+      0% {
+        transform: translate3d(-18%, 0, 0) scaleX(.92) rotate(-7deg);
+        opacity: .06;
+      }
+      35% {
+        opacity: .18;
+      }
+      65% {
+        opacity: .14;
+      }
+      100% {
+        transform: translate3d(20%, 0, 0) scaleX(1.08) rotate(-3deg);
+        opacity: .04;
+      }
+    }
+    @keyframes settingsGlassInnerPulse {
+      0% {
+        transform: translate3d(0, 0, 0) scale(.96);
+        opacity: .24;
+      }
+      50% {
+        transform: translate3d(0, -2%, 0) scale(1.04);
+        opacity: .38;
+      }
+      100% {
+        transform: translate3d(0, 1%, 0) scale(.98);
+        opacity: .2;
+      }
+    }
+    @keyframes settingsGlassCausticMask {
+      0% {
+        border-radius: 38% 62% 54% 46% / 44% 36% 64% 56%;
+      }
+      50% {
+        border-radius: 52% 48% 40% 60% / 58% 42% 48% 52%;
+      }
+      100% {
+        border-radius: 46% 54% 62% 38% / 38% 58% 42% 62%;
+      }
+    }
+    @keyframes settingsCrystalFacet {
+      0% {
+        transform: translate3d(-2%, 1%, 0) scale(1.01) rotate(-.8deg);
+        clip-path: polygon(0 8%, 16% 0, 32% 6%, 48% 0, 64% 8%, 84% 2%, 100% 14%, 100% 90%, 84% 100%, 62% 94%, 46% 100%, 28% 92%, 10% 100%, 0 88%);
+      }
+      50% {
+        transform: translate3d(2%, -1%, 0) scale(1.03) rotate(.6deg);
+        clip-path: polygon(0 14%, 14% 4%, 30% 0, 50% 10%, 66% 2%, 84% 8%, 100% 4%, 100% 84%, 86% 100%, 70% 94%, 48% 100%, 28% 90%, 8% 96%, 0 82%);
+      }
+      100% {
+        transform: translate3d(1%, 2%, 0) scale(1.015) rotate(-.5deg);
+        clip-path: polygon(0 10%, 18% 2%, 34% 10%, 52% 0, 70% 8%, 88% 0, 100% 12%, 100% 88%, 82% 100%, 64% 92%, 44% 100%, 22% 94%, 6% 100%, 0 86%);
+      }
+    }
     .settings-home-wrap {
       display: flex;
       flex-direction: column;
@@ -11809,9 +11988,17 @@ function ensureSettingsHomeStyles() {
     .settings-home-hero {
       padding: 18px 18px 16px;
       border-radius: 24px;
-      background: linear-gradient(135deg, var(--primary-pale), var(--card-bg));
-      border: 1.5px solid var(--cream-border);
-      box-shadow: var(--shadow-sm);
+      background:
+        linear-gradient(135deg, transparent 18%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 78%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 48%),
+        radial-gradient(circle at 84% 18%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 44%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 56%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      border: 1.5px solid var(--settings-glass-header-border, var(--cream-border));
+      box-shadow: var(--settings-glass-header-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .settings-home-kicker {
       font-size: 11px;
@@ -11846,14 +12033,22 @@ function ensureSettingsHomeStyles() {
       width: 100%;
       padding: 18px 16px;
       border-radius: 22px;
-      border: 1.5px solid var(--cream-border);
-      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
-      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--settings-glass-card-border, var(--cream-border));
+      background:
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      box-shadow: var(--settings-glass-card-shadow, var(--shadow-sm));
       cursor: pointer;
       text-align: left;
       color: inherit;
       transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
       font-family: inherit;
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .settings-home-card:active {
       transform: scale(.985);
@@ -11861,7 +12056,7 @@ function ensureSettingsHomeStyles() {
     .settings-home-card:hover {
       transform: translateY(-1px);
       box-shadow: var(--shadow-md);
-      border-color: var(--primary);
+      border-color: var(--settings-glass-card-border-strong, var(--primary));
     }
     .settings-home-card-ico {
       width: 48px;
@@ -11910,13 +12105,26 @@ function ensureSettingsHomeStyles() {
       min-height: 52px;
       padding: 14px 16px;
       border-radius: 18px;
-      border: 1.5px dashed var(--cream-border);
-      background: transparent;
+      --settings-back-surface:
+        radial-gradient(54% 40% at 18% 80%, transparent 0 34%, var(--settings-water-caustic-a, rgba(255,255,255,0.48)) 40%, transparent 56%),
+        radial-gradient(50% 34% at 78% 16%, transparent 0 31%, var(--settings-water-caustic-b, rgba(234,243,255,0.46)) 42%, transparent 58%),
+        radial-gradient(44% 28% at 52% 48%, transparent 0 28%, var(--settings-water-core, rgba(255,255,255,0.76)) 40%, transparent 57%),
+        linear-gradient(132deg, transparent 0%, transparent 42%, var(--settings-glass-blade, rgba(255,255,255,0.34)) 50%, transparent 58%, transparent 100%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 58%, var(--settings-glass-base-2, var(--cream-dark)));
+      --settings-back-bg-size: 185% 185%, 175% 175%, 155% 155%, 160% 160%, 100% 100%;
+      --settings-back-bg-position: 12% 82%, 84% 14%, 48% 46%, 18% 12%, 50% 50%;
+      --settings-back-animation: settingsGlassFlow var(--settings-glass-motion, 40s) linear infinite alternate;
+      border: 1.5px solid var(--settings-glass-button-border, var(--cream-border));
+      background: var(--settings-back-surface, var(--card-bg));
+      background-size: var(--settings-back-bg-size, 180% 180%, 165% 165%, 175% 175%, 155% 155%, 100% 100%);
+      background-position: var(--settings-back-bg-position, 50% 0%, 12% 18%, 88% 12%, 54% 100%, 50% 50%);
       color: var(--text);
       font-size: 14px;
       font-weight: 800;
       cursor: pointer;
       font-family: inherit;
+      box-shadow: var(--settings-glass-button-shadow, var(--shadow-sm));
+      animation: var(--settings-back-animation, settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate);
     }
     .settings-home-note {
       font-size: 12px;
@@ -11932,9 +12140,17 @@ function ensureSettingsHomeStyles() {
     .settings-placeholder-card {
       padding: 20px 18px;
       border-radius: 24px;
-      border: 1.5px solid var(--cream-border);
-      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
-      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--settings-glass-card-border, var(--cream-border));
+      background:
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      box-shadow: var(--settings-glass-card-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .settings-placeholder-icon {
       font-size: 36px;
@@ -11971,16 +12187,37 @@ function ensureSettingsHomeStyles() {
       gap: 12px;
       padding: 18px 18px 16px;
       border-radius: 24px;
-      background: linear-gradient(135deg, var(--primary-pale), var(--card-bg));
-      border: 1.5px solid var(--cream-border);
-      box-shadow: var(--shadow-sm);
+      background:
+        linear-gradient(135deg, transparent 18%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 78%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 48%),
+        radial-gradient(circle at 84% 18%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 44%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 56%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      border: 1.5px solid var(--settings-glass-header-border, var(--cream-border));
+      box-shadow: var(--settings-glass-header-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .settings-subpage-back {
       width: 44px;
       height: 44px;
       border-radius: 14px;
-      border: 1.5px solid var(--cream-border);
-      background: var(--card-bg);
+      --settings-back-surface:
+        radial-gradient(54% 40% at 18% 80%, transparent 0 34%, var(--settings-water-caustic-a, rgba(255,255,255,0.48)) 40%, transparent 56%),
+        radial-gradient(50% 34% at 78% 16%, transparent 0 31%, var(--settings-water-caustic-b, rgba(234,243,255,0.46)) 42%, transparent 58%),
+        radial-gradient(44% 28% at 52% 48%, transparent 0 28%, var(--settings-water-core, rgba(255,255,255,0.76)) 40%, transparent 57%),
+        linear-gradient(132deg, transparent 0%, transparent 42%, var(--settings-glass-blade, rgba(255,255,255,0.34)) 50%, transparent 58%, transparent 100%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 58%, var(--settings-glass-base-2, var(--cream-dark)));
+      --settings-back-bg-size: 185% 185%, 175% 175%, 155% 155%, 160% 160%, 100% 100%;
+      --settings-back-bg-position: 12% 82%, 84% 14%, 48% 46%, 18% 12%, 50% 50%;
+      --settings-back-border: var(--settings-glass-button-border, var(--cream-border));
+      --settings-back-shadow: var(--settings-glass-button-shadow, var(--shadow-sm));
+      --settings-back-animation: settingsGlassFlow var(--settings-glass-motion, 40s) linear infinite alternate;
+      border: 1.5px solid var(--settings-back-border);
+      background: var(--settings-back-surface);
+      background-size: var(--settings-back-bg-size);
+      background-position: var(--settings-back-bg-position);
       color: var(--text);
       display: inline-flex;
       align-items: center;
@@ -11989,8 +12226,9 @@ function ensureSettingsHomeStyles() {
       cursor: pointer;
       font-size: 20px;
       font-weight: 900;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--settings-back-shadow);
       font-family: inherit;
+      animation: var(--settings-back-animation);
     }
     .settings-subpage-copy {
       min-width: 0;
@@ -12025,9 +12263,17 @@ function ensureSettingsHomeStyles() {
     .account-card {
       padding: 14px;
       border-radius: 20px;
-      border: 1.5px solid var(--cream-border);
-      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
-      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--settings-glass-card-border, var(--cream-border));
+      background:
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      box-shadow: var(--settings-glass-card-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .account-card-title {
       margin: 0 0 10px;
@@ -12133,9 +12379,17 @@ function ensureSettingsHomeStyles() {
     .security-card {
       padding: 14px;
       border-radius: 20px;
-      border: 1.5px solid var(--cream-border);
-      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
-      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--settings-glass-card-border, var(--cream-border));
+      background:
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      box-shadow: var(--settings-glass-card-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .security-card-title {
       margin: 0 0 10px;
@@ -12208,16 +12462,31 @@ function ensureSettingsHomeStyles() {
     .appearance-card {
       padding: 18px;
       border-radius: 24px;
-      border: 1.5px solid var(--cream-border);
-      background: linear-gradient(145deg, var(--card-bg), var(--cream-dark));
-      box-shadow: var(--shadow-sm);
+      border: 1.5px solid var(--settings-glass-card-border, var(--cream-border));
+      background:
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      box-shadow: var(--settings-glass-card-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .appearance-card.hero-card {
       padding: 20px 18px;
     }
     .appearance-card.danger-card {
-      border-color: var(--expense-pale);
-      background: linear-gradient(145deg, var(--card-bg), var(--expense-pale));
+      border-color: var(--settings-glass-card-border-strong, var(--expense-pale));
+      background:
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, color-mix(in srgb, var(--settings-glass-aurora-a) 88%, rgba(255,138,61,0.10)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, color-mix(in srgb, var(--settings-glass-aurora-b) 80%, rgba(196,77,255,0.10)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
     }
     .appearance-card-head {
       display: flex;
@@ -12272,8 +12541,21 @@ function ensureSettingsHomeStyles() {
       width: 100%;
       padding: 12px 14px;
       border-radius: 18px;
-      border: 1.5px solid var(--cream-border);
-      background: var(--card-bg);
+      --settings-back-surface:
+        radial-gradient(54% 40% at 18% 80%, transparent 0 34%, var(--settings-water-caustic-a, rgba(255,255,255,0.48)) 40%, transparent 56%),
+        radial-gradient(50% 34% at 78% 16%, transparent 0 31%, var(--settings-water-caustic-b, rgba(234,243,255,0.46)) 42%, transparent 58%),
+        radial-gradient(44% 28% at 52% 48%, transparent 0 28%, var(--settings-water-core, rgba(255,255,255,0.76)) 40%, transparent 57%),
+        linear-gradient(132deg, transparent 0%, transparent 42%, var(--settings-glass-blade, rgba(255,255,255,0.34)) 50%, transparent 58%, transparent 100%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 58%, var(--settings-glass-base-2, var(--cream-dark)));
+      --settings-back-bg-size: 185% 185%, 175% 175%, 155% 155%, 160% 160%, 100% 100%;
+      --settings-back-bg-position: 12% 82%, 84% 14%, 48% 46%, 18% 12%, 50% 50%;
+      --settings-back-border: var(--settings-glass-button-border, var(--cream-border));
+      --settings-back-shadow: var(--settings-glass-button-shadow, var(--shadow-sm));
+      --settings-back-animation: settingsGlassFlow var(--settings-glass-motion, 40s) linear infinite alternate;
+      border: 1px solid var(--settings-back-border);
+      background: var(--settings-back-surface);
+      background-size: var(--settings-back-bg-size);
+      background-position: var(--settings-back-bg-position);
       color: var(--text);
       font-family: inherit;
       font-size: 14px;
@@ -12522,11 +12804,17 @@ function ensureSettingsHomeStyles() {
     .data-sync-card {
       padding: 16px;
       border-radius: 22px;
-      border: 1.5px solid var(--cream-border);
+      border: 1.5px solid var(--settings-glass-card-border, var(--cream-border));
       background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.05), transparent 34%),
-        linear-gradient(145deg, var(--card-bg), var(--cream-dark));
-      box-shadow: var(--shadow-sm);
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      box-shadow: var(--settings-glass-card-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
       min-width: 0;
       width: 100%;
       max-width: 100%;
@@ -12783,8 +13071,21 @@ function ensureSettingsHomeStyles() {
       width: 36px;
       height: 36px;
       border-radius: 12px;
-      border: 1px solid var(--cream-border);
-      background: var(--card-bg);
+      --settings-back-surface:
+        radial-gradient(54% 40% at 18% 80%, transparent 0 34%, var(--settings-water-caustic-a, rgba(143,107,255,0.32)) 40%, transparent 56%),
+        radial-gradient(50% 34% at 78% 16%, transparent 0 31%, var(--settings-water-caustic-b, rgba(116,215,255,0.24)) 42%, transparent 58%),
+        radial-gradient(44% 28% at 52% 48%, transparent 0 28%, var(--settings-water-core, rgba(255,255,255,0.62)) 40%, transparent 57%),
+        linear-gradient(132deg, transparent 0%, transparent 42%, var(--settings-glass-blade, rgba(255,255,255,0.14)) 50%, transparent 58%, transparent 100%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 58%, var(--settings-glass-base-2, var(--cream-dark)));
+      --settings-back-bg-size: 185% 185%, 175% 175%, 155% 155%, 160% 160%, 100% 100%;
+      --settings-back-bg-position: 12% 82%, 84% 14%, 48% 46%, 18% 12%, 50% 50%;
+      --settings-back-border: var(--settings-glass-button-border, var(--cream-border));
+      --settings-back-shadow: var(--settings-glass-button-shadow, var(--shadow-sm));
+      --settings-back-animation: settingsGlassFlow var(--settings-glass-motion, 40s) linear infinite alternate;
+      border: 1px solid var(--settings-back-border);
+      background: var(--settings-back-surface);
+      background-size: var(--settings-back-bg-size);
+      background-position: var(--settings-back-bg-position);
       color: var(--text);
       display: inline-flex;
       align-items: center;
@@ -12814,11 +13115,17 @@ function ensureSettingsHomeStyles() {
     .notifications-card {
       padding: 12px;
       border-radius: 18px;
-      border: 1px solid var(--cream-border);
+      border: 1px solid var(--settings-glass-card-border, var(--cream-border));
       background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 36%),
-        linear-gradient(145deg, var(--card-bg), var(--cream-dark));
-      box-shadow: var(--shadow-sm);
+        linear-gradient(135deg, transparent 16%, var(--settings-glass-sheen, rgba(255,255,255,0.60)) 48%, transparent 80%),
+        radial-gradient(circle at 16% 18%, var(--settings-glass-aurora-a, rgba(255,215,183,0.18)) 0%, transparent 46%),
+        radial-gradient(circle at 82% 14%, var(--settings-glass-aurora-b, rgba(255,197,182,0.16)) 0%, transparent 42%),
+        radial-gradient(circle at 52% 100%, var(--settings-glass-aurora-c, rgba(255,243,237,0.22)) 0%, transparent 52%),
+        linear-gradient(145deg, var(--settings-glass-base-0, var(--card-bg)), var(--settings-glass-base-1, var(--card-bg)) 54%, var(--settings-glass-base-2, var(--cream-dark)));
+      background-size: 180% 180%, 170% 170%, 180% 180%, 165% 165%, 100% 100%;
+      background-position: 50% 0%, 12% 18%, 88% 12%, 52% 100%, 50% 50%;
+      box-shadow: var(--settings-glass-card-shadow, var(--shadow-sm));
+      animation: settingsGlassFlow var(--settings-glass-motion, 36s) linear infinite alternate;
     }
     .notifications-card-head {
       display: flex;
@@ -13119,31 +13426,102 @@ function ensureSettingsHomeStyles() {
       --settings-surface: color-mix(in srgb, var(--card-bg) 96%, #ffffff 4%);
       --settings-surface-strong: color-mix(in srgb, var(--card-bg) 92%, #ffffff 8%);
       --settings-surface-soft: color-mix(in srgb, var(--cream-dark) 84%, #ffffff 16%);
-      --settings-border: color-mix(in srgb, var(--cream-border) 82%, rgba(15,23,42,0.16));
-      --settings-border-strong: color-mix(in srgb, var(--cream-border) 62%, rgba(15,23,42,0.22));
-      --settings-shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.07);
-      --settings-shadow-strong: 0 16px 34px rgba(15, 23, 42, 0.1);
-      --settings-highlight: rgba(255,255,255,0.72);
+      --settings-border: rgba(224, 208, 193, 0.82);
+      --settings-border-strong: rgba(214, 191, 173, 0.94);
+      --settings-shadow-soft: 0 10px 24px rgba(34, 24, 18, 0.08);
+      --settings-shadow-strong: 0 16px 34px rgba(34, 24, 18, 0.12);
+      --settings-highlight: rgba(255,255,255,0.60);
+      --settings-glass-base-0: rgba(255, 252, 255, 0.98);
+      --settings-glass-base-1: rgba(246, 241, 255, 0.99);
+      --settings-glass-base-2: rgba(238, 232, 255, 0.98);
+      --settings-glass-aurora-a: rgba(224, 214, 255, 0.28);
+      --settings-glass-aurora-b: rgba(212, 234, 255, 0.22);
+      --settings-glass-aurora-c: rgba(245, 239, 255, 0.24);
+      --settings-glass-crystal-a: rgba(255,255,255,0.78);
+      --settings-glass-crystal-b: rgba(225,212,255,0.52);
+      --settings-glass-crystal-c: rgba(212,236,255,0.44);
+      --settings-glass-fracture-a: rgba(255,255,255,0.88);
+      --settings-glass-fracture-b: rgba(219,204,255,0.76);
+      --settings-glass-fracture-c: rgba(196,228,255,0.66);
+      --settings-glass-blade: rgba(255,255,255,0.24);
+      --settings-glass-sheen: rgba(255,255,255,0.60);
+      --settings-glass-card-border: rgba(222, 214, 239, 0.88);
+      --settings-glass-card-border-strong: rgba(206, 194, 235, 0.96);
+      --settings-glass-header-border: rgba(217, 208, 237, 0.94);
+      --settings-glass-button-border: rgba(220, 211, 238, 0.88);
+      --settings-glass-card-shadow: 0 10px 24px rgba(34, 24, 18, 0.08), inset 0 1px 0 rgba(255,255,255,0.72);
+      --settings-glass-header-shadow: 0 16px 34px rgba(34, 24, 18, 0.12), inset 0 1px 0 rgba(255,255,255,0.76);
+      --settings-glass-button-shadow: 0 10px 24px rgba(34, 24, 18, 0.07), inset 0 1px 0 rgba(255,255,255,0.70);
+      --settings-water-caustic-a: rgba(255,255,255,0.64);
+      --settings-water-caustic-b: rgba(223, 239, 255, 0.56);
+      --settings-water-core: rgba(255,255,255,0.86);
+      --settings-water-mist: rgba(219, 229, 255, 0.22);
+      --settings-glass-motion: 40s;
     }
     body.dark .settings-home-wrap,
     body.dark .settings-subpage-wrap,
     body.dark .notifications-page {
-      --settings-surface: #141a26;
-      --settings-surface-strong: #1a2230;
-      --settings-surface-soft: #111827;
+      --settings-surface: #171a24;
+      --settings-surface-strong: #1f2230;
+      --settings-surface-soft: #13141b;
       --settings-border: rgba(255,255,255,0.12);
       --settings-border-strong: rgba(255,255,255,0.18);
       --settings-shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.28);
       --settings-shadow-strong: 0 18px 38px rgba(0, 0, 0, 0.36);
       --settings-highlight: rgba(255,255,255,0.08);
+      --settings-glass-base-0: rgba(40, 34, 69, 0.98);
+      --settings-glass-base-1: rgba(30, 32, 58, 0.99);
+      --settings-glass-base-2: rgba(24, 24, 47, 0.985);
+      --settings-glass-aurora-a: rgba(157, 126, 255, 0.24);
+      --settings-glass-aurora-b: rgba(116, 181, 255, 0.20);
+      --settings-glass-aurora-c: rgba(124, 215, 255, 0.16);
+      --settings-glass-crystal-a: rgba(201, 181, 255, 0.34);
+      --settings-glass-crystal-b: rgba(127, 168, 255, 0.28);
+      --settings-glass-crystal-c: rgba(143, 225, 255, 0.20);
+      --settings-glass-fracture-a: rgba(255,255,255,0.74);
+      --settings-glass-fracture-b: rgba(181,153,255,0.62);
+      --settings-glass-fracture-c: rgba(131,198,255,0.46);
+      --settings-glass-blade: rgba(255,255,255,0.10);
+      --settings-glass-sheen: rgba(255,255,255,0.08);
+      --settings-glass-card-border: rgba(255,255,255,0.12);
+      --settings-glass-card-border-strong: rgba(255,255,255,0.17);
+      --settings-glass-header-border: rgba(255,255,255,0.16);
+      --settings-glass-button-border: rgba(255,255,255,0.125);
+      --settings-glass-card-shadow: 0 12px 28px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255,255,255,0.07);
+      --settings-glass-header-shadow: 0 18px 38px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255,255,255,0.09);
+      --settings-glass-button-shadow: 0 12px 28px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255,255,255,0.07);
+      --settings-water-caustic-a: rgba(166, 137, 255, 0.42);
+      --settings-water-caustic-b: rgba(124, 215, 255, 0.34);
+      --settings-water-core: rgba(255,255,255,0.68);
+      --settings-water-mist: rgba(168, 138, 255, 0.18);
+      --settings-glass-motion: 40s;
+    }
+    .settings-home-hero,
+    .settings-subpage-header,
+    .settings-home-card,
+    .settings-placeholder-card,
+    .account-card,
+    .security-card,
+    .appearance-card,
+    .data-sync-card,
+    .notifications-card,
+    .settings-home-legacy-btn,
+    .settings-subpage-back,
+    .notifications-back-btn {
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .sg-fx-canvas {
+      display: block;
     }
     .settings-home-hero,
     .settings-subpage-header {
       background:
-        radial-gradient(circle at top right, color-mix(in srgb, var(--primary-pale) 84%, transparent), transparent 44%),
-        linear-gradient(145deg, var(--settings-surface-strong), var(--settings-surface));
-      border-color: var(--settings-border-strong);
-      box-shadow: var(--settings-shadow-strong);
+        linear-gradient(145deg, rgba(255,252,240,0.92) 0%, rgba(245,239,255,0.78) 52%, rgba(232,236,255,0.72) 100%);
+      border-color: var(--settings-glass-header-border);
+      box-shadow: var(--settings-glass-header-shadow);
+      animation: none;
     }
     .settings-home-card,
     .settings-placeholder-card,
@@ -13153,16 +13531,29 @@ function ensureSettingsHomeStyles() {
     .data-sync-card,
     .notifications-card {
       background:
-        linear-gradient(180deg, var(--settings-highlight), transparent 22%),
-        linear-gradient(145deg, var(--settings-surface), var(--settings-surface-soft));
-      border-color: var(--settings-border);
-      box-shadow: var(--settings-shadow-soft);
+        linear-gradient(145deg, rgba(255,252,240,0.92) 0%, rgba(245,239,255,0.78) 52%, rgba(232,236,255,0.72) 100%);
+      border-color: var(--settings-glass-card-border);
+      box-shadow: var(--settings-glass-card-shadow);
+      animation: none;
+    }
+    body.dark .settings-home-hero,
+    body.dark .settings-subpage-header,
+    body.dark .settings-home-card,
+    body.dark .settings-placeholder-card,
+    body.dark .account-card,
+    body.dark .security-card,
+    body.dark .appearance-card,
+    body.dark .data-sync-card,
+    body.dark .notifications-card {
+      background:
+        linear-gradient(145deg, #1a1040 0%, #1e1550 30%, #160e38 60%, #1c1448 100%);
     }
     .settings-home-card:hover,
     .settings-home-card:focus-visible,
     .appearance-swatch.active,
     .appearance-option.active {
-      box-shadow: var(--settings-shadow-strong);
+      box-shadow: var(--settings-glass-header-shadow);
+      border-color: var(--settings-glass-card-border-strong);
     }
     .settings-home-card-ico,
     .data-sync-card-kicker,
@@ -13173,12 +13564,30 @@ function ensureSettingsHomeStyles() {
     }
     .settings-home-legacy-btn,
     .settings-subpage-back,
-    .notifications-back-btn,
-    .notifications-mini-btn,
-    .notifications-utility-btn {
-      background: var(--settings-surface-strong);
-      border-color: var(--settings-border);
-      box-shadow: var(--settings-shadow-soft);
+    .notifications-back-btn {
+      background:
+        linear-gradient(145deg, rgba(255,252,240,0.92) 0%, rgba(245,239,255,0.78) 52%, rgba(232,236,255,0.72) 100%);
+      border-color: var(--settings-back-border, var(--settings-border));
+      box-shadow: var(--settings-back-shadow, var(--settings-shadow-soft));
+      animation: none;
+    }
+    body.dark .settings-home-legacy-btn,
+    body.dark .settings-subpage-back,
+    body.dark .notifications-back-btn {
+      background:
+        linear-gradient(145deg, #1a1040 0%, #1e1550 30%, #160e38 60%, #1c1448 100%);
+    }
+    .settings-home-hero > *,
+    .settings-subpage-header > *,
+    .settings-home-card > *:not(.sg-fx-canvas),
+    .settings-placeholder-card > *:not(.sg-fx-canvas),
+    .account-card > *:not(.sg-fx-canvas),
+    .security-card > *:not(.sg-fx-canvas),
+    .appearance-card > *:not(.sg-fx-canvas),
+    .data-sync-card > *:not(.sg-fx-canvas),
+    .notifications-card > *:not(.sg-fx-canvas) {
+      position: relative;
+      z-index: 1;
     }
     .account-kv-row,
     .security-status-row,
@@ -13350,7 +13759,446 @@ function ensureSettingsHomeStyles() {
       }
     }
   `;
-  document.head.appendChild(style);
+  document.getElementById("sgFilters")?.remove();
+  if (!style.parentNode) {
+    document.head.appendChild(style);
+  }
+}
+
+const SETTINGS_FX_CANVAS_HTML =
+  '<canvas class="sg-fx-canvas" style="position:absolute;inset:0;width:100%;height:100%;border-radius:inherit;pointer-events:none;z-index:0;opacity:0.85;"></canvas>';
+let settingsCanvasEffects = [];
+let settingsCanvasEffectsToken = 0;
+let settingsCanvasSharedFrameId = 0;
+let settingsCanvasSharedState = null;
+let settingsCanvasRuntime = null;
+let settingsCanvasFxPerf = {
+  lastRuntimeInitMs: 0,
+  lastAttachMs: 0,
+  lastReopenMs: 0,
+};
+let settingsPerfSession = null;
+
+function startSettingsPerf(label) {
+  settingsPerfSession = {
+    label,
+    startedAt: performance.now(),
+    entries: [],
+  };
+  return settingsPerfSession;
+}
+
+function markSettingsPerf(stage, startedAt) {
+  if (!settingsPerfSession) return;
+  settingsPerfSession.entries.push({
+    stage,
+    ms: performance.now() - startedAt,
+  });
+}
+
+function flushSettingsPerf(extraEntries = []) {
+  if (!settingsPerfSession) return;
+  const session = settingsPerfSession;
+  settingsPerfSession = null;
+  const totalMs = performance.now() - session.startedAt;
+  const entries = session.entries.concat(extraEntries).map((entry) => ({
+    stage: entry.stage,
+    ms: Number(entry.ms.toFixed(2)),
+  }));
+  const topFive = [...entries]
+    .sort((a, b) => b.ms - a.ms)
+    .slice(0, 5);
+  console.log(
+    "[SETTINGS_PERF] " +
+      JSON.stringify({
+        label: session.label,
+        totalMs: Number(totalMs.toFixed(2)),
+        topFive,
+        all: entries,
+      }),
+  );
+}
+
+function cleanupSettingsCanvasEffects() {
+  settingsCanvasEffectsToken += 1;
+  if (settingsCanvasSharedFrameId) {
+    cancelAnimationFrame(settingsCanvasSharedFrameId);
+    settingsCanvasSharedFrameId = 0;
+  }
+  if (settingsCanvasSharedState?.resizeObserver) {
+    settingsCanvasSharedState.resizeObserver.disconnect();
+  }
+  settingsCanvasEffects.forEach((entry) => {
+    if (entry?.canvas) delete entry.canvas.dataset.sgFxActive;
+  });
+  settingsCanvasEffects = [];
+  if (settingsCanvasSharedState) {
+    settingsCanvasSharedState.canvases = [];
+  }
+  settingsCanvasSharedState = null;
+}
+
+function ensureSettingsCanvasRuntime() {
+  if (settingsCanvasRuntime?.ctx) {
+    return settingsCanvasRuntime;
+  }
+  const runtimeStart = performance.now();
+  const sharedCanvas = document.createElement("canvas");
+  const ctx = sharedCanvas.getContext("2d");
+  if (!ctx) return null;
+  settingsCanvasFxPerf.lastRuntimeInitMs = performance.now() - runtimeStart;
+  settingsCanvasRuntime = { sharedCanvas, ctx };
+  return settingsCanvasRuntime;
+}
+
+function drawSettingsRibbon(ctx, w, h, spec) {
+  const driftA = spec.t * spec.drift + spec.phase;
+  const driftB = spec.t * (spec.drift * 0.9) + spec.phase * 1.3;
+  const driftC = spec.t * (spec.drift * 1.1) + spec.phase * 0.7;
+  const cp1x = w * (0.24 + 0.08 * Math.sin(driftA));
+  const cp2x = w * (0.76 + 0.08 * Math.cos(driftB));
+  const y1 = spec.yBase + spec.amplitude * Math.sin(driftA);
+  const y2 = spec.yBase + spec.amplitude * 0.7 * Math.cos(spec.t * (spec.drift * 0.82) + spec.phase * 1.4);
+  const y3 = spec.yBase + spec.amplitude * Math.sin(driftC);
+  const bendA = 25 + 15 * (0.5 + 0.5 * Math.sin(spec.t * (spec.drift * 1.83) + spec.phase * 0.8));
+  const bendB = 25 + 15 * (0.5 + 0.5 * Math.cos(spec.t * (spec.drift * 1.59) + spec.phase * 1.1));
+  const thicknessWave = 0.92 + 0.14 * Math.sin(spec.t * (spec.drift * 0.42) + spec.phase * 1.7);
+  const breath = 0.20 + 0.80 * (0.5 + 0.5 * Math.sin(spec.t * (spec.drift * 1.08) + spec.phase * 2.1));
+  const microA = 0.50 + 0.50 * (0.5 + 0.5 * Math.sin(spec.t * (spec.drift * 2.19) + spec.phase * 3.2));
+  const microB = 0.50 + 0.50 * (0.5 + 0.5 * Math.cos(spec.t * (spec.drift * 2.01) + spec.phase * 2.4));
+  const baseWidth = spec.width * thicknessWave * 3;
+  const pulseAlpha = spec.alpha * breath;
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = `rgba(${spec.color},${spec.glowAlpha * breath})`;
+  ctx.lineWidth = baseWidth * 1.75;
+  ctx.beginPath();
+  ctx.moveTo(-w * 0.08, y1 + bendA * 0.4);
+  ctx.bezierCurveTo(cp1x, y2 - bendA, cp2x, y3 + bendB, w * 1.08, y2 - bendB * 0.4);
+  ctx.stroke();
+
+  ctx.strokeStyle = `rgba(${spec.color},${pulseAlpha})`;
+  ctx.lineWidth = baseWidth;
+  ctx.beginPath();
+  ctx.moveTo(-w * 0.08, y1 + bendA * 0.4);
+  ctx.bezierCurveTo(cp1x, y2 - bendA, cp2x, y3 + bendB, w * 1.08, y2 - bendB * 0.4);
+  ctx.stroke();
+
+  const microGradA = ctx.createLinearGradient(w * 0.12, 0, w * 0.48, 0);
+  microGradA.addColorStop(0, `rgba(255,255,255,0)`);
+  microGradA.addColorStop(0.45, `rgba(255,255,255,${microA})`);
+  microGradA.addColorStop(1, `rgba(255,255,255,0)`);
+  ctx.strokeStyle = microGradA;
+  ctx.lineWidth = baseWidth * 0.82;
+  ctx.beginPath();
+  ctx.moveTo(w * 0.10, y1 + bendA * 0.18);
+  ctx.bezierCurveTo(
+    w * 0.20,
+    y2 - bendA * 0.45,
+    w * 0.34,
+    y3 + bendB * 0.42,
+    w * 0.50,
+    y2 - bendB * 0.12,
+  );
+  ctx.stroke();
+
+  const microGradB = ctx.createLinearGradient(w * 0.54, 0, w * 0.90, 0);
+  microGradB.addColorStop(0, `rgba(255,255,255,0)`);
+  microGradB.addColorStop(0.55, `rgba(255,255,255,${microB})`);
+  microGradB.addColorStop(1, `rgba(255,255,255,0)`);
+  ctx.strokeStyle = microGradB;
+  ctx.lineWidth = baseWidth * 0.74;
+  ctx.beginPath();
+  ctx.moveTo(w * 0.50, y2 - bendA * 0.08);
+  ctx.bezierCurveTo(
+    w * 0.63,
+    y3 + bendB * 0.28,
+    w * 0.77,
+    y2 - bendA * 0.36,
+    w * 0.92,
+    y2 - bendB * 0.22,
+  );
+  ctx.stroke();
+
+  if (spec.thin) {
+    ctx.strokeStyle = `rgba(255,255,255,${pulseAlpha * 0.8})`;
+    ctx.lineWidth = Math.max(1, baseWidth * 0.22);
+    ctx.beginPath();
+    ctx.moveTo(-w * 0.08, y1 - baseWidth * 0.04 + bendA * 0.25);
+    ctx.bezierCurveTo(
+      cp1x,
+      y2 - bendA,
+      cp2x,
+      y3 + bendB,
+      w * 1.08,
+      y2 - baseWidth * 0.03 - bendB * 0.2,
+    );
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawSettingsDark(ctx, w, h, t) {
+  const bg = ctx.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, "#1d1735");
+  bg.addColorStop(0.55, "#17142b");
+  bg.addColorStop(1, "#241b3d");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, w, h);
+
+  [
+    { x: 0.16, y: 0.24, r: 0.60, color: "187,201,255", a: 0.12, dx: 0.03, dy: 0.02, p: 0.4 },
+    { x: 0.78, y: 0.18, r: 0.52, color: "144,198,255", a: 0.10, dx: -0.02, dy: 0.03, p: 1.3 },
+    { x: 0.58, y: 0.82, r: 0.66, color: "121,235,255", a: 0.09, dx: 0.025, dy: -0.02, p: 2.0 },
+  ].forEach((blob) => {
+    const x = w * (blob.x + blob.dx * Math.sin(t * 0.00011 + blob.p));
+    const y = h * (blob.y + blob.dy * Math.cos(t * 0.00009 + blob.p * 1.4));
+    const r = Math.max(w, h) * blob.r;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${blob.color},${blob.a})`);
+    g.addColorStop(0.55, `rgba(${blob.color},${blob.a * 0.45})`);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  });
+
+  ctx.globalCompositeOperation = "screen";
+  drawSettingsRibbon(ctx, w, h, {
+    t, yBase: h * 0.26, amplitude: h * 0.12, drift: 0.00027,
+    width: Math.max(18, h * 0.14), alpha: 0.10, glowAlpha: 0.042,
+    color: "244,248,255", phase: 0.4,
+  });
+  drawSettingsRibbon(ctx, w, h, {
+    t, yBase: h * 0.56, amplitude: h * 0.15, drift: 0.00021,
+    width: Math.max(24, h * 0.18), alpha: 0.11, glowAlpha: 0.05,
+    color: "180,224,255", phase: 1.7,
+  });
+  drawSettingsRibbon(ctx, w, h, {
+    t, yBase: h * 0.72, amplitude: h * 0.10, drift: 0.00024,
+    width: Math.max(8, h * 0.055), alpha: 0.18, glowAlpha: 0.07,
+    color: "255,255,255", phase: 2.5, thin: true,
+  });
+
+  const gloss = ctx.createLinearGradient(0, 0, 0, h * 0.45);
+  gloss.addColorStop(0, "rgba(255,255,255,0.09)");
+  gloss.addColorStop(0.5, "rgba(255,255,255,0.03)");
+  gloss.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = gloss;
+  ctx.fillRect(0, 0, w, h * 0.45);
+}
+
+function drawSettingsLight(ctx, w, h, t) {
+  const bg = ctx.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, "#fffaf4");
+  bg.addColorStop(0.52, "#fbf5f2");
+  bg.addColorStop(1, "#f5edf0");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, w, h);
+
+  [
+    { x: 0.24, y: 0.22, r: 0.62, color: "255,255,255", a: 0.32, dx: 0.025, dy: 0.018, p: 0.3 },
+    { x: 0.82, y: 0.30, r: 0.48, color: "235,244,255", a: 0.22, dx: -0.018, dy: 0.022, p: 1.6 },
+    { x: 0.60, y: 0.84, r: 0.60, color: "255,255,255", a: 0.18, dx: 0.02, dy: -0.018, p: 2.1 },
+  ].forEach((blob) => {
+    const x = w * (blob.x + blob.dx * Math.sin(t * 0.00010 + blob.p));
+    const y = h * (blob.y + blob.dy * Math.cos(t * 0.00008 + blob.p * 1.5));
+    const r = Math.max(w, h) * blob.r;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${blob.color},${blob.a})`);
+    g.addColorStop(0.55, `rgba(${blob.color},${blob.a * 0.45})`);
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  });
+
+  ctx.globalCompositeOperation = "screen";
+  drawSettingsRibbon(ctx, w, h, {
+    t, yBase: h * 0.30, amplitude: h * 0.11, drift: 0.00024,
+    width: Math.max(16, h * 0.12), alpha: 0.14, glowAlpha: 0.055,
+    color: "255,255,255", phase: 0.2,
+  });
+  drawSettingsRibbon(ctx, w, h, {
+    t, yBase: h * 0.60, amplitude: h * 0.13, drift: 0.000195,
+    width: Math.max(20, h * 0.16), alpha: 0.12, glowAlpha: 0.05,
+    color: "224,239,255", phase: 1.5,
+  });
+  drawSettingsRibbon(ctx, w, h, {
+    t, yBase: h * 0.74, amplitude: h * 0.08, drift: 0.000225,
+    width: Math.max(7, h * 0.045), alpha: 0.18, glowAlpha: 0.06,
+    color: "255,255,255", phase: 2.6, thin: true,
+  });
+
+  const pearl = ctx.createLinearGradient(0, 0, w, h * 0.4);
+  pearl.addColorStop(0, "rgba(255,255,255,0.32)");
+  pearl.addColorStop(0.55, "rgba(255,255,255,0.08)");
+  pearl.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = pearl;
+  ctx.fillRect(0, 0, w, h * 0.5);
+}
+
+function initSettingsCanvasEffects() {
+  const reopenStart = performance.now();
+  cleanupSettingsCanvasEffects();
+  markSettingsPerf("canvas.cleanup", reopenStart);
+  const selectorsStart = performance.now();
+  const selectors = [
+    ".settings-home-card",
+    ".account-card",
+    ".security-card",
+    ".appearance-card",
+    ".data-sync-card",
+    ".notifications-card",
+  ];
+  document.querySelectorAll(selectors.join(",")).forEach((card) => {
+    if (!card.querySelector(":scope > .sg-fx-canvas")) {
+      card.insertAdjacentHTML("afterbegin", SETTINGS_FX_CANVAS_HTML);
+    }
+  });
+  markSettingsPerf("canvas.ensure-display-canvases", selectorsStart);
+  const queryStart = performance.now();
+  const canvases = Array.from(
+    document.querySelectorAll("canvas.sg-fx-canvas"),
+  ).filter((canvas) => canvas instanceof HTMLCanvasElement);
+  markSettingsPerf("canvas.query-display-canvases", queryStart);
+  if (!canvases.length) return;
+  const runtimeStart = performance.now();
+  const runtime = ensureSettingsCanvasRuntime();
+  markSettingsPerf("canvas.ensure-shared-runtime", runtimeStart);
+  if (!runtime) return;
+  const token = settingsCanvasEffectsToken;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const attachStart = performance.now();
+  const state = {
+    canvases: canvases
+      .map((canvas) => ({
+        canvas,
+        ctx: canvas.getContext("2d"),
+        width: 0,
+        height: 0,
+      }))
+      .filter((entry) => entry.ctx),
+    dpr,
+    sharedWidth: 0,
+    sharedHeight: 0,
+  };
+  state.canvases.forEach((entry) => {
+    entry.canvas.dataset.sgFxActive = "1";
+  });
+  markSettingsPerf("canvas.attach-display-contexts", attachStart);
+  if (!state.canvases.length) return;
+  const syncSharedCanvasSize = () => {
+    let maxWidth = 1;
+    let maxHeight = 1;
+    state.canvases.forEach((entry) => {
+      maxWidth = Math.max(maxWidth, entry.width || 1);
+      maxHeight = Math.max(maxHeight, entry.height || 1);
+    });
+    if (state.sharedWidth === maxWidth && state.sharedHeight === maxHeight) return;
+    state.sharedWidth = maxWidth;
+    state.sharedHeight = maxHeight;
+    runtime.sharedCanvas.width = Math.max(1, Math.round(maxWidth * dpr));
+    runtime.sharedCanvas.height = Math.max(1, Math.round(maxHeight * dpr));
+  };
+  const syncVisibleCanvasSize = (entry, width, height) => {
+    const nextWidth = Math.max(1, Math.round(width));
+    const nextHeight = Math.max(1, Math.round(height));
+    if (entry.width === nextWidth && entry.height === nextHeight) return;
+    entry.width = nextWidth;
+    entry.height = nextHeight;
+    entry.canvas.width = Math.max(1, Math.round(nextWidth * dpr));
+    entry.canvas.height = Math.max(1, Math.round(nextHeight * dpr));
+    entry.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+  const entryByCanvas = new Map(state.canvases.map((entry) => [entry.canvas, entry]));
+  const initialSizeStart = performance.now();
+  state.canvases.forEach((entry) => {
+    syncVisibleCanvasSize(entry, entry.canvas.offsetWidth, entry.canvas.offsetHeight);
+  });
+  syncSharedCanvasSize();
+  markSettingsPerf("canvas.initial-size-read", initialSizeStart);
+  const observerStart = performance.now();
+  const resizeObserver = new ResizeObserver((entries) => {
+    let changed = false;
+    entries.forEach((observedEntry) => {
+      const canvasEntry = entryByCanvas.get(observedEntry.target);
+      if (!canvasEntry) return;
+      const width = observedEntry.contentRect?.width ?? canvasEntry.width;
+      const height = observedEntry.contentRect?.height ?? canvasEntry.height;
+      const prevWidth = canvasEntry.width;
+      const prevHeight = canvasEntry.height;
+      syncVisibleCanvasSize(canvasEntry, width, height);
+      if (canvasEntry.width !== prevWidth || canvasEntry.height !== prevHeight) {
+        changed = true;
+      }
+    });
+    if (changed) syncSharedCanvasSize();
+  });
+  state.canvases.forEach((entry) => resizeObserver.observe(entry.canvas));
+  state.resizeObserver = resizeObserver;
+  markSettingsPerf("canvas.observe-resize", observerStart);
+  const renderSharedFrame = (time) => {
+    const { ctx, sharedCanvas } = runtime;
+    const w = sharedCanvas.width;
+    const h = sharedCanvas.height;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    if (document.body.classList.contains("dark")) {
+      drawSettingsDark(ctx, w, h, time);
+    } else {
+      drawSettingsLight(ctx, w, h, time);
+    }
+  };
+  const blitSharedFrame = () => {
+    state.canvases.forEach((entry) => {
+      entry.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      entry.ctx.clearRect(0, 0, entry.width, entry.height);
+      entry.ctx.drawImage(
+        runtime.sharedCanvas,
+        0,
+        0,
+        state.sharedWidth * dpr,
+        state.sharedHeight * dpr,
+        0,
+        0,
+        entry.width,
+        entry.height,
+      );
+    });
+  };
+  const frame = (time) => {
+    if (token !== settingsCanvasEffectsToken) return;
+    renderSharedFrame(time);
+    blitSharedFrame();
+    settingsCanvasSharedFrameId = requestAnimationFrame(frame);
+  };
+  settingsCanvasEffects = state.canvases;
+  settingsCanvasSharedState = state;
+  settingsCanvasFxPerf.lastAttachMs = performance.now() - reopenStart;
+  settingsCanvasFxPerf.lastReopenMs = settingsCanvasFxPerf.lastAttachMs;
+  settingsCanvasSharedFrameId = requestAnimationFrame(frame);
+}
+
+function logSettingsStyleDiagnostics(selectors) {
+  const styleEl = document.getElementById("settingsHomeStyles");
+  console.log(
+    "settingsHomeStyles.textContent",
+    styleEl ? styleEl.textContent : null,
+  );
+  selectors.forEach((selector) => {
+    const card = document.querySelector(selector);
+    console.log("CARD", card);
+    if (!card) return;
+    const computed = getComputedStyle(card);
+    console.log("Computed background:", computed.background);
+    console.log("Computed background-image:", computed.backgroundImage);
+    console.log("Computed animation:", computed.animation);
+    console.log("Computed border:", computed.border);
+    console.log("Computed box-shadow:", computed.boxShadow);
+  });
 }
 
 function getSettingsHomeSections() {
@@ -13680,7 +14528,10 @@ function openSettingsLegacy() {
 }
 
 function renderSettingsHome() {
+  const stylesStart = performance.now();
   ensureSettingsHomeStyles();
+  markSettingsPerf("home.ensure-styles", stylesStart);
+  const copyStart = performance.now();
   const copy = {
     ru: {
       kicker: "Settings Home",
@@ -13714,7 +14565,12 @@ function renderSettingsHome() {
     legacyBtn: "Открыть текущие полные настройки",
     note: "Полный экран настроек по-прежнему доступен без ограничений.",
   };
+  markSettingsPerf("home.build-copy", copyStart);
 
+  const sectionsStart = performance.now();
+  const sections = getSettingsHomeSections();
+  markSettingsPerf("home.get-sections", sectionsStart);
+  const htmlStart = performance.now();
   const html = `
     <div class="settings-home-wrap">
       <div class="settings-home-hero">
@@ -13723,7 +14579,7 @@ function renderSettingsHome() {
         <p class="settings-home-subtitle">${esc(copy.subtitle)}</p>
       </div>
       <div class="settings-home-grid">
-        ${getSettingsHomeSections()
+        ${sections
           .map(
             (section) => `
               <button class="settings-home-card" type="button" data-settings-home="${esc(section.id)}">
@@ -13744,20 +14600,36 @@ function renderSettingsHome() {
       </div>
     </div>
   `;
+  markSettingsPerf("home.build-html-string", htmlStart);
 
+  const innerHtmlStart = performance.now();
   document.getElementById("mainContent").innerHTML = html;
+  markSettingsPerf("home.mainContent.innerHTML", innerHtmlStart);
+  const layoutStart = performance.now();
+  document.getElementById("mainContent")?.offsetHeight;
+  markSettingsPerf("home.first-layout-read", layoutStart);
+  const diagnosticsStart = performance.now();
+  logSettingsStyleDiagnostics([".settings-home-card"]);
+  markSettingsPerf("home.style-diagnostics", diagnosticsStart);
 
+  const queryButtonsStart = performance.now();
+  const buttons = document.querySelectorAll("[data-settings-home]");
+  markSettingsPerf("home.query-card-buttons", queryButtonsStart);
+  const listenersStart = performance.now();
   document.querySelectorAll("[data-settings-home]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const section = getSettingsHomeSections().find(
+      const section = sections.find(
         (item) => item.id === btn.dataset.settingsHome,
       );
       if (section?.action) section.action();
     });
   });
+  markSettingsPerf("home.attach-card-listeners", listenersStart);
+  const legacyBtnStart = performance.now();
   document
     .getElementById("openLegacySettingsBtn")
     ?.addEventListener("click", openSettingsLegacy);
+  markSettingsPerf("home.attach-legacy-listener", legacyBtnStart);
 }
 
 function getAppearanceSettingsMarkup() {
@@ -14299,6 +15171,7 @@ function renderSettingsAppearanceScreen() {
     </div>
   `;
 
+  logSettingsStyleDiagnostics([".appearance-card"]);
   document
     .getElementById("settingsAppearanceBackBtn")
     ?.addEventListener("click", openSettingsHome);
@@ -14534,6 +15407,7 @@ function renderSettingsAccountScreen() {
     </div>
   `;
 
+  logSettingsStyleDiagnostics([".account-card"]);
   document
     .getElementById("settingsAccountBackBtn")
     ?.addEventListener("click", openSettingsHome);
@@ -14797,6 +15671,7 @@ function renderSettingsSecurityScreen() {
     </div>
   `;
 
+  logSettingsStyleDiagnostics([".security-card"]);
   document
     .getElementById("settingsSecurityBackBtn")
     ?.addEventListener("click", openSettingsHome);
@@ -15004,6 +15879,7 @@ function renderSettingsDataScreen() {
     </div>
   `;
 
+  logSettingsStyleDiagnostics([".data-sync-card"]);
   document
     .getElementById("settingsDataBackBtn")
     ?.addEventListener("click", openSettingsHome);
@@ -17442,6 +18318,7 @@ function renderSettingsNotificationsScreen() {
     </div>
   `;
 
+  logSettingsStyleDiagnostics([".notifications-card"]);
   document
     .getElementById("settingsNotificationsBackBtn")
     ?.addEventListener("click", openSettingsHome);
@@ -17569,6 +18446,12 @@ function renderSettingsPlaceholder(sectionKey) {
 }
 
 function renderSettings() {
+  const perfEnabled = currentSettingsView === "home";
+  if (perfEnabled) startSettingsPerf("settings-open:" + currentSettingsView);
+  const cleanupStart = performance.now();
+  cleanupSettingsCanvasEffects();
+  markSettingsPerf("render.cleanup-prev-effects", cleanupStart);
+  const renderSwitchStart = performance.now();
   switch (currentSettingsView) {
     case "home":
       renderSettingsHome();
@@ -17614,6 +18497,40 @@ function renderSettings() {
       renderSettingsLegacy();
       break;
   }
+  markSettingsPerf("render.view-sync", renderSwitchStart);
+  const scheduleCanvasStart = performance.now();
+  requestAnimationFrame(() => {
+    markSettingsPerf("render.first-raf-wait", scheduleCanvasStart);
+    const secondRafStart = performance.now();
+    requestAnimationFrame(() => {
+      markSettingsPerf("render.second-raf-wait", secondRafStart);
+      const canvasInitStart = performance.now();
+      initSettingsCanvasEffects();
+      markSettingsPerf("render.init-canvas-effects", canvasInitStart);
+      const postInitLayoutStart = performance.now();
+      document.getElementById("mainContent")?.offsetHeight;
+      markSettingsPerf("render.post-canvas-layout-read", postInitLayoutStart);
+      requestAnimationFrame(() => {
+        const totalToPaintMs = settingsPerfSession
+          ? performance.now() - settingsPerfSession.startedAt
+          : 0;
+        flushSettingsPerf([
+          {
+            stage: "render.total-to-post-paint-raf",
+            ms: totalToPaintMs,
+          },
+          {
+            stage: "render.shared-runtime-init",
+            ms: settingsCanvasFxPerf.lastRuntimeInitMs,
+          },
+          {
+            stage: "render.canvas-attach-total",
+            ms: settingsCanvasFxPerf.lastAttachMs,
+          },
+        ]);
+      });
+    });
+  });
 }
 
 function renderSettingsLegacy() {
@@ -20115,6 +21032,34 @@ function unmountHeroFromHome() {
   }
 }
 
+let suspendHomeHeroLifecycle = false;
+
+function setSuspendHomeHeroLifecycle(value) {
+  suspendHomeHeroLifecycle = !!value;
+}
+
+function wrapHomeHeroLifecycleFunction(fnName) {
+  const fn = globalThis[fnName];
+  if (typeof fn !== "function" || fn.__homeHeroLifecycleWrapped) return;
+  const wrapped = function (...args) {
+    if (suspendHomeHeroLifecycle) return;
+    return fn.apply(this, args);
+  };
+  wrapped.__homeHeroLifecycleWrapped = true;
+  wrapped.__homeHeroLifecycleOriginal = fn;
+  globalThis[fnName] = wrapped;
+}
+
+[
+  "restoreHomeHeroIfNeeded",
+  "ensureHomeHeroStable",
+  "updateHeroTrendText",
+  "updateHeroChipLabels",
+  "forceHeroChipLayout",
+  "mountHeroIntoHome",
+  "unmountHeroFromHome",
+].forEach(wrapHomeHeroLifecycleFunction);
+
 function ensureHeroWrapGuard() {
   const heroWrap = document.getElementById("heroCardWrap");
   if (!heroWrap) return;
@@ -20259,6 +21204,340 @@ function attachAppTraceObservers() {
       attributeFilter: ["style", "class"],
     });
   }
+}
+
+function installHomeLayoutRuntimeAudit() {
+  if (window.__homeLayoutRuntimeAuditInstalled) return;
+  window.__homeLayoutRuntimeAuditInstalled = true;
+
+  const stylePropsToTrace = new Set([
+    "height",
+    "min-height",
+    "minHeight",
+    "max-height",
+    "maxHeight",
+    "display",
+    "transform",
+    "scale",
+    "flex",
+    "flex-grow",
+    "flexGrow",
+    "flex-shrink",
+    "flexShrink",
+    "grid-template-rows",
+    "gridTemplateRows",
+    "padding",
+    "padding-top",
+    "paddingTop",
+    "padding-right",
+    "paddingRight",
+    "padding-bottom",
+    "paddingBottom",
+    "padding-left",
+    "paddingLeft",
+    "margin",
+    "margin-top",
+    "marginTop",
+    "margin-right",
+    "marginRight",
+    "margin-bottom",
+    "marginBottom",
+    "margin-left",
+    "marginLeft",
+  ]);
+  const resizeState = new WeakMap();
+  const observedParentNodes = new WeakSet();
+  const writeState = new WeakMap();
+  let resizeObserver = null;
+  let bodyObserver = null;
+  let visualViewportState = null;
+
+  const nowTs = () => new Date().toISOString();
+  const getStack = () => {
+    const stack = new Error().stack || "";
+    return stack
+      .split("\n")
+      .slice(2)
+      .join("\n");
+  };
+  const describeEl = (el) => {
+    if (!el) return "(null)";
+    if (el === document.documentElement) return "html";
+    if (el === document.body) return "body";
+    const parts = [el.tagName?.toLowerCase() || "node"];
+    if (el.id) parts.push(`#${el.id}`);
+    if (el.classList?.length) {
+      parts.push("." + Array.from(el.classList).join("."));
+    }
+    return parts.join("");
+  };
+  const getNearestScrollContainer = () => {
+    const balanceCard = document.getElementById("balanceCard");
+    let node = balanceCard?.parentElement || null;
+    while (node && node !== document.body) {
+      const cs = getComputedStyle(node);
+      const overflowValue = `${cs.overflow} ${cs.overflowY} ${cs.overflowX}`;
+      if (/(auto|scroll|overlay)/.test(overflowValue)) return node;
+      node = node.parentElement;
+    }
+    return document.scrollingElement || document.documentElement;
+  };
+  const getTrackedNodes = () => {
+    const tracked = [
+      document.getElementById("balanceCard"),
+      document.getElementById("heroCardWrap"),
+      document.getElementById("mainContent"),
+      document.getElementById("homeTab"),
+      getNearestScrollContainer(),
+      document.documentElement,
+      document.body,
+    ].filter(Boolean);
+    return Array.from(new Set(tracked));
+  };
+  const isTrackedElement = (el) => getTrackedNodes().includes(el);
+  const findOwnerByStyle = (styleDecl) => {
+    const nodes = getTrackedNodes();
+    for (const node of nodes) {
+      if (node?.style === styleDecl) return node;
+    }
+    return null;
+  };
+  const recordWrite = (el, payload) => {
+    if (!el) return;
+    writeState.set(el, {
+      timestamp: Date.now(),
+      ...payload,
+    });
+  };
+  const getRecentWrite = (el) => {
+    const last = writeState.get(el);
+    if (!last) return null;
+    if (Date.now() - last.timestamp > 2000) return null;
+    return last;
+  };
+  const logJson = (label, payload) => {
+    console.log(`[${label}] ${JSON.stringify(payload)}`);
+  };
+  const observeParentChain = () => {
+    const balanceCard = document.getElementById("balanceCard");
+    let node = balanceCard?.parentElement || null;
+    while (node) {
+      if (!observedParentNodes.has(node)) {
+        const parentObserver = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type !== "attributes") return;
+            const target = mutation.target;
+            const attrName = mutation.attributeName || null;
+            logJson("PARENT_LAYOUT_CHANGE", {
+              timestamp: nowTs(),
+              element: describeEl(target),
+              attribute: attrName,
+              oldValue: mutation.oldValue ?? null,
+              newValue: target.getAttribute(attrName),
+              cssText: target.style?.cssText || "",
+              className: target.className || "",
+            });
+          });
+        });
+        parentObserver.observe(node, {
+          attributes: true,
+          attributeOldValue: true,
+          attributeFilter: ["style", "class"],
+        });
+        observedParentNodes.add(node);
+      }
+      if (node === document.body) break;
+      node = node.parentElement;
+    }
+  };
+  const observeResizeTargets = () => {
+    if (!resizeObserver) {
+      resizeObserver = new ResizeObserver((entries) => {
+        entries.forEach((entry) => {
+          const target = entry.target;
+          const nextWidth = Math.round(entry.contentRect.width);
+          const nextHeight = Math.round(entry.contentRect.height);
+          const prev = resizeState.get(target) || {
+            width: null,
+            height: null,
+          };
+          const recentWrite = getRecentWrite(target);
+          logJson("RESIZE_TRACE", {
+            timestamp: nowTs(),
+            element: describeEl(target),
+            width: nextWidth,
+            height: nextHeight,
+            oldWidth: prev.width,
+            oldHeight: prev.height,
+            stack: recentWrite?.stack || null,
+            recentWriteProperty: recentWrite?.property || null,
+            recentWriteValue: recentWrite?.newValue || null,
+          });
+          resizeState.set(target, {
+            width: nextWidth,
+            height: nextHeight,
+          });
+        });
+      });
+    }
+    getTrackedNodes().forEach((node) => {
+      if (!node || node.nodeType !== 1) return;
+      try {
+        resizeObserver.observe(node);
+      } catch (e) {}
+    });
+  };
+  const emitVisualViewportTrace = (reason) => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const next = {
+      width: Math.round(vv.width || 0),
+      height: Math.round(vv.height || 0),
+      offsetTop: Math.round(vv.offsetTop || 0),
+      pageTop: Math.round(vv.pageTop || 0),
+      scale: Number(vv.scale || 0),
+    };
+    if (!visualViewportState) {
+      visualViewportState = next;
+      logJson("VISUAL_VIEWPORT_TRACE", {
+        timestamp: nowTs(),
+        reason,
+        ...next,
+      });
+      return;
+    }
+    const changed = Object.keys(next).some((key) => {
+      if (key === "scale") {
+        return Math.abs(next[key] - visualViewportState[key]) >= 0.01;
+      }
+      return Math.abs(next[key] - visualViewportState[key]) >= 1;
+    });
+    if (!changed) return;
+    logJson("VISUAL_VIEWPORT_TRACE", {
+      timestamp: nowTs(),
+      reason,
+      ...next,
+      oldWidth: visualViewportState.width,
+      oldHeight: visualViewportState.height,
+      oldOffsetTop: visualViewportState.offsetTop,
+      oldPageTop: visualViewportState.pageTop,
+      oldScale: visualViewportState.scale,
+    });
+    visualViewportState = next;
+  };
+  window.visualViewport?.addEventListener("resize", () =>
+    emitVisualViewportTrace("resize"),
+  );
+  window.visualViewport?.addEventListener("scroll", () =>
+    emitVisualViewportTrace("scroll"),
+  );
+  emitVisualViewportTrace("init");
+
+  if (!window.__homeLayoutRuntimeAuditPatched) {
+    window.__homeLayoutRuntimeAuditPatched = true;
+    const styleProto = CSSStyleDeclaration.prototype;
+    const originalSetProperty = styleProto.setProperty;
+    styleProto.setProperty = function (name, value, priority) {
+      const owner = findOwnerByStyle(this);
+      if (owner && stylePropsToTrace.has(String(name))) {
+        const stack = getStack();
+        recordWrite(owner, {
+          property: String(name),
+          oldValue: this.getPropertyValue(name),
+          newValue: value == null ? "" : String(value),
+          stack,
+        });
+        logJson("LAYOUT_STYLE_WRITE", {
+          timestamp: nowTs(),
+          element: describeEl(owner),
+          property: String(name),
+          oldValue: this.getPropertyValue(name),
+          newValue: value == null ? "" : String(value),
+          cssText: owner.style.cssText || "",
+          stack,
+        });
+      }
+      return originalSetProperty.call(this, name, value, priority);
+    };
+    [
+      "height",
+      "minHeight",
+      "maxHeight",
+      "display",
+      "transform",
+      "scale",
+      "flex",
+      "flexGrow",
+      "flexShrink",
+      "gridTemplateRows",
+      "padding",
+      "paddingTop",
+      "paddingRight",
+      "paddingBottom",
+      "paddingLeft",
+      "margin",
+      "marginTop",
+      "marginRight",
+      "marginBottom",
+      "marginLeft",
+    ].forEach((prop) => {
+      const desc = Object.getOwnPropertyDescriptor(styleProto, prop);
+      if (!desc?.set || !desc.get || desc.set.__homeLayoutAuditWrapped) return;
+      const originalSetter = desc.set;
+      const originalGetter = desc.get;
+      const wrappedSetter = function (value) {
+        const owner = findOwnerByStyle(this);
+        if (owner) {
+          const stack = getStack();
+          recordWrite(owner, {
+            property: prop,
+            oldValue: originalGetter.call(this),
+            newValue: value == null ? "" : String(value),
+            stack,
+          });
+          logJson("LAYOUT_STYLE_WRITE", {
+            timestamp: nowTs(),
+            element: describeEl(owner),
+            property: prop,
+            oldValue: originalGetter.call(this),
+            newValue: value == null ? "" : String(value),
+            cssText: owner.style.cssText || "",
+            stack,
+          });
+        }
+        return originalSetter.call(this, value);
+      };
+      wrappedSetter.__homeLayoutAuditWrapped = true;
+      Object.defineProperty(styleProto, prop, {
+        configurable: desc.configurable,
+        enumerable: desc.enumerable,
+        get: originalGetter,
+        set: wrappedSetter,
+      });
+    });
+  }
+
+  const scan = () => {
+    observeResizeTargets();
+    observeParentChain();
+  };
+  scan();
+  bodyObserver = new MutationObserver(scan);
+  bodyObserver.observe(document.body || document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+  window.__homeLayoutRuntimeAudit = {
+    getTrackedNodes,
+  };
+}
+
+if (document.body) {
+  installHomeLayoutRuntimeAudit();
+} else {
+  window.addEventListener("DOMContentLoaded", installHomeLayoutRuntimeAudit, {
+    once: true,
+  });
 }
 
 function describeTraceTarget(target) {
@@ -35289,6 +36568,18 @@ async function ensureTargetVisible(resolveTarget, options = {}) {
     if (!stepTraceLabel) return;
     console.log(`[SCROLL_CALL] ${JSON.stringify(payload)}`);
   };
+  const captureAncestorDetailsState = (el) => {
+    if (!el || !activeGuideInstance || activeGuideInstance.ancestorDetails) return;
+    const ancestorDetails = [];
+    let node = el.parentElement;
+    while (node) {
+      if (node.tagName === "DETAILS") {
+        ancestorDetails.push({ el: node, wasOpen: node.open });
+      }
+      node = node.parentElement;
+    }
+    activeGuideInstance.ancestorDetails = ancestorDetails;
+  };
   const captureScrollCall = async (meta, fn) => {
     const beforeScrollY = window.scrollY;
     const stack = new Error().stack || "";
@@ -35329,6 +36620,7 @@ async function ensureTargetVisible(resolveTarget, options = {}) {
   const target = await guideWaitFor(() => {
     const el = typeof resolveTarget === "function" ? resolveTarget() : resolveTarget;
     if (!el) return null;
+    captureAncestorDetailsState(el);
     expandGuideAncestors(el);
     return isGuideElementVisible(el) ? el : null;
   }, { timeout, interval: 60 });
@@ -35466,6 +36758,7 @@ async function ensureTargetVisible(resolveTarget, options = {}) {
   }
 
   for (let attempt = 0; attempt < 6; attempt++) {
+    captureAncestorDetailsState(target);
     expandGuideAncestors(target);
     const rect = target.getBoundingClientRect();
     const { topInset, bottomInset } = getGuideOcclusionInsets({
@@ -35500,12 +36793,22 @@ async function ensureTargetVisible(resolveTarget, options = {}) {
             functionName: debugFunctionName,
             line: 35181,
           },
-          () =>
+          () => {
             target.scrollIntoView({
               block: rect.height > 240 ? "start" : "center",
               inline: "nearest",
               behavior: "auto",
-            }),
+            });
+            requestAnimationFrame(() => {
+              const balanceCard = document.getElementById("balanceCard");
+              if (balanceCard) {
+                const allNodes = [balanceCard, ...balanceCard.querySelectorAll("*")];
+                for (const n of allNodes) {
+                  if (n.scrollTop !== 0) n.scrollTop = 0;
+                }
+              }
+            });
+          },
         );
       }
       await waitForGuideViewportStability(target);
@@ -37871,7 +39174,7 @@ getGuideTopics = function () {
 // Принцип: переключает вкладку → скроллит к элементу → подсвечивает outline
 // Нет CSS-анимаций на карточке (не ломают JS transform)
 // ════════════════════════════════════════════════════════════════
-function openInteractiveGuide(options = {}) {
+async function openInteractiveGuide(options = {}) {
   clearTimeout(guideResumeTimer);
   guideResumeTimer = null;
   if (isGuideInstanceOpen()) {
@@ -37904,6 +39207,9 @@ function openInteractiveGuide(options = {}) {
   let lastGuideGeometrySnapshot = null;
   let activeRunToken = 0;
   let suppressViewportReflowUntil = 0;
+  let balanceParentEffectsRestore = [];
+  let balanceCardBeforeStepOpen = null;
+  let balanceCardBeforeStyleSnapshot = null;
   let guideMode =
     runtimeState.active && runtimeState.mode === "complete"
       ? "complete"
@@ -37931,12 +39237,149 @@ function openInteractiveGuide(options = {}) {
     activeRunToken = 0;
     clearTimeout(guideResumeTimer);
     guideResumeTimer = null;
+    setSuspendHomeHeroLifecycle(false);
+    restoreBalanceParentEffects();
     flushGuideCleanupFns();
     removeHL();
     removeGuideTempTargets();
     activePlacement = null;
     activeStepTarget = null;
     lastGuideGeometrySnapshot = null;
+  }
+
+  function collectBalanceParentChain() {
+    const balanceCard = document.getElementById("balanceCard");
+    const chain = [];
+    let node = balanceCard?.parentElement || null;
+    while (node) {
+      chain.push(node);
+      if (node === document.body) break;
+      node = node.parentElement;
+    }
+    return chain;
+  }
+
+  function restoreBalanceParentEffects() {
+    if (!balanceParentEffectsRestore.length) return;
+    balanceParentEffectsRestore.forEach((entry) => {
+      entry.props.forEach((propEntry) => {
+        if (!propEntry.hadValue) {
+          entry.el.style.removeProperty(propEntry.name);
+          return;
+        }
+        entry.el.style.setProperty(
+          propEntry.name,
+          propEntry.value,
+          propEntry.priority,
+        );
+      });
+    });
+    balanceParentEffectsRestore = [];
+  }
+
+  function captureBalanceCardStyleSnapshot(el) {
+    if (!el) return null;
+    const cs = getComputedStyle(el);
+    const props = [
+      "display",
+      "position",
+      "top",
+      "left",
+      "width",
+      "height",
+      "minHeight",
+      "maxHeight",
+      "transform",
+      "scale",
+      "translate",
+      "rotate",
+      "transformOrigin",
+      "transformBox",
+      "overflow",
+      "overflowY",
+      "opacity",
+      "visibility",
+      "clip",
+      "clipPath",
+      "filter",
+      "backdropFilter",
+      "contain",
+      "contentVisibility",
+      "willChange",
+      "isolation",
+      "mixBlendMode",
+      "zIndex",
+      "fontSize",
+      "lineHeight",
+      "paddingTop",
+      "paddingBottom",
+      "marginTop",
+      "marginBottom",
+    ];
+    return props.reduce((acc, prop) => {
+      acc[prop] = cs[prop];
+      return acc;
+    }, {});
+  }
+
+  function neutralizeBalanceParentEffects() {
+    restoreBalanceParentEffects();
+    const chain = collectBalanceParentChain();
+    if (!chain.length) return;
+    const props = [
+      "transform",
+      "scale",
+      "filter",
+      "contain",
+      "will-change",
+      "perspective",
+    ];
+    const activeEffects = [];
+    balanceParentEffectsRestore = chain.map((el) => {
+      const cs = getComputedStyle(el);
+      const propState = props.map((name) => {
+        const value = el.style.getPropertyValue(name);
+        const priority = el.style.getPropertyPriority(name);
+        const computedValue = cs.getPropertyValue(name) || "";
+        if (
+          computedValue &&
+          computedValue !== "none" &&
+          computedValue !== "normal" &&
+          computedValue !== "auto"
+        ) {
+          activeEffects.push({
+            element:
+              `${el.tagName?.toLowerCase() || "node"}${el.id ? `#${el.id}` : ""}${
+                el.classList?.length ? "." + Array.from(el.classList).join(".") : ""
+              }`,
+            property: name,
+            computedValue,
+          });
+        }
+        return {
+          name,
+          value,
+          priority,
+          hadValue: value !== "",
+        };
+      });
+      el.style.setProperty("transform", "none", "important");
+      el.style.setProperty("filter", "none", "important");
+      el.style.setProperty("contain", "none", "important");
+      el.style.setProperty("will-change", "auto", "important");
+      el.style.setProperty("perspective", "none", "important");
+      el.style.setProperty("scale", "1", "important");
+      return {
+        el,
+        props: propState,
+      };
+    });
+    console.log(
+      `[GUIDE_BALANCE_PARENT_EFFECTS] ${JSON.stringify({
+        timestamp: new Date().toISOString(),
+        activeEffects,
+      })}`,
+    );
   }
 
   function captureGuideGeometrySnapshot() {
@@ -38103,6 +39546,8 @@ function openInteractiveGuide(options = {}) {
   card.id = "gCard";
   document.body.appendChild(card);
   activeGuideInstance = {
+    ancestorDetails: null,
+    savedTab: null,
     isAlive: () => !!card.isConnected,
     close: () => close(),
     resume: (resumeOptions = {}) => {
@@ -38131,11 +39576,31 @@ function openInteractiveGuide(options = {}) {
 
   // ── Close ─────────────────────────────────────────────────────
   function close() {
+    const guideState = activeGuideInstance;
+    if (guideState?.ancestorDetails) {
+      for (const { el, wasOpen } of guideState.ancestorDetails) {
+        el.open = wasOpen;
+      }
+      guideState.ancestorDetails = null;
+    }
+    if (guideState?.savedTab !== null && guideState?.savedTab !== undefined) {
+      setTab(guideState.savedTab);
+    }
     activeGuideInstance = null;
     clearGuideLifecycleState();
     guideMode = "topics";
     resetGuideRuntimeState();
     destroyGuideUi();
+    requestAnimationFrame(() => {
+      const balanceCard = document.getElementById("balanceCard");
+      if (balanceCard) {
+        balanceCard.style.removeProperty("overflow");
+        const allNodes = [balanceCard, ...balanceCard.querySelectorAll("*")];
+        for (const n of allNodes) {
+          if (n.scrollTop !== 0) n.scrollTop = 0;
+        }
+      }
+    });
   }
 
   // ── Highlight ─────────────────────────────────────────────────
@@ -38153,7 +39618,22 @@ function openInteractiveGuide(options = {}) {
     };
   }
 
+  function shouldDisableHighlightForCurrentStep() {
+    return false;
+  }
+
   function updateSpotlightGeometry(el) {
+    const _r = el?.getBoundingClientRect();
+    console.log("[SPOTLIGHT_UPDATE] stepId=" + (getActiveStep()?.id ?? "null") +
+      " elId=" + (el?.id ?? "none") +
+      " top=" + Math.round(_r?.top ?? -1) +
+      " height=" + Math.round(_r?.height ?? -1) +
+      " scrollY=" + window.scrollY +
+      " bcScrollTop=" + (document.getElementById("balanceCard")?.scrollTop ?? -1));
+    if (shouldDisableHighlightForCurrentStep()) {
+      document.getElementById("gSpotlightRoot")?.remove();
+      return;
+    }
     const nodes = ensureSpotlightNodes();
     if (!el || !isGuideElementVisible(el)) {
       nodes.root.classList.remove("g-visible");
@@ -38166,6 +39646,71 @@ function openInteractiveGuide(options = {}) {
     nodes.hole.style.height = `${Math.round(frame.height)}px`;
     nodes.hole.style.borderRadius = `${Math.round(frame.radius)}px`;
     nodes.root.classList.add("g-visible");
+  }
+
+  function getHomeLayoutSnapshot() {
+    const getRect = (el) => {
+      if (!el || !el.getBoundingClientRect) return null;
+      const rect = el.getBoundingClientRect();
+      return {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+        bottom: rect.bottom,
+        right: rect.right,
+      };
+    };
+    return {
+      balanceCard: getRect(document.getElementById("balanceCard")),
+      heroCardWrap: getRect(document.getElementById("heroCardWrap")),
+      mainContent: getRect(document.getElementById("mainContent")),
+      homeTab: getRect(document.getElementById("homeTab")),
+    };
+  }
+
+  let balanceLayoutAuditSession = null;
+  function emitHomeLayoutSnapshot(label, extra = {}) {
+    const snapshot = getHomeLayoutSnapshot();
+    console.log(
+      `[LAYOUT_TRACE] ${JSON.stringify({
+        timestamp: new Date().toISOString(),
+        topicId: topics[topicIdx]?.id || null,
+        stepId: topics[topicIdx]?.steps?.[stepIdx]?.id || null,
+        label,
+        ...extra,
+        snapshot,
+      })}`,
+    );
+    if (!balanceLayoutAuditSession || !snapshot.balanceCard) return;
+    balanceLayoutAuditSession.samples.push({
+      label,
+      height: snapshot.balanceCard.height,
+      width: snapshot.balanceCard.width,
+    });
+  }
+
+  function finalizeVisualOnlyAudit() {
+    if (!balanceLayoutAuditSession) return;
+    const heights = balanceLayoutAuditSession.samples
+      .map((sample) => sample.height)
+      .filter((value) => typeof value === "number");
+    if (!heights.length) return;
+    const minHeight = Math.min(...heights);
+    const maxHeight = Math.max(...heights);
+    if (Math.abs(maxHeight - minHeight) <= 1) {
+      console.log(
+        `[VISUAL_ONLY_CHANGE] ${JSON.stringify({
+          timestamp: new Date().toISOString(),
+          topicId: topics[topicIdx]?.id || null,
+          stepId: topics[topicIdx]?.steps?.[stepIdx]?.id || null,
+          message: "balanceCard rect.height remained stable across sampled snapshots.",
+          minHeight,
+          maxHeight,
+          samples: balanceLayoutAuditSession.samples,
+        })}`,
+      );
+    }
   }
 
   function emitHeroLayoutTrace(label) {
@@ -38407,6 +39952,11 @@ function openInteractiveGuide(options = {}) {
 
   function setHL(el) {
     if (!el) return;
+    if (shouldDisableHighlightForCurrentStep()) {
+      hlEl = null;
+      document.getElementById("gSpotlightRoot")?.remove();
+      return;
+    }
     hlEl = el;
     updateSpotlightGeometry(el);
   }
@@ -38559,10 +40109,22 @@ function openInteractiveGuide(options = {}) {
   }
 
   function measureCardSize() {
+    console.log("[MEASURE_CARD] offsetWidth=" + card.offsetWidth + 
+      " offsetHeight=" + card.offsetHeight +
+      " stepId=" + (getActiveStep()?.id ?? "null"));
     const viewport = getGuideViewportMetrics();
+    const w = card.offsetWidth;
+    const h = card.offsetHeight;
+    // если карточка ещё не имеет размера — подождать один frame и перемерить
+    if (!w || !h) {
+      return {
+        width: Math.min(340, viewport.width - 24),
+        height: Math.min(323, viewport.height - 24),
+      };
+    }
     return {
-      width: Math.min(card.offsetWidth || 340, viewport.width - 24),
-      height: Math.min(card.offsetHeight || 240, viewport.height - 24),
+      width: Math.min(w, viewport.width - 24),
+      height: Math.min(h, viewport.height - 24),
     };
   }
 
@@ -38577,6 +40139,12 @@ function openInteractiveGuide(options = {}) {
     card.style.right = "auto";
     card.style.bottom = "auto";
     card.classList.add("g-visible");
+    console.log("[APPLY_PLACEMENT] top=" + card.style.top + 
+      " left=" + card.style.left + 
+      " width=" + card.style.width +
+      " classes=" + card.className);
+    if (activeStepTarget) console.log("[BEFORE_SPOTLIGHT] cardTop=" + card.style.top + 
+      " scrollY=" + window.scrollY);
     if (activeStepTarget) updateSpotlightGeometry(activeStepTarget);
     lastGuideGeometrySnapshot = captureGuideGeometrySnapshot();
   }
@@ -38680,6 +40248,9 @@ function openInteractiveGuide(options = {}) {
           };
           const fallbackTimer = setTimeout(finish, 1400);
           try {
+            if (activeGuideInstance.savedTab === undefined || activeGuideInstance.savedTab === null) {
+              activeGuideInstance.savedTab = currentTab;
+            }
             setTab(step.nav, finish);
           } catch (e) {
             console.error("[GUIDE_SET_TAB_WAIT_FAILED]", {
@@ -38810,6 +40381,7 @@ function openInteractiveGuide(options = {}) {
       Date.now() + 260,
     );
     const scheduleReflow = (reason) => {
+      if (reason === "scroll" || reason === "visualViewport:scroll") return;
       console.log(
         `[SCHEDULE_REFLOW] ${JSON.stringify({
           topicId: topics[topicIdx]?.id || null,
@@ -38936,6 +40508,22 @@ function openInteractiveGuide(options = {}) {
   // ── Run a step ────────────────────────────────────────────────
   async function runStep(options = {}) {
     const preserveCardContent = !!options.preserveCardContent;
+    const __snapBefore = (() => {
+      const card = document.getElementById("balanceCard");
+      if (!card) return null;
+      const result = { scrollTop: card.scrollTop, children: [] };
+      for (const el of card.querySelectorAll("*")) {
+        const r = el.getBoundingClientRect();
+        result.children.push({
+          id: el.id || null,
+          cls: el.className?.toString?.().slice(0,40) || null,
+          scrollTop: el.scrollTop,
+          top: Math.round(r.top),
+          height: Math.round(r.height)
+        });
+      }
+      return JSON.stringify(result);
+    })();
     const emitBasicsStepTrace = (stepId, phase, extra = {}) => {
       const label =
         stepId === "history"
@@ -38969,6 +40557,12 @@ function openInteractiveGuide(options = {}) {
     flushGuideCleanupFns();
     removeHL();
     removeGuideTempTargets();
+    // для шагов welcome и starting_amount сбросить scroll страницы
+    // чтобы главная карточка была видна правильно
+    const _activeStep = getActiveStep();
+    if (_activeStep?.id === "welcome" || _activeStep?.id === "starting_amount") {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
     const topic = topics[topicIdx];
     const step = topic?.steps?.[stepIdx];
     if (topic?.id === "basics" && (step?.id === "history" || step?.id === "add_button")) {
@@ -38997,8 +40591,36 @@ function openInteractiveGuide(options = {}) {
     if (!topic || !step) {
       console.error("[GUIDE_STEP_INVALID_STATE]", { topicIdx, stepIdx });
       activeRunToken = 0;
+      setSuspendHomeHeroLifecycle(false);
       renderTopics();
       return;
+    }
+    setSuspendHomeHeroLifecycle(
+      topic?.id === "basics" && step?.id === "balance",
+    );
+    if (topic?.id === "basics" && step?.id === "balance") {
+      balanceCardBeforeStepOpen = document.getElementById("balanceCard");
+      if (
+        balanceCardBeforeStepOpen &&
+        !balanceCardBeforeStepOpen.dataset.__debugId
+      ) {
+        balanceCardBeforeStepOpen.dataset.__debugId = crypto.randomUUID();
+      }
+      balanceCardBeforeStyleSnapshot = captureBalanceCardStyleSnapshot(
+        balanceCardBeforeStepOpen,
+      );
+      neutralizeBalanceParentEffects();
+    } else {
+      restoreBalanceParentEffects();
+    }
+    if (topic?.id === "basics" && step?.id === "balance") {
+      balanceLayoutAuditSession = {
+        startedAt: Date.now(),
+        samples: [],
+      };
+      emitHomeLayoutSnapshot("before_step_open", {
+        preserveCardContent,
+      });
     }
     const showPreparingState =
       !preserveCardContent &&
@@ -39131,17 +40753,53 @@ function openInteractiveGuide(options = {}) {
         }
         return foundTarget;
       };
-      let targetState = await ensureTargetVisible(getStepTarget, {
-        topicId: topic?.id || null,
-        stepId: step?.id || null,
-        timeout: initialTimeout,
-        reserveBottom: 0,
-        margin: 12,
-        ignoreElements: [getStepTarget()],
-        onProgrammaticScroll: (extraMs = 0) => {
-          suppressViewportReflowUntil = Date.now() + 260 + Math.max(0, Number(extraMs) || 0);
-        },
-      });
+      let targetState =
+        topic?.id === "basics" && step?.id === "balance"
+          ? (() => {
+              const element = getStepTarget();
+              if (!element) return null;
+              const balanceCard = document.getElementById("balanceCard");
+              if (balanceCard) {
+                const allNodes = [balanceCard, ...balanceCard.querySelectorAll("*")];
+                for (const n of allNodes) {
+                  if (n.scrollTop !== 0) n.scrollTop = 0;
+                }
+              }
+              // getBoundingClientRect возвращает координаты относительно viewport.
+              // Если страница скроллена, нужно скорректировать rect так чтобы
+              // он отражал позицию элемента при scrollY=0.
+              const rawRect = element.getBoundingClientRect();
+              const correctedTop = rawRect.top + window.scrollY;
+              const correctedBottom = rawRect.bottom + window.scrollY;
+              const rect = {
+                top: correctedTop,
+                bottom: correctedBottom,
+                left: rawRect.left,
+                right: rawRect.right,
+                width: rawRect.width,
+                height: rawRect.height,
+              };
+              const desiredScrollY = Math.max(0, correctedTop - Math.round(window.innerHeight * 0.25));
+              if (Math.abs(window.scrollY - desiredScrollY) > 10) {
+                window.scrollTo({ top: desiredScrollY, behavior: "instant" });
+              }
+              const finalRect = element.getBoundingClientRect();
+              console.log("[BALANCE_BEFORE_RECT] scrollY=" + window.scrollY + 
+                " finalTop=" + Math.round(finalRect.top));
+              return { element, rect: finalRect };
+            })()
+          : await ensureTargetVisible(getStepTarget, {
+              topicId: topic?.id || null,
+              stepId: step?.id || null,
+              timeout: initialTimeout,
+              reserveBottom: 0,
+              margin: 12,
+              ignoreElements: [getStepTarget()],
+              onProgrammaticScroll: (extraMs = 0) => {
+                suppressViewportReflowUntil =
+                  Date.now() + 260 + Math.max(0, Number(extraMs) || 0);
+              },
+            });
       if (
         topic?.id === "basics" &&
         (step?.id === "history" || step?.id === "balance" || step?.id === "add_button")
@@ -39229,6 +40887,27 @@ function openInteractiveGuide(options = {}) {
         margin: 12,
         gap: 14,
       });
+      console.log("[BALANCE_PLACEMENT] " + JSON.stringify({
+        targetRect: {
+          top: Math.round(targetState.rect.top),
+          bottom: Math.round(targetState.rect.bottom),
+          left: Math.round(targetState.rect.left),
+          width: Math.round(targetState.rect.width),
+          height: Math.round(targetState.rect.height),
+        },
+        cardSize: {
+          width: Math.round(cardSize.width),
+          height: Math.round(cardSize.height),
+        },
+        placement: {
+          mode: placement.mode,
+          side: placement.side,
+          top: Math.round(placement.top ?? -1),
+          left: Math.round(placement.left ?? -1),
+          width: Math.round(placement.width ?? -1),
+          maxHeight: Math.round(placement.maxHeight ?? -1),
+        }
+      }));
       const skipSheetReposition =
         topic.id === "basics" && step.id === "history";
       if (topic.id === "basics" && step.id === "history") {
@@ -39425,10 +41104,56 @@ function openInteractiveGuide(options = {}) {
       }
       const beforePlacementScrollY = window.scrollY;
       applyCardPlacement(placement);
+      if (topic?.id === "basics" && step?.id === "balance") {
+        const before = balanceCardBeforeStepOpen;
+        const after = document.getElementById("balanceCard");
+        if (after && !after.dataset.__debugId) {
+          after.dataset.__debugId = crypto.randomUUID();
+        }
+        console.log(
+          "[BALANCE_DOM]",
+          JSON.stringify({
+            sameNode: before === after,
+            beforeConnected: before?.isConnected,
+            afterConnected: after?.isConnected,
+            beforeId: before ? before.dataset.__debugId ?? null : null,
+            afterId: after ? after.dataset.__debugId ?? null : null,
+          }),
+        );
+        const afterStyle = captureBalanceCardStyleSnapshot(after);
+        const beforeStyle = balanceCardBeforeStyleSnapshot;
+        const styleDiff = {};
+        if (beforeStyle && afterStyle) {
+          Object.keys(beforeStyle).forEach((prop) => {
+            if (beforeStyle[prop] !== afterStyle[prop]) {
+              styleDiff[prop] = {
+                before: beforeStyle[prop],
+                after: afterStyle[prop],
+              };
+            }
+          });
+        }
+        console.log(
+          "[STYLE_DIFF]",
+          Object.keys(styleDiff).length ? JSON.stringify(styleDiff) : "none",
+        );
+      }
       emitHeroLayoutTrace("[HERO_LAYOUT_AFTER]");
       emitHeroContentTrace("[HERO_CONTENT_TRACE]");
       emitBalanceCardChildrenTrace("[BALANCE_CARD_CHILDREN]");
       emitBalanceCardStyleTrace("[BALANCE_CARD_STYLE]");
+      if (topic?.id === "basics" && step?.id === "balance") {
+        emitHomeLayoutSnapshot("after_step_open", {
+          placementMode: placement?.mode || null,
+          placementSide: placement?.side || null,
+        });
+        [50, 100, 200, 400, 800].forEach((delay) => {
+          setTimeout(() => {
+            emitHomeLayoutSnapshot(`after_${delay}ms`);
+            if (delay === 800) finalizeVisualOnlyAudit();
+          }, delay);
+        });
+      }
       console.log(
         `[AFTER_PLACEMENT] ${JSON.stringify({
           topicId: topic?.id || null,
@@ -39537,6 +41262,47 @@ function openInteractiveGuide(options = {}) {
       }
       bindViewportReflow(step, token);
     } finally {
+      const __snapAfter = (() => {
+        const card = document.getElementById("balanceCard");
+        if (!card) return null;
+        const result = { scrollTop: card.scrollTop, children: [] };
+        for (const el of card.querySelectorAll("*")) {
+          const r = el.getBoundingClientRect();
+          result.children.push({
+            id: el.id || null,
+            cls: el.className?.toString?.().slice(0,40) || null,
+            scrollTop: el.scrollTop,
+            top: Math.round(r.top),
+            height: Math.round(r.height)
+          });
+        }
+        return JSON.stringify(result);
+      })();
+      if (__snapBefore && __snapAfter) {
+        const b = JSON.parse(__snapBefore);
+        const a = JSON.parse(__snapAfter);
+        const diffs = [];
+        if (b.scrollTop !== a.scrollTop) {
+          diffs.push({ el: "#balanceCard", scrollTop: { before: b.scrollTop, after: a.scrollTop } });
+        }
+        b.children.forEach((bc, i) => {
+          const ac = a.children[i];
+          if (!ac) return;
+          const d = {};
+          if (bc.scrollTop !== ac.scrollTop) d.scrollTop = { before: bc.scrollTop, after: ac.scrollTop };
+          if (bc.top !== ac.top) d.top = { before: bc.top, after: ac.top };
+          if (bc.height !== ac.height) d.height = { before: bc.height, after: ac.height };
+          if (Object.keys(d).length > 0) {
+            diffs.push({ id: bc.id, cls: bc.cls, ...d });
+          }
+        });
+        console.log("[STEP_DIFF] " + JSON.stringify({
+          stepId: step?.id ?? null,
+          topicId: topic?.id ?? null,
+          direction: options.direction ?? null,
+          diffs: diffs
+        }));
+      }
       console.log(
         `[RUNSTEP_EXIT] ${JSON.stringify({
           topicId: topic?.id || null,
@@ -39550,6 +41316,8 @@ function openInteractiveGuide(options = {}) {
   }
 
   function renderStepError(step, reason) {
+    console.log("[STEP_ERROR] reason=" + reason + 
+      " stepId=" + (getActiveStep()?.id ?? "null"));
     guideMode = "step";
     syncGuideState({ lastError: reason || "unknown" });
     const labels = {
@@ -39878,6 +41646,8 @@ function openInteractiveGuide(options = {}) {
     renderCompletion();
   } else if (topicIdx !== null) {
     renderCard();
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await new Promise(resolve => requestAnimationFrame(resolve));
     runStep({ preserveCardContent: true });
   } else {
     saveGuideRuntimeState({ active: true, mode: "topics", completed: false });
