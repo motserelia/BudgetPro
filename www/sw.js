@@ -1,12 +1,16 @@
 /* БюджетPRO — Service Worker v3.2 (Netlify edition) */
 
-const CACHE_NAME = "budgetpro-v3.8";
+const CACHE_NAME = "budgetpro-v3.10";
 
 const ASSETS = [
   "/",
   "/index.html",
   "/index.css",
   "/index.js",
+  "/voice/voice-core.js",
+  "/voice/voice-number-normalizer.js",
+  "/voice/voice-capture.js",
+  "/voice/voice-controller.js",
   "/chart.min.js",
   "/manifest.json",
   "/favicon-96x96.png",
@@ -51,9 +55,16 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET") return;
   if (url.protocol === "chrome-extension:") return;
-  const isAppShell = ["/", "/index.html", "/index.js", "/index.css"].includes(
-    url.pathname,
-  );
+  const isAppShell = [
+    "/",
+    "/index.html",
+    "/index.js",
+    "/index.css",
+    "/voice/voice-core.js",
+    "/voice/voice-number-normalizer.js",
+    "/voice/voice-capture.js",
+    "/voice/voice-controller.js",
+  ].includes(url.pathname);
 
   // Network‑first: Firebase, external APIs
   const isExternal = url.hostname !== location.hostname;

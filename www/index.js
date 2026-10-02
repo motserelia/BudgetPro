@@ -13663,6 +13663,126 @@ function ensureSettingsHomeStyles() {
       padding: 8px;
       border-radius: 12px;
     }
+    .voice-settings-stack {
+      display: grid;
+      gap: 12px;
+    }
+    .voice-settings-card {
+      padding: 18px;
+    }
+    .voice-settings-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .voice-settings-status-copy {
+      min-width: 0;
+    }
+    .voice-settings-status-title {
+      color: var(--text);
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1.3;
+    }
+    .voice-settings-status-note {
+      color: var(--text-soft);
+      font-size: 12px;
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+    .voice-settings-mic {
+      width: 66px;
+      height: 66px;
+      flex: 0 0 66px;
+      border: 1.5px solid var(--settings-border);
+      border-radius: 22px;
+      background: color-mix(in srgb, var(--primary-pale) 76%, var(--settings-surface-strong));
+      color: var(--text);
+      font: inherit;
+      font-size: 30px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+    }
+    .voice-settings-mic.listening {
+      border-color: var(--primary);
+    }
+    .voice-settings-meter {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      border: 1px solid var(--settings-border);
+      background: var(--settings-surface-soft);
+    }
+    .voice-settings-meter-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), #72d7ff);
+      transform-origin: left center;
+      transition: width 90ms linear;
+    }
+    .voice-settings-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .voice-settings-field {
+      display: grid;
+      gap: 7px;
+    }
+    .voice-settings-label {
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .voice-settings-select,
+    .voice-settings-draft {
+      width: 100%;
+      border: 1.5px solid var(--settings-border);
+      border-radius: 14px;
+      background: var(--settings-surface-strong);
+      color: var(--text);
+      font: inherit;
+      padding: 11px 12px;
+    }
+    .voice-settings-draft {
+      min-height: 116px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+    .voice-settings-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .voice-settings-actions button {
+      flex: 1 1 120px;
+    }
+    .voice-model-progress {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    .voice-diagnostics-details summary {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .voice-diagnostics-report {
+      margin: 12px 0 0;
+      padding: 12px;
+      border: 1px solid var(--settings-border);
+      border-radius: 12px;
+      background: var(--settings-surface-soft);
+      color: var(--text-soft);
+      white-space: pre-wrap;
+      word-break: break-word;
+      font: 11px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
     @media (max-width: 640px) {
       .settings-home-grid {
         grid-template-columns: 1fr;
@@ -13716,6 +13836,9 @@ function ensureSettingsHomeStyles() {
       .appearance-swatches,
       .appearance-chip-grid,
       .appearance-font-grid {
+        grid-template-columns: 1fr;
+      }
+      .voice-settings-grid {
         grid-template-columns: 1fr;
       }
       .appearance-card-head,
@@ -13851,93 +13974,829 @@ function ensureSettingsCanvasRuntime() {
   return settingsCanvasRuntime;
 }
 
-function drawSettingsRibbon(ctx, w, h, spec) {
-  const driftA = spec.t * spec.drift + spec.phase;
-  const driftB = spec.t * (spec.drift * 0.9) + spec.phase * 1.3;
-  const driftC = spec.t * (spec.drift * 1.1) + spec.phase * 0.7;
-  const cp1x = w * (0.24 + 0.08 * Math.sin(driftA));
-  const cp2x = w * (0.76 + 0.08 * Math.cos(driftB));
-  const y1 = spec.yBase + spec.amplitude * Math.sin(driftA);
-  const y2 = spec.yBase + spec.amplitude * 0.7 * Math.cos(spec.t * (spec.drift * 0.82) + spec.phase * 1.4);
-  const y3 = spec.yBase + spec.amplitude * Math.sin(driftC);
-  const bendA = 25 + 15 * (0.5 + 0.5 * Math.sin(spec.t * (spec.drift * 1.83) + spec.phase * 0.8));
-  const bendB = 25 + 15 * (0.5 + 0.5 * Math.cos(spec.t * (spec.drift * 1.59) + spec.phase * 1.1));
-  const thicknessWave = 0.92 + 0.14 * Math.sin(spec.t * (spec.drift * 0.42) + spec.phase * 1.7);
-  const breath = 0.20 + 0.80 * (0.5 + 0.5 * Math.sin(spec.t * (spec.drift * 1.08) + spec.phase * 2.1));
-  const microA = 0.50 + 0.50 * (0.5 + 0.5 * Math.sin(spec.t * (spec.drift * 2.19) + spec.phase * 3.2));
-  const microB = 0.50 + 0.50 * (0.5 + 0.5 * Math.cos(spec.t * (spec.drift * 2.01) + spec.phase * 2.4));
-  const baseWidth = spec.width * thicknessWave * 3;
-  const pulseAlpha = spec.alpha * breath;
+const DEBUG_VIEW = 4;
+const TIME_SCALE = 5.0;
 
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.strokeStyle = `rgba(${spec.color},${spec.glowAlpha * breath})`;
-  ctx.lineWidth = baseWidth * 1.75;
-  ctx.beginPath();
-  ctx.moveTo(-w * 0.08, y1 + bendA * 0.4);
-  ctx.bezierCurveTo(cp1x, y2 - bendA, cp2x, y3 + bendB, w * 1.08, y2 - bendB * 0.4);
-  ctx.stroke();
+const SETTINGS_CAUSTIC_LUT_STOPS = {
+  dark: [
+    [0, 0, 0, 0, 0],
+    [0.08, 176, 205, 255, 0.03],
+    [0.18, 188, 220, 255, 0.06],
+    [0.32, 205, 234, 255, 0.11],
+    [0.5, 226, 245, 255, 0.18],
+    [0.68, 242, 251, 255, 0.32],
+    [0.82, 250, 254, 255, 0.58],
+    [0.92, 255, 255, 255, 0.82],
+    [1, 255, 255, 255, 1],
+  ],
+  light: [
+    [0, 0, 0, 0, 0],
+    [0.08, 255, 255, 255, 0.02],
+    [0.18, 248, 251, 255, 0.05],
+    [0.35, 245, 249, 255, 0.1],
+    [0.52, 250, 252, 255, 0.18],
+    [0.7, 255, 255, 255, 0.3],
+    [0.86, 255, 255, 255, 0.55],
+    [1, 255, 255, 255, 0.85],
+  ],
+};
 
-  ctx.strokeStyle = `rgba(${spec.color},${pulseAlpha})`;
-  ctx.lineWidth = baseWidth;
-  ctx.beginPath();
-  ctx.moveTo(-w * 0.08, y1 + bendA * 0.4);
-  ctx.bezierCurveTo(cp1x, y2 - bendA, cp2x, y3 + bendB, w * 1.08, y2 - bendB * 0.4);
-  ctx.stroke();
+const settingsCausticLuts = {};
+const SETTINGS_CAUSTIC_SCATTER_THRESHOLD = 0.88;
+const SETTINGS_CAUSTIC_SCATTER_RADIUS = 2;
+const SETTINGS_CAUSTIC_SCATTER_ENERGY = 0.06;
 
-  const microGradA = ctx.createLinearGradient(w * 0.12, 0, w * 0.48, 0);
-  microGradA.addColorStop(0, `rgba(255,255,255,0)`);
-  microGradA.addColorStop(0.45, `rgba(255,255,255,${microA})`);
-  microGradA.addColorStop(1, `rgba(255,255,255,0)`);
-  ctx.strokeStyle = microGradA;
-  ctx.lineWidth = baseWidth * 0.82;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.10, y1 + bendA * 0.18);
-  ctx.bezierCurveTo(
-    w * 0.20,
-    y2 - bendA * 0.45,
-    w * 0.34,
-    y3 + bendB * 0.42,
-    w * 0.50,
-    y2 - bendB * 0.12,
-  );
-  ctx.stroke();
-
-  const microGradB = ctx.createLinearGradient(w * 0.54, 0, w * 0.90, 0);
-  microGradB.addColorStop(0, `rgba(255,255,255,0)`);
-  microGradB.addColorStop(0.55, `rgba(255,255,255,${microB})`);
-  microGradB.addColorStop(1, `rgba(255,255,255,0)`);
-  ctx.strokeStyle = microGradB;
-  ctx.lineWidth = baseWidth * 0.74;
-  ctx.beginPath();
-  ctx.moveTo(w * 0.50, y2 - bendA * 0.08);
-  ctx.bezierCurveTo(
-    w * 0.63,
-    y3 + bendB * 0.28,
-    w * 0.77,
-    y2 - bendA * 0.36,
-    w * 0.92,
-    y2 - bendB * 0.22,
-  );
-  ctx.stroke();
-
-  if (spec.thin) {
-    ctx.strokeStyle = `rgba(255,255,255,${pulseAlpha * 0.8})`;
-    ctx.lineWidth = Math.max(1, baseWidth * 0.22);
-    ctx.beginPath();
-    ctx.moveTo(-w * 0.08, y1 - baseWidth * 0.04 + bendA * 0.25);
-    ctx.bezierCurveTo(
-      cp1x,
-      y2 - bendA,
-      cp2x,
-      y3 + bendB,
-      w * 1.08,
-      y2 - baseWidth * 0.03 - bendB * 0.2,
-    );
-    ctx.stroke();
+function getSettingsCausticLut(mode) {
+  if (settingsCausticLuts[mode]) return settingsCausticLuts[mode];
+  const stops = SETTINGS_CAUSTIC_LUT_STOPS[mode];
+  const lut = new Uint8ClampedArray(256 * 4);
+  let stopIndex = 0;
+  for (let i = 0; i < 256; i++) {
+    const intensity = i / 255;
+    while (
+      stopIndex < stops.length - 2 &&
+      intensity > stops[stopIndex + 1][0]
+    ) {
+      stopIndex += 1;
+    }
+    const from = stops[stopIndex];
+    const to = stops[stopIndex + 1];
+    const span = Math.max(0.000001, to[0] - from[0]);
+    const mix = Math.max(0, Math.min(1, (intensity - from[0]) / span));
+    const offset = i * 4;
+    lut[offset] = Math.round(from[1] + (to[1] - from[1]) * mix);
+    lut[offset + 1] = Math.round(from[2] + (to[2] - from[2]) * mix);
+    lut[offset + 2] = Math.round(from[3] + (to[3] - from[3]) * mix);
+    lut[offset + 3] = Math.round((from[4] + (to[4] - from[4]) * mix) * 255);
   }
-  ctx.restore();
+  settingsCausticLuts[mode] = lut;
+  return lut;
+}
+
+function redistributeSettingsCausticEnergy(
+  light,
+  directLight,
+  histogram,
+  percentiles,
+) {
+  histogram.fill(0);
+  let activePixels = 0;
+  for (let index = 0; index < directLight.length; index++) {
+    const intensity = directLight[index];
+    if (!intensity) continue;
+    histogram[intensity] += 1;
+    activePixels += 1;
+  }
+  if (!activePixels) return;
+
+  let cumulative = 0;
+  for (let intensity = 1; intensity < histogram.length; intensity++) {
+    const count = histogram[intensity];
+    percentiles[intensity] = (cumulative + count * 0.5) / activePixels;
+    cumulative += count;
+  }
+
+  const smoothstep = (from, to, value) => {
+    const t = Math.max(0, Math.min(1, (value - from) / (to - from)));
+    return t * t * (3 - 2 * t);
+  };
+  let removedEnergy = 0;
+  for (let index = 0; index < directLight.length; index++) {
+    const percentile = percentiles[directLight[index]];
+    const weakRange = smoothstep(0, 0.7, percentile);
+    const readableRange = smoothstep(0.7, 0.9, percentile);
+    const factor = 0.58 + 0.18 * weakRange + 0.24 * readableRange;
+    const offset = index * 3;
+    for (let channel = 0; channel < 3; channel++) {
+      const original = light[offset + channel];
+      const redistributed = original * factor;
+      light[offset + channel] = redistributed;
+      removedEnergy += original - redistributed;
+    }
+  }
+
+  let receivingCapacity = 0;
+  for (let index = 0; index < directLight.length; index++) {
+    const percentile = percentiles[directLight[index]];
+    const readableWeight = smoothstep(0.68, 0.9, percentile);
+    const peakWeight = smoothstep(0.9, 1, percentile);
+    const concentrationWeight = 0.22 * readableWeight + 0.78 * peakWeight;
+    if (!concentrationWeight) continue;
+
+    const offset = index * 3;
+    const red = light[offset];
+    const green = light[offset + 1];
+    const blue = light[offset + 2];
+    const energy = red + green + blue;
+    if (!energy) continue;
+    const maxGain = Math.max(
+      0,
+      Math.min(255 / red, 255 / green, 255 / blue) - 1,
+    );
+    receivingCapacity += energy * maxGain * concentrationWeight;
+  }
+
+  if (!receivingCapacity || !removedEnergy) return;
+  const allocation = Math.min(1, removedEnergy / receivingCapacity);
+  for (let index = 0; index < directLight.length; index++) {
+    const percentile = percentiles[directLight[index]];
+    const readableWeight = smoothstep(0.68, 0.9, percentile);
+    const peakWeight = smoothstep(0.9, 1, percentile);
+    const concentrationWeight = 0.22 * readableWeight + 0.78 * peakWeight;
+    if (!concentrationWeight) continue;
+
+    const offset = index * 3;
+    const red = light[offset];
+    const green = light[offset + 1];
+    const blue = light[offset + 2];
+    if (!red || !green || !blue) continue;
+    const maxGain = Math.max(
+      0,
+      Math.min(255 / red, 255 / green, 255 / blue) - 1,
+    );
+    const gain = 1 + maxGain * concentrationWeight * allocation;
+    light[offset] *= gain;
+    light[offset + 1] *= gain;
+    light[offset + 2] *= gain;
+  }
+}
+
+const SETTINGS_CAUSTIC_PROFILE_TAPS = new Int8Array([
+  0, 0, 0,
+  -1, 0, 1,
+  1, 0, 1,
+  0, -1, 1,
+  0, 1, 1,
+  -1, -1, 2,
+  1, -1, 2,
+  -1, 1, 2,
+  1, 1, 2,
+  -2, 0, 4,
+  2, 0, 4,
+  0, -2, 4,
+  0, 2, 4,
+]);
+
+function renderSettingsCausticProfiles(
+  sourceLight,
+  directLight,
+  profiledLight,
+  percentiles,
+  profileSpread,
+  profileNearKernelNorm,
+  profileKernelNorm,
+  profileKernelWeights,
+  width,
+  height,
+) {
+  const smoothstep = (from, to, value) => {
+    const t = Math.max(0, Math.min(1, (value - from) / (to - from)));
+    return t * t * (3 - 2 * t);
+  };
+  for (let intensity = 0; intensity < 256; intensity++) {
+    const localEnergy = smoothstep(0.7, 1, percentiles[intensity]);
+    const sigma = 0.45 + 1.75 * localEnergy;
+    const sigmaSquared = sigma * sigma;
+    profileSpread[intensity] = 0.12 + 0.38 * localEnergy;
+    let nearKernelNorm = 0;
+    let kernelNorm = 0;
+    for (
+      let tapIndex = 0;
+      tapIndex < SETTINGS_CAUSTIC_PROFILE_TAPS.length;
+      tapIndex += 3
+    ) {
+      const distanceSquared = SETTINGS_CAUSTIC_PROFILE_TAPS[tapIndex + 2];
+      const falloff = 1 + distanceSquared / (2 * sigmaSquared);
+      const weight = 1 / (falloff * falloff);
+      profileKernelWeights[intensity * 13 + tapIndex / 3] = weight;
+      if (tapIndex < 15) nearKernelNorm += weight;
+      kernelNorm += weight;
+    }
+    profileNearKernelNorm[intensity] = nearKernelNorm;
+    profileKernelNorm[intensity] = kernelNorm;
+  }
+
+  profiledLight.set(sourceLight);
+  for (let py = 0; py < height; py++) {
+    for (let px = 0; px < width; px++) {
+      const index = py * width + px;
+      const intensity = directLight[index];
+      if (percentiles[intensity] <= 0.7) continue;
+      const sourceOffset = index * 3;
+      const sourceRed = sourceLight[sourceOffset];
+      const sourceGreen = sourceLight[sourceOffset + 1];
+      const sourceBlue = sourceLight[sourceOffset + 2];
+      const spreadFraction = profileSpread[intensity];
+      const redEnergy = sourceRed * spreadFraction;
+      const greenEnergy = sourceGreen * spreadFraction;
+      const blueEnergy = sourceBlue * spreadFraction;
+      profiledLight[sourceOffset] -= redEnergy;
+      profiledLight[sourceOffset + 1] -= greenEnergy;
+      profiledLight[sourceOffset + 2] -= blueEnergy;
+
+      const tapLimit = percentiles[intensity] < 0.9 ? 15 : 39;
+      let kernelNorm =
+        tapLimit === 15
+          ? profileNearKernelNorm[intensity]
+          : profileKernelNorm[intensity];
+      const touchesEdge =
+        px < 2 || px >= width - 2 || py < 2 || py >= height - 2;
+      if (touchesEdge) {
+        kernelNorm = 0;
+        for (
+          let tapIndex = 0;
+          tapIndex < tapLimit;
+          tapIndex += 3
+        ) {
+          const nx = px + SETTINGS_CAUSTIC_PROFILE_TAPS[tapIndex];
+          const ny = py + SETTINGS_CAUSTIC_PROFILE_TAPS[tapIndex + 1];
+          if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+          kernelNorm +=
+            profileKernelWeights[intensity * 13 + tapIndex / 3];
+        }
+      }
+
+      for (
+        let tapIndex = 0;
+        tapIndex < tapLimit;
+        tapIndex += 3
+      ) {
+        const dx = SETTINGS_CAUSTIC_PROFILE_TAPS[tapIndex];
+        const dy = SETTINGS_CAUSTIC_PROFILE_TAPS[tapIndex + 1];
+        const nx = px + dx;
+        const ny = py + dy;
+        if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+        const weight =
+          profileKernelWeights[intensity * 13 + tapIndex / 3] / kernelNorm;
+        const targetOffset = (ny * width + nx) * 3;
+        profiledLight[targetOffset] += redEnergy * weight;
+        profiledLight[targetOffset + 1] += greenEnergy * weight;
+        profiledLight[targetOffset + 2] += blueEnergy * weight;
+      }
+    }
+  }
+}
+
+function reseedSettingsField(field, w, h, time, palette) {
+  field.cx = w * 0.5;
+  field.cy = h * 0.5;
+  field.rx = w * 0.58;
+  field.ry = h * 0.44;
+  field.alpha = 0.18 + Math.random() * 0.20;
+  field.phase = Math.random() * Math.PI * 2;
+  field.flow = 0.00004 + Math.random() * 0.00005;
+  field.life = 18000 + Math.random() * 17000;
+  field.rest = 1200 + Math.random() * 2600;
+  field.fadeIn = field.life * (0.18 + Math.random() * 0.14);
+  field.fadeOut = field.life * (0.18 + Math.random() * 0.14);
+  field.steady = Math.max(2000, field.life - field.fadeIn - field.fadeOut);
+  field.cycle = field.life + field.rest;
+  field.spawnAt = time - Math.random() * field.cycle;
+  field.color = palette[(Math.random() * palette.length) | 0];
+  const surfaceScale = Math.sqrt(Math.max(1, w * h));
+  const causticStrength = 2.4;
+  const baseAngles = [0.17, 1.31, 2.58, 3.44, 4.92, 5.71, 0.82, 4.05];
+  const waveBands = [
+    { min: 1.05, max: 1.35, curveMin: 0.00045, curveMax: 0.00075, speedMin: 0.12, speedMax: 0.20 },
+    { min: 0.62, max: 0.82, curveMin: 0.00065, curveMax: 0.0010, speedMin: 0.18, speedMax: 0.29 },
+    { min: 0.50, max: 0.68, curveMin: 0.0007, curveMax: 0.0011, speedMin: 0.20, speedMax: 0.32 },
+    { min: 0.40, max: 0.56, curveMin: 0.0008, curveMax: 0.0012, speedMin: 0.22, speedMax: 0.35 },
+    { min: 0.32, max: 0.46, curveMin: 0.0008, curveMax: 0.0013, speedMin: 0.24, speedMax: 0.38 },
+    { min: 0.20, max: 0.28, curveMin: 0.00075, curveMax: 0.0012, speedMin: 0.28, speedMax: 0.43 },
+    { min: 0.14, max: 0.21, curveMin: 0.00055, curveMax: 0.0009, speedMin: 0.31, speedMax: 0.48 },
+    { min: 0.27, max: 0.37, curveMin: 0.00055, curveMax: 0.00085, speedMin: 0.26, speedMax: 0.40 },
+  ];
+  let waveSeed = 9;
+  const waveRandom = () => {
+    waveSeed = (waveSeed * 1664525 + 1013904223) >>> 0;
+    return waveSeed / 4294967296;
+  };
+  field.waves = waveBands.map((band, i) => {
+    const angle = baseAngles[i] + (waveRandom() - 0.5) * 0.7;
+    const wavelength =
+      surfaceScale * (band.min + waveRandom() * (band.max - band.min));
+    const k = (Math.PI * 2) / Math.max(1, wavelength);
+    const curvature =
+      band.curveMin + waveRandom() * (band.curveMax - band.curveMin);
+    return {
+      ax: Math.cos(angle),
+      ay: Math.sin(angle),
+      amp: curvature * causticStrength / (k * k),
+      k,
+      speed: (band.speedMin + band.speedMax) * 0.5,
+      phase: waveRandom() * Math.PI * 2,
+    };
+  });
+}
+
+function ensureSettingsFieldPool(hostFn, w, h, count, palette, time) {
+  const pool = hostFn._fields;
+  const sizeChanged =
+    !pool ||
+    pool.length !== count ||
+    Math.abs((hostFn._fieldW || 0) - w) > 24 ||
+    Math.abs((hostFn._fieldH || 0) - h) > 24;
+  if (sizeChanged) {
+    hostFn._fields = Array.from({ length: count }, () => ({}));
+    hostFn._fieldW = w;
+    hostFn._fieldH = h;
+    hostFn._fields.forEach((field) =>
+      reseedSettingsField(field, w, h, time, palette),
+    );
+  }
+  return hostFn._fields;
+}
+
+function drawSettingsRefractionField(ctx, field, time) {
+  const age = time - field.spawnAt;
+  const usesContinuousTime = DEBUG_VIEW === 4;
+  const evolutionTime = usesContinuousTime ? time * TIME_SCALE : time;
+  if (!usesContinuousTime) {
+    if (age > field.cycle) return false;
+    if (age > field.life) return true;
+  }
+
+  let lifeAlpha = 1;
+  if (!usesContinuousTime) {
+    if (age < field.fadeIn) {
+      const p = age / Math.max(1, field.fadeIn);
+      lifeAlpha = p * p * (3 - 2 * p);
+    } else if (age > field.fadeIn + field.steady) {
+      const p = (age - field.fadeIn - field.steady) / Math.max(1, field.fadeOut);
+      const smooth = p * p * (3 - 2 * p);
+      lifeAlpha = 1 - smooth;
+    }
+  }
+
+  const alphaBase =
+    field.alpha *
+    lifeAlpha *
+    (0.96 + 0.04 * Math.sin(field.phase * 1.2 + evolutionTime * 0.00006));
+  const cols = DEBUG_VIEW === 3 ? 96 : 26;
+  const rows = DEBUG_VIEW === 3 ? 54 : 16;
+  const stepX = field.rx * 2 / cols;
+  const stepY = field.ry * 2 / rows;
+  const sqrt2 = Math.SQRT2;
+  const sqrt3 = Math.sqrt(3);
+  const goldenRatio = (1 + Math.sqrt(5)) / 2;
+  const surfaceAmplitudePhase =
+    evolutionTime * (0.0001 / goldenRatio) + field.phase / sqrt2;
+  const surfaceWavelengthPhase =
+    evolutionTime * (0.0001 / sqrt3) + field.phase / goldenRatio;
+  const surfaceBreath = usesContinuousTime
+    ? 1 + 0.24 * Math.sin(surfaceAmplitudePhase)
+    : 1;
+  const surfaceWavelength = usesContinuousTime
+    ? 1 + 0.14 * Math.cos(surfaceWavelengthPhase)
+    : 1;
+  const evolvedWaves = usesContinuousTime
+    ? field.waves.map((wave, index) => {
+        const temporalRatio =
+          1.32 * Math.sqrt((index + 2) / (index + 10));
+        const driftRate =
+          (0.000022 + index * 0.0000017) * temporalRatio;
+        const wavelengthDriftRate =
+          (0.00014 + index * 0.000006) * temporalRatio;
+        const amplitudeDriftRate =
+          (0.00032 + index * 0.000013) * temporalRatio;
+        const phaseDriftRate =
+          (0.00018 + index * 0.000007) * temporalRatio;
+        const directionDrift =
+          evolutionTime *
+          (0.000013 + index * 0.0000005) *
+          temporalRatio *
+          (index % 2 === 0 ? 1 : -1);
+        const directionOffset =
+          directionDrift +
+          0.14 *
+            Math.sin(evolutionTime * driftRate + wave.phase * 1.37) +
+          0.13 *
+            Math.cos(
+              evolutionTime * driftRate / sqrt2 +
+                wave.phase / goldenRatio +
+                index * sqrt3,
+            );
+        const directionCos = Math.cos(directionOffset);
+        const directionSin = Math.sin(directionOffset);
+        const wavelengthScale =
+          1 +
+          0.1 *
+            Math.sin(
+              evolutionTime * wavelengthDriftRate +
+                wave.phase * 0.91 +
+                index,
+            ) +
+          0.1 *
+            Math.cos(
+              evolutionTime * wavelengthDriftRate / goldenRatio +
+                wave.phase * sqrt2 +
+                index / sqrt3,
+            );
+        const amplitudeScale =
+          1 +
+          0.23 *
+            Math.sin(
+              evolutionTime * amplitudeDriftRate +
+                wave.phase * 1.71 +
+                index * 0.4,
+            ) +
+          0.22 *
+            Math.cos(
+              evolutionTime * amplitudeDriftRate / sqrt3 +
+                wave.phase / sqrt2 +
+                index * goldenRatio,
+            );
+        const phaseOffset =
+          evolutionTime *
+            (0.00022 + index * 0.000009) *
+            temporalRatio *
+            (index % 2 === 0 ? 1 : -1) +
+          0.48 *
+            Math.sin(
+              evolutionTime * phaseDriftRate +
+                wave.phase * 0.67 +
+                index * 0.9,
+            ) +
+          0.46 *
+            Math.cos(
+              evolutionTime * phaseDriftRate * (sqrt2 / sqrt3) +
+                wave.phase * goldenRatio +
+                index / sqrt2,
+            );
+        const k = wave.k / (wavelengthScale * surfaceWavelength);
+        return {
+          amp: wave.amp * amplitudeScale * surfaceBreath,
+          kx: k * (wave.ax * directionCos - wave.ay * directionSin),
+          ky: k * (wave.ax * directionSin + wave.ay * directionCos),
+          phase:
+            evolutionTime * field.flow * wave.speed + wave.phase + phaseOffset,
+        };
+      })
+    : null;
+  const surfaceAt = (lx, ly) => {
+    let hx = 0;
+    let hy = 0;
+    let hxx = 0;
+    let hyy = 0;
+    let hxy = 0;
+    field.waves.forEach((wave, index) => {
+      const evolvedWave = evolvedWaves?.[index];
+      const amp = evolvedWave?.amp ?? wave.amp;
+      const kx = evolvedWave?.kx ?? wave.k * wave.ax;
+      const ky = evolvedWave?.ky ?? wave.k * wave.ay;
+      const phase = evolvedWave
+        ? lx * kx + ly * ky + evolvedWave.phase
+        : lx * kx +
+          ly * ky +
+          time * field.flow * wave.speed +
+          wave.phase;
+      const s = Math.sin(phase);
+      const c = Math.cos(phase);
+      hx += amp * kx * c;
+      hy += amp * ky * c;
+      hxx += -amp * kx * kx * s;
+      hyy += -amp * ky * ky * s;
+      hxy += -amp * kx * ky * s;
+    });
+    return { hx, hy, hxx, hyy, hxy };
+  };
+
+  if (DEBUG_VIEW !== 0) {
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  const concentrationSamples = DEBUG_VIEW === 3 ? [] : null;
+  let debugRaster = null;
+  if (DEBUG_VIEW !== 0) {
+    const width = ctx.canvas.width;
+    const height = ctx.canvas.height;
+    debugRaster = drawSettingsRefractionField._debugRaster;
+    if (
+      !debugRaster ||
+      debugRaster.width !== width ||
+      debugRaster.height !== height ||
+      debugRaster.cols !== cols ||
+      debugRaster.rows !== rows
+    ) {
+      debugRaster = {
+        width,
+        height,
+        cols,
+        rows,
+        grid: new Float32Array(cols * rows),
+        directLight: new Uint8ClampedArray(width * height),
+        mappedLight: new Float32Array(width * height * 3),
+        profiledLight: new Float32Array(width * height * 3),
+        profileSpread: new Float32Array(256),
+        profileNearKernelNorm: new Float32Array(256),
+        profileKernelNorm: new Float32Array(256),
+        profileKernelWeights: new Float32Array(256 * 13),
+        scatteredLight: new Float32Array(width * height * 3),
+        energyHistogram: new Uint32Array(256),
+        energyPercentiles: new Float32Array(256),
+        imageData: ctx.createImageData(width, height),
+      };
+      drawSettingsRefractionField._debugRaster = debugRaster;
+    }
+    debugRaster.grid.fill(DEBUG_VIEW === 3 || DEBUG_VIEW === 4 ? 1 : 0);
+  }
+  const waterRefractiveIndex = 1.333;
+  const opticalDepth = Math.max(field.rx * 2, field.ry * 2) * 0.9;
+  const refractScale = opticalDepth * (1 - 1 / waterRefractiveIndex);
+  const finiteSourceRadius = 0.08;
+  const unfocusedIrradiance =
+    1 / Math.sqrt(1 + finiteSourceRadius * finiteSourceRadius);
+  const incidentIrradiance = 0.09;
+
+  for (let yi = 0; yi < rows; yi++) {
+    for (let xi = 0; xi < cols; xi++) {
+      const lx = -field.rx + xi * stepX;
+      const ly = -field.ry + yi * stepY;
+      const nx = lx / Math.max(1, field.rx);
+      const ny = ly / Math.max(1, field.ry);
+      const envelope = Math.max(0, 1 - nx * nx - ny * ny);
+      if (envelope <= 0) continue;
+
+      const { hx, hy, hxx, hyy, hxy } = surfaceAt(lx, ly);
+      const det =
+        (1 + refractScale * hxx) * (1 + refractScale * hyy) -
+        (refractScale * hxy) * (refractScale * hxy);
+      const focus =
+        1 / Math.sqrt(det * det + finiteSourceRadius * finiteSourceRadius);
+      const slope = Math.hypot(hx, hy);
+      const concentration = Math.max(0, focus - unfocusedIrradiance);
+      const intensity = envelope * concentration * incidentIrradiance;
+      if (concentrationSamples) concentrationSamples.push(intensity);
+
+      if (DEBUG_VIEW !== 0) {
+        let debugValue = 0;
+        if (DEBUG_VIEW === 1) {
+          let height = 0;
+          let heightScale = 0;
+          field.waves.forEach((wave) => {
+            const kx = wave.k * wave.ax;
+            const ky = wave.k * wave.ay;
+            const phase =
+              lx * kx +
+              ly * ky +
+              time * field.flow * wave.speed +
+              wave.phase;
+            height += wave.amp * Math.sin(phase);
+            heightScale += wave.amp;
+          });
+          debugValue = 0.5 + 0.5 * height / Math.max(0.0001, heightScale);
+        } else if (DEBUG_VIEW === 2) {
+          const slopeScale = field.waves.reduce(
+            (sum, wave) =>
+              sum +
+              wave.amp *
+                Math.hypot(
+                  wave.k * wave.ax,
+                  wave.k * wave.ay,
+                ),
+            0,
+          );
+          debugValue = slope / Math.max(0.0001, slopeScale);
+        } else if (DEBUG_VIEW === 3 || DEBUG_VIEW === 4) {
+          debugValue = det;
+        }
+        debugRaster.grid[yi * cols + xi] = debugValue;
+        continue;
+      }
+
+      if (intensity < 0.10) continue;
+
+      const px = field.cx + lx;
+      const py = field.cy + ly;
+      const patch = 2 + intensity * 6;
+      const grad = ctx.createRadialGradient(px, py, 0, px, py, patch * 1.8);
+      grad.addColorStop(0, `rgba(${field.color},${alphaBase * intensity * 0.95})`);
+      grad.addColorStop(0.45, `rgba(255,255,255,${alphaBase * intensity * 0.55})`);
+      grad.addColorStop(1, `rgba(${field.color},0)`);
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = grad;
+      ctx.fillRect(px - patch * 2, py - patch * 2, patch * 4, patch * 4);
+    }
+  }
+
+  if (debugRaster) {
+    const {
+      width,
+      height,
+      grid,
+      directLight,
+      mappedLight,
+      profiledLight,
+      profileSpread,
+      profileNearKernelNorm,
+      profileKernelNorm,
+      profileKernelWeights,
+      scatteredLight,
+      energyHistogram,
+      energyPercentiles,
+      imageData,
+    } = debugRaster;
+    const pixels = imageData.data;
+    for (let py = 0; py < height; py++) {
+      const gy = (py - field.cy + field.ry) / stepY;
+      const insideY = gy >= 0 && gy <= rows - 1;
+      const y0 = insideY ? Math.floor(gy) : 0;
+      const y1 = Math.min(rows - 1, y0 + 1);
+      const fy = gy - y0;
+      for (let px = 0; px < width; px++) {
+        const gx = (px - field.cx + field.rx) / stepX;
+        let value = 0;
+        if (insideY && gx >= 0 && gx <= cols - 1) {
+          const x0 = Math.floor(gx);
+          const x1 = Math.min(cols - 1, x0 + 1);
+          const fx = gx - x0;
+          const top = grid[y0 * cols + x0] * (1 - fx) + grid[y0 * cols + x1] * fx;
+          const bottom =
+            grid[y1 * cols + x0] * (1 - fx) + grid[y1 * cols + x1] * fx;
+          const interpolated = top * (1 - fy) + bottom * fy;
+          let debugValue = interpolated;
+          if (DEBUG_VIEW === 3 || DEBUG_VIEW === 4) {
+            const nx = (px - field.cx) / Math.max(1, field.rx);
+            const ny = (py - field.cy) / Math.max(1, field.ry);
+            const envelope = Math.max(0, 1 - nx * nx - ny * ny);
+            if (envelope > 0 && Math.abs(interpolated) < 1) {
+              const focus =
+                1 /
+                Math.sqrt(
+                  interpolated * interpolated +
+                    finiteSourceRadius * finiteSourceRadius,
+                );
+              debugValue =
+                envelope *
+                Math.max(0, focus - unfocusedIrradiance) *
+                incidentIrradiance;
+            } else {
+              debugValue = 0;
+            }
+          }
+          value = Math.round(
+            Math.max(0, Math.min(1, debugValue)) * 255,
+          );
+        }
+        directLight[py * width + px] = value;
+      }
+    }
+    if (DEBUG_VIEW === 4) {
+      const mode = document.body.classList.contains("dark") ? "dark" : "light";
+      const lut = getSettingsCausticLut(mode);
+      const materialPixels = ctx.getImageData(0, 0, width, height).data;
+      for (let index = 0; index < directLight.length; index++) {
+        const lutOffset = directLight[index] * 4;
+        const alpha = lut[lutOffset + 3] / 255;
+        const mappedOffset = index * 3;
+        mappedLight[mappedOffset] = lut[lutOffset] * alpha;
+        mappedLight[mappedOffset + 1] = lut[lutOffset + 1] * alpha;
+        mappedLight[mappedOffset + 2] = lut[lutOffset + 2] * alpha;
+      }
+      redistributeSettingsCausticEnergy(
+        mappedLight,
+        directLight,
+        energyHistogram,
+        energyPercentiles,
+      );
+      renderSettingsCausticProfiles(
+        mappedLight,
+        directLight,
+        profiledLight,
+        energyPercentiles,
+        profileSpread,
+        profileNearKernelNorm,
+        profileKernelNorm,
+        profileKernelWeights,
+        width,
+        height,
+      );
+      scatteredLight.set(profiledLight);
+      const threshold = SETTINGS_CAUSTIC_SCATTER_THRESHOLD * 255;
+      const radius = SETTINGS_CAUSTIC_SCATTER_RADIUS;
+      for (let py = 0; py < height; py++) {
+        for (let px = 0; px < width; px++) {
+          const index = py * width + px;
+          if (directLight[index] <= threshold) continue;
+
+          let totalWeight = 0;
+          for (let dy = -radius; dy <= radius; dy++) {
+            for (let dx = -radius; dx <= radius; dx++) {
+              const distanceSquared = dx * dx + dy * dy;
+              if (!distanceSquared || distanceSquared > radius * radius) continue;
+              const nx = px + dx;
+              const ny = py + dy;
+              if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+              totalWeight += 1 / distanceSquared;
+            }
+          }
+          if (!totalWeight) continue;
+
+          const sourceOffset = index * 3;
+          const redEnergy =
+            mappedLight[sourceOffset] * SETTINGS_CAUSTIC_SCATTER_ENERGY;
+          const greenEnergy =
+            mappedLight[sourceOffset + 1] * SETTINGS_CAUSTIC_SCATTER_ENERGY;
+          const blueEnergy =
+            mappedLight[sourceOffset + 2] * SETTINGS_CAUSTIC_SCATTER_ENERGY;
+          scatteredLight[sourceOffset] -= redEnergy;
+          scatteredLight[sourceOffset + 1] -= greenEnergy;
+          scatteredLight[sourceOffset + 2] -= blueEnergy;
+
+          for (let dy = -radius; dy <= radius; dy++) {
+            for (let dx = -radius; dx <= radius; dx++) {
+              const distanceSquared = dx * dx + dy * dy;
+              if (!distanceSquared || distanceSquared > radius * radius) continue;
+              const nx = px + dx;
+              const ny = py + dy;
+              if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+              const weight = (1 / distanceSquared) / totalWeight;
+              const targetOffset = (ny * width + nx) * 3;
+              scatteredLight[targetOffset] += redEnergy * weight;
+              scatteredLight[targetOffset + 1] += greenEnergy * weight;
+              scatteredLight[targetOffset + 2] += blueEnergy * weight;
+            }
+          }
+        }
+      }
+      for (let index = 0; index < directLight.length; index++) {
+        const mappedOffset = index * 3;
+        const offset = index * 4;
+        const causticRed = Math.max(
+          0,
+          Math.min(255, scatteredLight[mappedOffset]),
+        );
+        const causticGreen = Math.max(
+          0,
+          Math.min(255, scatteredLight[mappedOffset + 1]),
+        );
+        const causticBlue = Math.max(
+          0,
+          Math.min(255, scatteredLight[mappedOffset + 2]),
+        );
+        pixels[offset] = Math.round(
+          255 - ((255 - materialPixels[offset]) * (255 - causticRed)) / 255,
+        );
+        pixels[offset + 1] = Math.round(
+          255 -
+            ((255 - materialPixels[offset + 1]) * (255 - causticGreen)) / 255,
+        );
+        pixels[offset + 2] = Math.round(
+          255 -
+            ((255 - materialPixels[offset + 2]) * (255 - causticBlue)) / 255,
+        );
+        pixels[offset + 3] = 255;
+      }
+    } else {
+      for (let py = 0; py < height; py++) {
+        const row = py * width;
+        const previousRow = Math.max(0, py - 1) * width;
+        const nextRow = Math.min(height - 1, py + 1) * width;
+        for (let px = 0; px < width; px++) {
+          const index = row + px;
+          const left = row + Math.max(0, px - 1);
+          const right = row + Math.min(width - 1, px + 1);
+          const value = Math.round(
+            directLight[index] * 0.94 +
+              (directLight[left] +
+                directLight[right] +
+                directLight[previousRow + px] +
+                directLight[nextRow + px]) *
+                0.015,
+          );
+          const offset = index * 4;
+          pixels[offset] = value;
+          pixels[offset + 1] = value;
+          pixels[offset + 2] = value;
+          pixels[offset + 3] = 255;
+        }
+      }
+    }
+    if (DEBUG_VIEW !== 4) {
+      ctx.globalCompositeOperation = "source-over";
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }
+
+  if (
+    concentrationSamples &&
+    time - (drawSettingsRefractionField._lastDiagnosticsAt || 0) >= 1000
+  ) {
+    const sorted = concentrationSamples.slice().sort((a, b) => a - b);
+    const total = sorted.reduce((sum, value) => sum + value, 0);
+    const percentile = (p) =>
+      sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] || 0;
+    const diagnostics = {
+      min: sorted[0] || 0,
+      max: sorted[sorted.length - 1] || 0,
+      average: sorted.length ? total / sorted.length : 0,
+      p95: percentile(0.95),
+      p99: percentile(0.99),
+    };
+    console.log("[CAUSTIC_CONCENTRATION] " + JSON.stringify(diagnostics));
+    drawSettingsRefractionField._lastDiagnosticsAt = time;
+  }
+  return true;
 }
 
 function drawSettingsDark(ctx, w, h, t) {
@@ -13948,38 +14807,22 @@ function drawSettingsDark(ctx, w, h, t) {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, w, h);
 
-  [
-    { x: 0.16, y: 0.24, r: 0.60, color: "187,201,255", a: 0.12, dx: 0.03, dy: 0.02, p: 0.4 },
-    { x: 0.78, y: 0.18, r: 0.52, color: "144,198,255", a: 0.10, dx: -0.02, dy: 0.03, p: 1.3 },
-    { x: 0.58, y: 0.82, r: 0.66, color: "121,235,255", a: 0.09, dx: 0.025, dy: -0.02, p: 2.0 },
-  ].forEach((blob) => {
-    const x = w * (blob.x + blob.dx * Math.sin(t * 0.00011 + blob.p));
-    const y = h * (blob.y + blob.dy * Math.cos(t * 0.00009 + blob.p * 1.4));
-    const r = Math.max(w, h) * blob.r;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, `rgba(${blob.color},${blob.a})`);
-    g.addColorStop(0.55, `rgba(${blob.color},${blob.a * 0.45})`);
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = "screen";
+  const palette = [
+    "248,250,255",
+    "214,235,255",
+    "180,244,246",
+    "222,214,255",
+  ];
+  const fields = ensureSettingsFieldPool(drawSettingsDark, w, h, 1, palette, t);
+  fields.forEach((field) => {
+    if (!drawSettingsRefractionField(ctx, field, t)) {
+      reseedSettingsField(field, w, h, t, palette);
+      drawSettingsRefractionField(ctx, field, t);
+    }
   });
 
-  ctx.globalCompositeOperation = "screen";
-  drawSettingsRibbon(ctx, w, h, {
-    t, yBase: h * 0.26, amplitude: h * 0.12, drift: 0.00027,
-    width: Math.max(18, h * 0.14), alpha: 0.10, glowAlpha: 0.042,
-    color: "244,248,255", phase: 0.4,
-  });
-  drawSettingsRibbon(ctx, w, h, {
-    t, yBase: h * 0.56, amplitude: h * 0.15, drift: 0.00021,
-    width: Math.max(24, h * 0.18), alpha: 0.11, glowAlpha: 0.05,
-    color: "180,224,255", phase: 1.7,
-  });
-  drawSettingsRibbon(ctx, w, h, {
-    t, yBase: h * 0.72, amplitude: h * 0.10, drift: 0.00024,
-    width: Math.max(8, h * 0.055), alpha: 0.18, glowAlpha: 0.07,
-    color: "255,255,255", phase: 2.5, thin: true,
-  });
+  if (DEBUG_VIEW !== 0 && DEBUG_VIEW !== 4) return;
 
   const gloss = ctx.createLinearGradient(0, 0, 0, h * 0.45);
   gloss.addColorStop(0, "rgba(255,255,255,0.09)");
@@ -13998,38 +14841,22 @@ function drawSettingsLight(ctx, w, h, t) {
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, w, h);
 
-  [
-    { x: 0.24, y: 0.22, r: 0.62, color: "255,255,255", a: 0.32, dx: 0.025, dy: 0.018, p: 0.3 },
-    { x: 0.82, y: 0.30, r: 0.48, color: "235,244,255", a: 0.22, dx: -0.018, dy: 0.022, p: 1.6 },
-    { x: 0.60, y: 0.84, r: 0.60, color: "255,255,255", a: 0.18, dx: 0.02, dy: -0.018, p: 2.1 },
-  ].forEach((blob) => {
-    const x = w * (blob.x + blob.dx * Math.sin(t * 0.00010 + blob.p));
-    const y = h * (blob.y + blob.dy * Math.cos(t * 0.00008 + blob.p * 1.5));
-    const r = Math.max(w, h) * blob.r;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, `rgba(${blob.color},${blob.a})`);
-    g.addColorStop(0.55, `rgba(${blob.color},${blob.a * 0.45})`);
-    g.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = "screen";
+  const palette = [
+    "255,255,255",
+    "240,247,255",
+    "255,248,232",
+    "228,240,255",
+  ];
+  const fields = ensureSettingsFieldPool(drawSettingsLight, w, h, 1, palette, t);
+  fields.forEach((field) => {
+    if (!drawSettingsRefractionField(ctx, field, t)) {
+      reseedSettingsField(field, w, h, t, palette);
+      drawSettingsRefractionField(ctx, field, t);
+    }
   });
 
-  ctx.globalCompositeOperation = "screen";
-  drawSettingsRibbon(ctx, w, h, {
-    t, yBase: h * 0.30, amplitude: h * 0.11, drift: 0.00024,
-    width: Math.max(16, h * 0.12), alpha: 0.14, glowAlpha: 0.055,
-    color: "255,255,255", phase: 0.2,
-  });
-  drawSettingsRibbon(ctx, w, h, {
-    t, yBase: h * 0.60, amplitude: h * 0.13, drift: 0.000195,
-    width: Math.max(20, h * 0.16), alpha: 0.12, glowAlpha: 0.05,
-    color: "224,239,255", phase: 1.5,
-  });
-  drawSettingsRibbon(ctx, w, h, {
-    t, yBase: h * 0.74, amplitude: h * 0.08, drift: 0.000225,
-    width: Math.max(7, h * 0.045), alpha: 0.18, glowAlpha: 0.06,
-    color: "255,255,255", phase: 2.6, thin: true,
-  });
+  if (DEBUG_VIEW !== 0 && DEBUG_VIEW !== 4) return;
 
   const pearl = ctx.createLinearGradient(0, 0, w, h * 0.4);
   pearl.addColorStop(0, "rgba(255,255,255,0.32)");
@@ -14226,6 +15053,13 @@ function getSettingsHomeSections() {
         action: openSettingsAppearance,
       },
       {
+        id: "voice",
+        icon: "🎤",
+        title: "Голосовой ввод",
+        desc: "Микрофон, язык распознавания и режим записи",
+        action: openSettingsVoice,
+      },
+      {
         id: "notifications",
         icon: "🔔",
         title: "Уведомления и напоминания",
@@ -14310,6 +15144,13 @@ function getSettingsHomeSections() {
         title: "Appearance",
         desc: "Theme, language, currency, and interface comfort",
         action: openSettingsAppearance,
+      },
+      {
+        id: "voice",
+        icon: "🎤",
+        title: "Voice Input",
+        desc: "Microphone, recognition language, and recording mode",
+        action: openSettingsVoice,
       },
       {
         id: "notifications",
@@ -14398,6 +15239,13 @@ function getSettingsHomeSections() {
         action: openSettingsAppearance,
       },
       {
+        id: "voice",
+        icon: "🎤",
+        title: "ხმოვანი შეყვანა",
+        desc: "მიკროფონი, ამოცნობის ენა და ჩაწერის რეჟიმი",
+        action: openSettingsVoice,
+      },
+      {
         id: "notifications",
         icon: "🔔",
         title: "შეტყობინებები და შეხსენებები",
@@ -14481,6 +15329,10 @@ function openSettingsAccount() {
 
 function openSettingsAppearance() {
   openSettingsView("appearance");
+}
+
+function openSettingsVoice() {
+  openSettingsView("voice");
 }
 
 function openSettingsNotifications() {
@@ -15105,7 +15957,7 @@ function bindAppearanceSettingsHandlers() {
         if (!document.getElementById("voiceInputBtn")) addVoiceButton();
         return;
       }
-      document.getElementById("voiceInputBtn")?.remove();
+      detachVoiceButton();
     });
 
   document
@@ -15132,6 +15984,329 @@ function bindAppearanceSettingsHandlers() {
   });
 
   refreshAppearanceStates();
+}
+
+let voiceSettingsUnsubscribe = null;
+
+function cleanupVoiceSettingsScreen() {
+  if (typeof voiceSettingsUnsubscribe === "function") {
+    voiceSettingsUnsubscribe();
+    voiceSettingsUnsubscribe = null;
+  }
+  window.BudgetPROVoiceModule?.disposeScreen?.();
+}
+
+function renderSettingsVoiceScreen() {
+  ensureSettingsHomeStyles();
+  const L = currentLang;
+  const copy = {
+    ru: {
+      kicker: "Settings",
+      title: "🎤 Голосовой ввод",
+      desc: "Диктуйте операции на русском, English или ქართულად.",
+      back: "Назад",
+      language: "Язык",
+      mode: "Режим записи",
+      draft: "Распознанный текст",
+      placeholder: "Здесь появится текст. Его можно исправить перед использованием.",
+      start: "Начать запись",
+      retry: "Повторить",
+      stop: "Остановить",
+      cancel: "Отмена",
+      use: "Использовать текст",
+      install: "Установить модель",
+      modelReady: "Whisper large-v3-turbo Q5 multilingual готов к работе",
+      modelMissing: "Для локального распознавания установите multilingual-модель один раз",
+      modelUpgrade: "Доступна более точная модель large-v3-turbo Q5",
+      fallback: "На этой платформе используется системный fallback",
+      clipped: "Говорите немного тише: микрофон перегружается.",
+      floatingTitle: "Плавающая кнопка голосового ввода",
+      floatingDesc: "Показывать заметную кнопку микрофона поверх основных экранов.",
+      diagnostics: "Диагностика последней записи",
+      copyDiagnostics: "Скопировать диагностику",
+      noDiagnostics: "Записей пока нет.",
+      diagnosticsCopied: "Диагностика скопирована",
+      diagnosticsCopyFailed: "Не удалось скопировать диагностику",
+    },
+    en: {
+      kicker: "Settings",
+      title: "🎤 Voice Input",
+      desc: "Dictate transactions in Russian, English, or Georgian.",
+      back: "Back",
+      language: "Language",
+      mode: "Recording mode",
+      draft: "Recognized text",
+      placeholder: "Text appears here. You can edit it before using it.",
+      start: "Start recording",
+      retry: "Record again",
+      stop: "Stop",
+      cancel: "Cancel",
+      use: "Use text",
+      install: "Install model",
+      modelReady: "Whisper large-v3-turbo Q5 multilingual is ready",
+      modelMissing: "Install the multilingual model once for local recognition",
+      modelUpgrade: "The more accurate large-v3-turbo Q5 model is available",
+      fallback: "This platform uses the system fallback",
+      clipped: "Speak a little quieter: the microphone is clipping.",
+      floatingTitle: "Floating voice input button",
+      floatingDesc: "Show the prominent microphone button above the main screens.",
+      diagnostics: "Last recording diagnostics",
+      copyDiagnostics: "Copy diagnostics",
+      noDiagnostics: "No recordings yet.",
+      diagnosticsCopied: "Diagnostics copied",
+      diagnosticsCopyFailed: "Could not copy diagnostics",
+    },
+    ka: {
+      kicker: "Settings",
+      title: "🎤 ხმოვანი შეყვანა",
+      desc: "უკარნახეთ ოპერაციები ქართულად, რუსულად ან ინგლისურად.",
+      back: "უკან",
+      language: "ენა",
+      mode: "ჩაწერის რეჟიმი",
+      draft: "ამოცნობილი ტექსტი",
+      placeholder: "ტექსტი აქ გამოჩნდება. გამოყენებამდე შეგიძლიათ შეასწოროთ.",
+      start: "ჩაწერის დაწყება",
+      retry: "ხელახლა ჩაწერა",
+      stop: "გაჩერება",
+      cancel: "გაუქმება",
+      use: "ტექსტის გამოყენება",
+      install: "მოდელის დაყენება",
+      modelReady: "Whisper large-v3-turbo Q5 multilingual მზადაა",
+      modelMissing: "ლოკალური ამოცნობისთვის multilingual მოდელი ერთხელ დააყენეთ",
+      modelUpgrade: "ხელმისაწვდომია უფრო ზუსტი large-v3-turbo Q5 მოდელი",
+      fallback: "ამ პლატფორმაზე სისტემური fallback გამოიყენება",
+      clipped: "ილაპარაკეთ ოდნავ ჩუმად: მიკროფონი იტვირთება.",
+      floatingTitle: "ხმოვანი შეყვანის მცურავი ღილაკი",
+      floatingDesc: "მიკროფონის ღილაკის ჩვენება მთავარ ეკრანებზე.",
+      diagnostics: "ბოლო ჩანაწერის დიაგნოსტიკა",
+      copyDiagnostics: "დიაგნოსტიკის კოპირება",
+      noDiagnostics: "ჩანაწერი ჯერ არ არის.",
+      diagnosticsCopied: "დიაგნოსტიკა დაკოპირდა",
+      diagnosticsCopyFailed: "დიაგნოსტიკის კოპირება ვერ მოხერხდა",
+    },
+  }[L];
+  const statuses = {
+    ready: { ru: "Готов", en: "Ready", ka: "მზადაა" },
+    requesting: { ru: "Запрашиваем микрофон", en: "Requesting microphone", ka: "მიკროფონზე წვდომის მოთხოვნა" },
+    listening: { ru: "Слушаю", en: "Listening", ka: "გისმენთ" },
+    speech: { ru: "Обнаружена речь", en: "Speech detected", ka: "მეტყველება აღმოჩენილია" },
+    processing: { ru: "Обрабатываю", en: "Processing", ka: "მუშავდება" },
+    transcribing: { ru: "Распознаю", en: "Transcribing", ka: "ამოცნობა" },
+    done: { ru: "Готово", en: "Done", ka: "მზადაა" },
+    "no-speech": { ru: "Речь не обнаружена", en: "No speech detected", ka: "მეტყველება ვერ მოიძებნა" },
+    error: { ru: "Ошибка распознавания", en: "Recognition error", ka: "ამოცნობის შეცდომა" },
+    cancelled: { ru: "Отмена", en: "Cancelled", ka: "გაუქმებულია" },
+    "model-downloading": { ru: "Модель загружается", en: "Downloading model", ka: "მოდელი იტვირთება" },
+  };
+  const errors = {
+    microphone_denied: { ru: "Нет доступа к микрофону", en: "Microphone access denied", ka: "მიკროფონზე წვდომა აკრძალულია" },
+    microphone_missing: { ru: "Микрофон не найден", en: "Microphone not found", ka: "მიკროფონი ვერ მოიძებნა" },
+    model_missing: { ru: "Модель ещё не установлена", en: "The model is not installed", ka: "მოდელი ჯერ არ არის დაყენებული" },
+    model_download_failed: { ru: "Не удалось загрузить модель", en: "Could not download the model", ka: "მოდელის ჩამოტვირთვა ვერ მოხერხდა" },
+    model_checksum_mismatch: { ru: "Проверка модели не пройдена", en: "Model verification failed", ka: "მოდელის შემოწმება ვერ მოხერხდა" },
+    engine_missing: { ru: "Локальный engine недоступен", en: "Local engine is unavailable", ka: "ლოკალური engine მიუწვდომელია" },
+    no_speech: { ru: "Речь не обнаружена", en: "No speech detected", ka: "მეტყველება ვერ მოიძებნა" },
+    transcription_failed: { ru: "Не удалось распознать запись", en: "Could not transcribe recording", ka: "ჩანაწერის ამოცნობა ვერ მოხერხდა" },
+    transcription_busy: { ru: "Распознавание уже выполняется", en: "Recognition is already running", ka: "ამოცნობა უკვე მიმდინარეობს" },
+    invalid_audio_payload: { ru: "Запись повреждена или пуста", en: "The recording is empty or invalid", ka: "ჩანაწერი ცარიელი ან დაზიანებულია" },
+  };
+  const voice = window.BudgetPROVoiceModule;
+  const language = voice?.getLanguage?.() || "auto";
+  const mode = voice?.getMode?.() || getVoiceInputMode();
+  const showVoiceBtn = getFloatingBtnSetting("showVoiceBtn");
+
+  const formatVoiceDiagnostics = (diagnostics) => {
+    if (!diagnostics) return copy.noDiagnostics;
+    const percent = (value) => Number.isFinite(Number(value)) ? `${(Number(value) * 100).toFixed(2)}%` : "n/a";
+    return [
+      `backend=${diagnostics.backend || "unknown"}`,
+      `server=${diagnostics.server || "unknown"}`,
+      `model=${diagnostics.modelId || diagnostics.modelName || "unknown"}`,
+      `whisper.cpp=${diagnostics.whisperVersion || "unknown"}`,
+      `selectedLanguage=${diagnostics.selectedLanguage || "auto"}`,
+      `detectedLanguage=${diagnostics.detectedLanguage || "unknown"}`,
+      `languageConfidence=${percent(diagnostics.languageConfidence)}`,
+      `recordingMode=${diagnostics.recordingMode || "auto"}`,
+      `durationMs=${diagnostics.durationMs ?? "n/a"}`,
+      `speechDurationMs=${diagnostics.speechDurationMs ?? "n/a"}`,
+      `rms=${Number(diagnostics.rms || 0).toFixed(5)}`,
+      `peak=${Number(diagnostics.peak || 0).toFixed(5)}`,
+      `clipping=${percent(diagnostics.clippingRatio)}`,
+      `noiseFloor=${Number(diagnostics.noiseFloor || 0).toFixed(5)}`,
+      `transcriptionMs=${diagnostics.transcriptionMs ?? "n/a"}`,
+      `rawText=${diagnostics.rawText || ""}`,
+      `normalizedText=${diagnostics.normalizedText || ""}`,
+    ].join("\n");
+  };
+
+  document.getElementById("mainContent").innerHTML = `
+    <div class="settings-subpage-wrap">
+      <div class="settings-subpage-header">
+        <button class="settings-subpage-back" id="settingsVoiceBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
+        <div class="settings-subpage-copy">
+          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
+          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
+          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
+        </div>
+      </div>
+      <div class="voice-settings-stack">
+        <section class="appearance-card voice-settings-card">
+          <div class="voice-settings-status">
+            <div class="voice-settings-status-copy">
+              <div class="voice-settings-status-title" id="voiceSettingsStatus">${esc(statuses.ready[L])}</div>
+              <div class="voice-settings-status-note" id="voiceSettingsStatusNote"></div>
+            </div>
+            <button class="voice-settings-mic" id="voiceSettingsMicBtn" type="button" aria-label="${esc(copy.start)}">🎤</button>
+          </div>
+          <div class="voice-settings-meter" aria-hidden="true"><div class="voice-settings-meter-fill" id="voiceSettingsMeter"></div></div>
+          <div class="voice-settings-actions">
+            <button class="btn-primary" id="voiceSettingsStartBtn" type="button">${esc(copy.start)}</button>
+            <button class="btn-secondary" id="voiceSettingsStopBtn" type="button">${esc(copy.stop)}</button>
+            <button class="btn-secondary" id="voiceSettingsCancelBtn" type="button">${esc(copy.cancel)}</button>
+          </div>
+        </section>
+        <section class="appearance-card voice-settings-card">
+          <div class="appearance-toggle-row">
+            <div class="appearance-card-copy">
+              <h3 class="appearance-card-kicker">${esc(copy.floatingTitle)}</h3>
+              <p class="appearance-card-desc">${esc(copy.floatingDesc)}</p>
+            </div>
+            <label class="switch"><input type="checkbox" id="voiceFloatingButtonToggle" ${showVoiceBtn ? "checked" : ""}><span class="slider round"></span></label>
+          </div>
+        </section>
+        <section class="appearance-card voice-settings-card">
+          <div class="voice-settings-grid">
+            <label class="voice-settings-field"><span class="voice-settings-label">${esc(copy.language)}</span>
+              <select class="voice-settings-select" id="voiceSettingsLanguage">
+                <option value="auto"${language === "auto" ? " selected" : ""}>${L === "ru" ? "Автоматически" : L === "ka" ? "ავტომატურად" : "Automatic"}</option>
+                <option value="ru"${language === "ru" ? " selected" : ""}>Русский</option>
+                <option value="en"${language === "en" ? " selected" : ""}>English</option>
+                <option value="ka"${language === "ka" ? " selected" : ""}>ქართული</option>
+              </select>
+            </label>
+            <label class="voice-settings-field"><span class="voice-settings-label">${esc(copy.mode)}</span>
+              <select class="voice-settings-select" id="voiceSettingsMode">
+                <option value="auto"${mode === "auto" ? " selected" : ""}>${L === "ru" ? "Авто" : L === "ka" ? "ავტო" : "Auto"}</option>
+                <option value="whisper"${mode === "whisper" ? " selected" : ""}>${L === "ru" ? "Тихая речь" : L === "ka" ? "ჩუმი მეტყველება" : "Quiet Speech"}</option>
+                <option value="street"${mode === "street" ? " selected" : ""}>${L === "ru" ? "Шумное место" : L === "ka" ? "ხმაურიანი ადგილი" : "Noisy Place"}</option>
+              </select>
+            </label>
+          </div>
+        </section>
+        <section class="appearance-card voice-settings-card">
+          <label class="voice-settings-field"><span class="voice-settings-label">${esc(copy.draft)}</span>
+            <textarea class="voice-settings-draft" id="voiceSettingsDraft" placeholder="${esc(copy.placeholder)}"></textarea>
+          </label>
+          <div class="voice-settings-actions">
+            <button class="btn-secondary" id="voiceSettingsRetryBtn" type="button">${esc(copy.retry)}</button>
+            <button class="btn-primary" id="voiceSettingsUseBtn" type="button">${esc(copy.use)}</button>
+          </div>
+        </section>
+        <section class="appearance-card voice-settings-card" id="voiceModelCard">
+          <div class="voice-settings-status-title" id="voiceModelStatus">${esc(copy.fallback)}</div>
+          <div class="voice-model-progress" id="voiceModelProgress"></div>
+          <div class="voice-settings-actions"><button class="btn-secondary" id="voiceInstallModelBtn" type="button" hidden>${esc(copy.install)}</button></div>
+        </section>
+        <section class="appearance-card voice-settings-card">
+          <details class="voice-diagnostics-details" id="voiceDiagnosticsDetails">
+            <summary>${esc(copy.diagnostics)}</summary>
+            <pre class="voice-diagnostics-report" id="voiceDiagnosticsReport">${esc(formatVoiceDiagnostics(voice?.getDiagnostics?.()))}</pre>
+            <div class="voice-settings-actions"><button class="btn-secondary" id="voiceCopyDiagnosticsBtn" type="button">${esc(copy.copyDiagnostics)}</button></div>
+          </details>
+        </section>
+      </div>
+    </div>
+  `;
+
+  const setStatus = (next) => {
+    const statusEl = document.getElementById("voiceSettingsStatus");
+    const noteEl = document.getElementById("voiceSettingsStatusNote");
+    const meterEl = document.getElementById("voiceSettingsMeter");
+    const micEl = document.getElementById("voiceSettingsMicBtn");
+    const statusCopy = statuses[next.status]?.[L] || statuses.ready[L];
+    if (statusEl) statusEl.textContent = statusCopy;
+    if (noteEl) noteEl.textContent = next.error ? errors[next.error]?.[L] || next.error : next.clipped ? copy.clipped : "";
+    if (meterEl) meterEl.style.width = `${Math.round(Math.max(0, Math.min(1, next.meter || 0)) * 100)}%`;
+    micEl?.classList.toggle("listening", next.status === "listening" || next.status === "speech");
+    if (next.transcript) {
+      const draft = document.getElementById("voiceSettingsDraft");
+      if (draft && draft.value !== next.transcript) draft.value = next.transcript;
+    }
+    if (next.diagnostics) {
+      const diagnosticsEl = document.getElementById("voiceDiagnosticsReport");
+      if (diagnosticsEl) diagnosticsEl.textContent = formatVoiceDiagnostics(next.diagnostics);
+    }
+    const progress = next.modelProgress;
+    if (progress) {
+      const progressEl = document.getElementById("voiceModelProgress");
+      if (progressEl) progressEl.textContent = `${Math.round(progress.ratio * 100)}%`;
+    }
+  };
+  voiceSettingsUnsubscribe = voice?.subscribe?.(setStatus) || null;
+
+  const beginRecording = async () => {
+    if (voice && window.budgetPRODesktopVoice) {
+      await voice.start({
+        keepTranscript: true,
+        onTranscript(text) {
+          const draft = document.getElementById("voiceSettingsDraft");
+          if (draft) draft.value = text;
+        },
+      });
+      return;
+    }
+    startVoiceInput();
+  };
+  document.getElementById("settingsVoiceBackBtn")?.addEventListener("click", openSettingsHome);
+  document.getElementById("voiceSettingsMicBtn")?.addEventListener("click", beginRecording);
+  document.getElementById("voiceSettingsStartBtn")?.addEventListener("click", beginRecording);
+  document.getElementById("voiceSettingsRetryBtn")?.addEventListener("click", beginRecording);
+  document.getElementById("voiceSettingsStopBtn")?.addEventListener("click", () => voice?.stop?.());
+  document.getElementById("voiceSettingsCancelBtn")?.addEventListener("click", () => voice?.cancel?.());
+  document.getElementById("voiceSettingsLanguage")?.addEventListener("change", (event) => voice?.setLanguage?.(event.target.value));
+  document.getElementById("voiceSettingsMode")?.addEventListener("change", (event) => {
+    voice?.setMode?.(event.target.value);
+    setVoiceInputMode(event.target.value);
+  });
+  document.getElementById("voiceFloatingButtonToggle")?.addEventListener("change", (event) => {
+    const enabled = !!event.target.checked;
+    syncVoiceButtonEnabled(enabled);
+    if (enabled) addVoiceButton();
+    else detachVoiceButton();
+  });
+  document.getElementById("voiceCopyDiagnosticsBtn")?.addEventListener("click", async () => {
+    const report = formatVoiceDiagnostics(voice?.getDiagnostics?.());
+    try {
+      await navigator.clipboard.writeText(report);
+      showToast(copy.diagnosticsCopied, "success");
+    } catch (error) {
+      console.warn("[Voice diagnostics copy]", error);
+      showToast(copy.diagnosticsCopyFailed, "error");
+    }
+  });
+  document.getElementById("voiceSettingsUseBtn")?.addEventListener("click", () => {
+    const text = window.BudgetPROVoiceCore?.normalizeTranscript?.(document.getElementById("voiceSettingsDraft")?.value);
+    if (text) parseVoiceInput(text);
+  });
+
+  if (window.budgetPRODesktopVoice && voice) {
+    voice.getModelStatus().then((model) => {
+      const statusEl = document.getElementById("voiceModelStatus");
+      const installBtn = document.getElementById("voiceInstallModelBtn");
+      if (statusEl) statusEl.textContent = model.available ? copy.modelReady : model.needsUpgrade ? copy.modelUpgrade : copy.modelMissing;
+      if (installBtn) installBtn.hidden = model.available;
+    }).catch((error) => console.warn("[Voice model status]", error));
+    document.getElementById("voiceInstallModelBtn")?.addEventListener("click", async () => {
+      try {
+        const model = await voice.installModel();
+        document.getElementById("voiceModelStatus").textContent = model.available ? copy.modelReady : copy.modelMissing;
+        document.getElementById("voiceInstallModelBtn").hidden = model.available;
+      } catch (error) {
+        console.error("[Voice model install]", error);
+        setStatus({ status: "error", error: "model_missing", meter: 0 });
+      }
+    });
+  }
 }
 
 function renderSettingsAppearanceScreen() {
@@ -18449,6 +19624,7 @@ function renderSettings() {
   const perfEnabled = currentSettingsView === "home";
   if (perfEnabled) startSettingsPerf("settings-open:" + currentSettingsView);
   const cleanupStart = performance.now();
+  cleanupVoiceSettingsScreen();
   cleanupSettingsCanvasEffects();
   markSettingsPerf("render.cleanup-prev-effects", cleanupStart);
   const renderSwitchStart = performance.now();
@@ -18464,6 +19640,9 @@ function renderSettings() {
       break;
     case "appearance":
       renderSettingsAppearanceScreen();
+      break;
+    case "voice":
+      renderSettingsVoiceScreen();
       break;
     case "notifications":
       renderSettingsNotificationsScreen();
@@ -31010,7 +32189,7 @@ function getVoiceInputModeLabels() {
     },
     whisper: {
       label:
-        { ru: "Шепот", en: "Whisper", ka: "ჩურჩული" }[currentLang] || "Whisper",
+        { ru: "Тихая речь", en: "Quiet Speech", ka: "ჩუმი მეტყველება" }[currentLang] || "Quiet Speech",
       hint:
         {
           ru: "Для тихой речи рядом с микрофоном",
@@ -31019,7 +32198,7 @@ function getVoiceInputModeLabels() {
         }[currentLang] || "For quiet speech close to the mic",
     },
     street: {
-      label: { ru: "Улица", en: "Street", ka: "ქუჩა" }[currentLang] || "Street",
+      label: { ru: "Шумное место", en: "Noisy Place", ka: "ხმაურიანი ადგილი" }[currentLang] || "Noisy Place",
       hint:
         {
           ru: "Жёстче отсекает фоновый шум",
@@ -31031,8 +32210,10 @@ function getVoiceInputModeLabels() {
 }
 
 function getVoiceRecognitionLangCode({ native = false } = {}) {
-  const code =
-    currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
+  const selected = window.BudgetPROVoiceModule?.getLanguage?.() || "auto";
+  if (native && selected === "auto") return "auto";
+  const language = selected === "auto" ? currentLang : selected;
+  const code = language === "en" ? "en-US" : language === "ka" ? "ka-GE" : "ru-RU";
   // For native Android bridge, pass the explicit lang code so the OS voice engine
   // doesn't fall back to the system default language (e.g. Russian)
   if (native) return code;
@@ -31601,7 +32782,41 @@ async function startWebVoiceOverlayMeter() {
   }
 }
 
-function startVoiceInput() {
+async function startVoiceInput() {
+  if (window.budgetPRODesktopVoice && window.BudgetPROVoiceModule) {
+    createVoiceListeningOverlay();
+    let unsubscribe = null;
+    const finishQuick = () => {
+      unsubscribe?.();
+      unsubscribe = null;
+      closeVoiceListeningOverlay();
+    };
+    unsubscribe = window.BudgetPROVoiceModule.subscribe((voiceState) => {
+      setVoiceOverlayLevel(voiceState.meter || 0);
+      if (voiceState.status === "error" || voiceState.status === "no-speech") {
+        finishQuick();
+        const messages = {
+          ru: "Не удалось распознать запись. Проверьте модель и микрофон.",
+          en: "Could not transcribe the recording. Check the model and microphone.",
+          ka: "ჩანაწერის ამოცნობა ვერ მოხერხდა. შეამოწმეთ მოდელი და მიკროფონი.",
+        };
+        showToast(messages[currentLang] || messages.ru, "error");
+      }
+    });
+    document.getElementById("voiceCancel").onclick = () => {
+      window.BudgetPROVoiceModule.cancel();
+      finishQuick();
+    };
+    const result = await window.BudgetPROVoiceModule.start({
+      onTranscript(text, alternatives) {
+        finishQuick();
+        haptic("success");
+        parseVoiceInput(text, alternatives);
+      },
+    });
+    if (result?.handled) return;
+    finishQuick();
+  }
   const webLangCode = getVoiceRecognitionLangCode();
   const nativeLangCode = getVoiceRecognitionLangCode({ native: true });
   const voiceMode = getVoiceInputMode();
@@ -31618,7 +32833,11 @@ function startVoiceInput() {
       window.__budgetProNativeVoiceResult = null;
       if (status === "result" && payload && payload.trim()) {
         haptic("success");
-        parseVoiceInput(payload, alternatives);
+        const normalized = window.BudgetPROVoiceModule?.recordExternalResult?.(payload, {
+          backend: "android-speechrecognizer-fallback",
+          uiLanguage: currentLang,
+        }) || payload;
+        parseVoiceInput(normalized, alternatives);
         return;
       }
       console.warn("[Voice native error]", payload);
@@ -31704,7 +32923,11 @@ function startVoiceInput() {
     const choice = chooseBestVoiceTranscript(alternatives);
     console.log("Voice:", choice.text, choice.alternatives);
     haptic("success");
-    parseVoiceInput(choice.text, choice.alternatives);
+    const normalized = window.BudgetPROVoiceModule?.recordExternalResult?.(choice.text, {
+      backend: "web-speech-api-fallback",
+      uiLanguage: currentLang,
+    }) || choice.text;
+    parseVoiceInput(normalized, choice.alternatives);
   };
   rec.onerror = (e) => {
     closeVoiceListeningOverlay();
@@ -32955,9 +34178,13 @@ function chooseBestVoiceTranscript(values) {
 }
 
 function parseVoiceInput(text, alternatives = []) {
+  const selectedVoiceLanguage = window.BudgetPROVoiceModule?.getLanguage?.() || currentLang;
+  const normalizationLanguage = selectedVoiceLanguage === "auto" ? currentLang : selectedVoiceLanguage;
+  const normalizeVoiceNumbers = (value) =>
+    window.BudgetPROVoiceNumberNormalizer?.normalizeNumbers?.(value, normalizationLanguage) || value;
   const choice = chooseBestVoiceTranscript([
-    text,
-    ...normalizeVoiceAlternatives(alternatives),
+    normalizeVoiceNumbers(text),
+    ...normalizeVoiceAlternatives(alternatives).map(normalizeVoiceNumbers),
   ]);
   openVoiceQuickModal(
     buildVoiceDraftFromText(choice.text),
@@ -33758,6 +34985,14 @@ function ensureVoiceDragShield() {
     },
     true,
   );
+  window.addEventListener("budgetpro:voice-state", (event) => {
+    const button = document.getElementById("voiceInputBtn");
+    if (!button) return;
+    const status = event.detail?.status || "ready";
+    button.classList.toggle("recording", ["requesting", "listening", "speech", "processing", "transcribing"].includes(status));
+    button.classList.toggle("preparing", status === "model-downloading");
+    button.setAttribute("aria-busy", ["requesting", "listening", "speech", "processing", "transcribing", "model-downloading"].includes(status) ? "true" : "false");
+  });
 }
 
 function getFloatingBtnSetting(key) {
@@ -33766,8 +35001,17 @@ function getFloatingBtnSetting(key) {
 
 function syncVoiceButtonEnabled(enabled) {
   localStorage.setItem("showVoiceBtn", enabled ? "true" : "false");
-  const toggle = document.getElementById("showVoiceBtnToggle");
-  if (toggle) toggle.checked = enabled;
+  document.querySelectorAll("#showVoiceBtnToggle, #voiceFloatingButtonToggle").forEach((toggle) => {
+    toggle.checked = enabled;
+  });
+}
+
+function detachVoiceButton(voiceBtn = document.getElementById("voiceInputBtn")) {
+  if (window.__voiceButtonResizeHandler) {
+    window.removeEventListener("resize", window.__voiceButtonResizeHandler);
+    window.__voiceButtonResizeHandler = null;
+  }
+  voiceBtn?.remove();
 }
 
 function ensureVoiceTrashBin() {
@@ -33885,7 +35129,7 @@ function dismissVoiceButtonWithAnimation(voiceBtn, extraDrop = 0) {
   localStorage.removeItem("voiceBtnPos");
   window.clearTimeout(window.__voiceDismissTimer);
   window.__voiceDismissTimer = window.setTimeout(() => {
-    voiceBtn.remove();
+    detachVoiceButton(voiceBtn);
     hideVoiceTrashBinNow();
     haptic("medium");
   }, 700);
@@ -33946,7 +35190,7 @@ function dismissVoiceButtonWithAnimation(voiceBtn, extraDrop = 0) {
     if (finalized) return;
     finalized = true;
     window.clearTimeout(window.__voiceDismissTimer);
-    voiceBtn.remove();
+    detachVoiceButton(voiceBtn);
     hideVoiceTrashBinNow();
     haptic("medium");
   };
@@ -33991,7 +35235,7 @@ function animateVoiceMomentum(voiceBtn, fromLeft, fromTop, deltaY, done) {
 
 function addVoiceButton() {
   ensureVoiceDragShield();
-  document.getElementById("voiceInputBtn")?.remove();
+  detachVoiceButton();
   if (!getFloatingBtnSetting("showVoiceBtn")) return;
   const voiceBtn = document.createElement("button");
   voiceBtn.id = "voiceInputBtn";
@@ -34062,8 +35306,6 @@ function addVoiceButton() {
     lastMoveY = e.clientY;
     lastMoveTs = e.timeStamp || performance.now();
     lastVelocityY = 0;
-    voiceBtn.classList.add("dragging");
-    voiceBtn.style.transition = "none";
     voiceBtn.setPointerCapture?.(e.pointerId);
   });
 
@@ -34072,7 +35314,11 @@ function addVoiceButton() {
     stopVoiceGestureEvent(e);
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
+    if (!moved && Math.abs(dx) + Math.abs(dy) > 8) {
+      moved = true;
+      voiceBtn.classList.add("dragging");
+      voiceBtn.style.transition = "none";
+    }
     if (!moved) return;
     const pos = applyPos(originX + dx, originY + dy);
     const rect = {
@@ -34154,11 +35400,13 @@ function addVoiceButton() {
     if (!isVoiceDragSuppressed()) return;
     stopVoiceGestureEvent(e);
   });
-  window.addEventListener("resize", () => {
+  window.__voiceButtonResizeHandler = () => {
+    if (!voiceBtn.isConnected) return;
     const rect = voiceBtn.getBoundingClientRect();
     const pos = applyPos(rect.left, rect.top);
     localStorage.setItem("voiceBtnPos", JSON.stringify(pos));
-  });
+  };
+  window.addEventListener("resize", window.__voiceButtonResizeHandler);
 }
 
 // ═══════════════════════════════════════════════════════════════

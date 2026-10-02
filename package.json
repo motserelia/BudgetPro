@@ -1,14 +1,21 @@
 {
   "name": "budgetpro",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "1.2.0",
+  "main": "desktop/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "test": "node --test tests/*.test.js",
+    "voice:prepare": "node scripts/prepare-whisper.js",
+    "voice:benchmark": "node scripts/voice-benchmark.js",
+    "dist:linux": "npm run voice:prepare && ELECTRON_BUILDER_CACHE=$PWD/.cache/electron-builder electron-builder --linux deb"
   },
   "keywords": [],
-  "author": "",
+  "author": {
+    "name": "BudgetPRO Team",
+    "email": "support@budgetpro.app"
+  },
   "license": "ISC",
-  "description": "",
+  "description": "BudgetPRO personal finance manager",
   "dependencies": {
     "@capacitor/android": "^8.3.4",
     "@capacitor/app": "^8.1.0",
@@ -18,5 +25,31 @@
     "@capgo/capacitor-native-biometric": "^8.4.5",
     "chart.js": "^4.4.0",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "electron": "^36.9.5",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "pro.budget.app",
+    "productName": "BudgetPRO",
+    "asar": true,
+    "files": [
+      "desktop/**/*",
+      "www/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/whisper/bin",
+        "to": "whisper/bin",
+        "filter": ["whisper-cli", "whisper-server"]
+      }
+    ],
+    "linux": {
+      "target": ["deb"],
+      "category": "Office",
+      "executableName": "budgetpro"
+    }
   }
 }

@@ -594,11 +594,13 @@ public class MainActivity extends BridgeActivity {
             RecognizerIntent.EXTRA_LANGUAGE_MODEL,
             RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
         );
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, pendingVoiceLang);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, pendingVoiceLang);
-        intent.putExtra("android.speech.extra.ONLY_RETURN_LANGUAGE_PREFERENCE", true);
-        intent.putExtra("android.speech.extra.ENABLE_LANGUAGE_DETECTION", false);
-        intent.putExtra("android.speech.extra.ENABLE_LANGUAGE_SWITCH", false);
+        if (!pendingVoiceAutoLang) {
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, pendingVoiceLang);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, pendingVoiceLang);
+        }
+        intent.putExtra("android.speech.extra.ONLY_RETURN_LANGUAGE_PREFERENCE", false);
+        intent.putExtra("android.speech.extra.ENABLE_LANGUAGE_DETECTION", pendingVoiceAutoLang);
+        intent.putExtra("android.speech.extra.ENABLE_LANGUAGE_SWITCH", pendingVoiceAutoLang);
         intent.putStringArrayListExtra(
             "android.speech.extra.LANGUAGE_SWITCH_ALLOWED_LANGUAGES",
             getBudgetProVoiceLanguages()
