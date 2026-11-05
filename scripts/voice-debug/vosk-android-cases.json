@@ -1,0 +1,7 @@
+[
+ {"id":"A","language":"ka","phrase":"ყავაში რვა ლარი გადავიხადე","expected":{"type":"expense","amount":8,"currency":"GEL","category":"Кофе"}},
+ {"id":"B","language":"ka","phrase":"ტაქსიში თორმეტი ლარი გადავიხადე","expected":{"type":"expense","amount":12,"currency":"GEL","category":"Такси"}},
+ {"id":"C","language":"ka","phrase":"ხელფასი ორი ათას ხუთასი ლარი მივიღე","expected":{"type":"income","amount":2500,"currency":"GEL","category":"Зарплата"}},
+ {"id":"D","language":"ka","phrase":"ორმოცდაათი თეთრი დავხარჯე","expected":{"type":"expense","amount":0.5,"currency":"GEL"},"knownParserIssue":"Standalone tetri may return 50, not 0.50. Do not fix or hide in this stage."},
+ {"id":"E","language":"ka","phrase":"პურში სამი ლარი და ორმოცდაათი თეთრი გადავიხადე","expected":{"type":"expense","amount":3.5,"currency":"GEL"}}
+]

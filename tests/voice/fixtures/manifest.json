@@ -1,0 +1,281 @@
+[
+  {
+    "file": "ka-01-gamarjoba.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "გამარჯობა",
+    "keywords": [
+      "გამარჯობა"
+    ]
+  },
+  {
+    "file": "ka-1-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "გამარჯობა"
+  },
+  {
+    "file": "ka-1-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "გამარჯობა"
+  },
+  {
+    "file": "ka-2-auto.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "როგორ ხარ"
+  },
+  {
+    "file": "ka-2-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "როგორ ხარ"
+  },
+  {
+    "file": "ka-2-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "როგორ ხარ"
+  },
+  {
+    "file": "ka-04-task.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "დღეს ახალი დავალება დავამატო",
+    "keywords": [
+      "დღეს",
+      "დავალება"
+    ]
+  },
+  {
+    "file": "ka-3-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "დღეს ახალი დავალება დავამატო"
+  },
+  {
+    "file": "ka-3-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "დღეს ახალი დავალება დავამატო"
+  },
+  {
+    "file": "ka-4-auto.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "ხვალ შეხვედრა მაქვს"
+  },
+  {
+    "file": "ka-4-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "ხვალ შეხვედრა მაქვს"
+  },
+  {
+    "file": "ka-4-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "ხვალ შეხვედრა მაქვს"
+  },
+  {
+    "file": "ka-02-coffee.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "ყავა რვა ლარი",
+    "keywords": [
+      "ყავა",
+      "ლარი"
+    ]
+  },
+  {
+    "file": "ka-5-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "ყავა რვა ლარი"
+  },
+  {
+    "file": "ka-5-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "ყავა რვა ლარი"
+  },
+  {
+    "file": "ka-6-auto.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "ტაქსი თორმეტი ლარი"
+  },
+  {
+    "file": "ka-6-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "ტაქსი თორმეტი ლარი"
+  },
+  {
+    "file": "ka-6-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "ტაქსი თორმეტი ლარი"
+  },
+  {
+    "file": "ka-03-digits.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "ერთი ორი სამი ოთხი ხუთი"
+  },
+  {
+    "file": "ka-7-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "ერთი ორი სამი ოთხი ხუთი"
+  },
+  {
+    "file": "ka-7-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "ერთი ორი სამი ოთხი ხუთი"
+  },
+  {
+    "file": "ka-8-auto.wav",
+    "language": "ka",
+    "mode": "auto",
+    "expected": "ოცდახუთი"
+  },
+  {
+    "file": "ka-8-quiet.wav",
+    "language": "ka",
+    "mode": "quiet",
+    "expected": "ოცდახუთი"
+  },
+  {
+    "file": "ka-8-noise.wav",
+    "language": "ka",
+    "mode": "noise",
+    "expected": "ოცდახუთი"
+  },
+  {
+    "file": "ru-01-task.wav",
+    "language": "ru",
+    "mode": "auto",
+    "expected": "Добавить задачу на сегодня",
+    "keywords": [
+      "задачу",
+      "сегодня"
+    ]
+  },
+  {
+    "file": "ru-1-quiet.wav",
+    "language": "ru",
+    "mode": "quiet",
+    "expected": "Добавить задачу на сегодня"
+  },
+  {
+    "file": "ru-1-noise.wav",
+    "language": "ru",
+    "mode": "noise",
+    "expected": "Добавить задачу на сегодня"
+  },
+  {
+    "file": "ru-02-coffee.wav",
+    "language": "ru",
+    "mode": "auto",
+    "expected": "Кофе восемь лари",
+    "keywords": [
+      "кофе",
+      "лари"
+    ]
+  },
+  {
+    "file": "ru-2-quiet.wav",
+    "language": "ru",
+    "mode": "quiet",
+    "expected": "Кофе восемь лари"
+  },
+  {
+    "file": "ru-2-noise.wav",
+    "language": "ru",
+    "mode": "noise",
+    "expected": "Кофе восемь лари"
+  },
+  {
+    "file": "ru-03-digits.wav",
+    "language": "ru",
+    "mode": "auto",
+    "expected": "Один два три четыре пять"
+  },
+  {
+    "file": "ru-3-quiet.wav",
+    "language": "ru",
+    "mode": "quiet",
+    "expected": "Один два три четыре пять"
+  },
+  {
+    "file": "ru-3-noise.wav",
+    "language": "ru",
+    "mode": "noise",
+    "expected": "Один два три четыре пять"
+  },
+  {
+    "file": "en-01-task.wav",
+    "language": "en",
+    "mode": "auto",
+    "expected": "Add a task for today",
+    "keywords": [
+      "task",
+      "today"
+    ]
+  },
+  {
+    "file": "en-1-quiet.wav",
+    "language": "en",
+    "mode": "quiet",
+    "expected": "Add a task for today"
+  },
+  {
+    "file": "en-1-noise.wav",
+    "language": "en",
+    "mode": "noise",
+    "expected": "Add a task for today"
+  },
+  {
+    "file": "en-02-coffee.wav",
+    "language": "en",
+    "mode": "auto",
+    "expected": "Coffee eight lari",
+    "keywords": [
+      "coffee",
+      "lari"
+    ]
+  },
+  {
+    "file": "en-2-quiet.wav",
+    "language": "en",
+    "mode": "quiet",
+    "expected": "Coffee eight lari"
+  },
+  {
+    "file": "en-2-noise.wav",
+    "language": "en",
+    "mode": "noise",
+    "expected": "Coffee eight lari"
+  },
+  {
+    "file": "en-03-digits.wav",
+    "language": "en",
+    "mode": "auto",
+    "expected": "One two three four five"
+  },
+  {
+    "file": "en-3-quiet.wav",
+    "language": "en",
+    "mode": "quiet",
+    "expected": "One two three four five"
+  },
+  {
+    "file": "en-3-noise.wav",
+    "language": "en",
+    "mode": "noise",
+    "expected": "One two three four five"
+  }
+]

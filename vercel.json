@@ -4,5 +4,11 @@
       "source": "/.well-known/assetlinks.json",
       "destination": "/.well-known/assetlinks.json"
     }
-  ]
+  ],
+  "outputDirectory": "www",
+  "functions": {
+    "api/voice/transcribe.js": {
+      "maxDuration": 30
+    }
+  }
 }

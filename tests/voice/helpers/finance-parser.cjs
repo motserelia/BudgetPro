@@ -1,0 +1,7 @@
+const fs=require('node:fs'),vm=require('node:vm');
+const normalizer=require('../../../www/voice/number-normalizer.js');
+function fixture(file,options={}){const source=fs.readFileSync(file,'utf8');const expenses=options.expense||{'Кофе':{subcats:[]},'ტრანსპორტი':{subcats:[]}};const incomes=options.income||{'ხელფასი':{subcats:[]}};const ctx={currentLang:options.lang||'ka',BudgetPROVoiceNumberNormalizer:normalizer,findVoiceLearningHint:()=>null,getVoiceCategoryObject:type=>type==='income'?incomes:expenses};
+vm.createContext(ctx);const start=source.indexOf('const VOICE_MEANING_STOP_WORDS');vm.runInContext(source.slice(start,source.indexOf('\nfunction ',start)),ctx);
+for(const name of ['normalizeVoiceMeaningText','tokenizeVoiceMeaningText','scoreVoiceLabelMatch','findVoiceSubcategory','findVoiceCategoryByLabel','parseVoiceNumericCandidate','parseGeorgianCompactNumberToken','parseVoiceTokenNumber','parseVoiceNumericPhrase','parseGeorgianMoneyUnits','resolveVoiceExistingCategory','parseVoiceNumberWords','extractVoiceCurrencyPairAmount','extractVoiceAmount','buildVoiceDraftFromText']){const i=source.indexOf(`function ${name}(`);if(i>=0)vm.runInContext(source.slice(i,source.indexOf('\n}',i)+2),ctx);}
+ctx.draft=(text,lang='ka')=>ctx.buildVoiceDraftFromText(normalizer.normalizeNumbers(text,lang));ctx.snapshot=()=>JSON.stringify({expenses,incomes});return ctx;}
+module.exports={fixture,normalizer};

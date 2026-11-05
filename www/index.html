@@ -382,16 +382,16 @@
     <div id="offlineBar">📴 Offline</div>
     <nav class="bottom-nav" role="navigation" id="mainNav">
       <button class="nav-btn active" data-tab="home">
-        <div class="nav-icon">🏠</div>
+        <div class="nav-icon">🏠</div><div class="nav-caption" data-i18n="home">Home</div>
       </button>
       <button class="nav-btn" data-tab="stats">
-        <div class="nav-icon">📊</div>
+        <div class="nav-icon">📊</div><div class="nav-caption" data-i18n="stats">Stats</div>
       </button>
       <button class="nav-btn nav-fab-btn" id="fabBtn" data-i18n-aria-label="add" aria-label="Add">
         <div class="nav-fab-circle">＋</div>
       </button>
       <button class="nav-btn" data-tab="categories">
-        <div class="nav-icon">🗂</div>
+        <div class="nav-icon">🗂</div><div class="nav-caption" data-i18n="categories">Categories</div>
       </button>
       <button class="nav-btn" id="moreNavBtn">
         <div
@@ -399,7 +399,7 @@
           style="font-size: 13px; letter-spacing: 1px; font-weight: 900"
         >
           •••
-        </div>
+        </div><div class="nav-caption" data-i18n="moreLabel">More</div>
       </button>
     </nav>
 
@@ -489,10 +489,18 @@
         </div>
       </div>
     </div>
-    <script src="voice/voice-core.js"></script>
-    <script src="voice/voice-number-normalizer.js"></script>
-    <script src="voice/voice-capture.js"></script>
-    <script src="voice/voice-controller.js"></script>
+    <script src="api-config.js"></script>
+    <script src="voice/transcript-validator.js"></script>
+    <script src="voice/number-normalizer.js"></script>
+    <script src="voice/voice-activity-detector.js"></script>
+    <script src="voice/pcm.js"></script>
+    <script src="voice/voice-recorder.js"></script>
+    <script src="voice/voice-api-client.js"></script>
+    <script src="voice/voice-native-client.js"></script>
+    <script src="voice/voice-draft-safety.js"></script>
+    <script src="voice/voice-diagnostics.js"></script>
+    <script src="voice/voice-session.js"></script>
+    <script src="voice/voice-ui.js"></script>
     <script src="index.js"></script>
     <script>
       (function () {
@@ -7281,6 +7289,621 @@
       body.dark .settings-card [style*="font-size:15px;font-weight:700"] {
         color: #f0eaff !important;
       }
+    </style>
+    <style id="compactHomeLayout">
+/* Home layout only. Colors, surfaces, backgrounds and theme tokens are inherited. */
+html body #mainContent:has(.home-overview) { padding-top: 6px !important; }
+html body .main-scroll:has(.home-overview) { padding-bottom: calc(100px + var(--safe-bottom, 0px)) !important; }
+html body #mainContent .home-overview { padding-top: 0 !important; margin: 0 0 8px !important; }
+html body #mainContent .home-overview.balance-card,
+html body #mainContent .home-overview .balance-card,
+html body #mainContent .simple-hero.home-overview {
+  padding: 12px !important;
+  min-height: 0 !important;
+  text-align: left !important;
+  overflow: hidden !important;
+}
+html body #mainContent .home-overview .hero-value,
+html body #mainContent .home-overview .sh-value {
+  font-size: clamp(1.5em, 7vw, 2.1em) !important;
+  letter-spacing: -.025em !important;
+  line-height: 1.15 !important;
+  margin: 4px 0 8px !important;
+  overflow-wrap: anywhere !important;
+  white-space: normal !important;
+  font-variant-numeric: tabular-nums;
+}
+html body #mainContent .home-overview .hero-sub { display: none !important; }
+html body #mainContent .home-overview .hero-chips {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin-top: 6px !important;
+}
+html body #mainContent .home-overview .hero-chip {
+  grid-column: auto !important;
+  grid-row: auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 108px !important;
+  padding: 10px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+html body #mainContent .home-overview .hc-label {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px;
+  font-size: 1.125em !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.2 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+html body #mainContent .home-overview .hc-value {
+  max-width: 100% !important;
+  width: 100% !important;
+  font-size: 1.375em !important;
+  line-height: 1.25 !important;
+  text-align: left !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+html body #mainContent .home-overview .hc-label-text { font-size: inherit !important; }
+html body #mainContent .home-overview .hc-icon { font-size: .888889em !important; }
+html body #mainContent .home-details { margin: 6px 0 !important; min-width: 0; }
+html body #mainContent .home-details > summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 2px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+/* Only the existing home tools disclosure and active operation-type heading. */
+html body #mainContent #homeDetails > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 12px 4px;
+  font-size: 1.125em !important;
+  line-height: 1.3;
+  list-style: none;
+}
+html body #mainContent #homeDetails > summary::-webkit-details-marker { display: none; }
+html body #mainContent #homeDetails > summary::marker { content: ""; }
+html body #mainContent #homeDetails .home-details-icon {
+  flex: 0 0 auto;
+  font-size: 1.333333em !important;
+  line-height: 1;
+}
+html body #mainContent #homeDetails[open] > summary .home-details-icon { transform: rotate(90deg); }
+html body #mainContent #homeDetails .home-details-title {
+  min-width: 0;
+  font-size: inherit !important;
+}
+html body #mainContent .operation-type-header { gap: 8px 12px; flex-wrap: wrap; }
+html body #mainContent .operation-type-header .ops-section-label {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 1.25em !important;
+  line-height: 1.25;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+html body #mainContent .operation-type-header .operation-type-icon {
+  flex: 0 0 auto;
+  font-size: 1.2em !important;
+  line-height: 1;
+}
+html body #mainContent .operation-type-header .operation-type-title {
+  min-width: 0;
+  font-size: inherit !important;
+  overflow-wrap: anywhere;
+}
+html body #mainContent .operation-type-header #clearFilterBtn { flex: 0 0 auto; }
+html body #mainContent .home-details .balance-summary { margin: 4px 0 8px !important; }
+html body #mainContent .balance-row { gap: 8px !important; flex-wrap: wrap; }
+html body #mainContent .balance-row-value { overflow-wrap: anywhere; }
+html body #mainContent .history-btn-wrap { margin: 6px 0 !important; }
+html body #mainContent .history-btn { min-height: 44px; padding: 10px 14px !important; }
+html body #mainContent .ops-section-header,
+html body #mainContent .sm-section-title { margin: 6px 0 !important; padding: 0 !important; }
+html body #mainContent .ops-section-hint,
+html body #mainContent .sm-hint { display: none !important; }
+html body #mainContent .ops-date-group { margin: 4px 0 !important; padding: 0 !important; }
+html body #mainContent .op-card,
+html body #mainContent .sm-op-row { padding: 8px 10px !important; min-height: 52px !important; gap: 8px !important; }
+html body #mainContent .op-category,
+html body #mainContent .sm-op-name { overflow-wrap: anywhere; white-space: normal !important; }
+html body #mainContent .op-right,
+html body #mainContent .sm-op-amount { max-width: 52%; min-width: 0; overflow-wrap: anywhere; }
+html body #mainContent .op-amount { overflow-wrap: anywhere; }
+html body #mainContent .op-delete { opacity: .75 !important; min-width: 32px; min-height: 32px; }
+html body #mainContent .empty-block,
+html body #mainContent .sm-empty { padding: 16px 10px !important; }
+html body #mainContent .sm-two-btns { gap: 8px !important; margin-bottom: 6px !important; }
+html body #mainContent .sm-big-btn { min-height: 48px !important; padding: 8px !important; flex-direction: row !important; flex-wrap: wrap; gap: 6px !important; }
+html body #mainContent .sm-big-icon { font-size: 1.2em !important; }
+html body #mainContent .sm-big-sub { display: none !important; }
+html body #mainContent .sm-voice-btn { padding: 10px !important; min-height: 48px !important; margin: 6px 0 !important; }
+html body #mainContent .sm-voice-hint { display: none !important; }
+html body #mainContent .sm-voice-icon { width: 36px !important; height: 36px !important; min-width: 36px !important; font-size: 1.25em !important; }
+html body #mainContent .sm-op-icon { width: 36px !important; height: 36px !important; min-width: 36px !important; font-size: 1.25em !important; }
+html body #mainContent .sm-recent-block { margin: 6px 0 !important; }
+html body #mainContent .sm-all-btn,
+html body #mainContent .sm-history-btn { padding: 10px !important; min-height: 44px !important; margin: 6px 0 !important; }
+html body.simple-mode #confirmOverlay { z-index: 40000 !important; }
+/* Reserve the safe area in addition to the usable height of the existing nav. */
+html body #mainNav.bottom-nav,
+html body.simple-mode #simpleNav.bottom-nav {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  height: calc(80px + var(--safe-bottom, 0px)) !important;
+  min-height: 80px !important;
+  padding: 4px 6px calc(4px + var(--safe-bottom, 0px)) !important;
+  gap: 2px !important;
+  max-width: 480px !important;
+}
+html body #mainNav .nav-btn,
+html body #simpleNav .nav-btn { min-width: 44px !important; min-height: 48px !important; }
+html body #mainNav #fabBtn,
+html body #simpleNav #fabBtnSimple {
+  flex: 0 0 72px !important;
+  width: 72px !important;
+  height: 72px !important;
+  min-width: 72px !important;
+  min-height: 72px !important;
+  margin-top: -10px !important;
+}
+html body #mainNav #fabBtn .nav-fab-circle,
+html body #simpleNav #fabBtnSimple .nav-fab-circle {
+  width: 68px !important;
+  height: 68px !important;
+  min-width: 68px !important;
+  min-height: 68px !important;
+  flex: 0 0 68px !important;
+  font-size: 36px !important;
+  transform: none !important;
+}
+/* Compact home history; no changes to the balance card or the central +. */
+html body #mainContent .home-history-heading {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px 10px !important;
+  margin: 4px 0 !important;
+}
+html body #mainContent .home-history-heading > :first-child { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+html body #mainContent .home-history-heading > button { flex: 0 0 auto; max-width: 58% !important; margin: 0 !important; }
+html body #mainContent .home-history-heading .sm-section-title { margin: 0 !important; }
+html body #mainContent #homeDetails { margin: 4px 0 !important; }
+html body #mainContent #homeDetails > summary { min-height: 48px; padding-top: 8px; padding-bottom: 8px; }
+html body #mainContent #homeDetails .home-details-icon { transition: transform 260ms cubic-bezier(.22,.61,.36,1); }
+html body #mainContent #homeDetails[data-expanded="false"] > summary .home-details-icon { transform: rotate(0); }
+html body #mainContent .home-details-body { display: flow-root; }
+html body #mainContent :is(#homeDetails, #homeOpsItems) { overflow-anchor: none; }
+html body #mainContent #homeOpsItems.home-motion { pointer-events: none; }
+html body #mainContent #homeOpsItems.home-motion > :is(.op-swipe-wrap, .sm-op-row) { content-visibility: visible; }
+html body #mainContent :is(.op-card, .sm-op-row) { padding: 6px 10px !important; min-height: 48px !important; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+html body #mainContent :is(.op-category, .sm-op-name) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden !important;
+  line-height: 1.25;
+}
+html body #mainContent .op-info { font-size: inherit !important; }
+html body #mainContent .op-category { font-size: inherit !important; }
+html body #mainContent .op-category span { font-size: inherit !important; line-height: inherit !important; }
+html body #mainContent .op-amount { white-space: normal !important; }
+html body #mainContent .sm-ops-list { gap: 6px !important; }
+html body.dark #mainContent .op-card[data-type="income"] { background: rgba(20,50,40,.88) !important; }
+html body.dark #mainContent .op-card[data-type="expense"] { background: rgba(50,20,20,.88) !important; }
+html body:not(.dark) #mainContent .op-card[data-type="income"] { background: rgba(236,253,245,.94) !important; }
+html body:not(.dark) #mainContent .op-card[data-type="expense"] { background: rgba(255,245,244,.94) !important; }
+html body.dark #mainContent .sm-op-row { background: rgba(255,255,255,.12) !important; backdrop-filter: blur(12px) brightness(.55); -webkit-backdrop-filter: blur(12px) brightness(.55); }
+html body:not(.dark) #mainContent .sm-op-row { background: rgba(255,255,255,.94) !important; }
+html body #mainNav .nav-caption,
+html body #simpleNav .nav-simple-lbl {
+  display: block !important;
+  font-size: .65em !important;
+  line-height: 1.15;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+html body :is(#mainNav, #simpleNav) .nav-btn:not(.nav-fab-btn) { padding: 4px 2px !important; gap: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  html body #mainContent #homeDetails .home-details-icon { transition: none; }
+}
+    </style>
+    <style id="operationControlsLayout">
+/* Scoped operation controls. Keep existing colors, borders, radii and the large nav +. */
+html body #mainContent:has(.home-overview) :is(.history-btn, .sm-all-btn, .sm-history-btn, .home-ops-toggle, #clearFilterBtn, #welcomeClose),
+html body :is(#addModal, #editModal, #salaryModal, #fullHistoryModal) .modal-actions > button,
+html body #fullHistoryModal #clearAllHistoryBtn,
+html body #confirmOverlay :is(#confirmCancel, #confirmOk) {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 44px !important;
+  min-height: 48px !important;
+  height: auto !important;
+  width: auto !important;
+  max-width: 100% !important;
+  padding: 8px 12px !important;
+  font-size: inherit !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+  text-align: center !important;
+}
+html body #mainContent .home-ops-toggle { margin: 8px 0 !important; }
+html body #mainContent:has(.home-overview) :is(.home-details .htf-btn, .search-clear),
+html body :is(#addModal, #editModal, #salaryModal, #fullHistoryModal) :is(.modal-close, .datepicker-btn, .quick-date-btn, .suggestion-item, .suggestion-delete-btn, .icon-btn) {
+  box-sizing: border-box !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  height: auto !important;
+  line-height: 1.25 !important;
+}
+html body :is(#addModal, #editModal, #salaryModal, #fullHistoryModal) .modal-close {
+  flex: 0 0 44px !important;
+  width: 44px !important;
+  height: 44px !important;
+}
+html body :is(#addModal, #salaryModal) .numpad-btn {
+  height: auto !important;
+  min-height: 48px !important;
+  min-width: 44px !important;
+  padding: 8px !important;
+  line-height: 1.25 !important;
+}
+html body #addModal .type-btn {
+  min-height: 48px !important;
+  min-width: 44px !important;
+  padding: 8px 12px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+}
+html body :is(#addModal, #editModal, #salaryModal, #fullHistoryModal) .modal-actions {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  padding: 10px 0 !important;
+}
+html body :is(#addModal, #editModal, #salaryModal, #fullHistoryModal) .modal-actions > button {
+  flex: 0 1 auto !important;
+}
+html body #confirmOverlay :is(#confirmCancel, #confirmOk) { padding: 8px !important; font-size: .875em !important; }
+html body #confirmOverlay .confirm-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+}
+html body #mainContent:has(.home-overview) .op-delete {
+  flex: 0 0 44px !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  padding: 8px !important;
+}
+html body #mainContent:has(.home-overview) .op-right {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+html body #mainContent:has(.home-overview) .op-amount { min-width: 0; }
+html body:has(#mainContent .home-overview) .app-header .header-btn {
+  min-width: 44px !important;
+  min-height: 44px !important;
+}
+/* Status-only notifications must not block home controls after saving. */
+html body:has(#mainContent .home-overview) #toast { pointer-events: none !important; }
+/* Skip offscreen row layout without limiting or changing the rendered records. */
+html body #homeOpsItems > :is(.op-swipe-wrap, .sm-op-row) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 76px;
+}
+/* Constrain only operation sheets to the keyboard's visible viewport. */
+html body :is(#editModal, #salaryModal, #fullHistoryModal).modal-overlay {
+  top: var(--operation-viewport-top, 0px) !important;
+  bottom: var(--operation-viewport-bottom, 0px) !important;
+}
+html body :is(#editModal, #salaryModal, #fullHistoryModal) .modal {
+  max-height: min(92dvh, calc(var(--operation-viewport-height, 100dvh) - 16px)) !important;
+}
+html body #addModal .add-modal-sheet {
+  bottom: var(--operation-viewport-bottom, 0px) !important;
+  height: min(72dvh, calc(var(--operation-viewport-height, 100dvh) - 12px)) !important;
+  max-height: calc(var(--operation-viewport-height, 100dvh) - 12px) !important;
+}
+html body :is(#addModal, #editModal, #salaryModal, #fullHistoryModal) .modal-body {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding-bottom: calc(16px + var(--safe-bottom, 0px)) !important;
+  scroll-padding-bottom: calc(16px + var(--safe-bottom, 0px));
+}
+html body:has(:is(#addModal, #editModal, #salaryModal, #fullHistoryModal).open) #confirmOverlay {
+  top: var(--operation-viewport-top, 0px) !important;
+  bottom: var(--operation-viewport-bottom, 0px) !important;
+}
+html body:has(:is(#addModal, #editModal, #salaryModal, #fullHistoryModal).open) #confirmOverlay .confirm-box {
+  max-height: calc(var(--operation-viewport-height, 100dvh) - 24px);
+  overflow-y: auto;
+}
+    </style>
+    <style id="compactOperationSheets">
+/* Compact operation surfaces; all colors continue to come from the existing theme. */
+html body #homeOpsItems :is(.op-card, .sm-op-row) { padding: 4px 8px !important; gap: 6px !important; }
+html body #homeOpsItems :is(.op-category, .sm-op-name) {
+  font-size: inherit !important;
+  line-height: 1.15 !important;
+  min-height: 2.3em;
+  -webkit-line-clamp: 2;
+}
+html body #homeOpsItems :is(.op-time, .sm-op-date) { font-size: .7em !important; line-height: 1.2; margin-top: 0 !important; overflow-wrap: anywhere; }
+html body #homeOpsItems :is(.op-icon-wrap, .sm-op-icon) { width: 32px !important; height: 32px !important; min-width: 32px !important; flex: 0 0 32px; }
+html body #homeOpsItems .op-right { max-width: 54%; }
+html body #homeOpsItems .op-amount { flex-shrink: 1 !important; line-height: 1.2; }
+html body #homeOpsItems .sm-op-amount { line-height: 1.2; }
+html body #homeOpsItems .op-card { display: grid !important; grid-template-columns: 32px minmax(0, 1fr) minmax(0, 42%) 44px; gap: 2px 6px !important; }
+html body #homeOpsItems .op-icon-wrap { grid-column: 1; grid-row: 1; }
+html body #homeOpsItems .op-info { grid-column: 2; grid-row: 1; }
+html body #homeOpsItems .op-right { display: contents !important; }
+html body #homeOpsItems .op-amount { grid-column: 3; grid-row: 1; align-self: center; text-align: right; justify-content: flex-end; }
+html body #homeOpsItems .op-delete { grid-column: 4; grid-row: 1 / span 2; align-self: center; }
+html body #homeOpsItems .op-time { grid-column: 1 / 4; grid-row: 2; opacity: .8 !important; }
+html body #homeOpsItems .sm-op-row { display: grid !important; grid-template-columns: 32px minmax(0, 1fr) minmax(0, 44%); gap: 2px 6px !important; }
+html body #homeOpsItems .sm-op-icon { grid-column: 1; grid-row: 1 / span 2; }
+html body #homeOpsItems .sm-op-info { grid-column: 2; grid-row: 1; }
+html body #homeOpsItems .sm-op-amount { grid-column: 3; grid-row: 1; max-width: 100%; text-align: right; }
+html body #homeOpsItems .sm-op-date { grid-column: 2 / 4; grid-row: 2; }
+html body #homeOpsItems[data-large-text="true"] :is(.op-time, .sm-op-date) { min-height: 2.4em; }
+
+html body #editModal .operation-subcategory-full { white-space: normal; overflow-wrap: anywhere; line-height: 1.35; }
+
+html body :is(#fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal) .modal-header {
+  flex: 0 0 auto;
+  min-height: 52px;
+  padding: 4px 10px !important;
+  gap: 8px !important;
+}
+html body :is(#fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal) .modal-header h2 { margin: 0; min-width: 0; white-space: normal !important; overflow-wrap: anywhere; line-height: 1.25; }
+html body :is(#subcategoryPickerModal, #subcategoryEditorModal) .modal-close { width: 44px !important; height: 44px !important; min-width: 44px; min-height: 44px; flex: 0 0 44px; }
+html body :is(#fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal).modal-overlay {
+  top: var(--operation-viewport-top, 0px) !important;
+  bottom: var(--operation-viewport-bottom, 0px) !important;
+  padding: 8px 8px max(8px, var(--safe-bottom, 0px)) !important;
+}
+html body :is(#fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal) .modal {
+  max-height: min(84dvh, calc(var(--operation-viewport-height, 100dvh) - max(16px, var(--safe-bottom, 0px)) - 8px)) !important;
+}
+html body :is(#fullHistoryModal, #subcategoryPickerModal) .modal-body { padding: 8px 10px max(8px, var(--safe-bottom, 0px)) !important; }
+html body #fullHistoryModal .history-list { gap: 4px !important; }
+html body #fullHistoryModal .history-item { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(92px, 42%); gap: 2px 8px !important; padding: 6px 8px !important; }
+html body #fullHistoryModal .history-item-info { grid-row: 1 / span 2; min-width: 0; cursor: pointer; }
+html body #fullHistoryModal .history-item-cat { font-size: inherit !important; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal !important; overflow-wrap: anywhere; line-height: 1.2; }
+html body #fullHistoryModal .history-item-cat span { font-size: inherit !important; line-height: inherit; }
+html body #fullHistoryModal .history-item-meta { line-height: 1.2; overflow-wrap: anywhere; }
+html body #fullHistoryModal .history-item-amt { min-width: 0; white-space: normal !important; overflow-wrap: anywhere; line-height: 1.2; text-align: right; }
+html body #fullHistoryModal .history-item-btns { justify-content: flex-end; gap: 4px !important; }
+html body #fullHistoryModal .history-item-btns .icon-btn { flex: 0 0 44px; width: 44px !important; min-width: 44px !important; height: 44px !important; padding: 6px !important; }
+
+html body #addModal .add-modal-sheet { height: min(86dvh, calc(var(--operation-viewport-height, 100dvh) - 12px)) !important; padding: 0 !important; }
+html body #addModal .modal-header { flex: 0 0 auto; padding: 4px 10px !important; }
+html body #addModal .modal-body { padding: 8px 10px !important; overscroll-behavior: contain; }
+html body #addModal .field-group { margin-bottom: 6px !important; }
+html body #addModal .field-label { margin-bottom: 3px !important; }
+html body #addModal :is(.modal-input, .modal-select, .modal-textarea) { min-width: 0; min-height: 44px; padding: 8px 10px !important; line-height: 1.2; }
+html body #addModal .modal-textarea { min-height: 56px; }
+html body #addModal .type-btn { min-height: 44px !important; padding: 6px 10px !important; }
+html body #addModal .quick-numpad { margin: 4px 0 !important; }
+html body #addModal .numpad-row { gap: 4px !important; margin-bottom: 4px !important; }
+html body #addModal .numpad-btn { min-height: 44px !important; height: 44px !important; padding: 4px !important; }
+html body #addModal .quick-dates { margin-top: 4px !important; gap: 4px !important; }
+html body #addModal .quick-date-btn { padding: 6px 8px !important; }
+html body #addModal .suggestions-block { margin-top: 6px !important; }
+html body #addModal .add-modal-sheet > .modal-actions {
+  flex: 0 0 auto;
+  margin: 0 !important;
+  padding: 6px 10px max(6px, var(--safe-bottom, 0px)) !important;
+  gap: 6px !important;
+}
+html body #addModal .add-modal-sheet > .modal-actions > button { min-width: 0 !important; flex: 1 1 0 !important; }
+html body #addModal #addSubcatSelect[hidden] { display: none !important; }
+html body #addModal .subcategory-trigger { width: 100%; text-align: left; white-space: normal; overflow-wrap: anywhere; cursor: pointer; }
+html body #addModal .subcategory-trigger::after { content: " ▾"; }
+html body #subcategoryPickerModal { z-index: 40020 !important; }
+html body #subcategoryPickerModal .subcategory-options { display: flex; flex-direction: column; gap: 4px; }
+html body #subcategoryPickerModal .subcategory-option {
+  width: 100%; min-height: 44px; padding: 10px 12px;
+  border-radius: 12px; border: 1px solid var(--cream-border);
+  background: var(--card-bg); color: var(--text);
+  text-align: left; font: inherit; line-height: 1.3; white-space: normal; overflow-wrap: anywhere;
+}
+html body #subcategoryPickerModal .subcategory-option[aria-selected="true"] { border: 2px solid var(--primary); font-weight: 900; }
+html body #subcategoryPickerModal .subcategory-option:focus-visible { outline: 2px solid var(--primary); outline-offset: -4px; }
+
+html body :is(#categoriesList, #incomeList) .cat-item-header { padding: 6px 8px !important; gap: 6px; }
+html body :is(#categoriesList, #incomeList) .cat-item-name { flex: 1; min-width: 0; overflow-wrap: anywhere; line-height: 1.25; }
+html body :is(#categoriesList, #incomeList) .cat-item-name > span:last-child { min-width: 0; }
+html body :is(#categoriesList, #incomeList) .chips-row { padding: 0 8px 6px !important; gap: 4px !important; }
+html body :is(#categoriesList, #incomeList) .chip { max-width: 100%; min-height: 44px; padding: 2px 6px !important; gap: 4px !important; }
+html body :is(#categoriesList, #incomeList) .chip > span { min-width: 0; white-space: normal; overflow-wrap: anywhere; line-height: 1.25; }
+html body :is(#categoriesList, #incomeList) .chip-del { flex: 0 0 44px; width: 44px; height: 44px; }
+html body :is(#categoriesList, #incomeList) :is(.add-sub, [data-delcat]) { min-height: 44px !important; min-width: 44px !important; }
+html body :is(#categoriesList, #incomeList) .cat-item { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+html body.dark :is(#categoriesList, #incomeList) .cat-item { backdrop-filter: blur(12px) brightness(.55); -webkit-backdrop-filter: blur(12px) brightness(.55); }
+
+/* One animation per sheet, not per operation. Keep the overlay mounted until closing finishes. */
+html body :is(#fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal) .modal {
+  animation: none !important;
+  opacity: 0; transform: translateY(14px);
+  transition: transform 260ms cubic-bezier(.22,.61,.36,1), opacity 260ms cubic-bezier(.22,.61,.36,1) !important;
+}
+html body :is(#fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal).open .modal { opacity: 1; transform: translateY(0); }
+html body :is(#fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal):is(.opening, .closing) { display: flex !important; pointer-events: none !important; }
+html body #addModal:is(.open, .closing, .opening) :is(.add-modal-overlay, .add-modal-sheet) { transition-duration: 260ms !important; animation-duration: 260ms !important; }
+html body #addModal.closing,
+html body #addModal.closing :is(.add-modal-overlay, .add-modal-sheet) { pointer-events: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  html body :is(#addModal, #fullHistoryModal, #subcategoryPickerModal, #subcategoryEditorModal) :is(.modal, .add-modal-sheet, .add-modal-overlay),
+  html body #addModal:is(.open, .closing, .opening) :is(.add-modal-overlay, .add-modal-sheet) { animation: none !important; transition: none !important; }
+}
+    </style>
+    <style id="homeVoiceButtonStyle">
+/* Scoped to the home entry point; existing theme variables supply every color. */
+html body #mainContent .home-voice-btn {
+  box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+  gap: 14px; width: 100%; min-width: 0; min-height: 72px; padding: 5px 16px;
+  margin: 8px 0 12px; border: 1px solid var(--primary); border-radius: var(--radius-lg, 20px);
+  background: linear-gradient(120deg, var(--primary-pale), var(--card-bg)); color: var(--text);
+  font: inherit; font-weight: 800; cursor: pointer; position: relative; overflow: hidden;
+  touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+html body #mainContent .home-voice-btn[hidden] { display: none; }
+html body #mainContent .home-voice-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+html body #mainContent .home-voice-btn:disabled { cursor: default; opacity: 1; }
+html body #mainContent .home-voice-orb {
+  position: relative; isolation: isolate; display: grid; place-items: center;
+  width: 54px; height: 54px; flex: 0 0 54px; color: var(--primary);
+}
+html body #mainContent .home-voice-orb svg { width: 30px; height: 30px; position: relative; z-index: 1; }
+html body #mainContent .home-voice-orb::before,
+html body #mainContent .home-voice-orb::after {
+  content: ""; position: absolute; inset: 10px; border: 1px solid currentColor;
+  border-radius: 50%; pointer-events: none;
+  animation: homeVoiceWave 5s cubic-bezier(.2,.4,.4,1) infinite;
+}
+html body #mainContent .home-voice-orb::before { animation-delay: -2.5s; }
+html body #mainContent .home-voice-orb::after { animation-delay: -5s; }
+html body #mainContent .home-voice-label {
+  min-width: 0; max-width: 100%; font-size: max(18px, 1em) !important; line-height: 1.3;
+  text-align: start; white-space: normal; word-break: normal; overflow-wrap: normal; hyphens: none;
+}
+html body #mainContent .home-voice-btn:is([data-state="listening"], [data-state="speech"]) { border-width: 2px; }
+html body #mainContent .home-voice-btn:is([data-state="listening"], [data-state="speech"]) .home-voice-orb::before,
+html body #mainContent .home-voice-btn:is([data-state="listening"], [data-state="speech"]) .home-voice-orb::after { animation-name: homeVoiceRecordingWave; }
+html body #mainContent .home-voice-btn:is([data-paused="true"], [data-state="sending"], [data-state="transcribing"]) .home-voice-orb::before,
+html body #mainContent .home-voice-btn:is([data-paused="true"], [data-state="sending"], [data-state="transcribing"]) .home-voice-orb::after { animation-play-state: paused; }
+/* Preserve the draggable button and its saved position outside home. */
+body:has(#mainContent .home-voice-btn:not([hidden])) #voiceInputBtn { visibility: hidden; pointer-events: none; }
+@keyframes homeVoiceWave {
+  0% { transform: scale(.65); opacity: 0; }
+  16% { opacity: .32; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+@keyframes homeVoiceRecordingWave {
+  0% { transform: scale(.65); opacity: 0; }
+  16% { opacity: .6; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body #mainContent .home-voice-orb::before,
+  html body #mainContent .home-voice-orb::after { animation: none; opacity: 0; }
+}
+    </style>
+    <style id="naturalTextLayout">
+/* Natural word boundaries for prose only. Numeric amounts retain their complete values. */
+html body #homeOpsItems :is(.op-category, .sm-op-name, .op-note, .op-time, .sm-op-date),
+html body #fullHistoryModal :is(.history-item-cat, .history-item-meta),
+html body #mainContent :is(.home-history-heading, .ops-section-label, .operation-type-title, .home-details-title, .hc-label, .hc-label-text),
+html body :is(#categoriesList, #incomeList) :is(.cat-item-name, .chip > span, button),
+html body :is(#addModal, #editModal, #subcategoryPickerModal, #subcategoryEditorModal, #fullHistoryModal) :is(h2, .field-label, .subcategory-trigger, .subcategory-option, .operation-subcategory-full, .modal-actions > button),
+html body #confirmOverlay :is(#confirmTitle, #confirmMsg, button),
+html body #mainContent .appearance-screen :is(h2, h3, p, button, .appearance-font-name, .appearance-option-label, .appearance-option-sub, .appearance-current-pill, .appearance-chip-note, .appearance-chip-title) {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  word-wrap: normal !important;
+  hyphens: none !important;
+}
+/* Give the complete title the first row instead of squeezing it between actions. */
+html body #homeOpsItems .op-card { grid-template-columns: 32px minmax(0, 1fr) 44px; }
+html body #homeOpsItems .op-icon-wrap { grid-column: 1; grid-row: 1; }
+html body #homeOpsItems .op-info { grid-column: 2 / 4; grid-row: 1; }
+html body #homeOpsItems .op-amount { grid-column: 1 / 3; grid-row: 2; justify-content: flex-start; text-align: left; }
+html body #homeOpsItems .op-delete { grid-column: 3; grid-row: 2 / 4; }
+html body #homeOpsItems .op-time { grid-column: 1 / 3; grid-row: 3; }
+html body #homeOpsItems .sm-op-row { grid-template-columns: 32px minmax(0, 1fr); }
+html body #homeOpsItems .sm-op-icon { grid-column: 1; grid-row: 1; }
+html body #homeOpsItems .sm-op-info { grid-column: 2; grid-row: 1; }
+html body #homeOpsItems .sm-op-amount { grid-column: 1 / -1; grid-row: 2; text-align: left; }
+html body #homeOpsItems .sm-op-date { grid-column: 1 / -1; grid-row: 3; }
+html body #homeOpsItems :is(.op-category, .sm-op-name, .op-time, .sm-op-date) { min-height: 0 !important; }
+html body #homeOpsItems :is(.op-category, .sm-op-name) { max-width: 100%; }
+html body #homeOpsItems .op-category .op-subcategory,
+html body #homeOpsItems .sm-op-name .op-subcategory,
+html body #fullHistoryModal .history-item-cat .op-subcategory { font-size: .85em !important; font-weight: 600 !important; }
+html body #homeOpsItems .op-note { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+html body #fullHistoryModal .history-item { grid-template-columns: minmax(0, 1fr) 92px; }
+html body #fullHistoryModal .history-item-info { grid-column: 1 / -1; grid-row: 1; }
+html body #fullHistoryModal .history-item-amt { grid-column: 1; grid-row: 2; text-align: left; }
+html body #fullHistoryModal .history-item-meta { grid-column: 1; grid-row: 3; min-width: 0; }
+html body #fullHistoryModal .history-item-btns { grid-column: 2; grid-row: 2 / 4; align-self: center; }
+/* Ellipsis is a fallback for a single word wider than the entire compact title. */
+html body #homeOpsItems :is(.op-category, .sm-op-name),
+html body #fullHistoryModal .history-item-cat { text-overflow: ellipsis; }
+html body #mainContent #homeDetails > summary { font-size: clamp(16px, 4.6vw, 20px) !important; align-items: center; }
+html body #mainContent #homeDetails .home-details-title { flex: 1; white-space: normal; }
+html body #mainContent #homeDetails .home-details-icon { flex: 0 0 auto; }
+/* Keep labels on a single line; full text remains the accessible button name. */
+html body :is(#mainNav, #simpleNav) .nav-btn:not(.nav-fab-btn) { flex: 1 1 0 !important; min-width: 44px !important; max-width: calc((100% - 80px) / 4); overflow: hidden; }
+html body #mainNav .nav-caption,
+html body #simpleNav .nav-simple-lbl {
+  width: 100%; max-width: 100%; min-width: 0;
+  font-size: clamp(10px, 2.8vw, 12px) !important;
+  white-space: nowrap !important; word-break: normal !important; overflow-wrap: normal !important;
+  overflow: hidden; text-overflow: ellipsis; line-height: 1.25;
+}
+/* Let metric cards use another row when their text scale needs it. */
+html body #mainContent .home-overview .hero-chips { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr)) !important; }
+html body #mainContent .home-overview .hc-label { min-width: 0; max-width: 100%; }
+html body #mainContent .home-overview .hc-label-text { min-width: 0; max-width: 100%; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+/* Font choices stay compact and preserve the four original setting values. */
+html body #mainContent .appearance-font-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 10em), 1fr)) !important; gap: 8px !important; align-items: stretch; }
+html body #mainContent .appearance-font-option { font-size: inherit !important; display: flex !important; flex-direction: row !important; align-items: center !important; gap: 10px !important; min-width: 0; min-height: 52px !important; padding: 8px 10px !important; }
+html body #mainContent .appearance-font-letter { flex: 0 0 32px; width: 32px; font-size: clamp(20px, 1.4em, 30px) !important; line-height: 1; }
+html body #mainContent .appearance-font-name { flex: 1; min-width: 0; font-size: inherit !important; white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; line-height: 1.25; }
+html body #mainContent .appearance-card-head { flex-wrap: wrap; }
+html body #mainContent .appearance-card-copy { min-width: 0; flex: 1 1 12em; }
+html body #mainContent .appearance-current-pill { max-width: 100%; white-space: normal; }
+/* Full read views may scroll an exceptionally long unspaced token rather than split letters. */
+html body #editModal .operation-subcategory-full,
+html body #subcategoryPickerModal .subcategory-option,
+html body #addModal .subcategory-trigger,
+html body :is(#categoriesList, #incomeList) .cat-item-name > span:last-child,
+html body :is(#categoriesList, #incomeList) .chip > span { max-width: 100%; overflow-x: auto; }
+html body #addModal .add-modal-sheet > .modal-actions > button { flex: 1 1 max-content !important; max-width: 100% !important; }
+html body #mainContent .home-history-heading { flex-wrap: wrap; }
+html body #mainContent .home-history-heading > :first-child { flex-basis: 10em; }
+html body #mainContent .home-history-heading > button { max-width: 100% !important; }
+html body #mainContent :is(.settings-subpage-title, .settings-subpage-desc, .settings-card-desc, .set-theme-lbl) { word-break: normal !important; overflow-wrap: normal !important; hyphens: none !important; }
+html body #mainContent .appearance-chip-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 8em), 1fr)) !important; }
+html body #mainContent .appearance-segmented { grid-template-columns: repeat(auto-fit, minmax(min(100%, 10em), 1fr)) !important; }
+html body :is(#addModal, #editModal, #subcategoryEditorModal, #subcategoryPickerModal, #fullHistoryModal) .modal-header h2 { white-space: normal !important; min-width: 0; }
+html body #mainContent .simple-hero .hc-label { display: block !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+html body #mainContent .appearance-font-option[data-size="small"] .appearance-font-letter { font-size: 18px !important; }
+html body #mainContent .appearance-font-option[data-size="normal"] .appearance-font-letter { font-size: 22px !important; }
+html body #mainContent .appearance-font-option[data-size="large"] .appearance-font-letter { font-size: 26px !important; }
+html body #mainContent .appearance-font-option[data-size="xl"] .appearance-font-letter { font-size: 30px !important; }
+html body #homeOpsItems :is(.op-time, .sm-op-date) { font-size: clamp(11px, .75em, 18px) !important; }
     </style>
   </body>
 </html>

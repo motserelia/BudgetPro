@@ -1,12 +1,24 @@
 /* БюджетPRO — Service Worker v3.1 (Netlify edition) */
 
-const CACHE_NAME = "budgetpro-v3.7";
+const CACHE_NAME = "budgetpro-voice-v2-config-1.3.0";
 
 const ASSETS = [
   "/",
   "/index.html",
   "/index.css",
   "/index.js",
+  "/api-config.js",
+  "/voice/transcript-validator.js",
+  "/voice/number-normalizer.js",
+  "/voice/voice-activity-detector.js",
+  "/voice/pcm.js",
+  "/voice/voice-recorder.js",
+  "/voice/voice-api-client.js",
+  "/voice/voice-diagnostics.js",
+  "/voice/voice-session.js",
+  "/voice/voice-ui.js",
+  "/voice/pcm-worklet.js",
+
   "/chart.min.js",
   "/manifest.json",
   "/favicon-96x96.png",
@@ -49,6 +61,7 @@ self.addEventListener("activate", (event) => {
 // Fetch strategy: network‑first for external APIs, cache‑first for our own assets
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+  if (url.pathname.startsWith("/api/voice/")) return;
   if (event.request.method !== "GET") return;
   if (url.protocol === "chrome-extension:") return;
 

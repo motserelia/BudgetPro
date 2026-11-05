@@ -1,0 +1,20 @@
+{
+  "purpose": "Future unit-aware parser correction; text tests only, never an ASR prompt",
+  "parserChanged": false,
+  "cases": [
+    {"text": "1 თეთრი", "expectedAmount": 0.01},
+    {"text": "5 თეთრი", "expectedAmount": 0.05},
+    {"text": "10 თეთრი", "expectedAmount": 0.10},
+    {"text": "50 თეთრი", "expectedAmount": 0.50},
+    {"text": "ორმოცდაათი თეთრი", "expectedAmount": 0.50},
+    {"text": "99 თეთრი", "expectedAmount": 0.99},
+    {"text": "100 თეთრი", "expectedAmount": 1.00},
+    {"text": "150 თეთრი", "expectedAmount": 1.50},
+    {"text": "8 ლარი 5 თეთრი", "expectedAmount": 8.05},
+    {"text": "8 ლარი 50 თეთრი", "expectedAmount": 8.50},
+    {"text": "ყავაში რვა ლარი ორმოცდაათი თეთრი გადავიხადე", "expectedAmount": 8.50},
+    {"text": "50 ლარი", "expectedAmount": 50},
+    {"text": "ავაში არვა ლარი გადავიხადე", "expectedAmount": null},
+    {"text": "თეთრი გადავიხადე", "expectedAmount": null}
+  ]
+}

@@ -6844,7 +6844,7 @@ function renderSimpleHome() {
   );
   mc.querySelector("#simpleVoiceBtn")?.addEventListener("click", () => {
     haptic("medium");
-    startVoiceInput();
+    startVoiceSession();
   });
 
   // Быстрые категории
@@ -10559,7 +10559,7 @@ function renderSettings() {
     });
   document.getElementById("voiceDirectBtn")?.addEventListener("click", () => {
     haptic("medium");
-    startVoiceInput();
+    startVoiceSession();
   });
 
   // ── Цели ──
@@ -18207,119 +18207,20 @@ function showBudgetCelebration() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 🎤 3. ГОЛОСОВОЙ ВВОД (Web Speech API)
+// 🎤 3. ГОЛОСОВОЙ ВВОД (Google Cloud STT V2)
 // ═══════════════════════════════════════════════════════════════
-const VOICE_OVERLAY_ID = "voiceOverlay";
-const VOICE_INPUT_MODE_KEY = "budgetpro_voice_mode";
 const VOICE_LEARNING_KEY = "budgetpro_voice_learning_v2";
 const VOICE_MAX_LEARNING_ENTRIES = 120;
 
-const VOICE_INPUT_MODES = {
-  auto: {
-    overlayGate: 0.05,
-    overlayBoost: 1.2,
-    overlayRelease: 0.8,
-    overlayNoiseRise: 0.12,
-    overlayNoiseFall: 0.035,
-    overlaySpeechAttack: 0.34,
-    overlaySpeechDecay: 0.12,
-    overlaySpeechThreshold: 0.085,
-    overlaySpeechinessWeight: 0.32,
-    webRmsBoost: 8.4,
-    webPeakBoost: 1.5,
-    webMinSpeechiness: 0.2,
-  },
-  whisper: {
-    overlayGate: 0.024,
-    overlayBoost: 1.5,
-    overlayRelease: 0.88,
-    overlayNoiseRise: 0.08,
-    overlayNoiseFall: 0.028,
-    overlaySpeechAttack: 0.38,
-    overlaySpeechDecay: 0.08,
-    overlaySpeechThreshold: 0.05,
-    overlaySpeechinessWeight: 0.22,
-    webRmsBoost: 10.2,
-    webPeakBoost: 1.9,
-    webMinSpeechiness: 0.14,
-  },
-  street: {
-    overlayGate: 0.095,
-    overlayBoost: 1.06,
-    overlayRelease: 0.72,
-    overlayNoiseRise: 0.2,
-    overlayNoiseFall: 0.055,
-    overlaySpeechAttack: 0.26,
-    overlaySpeechDecay: 0.17,
-    overlaySpeechThreshold: 0.12,
-    overlaySpeechinessWeight: 0.48,
-    webRmsBoost: 6.8,
-    webPeakBoost: 1.18,
-    webMinSpeechiness: 0.32,
-  },
-};
-
-function getVoiceInputMode() {
-  const raw = String(localStorage.getItem(VOICE_INPUT_MODE_KEY) || "auto")
-    .trim()
-    .toLowerCase();
-  return Object.prototype.hasOwnProperty.call(VOICE_INPUT_MODES, raw)
-    ? raw
-    : "auto";
-}
-
-function setVoiceInputMode(mode) {
-  const next = Object.prototype.hasOwnProperty.call(VOICE_INPUT_MODES, mode)
-    ? mode
-    : "auto";
-  localStorage.setItem(VOICE_INPUT_MODE_KEY, next);
-  return next;
-}
-
-function getVoiceInputModeConfig(mode = getVoiceInputMode()) {
-  return VOICE_INPUT_MODES[mode] || VOICE_INPUT_MODES.auto;
-}
-
+function getVoiceInputMode() { return window.BudgetPROVoiceModule.getMode(); }
+function setVoiceInputMode(mode) { window.BudgetPROVoiceModule.setMode(mode); return getVoiceInputMode(); }
 function getVoiceInputModeLabels() {
+  const L = currentLang;
   return {
-    auto: {
-      label: { ru: "Авто", en: "Auto", ka: "ავტო" }[currentLang] || "Auto",
-      hint:
-        {
-          ru: "Сбалансированный режим на каждый день",
-          en: "Balanced everyday mode",
-          ka: "დაბალანსებული ყოველდღიური რეჟიმი",
-        }[currentLang] || "Balanced everyday mode",
-    },
-    whisper: {
-      label:
-        { ru: "Шепот", en: "Whisper", ka: "ჩურჩული" }[currentLang] || "Whisper",
-      hint:
-        {
-          ru: "Для тихой речи рядом с микрофоном",
-          en: "For quiet speech close to the mic",
-          ka: "ჩუმი მეტყველებისთვის მიკროფონთან ახლოს",
-        }[currentLang] || "For quiet speech close to the mic",
-    },
-    street: {
-      label: { ru: "Улица", en: "Street", ka: "ქუჩა" }[currentLang] || "Street",
-      hint:
-        {
-          ru: "Жёстче отсекает фоновый шум",
-          en: "Cuts background noise more aggressively",
-          ka: "უფრო მკაცრად ჭრის ფონის ხმაურს",
-        }[currentLang] || "Cuts background noise more aggressively",
-    },
+    auto: { label: {ru:"Авто",en:"Auto",ka:"ავტო"}[L], hint: {ru:"Сбалансированный режим",en:"Balanced recording",ka:"დაბალანსებული რეჟიმი"}[L] },
+    quiet: { label: {ru:"Тихая речь",en:"Quiet speech",ka:"ჩუმი მეტყველება"}[L], hint: {ru:"Чувствительный микрофон",en:"Sensitive capture",ka:"მგრძნობიარე მიკროფონი"}[L] },
+    noise: { label: {ru:"Шумное место",en:"Noisy place",ka:"ხმაურიანი ადგილი"}[L], hint: {ru:"Адаптация к фоновому шуму",en:"Adapts to background noise",ka:"ფონის ხმაურზე მორგება"}[L] }
   };
-}
-
-function getVoiceRecognitionLangCode({ native = false } = {}) {
-  const code =
-    currentLang === "en" ? "en-US" : currentLang === "ka" ? "ka-GE" : "ru-RU";
-  // For native Android bridge, pass the explicit lang code so the OS voice engine
-  // doesn't fall back to the system default language (e.g. Russian)
-  if (native) return code;
-  return code;
 }
 
 function normalizeVoiceMeaningText(text) {
@@ -18497,513 +18398,35 @@ function scoreVoiceLabelMatch(normalizedText, label) {
   return score;
 }
 
-function getVoiceListeningCopy() {
-  const mode = getVoiceInputMode();
-  return {
-    title:
-      { ru: "Говорите...", en: "Listening...", ka: "ილაპარაკეთ..." }[
-        currentLang
-      ] || "Listening...",
-    hint:
-      ({
-        auto: {
-          ru: "Можно говорить по-русски, English или ქართულად: сумма и категория",
-          en: "Speak Russian, English or Georgian: amount and category",
-          ka: "ილაპარაკეთ რუსულად, English ან ქართულად: თანხა და კატეგორია",
-        },
-        whisper: {
-          ru: "Шепот: поднесите телефон ближе и говорите коротко",
-          en: "Whisper: hold the phone closer and speak briefly",
-          ka: "ჩურჩული: მოიტანეთ ტელეფონი ახლოს და თქვით მოკლედ",
-        },
-        street: {
-          ru: "Шумно вокруг: говорите ближе к микрофону и короче",
-          en: "Noisy outside: speak closer to the mic and keep it short",
-          ka: "ხმაურია: ილაპარაკეთ მიკროფონთან ახლოს და მოკლედ",
-        },
-      }[mode] || {
-        ru: "Формат: «Потратил 50 лари на продукты»",
-        en: "Format: «I spent 50 lari on groceries»",
-        ka: "ფორმატი: «დავხარჯე 50 ლარი პროდუქტებზე»",
-      })[currentLang] || "Format: I spent 50 lari on groceries",
-  };
-}
-
-function ensureVoiceOverlayStyles() {
-  if (document.getElementById("voiceOverlayStyles")) return;
-  const style = document.createElement("style");
-  style.id = "voiceOverlayStyles";
-  style.textContent = `
-    @keyframes voiceOverlayFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
-    }
-    .voice-overlay-shell {
-      width: min(92vw, 360px);
-      display: grid;
-      justify-items: center;
-      gap: 16px;
-      text-align: center;
-      color: white;
-    }
-    .voice-orb-wrap {
-      position: relative;
-      width: 170px;
-      height: 170px;
-      display: grid;
-      place-items: center;
-      animation: voiceOverlayFloat 3.2s ease-in-out infinite;
-    }
-    .voice-wave-ring {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 124px;
-      height: 124px;
-      border-radius: 999px;
-      border: 1.5px solid rgba(255,255,255,0.24);
-      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 48%, transparent 72%);
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0.22;
-      pointer-events: none;
-      will-change: transform, opacity;
-    }
-    .voice-orb-core {
-      position: relative;
-      z-index: 2;
-      width: 88px;
-      height: 88px;
-      border-radius: 28px;
-      display: grid;
-      place-items: center;
-      font-size: 42px;
-      color: white;
-      background: linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
-      border: 1.5px solid rgba(255,255,255,0.24);
-      box-shadow: 0 22px 42px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.08) inset;
-      backdrop-filter: blur(12px);
-      will-change: transform, box-shadow;
-    }
-    .voice-wave-canvas {
-      width: min(88vw, 300px);
-      height: 84px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.09);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .voice-overlay-copy {
-      display: grid;
-      gap: 8px;
-      justify-items: center;
-    }
-    .voice-overlay-title {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-    }
-    .voice-overlay-hint {
-      font-size: 14px;
-      line-height: 1.5;
-      color: rgba(255,255,255,0.76);
-      padding: 0 8px;
-      max-width: 320px;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-function cleanupVoiceOverlayMeter() {
-  const state = window.__voiceOverlayState;
-  if (!state) return;
-  if (typeof state.meterCleanup === "function") {
-    try {
-      state.meterCleanup();
-    } catch (e) {}
-  }
-  if (state.rafId) cancelAnimationFrame(state.rafId);
-  window.__voiceOverlayState = null;
-}
-
-function normalizeVoiceOverlayEnergy(level) {
-  const clamped = Math.max(0, Math.min(1, Number(level) || 0));
-  if (clamped <= 0.012) return 0;
-  return Math.min(1, Math.pow(clamped, 0.72) * 1.12);
-}
-
-function setVoiceOverlayLevel(level, meta = {}) {
-  const state = window.__voiceOverlayState;
-  if (!state) return;
-  const cfg = state.modeConfig || getVoiceInputModeConfig();
-  const raw = normalizeVoiceOverlayEnergy(level);
-  const speechiness = Math.max(
-    0,
-    Math.min(1, Number(meta.speechiness ?? raw) || 0),
-  );
-
-  if (!Number.isFinite(state.noiseFloor)) {
-    state.noiseFloor = raw * 0.78;
-  }
-  const noiseLerp =
-    raw > state.noiseFloor ? cfg.overlayNoiseRise : cfg.overlayNoiseFall;
-  state.noiseFloor += (raw - state.noiseFloor) * noiseLerp;
-
-  const gated = Math.max(
-    0,
-    raw -
-      state.noiseFloor -
-      cfg.overlayGate +
-      speechiness * cfg.overlaySpeechinessWeight,
-  );
-  const speechCandidate = Math.max(
-    0,
-    Math.min(1, gated * cfg.overlayBoost + speechiness * 0.22),
-  );
-
-  if (
-    speechCandidate >= cfg.overlaySpeechThreshold ||
-    speechiness >= cfg.webMinSpeechiness
-  ) {
-    state.speechConfidence +=
-      (1 - state.speechConfidence) * cfg.overlaySpeechAttack;
-  } else {
-    state.speechConfidence +=
-      (0 - state.speechConfidence) * cfg.overlaySpeechDecay;
-  }
-
-  const smoothed = speechCandidate * (0.42 + state.speechConfidence * 0.8);
-  state.targetEnergy = Math.max(
-    smoothed,
-    state.targetEnergy * cfg.overlayRelease,
-  );
-}
-
-function renderVoiceOverlayFrame(state, timestamp) {
-  if (!state?.overlay?.isConnected) return;
-  const t = timestamp || performance.now();
-  state.energy += (state.targetEnergy - state.energy) * 0.34;
-  state.targetEnergy *= 0.8;
-  const energy = Math.max(0.04, Math.min(1, state.energy));
-
-  state.rings.forEach((ring, index) => {
-    const drift = Math.sin(t * 0.0016 + index * 0.9) * 0.018;
-    const scale = 1 + index * 0.16 + energy * (0.24 + index * 0.1) + drift;
-    ring.style.transform = `translate(-50%, -50%) scale(${scale.toFixed(3)})`;
-    ring.style.opacity = `${Math.max(0.12, 0.26 + energy * (0.28 - index * 0.05))}`;
-  });
-
-  if (state.core) {
-    state.core.style.transform = `scale(${(1 + energy * 0.12).toFixed(3)})`;
-    state.core.style.boxShadow = `0 22px 42px rgba(0,0,0,0.28), 0 0 ${(
-      20 +
-      energy * 52
-    ).toFixed(1)}px rgba(255,122,89,${(0.18 + energy * 0.22).toFixed(
-      3,
-    )}), 0 0 0 1px rgba(255,255,255,0.08) inset`;
-  }
-
-  const canvas = state.canvas;
-  const ctx = state.ctx;
-  if (canvas && ctx) {
-    const width = canvas.width;
-    const height = canvas.height;
-    const mid = height / 2;
-    ctx.clearRect(0, 0, width, height);
-
-    const gradient = ctx.createLinearGradient(0, 0, width, 0);
-    gradient.addColorStop(0, "rgba(255,255,255,0.18)");
-    gradient.addColorStop(0.22, "rgba(251,146,60,0.92)");
-    gradient.addColorStop(0.5, "rgba(255,214,102,0.96)");
-    gradient.addColorStop(0.78, "rgba(96,165,250,0.9)");
-    gradient.addColorStop(1, "rgba(255,255,255,0.18)");
-
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = gradient;
-    ctx.beginPath();
-    const amplitude = 8 + energy * 30;
-    for (let x = 0; x <= width; x += 4) {
-      const progress = x / width;
-      const wave =
-        Math.sin(progress * Math.PI * 6 + t * 0.01) * amplitude * 0.55 +
-        Math.sin(progress * Math.PI * 13 - t * 0.016) * amplitude * 0.24 +
-        Math.sin(progress * Math.PI * 2 + t * 0.004) * amplitude * 0.18;
-      const y = mid + wave;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-
-    ctx.lineWidth = 1.2;
-    ctx.strokeStyle = `rgba(255,255,255,${(0.22 + energy * 0.24).toFixed(3)})`;
-    ctx.beginPath();
-    for (let x = 0; x <= width; x += 6) {
-      const progress = x / width;
-      const wave =
-        Math.sin(progress * Math.PI * 5 + t * 0.006) * (amplitude * 0.38);
-      const y = mid + wave;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-
-  state.rafId = requestAnimationFrame((ts) =>
-    renderVoiceOverlayFrame(state, ts),
-  );
-}
-
-function createVoiceListeningOverlay() {
-  ensureVoiceOverlayStyles();
-  closeVoiceListeningOverlay();
-  const copy = getVoiceListeningCopy();
-  const overlay = document.createElement("div");
-  overlay.id = VOICE_OVERLAY_ID;
-  overlay.style.cssText =
-    "position:fixed;inset:0;z-index:99998;background:radial-gradient(circle at 50% 35%, rgba(255,149,105,0.20), transparent 28%), rgba(5,8,18,0.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px 16px;";
-  overlay.innerHTML = `
-    <div class="voice-overlay-shell">
-      <div class="voice-orb-wrap">
-        <div class="voice-wave-ring" data-voice-ring="1"></div>
-        <div class="voice-wave-ring" data-voice-ring="2"></div>
-        <div class="voice-wave-ring" data-voice-ring="3"></div>
-        <div class="voice-orb-core" id="voiceOrbCore">🎤</div>
-      </div>
-      <canvas id="voiceWaveCanvas" class="voice-wave-canvas" width="300" height="84"></canvas>
-      <div class="voice-overlay-copy">
-        <div class="voice-overlay-title">${copy.title}</div>
-        <div class="voice-overlay-hint">${copy.hint}</div>
-      </div>
-      <button id="voiceCancel" style="padding:12px 28px;border-radius:20px;background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.24);font-size:15px;font-weight:800;cursor:pointer;">${t(
-        "cancel",
-      )}</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  const canvas = document.getElementById("voiceWaveCanvas");
-  const state = {
-    overlay,
-    rings: Array.from(overlay.querySelectorAll("[data-voice-ring]")),
-    core: document.getElementById("voiceOrbCore"),
-    canvas,
-    ctx: canvas?.getContext?.("2d") || null,
-    mode: getVoiceInputMode(),
-    modeConfig: getVoiceInputModeConfig(),
-    energy: 0.08,
-    targetEnergy: 0.12,
-    noiseFloor: 0.03,
-    speechConfidence: 0.16,
-    rafId: 0,
-    meterCleanup: null,
-  };
-  window.__voiceOverlayState = state;
-  renderVoiceOverlayFrame(state, performance.now());
-  return overlay;
-}
-
-function closeVoiceListeningOverlay() {
-  window.__budgetProNativeVoiceLevel = null;
-  cleanupVoiceOverlayMeter();
-  document.getElementById(VOICE_OVERLAY_ID)?.remove();
-}
-
-async function startWebVoiceOverlayMeter() {
-  const state = window.__voiceOverlayState;
-  if (!state || typeof navigator === "undefined") return;
-  const modeConfig = state.modeConfig || getVoiceInputModeConfig();
-  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-  if (!navigator.mediaDevices?.getUserMedia || !AudioContextCtor) return;
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      },
-    });
-    if (window.__voiceOverlayState !== state) {
-      stream.getTracks().forEach((track) => track.stop());
-      return;
-    }
-    const audioContext = new AudioContextCtor();
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 512;
-    analyser.smoothingTimeConstant = 0.62;
-    const source = audioContext.createMediaStreamSource(stream);
-    const data = new Uint8Array(analyser.fftSize);
-    const freqData = new Uint8Array(analyser.frequencyBinCount);
-    source.connect(analyser);
-    let rafId = 0;
-    const tick = () => {
-      analyser.getByteTimeDomainData(data);
-      analyser.getByteFrequencyData(freqData);
-      let sum = 0;
-      let peak = 0;
-      for (let i = 0; i < data.length; i++) {
-        const v = (data[i] - 128) / 128;
-        sum += v * v;
-        peak = Math.max(peak, Math.abs(v));
-      }
-      const rms = Math.sqrt(sum / data.length);
-      let totalEnergy = 0;
-      let speechBandEnergy = 0;
-      const binHz = audioContext.sampleRate / analyser.fftSize;
-      for (let i = 1; i < freqData.length; i++) {
-        const value = freqData[i] / 255;
-        const hz = i * binHz;
-        totalEnergy += value;
-        if (hz >= 160 && hz <= 3800) speechBandEnergy += value;
-      }
-      const speechiness = totalEnergy > 0 ? speechBandEnergy / totalEnergy : 0;
-      const boosted = Math.max(
-        rms * modeConfig.webRmsBoost,
-        peak * modeConfig.webPeakBoost,
-      );
-      const combined = boosted * (0.52 + Math.max(0, speechiness - 0.08) * 1.2);
-      setVoiceOverlayLevel(Math.min(1, combined), { speechiness });
-      rafId = requestAnimationFrame(tick);
-    };
-    tick();
-    state.meterCleanup = () => {
-      cancelAnimationFrame(rafId);
+async function startVoiceSession(options = {}) {
+  const voice = window.BudgetPROVoiceModule;
+  if (!voice || voice.isActive()) return;
+  let close = () => {};
+  const run = async (closeOverlay) => {
+    const btn = document.getElementById("voiceInputBtn");
+    btn?.classList.add("recording");
+    const getToken = async () => {
       try {
-        source.disconnect();
-      } catch (e) {}
-      try {
-        analyser.disconnect();
-      } catch (e) {}
-      stream.getTracks().forEach((track) => track.stop());
-      if (audioContext.state !== "closed") {
-        audioContext.close().catch(() => {});
-      }
+        if (typeof getAuthSession !== "function") return "";
+        let authSession = getAuthSession("voice");
+        if (authSession?.refresh_token && typeof isAuthSessionExpired === "function" && isAuthSessionExpired(authSession)) {
+          if (!await refreshAuthSession("voice")) return "";
+          authSession = getAuthSession("voice");
+        }
+        return authSession?.access_token || "";
+      } catch { return ""; }
     };
-  } catch (e) {
-    console.warn("[Voice overlay meter]", e);
-  }
-}
-
-function startVoiceInput() {
-  const webLangCode = getVoiceRecognitionLangCode();
-  const nativeLangCode = getVoiceRecognitionLangCode({ native: true });
-  const voiceMode = getVoiceInputMode();
-  const nativeVoice =
-    window.BudgetPROVoice && typeof window.BudgetPROVoice.start === "function";
-  if (nativeVoice) {
-    const ov = createVoiceListeningOverlay();
-    window.__budgetProNativeVoiceResult = (
-      status,
-      payload,
-      alternatives = [],
-    ) => {
-      closeVoiceListeningOverlay();
-      window.__budgetProNativeVoiceResult = null;
-      if (status === "result" && payload && payload.trim()) {
-        haptic("success");
-        parseVoiceInput(payload, alternatives);
-        return;
-      }
-      console.warn("[Voice native error]", payload);
-      const rawError = String(payload || "").toLowerCase();
-      const permissionError =
-        rawError.includes("permission") || rawError.includes("denied");
-      const unavailableError = rawError.includes("not available");
-      const L = permissionError
-        ? {
-            ru: "Нет доступа к микрофону. Разрешите микрофон для BudgetPRO.",
-            en: "Microphone access is blocked. Allow microphone for BudgetPRO.",
-            ka: "მიკროფონზე წვდომა დაბლოკილია. დაუშვით მიკროფონი BudgetPRO-სთვის.",
-          }
-        : unavailableError
-          ? {
-              ru: "На этом устройстве недоступно голосовое распознавание.",
-              en: "Speech recognition is not available on this device.",
-              ka: "ამ მოწყობილობაზე ხმოვანი ამოცნობა მიუწვდომელია.",
-            }
-          : {
-              ru: "Не расслышал. Попробуйте ещё раз короткой фразой.",
-              en: "I couldn't catch that. Try again with a short phrase.",
-              ka: "ვერ გავიგე. სცადეთ მოკლე ფრაზით თავიდან.",
-            };
-      showToast(L[currentLang] || L.ru, "error");
-    };
-    document.getElementById("voiceCancel").onclick = () => {
-      try {
-        window.BudgetPROVoice.stop();
-      } catch (e) {}
-      window.__budgetProNativeVoiceResult = null;
-      closeVoiceListeningOverlay();
-    };
-    haptic("medium");
-    try {
-      window.__budgetProNativeVoiceLevel = (level) =>
-        setVoiceOverlayLevel(level);
-      if (typeof window.BudgetPROVoice.startConfig === "function") {
-        window.BudgetPROVoice.startConfig(nativeLangCode, voiceMode);
-      } else {
-        window.BudgetPROVoice.start(`${nativeLangCode}::${voiceMode}`);
-      }
-      return;
-    } catch (e) {
-      closeVoiceListeningOverlay();
-      window.__budgetProNativeVoiceResult = null;
-      console.warn("[Voice native fallback]", e);
-    }
-  }
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    const L = {
-      ru: "Голосовой ввод недоступен. Используйте Chrome на Android.",
-      en: "Voice input not available. Use Chrome on Android.",
-      ka: "ხმოვანი შეყვანა მიუწვდომელია. გამოიყენეთ Chrome.",
-    };
-    showToast(L[currentLang] || L.ru, "error");
-    return;
-  }
-  const rec = new SpeechRecognition();
-  rec.lang = webLangCode;
-  // Force the lang attribute on the html element so browsers that read it
-  // (some Chrome Android versions) pick the right speech model
-  document.documentElement.setAttribute("lang", webLangCode);
-  rec.continuous = false;
-  rec.interimResults = false;
-  rec.maxAlternatives = voiceMode === "whisper" ? 7 : 5;
-
-  const ov = createVoiceListeningOverlay();
-  document.getElementById("voiceCancel").onclick = () => {
-    rec.stop();
-    closeVoiceListeningOverlay();
+    const names = [typeof categories !== "undefined" ? categories : {}, typeof incomeCategories !== "undefined" ? incomeCategories : {}].flatMap(group => Object.entries(group).flatMap(([name, value]) => [name, ...(value?.subcats || [])]));
+    let hintChars = 0;
+    const hints = [...new Set(names)].filter(v => { if (typeof v !== "string" || !v.trim() || v.length > 60 || /[\p{Cc}]/u.test(v) || hintChars + v.length > 400) return false; hintChars += v.length; return true; }).slice(0, 20);
+    const result = await voice.start({ getToken, hints, onTranscript(text) {
+      if (!options.settings) { closeOverlay(); haptic("success"); parseVoiceInput(text); }
+    }});
+    btn?.classList.remove("recording");
+    if (result?.cancelled) closeOverlay();
   };
-  haptic("medium");
-  startWebVoiceOverlayMeter();
-
-  rec.onresult = (event) => {
-    closeVoiceListeningOverlay();
-    const alternatives = Array.from(event.results?.[0] || [])
-      .map((result) => result.transcript)
-      .filter(Boolean);
-    const choice = chooseBestVoiceTranscript(alternatives);
-    console.log("Voice:", choice.text, choice.alternatives);
-    haptic("success");
-    parseVoiceInput(choice.text, choice.alternatives);
-  };
-  rec.onerror = (e) => {
-    closeVoiceListeningOverlay();
-    const L = {
-      ru: "Не удалось распознать. Попробуйте ещё раз.",
-      en: "Couldn't recognize. Please try again.",
-      ka: "ვერ ამოვიცანი. სცადეთ ხელახლა.",
-    };
-    showToast(L[currentLang] || L.ru, "error");
-  };
-  rec.onend = () => {
-    closeVoiceListeningOverlay();
-    // Restore the document lang to the UI language code (not the speech BCP-47 code)
-    document.documentElement.setAttribute("lang", currentLang);
-  };
-  rec.start();
+  if (!options.settings) close = window.VoiceUI.openOverlay(currentLang, run);
+  return run(close);
 }
 
 function getVoiceDraftLabels() {
@@ -19183,22 +18606,6 @@ function normalizeVoiceAlternatives(values) {
       seen.add(key);
       return true;
     });
-}
-
-function isVoiceTextCompatibleWithCurrentLanguage(text) {
-  const value = String(text || "");
-  if (currentLang === "ka") return /[\u10A0-\u10FF]/.test(value);
-  if (currentLang === "ru") return /[а-яё]/i.test(value);
-  return /[a-z]/i.test(value) || /\d/.test(value);
-}
-
-function showVoiceLanguageMismatch() {
-  const L = {
-    ru: "Распознавание вернуло текст не на выбранном языке. Попробуйте ещё раз.",
-    en: "Recognition returned text in another language. Please try again.",
-    ka: "ამოცნობამ სხვა ენის ტექსტი დააბრუნა. სცადეთ ხელახლა.",
-  };
-  showToast(L[currentLang] || L.ru, "error", 3600);
 }
 
 function parseVoiceNumericCandidate(token) {
@@ -20238,14 +19645,11 @@ function chooseBestVoiceTranscript(values) {
 }
 
 function parseVoiceInput(text, alternatives = []) {
-  const choice = chooseBestVoiceTranscript([
-    text,
-    ...normalizeVoiceAlternatives(alternatives),
-  ]);
-  openVoiceQuickModal(
-    buildVoiceDraftFromText(choice.text),
-    choice.alternatives,
-  );
+  const language = window.BudgetPROVoiceModule.getLanguage();
+  const validation = window.VoiceTranscriptValidator.validateTranscript(text, language);
+  if (!validation.valid) { showToast(window.VoiceUI.errorText(validation.reason, currentLang, language), "error"); return; }
+  const normalized = window.BudgetPROVoiceNumberNormalizer.normalizeNumbers(text, language);
+  openVoiceQuickModal(buildVoiceDraftFromText(normalized), []);
 }
 
 function getVoiceFallbackCategory(type) {
@@ -20322,7 +19726,7 @@ function saveVoiceDraftTransaction({
   else showMoneyFlyEffect();
   haptic("success");
   if (continueListening) {
-    setTimeout(() => startVoiceInput(), 520);
+    setTimeout(() => startVoiceSession(), 520);
   }
   return true;
 }
@@ -20582,7 +19986,7 @@ function openVoiceQuickModal(draft, alternatives = []) {
     ?.addEventListener("click", openEditor);
   document.getElementById("voiceQuickRetry")?.addEventListener("click", () => {
     closeModal("voiceQuickModal");
-    setTimeout(() => startVoiceInput(), 420);
+    setTimeout(() => startVoiceSession(), 420);
   });
   modal.querySelectorAll("[data-voice-alt]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -21277,14 +20681,14 @@ function addVoiceButton() {
       return;
     }
     haptic("medium");
-    startVoiceInput();
+    startVoiceSession();
   };
 
   voiceBtn.addEventListener("pointerup", finishDrag);
   voiceBtn.addEventListener("pointercancel", (e) => finishDrag(e, true));
   voiceBtn.addEventListener("click", (e) => {
-    if (!isVoiceDragSuppressed()) return;
-    stopVoiceGestureEvent(e);
+    if (isVoiceDragSuppressed()) { stopVoiceGestureEvent(e); return; }
+    if (e.detail === 0) startVoiceSession();
   });
   window.addEventListener("resize", () => {
     const rect = voiceBtn.getBoundingClientRect();

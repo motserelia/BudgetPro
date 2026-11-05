@@ -1,0 +1,262 @@
+{
+  "drafts": [
+    {
+      "lang": "ru",
+      "text": "Потратил восемь лари на кофе",
+      "draft": {
+        "rawText": "Потратил 8 лари на кофе",
+        "type": "expense",
+        "amount": 8,
+        "category": "Кофе",
+        "subcategory": ""
+      },
+      "amount": 8
+    },
+    {
+      "lang": "ru",
+      "text": "Такси двенадцать лари",
+      "draft": {
+        "rawText": "Такси 12 лари",
+        "type": "expense",
+        "amount": 12,
+        "category": "Транспорт",
+        "subcategory": ""
+      },
+      "amount": 12
+    },
+    {
+      "lang": "ru",
+      "text": "Получил зарплату две тысячи пятьсот лари",
+      "draft": {
+        "rawText": "Получил зарплату 2500 лари",
+        "type": "income",
+        "amount": 2500,
+        "category": "Зарплата",
+        "subcategory": ""
+      },
+      "amount": 2500
+    },
+    {
+      "lang": "ru",
+      "text": "кофе 8.50 лари",
+      "draft": {
+        "rawText": "кофе 8.50 лари",
+        "type": "expense",
+        "amount": 8.5,
+        "category": "Кофе",
+        "subcategory": ""
+      },
+      "amount": 8.5
+    },
+    {
+      "lang": "ru",
+      "text": "3 dollars 50 cents",
+      "draft": {
+        "rawText": "3 dollars 50 cents",
+        "type": "expense",
+        "amount": 3.5,
+        "category": "",
+        "subcategory": ""
+      },
+      "amount": 3.5
+    },
+    {
+      "lang": "ru",
+      "text": "пятьдесят копеек",
+      "draft": {
+        "rawText": "50 копеек",
+        "type": "expense",
+        "amount": 5,
+        "category": "",
+        "subcategory": ""
+      },
+      "amount": 5
+    },
+    {
+      "lang": "en",
+      "text": "spent eight lari on coffee",
+      "draft": {
+        "rawText": "spent 8 lari on coffee",
+        "type": "expense",
+        "amount": 8,
+        "category": "Кофе",
+        "subcategory": ""
+      },
+      "amount": 8
+    },
+    {
+      "lang": "en",
+      "text": "paid twelve dollars for taxi",
+      "draft": {
+        "rawText": "paid 12 dollars for taxi",
+        "type": "expense",
+        "amount": 12,
+        "category": "Транспорт",
+        "subcategory": ""
+      },
+      "amount": 12
+    },
+    {
+      "lang": "en",
+      "text": "received salary two thousand five hundred dollars",
+      "draft": {
+        "rawText": "received salary 2500 dollars",
+        "type": "income",
+        "amount": 2500,
+        "category": "Зарплата",
+        "subcategory": ""
+      },
+      "amount": 2500
+    },
+    {
+      "lang": "en",
+      "text": "three dollars fifty cents",
+      "draft": {
+        "rawText": "3 dollars 50 cents",
+        "type": "expense",
+        "amount": 3.5,
+        "category": "",
+        "subcategory": ""
+      },
+      "amount": 3.5
+    },
+    {
+      "lang": "en",
+      "text": "coffee 8.50 USD",
+      "draft": {
+        "rawText": "coffee 8.50 USD",
+        "type": "expense",
+        "amount": 8.5,
+        "category": "Кофе",
+        "subcategory": ""
+      },
+      "amount": 8.5
+    },
+    {
+      "lang": "en",
+      "text": "hello without money",
+      "draft": {
+        "rawText": "hello without money",
+        "type": "expense",
+        "amount": null,
+        "category": "",
+        "subcategory": ""
+      },
+      "amount": null
+    }
+  ],
+  "amounts": [
+    {
+      "text": "1 USD",
+      "amount": 1
+    },
+    {
+      "text": "1 EUR",
+      "amount": 1
+    },
+    {
+      "text": "1 руб",
+      "amount": 1
+    },
+    {
+      "text": "1 lari",
+      "amount": 1
+    },
+    {
+      "text": "8 USD",
+      "amount": 8
+    },
+    {
+      "text": "8 EUR",
+      "amount": 8
+    },
+    {
+      "text": "8 руб",
+      "amount": 8
+    },
+    {
+      "text": "8 lari",
+      "amount": 8
+    },
+    {
+      "text": "50 USD",
+      "amount": 50
+    },
+    {
+      "text": "50 EUR",
+      "amount": 50
+    },
+    {
+      "text": "50 руб",
+      "amount": 50
+    },
+    {
+      "text": "50 lari",
+      "amount": 50
+    },
+    {
+      "text": "100 USD",
+      "amount": 100
+    },
+    {
+      "text": "100 EUR",
+      "amount": 100
+    },
+    {
+      "text": "100 руб",
+      "amount": 100
+    },
+    {
+      "text": "100 lari",
+      "amount": 100
+    },
+    {
+      "text": "2500 USD",
+      "amount": 2500
+    },
+    {
+      "text": "2500 EUR",
+      "amount": 2500
+    },
+    {
+      "text": "2500 руб",
+      "amount": 2500
+    },
+    {
+      "text": "2500 lari",
+      "amount": 2500
+    },
+    {
+      "text": "20000 USD",
+      "amount": 20000
+    },
+    {
+      "text": "20000 EUR",
+      "amount": 20000
+    },
+    {
+      "text": "20000 руб",
+      "amount": 20000
+    },
+    {
+      "text": "20000 lari",
+      "amount": 20000
+    },
+    {
+      "text": "1200500 USD",
+      "amount": 1200500
+    },
+    {
+      "text": "1200500 EUR",
+      "amount": 1200500
+    },
+    {
+      "text": "1200500 руб",
+      "amount": 1200500
+    },
+    {
+      "text": "1200500 lari",
+      "amount": 1200500
+    }
+  ]
+}

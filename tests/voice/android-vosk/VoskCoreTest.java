@@ -1,0 +1,15 @@
+package pro.budget.app;
+import org.junit.Test;
+import static org.junit.Assert.*;
+import java.nio.*;
+import java.util.concurrent.atomic.AtomicInteger;
+public class VoskCoreTest {
+ private byte[] wav(){byte[] w=new byte[32044];ByteBuffer b=ByteBuffer.wrap(w).order(ByteOrder.LITTLE_ENDIAN);b.putInt(0,0x46464952);b.putInt(4,w.length-8);b.putInt(8,0x45564157);b.putInt(12,0x20746d66);b.putInt(16,16);b.putShort(20,(short)1);b.putShort(22,(short)1);b.putInt(24,16000);b.putInt(28,32000);b.putShort(32,(short)2);b.putShort(34,(short)16);b.putInt(36,0x61746164);b.putInt(40,w.length-44);return w;}
+ @Test public void pcmFormatAndBounds(){assertEquals(32000,VoskPcm.pcm(wav()).length);for(int offset:new int[]{0,4,8,12,16,20,22,24,28,32,34,36,40}){byte[] w=wav();w[offset]^=1;assertThrows(IllegalArgumentException.class,()->VoskPcm.pcm(w));}assertThrows(IllegalArgumentException.class,()->VoskPcm.pcm(new byte[10]));assertThrows(IllegalArgumentException.class,()->VoskPcm.pcm(new byte[960046]));}
+ private final AtomicInteger models=new AtomicInteger(),closed=new AtomicInteger(),decoders=new AtomicInteger(),freed=new AtomicInteger(),bytes=new AtomicInteger();
+ private VoskEngine engine(boolean fail){return new VoskEngine(()->{models.incrementAndGet();return new VoskEngine.Backend(){public VoskEngine.Decoder decoder(){decoders.incrementAndGet();return new VoskEngine.Decoder(){public void accept(byte[] p,int n)throws Exception{bytes.addAndGet(n);if(fail)throw new Exception("mock native failure");}public String finish(){return "რვა ლარი";}public void close(){freed.incrementAndGet();}};}public void close(){closed.incrementAndGet();}};});}
+ @Test public void warmReuseReleaseAndReinitialize()throws Exception{VoskEngine e=engine(false);assertTrue(e.initialize());assertFalse(e.initialize());assertEquals("რვა ლარი",e.recognize(new byte[32000],()->false));assertEquals("რვა ლარი",e.recognize(new byte[32000],()->false));assertEquals(1,models.get());assertEquals(2,freed.get());assertEquals(64000,bytes.get());e.close();e.close();assertEquals(1,closed.get());assertTrue(e.initialize());e.close();assertEquals(2,closed.get());}
+ @Test public void decodeErrorReleasesAndZeroes()throws Exception{VoskEngine e=engine(true);e.initialize();byte[] p=new byte[16000];java.util.Arrays.fill(p,(byte)7);assertThrows(Exception.class,()->e.recognize(p,()->false));assertEquals(1,freed.get());for(byte b:p)assertEquals(0,b);e.close();assertEquals(1,closed.get());}
+ @Test public void cancellationReleasesDecoder()throws Exception{VoskEngine e=engine(false);e.initialize();assertThrows(InterruptedException.class,()->e.recognize(new byte[32000],()->true));assertEquals(1,freed.get());assertEquals(0,bytes.get());e.close();}
+ @Test public void missingAndFailedModelDoNotInventResult(){VoskEngine e=engine(false);assertThrows(IllegalStateException.class,()->e.recognize(new byte[32000],()->false));VoskEngine broken=new VoskEngine(()->{throw new java.io.IOException("mock bad model");});assertThrows(java.io.IOException.class,broken::initialize);broken.close();}
+}

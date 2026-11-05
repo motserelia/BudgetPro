@@ -2596,13 +2596,14 @@ function updateHeroChipLabels(root = document) {
   const incomeLabel = root.querySelector("#incomeHeroLabel");
   const expenseLabel = root.querySelector("#expenseHeroLabel");
   const salaryLabel = root.querySelector("#salaryHeroLabel");
-  if (incomeLabel) incomeLabel.textContent = labels.income;
-  if (expenseLabel) expenseLabel.textContent = labels.expense;
+  if (incomeLabel) { incomeLabel.textContent = labels.income; incomeLabel.title = labels.income; }
+  if (expenseLabel) { expenseLabel.textContent = labels.expense; expenseLabel.title = labels.expense; }
   if (salaryLabel) salaryLabel.textContent = labels.salary;
 }
 
 function forceHeroChipLayout(root = document) {
   root.querySelectorAll(".hero-chips").forEach((wrap) => {
+    if (wrap.closest(".home-overview")) return;
     wrap.style.setProperty("display", "grid", "important");
     wrap.style.setProperty("grid-template-columns", "1fr", "important");
     wrap.style.setProperty("gap", "8px", "important");
@@ -2691,8 +2692,17 @@ function sym() {
 function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const k = el.getAttribute("data-i18n");
-    if (translations[currentLang][k])
+    if (translations[currentLang][k]) {
       el.textContent = translations[currentLang][k];
+      if (el.matches("#mainNav .nav-caption, #simpleNav .nav-simple-lbl")) {
+        el.title = translations[currentLang][k];
+        const button = el.closest("button");
+        if (button) {
+          button.title = translations[currentLang][k];
+          button.setAttribute("aria-label", translations[currentLang][k]);
+        }
+      }
+    }
   });
   document.querySelectorAll("[data-i18n-aria-label]").forEach((el) => {
     const k = el.getAttribute("data-i18n-aria-label");
@@ -2773,6 +2783,8 @@ let backgroundServicesStarted = false;
 let calcHistory = [];
 let convHistory = [];
 let currentFilter = null;
+// UI-only preference: shared by both home modes, never written to operation data.
+let homeOperationsExpanded = false;
 let remindersEnabled = false;
 let remindersInterval = "daily";
 let reminderIntervals = JSON.parse(
@@ -5154,12 +5166,50 @@ function detectEmojiByText(text, type = "expense", fallback = "") {
   return fallback || "";
 }
 
+// Presentation-only aliases: original category strings and transaction values stay intact.
+const STANDARD_EXPENSE_SUBCATEGORY_ICONS = [
+  ["💡", "შუქი", "Свет", "Электричество", "Электроэнергия", "Electricity", "Electric power"],
+  ["💧", "წყალი", "Вода", "Water"],
+  ["🔥", "გაზი", "Газ", "Gas"],
+  ["🌐", "ინტერნეტი", "Интернет", "Internet"],
+  ["🗑️", "დასუფთავების მოსაკრებელი", "Сбор мусора", "Waste collection"],
+  ["🍞", "პური", "Хлеб", "Bread"],
+  ["🥚", "კვერცხი", "Яйца", "Eggs"],
+  ["🥬", "მხვანილი", "მწვანილი", "Зелень", "Greens"],
+  ["🧀", "ყველი", "Сыр", "Cheese"],
+  ["🥛", "რძე", "Молоко", "Milk"],
+  ["🥒", "კიტრი", "Огурцы", "Cucumbers"],
+  ["🍅", "პომიდორი", "Помидоры", "Tomatoes"],
+  ["🍎", "ვაშლი", "Яблоки", "Apples"],
+  ["🍌", "ბანანი", "Бананы", "Bananas"],
+  ["🏦", "TBC ბანკი", "Банк TBC", "TBC Bank"],
+  ["🏦", "საქართველოს ბანკი", "Банк Sakartvelo", "Bank of Georgia"],
+  ["💍", "ლომბარდი", "Ломбард", "Pawnshop"],
+  ["🚇", "მეტრო", "Метро", "Metro"],
+  ["🚌", "ავტობუსი", "Автобус", "Bus"],
+  ["🚐", "სამარშრუტო მიკროავტობუსი", "Маршрутка", "Minibus"],
+  ["🚊", "ტრამვაი", "Трамвай", "Tram"],
+  ["⛽", "ბენზინი", "Бензин", "Petrol", "Gasoline"],
+  ["✈️", "თვითმფრინავი", "Самолёт", "Airplane"],
+].reduce((icons, [icon, ...names]) => {
+  names.forEach((name) => icons.set(normalizeEmojiSearchText(name), icon));
+  return icons;
+}, new Map());
+
+function getSubcategoryIcon(value, type = "expense") {
+  const parsed = splitEmojiLabel(value);
+  if (parsed.emoji) return parsed.emoji;
+  if (type === "expense") return STANDARD_EXPENSE_SUBCATEGORY_ICONS.get(normalizeEmojiSearchText(parsed.name)) || "🔖";
+  return detectEmojiByText(parsed.name, type, "");
+}
+
 function getDisplaySubcategoryLabel(value, type = "expense") {
   const raw = String(value || "").trim();
   if (!raw) return "";
   const parsed = splitEmojiLabel(raw);
+  if (!parsed.emoji && /\p{Extended_Pictographic}|\p{Regional_Indicator}|[0-9#*]\uFE0F?\u20E3/u.test(raw)) return raw;
   const labelName = parsed.name || (!parsed.emoji ? raw : "");
-  const emoji = parsed.emoji || detectEmojiByText(labelName, type, "");
+  const emoji = getSubcategoryIcon(raw, type);
   return composeEmojiLabel(emoji, labelName);
 }
 
@@ -6026,7 +6076,7 @@ function updateSuggestions() {
         if (tpl.subcategory) {
           setTimeout(() => {
             const s = document.getElementById("addSubcatSelect");
-            if (s) s.value = tpl.subcategory;
+            if (s) { s.value = tpl.subcategory; s.dispatchEvent(new Event("change")); }
           }, 50);
         }
         const af = document.getElementById("addAmount");
@@ -6064,8 +6114,11 @@ function toDisp(rub) {
 function toRub(disp) {
   return disp / (exchangeRates[displayCurrency] || 1);
 }
+function localCalendarDate(date = new Date()) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return localCalendarDate();
 }
 function fmtDate(d) {
   if (!d) return "";
@@ -6199,7 +6252,7 @@ function getDateGroupLabel(dateStr) {
   const todayStr = today();
   const d = new Date();
   d.setDate(d.getDate() - 1);
-  const yesterdayStr = d.toISOString().slice(0, 10);
+  const yesterdayStr = localCalendarDate(d);
   if (dateStr === todayStr) return t("groupToday");
   if (dateStr === yesterdayStr) return t("groupYesterday");
   try {
@@ -6218,13 +6271,18 @@ function filterByTime(txList, filter) {
   const todayStr = today();
   const d1 = new Date();
   d1.setDate(d1.getDate() - 1);
-  const yesterdayStr = d1.toISOString().slice(0, 10);
+  const yesterdayStr = localCalendarDate(d1);
   const d2 = new Date();
   d2.setDate(d2.getDate() - 2);
-  const twoDaysStr = d2.toISOString().slice(0, 10);
-  const weekAgo = new Date();
-  weekAgo.setDate(weekAgo.getDate() - 7);
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const twoDaysStr = localCalendarDate(d2);
+  const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7));
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const inRange = (from, to) => txList.filter(
+    (tx) => tx.date && tx.date >= localCalendarDate(from) && tx.date <= localCalendarDate(to),
+  );
   switch (filter) {
     case "today":
       return txList.filter((tx) => tx.date === todayStr);
@@ -6233,16 +6291,52 @@ function filterByTime(txList, filter) {
     case "twoDaysAgo":
       return txList.filter((tx) => tx.date === twoDaysStr);
     case "thisWeek":
-      return txList.filter(
-        (tx) => tx.date && new Date(tx.date + "T00:00:00") >= weekAgo,
-      );
+      return inRange(weekStart, weekEnd);
     case "thisMonth":
-      return txList.filter(
-        (tx) => tx.date && new Date(tx.date + "T00:00:00") >= monthStart,
-      );
+      return inRange(new Date(now.getFullYear(), now.getMonth(), 1), monthEnd);
     default:
       return txList;
   }
+}
+
+// All screens share the same money totals; initial balance is counted only once.
+function getFinancialTotals(txList = getMoneyTransactions()) {
+  let income = 0, expense = 0;
+  for (const tx of txList) {
+    if (isInitialBalanceTx(tx)) continue;
+    if (tx.type === "income") income += tx.amountRub;
+    else if (tx.type === "expense") expense += tx.amountRub;
+  }
+  return { income, expense, balance: startBalanceRub + income - expense };
+}
+
+function getFilteredOperations(query = "") {
+  const search = query.toLowerCase().trim();
+  let filtered = getMoneyTransactions();
+  if (currentFilter === "income" || currentFilter === "expense") {
+    filtered = filtered.filter((tx) => tx.type === currentFilter);
+  }
+  filtered = filterByTime(filtered, historyFilter);
+  if (search) {
+    filtered = filtered.filter((tx) => {
+      const amount = toDisp(tx.amountRub).toFixed(2);
+      return [tx.category, tx.subcategory, tx.note, tx.date, amount,
+        amount.replace(".", ",")].some((value) =>
+          value != null && String(value).toLowerCase().includes(search));
+    });
+  }
+  return filtered;
+}
+
+function refreshOperationViews() {
+  if (currentTab === "home" && simpleMode) {
+    refreshHomeList();
+    return;
+  }
+  updateTopBlocks();
+  if (currentTab === "home") renderOpsList();
+  else if (currentTab === "stats") renderStats();
+  else if (currentTab === "categories") renderCategories();
 }
 
 function getTransactionsForPeriod(period) {
@@ -7465,7 +7559,7 @@ function applyRecurringOps() {
         now.getMonth(),
         targetDay,
       );
-      targetDate = targetDateObj.toISOString().slice(0, 10);
+      targetDate = localCalendarDate(targetDateObj);
       if (
         now.getDate() >= targetDay &&
         op.lastApplied !== targetDate.slice(0, 7)
@@ -7758,30 +7852,20 @@ function animateValue(el, from, to, suffix, duration) {
 let _lastBalVals = { bal: null, inc: null, exp: null, sal: null };
 
 function getTopBlockDisplayValues() {
-  let inc = 0,
-    exp = 0,
-    realInc = 0;
-  for (const tx of getMoneyTransactions()) {
-    if (tx.type === "income") {
-      inc += tx.amountRub;
-      realInc += tx.amountRub;
-    } else {
-      exp += tx.amountRub;
-    }
-  }
+  const { balance } = getFinancialTotals();
+  const { income, expense } = getFinancialTotals(filterByTime(getMoneyTransactions(), "thisMonth"));
   return {
-    balD: toDisp(startBalanceRub + realInc - exp),
-    incD: toDisp(realInc),
-    expD: toDisp(exp),
+    balD: toDisp(balance),
+    incD: toDisp(income),
+    expD: toDisp(expense),
     salD: toDisp(startBalanceRub),
   };
 }
 
 function updateTopBlocks() {
   const s = sym();
-  // Balance = full inc (includes startBalance) - exp
-  // incomeCard shows only REAL income (not starting balance)
-  // salaryCard shows startBalanceRub
+  // Overall balance and current-calendar-month income/expense.
+  // Initial balance is excluded from monthly income.
   const { balD, incD, expD, salD } = getTopBlockDisplayValues();
   const els = {
     balanceValue: { val: balD, prev: _lastBalVals.bal },
@@ -7922,29 +8006,262 @@ function setTab(tab, onRendered) {
 // ============================================================
 // ГЛАВНАЯ — УПРОЩЁННЫЙ РЕЖИМ
 // ============================================================
-function renderSimpleHome() {
+function getHomeToolsMarkup() {
+  const title = { ru: "Подробности, поиск и фильтры", en: "Details, search and filters", ka: "დეტალები, ძიება და ფილტრები" }[currentLang] || "Details, search and filters";
+  return `<details class="home-details" id="homeDetails"><summary><span class="home-details-icon" aria-hidden="true">▸</span><span class="home-details-title">${title}</span></summary><div class="home-details-body" id="homeDetailsBody">
+    <div id="balanceSummaryContainer"></div><div id="searchContainer"></div>
+    <div class="history-time-filter"><span class="htf-label">${t("filterLabel")}</span><div class="htf-btns">
+      ${["allTime", "today", "yesterday", "twoDaysAgo", "thisWeek", "thisMonth"].map((f) => `<button class="htf-btn${historyFilter === f ? " active" : ""}" data-hf="${f}">${t("filter" + f.charAt(0).toUpperCase() + f.slice(1))}</button>`).join("")}
+    </div></div></div></details>`;
+}
+
+function bindHomeHistoryTools() {
+  bindHomeDetailsMotion();
+  // Поиск
+  if (!document.getElementById("searchInput")) {
+    const sc = document.getElementById("searchContainer");
+    if (sc) {
+      injectSearchCountStyles();
+      sc.innerHTML = `<div class="search-container"><div class="search-input-wrapper"><span class="search-icon">🔍</span><input type="text" id="searchInput" class="search-input" placeholder="${t("searchPlaceholder")}" autocomplete="off"><button class="search-clear" id="clearSearchBtn" style="display:none;">✕</button></div><div class="search-results-count" id="searchResultsCount"></div></div>`;
+      const sf = document.getElementById("searchInput"),
+        csb = document.getElementById("clearSearchBtn");
+      const dr = debounce(() => refreshHomeList(), 200);
+      if (sf) {
+        sf.addEventListener("input", function () {
+          if (csb) csb.style.display = this.value ? "flex" : "none";
+          dr();
+        });
+        sf.addEventListener("keydown", function (e) {
+          if (e.key === "Escape") {
+            this.value = "";
+            if (csb) csb.style.display = "none";
+            refreshHomeList();
+          }
+        });
+      }
+      if (csb) {
+        csb.addEventListener("click", function () {
+          if (sf) sf.value = "";
+          this.style.display = "none";
+          refreshHomeList();
+        });
+      }
+    }
+  }
+
+  // Фильтр по времени — обработчики
+  document.querySelectorAll(".htf-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      historyFilter = btn.dataset.hf;
+      document
+        .querySelectorAll(".htf-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      refreshHomeList();
+    });
+  });
+
+}
+
+function createHomeOperationViewCache() {
+  // New caches for every render: category edits, locale, currency and theme stay fresh.
+  const styles = new Map(), palettes = new Map(), dates = new Map(), subcategories = new Map();
+  const get = (cache, key, create) => {
+    if (!cache.has(key)) cache.set(key, create());
+    return cache.get(key);
+  };
+  return {
+    style: (tx) => get(styles, JSON.stringify([tx.type, tx.category]), () => getCategoryStyle(tx.category, tx.type)),
+    palette: (tx) => get(palettes, JSON.stringify([tx.type, tx.category]), () => getCategoryUiPalette(tx.category, tx.type)),
+    date: (tx) => get(dates, tx.date, () => fmtDate(tx.date)),
+    subcategory: (tx) => get(subcategories, JSON.stringify([tx.type, tx.subcategory]), () => getDisplaySubcategoryLabel(tx.subcategory, tx.type)),
+  };
+}
+
+function animateHomeHeight(element, from, to, finish, closing = false) {
+  const previous = element._homeMotion;
+  const opacity = previous ? getComputedStyle(element).opacity : (closing ? 1 : .65);
+  if (previous) {
+    previous.animation.onfinish = null;
+    previous.animation.cancel();
+  }
+  const saved = previous?.saved || { height: element.style.height, overflow: element.style.overflow, opacity: element.style.opacity };
+  const complete = () => {
+    Object.assign(element.style, saved);
+    element.classList.remove("home-motion");
+    element._homeMotion = null;
+    if (element.isConnected) finish();
+  };
+  if (!element.animate || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+    complete();
+    return;
+  }
+  element.classList.add("home-motion");
+  element.style.overflow = "hidden";
+  const animation = element.animate([
+    { height: `${from}px`, opacity },
+    { height: `${to}px`, opacity: closing ? (to === 0 ? 0 : .65) : 1 },
+  ], { duration: 260, easing: "cubic-bezier(.22,.61,.36,1)", fill: "both" });
+  const state = { animation, saved };
+  element._homeMotion = state;
+  animation.onfinish = () => {
+    if (element._homeMotion !== state) return;
+    animation.onfinish = null;
+    animation.cancel();
+    complete();
+  };
+}
+
+function bindHomeDetailsMotion() {
+  const details = document.getElementById("homeDetails");
+  const body = document.getElementById("homeDetailsBody");
+  const summary = details?.querySelector("summary");
+  if (!summary || !body || summary.dataset.motionBound) return;
+  summary.dataset.motionBound = "true";
+  summary.addEventListener("click", (event) => {
+    event.preventDefault();
+    const opening = details.dataset.expanded !== undefined ? details.dataset.expanded !== "true" : !details.open;
+    const from = details.open ? body.getBoundingClientRect().height : 0;
+    details.dataset.expanded = String(opening);
+    summary.setAttribute("aria-expanded", String(opening));
+    details.open = true;
+    if (!opening && body.contains(document.activeElement)) summary.focus({ preventScroll: true });
+    body.inert = !opening;
+    animateHomeHeight(body, from, opening ? body.scrollHeight : 0, () => {
+      details.open = opening;
+      body.inert = !opening;
+      delete details.dataset.expanded;
+    }, !opening);
+  });
+}
+
+function getHomeOperationsToggleText(count) {
+  const labels = {
+    ru: { show: `Показать все (${count})`, hide: "Свернуть" },
+    en: { show: `Show all (${count})`, hide: "Collapse" },
+    ka: { show: `ყველას ჩვენება (${count})`, hide: "შეკეცვა" },
+  }[currentLang] || { show: `Show all (${count})`, hide: "Collapse" };
+  return homeOperationsExpanded ? labels.hide : labels.show;
+}
+
+function getHomeOperationsToggleMarkup(count) {
+  if (count <= 3) return "";
+  return `<button type="button" class="btn-secondary home-ops-toggle" id="homeOpsToggleBtn" data-count="${count}" aria-controls="homeOpsItems" aria-expanded="${homeOperationsExpanded}">${getHomeOperationsToggleText(count)}</button>`;
+}
+
+function bindHomeOperationsToggle() {
+  const button = document.getElementById("homeOpsToggleBtn");
+  if (!button || button.dataset.motionBound) return;
+  button.dataset.motionBound = "true";
+  button.addEventListener("click", () => {
+    let list = document.getElementById("homeOpsItems");
+    const from = list?.getBoundingClientRect().height || 0;
+    homeOperationsExpanded = !homeOperationsExpanded;
+    // The nonvisual render path also remains usable without the animation API.
+    if (!list) { refreshHomeList(); return; }
+    let rows = list.querySelectorAll(simpleMode ? ".sm-op-row" : ".op-swipe-wrap");
+    if (homeOperationsExpanded && rows.length <= 3) {
+      refreshHomeList();
+      list = document.getElementById("homeOpsItems");
+      rows = list.querySelectorAll(simpleMode ? ".sm-op-row" : ".op-swipe-wrap");
+    }
+    const nextButton = document.getElementById("homeOpsToggleBtn");
+    nextButton.textContent = getHomeOperationsToggleText(Number(nextButton.dataset.count));
+    nextButton.setAttribute("aria-expanded", String(homeOperationsExpanded));
+    nextButton.focus({ preventScroll: true });
+    rows.forEach((row, index) => { row.inert = !homeOperationsExpanded && index >= 3; });
+    const expanded = homeOperationsExpanded;
+    list.classList.add("home-motion");
+    const to = expanded ? list.scrollHeight : rows[2].getBoundingClientRect().bottom - list.getBoundingClientRect().top;
+    animateHomeHeight(list, from, to, () => {
+      if (!expanded) {
+        refreshHomeList();
+        document.getElementById("homeOpsToggleBtn")?.focus({ preventScroll: true });
+      }
+    }, !expanded);
+  });
+}
+
+function refreshHomeList() {
+  if (simpleMode) {
+    const query = document.getElementById("searchInput")?.value || "";
+    const input = document.getElementById("searchInput");
+    const focused = input && document.activeElement === input;
+    const selectionStart = input?.selectionStart;
+    const selectionEnd = input?.selectionEnd;
+    const toolsOpen = document.getElementById("homeDetails")?.open || false;
+    renderSimpleHome(query, toolsOpen);
+    // List updates should not replay the entrance animation of the entire home.
+    document.getElementById("mainContent")?.firstElementChild?.classList.remove("tab-anim");
+    if (focused) {
+      const nextInput = document.getElementById("searchInput");
+      nextInput?.focus({ preventScroll: true });
+      if (selectionStart != null) nextInput?.setSelectionRange(selectionStart, selectionEnd);
+    }
+  } else renderOpsList();
+}
+
+// Presentation only: the voice module remains the sole owner of session state.
+function getHomeVoiceButtonMarkup(simple = false) {
+  const title = getVoiceDraftLabels().title;
+  return `<button type="button" id="${simple ? "simpleVoiceBtn" : "homeVoiceBtn"}" class="home-voice-btn">
+    <span class="home-voice-orb" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"/></svg></span>
+    <span class="home-voice-label" aria-live="polite">${esc(title)}</span>
+  </button>`;
+}
+
+function syncHomeVoiceAnimation() {
+  const button = document.querySelector("#mainContent .home-voice-btn");
+  if (button) button.dataset.paused = String(document.hidden);
+}
+
+function bindHomeVoiceButton() {
+  const button = document.querySelector("#mainContent .home-voice-btn");
+  if (!button) return;
+  if (!button.dataset.bound) {
+    button.dataset.bound = "true";
+    button.addEventListener("click", () => {
+      if (window.BudgetPROVoiceModule?.isActive()) return;
+      haptic("medium");
+      startVoiceSession();
+    });
+  }
+  // Resubscribe for the current render: subscribe immediately supplies the real state.
+  // The callback never retains a detached home node when navigating away.
+  window.__homeVoiceUnsubscribe?.();
+  window.__homeVoiceUnsubscribe = window.BudgetPROVoiceModule?.subscribe((state) => {
+    const current = document.querySelector("#mainContent .home-voice-btn");
+    // Meter frames do not require DOM or live-region updates.
+    if (!current || current.dataset.state === state.status) return;
+    const labels = {
+      ru: { authenticating: "Проверка входа…", requesting: "Подключение…", listening: "Слушаю…", speech: "Слушаю…", sending: "Обработка…", transcribing: "Распознаю…" },
+      en: { authenticating: "Checking sign-in…", requesting: "Connecting…", listening: "Listening…", speech: "Listening…", sending: "Processing…", transcribing: "Recognizing…" },
+      ka: { authenticating: "შესვლის შემოწმება…", requesting: "დაკავშირება…", listening: "გისმენთ…", speech: "გისმენთ…", sending: "მუშავდება…", transcribing: "ამოცნობა…" },
+    };
+    current.dataset.state = state.status;
+    current.disabled = window.BudgetPROVoiceModule.isActive();
+    current.setAttribute("aria-busy", String(current.disabled));
+    current.querySelector(".home-voice-label").textContent = (labels[currentLang] || labels.en)[state.status] || getVoiceDraftLabels().title;
+  });
+  if (!window.__homeVoiceVisibilityBound) {
+    document.addEventListener("visibilitychange", syncHomeVoiceAnimation);
+    window.__homeVoiceVisibilityBound = true;
+  }
+  syncHomeVoiceAnimation();
+}
+
+function renderSimpleHome(query = "", toolsOpen = false) {
   const mc = document.getElementById("mainContent");
   if (!mc) return;
   const heroWrap = document.getElementById("heroCardWrap");
   if (heroWrap) heroWrap.style.display = "none";
 
-  // Считаем суммы
-  let inc = 0,
-    exp = 0,
-    realInc = 0;
-  getMoneyTransactions().forEach((tx) => {
-    if (tx.type === "income") {
-      inc += tx.amountRub;
-      realInc += tx.amountRub;
-    } else exp += tx.amountRub;
-  });
-  const bal = startBalanceRub + realInc - exp;
+  const { balance: bal } = getFinancialTotals();
+  const { income: realInc, expense: exp } = getFinancialTotals(filterByTime(getMoneyTransactions(), "thisMonth"));
   const s = sym();
   const L = currentLang;
 
-  const todayTx = transactions.filter(
-    (tx) => !tx._initial && tx.date === today(),
-  );
+  const todayTx = getMoneyTransactions().filter((tx) => tx.date === today());
   const todayIncome = todayTx
     .filter((tx) => tx.type === "income")
     .reduce((sum, tx) => sum + tx.amountRub, 0);
@@ -7952,7 +8269,7 @@ function renderSimpleHome() {
     .filter((tx) => tx.type === "expense")
     .reduce((sum, tx) => sum + tx.amountRub, 0);
   const monthPrefix = today().slice(0, 7);
-  const monthExpense = transactions
+  const monthExpense = getMoneyTransactions()
     .filter(
       (tx) =>
         !tx._initial &&
@@ -7964,12 +8281,12 @@ function renderSimpleHome() {
   // Тексты — простые, без бухгалтерских терминов
   const T = {
     bal: {
-      ru: "Сейчас доступно",
-      en: "Available now",
-      ka: "ახლა ხელმისაწვდომია",
+      ru: "Текущий баланс",
+      en: "Current balance",
+      ka: "მიმდინარე ბალანსი",
     }[L],
-    inc: { ru: "Получено", en: "Received", ka: "მიღებულია" }[L],
-    exp: { ru: "Потрачено", en: "Spent", ka: "დახარჯულია" }[L],
+    inc: { ru: "Доходы", en: "Income", ka: "შემოსავალი" }[L],
+    exp: { ru: "Расходы", en: "Expenses", ka: "ხარჯები" }[L],
     sal: { ru: "Начальная сумма", en: "Starting amount", ka: "საწყისი თანხა" }[
       L
     ],
@@ -8013,12 +8330,12 @@ function renderSimpleHome() {
       en: "Quick expense",
       ka: "სწრაფი ხარჯი",
     }[L],
-    recent: { ru: "Сегодня", en: "Today", ka: "დღეს" }[L],
-    all: { ru: "Смотреть все →", en: "See all →", ka: "ყველა →" }[L],
+    recent: { ru: "Последние операции", en: "Recent transactions", ka: "ბოლო ოპერაციები" }[L],
+    all: { ru: "Вся история →", en: "Full history →", ka: "სრული ისტორია →" }[L],
     noOps: {
-      ru: "Сегодня записей пока нет.\nНажмите «Получил», «Потратил» или скажите голосом.",
-      en: "No records today yet.\nTap 'Received', 'Spent', or speak it.",
-      ka: "დღეს ჩანაწერი ჯერ არ არის.\nდააჭირეთ ან თქვით ხმოვანი ბრძანება.",
+      ru: "Нет операций по выбранным условиям.\nНажмите «Получил», «Потратил» или скажите голосом.",
+      en: "No matching transactions.\nTap 'Received', 'Spent', or speak it.",
+      ka: "შესაბამისი ოპერაციები ვერ მოიძებნა.\nდააჭირეთ ან თქვით ხმოვანი ბრძანება.",
     }[L],
     hint: {
       ru: "Нажмите на любую запись чтобы изменить или удалить её",
@@ -8028,14 +8345,15 @@ function renderSimpleHome() {
   };
 
   // В простом режиме показываем последние записи, а не только сегодняшний день.
-  const recent = transactions
-    .filter((tx) => !tx._initial)
+  const filteredOperations = getFilteredOperations(query)
     .sort((a, b) =>
       `${b.date || ""} ${b.time || ""}`.localeCompare(
         `${a.date || ""} ${a.time || ""}`,
       ),
-    )
-    .slice(0, 5);
+    );
+  const recent = homeOperationsExpanded ? filteredOperations : filteredOperations.slice(0, 3);
+  const operationIndexes = new Map(transactions.map((tx, index) => [tx, index]));
+  const operationView = createHomeOperationViewCache();
 
   // 8 быстрых категорий для расходов
   const quickCats = [
@@ -8084,36 +8402,36 @@ function renderSimpleHome() {
   const recentHtml = `
     <!-- ── ПОСЛЕДНИЕ ЗАПИСИ ── -->
     <div class="sm-recent-block" id="guideHistoryAnchor">
-      <div class="sm-section-title" style="margin-top:16px">${T.recent}</div>
+      <div class="home-history-heading"><div class="sm-section-title">${T.recent}</div><button class="sm-all-btn sm-open-history">${T.all}</button></div>
       ${
         recent.length
           ? `
         <div class="sm-hint">💡 ${T.hint}</div>
-        <div class="sm-ops-list">
+        <div class="sm-ops-list" id="homeOpsItems" data-large-text="${typeof fontSize !== "undefined" && ["large", "xl"].includes(fontSize)}">
           ${recent
             .map((tx) => {
-              const st2 = getCategoryStyle(tx.category, tx.type);
+              const st2 = operationView.style(tx);
               const sign = tx.type === "income" ? "+" : "−";
               const isInc = tx.type === "income";
               const icoBg = isInc
                 ? "rgba(45,212,191,0.18)"
                 : "rgba(248,113,113,0.16)";
               const amtColor = isInc ? "#5eead4" : "#fca5a5";
-              const idx2 = transactions.indexOf(tx);
+              const idx2 = operationIndexes.get(tx);
               const dateStr =
-                fmtDate(tx.date) + (tx.time ? " · " + tx.time : "");
+                t(tx.type === "income" ? "income" : "expense") + " · " + operationView.date(tx) + (tx.time ? " · " + esc(tx.time) : "");
               return `<div class="sm-op-row" data-idx="${idx2}">
               <div class="sm-op-icon" style="background:${icoBg}">${st2.icon}</div>
               <div class="sm-op-info">
-                <div class="sm-op-name">${esc(tx.category)}</div>
-                <div class="sm-op-date">${dateStr}</div>
+                <div class="sm-op-name" title="${esc(tx.category)}${tx.subcategory ? ` · ${esc(operationView.subcategory(tx))}` : ""}"><span class="op-category-name">${esc(tx.category)}</span>${tx.subcategory ? ` <span class="op-subcategory">· ${esc(operationView.subcategory(tx))}</span>` : ""}</div>
               </div>
-              <div class="sm-op-amount" style="color:${amtColor}">${sign}${s}${fmt(tx.amountRub)}</div>
+              <div class="sm-op-amount" style="color:${amtColor}">${sign}${fmt(tx.amountRub)}</div>
+              <div class="sm-op-date">${dateStr}</div>
             </div>`;
             })
             .join("")}
         </div>
-        <button class="sm-all-btn sm-open-history">${T.all}</button>
+        ${getHomeOperationsToggleMarkup(filteredOperations.length)}
       `
           : `
         <div class="sm-empty">
@@ -8127,57 +8445,27 @@ function renderSimpleHome() {
   // Цвет баланса
   const balColor = bal >= 0 ? "#bbf7d0" : "#fecaca";
 
-  mc.innerHTML = `<div class="tab-anim">
+  mc.innerHTML = `<div class="tab-anim compact-simple-home">
 
     <!-- ── БАЛАНС ── -->
-    <div class="simple-hero">
+    <div class="simple-hero home-overview">
       <div class="sh-label">${T.bal}</div>
       <div class="sh-value" style="color:${balColor}">
-        <span class="sh-currency" style="color:rgba(255,255,255,.65)">${s}</span>${toDisp(Math.abs(bal)).toFixed(2)}
-      </div>
-      <div class="sh-sub">
-        ${
-          {
-            ru: `Сегодня −${fmt(todayExpense)} ${s} · За месяц −${fmt(monthExpense)} ${s}`,
-            en: `Today −${fmt(todayExpense)} ${s} · This month −${fmt(monthExpense)} ${s}`,
-            ka: `დღეს −${fmt(todayExpense)} ${s} · თვეში −${fmt(monthExpense)} ${s}`,
-          }[L]
-        }
+        <span class="sh-currency" style="color:rgba(255,255,255,.65)">${s}</span>${toDisp(bal).toFixed(2)}
       </div>
       <div class="hero-chips sm-wallet-lines" style="margin-top:14px;">
-        <div class="hero-chip hc-income sm-chip-tap" data-type="income" role="button" tabindex="0">
-          <div class="hc-label">${T.inc}</div>
+        <div class="hero-chip hc-income sm-chip-tap" data-type="income" data-period="thisMonth" role="button" tabindex="0">
+          <div class="hc-label" title="${esc(T.inc)}">${T.inc}</div>
           <div class="hc-value">+${toDisp(realInc).toFixed(2)}</div>
         </div>
-        <div class="hero-chip hc-expense sm-chip-tap" data-type="expense" role="button" tabindex="0">
-          <div class="hc-label">${T.exp}</div>
+        <div class="hero-chip hc-expense sm-chip-tap" data-type="expense" data-period="thisMonth" role="button" tabindex="0">
+          <div class="hc-label" title="${esc(T.exp)}">${T.exp}</div>
           <div class="hc-value">−${toDisp(exp).toFixed(2)}</div>
-        </div>
-        <div class="hero-chip hc-salary sm-chip-tap" data-type="salary" role="button" tabindex="0">
-          <div class="hc-label">${T.sal}</div>
-          <div class="hc-value">${toDisp(startBalanceRub).toFixed(2)}</div>
         </div>
       </div>
     </div>
 
-    <!-- ── МИНИ-СТАТИСТИКА ── -->
-    <div class="sm-mini-stats">
-      <div class="sm-stat-item">
-        <div class="sm-stat-icon">📅</div>
-        <div class="sm-stat-info">
-          <div class="sm-stat-val">${{ ru: "Сегодня", en: "Today", ka: "დღეს" }[L]}: <span style="font-weight:900;color:${todayExpense > 0 ? "#fca5a5" : "#5eead4"}">−${s}${fmt(todayExpense)}</span></div>
-          <div class="sm-stat-sub">${{ ru: "потрачено за сегодня", en: "spent today", ka: "დღეს დახარჯული" }[L]}</div>
-        </div>
-      </div>
-      <div class="sm-stat-divider"></div>
-      <div class="sm-stat-item">
-        <div class="sm-stat-icon">📊</div>
-        <div class="sm-stat-info">
-          <div class="sm-stat-val">${{ ru: "Операций", en: "Records", ka: "ჩანაწ." }[L]}: <span style="font-weight:900;color:#c4b5fd">${transactions.filter((t) => !t._initial).length}</span></div>
-          <div class="sm-stat-sub">${{ ru: "всего в истории", en: "total records", ka: "სულ ისტ." }[L]}</div>
-        </div>
-      </div>
-    </div>
+    ${getHomeVoiceButtonMarkup(true)}
 
     <!-- ── ДВЕ БОЛЬШИЕ КНОПКИ ── -->
     <div class="sm-two-btns">
@@ -8193,16 +8481,28 @@ function renderSimpleHome() {
       </button>
     </div>
 
-    <!-- ── ГОЛОС ── -->
-    <button class="sm-voice-btn" id="simpleVoiceBtn">
-      <span class="sm-voice-icon">🎤</span>
-      <span class="sm-voice-copy">
-        <span class="sm-voice-title">${T.voice}</span>
-        <span class="sm-voice-hint">${T.voiceHint}</span>
-      </span>
-    </button>
-
     ${recentHtml}
+    ${getHomeToolsMarkup()}
+    <details class="home-details"><summary>${T.quick}</summary>
+    <!-- ── МИНИ-СТАТИСТИКА ── -->
+    <div class="sm-mini-stats">
+      <div class="sm-stat-item">
+        <div class="sm-stat-icon">📅</div>
+        <div class="sm-stat-info">
+          <div class="sm-stat-val">${{ ru: "Сегодня", en: "Today", ka: "დღეს" }[L]}: <span style="font-weight:900;color:${todayExpense > 0 ? "#fca5a5" : "#5eead4"}">−${fmt(todayExpense)}</span></div>
+          <div class="sm-stat-sub">${{ ru: "потрачено за сегодня", en: "spent today", ka: "დღეს დახარჯული" }[L]}</div>
+        </div>
+      </div>
+      <div class="sm-stat-divider"></div>
+      <div class="sm-stat-item">
+        <div class="sm-stat-icon">📊</div>
+        <div class="sm-stat-info">
+          <div class="sm-stat-val">${{ ru: "Операций", en: "Records", ka: "ჩანაწ." }[L]}: <span style="font-weight:900;color:#c4b5fd">${getMoneyTransactions().length}</span></div>
+          <div class="sm-stat-sub">${{ ru: "всего в истории", en: "total records", ka: "სულ ისტ." }[L]}</div>
+        </div>
+      </div>
+    </div>
+
 
     <!-- ── БЫСТРЫЕ КАТЕГОРИИ ── -->
     <div class="sm-section-title">${T.quick}</div>
@@ -8218,12 +8518,22 @@ function renderSimpleHome() {
         .join("")}
     </div>
 
-    <!-- ── КНОПКА ИСТОРИИ ── -->
-    <button class="sm-history-btn sm-open-history">
-      ${T.history}
-    </button>
+    </details>
+
 
   </div>`;
+
+  bindHomeHistoryTools();
+  bindHomeOperationsToggle();
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) searchInput.value = query;
+  const homeDetails = document.getElementById("homeDetails");
+  if (homeDetails) homeDetails.open = toolsOpen;
+  const clearSearch = document.getElementById("clearSearchBtn");
+  if (clearSearch) clearSearch.style.display = query ? "flex" : "none";
+  renderBalanceSummary();
+  const resultCount = document.getElementById("searchResultsCount");
+  if (resultCount) resultCount.textContent = `${getFilteredOperations(query).length} ${t("searchRecords")}`;
 
   // ── Обработчики ──
   // Кнопки «Получил» / «Потратил»
@@ -8233,10 +8543,7 @@ function renderSimpleHome() {
   bindTapSafeAction(mc.querySelector(".sm-add-expense"), () =>
     openAddModal("expense"),
   );
-  mc.querySelector("#simpleVoiceBtn")?.addEventListener("click", () => {
-    haptic("medium");
-    startVoiceInput();
-  });
+  bindHomeVoiceButton();
 
   // Быстрые категории
   mc.querySelectorAll(".sm-quick-btn").forEach((btn) => {
@@ -8286,30 +8593,6 @@ function renderSimpleHome() {
   // Клик на chip дохода/расхода/нач.суммы в упрощённом режиме
   mc.querySelectorAll(".sm-chip-tap").forEach((chip) => {
     chip.style.cursor = "pointer";
-    chip.addEventListener("click", () => {
-      const type = chip.dataset.type;
-      haptic("light");
-      if (type === "salary") {
-        openSalaryModal();
-        return;
-      }
-      if (type === "income" || type === "expense") {
-        currentFilter = type;
-        // Перерисовать список операций и прокрутить
-        renderSimpleHome();
-        setTimeout(() => {
-          const opsList = document.querySelector(".sm-ops-list, .sm-empty");
-          if (opsList)
-            opsList.scrollIntoView({ behavior: "smooth", block: "start" });
-          showToast(
-            type === "income"
-              ? t("toastIncomeFilter")
-              : t("toastExpenseFilter"),
-            "success",
-          );
-        }, 100);
-      }
-    });
     chip.addEventListener(
       "touchstart",
       () => {
@@ -8353,22 +8636,14 @@ function renderHome() {
   });
   traceLayoutSnapshot("renderHome:start");
   const sw = !localStorage.getItem("welcomeSeen") && transactions.length === 0;
-  let html = createHeroWrapNode().outerHTML;
+  let html = createHeroWrapNode().outerHTML + getHomeVoiceButtonMarkup();
   if (sw)
     html += `<div class="welcome-tip"><div class="welcome-tip-icon">👋</div><div class="welcome-tip-text"><h3>${t("welcomeTitle")}</h3><p>${t("welcomeText")}</p><button class="welcome-tip-close" id="welcomeClose">${t("welcomeClose")}</button></div></div>`;
-  html += `<div id="balanceSummaryContainer"></div><div id="searchContainer"></div>`;
-
-  // Фильтр по времени
-  html += `<div class="history-time-filter">
-    <span class="htf-label">${t("filterLabel")}</span>
-    <div class="htf-btns">
-      ${["allTime", "today", "yesterday", "twoDaysAgo", "thisWeek", "thisMonth"].map((f) => `<button class="htf-btn${historyFilter === f ? " active" : ""}" data-hf="${f}">${t("filter" + f.charAt(0).toUpperCase() + f.slice(1))}</button>`).join("")}
-    </div>
-  </div>`;
-
-  html += `<div class="history-btn-wrap" id="guideHistoryAnchor"><button class="history-btn" id="showAllHistoryBtn">${t("allHistory")}</button><div class="history-btn-hint">💡 ${t("historyHint")}</div></div><div id="opsList"></div>`;
+  html += getHomeToolsMarkup();
+  html += `<div id="opsList"></div>`;
   document.getElementById("mainContent").innerHTML = html;
   document.getElementById("mainContent").classList.add("tab-anim");
+  bindHomeVoiceButton();
   restoreHomeHeroIfNeeded();
   updateTopBlocks();
   attachAppTraceObservers();
@@ -8381,58 +8656,11 @@ function renderHome() {
   });
   traceLayoutSnapshot("renderHome:done");
 
-  // Поиск
-  if (!document.getElementById("searchInput")) {
-    const sc = document.getElementById("searchContainer");
-    if (sc) {
-      injectSearchCountStyles();
-      sc.innerHTML = `<div class="search-container"><div class="search-input-wrapper"><span class="search-icon">🔍</span><input type="text" id="searchInput" class="search-input" placeholder="${t("searchPlaceholder")}" autocomplete="off"><button class="search-clear" id="clearSearchBtn" style="display:none;">✕</button></div><div class="search-results-count" id="searchResultsCount"></div></div>`;
-      const sf = document.getElementById("searchInput"),
-        csb = document.getElementById("clearSearchBtn");
-      const dr = debounce(() => renderOpsList(), 200);
-      if (sf) {
-        sf.addEventListener("input", function () {
-          if (csb) csb.style.display = this.value ? "flex" : "none";
-          dr();
-        });
-        sf.addEventListener("keydown", function (e) {
-          if (e.key === "Escape") {
-            this.value = "";
-            if (csb) csb.style.display = "none";
-            renderOpsList();
-          }
-        });
-      }
-      if (csb) {
-        csb.addEventListener("click", function () {
-          if (sf) sf.value = "";
-          this.style.display = "none";
-          renderOpsList();
-        });
-      }
-    }
-  }
-
-  // Фильтр по времени — обработчики
-  document.querySelectorAll(".htf-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      historyFilter = btn.dataset.hf;
-      document
-        .querySelectorAll(".htf-btn")
-        .forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderOpsList();
-    });
-  });
-
-  document
-    .getElementById("showAllHistoryBtn")
-    ?.addEventListener("click", showFullHistory);
+  bindHomeHistoryTools();
   document.getElementById("welcomeClose")?.addEventListener("click", () => {
     localStorage.setItem("welcomeSeen", "1");
     renderHome();
   });
-  renderBalanceSummary();
   renderOpsList();
   ensureHomeHeroStable(4, 100);
 }
@@ -8440,34 +8668,22 @@ function renderHome() {
 function renderBalanceSummary() {
   const c = document.getElementById("balanceSummaryContainer");
   if (!c) return;
-  const si = document.getElementById("searchInput");
-  let filtered = getMoneyTransactions();
-  if (currentFilter === "income")
-    filtered = filtered.filter((tx) => tx.type === "income");
-  else if (currentFilter === "expense")
-    filtered = filtered.filter((tx) => tx.type === "expense");
-  const sq = si ? si.value.toLowerCase().trim() : "";
-  if (sq)
-    filtered = filtered.filter(
-      (tx) =>
-        (tx.category && tx.category.toLowerCase().includes(sq)) ||
-        (tx.note && tx.note.toLowerCase().includes(sq)) ||
-        (tx.amountRub && tx.amountRub.toString().includes(sq)),
-    );
-  const inc = filtered
-    .filter((t) => t.type === "income")
-    .reduce((s, t) => s + t.amountRub, 0);
-  const exp = filtered
-    .filter((t) => t.type === "expense")
-    .reduce((s, t) => s + t.amountRub, 0);
-  const bal = startBalanceRub + inc - exp;
+  const query = document.getElementById("searchInput")?.value || "";
+  const { balance: bal } = getFinancialTotals();
+  const { income: inc, expense: exp } = getFinancialTotals(getFilteredOperations(query));
+  const periodKey = historyFilter || "allTime";
+  const periodLabel = t("filter" + periodKey.charAt(0).toUpperCase() + periodKey.slice(1));
+  const scope = [periodLabel];
+  if (currentFilter) scope.push(t(currentFilter));
+  if (query.trim()) scope.push({ ru: "Результаты поиска", en: "Search results", ka: "ძიების შედეგები" }[currentLang] || "Search results");
+  const scopeLabel = esc(scope.join(" · "));
   c.innerHTML = `<div class="balance-summary">
     <div class="balance-row row-salary" id="salaryRowBtn" role="button" tabindex="0">
       <div class="balance-row-left"><span class="balance-row-dot dot-salary"></span><span class="balance-row-label">${t("salary_label")}</span></div>
       <div><span class="balance-row-value">${fmt(startBalanceRub)}</span><div class="balance-row-sub">${t("editSalaryHint")}</div></div>
     </div>
-    <div class="balance-row row-income"><div class="balance-row-left"><span class="balance-row-dot dot-income"></span><span class="balance-row-label">${t("totalIncome")}</span></div><span class="balance-row-value income">+${fmt(inc)}</span></div>
-    <div class="balance-row row-expense"><div class="balance-row-left"><span class="balance-row-dot dot-expense"></span><span class="balance-row-label">${t("totalExpense")}</span></div><span class="balance-row-value expense">−${fmt(exp)}</span></div>
+    <div class="balance-row row-income"><div class="balance-row-left"><span class="balance-row-dot dot-income"></span><span class="balance-row-label">${t("totalIncome")} · ${scopeLabel}</span></div><span class="balance-row-value income">+${fmt(inc)}</span></div>
+    <div class="balance-row row-expense"><div class="balance-row-left"><span class="balance-row-dot dot-expense"></span><span class="balance-row-label">${t("totalExpense")} · ${scopeLabel}</span></div><span class="balance-row-value expense">−${fmt(exp)}</span></div>
     <div class="balance-row row-balance"><div class="balance-row-left"><span class="balance-row-dot dot-balance"></span><span class="balance-row-label">${t("currentBalance")}</span></div><span class="balance-row-value ${bal >= 0 ? "positive" : "negative"}">${fmt(bal)}</span></div>
   </div>`;
   document
@@ -8483,36 +8699,21 @@ function renderOpsList() {
   if (!c) return;
   const si = document.getElementById("searchInput");
   const sq = si ? si.value.toLowerCase().trim() : "";
-  let filtered = [...transactions];
-  if (currentFilter === "income")
-    filtered = filtered.filter((tx) => tx.type === "income");
-  else if (currentFilter === "expense")
-    filtered = filtered.filter((tx) => tx.type === "expense");
-  // Фильтр по времени
-  filtered = filterByTime(filtered, historyFilter);
-  if (sq)
-    filtered = filtered.filter(
-      (tx) =>
-        (tx.category && tx.category.toLowerCase().includes(sq)) ||
-        (tx.subcategory && tx.subcategory.toLowerCase().includes(sq)) ||
-        (tx.note && tx.note.toLowerCase().includes(sq)) ||
-        (tx.amountRub && tx.amountRub.toString().includes(sq)) ||
-        (tx.date && tx.date.includes(sq)),
-    );
+  const filtered = getFilteredOperations(sq);
+  renderBalanceSummary();
   const rsc = document.getElementById("searchResultsCount");
   if (rsc)
     rsc.textContent = sq
-      ? `${t("searchFound") || { ru: "Найдено", en: "Found", ka: "ნაპოვნია" }[currentLang]}: ${filtered.length} ${t("of") || { ru: "из", en: "of", ka: "/ " }[currentLang]} ${transactions.length}`
+      ? `${t("searchFound") || { ru: "Найдено", en: "Found", ka: "ნაპოვნია" }[currentLang]}: ${filtered.length} ${t("of") || { ru: "из", en: "of", ka: "/ " }[currentLang]} ${getMoneyTransactions().length}`
       : `${filtered.length} ${t("searchRecords")}`;
-  let html = "";
+  let html = `<div class="home-history-heading history-btn-wrap" id="guideHistoryAnchor"><div class="ops-section-label">${t("recentOpsLabel")}</div><button class="history-btn" id="showAllHistoryBtn">${t("allHistory")}</button></div>`;
   if (currentFilter) {
-    html += `<div class="ops-section-header" style="display:flex;justify-content:space-between;align-items:center;"><div class="ops-section-label">${currentFilter === "income" ? "📈 " + t("income") : "📉 " + t("expense")}</div><button id="clearFilterBtn" class="btn-secondary" style="padding:8px 14px;font-size:13px;">✖ ${t("cancel")}</button></div>`;
-  } else {
-    html += `<div class="ops-section-header"><div class="ops-section-label">${t("recentOpsLabel")}</div><div class="ops-section-hint">💡 ${t("recentOpsHint")}</div></div>`;
+    html += `<div class="ops-section-header operation-type-header" style="display:flex;justify-content:space-between;align-items:center;"><div class="ops-section-label"><span class="operation-type-icon" aria-hidden="true">${currentFilter === "income" ? "📈" : "📉"}</span><span class="operation-type-title">${currentFilter === "income" ? t("income") : t("expense")}</span></div><button id="clearFilterBtn" class="btn-secondary" style="padding:8px 14px;font-size:13px;">✖ ${t("cancel")}</button></div>`;
   }
-  const recent = filtered
-    .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
-    .slice(0, 100);
+  const sorted = filtered.sort((a, b) => `${b.date || ""} ${b.time || ""}`.localeCompare(`${a.date || ""} ${a.time || ""}`));
+  const recent = homeOperationsExpanded ? sorted : sorted.slice(0, 3);
+  const operationIndexes = new Map(transactions.map((tx, index) => [tx, index]));
+  const operationView = createHomeOperationViewCache();
   if (!recent.length) {
     html += sq
       ? `<div class="empty-block"><div class="empty-emoji">🔍</div><p>Ничего не найдено «${esc(sq)}»</p></div>`
@@ -8533,42 +8734,42 @@ function renderOpsList() {
     </div>`;
   } else {
     let lastDate = null;
-    html += '<div class="ops-list">';
+    html += `<div class="ops-list" id="homeOpsItems" data-large-text="${typeof fontSize !== "undefined" && ["large", "xl"].includes(fontSize)}">`;
     recent.forEach((tx) => {
-      const idx = transactions.indexOf(tx);
+      const idx = operationIndexes.get(tx);
       const txDate = tx.date || today();
       if (txDate !== lastDate) {
         lastDate = txDate;
         html += `<div class="ops-date-group">${getDateGroupLabel(txDate)}</div>`;
       }
       const sign = tx.type === "income" ? "+" : " −";
-      const palette = getCategoryUiPalette(tx.category, tx.type);
+      const palette = operationView.palette(tx);
       const style = palette.style;
       const categoryColor = palette.accentColor;
-      const displaySubcategory = getDisplaySubcategoryLabel(
-        tx.subcategory,
-        tx.type,
-      );
+      const displaySubcategory = operationView.subcategory(tx);
       let dcat = `<span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span>`;
       if (sq && tx.category.toLowerCase().includes(sq))
         dcat = `<span style="background:${palette.searchTone};border-radius:6px;padding:1px 5px;display:inline-block;"><span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span></span>`;
       html += `<div class="op-swipe-wrap"><div class="op-delete-reveal" aria-hidden="true"><span>🗑️</span></div><div class="op-card" data-idx="${idx}" data-type="${tx.type}">
         <div class="op-icon-wrap">${style.icon}</div>
         <div class="op-info" style="flex:1;min-width:0;">
-          <div class="op-category" style="font-size:13px;font-weight:700;">${dcat}${displaySubcategory ? ` · <span style="font-weight:700;font-size:11px;color:${palette.subColor};">${esc(displaySubcategory)}</span>` : ""}</div>
+          <div class="op-category" title="${esc(tx.category)}${displaySubcategory ? ` · ${esc(displaySubcategory)}` : ""}" style="font-size:13px;font-weight:700;">${dcat}${displaySubcategory ? ` <span class="op-subcategory" style="font-weight:700;font-size:11px;color:${palette.subColor};">· ${esc(displaySubcategory)}</span>` : ""}</div>
           ${tx.note ? `<div class="op-note" style="font-size:11px;opacity:.7;">📝 ${esc(tx.note.substring(0, 50))}</div>` : ""}
           ${tx._recurring ? `<div class="op-note" style="font-size:11px;opacity:.7;">🔄 ${t("recurring") || "повтор."}</div>` : ""}
-          <div class="op-time" style="font-size:10px;font-weight:600;opacity:.55;margin-top:1px;">${tx.time || ""}</div>
         </div>
         <div class="op-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
           <div class="op-amount ${tx.type === "income" ? "income-amount" : tx.type === "salary" ? "salary-amount" : "expense-amount"}" style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;">${sign}${fmt(tx.amountRub)}</div>
           <button class="op-delete" data-idx="${idx}" aria-label="${t("ariaDeleteOp")}" style="opacity:0;font-size:14px;padding:4px;cursor:pointer;color:#f87171;">✕</button>
         </div>
+          <div class="op-time" style="font-size:10px;font-weight:600;opacity:.55;margin-top:1px;">${t(tx.type === "income" ? "income" : "expense")} · ${operationView.date(tx)}${tx.time ? " · " + esc(tx.time) : ""}</div>
       </div></div>`;
     });
     html += "</div>";
   }
+  html += getHomeOperationsToggleMarkup(filtered.length);
   c.innerHTML = html;
+  document.getElementById("showAllHistoryBtn")?.addEventListener("click", showFullHistory);
+  bindHomeOperationsToggle();
   c.querySelectorAll(".op-card").forEach((card) => {
     card.addEventListener("click", (e) => {
       if (e.target.classList.contains("op-delete")) return;
@@ -8590,9 +8791,7 @@ function renderOpsList() {
             localStorage.removeItem("startBalanceRub");
           }
           saveAll();
-          updateTopBlocks();
-          renderBalanceSummary();
-          renderOpsList();
+          refreshOperationViews();
           showToast(t("deleted"));
         },
         { icon: "🗑️" },
@@ -8603,7 +8802,6 @@ function renderOpsList() {
   if (cfb)
     cfb.addEventListener("click", () => {
       currentFilter = null;
-      renderBalanceSummary();
       renderOpsList();
     });
   addSwipeToDelete(c);
@@ -8782,9 +8980,7 @@ function addSwipeToDelete(container) {
                   localStorage.removeItem("startBalanceRub");
                 }
                 saveAll();
-                updateTopBlocks();
-                renderBalanceSummary();
-                renderOpsList();
+                refreshOperationViews();
                 showToast(t("deleted"));
               },
               { icon: "🗑️" },
@@ -8869,12 +9065,22 @@ function showFullHistory() {
           document.body.classList.contains("dark") ? 0.15 : 0.1,
         )} 0%, var(--card-bg) 68%);`
       : `border-left:4px solid var(--cream-border);`;
-    html += `<div class="history-item" style="${cardStyle}"><div class="history-item-info"><div class="history-item-cat"><span style="color:${palette.titleColor};font-weight:800;">${style.icon} ${esc(op.category)}</span>${displaySubcategory ? ` <span style="font-weight:700;color:${palette.subColor};">(${esc(displaySubcategory)})</span>` : ""}</div><div class="history-item-meta">${fmtDate(op.date)}${op.note ? " 📝 " + esc(op.note.substring(0, 30)) : ""}</div></div><div class="history-item-amt ${op.type}">${sign}${fmt(op.amountRub)}</div><div class="history-item-btns"><button class="icon-btn edit" data-idx="${ri}">✏️</button><button class="icon-btn delete" data-idx="${ri}">🗑</button></div></div>`;
+    html += `<div class="history-item" style="${cardStyle}"><div class="history-item-info"><div class="history-item-cat" title="${esc(op.category)}${displaySubcategory ? ` · ${esc(displaySubcategory)}` : ""}"><span style="color:${palette.titleColor};font-weight:800;">${style.icon} ${esc(op.category)}</span>${displaySubcategory ? ` <span class="op-subcategory" style="font-weight:700;color:${palette.subColor};">(${esc(displaySubcategory)})</span>` : ""}</div></div><div class="history-item-amt ${op.type}">${sign}${fmt(op.amountRub)}</div><div class="history-item-meta">${fmtDate(op.date)}${op.note ? " 📝 " + esc(op.note.substring(0, 30)) : ""}</div><div class="history-item-btns"><button class="icon-btn edit" aria-label="${esc(t("editOperation"))}" data-idx="${ri}">✏️</button><button class="icon-btn delete" aria-label="${esc(t("delete"))}" data-idx="${ri}">🗑</button></div></div>`;
   });
   html += `</div><div style="margin-top:16px;"><button class="btn-danger" id="clearAllHistoryBtn" style="width:100%">🗑 ${t("clearAllOps")}</button></div>`;
   const modal = createModal("fullHistoryModal", t("allHistory"), html);
   document.body.appendChild(modal);
   openModal("fullHistoryModal");
+  modal.querySelectorAll(".history-item-info").forEach((info) => {
+    info.tabIndex = 0;
+    info.setAttribute("role", "button");
+    info.setAttribute("aria-label", `${t("editOperation")}: ${info.textContent}`);
+    const edit = () => info.parentElement.querySelector(".icon-btn.edit")?.click();
+    info.addEventListener("click", edit);
+    info.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); edit(); }
+    });
+  });
   modal.querySelectorAll(".icon-btn.edit").forEach((b) =>
     b.addEventListener("click", () => {
       closeModal("fullHistoryModal");
@@ -8895,9 +9101,7 @@ function showFullHistory() {
             localStorage.removeItem("startBalanceRub");
           }
           saveAll();
-          updateTopBlocks();
-          renderBalanceSummary();
-          renderOpsList();
+          refreshOperationViews();
           closeModal("fullHistoryModal");
           setTimeout(showFullHistory, 200);
           showToast(t("deleted"));
@@ -8914,9 +9118,7 @@ function showFullHistory() {
         () => {
           transactions = [];
           saveAll();
-          updateTopBlocks();
-          renderBalanceSummary();
-          renderOpsList();
+          refreshOperationViews();
           closeModal("fullHistoryModal");
           showToast(t("deleted"));
         },
@@ -9316,6 +9518,7 @@ function openEditModal(idx) {
   editingOpIndex = idx;
   const html = `
     <div class="field-group"><label class="field-label">${t("category")}</label><input type="text" id="editCategory" class="modal-input" value="${esc(op.category)}"></div>
+    ${op.subcategory ? `<div class="field-group"><label class="field-label">${t("subcategory")}</label><div class="operation-subcategory-full">${esc(getDisplaySubcategoryLabel(op.subcategory, op.type))}</div></div>` : ""}
     <div class="field-group"><label class="field-label">${t("amount")} (${sym()})</label><input type="number" id="editAmount" class="modal-input" step="any" min="0.01" value="${toDisp(op.amountRub).toFixed(2)}" inputmode="decimal"></div>
     <div class="field-group"><label class="field-label">${t("date")}</label><div class="date-input-wrapper"><input type="text" id="editDateDisplay" class="modal-input" readonly value="${fmtDate(op.date || today())}"><input type="hidden" id="editDate" value="${op.date || today()}"><button type="button" class="datepicker-btn" id="editDateBtn">📅</button></div></div>
     <div class="field-group"><label class="field-label">${t("note")}</label><textarea id="editNote" class="modal-textarea" rows="2">${esc(op.note || "")}</textarea></div>
@@ -9345,9 +9548,7 @@ function openEditModal(idx) {
       startBalanceRub = nextStartBalanceRub;
       syncStartBalanceTransaction();
       saveAll();
-      updateTopBlocks();
-      renderBalanceSummary();
-      renderOpsList();
+      refreshOperationViews();
       closeModal("editModal");
       showToast(t("saved"));
       return;
@@ -9361,9 +9562,7 @@ function openEditModal(idx) {
       .getElementById("editNote")
       .value.trim();
     saveAll();
-    updateTopBlocks();
-    renderBalanceSummary();
-    renderOpsList();
+    refreshOperationViews();
     closeModal("editModal");
     showToast(t("saved"));
   });
@@ -9379,9 +9578,7 @@ function openEditModal(idx) {
           localStorage.removeItem("startBalanceRub");
         }
         saveAll();
-        updateTopBlocks();
-        renderBalanceSummary();
-        renderOpsList();
+        refreshOperationViews();
         closeModal("editModal");
         showToast(t("deleted"));
       },
@@ -9456,11 +9653,8 @@ function openSalaryModal() {
     syncStartBalanceTransaction();
 
     saveAll();
-    updateTopBlocks();
-    renderBalanceSummary();
-    renderOpsList();
+    refreshOperationViews();
     closeModal("salaryModal");
-    if (simpleMode) renderHome();
     showToast(t("saved"));
   });
 }
@@ -10047,6 +10241,97 @@ function openEditCategoryModal(cat, isIncome) {
 // ============================================================
 // МОДАЛКА ДОБАВЛЕНИЯ
 // ============================================================
+function enhanceSubcategorySelect(select) {
+  if (!select?.parentElement) return;
+  let button = document.getElementById("addSubcategoryButton");
+  if (!button) {
+    button = document.createElement("button");
+    button.id = "addSubcategoryButton";
+    button.type = "button";
+    button.className = "modal-select subcategory-trigger";
+    button.setAttribute("aria-haspopup", "dialog");
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-controls", "subcategoryPickerModal");
+    select.after(button);
+    select.hidden = true;
+    select.tabIndex = -1;
+    select.setAttribute("aria-hidden", "true");
+    const sync = () => {
+      button.textContent = select.value ? getDisplaySubcategoryLabel(select.value, addType) : t("noSubcategory");
+      button.title = button.textContent;
+      button.setAttribute("aria-label", `${t("subcategory")}: ${button.textContent}`);
+    };
+    select.addEventListener("change", sync);
+    button.addEventListener("click", () => openSubcategoryPicker(select, button));
+    button._syncSubcategory = sync;
+  }
+  button._syncSubcategory();
+}
+
+function openSubcategoryPicker(select, trigger) {
+  const id = "subcategoryPickerModal";
+  if (!select.isConnected || document.getElementById(id)) return;
+  const options = [...select.options];
+  const html = `<div class="subcategory-options" role="listbox" aria-label="${esc(t("subcategory"))}">${options.map((option, i) =>
+    `<button type="button" class="subcategory-option" role="option" data-index="${i}" aria-selected="${option.selected}" tabindex="${option.selected ? 0 : -1}">${esc(option.value ? getDisplaySubcategoryLabel(option.value, addType) : option.textContent)}</button>`).join("")}</div>`;
+  const modal = createModal(id, t("subcategory"), html);
+  modal.querySelector(".modal").setAttribute("role", "dialog");
+  modal.querySelector(".modal").setAttribute("aria-modal", "true");
+  modal.querySelector(".modal").setAttribute("aria-label", t("subcategory"));
+  const parentSheet = document.querySelector("#addModal .add-modal-sheet");
+  if (parentSheet) parentSheet.inert = true;
+  const controller = new AbortController();
+  let nativeBackHandle;
+  const token = `subcategory-${Date.now()}`;
+  history.pushState({ ...history.state, budgetproSubcategoryPicker: token }, "");
+  modal._pickerCleanup = () => {
+    controller.abort();
+    if (nativeBackHandle) Promise.resolve(nativeBackHandle.remove()).catch(() => {});
+    if (history.state?.budgetproSubcategoryPicker === token) history.back();
+    if (parentSheet) parentSheet.inert = false;
+    trigger.setAttribute("aria-expanded", "false");
+    if (trigger.isConnected) trigger.focus({ preventScroll: true });
+  };
+  window.addEventListener("popstate", () => closeModal(id), { signal: controller.signal });
+  const AppPlugin = window.Capacitor?.Plugins?.App;
+  if (window.Capacitor?.isNativePlatform?.() && AppPlugin?.addListener) {
+    Promise.resolve(AppPlugin.addListener("backButton", () => closeModal(id))).then((handle) => {
+      if (controller.signal.aborted) handle.remove();
+      else nativeBackHandle = handle;
+    }).catch(() => {});
+  }
+  const items = [...modal.querySelectorAll(".subcategory-option")];
+  items.forEach((button) => button.addEventListener("click", () => {
+    select.value = options[Number(button.dataset.index)].value;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    closeModal(id);
+  }));
+  modal.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") { event.preventDefault(); closeModal(id); return; }
+    const index = items.indexOf(document.activeElement);
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1 : (index + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      items.forEach((item, i) => { item.tabIndex = i === next ? 0 : -1; });
+      items[next]?.focus();
+    } else if (event.key === "Tab") {
+      const focusable = [...modal.querySelectorAll("button")].filter((button) => button.tabIndex >= 0);
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+  });
+  document.body.appendChild(modal);
+  trigger.setAttribute("aria-expanded", "true");
+  openModal(id);
+  requestAnimationFrame(() => {
+    if (!modal.isConnected || controller.signal.aborted) return;
+    const selected = items.find((item) => item.getAttribute("aria-selected") === "true") || items[0];
+    selected?.focus({ preventScroll: true });
+    selected?.scrollIntoView({ block: "nearest", behavior: "instant" });
+  });
+}
+
 function openAddModal(defaultType = "expense", presetCategory = null) {
   if (document.getElementById("addModal")) return;
   if (Date.now() - addModalLastClosedAt < 450) return;
@@ -10110,12 +10395,12 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
   const eo =
     `<option value="">${t("selectCategory")}</option>` +
     Object.keys(window.categories)
-      .map((c) => `<option value="${c}">${c}</option>`)
+      .map((c) => `<option value="${esc(c)}">${esc(c)}</option>`)
       .join("");
   const io =
     `<option value="">${t("selectCategory")}</option>` +
     Object.keys(window.incomeCategories)
-      .map((c) => `<option value="${c}">${c}</option>`)
+      .map((c) => `<option value="${esc(c)}">${esc(c)}</option>`)
       .join("");
   let ca = "";
   const html = `
@@ -10212,7 +10497,7 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
         nd = new Date(nd.getFullYear(), nd.getMonth(), 1);
         ds = `${nd.getFullYear()}-${String(nd.getMonth() + 1).padStart(2, "0")}-${String(nd.getDate()).padStart(2, "0")}`;
       }
-      if (!ds) ds = nd.toISOString().slice(0, 10);
+      if (!ds) ds = localCalendarDate(nd);
       document.getElementById("addDate").value = ds;
       document.getElementById("addDateDisplay").value = fmtDate(ds);
     }),
@@ -10242,10 +10527,12 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
     if (sc.length) {
       ss.innerHTML =
         `<option value="">${t("noSubcategory")}</option>` +
-        sc.map((s) => `<option value="${s}">${s}</option>`).join("");
+        sc.map((s) => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
       sd.style.display = "block";
+      enhanceSubcategorySelect(ss);
     } else sd.style.display = "none";
   };
+  if (presetCategory) document.getElementById("addCategorySelect").dispatchEvent(new Event("change"));
   document.getElementById("saveAddBtn")?.addEventListener("click", () => {
     const cat = document.getElementById("addCategorySelect").value;
     const sub = document.getElementById("addSubcatSelect")?.value || "";
@@ -10311,23 +10598,12 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
     transactions.push(tx);
     updateFrequentStats(tx);
     saveAll();
-    updateTopBlocks();
-    renderBalanceSummary();
-    renderOpsList();
+    refreshOperationViews();
     closeModal("addModal");
     setTimeout(() => {
-      updateTopBlocks();
-      renderBalanceSummary();
-      renderOpsList();
-      // Если простой режим — перерисовываем главную страницу
-      if (simpleMode) {
-        renderHome();
-      }
-      setTimeout(() => {
-        if (tx.type === "income") showCoinAnimation();
-        else showMoneyFlyEffect();
-      }, 380);
-    }, 50);
+      if (tx.type === "income") showCoinAnimation();
+      else showMoneyFlyEffect();
+    }, 430);
     showToast(addType === "income" ? t("incomeAdded") : t("expenseAdded"));
   });
   document
@@ -15611,7 +15887,7 @@ function getAppearanceSettingsMarkup() {
     small: t("fontSmall"),
     normal: t("fontNormal"),
     large: t("fontLarge"),
-    xl: t("fontXl"),
+    xl: t("fontXL"),
   };
   const showVoiceBtn = getFloatingBtnSetting("showVoiceBtn");
   return `
@@ -15759,7 +16035,7 @@ function getAppearanceSettingsMarkup() {
           ${["small", "normal", "large", "xl"]
             .map(
               (s) => `
-                <button class="appearance-option appearance-font-option font-size-btn set-font-btn${fontSize === s ? " active" : ""}" type="button" data-size="${s}">
+                <button class="appearance-option appearance-font-option font-size-btn set-font-btn${fontSize === s ? " active" : ""}" type="button" data-size="${s}" title="${esc(fontLabels[s])}" aria-label="${esc(fontLabels[s])}">
                   <span class="appearance-font-letter">A</span>
                   <span class="appearance-font-name">${esc(fontLabels[s])}</span>
                 </button>
@@ -15902,7 +16178,7 @@ function bindAppearanceSettingsHandlers() {
   cs2?.addEventListener("change", (e) => {
     displayCurrency = e.target.value;
     saveAll();
-    updateTopBlocks();
+    refreshOperationViews();
     showToast(t("currencyChanged"));
   });
 
@@ -15998,315 +16274,14 @@ function cleanupVoiceSettingsScreen() {
 
 function renderSettingsVoiceScreen() {
   ensureSettingsHomeStyles();
-  const L = currentLang;
-  const copy = {
-    ru: {
-      kicker: "Settings",
-      title: "🎤 Голосовой ввод",
-      desc: "Диктуйте операции на русском, English или ქართულად.",
-      back: "Назад",
-      language: "Язык",
-      mode: "Режим записи",
-      draft: "Распознанный текст",
-      placeholder: "Здесь появится текст. Его можно исправить перед использованием.",
-      start: "Начать запись",
-      retry: "Повторить",
-      stop: "Остановить",
-      cancel: "Отмена",
-      use: "Использовать текст",
-      install: "Установить модель",
-      modelReady: "Whisper large-v3-turbo Q5 multilingual готов к работе",
-      modelMissing: "Для локального распознавания установите multilingual-модель один раз",
-      modelUpgrade: "Доступна более точная модель large-v3-turbo Q5",
-      fallback: "На этой платформе используется системный fallback",
-      clipped: "Говорите немного тише: микрофон перегружается.",
-      floatingTitle: "Плавающая кнопка голосового ввода",
-      floatingDesc: "Показывать заметную кнопку микрофона поверх основных экранов.",
-      diagnostics: "Диагностика последней записи",
-      copyDiagnostics: "Скопировать диагностику",
-      noDiagnostics: "Записей пока нет.",
-      diagnosticsCopied: "Диагностика скопирована",
-      diagnosticsCopyFailed: "Не удалось скопировать диагностику",
-    },
-    en: {
-      kicker: "Settings",
-      title: "🎤 Voice Input",
-      desc: "Dictate transactions in Russian, English, or Georgian.",
-      back: "Back",
-      language: "Language",
-      mode: "Recording mode",
-      draft: "Recognized text",
-      placeholder: "Text appears here. You can edit it before using it.",
-      start: "Start recording",
-      retry: "Record again",
-      stop: "Stop",
-      cancel: "Cancel",
-      use: "Use text",
-      install: "Install model",
-      modelReady: "Whisper large-v3-turbo Q5 multilingual is ready",
-      modelMissing: "Install the multilingual model once for local recognition",
-      modelUpgrade: "The more accurate large-v3-turbo Q5 model is available",
-      fallback: "This platform uses the system fallback",
-      clipped: "Speak a little quieter: the microphone is clipping.",
-      floatingTitle: "Floating voice input button",
-      floatingDesc: "Show the prominent microphone button above the main screens.",
-      diagnostics: "Last recording diagnostics",
-      copyDiagnostics: "Copy diagnostics",
-      noDiagnostics: "No recordings yet.",
-      diagnosticsCopied: "Diagnostics copied",
-      diagnosticsCopyFailed: "Could not copy diagnostics",
-    },
-    ka: {
-      kicker: "Settings",
-      title: "🎤 ხმოვანი შეყვანა",
-      desc: "უკარნახეთ ოპერაციები ქართულად, რუსულად ან ინგლისურად.",
-      back: "უკან",
-      language: "ენა",
-      mode: "ჩაწერის რეჟიმი",
-      draft: "ამოცნობილი ტექსტი",
-      placeholder: "ტექსტი აქ გამოჩნდება. გამოყენებამდე შეგიძლიათ შეასწოროთ.",
-      start: "ჩაწერის დაწყება",
-      retry: "ხელახლა ჩაწერა",
-      stop: "გაჩერება",
-      cancel: "გაუქმება",
-      use: "ტექსტის გამოყენება",
-      install: "მოდელის დაყენება",
-      modelReady: "Whisper large-v3-turbo Q5 multilingual მზადაა",
-      modelMissing: "ლოკალური ამოცნობისთვის multilingual მოდელი ერთხელ დააყენეთ",
-      modelUpgrade: "ხელმისაწვდომია უფრო ზუსტი large-v3-turbo Q5 მოდელი",
-      fallback: "ამ პლატფორმაზე სისტემური fallback გამოიყენება",
-      clipped: "ილაპარაკეთ ოდნავ ჩუმად: მიკროფონი იტვირთება.",
-      floatingTitle: "ხმოვანი შეყვანის მცურავი ღილაკი",
-      floatingDesc: "მიკროფონის ღილაკის ჩვენება მთავარ ეკრანებზე.",
-      diagnostics: "ბოლო ჩანაწერის დიაგნოსტიკა",
-      copyDiagnostics: "დიაგნოსტიკის კოპირება",
-      noDiagnostics: "ჩანაწერი ჯერ არ არის.",
-      diagnosticsCopied: "დიაგნოსტიკა დაკოპირდა",
-      diagnosticsCopyFailed: "დიაგნოსტიკის კოპირება ვერ მოხერხდა",
-    },
-  }[L];
-  const statuses = {
-    ready: { ru: "Готов", en: "Ready", ka: "მზადაა" },
-    requesting: { ru: "Запрашиваем микрофон", en: "Requesting microphone", ka: "მიკროფონზე წვდომის მოთხოვნა" },
-    listening: { ru: "Слушаю", en: "Listening", ka: "გისმენთ" },
-    speech: { ru: "Обнаружена речь", en: "Speech detected", ka: "მეტყველება აღმოჩენილია" },
-    processing: { ru: "Обрабатываю", en: "Processing", ka: "მუშავდება" },
-    transcribing: { ru: "Распознаю", en: "Transcribing", ka: "ამოცნობა" },
-    done: { ru: "Готово", en: "Done", ka: "მზადაა" },
-    "no-speech": { ru: "Речь не обнаружена", en: "No speech detected", ka: "მეტყველება ვერ მოიძებნა" },
-    error: { ru: "Ошибка распознавания", en: "Recognition error", ka: "ამოცნობის შეცდომა" },
-    cancelled: { ru: "Отмена", en: "Cancelled", ka: "გაუქმებულია" },
-    "model-downloading": { ru: "Модель загружается", en: "Downloading model", ka: "მოდელი იტვირთება" },
-  };
-  const errors = {
-    microphone_denied: { ru: "Нет доступа к микрофону", en: "Microphone access denied", ka: "მიკროფონზე წვდომა აკრძალულია" },
-    microphone_missing: { ru: "Микрофон не найден", en: "Microphone not found", ka: "მიკროფონი ვერ მოიძებნა" },
-    model_missing: { ru: "Модель ещё не установлена", en: "The model is not installed", ka: "მოდელი ჯერ არ არის დაყენებული" },
-    model_download_failed: { ru: "Не удалось загрузить модель", en: "Could not download the model", ka: "მოდელის ჩამოტვირთვა ვერ მოხერხდა" },
-    model_checksum_mismatch: { ru: "Проверка модели не пройдена", en: "Model verification failed", ka: "მოდელის შემოწმება ვერ მოხერხდა" },
-    engine_missing: { ru: "Локальный engine недоступен", en: "Local engine is unavailable", ka: "ლოკალური engine მიუწვდომელია" },
-    no_speech: { ru: "Речь не обнаружена", en: "No speech detected", ka: "მეტყველება ვერ მოიძებნა" },
-    transcription_failed: { ru: "Не удалось распознать запись", en: "Could not transcribe recording", ka: "ჩანაწერის ამოცნობა ვერ მოხერხდა" },
-    transcription_busy: { ru: "Распознавание уже выполняется", en: "Recognition is already running", ka: "ამოცნობა უკვე მიმდინარეობს" },
-    invalid_audio_payload: { ru: "Запись повреждена или пуста", en: "The recording is empty or invalid", ka: "ჩანაწერი ცარიელი ან დაზიანებულია" },
-  };
-  const voice = window.BudgetPROVoiceModule;
-  const language = voice?.getLanguage?.() || "auto";
-  const mode = voice?.getMode?.() || getVoiceInputMode();
-  const showVoiceBtn = getFloatingBtnSetting("showVoiceBtn");
-
-  const formatVoiceDiagnostics = (diagnostics) => {
-    if (!diagnostics) return copy.noDiagnostics;
-    const percent = (value) => Number.isFinite(Number(value)) ? `${(Number(value) * 100).toFixed(2)}%` : "n/a";
-    return [
-      `backend=${diagnostics.backend || "unknown"}`,
-      `server=${diagnostics.server || "unknown"}`,
-      `model=${diagnostics.modelId || diagnostics.modelName || "unknown"}`,
-      `whisper.cpp=${diagnostics.whisperVersion || "unknown"}`,
-      `selectedLanguage=${diagnostics.selectedLanguage || "auto"}`,
-      `detectedLanguage=${diagnostics.detectedLanguage || "unknown"}`,
-      `languageConfidence=${percent(diagnostics.languageConfidence)}`,
-      `recordingMode=${diagnostics.recordingMode || "auto"}`,
-      `durationMs=${diagnostics.durationMs ?? "n/a"}`,
-      `speechDurationMs=${diagnostics.speechDurationMs ?? "n/a"}`,
-      `rms=${Number(diagnostics.rms || 0).toFixed(5)}`,
-      `peak=${Number(diagnostics.peak || 0).toFixed(5)}`,
-      `clipping=${percent(diagnostics.clippingRatio)}`,
-      `noiseFloor=${Number(diagnostics.noiseFloor || 0).toFixed(5)}`,
-      `transcriptionMs=${diagnostics.transcriptionMs ?? "n/a"}`,
-      `rawText=${diagnostics.rawText || ""}`,
-      `normalizedText=${diagnostics.normalizedText || ""}`,
-    ].join("\n");
-  };
-
-  document.getElementById("mainContent").innerHTML = `
-    <div class="settings-subpage-wrap">
-      <div class="settings-subpage-header">
-        <button class="settings-subpage-back" id="settingsVoiceBackBtn" type="button" aria-label="${esc(copy.back)}">←</button>
-        <div class="settings-subpage-copy">
-          <div class="settings-subpage-kicker">${esc(copy.kicker)}</div>
-          <h1 class="settings-subpage-title">${esc(copy.title)}</h1>
-          <p class="settings-subpage-desc">${esc(copy.desc)}</p>
-        </div>
-      </div>
-      <div class="voice-settings-stack">
-        <section class="appearance-card voice-settings-card">
-          <div class="voice-settings-status">
-            <div class="voice-settings-status-copy">
-              <div class="voice-settings-status-title" id="voiceSettingsStatus">${esc(statuses.ready[L])}</div>
-              <div class="voice-settings-status-note" id="voiceSettingsStatusNote"></div>
-            </div>
-            <button class="voice-settings-mic" id="voiceSettingsMicBtn" type="button" aria-label="${esc(copy.start)}">🎤</button>
-          </div>
-          <div class="voice-settings-meter" aria-hidden="true"><div class="voice-settings-meter-fill" id="voiceSettingsMeter"></div></div>
-          <div class="voice-settings-actions">
-            <button class="btn-primary" id="voiceSettingsStartBtn" type="button">${esc(copy.start)}</button>
-            <button class="btn-secondary" id="voiceSettingsStopBtn" type="button">${esc(copy.stop)}</button>
-            <button class="btn-secondary" id="voiceSettingsCancelBtn" type="button">${esc(copy.cancel)}</button>
-          </div>
-        </section>
-        <section class="appearance-card voice-settings-card">
-          <div class="appearance-toggle-row">
-            <div class="appearance-card-copy">
-              <h3 class="appearance-card-kicker">${esc(copy.floatingTitle)}</h3>
-              <p class="appearance-card-desc">${esc(copy.floatingDesc)}</p>
-            </div>
-            <label class="switch"><input type="checkbox" id="voiceFloatingButtonToggle" ${showVoiceBtn ? "checked" : ""}><span class="slider round"></span></label>
-          </div>
-        </section>
-        <section class="appearance-card voice-settings-card">
-          <div class="voice-settings-grid">
-            <label class="voice-settings-field"><span class="voice-settings-label">${esc(copy.language)}</span>
-              <select class="voice-settings-select" id="voiceSettingsLanguage">
-                <option value="auto"${language === "auto" ? " selected" : ""}>${L === "ru" ? "Автоматически" : L === "ka" ? "ავტომატურად" : "Automatic"}</option>
-                <option value="ru"${language === "ru" ? " selected" : ""}>Русский</option>
-                <option value="en"${language === "en" ? " selected" : ""}>English</option>
-                <option value="ka"${language === "ka" ? " selected" : ""}>ქართული</option>
-              </select>
-            </label>
-            <label class="voice-settings-field"><span class="voice-settings-label">${esc(copy.mode)}</span>
-              <select class="voice-settings-select" id="voiceSettingsMode">
-                <option value="auto"${mode === "auto" ? " selected" : ""}>${L === "ru" ? "Авто" : L === "ka" ? "ავტო" : "Auto"}</option>
-                <option value="whisper"${mode === "whisper" ? " selected" : ""}>${L === "ru" ? "Тихая речь" : L === "ka" ? "ჩუმი მეტყველება" : "Quiet Speech"}</option>
-                <option value="street"${mode === "street" ? " selected" : ""}>${L === "ru" ? "Шумное место" : L === "ka" ? "ხმაურიანი ადგილი" : "Noisy Place"}</option>
-              </select>
-            </label>
-          </div>
-        </section>
-        <section class="appearance-card voice-settings-card">
-          <label class="voice-settings-field"><span class="voice-settings-label">${esc(copy.draft)}</span>
-            <textarea class="voice-settings-draft" id="voiceSettingsDraft" placeholder="${esc(copy.placeholder)}"></textarea>
-          </label>
-          <div class="voice-settings-actions">
-            <button class="btn-secondary" id="voiceSettingsRetryBtn" type="button">${esc(copy.retry)}</button>
-            <button class="btn-primary" id="voiceSettingsUseBtn" type="button">${esc(copy.use)}</button>
-          </div>
-        </section>
-        <section class="appearance-card voice-settings-card" id="voiceModelCard">
-          <div class="voice-settings-status-title" id="voiceModelStatus">${esc(copy.fallback)}</div>
-          <div class="voice-model-progress" id="voiceModelProgress"></div>
-          <div class="voice-settings-actions"><button class="btn-secondary" id="voiceInstallModelBtn" type="button" hidden>${esc(copy.install)}</button></div>
-        </section>
-        <section class="appearance-card voice-settings-card">
-          <details class="voice-diagnostics-details" id="voiceDiagnosticsDetails">
-            <summary>${esc(copy.diagnostics)}</summary>
-            <pre class="voice-diagnostics-report" id="voiceDiagnosticsReport">${esc(formatVoiceDiagnostics(voice?.getDiagnostics?.()))}</pre>
-            <div class="voice-settings-actions"><button class="btn-secondary" id="voiceCopyDiagnosticsBtn" type="button">${esc(copy.copyDiagnostics)}</button></div>
-          </details>
-        </section>
-      </div>
-    </div>
-  `;
-
-  const setStatus = (next) => {
-    const statusEl = document.getElementById("voiceSettingsStatus");
-    const noteEl = document.getElementById("voiceSettingsStatusNote");
-    const meterEl = document.getElementById("voiceSettingsMeter");
-    const micEl = document.getElementById("voiceSettingsMicBtn");
-    const statusCopy = statuses[next.status]?.[L] || statuses.ready[L];
-    if (statusEl) statusEl.textContent = statusCopy;
-    if (noteEl) noteEl.textContent = next.error ? errors[next.error]?.[L] || next.error : next.clipped ? copy.clipped : "";
-    if (meterEl) meterEl.style.width = `${Math.round(Math.max(0, Math.min(1, next.meter || 0)) * 100)}%`;
-    micEl?.classList.toggle("listening", next.status === "listening" || next.status === "speech");
-    if (next.transcript) {
-      const draft = document.getElementById("voiceSettingsDraft");
-      if (draft && draft.value !== next.transcript) draft.value = next.transcript;
-    }
-    if (next.diagnostics) {
-      const diagnosticsEl = document.getElementById("voiceDiagnosticsReport");
-      if (diagnosticsEl) diagnosticsEl.textContent = formatVoiceDiagnostics(next.diagnostics);
-    }
-    const progress = next.modelProgress;
-    if (progress) {
-      const progressEl = document.getElementById("voiceModelProgress");
-      if (progressEl) progressEl.textContent = `${Math.round(progress.ratio * 100)}%`;
-    }
-  };
-  voiceSettingsUnsubscribe = voice?.subscribe?.(setStatus) || null;
-
-  const beginRecording = async () => {
-    if (voice && window.budgetPRODesktopVoice) {
-      await voice.start({
-        keepTranscript: true,
-        onTranscript(text) {
-          const draft = document.getElementById("voiceSettingsDraft");
-          if (draft) draft.value = text;
-        },
-      });
-      return;
-    }
-    startVoiceInput();
-  };
-  document.getElementById("settingsVoiceBackBtn")?.addEventListener("click", openSettingsHome);
-  document.getElementById("voiceSettingsMicBtn")?.addEventListener("click", beginRecording);
-  document.getElementById("voiceSettingsStartBtn")?.addEventListener("click", beginRecording);
-  document.getElementById("voiceSettingsRetryBtn")?.addEventListener("click", beginRecording);
-  document.getElementById("voiceSettingsStopBtn")?.addEventListener("click", () => voice?.stop?.());
-  document.getElementById("voiceSettingsCancelBtn")?.addEventListener("click", () => voice?.cancel?.());
-  document.getElementById("voiceSettingsLanguage")?.addEventListener("change", (event) => voice?.setLanguage?.(event.target.value));
-  document.getElementById("voiceSettingsMode")?.addEventListener("change", (event) => {
-    voice?.setMode?.(event.target.value);
-    setVoiceInputMode(event.target.value);
+  cleanupVoiceSettingsScreen();
+  voiceSettingsUnsubscribe = window.VoiceUI.renderSettings({
+    container: document.getElementById("mainContent"), lang: currentLang,
+    begin: startVoiceSession, use: parseVoiceInput, back: openSettingsHome,
+    login: () => showAuthScreen("voice-settings"),
+    floating: getFloatingBtnSetting("showVoiceBtn"),
+    setFloating(enabled) { syncVoiceButtonEnabled(enabled); addVoiceButton(); }
   });
-  document.getElementById("voiceFloatingButtonToggle")?.addEventListener("change", (event) => {
-    const enabled = !!event.target.checked;
-    syncVoiceButtonEnabled(enabled);
-    if (enabled) addVoiceButton();
-    else detachVoiceButton();
-  });
-  document.getElementById("voiceCopyDiagnosticsBtn")?.addEventListener("click", async () => {
-    const report = formatVoiceDiagnostics(voice?.getDiagnostics?.());
-    try {
-      await navigator.clipboard.writeText(report);
-      showToast(copy.diagnosticsCopied, "success");
-    } catch (error) {
-      console.warn("[Voice diagnostics copy]", error);
-      showToast(copy.diagnosticsCopyFailed, "error");
-    }
-  });
-  document.getElementById("voiceSettingsUseBtn")?.addEventListener("click", () => {
-    const text = window.BudgetPROVoiceCore?.normalizeTranscript?.(document.getElementById("voiceSettingsDraft")?.value);
-    if (text) parseVoiceInput(text);
-  });
-
-  if (window.budgetPRODesktopVoice && voice) {
-    voice.getModelStatus().then((model) => {
-      const statusEl = document.getElementById("voiceModelStatus");
-      const installBtn = document.getElementById("voiceInstallModelBtn");
-      if (statusEl) statusEl.textContent = model.available ? copy.modelReady : model.needsUpgrade ? copy.modelUpgrade : copy.modelMissing;
-      if (installBtn) installBtn.hidden = model.available;
-    }).catch((error) => console.warn("[Voice model status]", error));
-    document.getElementById("voiceInstallModelBtn")?.addEventListener("click", async () => {
-      try {
-        const model = await voice.installModel();
-        document.getElementById("voiceModelStatus").textContent = model.available ? copy.modelReady : copy.modelMissing;
-        document.getElementById("voiceInstallModelBtn").hidden = model.available;
-      } catch (error) {
-        console.error("[Voice model install]", error);
-        setStatus({ status: "error", error: "model_missing", meter: 0 });
-      }
-    });
-  }
 }
 
 function renderSettingsAppearanceScreen() {
@@ -21871,10 +21846,48 @@ function openInputModal(title, label, defVal, onSave) {
     if (e.key === "Enter") document.getElementById("imSave").click();
   });
 }
+function updateOperationViewport(dialog = null) {
+  const viewport = window.visualViewport;
+  const height = viewport?.height || window.innerHeight;
+  const top = viewport?.offsetTop || 0;
+  const bottom = Math.max(0, window.innerHeight - height - top);
+  const dialogs = ["addModal", "editModal", "fullHistoryModal", "salaryModal", "subcategoryPickerModal", "subcategoryEditorModal"]
+    .map((id) => document.getElementById(id)).filter(Boolean);
+  if (dialog && !dialogs.includes(dialog)) dialogs.push(dialog);
+  const confirm = document.getElementById("confirmOverlay");
+  if (confirm && dialogs.length) dialogs.push(confirm);
+  dialogs.forEach((element) => {
+    element.style.setProperty("--operation-viewport-height", `${height}px`);
+    element.style.setProperty("--operation-viewport-top", `${top}px`);
+    element.style.setProperty("--operation-viewport-bottom", `${bottom}px`);
+  });
+}
+
+function trackOperationViewport(dialog) {
+  updateOperationViewport(dialog);
+  if (window.__operationViewportTracking) return;
+  window.__operationViewportTracking = true;
+  let scheduled = false;
+  const update = () => {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      updateOperationViewport();
+    });
+  };
+  window.addEventListener("resize", update, { passive: true });
+  window.visualViewport?.addEventListener("resize", update, { passive: true });
+  window.visualViewport?.addEventListener("scroll", update, { passive: true });
+}
+
 function createModal(id, title, bodyHtml) {
   document.getElementById(id)?.remove();
   const ov = document.createElement("div");
   ov.id = id;
+  if (["addModal", "editModal", "fullHistoryModal", "salaryModal", "subcategoryPickerModal", "subcategoryEditorModal"].includes(id)) {
+    trackOperationViewport(ov);
+  }
   if (id === "addModal") {
     if (!document.getElementById("addModalMotionCSS")) {
       const motionStyle = document.createElement("style");
@@ -21916,6 +21929,8 @@ function createModal(id, title, bodyHtml) {
     ov.className = "add-modal-host";
     ov.style.display = "none";
     ov.innerHTML = `<div class="more-overlay add-modal-overlay"></div><div class="more-sheet add-modal-sheet"><div class="more-handle"></div><div class="modal-header"><h2>${esc(title)}</h2><button class="modal-close">✕</button></div><div class="modal-body">${bodyHtml}</div></div>`;
+    const actions = ov.querySelector(".modal-actions");
+    if (actions) ov.querySelector(".add-modal-sheet").appendChild(actions);
     const addSheet = ov.querySelector(".add-modal-sheet");
     const addOverlay = ov.querySelector(".add-modal-overlay");
     if (addSheet) {
@@ -22062,8 +22077,11 @@ function openModal(id) {
         m.style.display = "flex";
       }
       m.classList.remove("closing");
+      const compactWindow = ["fullHistoryModal", "subcategoryPickerModal", "subcategoryEditorModal"].includes(id);
+      if (compactWindow) { m.classList.add("opening"); m.offsetHeight; }
       requestAnimationFrame(() => {
         m.classList.add("open");
+        if (compactWindow) m.classList.remove("opening");
       });
     }
     document.body.style.overflow = "hidden";
@@ -22097,7 +22115,7 @@ function createHeroWrapNode() {
   const { balD, incD, expD, salD } = getTopBlockDisplayValues();
   const s = sym();
   const wrap = document.createElement("div");
-  wrap.className = "hero-card-wrap";
+  wrap.className = "hero-card-wrap home-overview";
   wrap.id = "heroCardWrap";
   wrap.innerHTML = `
     <div
@@ -22117,6 +22135,7 @@ function createHeroWrapNode() {
           id="incomeCard"
           class="hero-chip hc-income"
           data-type="income"
+          data-period="thisMonth"
           role="button"
           tabindex="0"
         >
@@ -22130,6 +22149,7 @@ function createHeroWrapNode() {
           id="expenseCard"
           class="hero-chip hc-expense"
           data-type="expense"
+          data-period="thisMonth"
           role="button"
           tabindex="0"
         >
@@ -22138,19 +22158,6 @@ function createHeroWrapNode() {
             <span class="hc-label-text" id="expenseHeroLabel"></span>
           </div>
           <div class="hc-value" id="expenseValue">${expD.toFixed(2)} ${s}</div>
-        </div>
-        <div
-          id="salaryCard"
-          class="hero-chip hc-salary"
-          data-type="salary"
-          role="button"
-          tabindex="0"
-        >
-          <div class="hc-label">
-            <span class="hc-icon">💼</span>
-            <span class="hc-label-text" id="salaryHeroLabel"></span>
-          </div>
-          <div class="hc-value" id="salaryValue">${salD.toFixed(2)} ${s}</div>
         </div>
       </div>
     </div>
@@ -22812,6 +22819,7 @@ function closeModal(id) {
   const m = document.getElementById(id);
   if (m) {
     if (m.classList.contains("closing")) return;
+    if (id === "subcategoryPickerModal") m._pickerCleanup?.();
     traceApp("closeModal-start", {
       id,
       addModalCommitted,
@@ -22831,13 +22839,17 @@ function closeModal(id) {
       if (sheet) {
         sheet.classList.remove("dragging");
       }
+      const duration = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? 0 : 260;
       setTimeout(() => {
         m.style.display = "none";
         m.remove();
-      }, 500);
+      }, duration);
     } else {
       m.classList.remove("open");
-      setTimeout(() => m.remove(), 350);
+      const compactWindow = ["fullHistoryModal", "subcategoryPickerModal", "subcategoryEditorModal"].includes(id);
+      if (compactWindow) { m.classList.add("closing"); m.inert = true; m.setAttribute("aria-hidden", "true"); }
+      const duration = compactWindow ? (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? 0 : 260) : 350;
+      setTimeout(() => m.remove(), duration);
     }
     const keepBodyLocked = !!document.querySelector(
       ".modal-overlay.open, .add-modal-host.open",
@@ -23000,7 +23012,7 @@ async function updateExchangeRates() {
         JSON.stringify({ rates: exchangeRates, ts: Date.now() }),
       );
       saveAll();
-      updateTopBlocks();
+      refreshOperationViews();
       console.log("💱 Курсы валют обновлены");
     }
   } catch (e) {
@@ -23130,15 +23142,21 @@ function init() {
       return;
     }
     if (type === "income" || type === "expense") {
-      currentFilter = type;
+      currentFilter = simpleMode && currentFilter === type ? null : type;
+      if (card.dataset.period) {
+        historyFilter = card.dataset.period;
+        document.querySelectorAll(".htf-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.hf === historyFilter);
+        });
+      }
       if (simpleMode) {
         // В упрощённом режиме — обновляем список и прокручиваем
-        renderSimpleHome();
+        refreshHomeList();
         setTimeout(() => {
           const el = document.querySelector(".sm-ops-list, .sm-empty");
           if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
           showToast(
-            type === "income"
+            currentFilter === null ? t("cancel") : type === "income"
               ? t("toastIncomeFilter")
               : t("toastExpenseFilter"),
             "success",
@@ -23147,7 +23165,6 @@ function init() {
       } else {
         if (currentTab !== "home") setTab("home");
         else {
-          renderBalanceSummary();
           renderOpsList();
         }
         setTimeout(() => {
@@ -23167,7 +23184,7 @@ function init() {
       if (currentFilter !== null) {
         currentFilter = null;
         if (currentTab === "home") {
-          if (simpleMode) renderSimpleHome();
+          if (simpleMode) refreshHomeList();
           else renderOpsList();
         }
       } else if (currentTab !== "home") setTab("home");
@@ -24425,7 +24442,7 @@ function isAuthSessionExpired(session) {
 }
 
 function getAuthApiBase() {
-  return "https://budget-pro-lski.vercel.app/api/auth";
+  return window.BudgetPROApiConfig.getApiUrl("auth");
 }
 
 async function refreshAuthSession(source = "refreshAuthSession") {
@@ -24662,6 +24679,12 @@ function createMagicLinkError(status, data, fallbackMessage) {
     String(data?.error || data?.message || data?.msg || fallbackMessage),
   );
   error.status = Number(status || 0);
+  const raw = String(data?.error || fallbackMessage || "");
+  error.code = /^AUTH_[A-Z_]+$/.test(raw) ? raw :
+    error.status === 429 || /rate limit|too many/i.test(raw) ? "AUTH_RATE_LIMITED" :
+    /environment variables|not configured/i.test(raw) ? "AUTH_CONFIG_ERROR" :
+    error.status >= 500 ? "AUTH_SERVER_UNAVAILABLE" : "AUTH_SEND_FAILED";
+  error.retryAfter = Math.min(86400, Math.max(0, Number(data?.retryAfter) || 0));
   error.payload = data || null;
   return error;
 }
@@ -24767,10 +24790,7 @@ saveAuthSession({
     authUserId,
   }, "handleAuthCallback");
 
-console.log(
-  "[BP_AUTH_SESSION]",
-  JSON.stringify(getAuthSession("handleAuthCallback:after-save")),
-);
+logAuthDiag("[BP_AUTH_SESSION]", "handleAuthCallback:after-save", getAuthSession("handleAuthCallback:after-save"));
 logAuthDiag("[AUTH_REFRESH]", "handleAuthCallback:received-refresh-token", {
   email,
   expires_at: Math.floor(Date.now() / 1000) + expiresIn,
@@ -24787,40 +24807,70 @@ logAuthDiag("[AUTH_REFRESH]", "handleAuthCallback:received-refresh-token", {
   return true;
 }
 
-async function sendMagicLink(email) {
-  const normalizedEmail = String(email || "").trim().toLowerCase();
-
-  console.log("[BP_SEND_EMAIL]", normalizedEmail);
-
-  const response = await fetch(
-    "https://budget-pro-lski.vercel.app/api/auth/magic-link",
-    {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+function getMagicLinkErrorMessage(error) {
+  const messages = {
+    ru: {
+      AUTH_NETWORK_ERROR: "Нет связи с сервером. Проверьте подключение к интернету.",
+      AUTH_SERVER_UNAVAILABLE: "Сервер входа временно недоступен. Попробуйте позже.",
+      AUTH_RATE_LIMITED: "Превышен лимит отправки писем. Дождитесь окончания таймера и попробуйте позже.",
+      AUTH_RECIPIENT_NOT_ALLOWED: "Почтовый сервис не разрешает отправку на этот адрес. Администратору нужно настроить SMTP.",
+      AUTH_EMAIL_DELIVERY_FAILED: "Почтовый сервис отклонил отправку письма. Сообщите администратору.",
+      AUTH_CONFIG_ERROR: "Сервис входа не настроен. Обратитесь к администратору.",
+      AUTH_INVALID_EMAIL: "Проверьте адрес электронной почты.",
+      AUTH_REQUEST_PENDING: "Письмо уже отправляется. Подождите.",
     },
-    body: JSON.stringify({ email: normalizedEmail }),
-  });
+    en: {
+      AUTH_NETWORK_ERROR: "Cannot connect. Check your internet connection.",
+      AUTH_SERVER_UNAVAILABLE: "The sign-in server is temporarily unavailable. Try later.",
+      AUTH_RATE_LIMITED: "Email limit reached. Wait for the timer and try later.",
+      AUTH_RECIPIENT_NOT_ALLOWED: "The email service does not allow this recipient. An administrator must configure SMTP.",
+      AUTH_EMAIL_DELIVERY_FAILED: "The email service rejected delivery. Contact an administrator.",
+      AUTH_CONFIG_ERROR: "Sign-in is not configured. Contact an administrator.",
+      AUTH_INVALID_EMAIL: "Check your email address.",
+      AUTH_REQUEST_PENDING: "An email request is already in progress. Please wait.",
+    },
+    ka: {
+      AUTH_NETWORK_ERROR: "სერვერთან კავშირი ვერ დამყარდა. შეამოწმეთ ინტერნეტი.",
+      AUTH_SERVER_UNAVAILABLE: "შესვლის სერვერი დროებით მიუწვდომელია. სცადეთ მოგვიანებით.",
+      AUTH_RATE_LIMITED: "წერილების გაგზავნის ლიმიტი ამოიწურა. დაელოდეთ ტაიმერს და სცადეთ მოგვიანებით.",
+      AUTH_RECIPIENT_NOT_ALLOWED: "საფოსტო სერვისი ამ მისამართზე გაგზავნას არ უშვებს. ადმინისტრატორმა უნდა გამართოს SMTP.",
+      AUTH_EMAIL_DELIVERY_FAILED: "საფოსტო სერვისმა წერილის გაგზავნა უარყო. მიმართეთ ადმინისტრატორს.",
+      AUTH_CONFIG_ERROR: "შესვლის სერვისი არ არის გამართული. მიმართეთ ადმინისტრატორს.",
+      AUTH_INVALID_EMAIL: "შეამოწმეთ ელფოსტის მისამართი.",
+      AUTH_REQUEST_PENDING: "წერილის მოთხოვნა უკვე იგზავნება. დაელოდეთ.",
+    },
+  };
+  return (messages[currentLang] || messages.en)[error?.code] || t("authError");
+}
 
-  let data = null;
+async function sendMagicLink(email) {
+  if (window.__magicLinkSending) throw createMagicLinkError(0, { error: "AUTH_REQUEST_PENDING" });
+  window.__magicLinkSending = true;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
   try {
-    data = await response.json();
-  } catch (e) {
-    data = null;
+    if (navigator.onLine === false) throw createMagicLinkError(0, { error: "AUTH_NETWORK_ERROR" });
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    let response;
+    try {
+      response = await fetch(window.BudgetPROApiConfig.getApiUrl("auth/magic-link"), {
+        method: "POST", signal: controller.signal,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail }),
+      });
+    } catch (error) {
+      throw createMagicLinkError(0, { error: error.name === "AbortError" ? "AUTH_SERVER_UNAVAILABLE" : "AUTH_NETWORK_ERROR" });
+    }
+    const data = await response.json().catch(() => null);
+    if (!response.ok || data?.ok !== true) {
+      throw createMagicLinkError(response.status, data, "AUTH_SERVER_UNAVAILABLE");
+    }
+    localStorage.setItem(AUTH_PENDING_EMAIL_KEY, normalizedEmail);
+    return data;
+  } finally {
+    clearTimeout(timer);
+    window.__magicLinkSending = false;
   }
-
-  if (!response.ok) {
-    throw createMagicLinkError(response.status, data, "magic_link_send_failed");
-  }
-
-  console.log("[BP_MAGIC_RESPONSE]", response.status, JSON.stringify(data));
-
-  if (data && data.ok === false) {
-    throw createMagicLinkError(response.status, data, "magic_link_send_failed");
-  }
-
-  localStorage.setItem(AUTH_PENDING_EMAIL_KEY, normalizedEmail);
-  return data || { ok: true };
 }
 
 function showAuthScreen(source = "showAuthScreen") {
@@ -25118,6 +25168,7 @@ function showAuthScreen(source = "showAuthScreen") {
     }
 
     setSending(true);
+    updateSentState("");
     try {
       await sendMagicLink(email);
       startMagicLinkResendCooldown(120000);
@@ -25126,10 +25177,10 @@ function showAuthScreen(source = "showAuthScreen") {
       startResendTicker();
     } catch (e) {
       if (isMagicLinkRateLimitError(e)) {
-        showMagicLinkRateLimitModal();
-      } else {
-        setError(t("authError"));
+        startMagicLinkResendCooldown((e.retryAfter || 120) * 1000);
+        startResendTicker();
       }
+      setError(getMagicLinkErrorMessage(e));
     } finally {
       setSending(false);
     }
@@ -25162,17 +25213,7 @@ function setupAppUrlOpenListener() {
   if (!AppPlugin || typeof AppPlugin.addListener !== "function") return;
   appUrlOpenListenerInstalled = true;
 
-  if (typeof AppPlugin.getLaunchUrl === "function") {
-    AppPlugin.getLaunchUrl()
-      .then((result) => {
-        console.log("[BP_LAUNCH_URL]", JSON.stringify(result));
-      })
-      .catch((e) => {
-        console.log("[BP_LAUNCH_URL_ERROR]", e);
-      });
-  }
-
-  AppPlugin.addListener("appUrlOpen", async ({ url }) => {
+  const receiveAuthUrl = async ({ url } = {}) => {
     if (!url) return;
 
     let incomingUrl;
@@ -25182,23 +25223,15 @@ function setupAppUrlOpenListener() {
       return;
     }
 
-    console.log("[BP_APP_URL] full_url =", url);
     console.log("[BP_APP_URL] hostname =", incomingUrl.hostname);
-    console.log("[BP_APP_URL] search =", incomingUrl.search);
-    console.log("[BP_APP_URL] hash =", incomingUrl.hash);
 
-    if (incomingUrl.hostname !== "budget-pro-lski.vercel.app") return;
+    if (incomingUrl.origin !== window.BudgetPROApiConfig.productionOrigin) return;
 
     const authPayload =
       incomingUrl.hash ||
       (incomingUrl.search ? `#${incomingUrl.search.slice(1)}` : "");
 
     if (!authPayload || authPayload.startsWith("#share=")) return;
-
-    console.log("APP_URL:", url);
-    console.log("HASH:", incomingUrl.hash);
-    console.log("SEARCH:", incomingUrl.search);
-    console.log("AUTH_PAYLOAD:", authPayload);
 
     pendingAppUrlAuthHash = authPayload;
 
@@ -25217,7 +25250,11 @@ function setupAppUrlOpenListener() {
     } catch (e) {
       console.error("[BP_AUTH_REFRESH_ERROR]", e);
     }
-  });
+  };
+  AppPlugin.addListener("appUrlOpen", receiveAuthUrl);
+  if (typeof AppPlugin.getLaunchUrl === "function") {
+    AppPlugin.getLaunchUrl().then(receiveAuthUrl).catch(() => {});
+  }
 }
 
 function setupAuthAppStateListener() {
@@ -26920,10 +26957,7 @@ function getJsonBinConfig() {
 }
 
 function getJsonBinApiBase() {
-  if (window.Capacitor?.getPlatform?.() === "android") {
-    return "https://budget-pro-lski.vercel.app/api/jsonbin";
-  }
-  return "/api/jsonbin";
+  return window.BudgetPROApiConfig.getApiUrl("jsonbin");
 }
 
 function setCookie(name, value, days) {
@@ -32103,121 +32137,20 @@ function showBudgetCelebration() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 🎤 3. ГОЛОСОВОЙ ВВОД (Web Speech API)
+// 🎤 3. ГОЛОСОВОЙ ВВОД (Google Cloud STT V2)
 // ═══════════════════════════════════════════════════════════════
-const VOICE_OVERLAY_ID = "voiceOverlay";
-const VOICE_INPUT_MODE_KEY = "budgetpro_voice_mode";
 const VOICE_LEARNING_KEY = "budgetpro_voice_learning_v2";
 const VOICE_MAX_LEARNING_ENTRIES = 120;
 
-const VOICE_INPUT_MODES = {
-  auto: {
-    overlayGate: 0.05,
-    overlayBoost: 1.2,
-    overlayRelease: 0.8,
-    overlayNoiseRise: 0.12,
-    overlayNoiseFall: 0.035,
-    overlaySpeechAttack: 0.34,
-    overlaySpeechDecay: 0.12,
-    overlaySpeechThreshold: 0.085,
-    overlaySpeechinessWeight: 0.32,
-    webRmsBoost: 8.4,
-    webPeakBoost: 1.5,
-    webMinSpeechiness: 0.2,
-  },
-  whisper: {
-    overlayGate: 0.024,
-    overlayBoost: 1.5,
-    overlayRelease: 0.88,
-    overlayNoiseRise: 0.08,
-    overlayNoiseFall: 0.028,
-    overlaySpeechAttack: 0.38,
-    overlaySpeechDecay: 0.08,
-    overlaySpeechThreshold: 0.05,
-    overlaySpeechinessWeight: 0.22,
-    webRmsBoost: 10.2,
-    webPeakBoost: 1.9,
-    webMinSpeechiness: 0.14,
-  },
-  street: {
-    overlayGate: 0.095,
-    overlayBoost: 1.06,
-    overlayRelease: 0.72,
-    overlayNoiseRise: 0.2,
-    overlayNoiseFall: 0.055,
-    overlaySpeechAttack: 0.26,
-    overlaySpeechDecay: 0.17,
-    overlaySpeechThreshold: 0.12,
-    overlaySpeechinessWeight: 0.48,
-    webRmsBoost: 6.8,
-    webPeakBoost: 1.18,
-    webMinSpeechiness: 0.32,
-  },
-};
-
-function getVoiceInputMode() {
-  const raw = String(localStorage.getItem(VOICE_INPUT_MODE_KEY) || "auto")
-    .trim()
-    .toLowerCase();
-  return Object.prototype.hasOwnProperty.call(VOICE_INPUT_MODES, raw)
-    ? raw
-    : "auto";
-}
-
-function setVoiceInputMode(mode) {
-  const next = Object.prototype.hasOwnProperty.call(VOICE_INPUT_MODES, mode)
-    ? mode
-    : "auto";
-  localStorage.setItem(VOICE_INPUT_MODE_KEY, next);
-  return next;
-}
-
-function getVoiceInputModeConfig(mode = getVoiceInputMode()) {
-  return VOICE_INPUT_MODES[mode] || VOICE_INPUT_MODES.auto;
-}
-
+function getVoiceInputMode() { return window.BudgetPROVoiceModule.getMode(); }
+function setVoiceInputMode(mode) { window.BudgetPROVoiceModule.setMode(mode); return getVoiceInputMode(); }
 function getVoiceInputModeLabels() {
+  const L = currentLang;
   return {
-    auto: {
-      label: { ru: "Авто", en: "Auto", ka: "ავტო" }[currentLang] || "Auto",
-      hint:
-        {
-          ru: "Сбалансированный режим на каждый день",
-          en: "Balanced everyday mode",
-          ka: "დაბალანსებული ყოველდღიური რეჟიმი",
-        }[currentLang] || "Balanced everyday mode",
-    },
-    whisper: {
-      label:
-        { ru: "Тихая речь", en: "Quiet Speech", ka: "ჩუმი მეტყველება" }[currentLang] || "Quiet Speech",
-      hint:
-        {
-          ru: "Для тихой речи рядом с микрофоном",
-          en: "For quiet speech close to the mic",
-          ka: "ჩუმი მეტყველებისთვის მიკროფონთან ახლოს",
-        }[currentLang] || "For quiet speech close to the mic",
-    },
-    street: {
-      label: { ru: "Шумное место", en: "Noisy Place", ka: "ხმაურიანი ადგილი" }[currentLang] || "Noisy Place",
-      hint:
-        {
-          ru: "Жёстче отсекает фоновый шум",
-          en: "Cuts background noise more aggressively",
-          ka: "უფრო მკაცრად ჭრის ფონის ხმაურს",
-        }[currentLang] || "Cuts background noise more aggressively",
-    },
+    auto: { label: {ru:"Авто",en:"Auto",ka:"ავტო"}[L], hint: {ru:"Сбалансированный режим",en:"Balanced recording",ka:"დაბალანსებული რეჟიმი"}[L] },
+    quiet: { label: {ru:"Тихая речь",en:"Quiet speech",ka:"ჩუმი მეტყველება"}[L], hint: {ru:"Чувствительный микрофон",en:"Sensitive capture",ka:"მგრძნობიარე მიკროფონი"}[L] },
+    noise: { label: {ru:"Шумное место",en:"Noisy place",ka:"ხმაურიანი ადგილი"}[L], hint: {ru:"Адаптация к фоновому шуму",en:"Adapts to background noise",ka:"ფონის ხმაურზე მორგება"}[L] }
   };
-}
-
-function getVoiceRecognitionLangCode({ native = false } = {}) {
-  const selected = window.BudgetPROVoiceModule?.getLanguage?.() || "auto";
-  if (native && selected === "auto") return "auto";
-  const language = selected === "auto" ? currentLang : selected;
-  const code = language === "en" ? "en-US" : language === "ka" ? "ka-GE" : "ru-RU";
-  // For native Android bridge, pass the explicit lang code so the OS voice engine
-  // doesn't fall back to the system default language (e.g. Russian)
-  if (native) return code;
-  return code;
 }
 
 function normalizeVoiceMeaningText(text) {
@@ -32395,555 +32328,39 @@ function scoreVoiceLabelMatch(normalizedText, label) {
   return score;
 }
 
-function getVoiceListeningCopy() {
-  const mode = getVoiceInputMode();
-  return {
-    title:
-      { ru: "Говорите...", en: "Listening...", ka: "ილაპარაკეთ..." }[
-        currentLang
-      ] || "Listening...",
-    hint:
-      ({
-        auto: {
-          ru: "Можно говорить по-русски, English или ქართულად: сумма и категория",
-          en: "Speak Russian, English or Georgian: amount and category",
-          ka: "ილაპარაკეთ რუსულად, English ან ქართულად: თანხა და კატეგორია",
-        },
-        whisper: {
-          ru: "Шепот: поднесите телефон ближе и говорите коротко",
-          en: "Whisper: hold the phone closer and speak briefly",
-          ka: "ჩურჩული: მოიტანეთ ტელეფონი ახლოს და თქვით მოკლედ",
-        },
-        street: {
-          ru: "Шумно вокруг: говорите ближе к микрофону и короче",
-          en: "Noisy outside: speak closer to the mic and keep it short",
-          ka: "ხმაურია: ილაპარაკეთ მიკროფონთან ახლოს და მოკლედ",
-        },
-      }[mode] || {
-        ru: "Формат: «Потратил 50 лари на продукты»",
-        en: "Format: «I spent 50 lari on groceries»",
-        ka: "ფორმატი: «დავხარჯე 50 ლარი პროდუქტებზე»",
-      })[currentLang] || "Format: I spent 50 lari on groceries",
-  };
-}
-
-function ensureVoiceOverlayStyles() {
-  if (document.getElementById("voiceOverlayStyles")) return;
-  const style = document.createElement("style");
-  style.id = "voiceOverlayStyles";
-  style.textContent = `
-    @keyframes voiceOverlayFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
-    }
-    .voice-overlay-shell {
-      width: min(92vw, 360px);
-      display: grid;
-      justify-items: center;
-      gap: 16px;
-      text-align: center;
-      color: white;
-    }
-    .voice-orb-wrap {
-      position: relative;
-      width: 170px;
-      height: 170px;
-      display: grid;
-      place-items: center;
-      animation: voiceOverlayFloat 3.2s ease-in-out infinite;
-    }
-    .voice-wave-ring {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 124px;
-      height: 124px;
-      border-radius: 999px;
-      border: 1.5px solid rgba(255,255,255,0.24);
-      background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 48%, transparent 72%);
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 0.22;
-      pointer-events: none;
-      will-change: transform, opacity;
-    }
-    .voice-orb-core {
-      position: relative;
-      z-index: 2;
-      width: 88px;
-      height: 88px;
-      border-radius: 28px;
-      display: grid;
-      place-items: center;
-      font-size: 42px;
-      color: white;
-      background: linear-gradient(145deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
-      border: 1.5px solid rgba(255,255,255,0.24);
-      box-shadow: 0 22px 42px rgba(0,0,0,0.28), 0 0 0 1px rgba(255,255,255,0.08) inset;
-      backdrop-filter: blur(12px);
-      will-change: transform, box-shadow;
-    }
-    .voice-wave-canvas {
-      width: min(88vw, 300px);
-      height: 84px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.09);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-    }
-    .voice-overlay-copy {
-      display: grid;
-      gap: 8px;
-      justify-items: center;
-    }
-    .voice-overlay-title {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-    }
-    .voice-overlay-hint {
-      font-size: 14px;
-      line-height: 1.5;
-      color: rgba(255,255,255,0.76);
-      padding: 0 8px;
-      max-width: 320px;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
-function cleanupVoiceOverlayMeter() {
-  const state = window.__voiceOverlayState;
-  if (!state) return;
-  if (typeof state.meterCleanup === "function") {
-    try {
-      state.meterCleanup();
-    } catch (e) {}
-  }
-  if (state.rafId) cancelAnimationFrame(state.rafId);
-  window.__voiceOverlayState = null;
-}
-
-function normalizeVoiceOverlayEnergy(level) {
-  const clamped = Math.max(0, Math.min(1, Number(level) || 0));
-  if (clamped <= 0.012) return 0;
-  return Math.min(1, Math.pow(clamped, 0.72) * 1.12);
-}
-
-function setVoiceOverlayLevel(level, meta = {}) {
-  const state = window.__voiceOverlayState;
-  if (!state) return;
-  const cfg = state.modeConfig || getVoiceInputModeConfig();
-  const raw = normalizeVoiceOverlayEnergy(level);
-  const speechiness = Math.max(
-    0,
-    Math.min(1, Number(meta.speechiness ?? raw) || 0),
-  );
-
-  if (!Number.isFinite(state.noiseFloor)) {
-    state.noiseFloor = raw * 0.78;
-  }
-  const noiseLerp =
-    raw > state.noiseFloor ? cfg.overlayNoiseRise : cfg.overlayNoiseFall;
-  state.noiseFloor += (raw - state.noiseFloor) * noiseLerp;
-
-  const gated = Math.max(
-    0,
-    raw -
-      state.noiseFloor -
-      cfg.overlayGate +
-      speechiness * cfg.overlaySpeechinessWeight,
-  );
-  const speechCandidate = Math.max(
-    0,
-    Math.min(1, gated * cfg.overlayBoost + speechiness * 0.22),
-  );
-
-  if (
-    speechCandidate >= cfg.overlaySpeechThreshold ||
-    speechiness >= cfg.webMinSpeechiness
-  ) {
-    state.speechConfidence +=
-      (1 - state.speechConfidence) * cfg.overlaySpeechAttack;
-  } else {
-    state.speechConfidence +=
-      (0 - state.speechConfidence) * cfg.overlaySpeechDecay;
-  }
-
-  const smoothed = speechCandidate * (0.42 + state.speechConfidence * 0.8);
-  state.targetEnergy = Math.max(
-    smoothed,
-    state.targetEnergy * cfg.overlayRelease,
-  );
-}
-
-function renderVoiceOverlayFrame(state, timestamp) {
-  if (!state?.overlay?.isConnected) return;
-  const t = timestamp || performance.now();
-  state.energy += (state.targetEnergy - state.energy) * 0.34;
-  state.targetEnergy *= 0.8;
-  const energy = Math.max(0.04, Math.min(1, state.energy));
-
-  state.rings.forEach((ring, index) => {
-    const drift = Math.sin(t * 0.0016 + index * 0.9) * 0.018;
-    const scale = 1 + index * 0.16 + energy * (0.24 + index * 0.1) + drift;
-    ring.style.transform = `translate(-50%, -50%) scale(${scale.toFixed(3)})`;
-    ring.style.opacity = `${Math.max(0.12, 0.26 + energy * (0.28 - index * 0.05))}`;
-  });
-
-  if (state.core) {
-    state.core.style.transform = `scale(${(1 + energy * 0.12).toFixed(3)})`;
-    state.core.style.boxShadow = `0 22px 42px rgba(0,0,0,0.28), 0 0 ${(
-      20 +
-      energy * 52
-    ).toFixed(1)}px rgba(255,122,89,${(0.18 + energy * 0.22).toFixed(
-      3,
-    )}), 0 0 0 1px rgba(255,255,255,0.08) inset`;
-  }
-
-  const canvas = state.canvas;
-  const ctx = state.ctx;
-  if (canvas && ctx) {
-    const width = canvas.width;
-    const height = canvas.height;
-    const mid = height / 2;
-    ctx.clearRect(0, 0, width, height);
-
-    const gradient = ctx.createLinearGradient(0, 0, width, 0);
-    gradient.addColorStop(0, "rgba(255,255,255,0.18)");
-    gradient.addColorStop(0.22, "rgba(251,146,60,0.92)");
-    gradient.addColorStop(0.5, "rgba(255,214,102,0.96)");
-    gradient.addColorStop(0.78, "rgba(96,165,250,0.9)");
-    gradient.addColorStop(1, "rgba(255,255,255,0.18)");
-
-    ctx.lineWidth = 3;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.strokeStyle = gradient;
-    ctx.beginPath();
-    const amplitude = 8 + energy * 30;
-    for (let x = 0; x <= width; x += 4) {
-      const progress = x / width;
-      const wave =
-        Math.sin(progress * Math.PI * 6 + t * 0.01) * amplitude * 0.55 +
-        Math.sin(progress * Math.PI * 13 - t * 0.016) * amplitude * 0.24 +
-        Math.sin(progress * Math.PI * 2 + t * 0.004) * amplitude * 0.18;
-      const y = mid + wave;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-
-    ctx.lineWidth = 1.2;
-    ctx.strokeStyle = `rgba(255,255,255,${(0.22 + energy * 0.24).toFixed(3)})`;
-    ctx.beginPath();
-    for (let x = 0; x <= width; x += 6) {
-      const progress = x / width;
-      const wave =
-        Math.sin(progress * Math.PI * 5 + t * 0.006) * (amplitude * 0.38);
-      const y = mid + wave;
-      if (x === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-
-  state.rafId = requestAnimationFrame((ts) =>
-    renderVoiceOverlayFrame(state, ts),
-  );
-}
-
-function createVoiceListeningOverlay() {
-  ensureVoiceOverlayStyles();
-  closeVoiceListeningOverlay();
-  const copy = getVoiceListeningCopy();
-  const overlay = document.createElement("div");
-  overlay.id = VOICE_OVERLAY_ID;
-  overlay.style.cssText =
-    "position:fixed;inset:0;z-index:99998;background:radial-gradient(circle at 50% 35%, rgba(255,149,105,0.20), transparent 28%), rgba(5,8,18,0.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:24px 16px;";
-  overlay.innerHTML = `
-    <div class="voice-overlay-shell">
-      <div class="voice-orb-wrap">
-        <div class="voice-wave-ring" data-voice-ring="1"></div>
-        <div class="voice-wave-ring" data-voice-ring="2"></div>
-        <div class="voice-wave-ring" data-voice-ring="3"></div>
-        <div class="voice-orb-core" id="voiceOrbCore">🎤</div>
-      </div>
-      <canvas id="voiceWaveCanvas" class="voice-wave-canvas" width="300" height="84"></canvas>
-      <div class="voice-overlay-copy">
-        <div class="voice-overlay-title">${copy.title}</div>
-        <div class="voice-overlay-hint">${copy.hint}</div>
-      </div>
-      <button id="voiceCancel" style="padding:12px 28px;border-radius:20px;background:rgba(255,255,255,0.12);color:white;border:1.5px solid rgba(255,255,255,0.24);font-size:15px;font-weight:800;cursor:pointer;">${t(
-        "cancel",
-      )}</button>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-
-  const canvas = document.getElementById("voiceWaveCanvas");
-  const state = {
-    overlay,
-    rings: Array.from(overlay.querySelectorAll("[data-voice-ring]")),
-    core: document.getElementById("voiceOrbCore"),
-    canvas,
-    ctx: canvas?.getContext?.("2d") || null,
-    mode: getVoiceInputMode(),
-    modeConfig: getVoiceInputModeConfig(),
-    energy: 0.08,
-    targetEnergy: 0.12,
-    noiseFloor: 0.03,
-    speechConfidence: 0.16,
-    rafId: 0,
-    meterCleanup: null,
-  };
-  window.__voiceOverlayState = state;
-  renderVoiceOverlayFrame(state, performance.now());
-  return overlay;
-}
-
-function closeVoiceListeningOverlay() {
-  window.__budgetProNativeVoiceLevel = null;
-  cleanupVoiceOverlayMeter();
-  document.getElementById(VOICE_OVERLAY_ID)?.remove();
-}
-
-async function startWebVoiceOverlayMeter() {
-  const state = window.__voiceOverlayState;
-  if (!state || typeof navigator === "undefined") return;
-  const modeConfig = state.modeConfig || getVoiceInputModeConfig();
-  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-  if (!navigator.mediaDevices?.getUserMedia || !AudioContextCtor) return;
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true,
-      },
-    });
-    if (window.__voiceOverlayState !== state) {
-      stream.getTracks().forEach((track) => track.stop());
-      return;
-    }
-    const audioContext = new AudioContextCtor();
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 512;
-    analyser.smoothingTimeConstant = 0.62;
-    const source = audioContext.createMediaStreamSource(stream);
-    const data = new Uint8Array(analyser.fftSize);
-    const freqData = new Uint8Array(analyser.frequencyBinCount);
-    source.connect(analyser);
-    let rafId = 0;
-    const tick = () => {
-      analyser.getByteTimeDomainData(data);
-      analyser.getByteFrequencyData(freqData);
-      let sum = 0;
-      let peak = 0;
-      for (let i = 0; i < data.length; i++) {
-        const v = (data[i] - 128) / 128;
-        sum += v * v;
-        peak = Math.max(peak, Math.abs(v));
-      }
-      const rms = Math.sqrt(sum / data.length);
-      let totalEnergy = 0;
-      let speechBandEnergy = 0;
-      const binHz = audioContext.sampleRate / analyser.fftSize;
-      for (let i = 1; i < freqData.length; i++) {
-        const value = freqData[i] / 255;
-        const hz = i * binHz;
-        totalEnergy += value;
-        if (hz >= 160 && hz <= 3800) speechBandEnergy += value;
-      }
-      const speechiness = totalEnergy > 0 ? speechBandEnergy / totalEnergy : 0;
-      const boosted = Math.max(
-        rms * modeConfig.webRmsBoost,
-        peak * modeConfig.webPeakBoost,
-      );
-      const combined = boosted * (0.52 + Math.max(0, speechiness - 0.08) * 1.2);
-      setVoiceOverlayLevel(Math.min(1, combined), { speechiness });
-      rafId = requestAnimationFrame(tick);
-    };
-    tick();
-    state.meterCleanup = () => {
-      cancelAnimationFrame(rafId);
+async function startVoiceSession(options = {}) {
+  const voice = window.BudgetPROVoiceModule;
+  if (!voice || voice.isActive()) return;
+  let close = () => {};
+  const run = async (closeOverlay, diagnosticSource = options.diagnosticSource || 'main') => {
+    const btn = document.getElementById("voiceInputBtn");
+    const getToken = async () => {
       try {
-        source.disconnect();
-      } catch (e) {}
-      try {
-        analyser.disconnect();
-      } catch (e) {}
-      stream.getTracks().forEach((track) => track.stop());
-      if (audioContext.state !== "closed") {
-        audioContext.close().catch(() => {});
-      }
-    };
-  } catch (e) {
-    console.warn("[Voice overlay meter]", e);
-  }
-}
-
-async function startVoiceInput() {
-  if (window.budgetPRODesktopVoice && window.BudgetPROVoiceModule) {
-    createVoiceListeningOverlay();
-    let unsubscribe = null;
-    const finishQuick = () => {
-      unsubscribe?.();
-      unsubscribe = null;
-      closeVoiceListeningOverlay();
-    };
-    unsubscribe = window.BudgetPROVoiceModule.subscribe((voiceState) => {
-      setVoiceOverlayLevel(voiceState.meter || 0);
-      if (voiceState.status === "error" || voiceState.status === "no-speech") {
-        finishQuick();
-        const messages = {
-          ru: "Не удалось распознать запись. Проверьте модель и микрофон.",
-          en: "Could not transcribe the recording. Check the model and microphone.",
-          ka: "ჩანაწერის ამოცნობა ვერ მოხერხდა. შეამოწმეთ მოდელი და მიკროფონი.",
-        };
-        showToast(messages[currentLang] || messages.ru, "error");
-      }
-    });
-    document.getElementById("voiceCancel").onclick = () => {
-      window.BudgetPROVoiceModule.cancel();
-      finishQuick();
-    };
-    const result = await window.BudgetPROVoiceModule.start({
-      onTranscript(text, alternatives) {
-        finishQuick();
-        haptic("success");
-        parseVoiceInput(text, alternatives);
-      },
-    });
-    if (result?.handled) return;
-    finishQuick();
-  }
-  const webLangCode = getVoiceRecognitionLangCode();
-  const nativeLangCode = getVoiceRecognitionLangCode({ native: true });
-  const voiceMode = getVoiceInputMode();
-  const nativeVoice =
-    window.BudgetPROVoice && typeof window.BudgetPROVoice.start === "function";
-  if (nativeVoice) {
-    const ov = createVoiceListeningOverlay();
-    window.__budgetProNativeVoiceResult = (
-      status,
-      payload,
-      alternatives = [],
-    ) => {
-      closeVoiceListeningOverlay();
-      window.__budgetProNativeVoiceResult = null;
-      if (status === "result" && payload && payload.trim()) {
-        haptic("success");
-        const normalized = window.BudgetPROVoiceModule?.recordExternalResult?.(payload, {
-          backend: "android-speechrecognizer-fallback",
-          uiLanguage: currentLang,
-        }) || payload;
-        parseVoiceInput(normalized, alternatives);
-        return;
-      }
-      console.warn("[Voice native error]", payload);
-      const rawError = String(payload || "").toLowerCase();
-      const permissionError =
-        rawError.includes("permission") || rawError.includes("denied");
-      const unavailableError = rawError.includes("not available");
-      const L = permissionError
-        ? {
-            ru: "Нет доступа к микрофону. Разрешите микрофон для BudgetPRO.",
-            en: "Microphone access is blocked. Allow microphone for BudgetPRO.",
-            ka: "მიკროფონზე წვდომა დაბლოკილია. დაუშვით მიკროფონი BudgetPRO-სთვის.",
+        let authSession = getAuthSession("voice");
+        if (!authSession) return "";
+        if (isAuthSessionExpired(authSession)) {
+          if (!authSession.refresh_token) return "";
+          if (!await refreshAuthSession("voice")) {
+            throw Object.assign(new Error("AUTH_REFRESH_FAILED"), { code: "AUTH_REFRESH_FAILED" });
           }
-        : unavailableError
-          ? {
-              ru: "На этом устройстве недоступно голосовое распознавание.",
-              en: "Speech recognition is not available on this device.",
-              ka: "ამ მოწყობილობაზე ხმოვანი ამოცნობა მიუწვდომელია.",
-            }
-          : {
-              ru: "Не расслышал. Попробуйте ещё раз короткой фразой.",
-              en: "I couldn't catch that. Try again with a short phrase.",
-              ka: "ვერ გავიგე. სცადეთ მოკლე ფრაზით თავიდან.",
-            };
-      showToast(L[currentLang] || L.ru, "error");
-    };
-    document.getElementById("voiceCancel").onclick = () => {
-      try {
-        window.BudgetPROVoice.stop();
-      } catch (e) {}
-      window.__budgetProNativeVoiceResult = null;
-      closeVoiceListeningOverlay();
-    };
-    haptic("medium");
-    try {
-      window.__budgetProNativeVoiceLevel = (level) =>
-        setVoiceOverlayLevel(level);
-      if (typeof window.BudgetPROVoice.startConfig === "function") {
-        window.BudgetPROVoice.startConfig(nativeLangCode, voiceMode);
-      } else {
-        window.BudgetPROVoice.start(`${nativeLangCode}::${voiceMode}`);
+          authSession = getAuthSession("voice:refreshed");
+        }
+        return authSession?.access_token || "";
+      } catch (error) {
+        throw Object.assign(new Error("Voice session unavailable"), { code: error.code || "AUTH_REFRESH_FAILED" });
       }
-      return;
-    } catch (e) {
-      closeVoiceListeningOverlay();
-      window.__budgetProNativeVoiceResult = null;
-      console.warn("[Voice native fallback]", e);
-    }
-  }
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    const L = {
-      ru: "Голосовой ввод недоступен. Используйте Chrome на Android.",
-      en: "Voice input not available. Use Chrome on Android.",
-      ka: "ხმოვანი შეყვანა მიუწვდომელია. გამოიყენეთ Chrome.",
     };
-    showToast(L[currentLang] || L.ru, "error");
-    return;
-  }
-  const rec = new SpeechRecognition();
-  rec.lang = webLangCode;
-  // Force the lang attribute on the html element so browsers that read it
-  // (some Chrome Android versions) pick the right speech model
-  document.documentElement.setAttribute("lang", webLangCode);
-  rec.continuous = false;
-  rec.interimResults = false;
-  rec.maxAlternatives = voiceMode === "whisper" ? 7 : 5;
-
-  const ov = createVoiceListeningOverlay();
-  document.getElementById("voiceCancel").onclick = () => {
-    rec.stop();
-    closeVoiceListeningOverlay();
+    const names = [typeof categories !== "undefined" ? categories : {}, typeof incomeCategories !== "undefined" ? incomeCategories : {}].flatMap(group => Object.entries(group).flatMap(([name, value]) => [name, ...(value?.subcats || [])]));
+    let hintChars = 0;
+    const hints = [...new Set(names)].filter(v => { if (typeof v !== "string" || !v.trim() || v.length > 60 || /[\p{Cc}]/u.test(v) || hintChars + v.length > 400) return false; hintChars += v.length; return true; }).slice(0, 20);
+    const result = await voice.start({ getToken, hints, diagnosticSource, onTranscript(text, alternatives, diagnosticSessionId) {
+      if (!options.settings) { closeOverlay(); haptic("success"); parseVoiceInput(text, [], diagnosticSessionId); }
+    }});
+    btn?.classList.remove("recording");
+    if (result?.cancelled) closeOverlay();
   };
-  haptic("medium");
-  startWebVoiceOverlayMeter();
-
-  rec.onresult = (event) => {
-    closeVoiceListeningOverlay();
-    const alternatives = Array.from(event.results?.[0] || [])
-      .map((result) => result.transcript)
-      .filter(Boolean);
-    const choice = chooseBestVoiceTranscript(alternatives);
-    console.log("Voice:", choice.text, choice.alternatives);
-    haptic("success");
-    const normalized = window.BudgetPROVoiceModule?.recordExternalResult?.(choice.text, {
-      backend: "web-speech-api-fallback",
-      uiLanguage: currentLang,
-    }) || choice.text;
-    parseVoiceInput(normalized, choice.alternatives);
-  };
-  rec.onerror = (e) => {
-    closeVoiceListeningOverlay();
-    const L = {
-      ru: "Не удалось распознать. Попробуйте ещё раз.",
-      en: "Couldn't recognize. Please try again.",
-      ka: "ვერ ამოვიცანი. სცადეთ ხელახლა.",
-    };
-    showToast(L[currentLang] || L.ru, "error");
-  };
-  rec.onend = () => {
-    closeVoiceListeningOverlay();
-    // Restore the document lang to the UI language code (not the speech BCP-47 code)
-    document.documentElement.setAttribute("lang", currentLang);
-  };
-  rec.start();
+  if (!options.settings) close = window.VoiceUI.openOverlay(currentLang, run, () => showAuthScreen("voice"));
+  return run(close);
 }
 
 function getVoiceDraftLabels() {
@@ -33123,22 +32540,6 @@ function normalizeVoiceAlternatives(values) {
       seen.add(key);
       return true;
     });
-}
-
-function isVoiceTextCompatibleWithCurrentLanguage(text) {
-  const value = String(text || "");
-  if (currentLang === "ka") return /[\u10A0-\u10FF]/.test(value);
-  if (currentLang === "ru") return /[а-яё]/i.test(value);
-  return /[a-z]/i.test(value) || /\d/.test(value);
-}
-
-function showVoiceLanguageMismatch() {
-  const L = {
-    ru: "Распознавание вернуло текст не на выбранном языке. Попробуйте ещё раз.",
-    en: "Recognition returned text in another language. Please try again.",
-    ka: "ამოცნობამ სხვა ენის ტექსტი დააბრუნა. სცადეთ ხელახლა.",
-  };
-  showToast(L[currentLang] || L.ru, "error", 3600);
 }
 
 function parseVoiceNumericCandidate(token) {
@@ -33346,7 +32747,79 @@ function parseVoiceNumericPhrase(phrase) {
   return parseVoiceNumericCandidate(value);
 }
 
+// Isolated proposal: only Georgian monetary units take this strict path.
+function parseGeorgianMoneyUnits(text) {
+  const normalizer = typeof BudgetPROVoiceNumberNormalizer !== "undefined"
+    ? BudgetPROVoiceNumberNormalizer : null;
+  // Russian names for the same 1/100 money units must use the strict unit-aware path too.
+  const russianGel = /(?<![\p{L}])(лари|тетри)(?![\p{L}])/iu.test(text);
+  const russianRub = /(?<![\p{L}])(рубль|рубля|рублей|копейка|копейки|копеек|коп)(?![\p{L}])/iu.test(text);
+  if (russianRub && (russianGel || /ლარ|თეთრ/u.test(text))) return { matched: true, value: null };
+  const normalized = normalizeVoiceMeaningText(normalizer
+    ? normalizer.normalizeNumbers(text, russianGel || russianRub ? "ru" : "ka") : text)
+    .replace(/(?<![\p{L}])(лари|рубль|рубля|рублей)(?![\p{L}])/gu, "ლარი")
+    .replace(/(?<![\p{L}])(тетри|копейка|копейки|копеек|коп)(?![\p{L}])/gu, "თეთრი");
+  const unit = /(?<![\p{L}\p{N}])(ლარი|ლარს|ლარად|თეთრი|თეთრს)(?![\p{L}\p{N}])/gu;
+  const units = [...normalized.matchAll(unit)];
+  if (!units.length) return { matched: false, value: null };
+  if (/(?:^|\s)(?:მინუს|minus|минус)\s/iu.test(text) || /−\s*(?:\d|[ა-ჰ])/u.test(text))
+    return { matched: true, value: null };
+  if (/(?:\b(?:usd|eur|rub|dollars?|euros?)\b|[$€])/iu.test(text))
+    return { matched: true, value: null };
+  const amounts = [...normalized.matchAll(/(?<![\p{L}\p{N}.,-])((?:\d{1,3}(?:[ ,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?))\s+(ლარი|ლარს|ლარად|თეთრი|თეთრს)(?![\p{L}\p{N}])/gu)];
+  const invalid = { matched: true, value: null };
+  if (amounts.length !== units.length || amounts.length > 2) return invalid;
+  const major = m => m[2].startsWith("ლარ");
+  const value = m => /^0(?:[.,]0{1,2})?$/.test(m[1]) ? 0
+    : parseVoiceNumericCandidate(m[1]);
+  let total;
+  if (amounts.length === 1) {
+    const n = value(amounts[0]);
+    if (!major(amounts[0]) && !Number.isInteger(n)) return invalid;
+    total = major(amounts[0]) ? n : n / 100;
+  } else {
+    const [a, b] = amounts;
+    const join = normalized.slice(a.index + a[0].length, b.index);
+    if (!major(a) || major(b) || !/^\s*(?:(?:და|и|and)\s*)?$/.test(join)
+        || !Number.isInteger(value(a)) || !Number.isInteger(value(b))
+        || value(b) >= 100) return invalid;
+    total = value(a) + value(b) / 100;
+  }
+  return { matched: true, value: Number.isFinite(total) && total > 0
+    && total <= Number.MAX_SAFE_INTEGER / 100 ? Math.round(total * 100) / 100 : null };
+}
+
+function resolveVoiceExistingCategory(canonical, type, normalizedText) {
+  const categories = getVoiceCategoryObject(type);
+  const aliases = {
+    "Зарплата": ["Зарплата", "ხელფასი", "Salary"],
+    "Транспорт": ["Транспорт", "ტრანსპორტი", "Transport"],
+    "Кофе": ["Кофе", "ყავა", "Coffee"],
+  };
+  const taxiSpeech = canonical === "Транспорт" && /(?:ტაქს|такси|taxi|\bcab\b)/u.test(normalizedText);
+  const taxiCategories = taxiSpeech ? Object.keys(categories).filter(key =>
+    ["Такси", "ტაქსი", "Taxi", "Cab"].some(alias =>
+      normalizeVoiceMeaningText(key) === normalizeVoiceMeaningText(alias))) : [];
+  if (taxiCategories.length === 1) return { category: taxiCategories[0], subcategory: "" };
+  const candidates = Object.keys(categories).filter(key =>
+    (aliases[canonical] || [canonical]).some(alias =>
+      normalizeVoiceMeaningText(key) === normalizeVoiceMeaningText(alias)));
+  const category = Object.hasOwn(categories, canonical) ? canonical
+    : candidates.length === 1 ? candidates[0] : "";
+  let subcategory = "";
+  if (category && canonical === "Транспорт"
+      && /(?:ტაქს|такси|taxi|\bcab\b)/u.test(normalizedText)) {
+    const taxi = (categories[category]?.subcats || []).filter(key =>
+      ["Такси", "ტაქსი", "Taxi", "Cab"].some(alias =>
+        normalizeVoiceMeaningText(key) === normalizeVoiceMeaningText(alias)));
+    if (taxi.length === 1) subcategory = taxi[0];
+  }
+  return { category, subcategory };
+}
+
 function parseVoiceNumberWords(normalizedText) {
+  const georgianMoney = parseGeorgianMoneyUnits(normalizedText);
+  if (georgianMoney.matched) return georgianMoney.value;
   const numericOnly = String(normalizedText || "").trim();
   if (/^\d+(?:[\s.,]\d+)*$/.test(numericOnly)) {
     const numericValue = parseVoiceNumericPhrase(numericOnly);
@@ -33625,6 +33098,8 @@ function parseVoiceNumberWords(normalizedText) {
 }
 
 function extractVoiceCurrencyPairAmount(text) {
+  const georgianMoney = parseGeorgianMoneyUnits(text);
+  if (georgianMoney.matched) return georgianMoney.value;
   const tokens = normalizeVoiceMeaningText(text).split(/\s+/).filter(Boolean);
   if (!tokens.length) return null;
 
@@ -33712,6 +33187,12 @@ function extractVoiceCurrencyPairAmount(text) {
 }
 
 function extractVoiceAmount(text) {
+  if (/[ა-ჰ]/u.test(text) && !/(?:ლარი|ლარს|ლარად|თეთრი|თეთრს)/u.test(text)
+      && !/(?:გადავიხადე|დავხარჯე|მივიღე|ღირდა|დამიჯდა|ფასი|თანხა|ყავ|ტაქს|ხელფას)/u.test(text)) return null;
+  if (/[ა-ჰ]/u.test(text) && /(?:კოდი|ნომერი|საათზე|წლის|შეხვედრა)/u.test(text)
+      && !/(?:ლარი|ლარს|ლარად|თეთრი|თეთრს)/u.test(text)) return null;
+  const georgianMoney = parseGeorgianMoneyUnits(text);
+  if (georgianMoney.matched) return georgianMoney.value;
   const normalizedText = String(text || "").toLowerCase();
   const currencyWords = [
     "₾",
@@ -34053,9 +33534,13 @@ function buildVoiceDraftFromText(input) {
     detectedCat = findVoiceCategoryByLabel(normalizedText, type);
   }
 
-  const subHit = findVoiceSubcategory(normalizedText, type, detectedCat);
+  const resolved = resolveVoiceExistingCategory(detectedCat, type, normalizedText);
+  detectedCat = resolved.category;
+  const subHit = resolved.subcategory ? resolved
+    : findVoiceSubcategory(normalizedText, type, detectedCat);
   if (!detectedCat && subHit.category) detectedCat = subHit.category;
-  if (!detectedCat && learnedHint?.category) detectedCat = learnedHint.category;
+  if (!detectedCat && learnedHint?.category && Object.hasOwn(catObj, learnedHint.category))
+    detectedCat = learnedHint.category;
   const learnedSubcategory =
     !subHit.subcategory && learnedHint?.subcategory
       ? learnedHint.subcategory
@@ -34177,19 +33662,32 @@ function chooseBestVoiceTranscript(values) {
   };
 }
 
-function parseVoiceInput(text, alternatives = []) {
-  const selectedVoiceLanguage = window.BudgetPROVoiceModule?.getLanguage?.() || currentLang;
-  const normalizationLanguage = selectedVoiceLanguage === "auto" ? currentLang : selectedVoiceLanguage;
-  const normalizeVoiceNumbers = (value) =>
-    window.BudgetPROVoiceNumberNormalizer?.normalizeNumbers?.(value, normalizationLanguage) || value;
-  const choice = chooseBestVoiceTranscript([
-    normalizeVoiceNumbers(text),
-    ...normalizeVoiceAlternatives(alternatives).map(normalizeVoiceNumbers),
-  ]);
-  openVoiceQuickModal(
-    buildVoiceDraftFromText(choice.text),
-    choice.alternatives,
-  );
+function parseVoiceInput(text, alternatives = [], diagnosticSessionId) {
+  const language = window.BudgetPROVoiceModule.getLanguage();
+  const validation = window.VoiceTranscriptValidator.validateTranscript(text, language);
+  if (!validation.valid) { showToast(window.VoiceUI.errorText(validation.reason, currentLang, language), "error"); return; }
+  window.VoiceDiagnostics?.update({ stage: 'financial_parse', financialParseStatus: 'pending', financialParseError: null }, diagnosticSessionId);
+  window.VoiceDiagnostics?.event?.('parse_started', {}, diagnosticSessionId);
+  let draft;
+  try {
+    const normalized = window.BudgetPROVoiceNumberNormalizer.normalizeNumbers(text, language);
+    const safety = window.VoiceDraftSafety?.check(normalized, displayCurrency) || { valid: false, error: "VOICE_DRAFT_UNAVAILABLE" };
+    if (safety && !safety.valid) {
+      window.VoiceDiagnostics?.update({ financialParseStatus: 'needs_input', financialParseError: safety.error }, diagnosticSessionId);
+      showToast(window.VoiceUI.errorText(safety.error, currentLang, language), "error");
+      return;
+    }
+    window.VoiceDiagnostics?.update({ parserInput: normalized }, diagnosticSessionId);
+    draft = buildVoiceDraftFromText(normalized);
+  } catch (error) {
+    window.VoiceDiagnostics?.update({ financialParseStatus: 'failed', financialParseError: 'FINANCIAL_PARSE_FAILED' }, diagnosticSessionId);
+    window.VoiceDiagnostics?.event?.('parse_failed', {}, diagnosticSessionId);
+    throw error;
+  }
+  const hasAmount = Number.isFinite(draft.amount) && draft.amount > 0;
+  window.VoiceDiagnostics?.update({ financialParseStatus: hasAmount ? 'draft' : 'needs_input', financialParseError: hasAmount ? null : 'FINANCIAL_DRAFT_INCOMPLETE' }, diagnosticSessionId);
+  window.VoiceDiagnostics?.event?.(hasAmount ? 'parse_complete' : 'parse_needs_input', {}, diagnosticSessionId);
+  openVoiceQuickModal(draft, []);
 }
 
 function getVoiceFallbackCategory(type) {
@@ -34201,6 +33699,17 @@ function getVoiceFallbackCategory(type) {
     return "Неожиданные траты";
   }
   return preferred;
+}
+
+// Re-check editable voice text at explicit confirmation; never changes financial state.
+function validateVoiceDraftConfirmation(text) {
+  const normalized = window.BudgetPROVoiceNumberNormalizer.normalizeNumbers(text || "", window.BudgetPROVoiceModule.getLanguage());
+  const safety = window.VoiceDraftSafety?.check(normalized, displayCurrency) || { valid: false, error: "VOICE_DRAFT_UNAVAILABLE" };
+  if (safety && !safety.valid) {
+    showToast(window.VoiceUI.errorText(safety.error, currentLang), "error");
+    return false;
+  }
+  return true;
 }
 
 function saveVoiceDraftTransaction({
@@ -34218,7 +33727,11 @@ function saveVoiceDraftTransaction({
     showToast(L.amountMissing, "error");
     return false;
   }
-  const finalCategory = category || getVoiceFallbackCategory(type);
+  if (!validateVoiceDraftConfirmation(note)) return false;
+  if (!["income", "expense"].includes(type) || !category || !Object.prototype.hasOwnProperty.call(getVoiceCategoryObject(type), category)) {
+    showToast(L.categoryMissing, "error"); return false;
+  }
+  const finalCategory = category;
   const amountRub = toRub(amount);
   if (!confirmVoiceBudgetIfNeeded(type, finalCategory, amountRub)) return false;
 
@@ -34253,20 +33766,13 @@ function saveVoiceDraftTransaction({
   updateFrequentStats(tx);
   saveAll();
   closeModal(modalId);
-  updateTopBlocks();
-  renderBalanceSummary();
-  if (currentTab === "home") {
-    if (simpleMode) renderSimpleHome();
-    else renderHome();
-  } else if (currentTab === "categories") {
-    renderCategories();
-  }
+  refreshOperationViews();
   showToast(L.added, "success");
   if (type === "income") showCoinAnimation();
   else showMoneyFlyEffect();
   haptic("success");
   if (continueListening) {
-    setTimeout(() => startVoiceInput(), 520);
+    setTimeout(() => startVoiceSession(), 520);
   }
   return true;
 }
@@ -34279,7 +33785,7 @@ function openVoiceQuickModal(draft, alternatives = []) {
     rawText: draft.rawText || "",
     amount: Number.isFinite(draft.amount) ? draft.amount : 0,
     category:
-      draft.category || getVoiceFallbackCategory(draft.type || "expense"),
+      draft.category || "",
     subcategory: draft.subcategory || "",
   };
   const altOptions = normalizeVoiceAlternatives(alternatives)
@@ -34376,7 +33882,7 @@ function openVoiceQuickModal(draft, alternatives = []) {
         liveDraft.category = reparsed.category;
         liveDraft.subcategory = reparsed.subcategory || "";
       } else {
-        liveDraft.category = getVoiceFallbackCategory(liveDraft.type);
+        liveDraft.category = "";
         liveDraft.subcategory = "";
       }
     }
@@ -34439,7 +33945,7 @@ function openVoiceQuickModal(draft, alternatives = []) {
       reparsed.category &&
       Object.prototype.hasOwnProperty.call(catObj, reparsed.category)
         ? reparsed.category
-        : getVoiceFallbackCategory(liveDraft.type);
+        : "";
     liveDraft.subcategory =
       reparsed.category === liveDraft.category
         ? reparsed.subcategory || ""
@@ -34457,7 +33963,7 @@ function openVoiceQuickModal(draft, alternatives = []) {
           {
             ...liveDraft,
             category:
-              liveDraft.category || getVoiceFallbackCategory(liveDraft.type),
+              liveDraft.category || "",
           },
           alternatives,
         ),
@@ -34475,9 +33981,10 @@ function openVoiceQuickModal(draft, alternatives = []) {
       openEditor();
       return;
     }
+    if (!liveDraft.category) { showToast(L.categoryMissing, "error"); openEditor(); return; }
     saveVoiceDraftTransaction({
       type: liveDraft.type,
-      category: liveDraft.category || getVoiceFallbackCategory(liveDraft.type),
+      category: liveDraft.category || "",
       subcategory: liveDraft.subcategory || "",
       amount: liveDraft.amount,
       date: today(),
@@ -34526,7 +34033,7 @@ function openVoiceQuickModal(draft, alternatives = []) {
     ?.addEventListener("click", openEditor);
   document.getElementById("voiceQuickRetry")?.addEventListener("click", () => {
     closeModal("voiceQuickModal");
-    setTimeout(() => startVoiceInput(), 420);
+    setTimeout(() => startVoiceSession({ diagnosticSource: 'draft_retry' }), 420);
   });
   modal.querySelectorAll("[data-voice-alt]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -34907,6 +34414,7 @@ function openVoiceDraftModal(draft, alternatives = []) {
       return;
     }
 
+    if (!validateVoiceDraftConfirmation(note)) return;
     const amountRub = toRub(amount);
     if (!confirmVoiceBudgetIfNeeded(currentType, category, amountRub)) return;
 
@@ -34941,14 +34449,7 @@ function openVoiceDraftModal(draft, alternatives = []) {
     updateFrequentStats(tx);
     saveAll();
     closeModal("voiceModal");
-    updateTopBlocks();
-    renderBalanceSummary();
-    if (currentTab === "home") {
-      if (simpleMode) renderSimpleHome();
-      else renderHome();
-    } else if (currentTab === "categories") {
-      renderCategories();
-    }
+    refreshOperationViews();
     showToast(L.added, "success");
     if (currentType === "income") showCoinAnimation();
     else showMoneyFlyEffect();
@@ -34989,9 +34490,8 @@ function ensureVoiceDragShield() {
     const button = document.getElementById("voiceInputBtn");
     if (!button) return;
     const status = event.detail?.status || "ready";
-    button.classList.toggle("recording", ["requesting", "listening", "speech", "processing", "transcribing"].includes(status));
-    button.classList.toggle("preparing", status === "model-downloading");
-    button.setAttribute("aria-busy", ["requesting", "listening", "speech", "processing", "transcribing", "model-downloading"].includes(status) ? "true" : "false");
+    button.classList.toggle("recording", ["requesting", "listening", "speech", "sending", "transcribing"].includes(status));
+    button.setAttribute("aria-busy", ["requesting", "listening", "speech", "sending", "transcribing"].includes(status) ? "true" : "false");
   });
 }
 
@@ -35391,14 +34891,14 @@ function addVoiceButton() {
       return;
     }
     haptic("medium");
-    startVoiceInput();
+    startVoiceSession({ diagnosticSource: 'floating_pointer' });
   };
 
   voiceBtn.addEventListener("pointerup", finishDrag);
   voiceBtn.addEventListener("pointercancel", (e) => finishDrag(e, true));
   voiceBtn.addEventListener("click", (e) => {
-    if (!isVoiceDragSuppressed()) return;
-    stopVoiceGestureEvent(e);
+    if (isVoiceDragSuppressed()) { stopVoiceGestureEvent(e); return; }
+    if (e.detail === 0) startVoiceSession({ diagnosticSource: 'floating_keyboard' });
   });
   window.__voiceButtonResizeHandler = () => {
     if (!voiceBtn.isConnected) return;
@@ -41267,8 +40767,11 @@ async function openInteractiveGuide(options = {}) {
         );
       }
       if (step?.id === "starting_amount") {
+        const details = document.getElementById("homeDetails");
+        if (details) details.open = true;
         return (
           document.getElementById("salaryCard") ||
+          document.getElementById("salaryRowBtn") ||
           document.querySelector('.simple-hero .sm-chip-tap[data-type="salary"]')
         );
       }
@@ -41298,6 +40801,12 @@ async function openInteractiveGuide(options = {}) {
       if (e) return e;
     }
     if (step.action) {
+      if (step.action === "salaryCard") {
+        const details = document.getElementById("homeDetails");
+        if (details) details.open = true;
+        const startingAmount = document.getElementById("salaryRowBtn");
+        if (startingAmount) return startingAmount;
+      }
       if (step.action === "fabBtn") {
         const fabTarget =
           document.getElementById("fabBtn") ||

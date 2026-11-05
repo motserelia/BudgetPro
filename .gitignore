@@ -6,9 +6,6 @@ android/app/build/
 dist/
 .cache/
 .gradle-local/
-vendor/whisper/source/
-vendor/whisper/bin/whisper-cli
-vendor/whisper/bin/whisper-server
 
 Secret key
 PRIVATE_SECRETS.local.md
@@ -16,3 +13,5 @@ PRIVATE_SECRETS.local.md
 .env.*
 *.jks
 .aider*
+
+!.env.example
