@@ -70,7 +70,7 @@
       }); active = session;
       emit({ status: 'authenticating', transcript: '', error: null, meter: 0 });
       if (session.local && root.VoiceApiClient.isLocal?.() !== true) { fail(session, { code: 'VOSK_NATIVE_UNAVAILABLE' }); return; }
-      if (session.local && !['ru','ka'].includes(language)) { fail(session, { code: 'VOSK_LANGUAGE_REQUIRED' }); return; }
+      if (session.local && !['ru','ka','en'].includes(language)) { fail(session, { code: 'VOSK_LANGUAGE_REQUIRED' }); return; }
       if (!session.local && navigator.onLine === false) { fail(session, { code: 'OFFLINE' }); return; }
       Promise.resolve().then(() => session.local ? null : options.getToken ? options.getToken(session.controller.signal) : options.token).then(token => {
         if (active !== session) return;

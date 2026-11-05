@@ -8,13 +8,13 @@
   const errors = {
     VOICE_DRAFT_UNAVAILABLE: ["Не удалось подготовить черновик. Перезапустите приложение.", "Could not prepare the draft. Restart the app.", "მონახაზი ვერ მომზადდა. გადატვირთეთ აპლიკაცია."],
     EMPTY_TRANSCRIPT: ["Не удалось распознать речь. Повторите запись.", "No speech recognized. Please try again.", "მეტყველება ვერ ამოიცნო. სცადეთ ხელახლა."],
-    MODEL_NOT_FOUND: ["Локальная языковая модель отсутствует в приложении.", "The bundled speech model is missing.", "აპლიკაციაში ენის მოდელი არ არის."],
+    MODEL_NOT_FOUND: ["Локальная модель для выбранного языка отсутствует в приложении. Выберите другой язык.", "The local model for this language is not bundled. Choose another language.", "არჩეული ენის ლოკალური მოდელი აპლიკაციაში არ არის. აირჩიეთ სხვა ენა."],
     MODEL_LOAD_FAILED: ["Не удалось загрузить локальную языковую модель.", "Could not load the local speech model.", "ენის ლოკალური მოდელი ვერ ჩაიტვირთა."],
     INVALID_PCM: ["Некорректный формат записи. Повторите запись.", "Invalid recording format. Please try again.", "ჩანაწერის ფორმატი არასწორია. სცადეთ ხელახლა."],
     RECOGNIZER_FAILED: ["Локальное распознавание завершилось ошибкой.", "Local speech recognition failed.", "ლოკალური ამოცნობა ვერ დასრულდა."],
     RECORDING_INTERRUPTED: ["Запись прервана. Начните новую попытку.", "Recording interrupted. Please try again.", "ჩაწერა შეწყდა. სცადეთ ხელახლა."],
     VOSK_NATIVE_UNAVAILABLE: ["Локальный Vosk не включён в эту Android-сборку.", "Local Vosk is unavailable in this Android build.", "ამ Android ვერსიაში ლოკალური Vosk მიუწვდომელია."],
-    VOSK_LANGUAGE_REQUIRED: ["Для локального распознавания выберите Русский или ქართული.", "Select Russian or Georgian for local recognition.", "ლოკალური ამოცნობისთვის აირჩიეთ ქართული ან რუსული."],
+    VOSK_LANGUAGE_REQUIRED: ["Для локального распознавания выберите Русский, English или ქართული.", "Select Russian, English or Georgian for local recognition.", "ლოკალური ამოცნობისთვის აირჩიეთ ქართული, რუსული ან ინგლისური."],
     VOSK_BUSY: ["Дождитесь завершения предыдущей записи.", "Wait for the previous recording to finish.", "დაელოდეთ წინა ჩანაწერის დასრულებას."],
     VOICE_MULTIPLE_OPERATIONS: ["Распознано несколько сумм. Продиктуйте каждую операцию отдельно.", "Multiple amounts detected. Dictate each operation separately.", "აღმოჩენილია რამდენიმე თანხა. ოპერაციები ცალ-ცალკე თქვით."],
     VOICE_AMBIGUOUS_AMOUNT: ["Сумма или валюта неоднозначна. Уточните фразу.", "The amount or currency is ambiguous. Clarify the phrase.", "თანხა ან ვალუტა ორაზროვანია. დააზუსტეთ ფრაზა."],
@@ -119,7 +119,7 @@ html body .voice-v2-overlay.closing { opacity:0; transition:opacity 180ms ease; 
     const overlay = document.createElement('div'); overlay.className = 'voice-v2-overlay'; overlay.id = 'voiceOverlay';
     overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-label', lang === 'ru' ? 'Голосовой ввод' : lang === 'ka' ? 'ხმოვანი შეყვანა' : 'Voice input');
-    overlay.innerHTML = `<div class="voice-v2-panel">${root.VoiceApiClient?.isLocal?.() ? `<label>${copy.language}<select data-language><option value="auto" disabled>— ${copy.language} —</option><option value="ru">Русский</option><option value="ka">ქართული</option></select></label>` : ""}${visualMarkup()}<div data-status role="status" aria-live="polite"></div><div class="voice-v2-meter"><div data-meter></div></div><div class="voice-v2-actions"><button data-stop hidden>${copy.stop}</button><button data-cancel>${copy.cancel}</button><button data-start data-retry hidden>${copy.retry}</button><button data-login hidden>${copy.login}</button></div></div>`;
+    overlay.innerHTML = `<div class="voice-v2-panel">${root.VoiceApiClient?.isLocal?.() ? `<label>${copy.language}<select data-language><option value="auto" disabled>— ${copy.language} —</option><option value="ru">Русский</option><option value="en">English</option><option value="ka">ქართული</option></select></label>` : ""}${visualMarkup()}<div data-status role="status" aria-live="polite"></div><div class="voice-v2-meter"><div data-meter></div></div><div class="voice-v2-actions"><button data-stop hidden>${copy.stop}</button><button data-cancel>${copy.cancel}</button><button data-start data-retry hidden>${copy.retry}</button><button data-login hidden>${copy.login}</button></div></div>`;
     document.body.appendChild(overlay);
     const languageSelect=overlay.querySelector('[data-language]');
     if(languageSelect){languageSelect.value=root.BudgetPROVoiceModule.getLanguage();languageSelect.onchange=e=>root.BudgetPROVoiceModule.setLanguage(e.target.value);}

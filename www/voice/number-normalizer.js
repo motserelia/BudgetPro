@@ -22,17 +22,21 @@
   function parse(words, lang, digitContext = false) {
     const nums = words.map(w => values[lang][w]);
     if (nums.every(n => n !== undefined && n < 10) && (digitContext || nums.length >= 3)) return nums.join('');
-    let total = 0, group = 0, previous = null;
+    let total = 0, group = 0, previous = null, additive = false;
     for (const w of words) {
       if (w === 'and' && lang === 'en') continue;
+      // Georgian vigesimal compounds may be dictated as "base + და + remainder"
+      // (ორმოცი და ათი = 50, ორმოცი და ოცი = 60): the explicit conjunction
+      // marks an additive step, never a second independent amount.
+      if (w === 'და' && lang === 'ka') { additive = true; continue; }
       const scale = scales[lang][w];
-      if (scale) { if (scale === 100) group = (group || 1) * scale; else { total += (group || 1) * scale; group = 0; } previous = null; continue; }
+      if (scale) { if (scale === 100) group = (group || 1) * scale; else { total += (group || 1) * scale; group = 0; } previous = null; additive = false; continue; }
       const n = values[lang][w];
       if (n === undefined) return null;
       if (previous !== null && previous < 20 && n >= 10 && n < 100) return null;
-      if (previous !== null && previous >= 20 && previous < 100 && n >= 20 && n < 100) return null;
+      if (!additive && previous !== null && previous >= 20 && previous < 100 && n >= 20 && n < 100) return null;
       if (previous !== null && previous < 10 && n < 10) return null;
-      group += n; previous = n;
+      group += n; previous = n; additive = false;
     }
     return String(total + group);
   }
@@ -51,6 +55,15 @@
         let j = i, words = [];
         while (j < tokens.length) {
           const parts = tokens[j][0].toLowerCase().split('-');
+          // A standalone Georgian "და" folds a vigesimal base and its remainder
+          // (ორმოცი და ათი = 50) only when an adjacent number word follows it.
+          if (lang === 'ka' && parts.length === 1 && parts[0] === 'და') {
+            const next = tokens[j + 1];
+            if (j === i || !next || !next[0].toLowerCase().split('-').every(w => numberWord(w))) break;
+            if (!/^\s+$/.test(result.slice(tokens[j - 1].index + tokens[j - 1][0].length, tokens[j].index))) break;
+            if (!/^\s+$/.test(result.slice(tokens[j].index + tokens[j][0].length, next.index))) break;
+            words.push('და'); j++; continue;
+          }
           if (!parts.every(w => numberWord(w) || (w === 'and' && lang === 'en'))) break;
           if (j > i && !/^\s+$/.test(result.slice(tokens[j - 1].index + tokens[j - 1][0].length, tokens[j].index))) break;
           words.push(...parts); j++;

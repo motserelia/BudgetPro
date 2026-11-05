@@ -4,7 +4,7 @@
 })(globalThis,function(root){
  'use strict';
  const server=root.VoiceApiClient;
- const models=Object.freeze({ka:'vosk-model-small-ka-0.42',ru:'vosk-model-small-ru-0.22'});
+ const models=Object.freeze({ka:'vosk-model-small-ka-0.42',ru:'vosk-model-small-ru-0.22',en:'vosk-model-small-en-us-0.15'});
  let busy=false;
  const error=code=>Object.assign(new Error(code),{code});
  const isLocal=()=>root.Capacitor?.isNativePlatform?.()===true&&root.Capacitor?.getPlatform?.()==='android';

@@ -32,7 +32,7 @@ public final class LocalVoskPlugin extends Plugin {
     private void request(PluginCall call,int action){main.post(()->{
         if(pending!=null){call.reject("VOSK_BUSY","VOSK_BUSY");return;}
         String language=call.getString("language");
-        if((action==LocalVoskService.INIT||action==LocalVoskService.TRANSCRIBE)&&!"ru".equals(language)&&!"ka".equals(language)){call.reject("VOSK_LANGUAGE_REQUIRED","VOSK_LANGUAGE_REQUIRED");return;}
+        if((action==LocalVoskService.INIT||action==LocalVoskService.TRANSCRIBE)&&!LocalVoskService.supportsLanguage(language)){call.reject("VOSK_LANGUAGE_REQUIRED","VOSK_LANGUAGE_REQUIRED");return;}
         final String encoded=action==LocalVoskService.TRANSCRIBE?call.getString("wavBase64"):null;
         if(action==LocalVoskService.TRANSCRIBE&&(encoded==null||encoded.length()>1280060)){call.reject("VOSK_INVALID_WAV","VOSK_INVALID_WAV");return;}
         pending=call;final int id=++sequence;

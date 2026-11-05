@@ -28,15 +28,29 @@ public final class LocalVoskService extends Service {
         ActivityManager.MemoryInfo mi=new ActivityManager.MemoryInfo();getSystemService(ActivityManager.class).getMemoryInfo(mi);
         if(mi.lowMemory || mi.availMem<512L*1024*1024)throw new IOException("VOSK_LOW_MEMORY");
     }
-    private static String modelName(String language)throws IOException {
-        if("ka".equals(language))return "vosk-model-small-ka-0.42";
-        if("ru".equals(language))return "vosk-model-small-ru-0.22";
-        throw new IOException("VOSK_LANGUAGE_REQUIRED");
+    /** Bundled offline models. A language without an entry is never substituted. */
+    private static final Map<String,String> MODELS;
+    static {
+        LinkedHashMap<String,String> models=new LinkedHashMap<>();
+        models.put("ru","vosk-model-small-ru-0.22");
+        models.put("ka","vosk-model-small-ka-0.42");
+        models.put("en","vosk-model-small-en-us-0.15");
+        MODELS=Collections.unmodifiableMap(models);
+    }
+    static boolean supportsLanguage(String language){
+        return language!=null&&MODELS.containsKey(language.trim().toLowerCase(Locale.ROOT));
+    }
+    static String modelName(String language)throws IOException {
+        String model=language==null?null:MODELS.get(language.trim().toLowerCase(Locale.ROOT));
+        if(model==null)throw new IOException("VOSK_LANGUAGE_REQUIRED");
+        return model;
     }
     private File modelDirectory(String modelName) throws Exception {
         File dest=new File(getNoBackupFilesDir(),modelName);
         JSONObject manifest;
         try(InputStream in=getAssets().open("vosk-models-manifest.json")){manifest=new JSONObject(new String(readBounded(in,100000),java.nio.charset.StandardCharsets.UTF_8)).optJSONObject(modelName);}
+        // The manifest lists only models actually packaged in this APK, so a
+        // missing entry (e.g. en) is reported instead of reusing another language.
         if(manifest==null)throw new FileNotFoundException("VOSK_MODEL_NOT_FOUND");
         if(!modelName.equals(manifest.optString("model")))throw new IOException("VOSK_MODEL_INTEGRITY");
         if(new StatFs(getNoBackupFilesDir().getAbsolutePath()).getAvailableBytes()<manifest.getLong("bytes")+50L*1024*1024)throw new IOException("VOSK_STORAGE_LOW");
