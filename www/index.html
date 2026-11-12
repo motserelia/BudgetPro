@@ -1,6 +1,14 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Тёмный фон до применения темы: убирает белую вспышку при холодном
+         старте. Правило действует только пока на <body> нет класса темы
+         (theme-*), поэтому светлые темы остаются светлыми. -->
+    <style>
+      html body:not([class*="theme-"]) {
+        background-color: #121212 !important;
+      }
+    </style>
     <meta charset="UTF-8" />
     <meta
       name="viewport"
@@ -358,6 +366,31 @@
         <button class="header-btn" id="themeToggle" data-i18n-aria-label="theme" aria-label="Theme">
           🌙
         </button>
+        <button
+          class="gh-shell-btn"
+          id="ghBellBtn"
+          type="button"
+          data-i18n-aria-label="ghNotifications"
+          aria-label="Notifications"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M18 15.6V11a6 6 0 1 0-12 0v4.6L4.6 18h14.8L18 15.6Z"></path>
+            <path d="M9.6 20.6a2.6 2.6 0 0 0 4.8 0"></path>
+          </svg>
+        </button>
+        <button
+          class="gh-shell-btn"
+          id="ghMenuBtn"
+          type="button"
+          data-i18n-aria-label="ghMenu"
+          aria-label="Menu"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="5" r="1.7"></circle>
+            <circle cx="12" cy="12" r="1.7"></circle>
+            <circle cx="12" cy="19" r="1.7"></circle>
+          </svg>
+        </button>
       </div>
     </header>
     <div class="main-scroll">
@@ -489,6 +522,20 @@
         </div>
       </div>
     </div>
+    <div
+      id="budgetOverBanner"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      data-limit-id=""
+      hidden
+    >
+      <span class="bob-icon" aria-hidden="true">⚠️</span>
+      <div class="bob-body">
+        <div class="bob-title" id="budgetOverBannerTitle"></div>
+        <div class="bob-text" id="budgetOverBannerText"></div>
+      </div>
+    </div>
     <script src="api-config.js"></script>
     <script src="voice/transcript-validator.js"></script>
     <script src="voice/number-normalizer.js"></script>
@@ -497,6 +544,8 @@
     <script src="voice/voice-recorder.js"></script>
     <script src="voice/voice-api-client.js"></script>
     <script src="voice/voice-native-client.js"></script>
+    <script src="voice/voice-whisper-client.js"></script>
+    <script src="voice/voice-provider.js"></script>
     <script src="voice/voice-draft-safety.js"></script>
     <script src="voice/voice-diagnostics.js"></script>
     <script src="voice/voice-session.js"></script>
@@ -2035,6 +2084,15 @@
       }
       body:not(.dark) .field-label {
         color: #a8a29e !important;
+      }
+      /* Окно лимитов бюджета: подпись текущего лимита под выбором категории */
+      .gh-budget-current {
+        margin-top: 6px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        line-height: 1.35 !important;
+        color: inherit !important;
+        opacity: .85 !important;
       }
       .field-input,
       .field-select,
@@ -4307,7 +4365,7 @@
       .toast {
         border-radius: 18px !important;
         font-size: 13px !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important;
         max-width: min(300px, calc(100vw - 40px)) !important;
         text-align: center !important;
         line-height: 1.5 !important;
@@ -4315,28 +4373,44 @@
         white-space: normal !important;
         font-variant-numeric: tabular-nums !important;
         padding: 12px 24px !important;
+        /* Плашка плотная и непрозрачная: сквозь неё не просвечивает список, поэтому
+           текст всегда читается. Тёмный фон одинаков в обеих темах. */
+        background: #1e1e1e !important;
+        background-image: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
       }
+      /* Фон тоста одинаков в обеих темах: плотный тёмный. Цвет, рамку и тень
+         темы не задают — иначе они перебили бы оттенки ошибки и успеха ниже. */
       body.dark #toast,
-      body.dark .toast {
-        background: rgba(18, 8, 48, 0.95) !important;
-        border: 1px solid rgba(255, 255, 255, 0.18) !important;
-        color: #f0eaff !important;
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65) !important;
-      }
+      body.dark .toast,
       body:not(.dark) #toast,
       body:not(.dark) .toast {
-        background: rgba(255, 252, 248, 0.97) !important;
-        border: 1px solid rgba(249, 115, 22, 0.22) !important;
-        color: #1c1917 !important;
-        box-shadow: 0 8px 32px rgba(249, 115, 22, 0.12) !important;
+        background: #1e1e1e !important;
+        background-image: none !important;
       }
+      /* Ошибка и успех различаются цветной рамкой и свечением, но фон остаётся
+         таким же плотным и тёмным — иначе плашка снова станет прозрачной.
+         Модификаторы указаны и через #toast: id-правило базового блока иначе
+         перебивает цвет рамки. */
+      #toast.error,
       .toast.error {
-        background: rgba(200, 50, 50, 0.95) !important;
-        color: #fff !important;
+        background: #1e1e1e !important;
+        border: 1px solid rgba(248, 113, 113, 0.6) !important;
+        color: #ffe4e6 !important;
+        box-shadow:
+          0 4px 12px rgba(0, 0, 0, 0.5),
+          0 0 16px rgba(248, 113, 113, 0.35) !important;
       }
+      #toast.success,
       .toast.success {
-        background: rgba(20, 150, 130, 0.95) !important;
-        color: #fff !important;
+        background: #1e1e1e !important;
+        border: 1px solid rgba(52, 211, 153, 0.55) !important;
+        color: #eafff5 !important;
+        box-shadow:
+          0 4px 12px rgba(0, 0, 0, 0.5),
+          0 0 16px rgba(52, 211, 153, 0.3) !important;
       }
       body.dark .confirm-box {
         background: rgba(18, 8, 48, 0.97) !important;
@@ -4786,6 +4860,21 @@
           180deg,
           #f87171,
           rgba(248, 113, 113, 0.3)
+        ) !important;
+      }
+      /* Свой цвет операции (customColor): полоска слева перекрашивается в него,
+         во всех остальных случаях остаются цвета по типу операции выше. */
+      body.dark .op-card[data-custom-accent]::before,
+      body:not(.dark) .op-card[data-custom-accent]::before {
+        background: linear-gradient(
+          180deg,
+          var(--op-accent),
+          rgba(0, 0, 0, 0)
+        ) !important;
+        background: linear-gradient(
+          180deg,
+          var(--op-accent),
+          color-mix(in srgb, var(--op-accent) 30%, transparent)
         ) !important;
       }
       /* op-icon-wrap */
@@ -6188,6 +6277,57 @@
       }
       .suggestion-delete-btn:active {
         transform: scale(0.84) !important;
+      }
+      /* Крестик удаления быстрого предложения: спокойный полупрозрачный,
+         при наведении — ярко-красный, при нажатии «вдавливается». */
+      html body #addModal .suggestion-delete-btn {
+        background: rgba(248, 113, 113, 0.14) !important;
+        border: 1px solid rgba(248, 113, 113, 0.3) !important;
+        color: #f87171 !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+        box-shadow: none !important;
+        transition:
+          background 0.16s ease,
+          color 0.16s ease,
+          box-shadow 0.16s ease,
+          transform 0.15s cubic-bezier(0.34, 1.4, 0.64, 1) !important;
+      }
+      html body #addModal .suggestion-delete-btn:hover,
+      html body #addModal .suggestion-delete-btn:focus-visible {
+        background: #ef4444 !important;
+        border-color: #ef4444 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.5) !important;
+      }
+      html body #addModal .suggestion-delete-btn:active {
+        background: #dc2626 !important;
+        border-color: #dc2626 !important;
+        color: #ffffff !important;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.45),
+          inset -1px -1px 3px rgba(255, 255, 255, 0.16) !important;
+        transform: scale(0.84) !important;
+      }
+      body.theme-graphiteNeon #addModal .suggestion-delete-btn {
+        background: rgba(248, 113, 113, 0.12) !important;
+        border: none !important;
+        color: rgba(248, 113, 113, 0.9) !important;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.55),
+          inset -1px -1px 3px rgba(255, 255, 255, 0.04) !important;
+      }
+      body.theme-graphiteNeon #addModal .suggestion-delete-btn:hover,
+      body.theme-graphiteNeon #addModal .suggestion-delete-btn:focus-visible {
+        background: #ef4444 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 14px rgba(239, 68, 68, 0.55),
+          inset 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
+      }
+      body.theme-graphiteNeon #addModal .suggestion-delete-btn:active {
+        background: #dc2626 !important;
+        color: #ffffff !important;
+        box-shadow: inset 3px 3px 7px rgba(0, 0, 0, 0.6),
+          inset -1px -1px 3px rgba(255, 255, 255, 0.08) !important;
       }
       .suggestions-empty {
         font-size: 13px !important;
@@ -7621,6 +7761,10 @@ html body #homeOpsItems > :is(.op-swipe-wrap, .sm-op-row) {
   content-visibility: auto;
   contain-intrinsic-size: auto 76px;
 }
+/* Строкам внутри аккордеона content-visibility: auto не задаём: пока они скрыты,
+   браузер оценивает их высоту по contain-intrinsic-size, и первое раскрытие
+   списка идёт рывком (оценка → реальная высота). Им нужен настоящий layout,
+   поэтому правило выше к ним не применяется. */
 /* Constrain only operation sheets to the keyboard's visible viewport. */
 html body :is(#editModal, #salaryModal, #fullHistoryModal).modal-overlay {
   top: var(--operation-viewport-top, 0px) !important;
@@ -7905,5 +8049,4500 @@ html body #mainContent .appearance-font-option[data-size="large"] .appearance-fo
 html body #mainContent .appearance-font-option[data-size="xl"] .appearance-font-letter { font-size: 30px !important; }
 html body #homeOpsItems :is(.op-time, .sm-op-date) { font-size: clamp(11px, .75em, 18px) !important; }
     </style>
-  </body>
-</html>
+    <style id="graphiteHomeLayout">
+/* Graphite Neon home layout. Structure is theme-agnostic: colors come from the active
+   theme tokens, so themes without --gh-* variables keep their own palette.
+   Neon styling (gradients, glows, sparkline) is enabled only under .theme-graphiteNeon. */
+html body #mainContent .gh-home {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  margin: 0 0 6px !important;
+}
+html body #mainContent .gh-home .gh-card {
+  position: relative !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  padding: 14px !important;
+  border-radius: var(--radius-lg, 20px) !important;
+  border: 1px solid var(--cream-border) !important;
+  background: var(--card-bg) !important;
+  box-shadow: var(--shadow-sm, 0 4px 18px rgba(0, 0, 0, .25)) !important;
+  color: var(--text) !important;
+  overflow: hidden !important;
+}
+html body #mainContent .gh-home .gh-card::before,
+html body #mainContent .gh-home .gh-card::after {
+  content: none !important;
+  display: none !important;
+}
+html body #mainContent .gh-home .gh-label,
+html body #mainContent .gh-history-head .gh-label {
+  display: block !important;
+  margin: 0 0 6px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: .12em !important;
+  text-transform: uppercase !important;
+  line-height: 1.2 !important;
+  color: var(--text-soft) !important;
+}
+
+/* Balance card */
+html body #mainContent .gh-home .gh-balance {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  min-height: 0 !important;
+  padding: 16px !important;
+  text-align: start !important;
+  cursor: pointer !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+html body #mainContent .gh-home .gh-balance:active { transform: scale(.985) !important; }
+html body #mainContent .gh-home .gh-balance-main { min-width: 0; flex: 1 1 auto; }
+html body #mainContent .gh-home .gh-balance-value {
+  display: block !important;
+  margin: 0 !important;
+  font-size: clamp(22px, 6.5vw, 30px) !important;
+  font-weight: 800 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -.02em !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+html body #mainContent .gh-home .gh-trend {
+  display: block !important;
+  margin: 6px 0 0 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  color: var(--text-soft) !important;
+}
+html body #mainContent .gh-home .gh-balance #balanceValue { color: var(--text) !important; }
+html body #mainContent .gh-home .gh-spark { display: none !important; }
+
+/* Income / expense split */
+html body #mainContent .gh-home .gh-split {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+html body #mainContent .gh-home .gh-stat {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-height: 88px !important;
+  padding: 12px !important;
+  text-align: start !important;
+  cursor: pointer !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+html body #mainContent .gh-home .gh-stat:active { transform: scale(.985) !important; }
+html body #mainContent .gh-home .gh-stat-top {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+html body #mainContent .gh-home .gh-stat-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  flex: 0 0 22px !important;
+  border-radius: 8px !important;
+  background: var(--primary-pale) !important;
+  color: var(--primary) !important;
+}
+html body #mainContent .gh-home .gh-stat-icon svg {
+  width: 13px !important;
+  height: 13px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2.4 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+html body #mainContent .gh-home .gh-stat-labels {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+  min-width: 0 !important;
+}
+html body #mainContent .gh-home .gh-stat-label {
+  display: block !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: .01em !important;
+  line-height: 1.2 !important;
+  color: var(--text-soft) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+html body #mainContent .gh-home .gh-stat-sub {
+  display: block !important;
+  min-width: 0 !important;
+  font-size: 9.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: .03em !important;
+  line-height: 1.2 !important;
+  color: var(--text-soft) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+html body #mainContent .gh-home .gh-stat-value {
+  display: block !important;
+  max-width: 100% !important;
+  font-size: clamp(15px, 4.4vw, 19px) !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -.01em !important;
+  text-align: start !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+html body #mainContent .gh-home .gh-stat-income .gh-stat-value { color: var(--income-color, #4ade80) !important; }
+html body #mainContent .gh-home .gh-stat-expense .gh-stat-value { color: var(--expense-color, #ff7e5f) !important; }
+html body #mainContent .gh-home .gh-stat-income #incomeValue { color: var(--income-color, #4ade80) !important; }
+html body #mainContent .gh-home .gh-stat-expense #expenseValue { color: var(--expense-color, #ff7e5f) !important; }
+html body #mainContent .gh-home .gh-stat-value .gh-sign {
+  font-weight: 800 !important;
+  margin-right: 1px !important;
+  opacity: .85 !important;
+}
+/* Мелкая пометка «всего» рядом с суммой, когда месяц пуст и цифра — за всё время. */
+html body #mainContent .gh-home .gh-stat-value .gh-stat-scope {
+  margin-left: 2px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: .01em !important;
+  opacity: .7 !important;
+  white-space: nowrap !important;
+}
+
+/* Monthly budget */
+html body #mainContent .gh-home .gh-budget {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+html body #mainContent .gh-home .gh-ring {
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  flex: 0 0 56px !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  /* Дуга кольца — тот же градиент, что у полосы под карточкой:
+     #FF7E5F → #9B59B6. Два стопа на границе дуги дают плавный переход
+     по ободу, дальше идёт серый трек. */
+  background: conic-gradient(
+    #ff7e5f 0deg,
+    #9b59b6 calc(var(--pct, 0) * 3.6deg),
+    rgba(127, 127, 127, .22) calc(var(--pct, 0) * 3.6deg)
+  ) !important;
+}
+html body #mainContent .gh-home .gh-ring-inner {
+  position: absolute !important;
+  inset: 5px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  background: var(--card-bg) !important;
+}
+html body #mainContent .gh-home .gh-ring-pct {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+html body #mainContent .gh-home .gh-budget-body { min-width: 0 !important; flex: 1 1 auto !important; }
+html body #mainContent .gh-home .gh-budget-amount {
+  display: block !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums !important;
+  overflow-wrap: anywhere !important;
+}
+html body #mainContent .gh-home .gh-budget-limit {
+  font-weight: 600 !important;
+  color: var(--text-soft) !important;
+}
+html body #mainContent .gh-home .gh-bar {
+  height: 6px !important;
+  margin: 8px 0 0 !important;
+  border-radius: 99px !important;
+  background: rgba(127, 127, 127, .22) !important;
+  overflow: hidden !important;
+}
+html body #mainContent .gh-home .gh-bar-fill {
+  height: 100% !important;
+  width: calc(var(--pct, 0) * 1%) !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%) !important;
+  transition: width .45s cubic-bezier(.22, .61, .36, 1) !important;
+}
+html body #mainContent .gh-home .gh-budget-hint {
+  display: block !important;
+  margin: 6px 0 0 !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: .02em !important;
+  line-height: 1.3 !important;
+  color: var(--text-soft) !important;
+}
+/* Подсказка под заголовком «МЕСЯЧНЫЙ БЮДЖЕТ»: что даёт лимит. */
+html body #mainContent .gh-home .gh-budget-desc {
+  display: block !important;
+  margin: 2px 0 0 !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  color: var(--text-soft) !important;
+  opacity: .85 !important;
+}
+/* Лимит не задан: процент считать не от чего — пунктирное кольцо и полоса,
+   а вся карточка кликабельна и открывает настройку лимитов. */
+html body #mainContent .gh-home .gh-budget { cursor: pointer !important; }
+html body #mainContent .gh-home #ghBudgetSlide0[data-state="noLimit"] .gh-ring {
+  background: none !important;
+  border: 2px dashed rgba(127, 127, 127, .55) !important;
+  box-shadow: none !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state="noLimit"] .gh-ring-inner {
+  background: transparent !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state="noLimit"] .gh-ring-pct {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  color: var(--text-soft) !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state="noLimit"] .gh-bar {
+  background: none !important;
+  border: 1px dashed rgba(127, 127, 127, .55) !important;
+  box-sizing: border-box !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state="noLimit"] .gh-bar-fill {
+  display: none !important;
+}
+
+/* Actions: voice + photo */
+html body #mainContent .gh-home .gh-actions {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr) !important;
+  gap: 10px !important;
+}
+html body #mainContent .gh-home .gh-action-btn {
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 62px !important;
+  margin: 0 !important;
+  padding: 4px 12px !important;
+  border-radius: var(--radius-lg, 20px) !important;
+  border: 1px solid var(--cream-border) !important;
+  background: var(--card-bg) !important;
+  color: var(--text) !important;
+  font: inherit !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+html body #mainContent .gh-home .gh-action-btn:active { transform: scale(.98) !important; }
+html body #mainContent .gh-home .gh-action-voice .home-voice-orb {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+}
+html body #mainContent .gh-home .gh-action-voice .home-voice-orb svg {
+  width: 24px !important;
+  height: 24px !important;
+}
+html body #mainContent .gh-home .gh-action-voice .home-voice-label {
+  min-width: 0 !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  color: var(--text) !important;
+  overflow-wrap: anywhere !important;
+}
+html body #mainContent .gh-home .gh-action-photo {
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+html body #mainContent .gh-home .gh-action-icon {
+  display: grid !important;
+  place-items: center !important;
+  color: var(--primary) !important;
+}
+html body #mainContent .gh-home .gh-action-photo .gh-action-icon {
+  width: 24px !important;
+  height: 24px !important;
+}
+html body #mainContent .gh-home .gh-action-photo .gh-action-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.8 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+html body #mainContent .gh-home .gh-action-label {
+  display: block !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: var(--text) !important;
+}
+
+/* History header */
+html body #mainContent .gh-history-head.history-btn-wrap {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 4px 10px !important;
+  margin: 10px 0 8px !important;
+  padding: 0 !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+html body #mainContent .gh-history-head .gh-label {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+html body #mainContent .gh-history-head .gh-see-all {
+  flex: 0 0 auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 5px 12px !important;
+  border-radius: 99px !important;
+  border: 1px solid var(--cream-border) !important;
+  background: var(--primary-pale) !important;
+  color: var(--primary) !important;
+  font: inherit !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: .02em !important;
+  cursor: pointer !important;
+}
+
+/* Neon accents (Graphite Neon only) */
+/* Graphite Neon: светло-графитовый фон (#1E1E1E), без анимированных волн.
+   Фон и поверхность карточек — один и тот же цвет: только так читается
+   неуморфизм (тёмная тень снаружи + светлая кромка). */
+body.theme-graphiteNeon,
+body.dark.theme-graphiteNeon {
+  --gh-bg: #1a1a1a;
+  --gh-card: #1e1e1e;
+  --gh-radius: 24px;
+  /* Выпуклость: тёмная тень справа-снизу, светлая — слева-сверху.
+     Одна двойная тень на карточку — без вторых слоёв и засветок. */
+  --gh-neu-out: 8px 8px 16px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.05);
+  --gh-neu-in: inset 5px 5px 10px rgba(0, 0, 0, 0.7), inset -3px -3px 8px rgba(255, 255, 255, 0.03);
+  /* Поверхность карточки — ровный цвет, без градиента: диагональный градиент
+     на тёмном фоне давал полосы (бандинг) на AMOLED. */
+  --gh-card-grad: none;
+  background-color: #1a1a1a !important;
+  background-image: none !important;
+  background-attachment: fixed !important;
+}
+body.theme-graphiteNeon #luxBg {
+  display: none !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-card {
+  border: none !important;
+  border-radius: var(--gh-radius, 24px) !important;
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+  box-shadow: var(--gh-neu-out, 6px 6px 16px rgba(0, 0, 0, 0.65), -5px -5px 14px rgba(255, 255, 255, 0.07)) !important;
+  color: var(--gh-text, #fff) !important;
+  transition: all 0.1s ease !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-balance {
+  border: none !important;
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+  box-shadow: var(--gh-neu-out, 6px 6px 16px rgba(0, 0, 0, 0.65), -5px -5px 14px rgba(255, 255, 255, 0.07)) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-label {
+  color: var(--gh-muted, #a0a0a0) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-balance-value {
+  color: var(--gh-text, #fff) !important;
+}
+/* График баланса — крупный график роста на правую половину карточки.
+   Карточка приземистая: высота задаётся только min-height, вертикальные
+   отступы уменьшены до 12px, чтобы текст «ОБЩИЙ БАЛАНС» + сумма + тренд
+   помещались свободно. .gh-spark занимает правые 50% ширины и всю высоту
+   карточки, SVG растягивается за счёт preserveAspectRatio="none". */
+body.theme-graphiteNeon #mainContent .gh-home .gh-balance-main { padding-right: 52%; }
+body.theme-graphiteNeon #mainContent .gh-home .gh-balance {
+  min-height: 116px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-spark {
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: auto !important;
+  right: 0 !important;
+  bottom: auto !important;
+  width: 50% !important;
+  height: 100% !important;
+  box-sizing: border-box !important;
+  /* Небольшие отступы: 5px сверху/снизу и 8px справа, чтобы кружок на конце
+     линии (cx=100) не срезался краем карточки. */
+  padding: 5px 8px 5px 0 !important;
+  opacity: 1 !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  --gh-spark-len: 300;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-spark svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-stat {
+  border: none !important;
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+  box-shadow: var(--gh-neu-out, 6px 6px 16px rgba(0, 0, 0, 0.65), -5px -5px 14px rgba(255, 255, 255, 0.07)) !important;
+  transition: all 0.1s ease !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-stat-income .gh-stat-icon {
+  background: rgba(74, 222, 128, .12) !important;
+  color: #4ade80 !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-stat-expense .gh-stat-icon {
+  background: rgba(255, 126, 95, .12) !important;
+  color: #ff7e5f !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-stat-income .gh-stat-value { color: #4ade80 !important; }
+body.theme-graphiteNeon #mainContent .gh-home .gh-stat-expense .gh-stat-value { color: #ff7e5f !important; }
+body.theme-graphiteNeon #mainContent .gh-home .gh-stat-income #incomeValue { color: #4ade80 !important; }
+body.theme-graphiteNeon #mainContent .gh-home .gh-stat-expense #expenseValue { color: #ff7e5f !important; }
+body.theme-graphiteNeon #mainContent .gh-home .gh-balance #balanceValue { color: #fff !important; }
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget {
+  border: none !important;
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+  box-shadow: var(--gh-neu-out, 6px 6px 16px rgba(0, 0, 0, 0.65), -5px -5px 14px rgba(255, 255, 255, 0.07)) !important;
+  transition: all 0.1s ease !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-ring {
+  /* Тот же градиент, что у полосы; трек — прозрачно-белый, как в теме. */
+  background: conic-gradient(
+    #ff7e5f 0deg,
+    #9b59b6 calc(var(--pct, 0) * 3.6deg),
+    rgba(255, 255, 255, .09) calc(var(--pct, 0) * 3.6deg)
+  ) !important;
+  box-shadow: 0 0 18px rgba(155, 89, 182, .28) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-ring-inner {
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-bar {
+  background: rgba(255, 255, 255, .09) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-bar-fill {
+  background: linear-gradient(90deg, #ff7e5f 0%, #9b59b6 100%) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget-amount,
+body.theme-graphiteNeon #mainContent .gh-home .gh-ring-pct {
+  color: var(--gh-text, #fff) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget-limit,
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget-hint,
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget-desc {
+  color: var(--gh-muted, #a0a0a0) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-btn {
+  border: none !important;
+  border-radius: var(--gh-radius, 24px) !important;
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+  box-shadow: var(--gh-neu-out, 6px 6px 16px rgba(0, 0, 0, 0.65), -5px -5px 14px rgba(255, 255, 255, 0.07)) !important;
+  color: var(--gh-text, #fff) !important;
+  transition: all 0.1s ease !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice {
+  border: none !important;
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+  box-shadow: var(--gh-neu-out, 6px 6px 16px rgba(0, 0, 0, 0.65), -5px -5px 14px rgba(255, 255, 255, 0.07)) !important;
+  transition: all 0.1s ease !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice .home-voice-orb {
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #ff7e5f 0%, #9b59b6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(255, 126, 95, .28) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice .home-voice-orb::before,
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice .home-voice-orb::after {
+  display: none !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice .home-voice-label {
+  color: #fff !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-icon {
+  color: #fff !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-photo {
+  gap: 2px !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-photo .gh-action-icon {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #ff7e5f 0%, #9b59b6 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(155, 89, 182, .26) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-label {
+  color: #fff !important;
+}
+/* Кнопки «Голосовой ввод» и «Фото»: одинаковая ширина (1fr + 1fr — то же,
+   что flex: 1) и белые иконки внутри градиентных квадратов. */
+body.theme-graphiteNeon #mainContent .gh-home .gh-actions {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-actions > .gh-action-btn {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice {
+  gap: 8px !important;
+  padding: 4px 10px !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice .home-voice-label {
+  font-size: 15px !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-voice .home-voice-orb svg {
+  fill: none !important;
+  stroke: #fff !important;
+  stroke-width: 1.9 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+  color: #fff !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-photo .gh-action-icon svg {
+  fill: none !important;
+  stroke: #fff !important;
+  stroke-width: 1.8 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+body.theme-graphiteNeon #mainContent .gh-history-head .gh-see-all {
+  border-color: rgba(255, 126, 95, .28) !important;
+  background: rgba(255, 126, 95, .10) !important;
+  color: #ff7e5f !important;
+}
+
+/* ── Graphite Neon: глобальная оболочка (шапка / нижнее меню) ── */
+.gh-shell-btn {
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  color: #fff !important;
+  cursor: pointer !important;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.gh-shell-btn svg {
+  width: 22px !important;
+  height: 22px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.7 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+.gh-shell-btn:active {
+  transform: scale(.92) !important;
+}
+html:has(body.theme-graphiteNeon) {
+  /* Тот же фон, что у body: при overscroll не видно светлой полосы. */
+  background-color: #1a1a1a !important;
+  background-image: none !important;
+}
+body.theme-graphiteNeon .app-header {
+  background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+  background-image: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: calc(10px + var(--safe-top)) 16px 10px !important;
+  min-height: calc(60px + var(--safe-top)) !important;
+}
+body.theme-graphiteNeon .header-actions {
+  padding: 0 !important;
+  gap: 4px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+body.theme-graphiteNeon .header-actions > #headerGuideBtn,
+body.theme-graphiteNeon .header-actions > #headerHelpBtn,
+body.theme-graphiteNeon .header-actions > #headerLangBtn,
+body.theme-graphiteNeon .header-actions > #themeToggle,
+body.theme-graphiteNeon .header-actions > #headerSupportBtn {
+  display: none !important;
+}
+body.theme-graphiteNeon .header-actions > .gh-shell-btn {
+  display: inline-flex !important;
+}
+body.theme-graphiteNeon #headerDate {
+  display: none !important;
+}
+body.theme-graphiteNeon .header-left {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+body.theme-graphiteNeon .app-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 0 !important;
+  letter-spacing: -.02em !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+body.theme-graphiteNeon .app-logo::before {
+  content: "" !important;
+  width: 34px !important;
+  height: 34px !important;
+  flex: 0 0 34px !important;
+  border-radius: 11px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='6.4' rx='6.6' ry='2.7'/%3E%3Cpath d='M5.4 6.4v4.2c0 1.5 2.95 2.7 6.6 2.7s6.6-1.2 6.6-2.7V6.4'/%3E%3Cpath d='M5.4 10.6v4.2c0 1.5 2.95 2.7 6.6 2.7s6.6-1.2 6.6-2.7v-4.2'/%3E%3Cpath d='M5.4 14.8v4.2c0 1.5 2.95 2.7 6.6 2.7s6.6-1.2 6.6-2.7v-4.2'/%3E%3C/svg%3E"),
+    linear-gradient(135deg, #ff7e5f 0%, #9b59b6 100%) !important;
+  background-size: 20px 20px, 100% 100% !important;
+  background-position: center, center !important;
+  background-repeat: no-repeat, no-repeat !important;
+  box-shadow: 0 6px 16px rgba(255, 126, 95, .26) !important;
+}
+body.theme-graphiteNeon .app-logo::after {
+  content: "BudgetPRO" !important;
+  font-size: clamp(18px, 4.6vw, 21px) !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-family: inherit !important;
+}
+
+/* Нижнее меню: плотная тёмная панель, чтобы история операций не просвечивала
+   сквозь меню. Тень направлена вверх — она отделяет панель от контента.
+   Кнопки внутри остаются выпуклыми (neumorphism, правило ниже). */
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav).bottom-nav {
+  left: 0 !important;
+  right: 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: calc(74px + env(safe-area-inset-bottom)) !important;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom)) !important;
+  gap: 4px !important;
+  background: #1e1e1e !important;
+  background-color: #1e1e1e !important;
+  background-image: none !important;
+  border-top: none !important;
+  border-radius: 0 !important;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+body.theme-graphiteNeon .bottom-nav .nav-btn {
+  color: #8a8a8a !important;
+}
+body.theme-graphiteNeon .bottom-nav .nav-btn.active {
+  color: #ff7e5f !important;
+}
+body.theme-graphiteNeon .bottom-nav .nav-btn.active::after {
+  display: none !important;
+}
+body.theme-graphiteNeon .bottom-nav :is(.nav-caption, .nav-simple-lbl) {
+  color: inherit !important;
+  margin-top: 3px !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em !important;
+}
+body.theme-graphiteNeon .bottom-nav .nav-icon {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  border-radius: 0 !important;
+  background-color: currentColor !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-mask-repeat: no-repeat !important;
+  mask-repeat: no-repeat !important;
+  -webkit-mask-position: center !important;
+  mask-position: center !important;
+  -webkit-mask-size: 24px 24px !important;
+  mask-size: 24px 24px !important;
+}
+body.theme-graphiteNeon .bottom-nav .nav-btn.active .nav-icon {
+  background-color: currentColor !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+/* Настройки: без светящихся волн на карточках */
+body.theme-graphiteNeon canvas.sg-fx-canvas {
+  display: none !important;
+}
+
+/* Порядок: Home, Categories, FAB, Analytics, Profile */
+body.theme-graphiteNeon .bottom-nav .nav-btn[data-tab="home"] { order: 1 !important; }
+body.theme-graphiteNeon .bottom-nav .nav-btn[data-tab="categories"] { order: 2 !important; }
+body.theme-graphiteNeon .bottom-nav .nav-fab-btn { order: 3 !important; margin-top: -18px !important; }
+body.theme-graphiteNeon .bottom-nav .nav-btn[data-tab="stats"] { order: 4 !important; }
+body.theme-graphiteNeon .bottom-nav :is(#moreNavBtn, #moreNavBtnSimple) { order: 5 !important; }
+/* Центральная кнопка «+»: квадрат с большими скруглениями, коралл → фиолетовый */
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) :is(#fabBtn, #fabBtnSimple) .nav-fab-circle {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  flex: 0 0 56px !important;
+  border-radius: 18px !important;
+  font-size: 26px !important;
+  transform: none !important;
+  border: 0 !important;
+  background: linear-gradient(135deg, #ff7e5f 0%, #9b59b6 100%) !important;
+  box-shadow: 0 10px 24px rgba(255, 126, 95, .32),
+    0 0 22px rgba(155, 89, 182, .22) !important;
+}
+/* Клавиши меню: каждая кнопка — отдельная выпуклая кнопка неуморфизма.
+   Фон и двойная тень заданы в правиле «Нижнее меню» ниже (там выше
+   специфичность), здесь — скругление и отступ между клавишами.
+   Высоту клавиши задаёт общее правило доступности (min-height: 48px). */
+body.theme-graphiteNeon .bottom-nav .nav-btn {
+  border-radius: 16px !important;
+  margin: 0 4px !important;
+  border: 0 !important;
+}
+/* «+» — не клавиша, а отдельная выпуклая кнопка: у обёртки нет фона, поэтому
+   градиент и свечение круга читаются сильнее остальных кнопок меню. */
+body.theme-graphiteNeon .bottom-nav .nav-btn.nav-fab-btn,
+body.theme-graphiteNeon .bottom-nav .nav-btn.nav-fab-btn:active {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 18px !important;
+  margin: 0 4px !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  transform: none !important;
+}
+/* Иконки меню: одноцветные SVG-маски вместо эмодзи */
+body.theme-graphiteNeon .bottom-nav .nav-btn[data-tab="home"] .nav-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.1 2.9 10.3c-.4.3-.5.9-.2 1.3.3.4.9.5 1.3.2l.5-.4v7.8c0 .9.8 1.7 1.7 1.7h3.2v-4.8c0-.8.6-1.4 1.4-1.4h1.6c.8 0 1.4.6 1.4 1.4v4.8h3.2c.9 0 1.7-.8 1.7-1.7v-7.8l.5.4c.4.3 1 .2 1.3-.2.3-.4.2-1-.2-1.3L12 3.1Z'/%3E%3C/svg%3E") !important;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.1 2.9 10.3c-.4.3-.5.9-.2 1.3.3.4.9.5 1.3.2l.5-.4v7.8c0 .9.8 1.7 1.7 1.7h3.2v-4.8c0-.8.6-1.4 1.4-1.4h1.6c.8 0 1.4.6 1.4 1.4v4.8h3.2c.9 0 1.7-.8 1.7-1.7v-7.8l.5.4c.4.3 1 .2 1.3-.2.3-.4.2-1-.2-1.3L12 3.1Z'/%3E%3C/svg%3E") !important;
+}
+body.theme-graphiteNeon .bottom-nav .nav-btn[data-tab="categories"] .nav-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3.2' y='3.2' width='7.6' height='7.6' rx='2.2'/%3E%3Crect x='13.2' y='3.2' width='7.6' height='7.6' rx='2.2'/%3E%3Crect x='3.2' y='13.2' width='7.6' height='7.6' rx='2.2'/%3E%3Crect x='13.2' y='13.2' width='7.6' height='7.6' rx='2.2'/%3E%3C/svg%3E") !important;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3.2' y='3.2' width='7.6' height='7.6' rx='2.2'/%3E%3Crect x='13.2' y='3.2' width='7.6' height='7.6' rx='2.2'/%3E%3Crect x='3.2' y='13.2' width='7.6' height='7.6' rx='2.2'/%3E%3Crect x='13.2' y='13.2' width='7.6' height='7.6' rx='2.2'/%3E%3C/svg%3E") !important;
+}
+
+body.theme-graphiteNeon .bottom-nav .nav-btn[data-tab="stats"] .nav-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='12.2' width='3.8' height='8.4' rx='1.6'/%3E%3Crect x='10.1' y='7.2' width='3.8' height='13.4' rx='1.6'/%3E%3Crect x='16.2' y='3.6' width='3.8' height='17' rx='1.6'/%3E%3C/svg%3E") !important;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='12.2' width='3.8' height='8.4' rx='1.6'/%3E%3Crect x='10.1' y='7.2' width='3.8' height='13.4' rx='1.6'/%3E%3Crect x='16.2' y='3.6' width='3.8' height='17' rx='1.6'/%3E%3C/svg%3E") !important;
+}
+body.theme-graphiteNeon .bottom-nav :is(#moreNavBtn, #moreNavBtnSimple) .nav-icon {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='8.2' r='3.7'/%3E%3Cpath d='M4.5 20.1c.6-3.9 3.8-6.4 7.5-6.4s6.9 2.5 7.5 6.4c.1.6-.4 1.1-1 1.1H5.5c-.6 0-1.1-.5-1-1.1Z'/%3E%3C/svg%3E") !important;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='8.2' r='3.7'/%3E%3Cpath d='M4.5 20.1c.6-3.9 3.8-6.4 7.5-6.4s6.9 2.5 7.5 6.4c.1.6-.4 1.1-1 1.1H5.5c-.6 0-1.1-.5-1-1.1Z'/%3E%3C/svg%3E") !important;
+}
+
+/* Narrow screens */
+@media (max-width: 360px) {
+  html body #mainContent .gh-home .gh-card { padding: 12px !important; }
+  html body #mainContent .gh-home .gh-balance { padding: 14px !important; }
+  html body #mainContent .gh-home .gh-stat { min-height: 80px !important; }
+  html body #mainContent .gh-home .gh-ring {
+    width: 50px !important;
+    height: 50px !important;
+    flex-basis: 50px !important;
+  }
+  html body #mainContent .gh-home .gh-action-voice .home-voice-label { font-size: 15px !important; }
+  html body #mainContent .gh-home .gh-action-voice { gap: 6px !important; padding: 4px 10px !important; }
+  html body #mainContent .gh-home .gh-action-voice .home-voice-orb {
+    width: 34px !important;
+    height: 34px !important;
+    flex: 0 0 34px !important;
+  }
+  body.theme-graphiteNeon #mainContent .gh-home .gh-balance { min-height: 108px !important; }
+  body.theme-graphiteNeon #mainContent .gh-home .gh-spark { padding: 4px 7px 4px 0 !important; }
+}
+
+/* ── Graphite Neon: Neumorphism (выпуклые элементы, двойные тени) ── */
+
+/* 0. Место под тень: раньше тень обрывалась по краю экрана, потому что
+      #mainContent (383px — ровно по границам карточек) и .main-scroll
+      клипали содержимое (overflow-x: hidden при отступах 14px).
+      overflow-y: auto + overflow-x: visible в CSS не работают вместе
+      (visible при auto вычисляется в auto), поэтому снимаем клип с
+      #mainContent и даём контейнеру запас 20px под размытие тени. */
+html body.theme-graphiteNeon #mainContent {
+  overflow: visible !important;
+}
+/* Карточки больше не обрезаются контейнерами: .app и .main-scroll клипали
+   тень по горизонтали (overflow-x: hidden при отступах 14–20px), из-за чего
+   справа и снизу оставался резкий обрез вместо мягкой тени. Внутренние
+   отступы 16px оставляют место под тень, а вода по краям экрана не появляется:
+   html и body сами клипят по X. */
+html body.theme-graphiteNeon .app {
+  overflow-x: visible !important;
+}
+html body.theme-graphiteNeon .main-scroll {
+  overflow-x: visible !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  padding-top: 14px !important;
+}
+html body.theme-graphiteNeon #fullHistoryModal .modal-body {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+
+/* 1. Объём (neumorphism): поверхность #1E1E1E — чуть светлее фона страницы
+      (#1A1A1A), без градиента и без рамки. Объём даёт ровно одна двойная
+      тень: тёмная справа-снизу и светлая кромка слева-сверху. */
+body.theme-graphiteNeon #mainContent .gh-home .gh-card,
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-btn,
+body.theme-graphiteNeon .app-header .gh-shell-btn,
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-card,
+body.theme-graphiteNeon #fullHistoryModal .history-item {
+  position: relative !important;
+  z-index: 1 !important;
+  box-sizing: border-box !important;
+  background: #1e1e1e !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: var(--gh-neu-out, 8px 8px 16px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.05)) !important;
+  transition: all 0.1s ease !important;
+  -webkit-tap-highlight-color: transparent;
+}
+/* 1b. GPU-слой карточки: без него WebView перерисовывает тень на каждом кадре
+      прокрутки и на AMOLED появляются «полосатые» засветы. overflow: visible
+      нужен, чтобы тень не обрезалась по краю самой карточки. */
+body.theme-graphiteNeon #mainContent .gh-home .gh-card,
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-swipe-wrap,
+body.theme-graphiteNeon #fullHistoryModal .history-item,
+body.theme-graphiteNeon #addBudgetModal .bgm-limit-card {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  filter: none !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-card,
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-card,
+body.theme-graphiteNeon #fullHistoryModal .history-item {
+  overflow: visible !important;
+}
+/* 2. Нажатие: карточка уходит внутрь — внешняя тень меняется на inset. */
+body.theme-graphiteNeon #mainContent .gh-home .gh-card:active,
+body.theme-graphiteNeon #mainContent .gh-home .gh-action-btn:active,
+body.theme-graphiteNeon .app-header .gh-shell-btn:active {
+  transform: scale(0.98) !important;
+  background: #1c1c1c !important;
+  box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.03) !important;
+  transition: all 0.1s ease !important;
+}
+/* История: свой z-index, чтобы не ломать свайп-слой */
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-card,
+body.theme-graphiteNeon #fullHistoryModal .history-item {
+  z-index: 2 !important;
+}
+/* Свайп-обёртка строки истории обрезает содержимое (overflow: hidden нужен для
+   свайпа), поэтому тень рисуем на ней, а у самой карточки её убираем. */
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-swipe-wrap {
+  border-radius: 18px !important;
+  box-shadow: var(--gh-neu-out, 8px 8px 16px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.05)) !important;
+}
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-swipe-wrap .op-card {
+  box-shadow: none !important;
+}
+
+/* Карточка баланса: та же неуморфная поверхность и та же тень, что у остальных карточек */
+body.theme-graphiteNeon #mainContent .gh-home .gh-balance {
+  background: #1e1e1e !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: var(--gh-neu-out, 8px 8px 16px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.05)) !important;
+}
+
+body.theme-graphiteNeon #mainContent .gh-home .gh-balance:active {
+  transform: scale(0.98) !important;
+  background: #1c1c1c !important;
+  box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.03) !important;
+  transition: all 0.1s ease !important;
+}
+
+/* История: масштаб через scale, чтобы не ломать свайп (inline transform) */
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-card,
+body.theme-graphiteNeon #fullHistoryModal .history-item {
+  transition:
+    scale 0.1s ease,
+    box-shadow 0.1s ease,
+    background 0.1s ease !important;
+}
+body.theme-graphiteNeon #mainContent #homeOpsItems .op-card:active,
+body.theme-graphiteNeon #fullHistoryModal .history-item:active {
+  scale: 0.98;
+  background: #1c1c1c !important;
+  box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.03) !important;
+}
+
+/* 3. Нижнее меню: контейнер прозрачный, каждая кнопка — отдельная выпуклая
+      клавиша неуморфизма (градиент + двойная тень); нажатие «вдавливает» её. */
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) .nav-btn:not(.nav-fab-btn) {
+  box-sizing: border-box !important;
+  background: linear-gradient(145deg, #262626, #1c1c1c) !important;
+  border: 0 !important;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.6),
+    -3px -3px 8px rgba(255, 255, 255, 0.05) !important;
+  transition:
+    transform 0.12s ease-in-out,
+    color 0.12s ease-in-out,
+    box-shadow 0.12s ease-in-out !important;
+  -webkit-tap-highlight-color: transparent;
+}
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) .nav-btn:not(.nav-fab-btn):active {
+  transform: scale(0.97) !important;
+  background: linear-gradient(145deg, #232323, #1a1a1a) !important;
+  box-shadow: inset 4px 4px 9px rgba(0, 0, 0, 0.65),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.05) !important;
+}
+/* Активная вкладка: та же клавиша, но вдавленная, с коралловым контуром. */
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) .nav-btn.active:not(.nav-fab-btn) {
+  background: linear-gradient(145deg, #232323, #1a1a1a) !important;
+  box-shadow: inset 4px 4px 9px rgba(0, 0, 0, 0.65),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.05),
+    0 0 0 1px rgba(255, 126, 95, 0.28) !important;
+}
+/* Подписи клавиш: из-за отступов 4px ключ стал уже (66px), поэтому кегль
+   чуть меньше — иначе «Категории»/«Categories» обрезаются по краю кнопки. */
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) .nav-btn:not(.nav-fab-btn) :is(.nav-caption, .nav-simple-lbl) {
+  font-size: 9.5px !important;
+  letter-spacing: 0 !important;
+  padding: 0 !important;
+  line-height: 1.15 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Круглая «+»: выпуклая, выделяется сильнее остальных, пружинит при нажатии */
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) .nav-btn.nav-fab-btn:active {
+  transform: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) :is(#fabBtn, #fabBtnSimple) .nav-fab-circle {
+  scale: 1;
+  /* Самая выпуклая кнопка на панели: неуморфная двойная тень + неоновое свечение */
+  box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.65),
+    -5px -5px 14px rgba(255, 255, 255, 0.07),
+    0 12px 26px rgba(255, 126, 95, 0.40),
+    0 0 26px rgba(155, 89, 182, 0.30),
+    inset 0 2px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.32) !important;
+  transition:
+    scale 0.38s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.22s ease !important;
+}
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav) :is(#fabBtn, #fabBtnSimple):active .nav-fab-circle {
+  scale: 0.86;
+  transition: all 0.1s ease !important;
+  box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+    inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+    0 4px 12px rgba(255, 126, 95, 0.28) !important;
+}
+
+/* 4. Блик на верхней грани карточки больше не рисуется отдельной 1px-линией:
+      поверх двойной тени она читалась как «полосатый» засвет и двоила кромку.
+      Светлую грань даёт сама тень (-6px -6px). Линия остаётся только у нижней
+      панели, где нет выпуклости. */
+html body.theme-graphiteNeon :is(#mainNav, #simpleNav).bottom-nav {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+    </style>
+    <style id="budgetLimitWarnings">
+/* ═══════════════════════════════════════════════════════════════════════
+   Месячный бюджет: предупреждение о превышении на главной карточке и
+   неуморфное окно бюджета (кольцо, аналитика, баннер превышения).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Главная карточка: превышение лимита ── */
+/* Красное кольцо с мягкой пульсацией и красная полоса вместо кораллово-
+   фиолетового градиента. Специфичность выше блоков темы, поэтому состояние
+   перекрывает их, не трогая обычный режим. */
+html body #mainContent .gh-home #ghBudgetSlide0[data-state='over'] .gh-ring {
+  background: conic-gradient(
+    #ff4d6d calc(var(--pct, 0) * 3.6deg),
+    rgba(255, 77, 109, .18) 0
+  ) !important;
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, .8),
+    -6px -6px 16px rgba(255, 255, 255, .1),
+    0 0 22px rgba(255, 77, 109, .45) !important;
+  animation: ghBudgetRingPulse 1.9s ease-in-out infinite !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state='over'] .gh-ring-pct {
+  color: #ff4d6d !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state='over'] .gh-bar-fill {
+  background: linear-gradient(90deg, #ff4d6d 0%, #ff8a5c 100%) !important;
+}
+/* Строка «Превышено на X ₾» показывается только в состоянии перерасхода,
+   подсказка «потрачено из лимита» в этот момент скрыта. */
+html body #mainContent .gh-home .gh-budget-over {
+  display: none !important;
+  margin: 6px 0 0 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  letter-spacing: .01em !important;
+  color: #ff4d6d !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state='over'] .gh-budget-over {
+  display: block !important;
+}
+html body #mainContent .gh-home #ghBudgetSlide0[data-state='over'] .gh-budget-hint {
+  display: none !important;
+}
+@keyframes ghBudgetRingPulse {
+  0%, 100% {
+    box-shadow:
+      8px 8px 20px rgba(0, 0, 0, .8),
+      -6px -6px 16px rgba(255, 255, 255, .1),
+      0 0 18px rgba(255, 77, 109, .35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      8px 8px 20px rgba(0, 0, 0, .8),
+      -6px -6px 16px rgba(255, 255, 255, .1),
+      0 0 30px rgba(255, 77, 109, .75);
+    transform: scale(1.03);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html body #mainContent .gh-home #ghBudgetSlide0[data-state='over'] .gh-ring {
+    animation: none !important;
+  }
+}
+
+/* ── Кольцо карточки бюджета: выпуклое, «надетое» на карточку ── */
+/* Тень стоит на внешнем круге кольца: оно приподнято над карточкой, а тёмный
+   внутренний круг с процентами выглядит как углубление под ним. Карточка
+   обрезает содержимое (overflow: hidden), из-за чего тень срезалась и кольцо
+   выглядело плоским, поэтому у карточки бюджета обрезку снимаем. */
+html body #mainContent .gh-home .gh-budget {
+  overflow: visible !important;
+}
+html body #mainContent .gh-home .gh-ring {
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, .8),
+    -6px -6px 16px rgba(255, 255, 255, .1) !important;
+}
+/* Лимита нет — пунктирный контур, выпуклую тень не рисуем. Правило — только
+   для слайда 0: у слайдов лимитов своё состояние, их тень не трогаем. */
+html body #mainContent .gh-home #ghBudgetSlide0[data-state='noLimit'] .gh-ring {
+  box-shadow: none !important;
+}
+html body #mainContent .gh-home .gh-ring-inner {
+  background: #1e1e1e !important;
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, .95),
+    inset -2px -2px 6px rgba(255, 255, 255, .05) !important;
+}
+/* Тема graphiteNeon задаёт кольцу своё свечение с большей специфичностью —
+   повторяем выпуклую тень именно для неё, иначе кольцо снова «плоское». */
+body.theme-graphiteNeon #mainContent .gh-home .gh-ring {
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, .8),
+    -6px -6px 16px rgba(255, 255, 255, .1) !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-ring-inner {
+  background: #1e1e1e !important;
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, .95),
+    inset -2px -2px 6px rgba(255, 255, 255, .05) !important;
+}
+/* Светлые темы: та же форма, светлый неуморфизм вместо чёрной впадины. */
+body:not(.dark) #mainContent .gh-home .gh-ring {
+  box-shadow:
+    8px 8px 18px rgba(180, 160, 140, .55),
+    -6px -6px 16px rgba(255, 255, 255, .95) !important;
+}
+body:not(.dark) #mainContent .gh-home .gh-ring-inner {
+  background: #fdfbf7 !important;
+  box-shadow:
+    inset 3px 3px 7px rgba(180, 160, 140, .45),
+    inset -2px -2px 6px rgba(255, 255, 255, .95) !important;
+}
+
+/* ── Мини-список лимитов в карточке бюджета ── */
+/* Кольцо и цифры остаются в первой строке, список конвертов занимает всю
+   ширину карточки под ними. */
+html body #mainContent .gh-home .gh-budget { flex-wrap: wrap !important; }
+html body #mainContent .gh-home .gh-budget-mini {
+  flex: 1 1 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+  margin-top: 2px !important;
+  padding-top: 9px !important;
+  border-top: 1px solid rgba(255, 255, 255, .08) !important;
+}
+html body #mainContent .gh-home .gh-budget-mini[hidden] { display: none !important; }
+/* Лимита нет: кольцо пунктирное и прозрачное — впадину не рисуем (только
+   слайд 0, у лимитов впадина остаётся). */
+html body #mainContent .gh-home #ghBudgetSlide0[data-state='noLimit'] .gh-ring-inner {
+  box-shadow: none !important;
+}
+body:not(.dark) #mainContent .gh-home .gh-budget-mini {
+  border-top-color: rgba(120, 113, 108, .18) !important;
+}
+html body #mainContent .gh-home .gh-mini-limit {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+  color: var(--gh-muted, var(--text-soft)) !important;
+}
+html body #mainContent .gh-home .gh-mini-limit-emoji {
+  flex: 0 0 auto !important;
+  font-size: 12px !important;
+}
+html body #mainContent .gh-home .gh-mini-limit-name {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+html body #mainContent .gh-home .gh-mini-limit-value {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  font-variant-numeric: tabular-nums !important;
+  font-weight: 800 !important;
+  color: var(--gh-text, var(--text)) !important;
+  white-space: nowrap !important;
+}
+html body #mainContent .gh-home .gh-mini-limit[data-state='over'] .gh-mini-limit-value {
+  color: #ff4d6d !important;
+}
+body:not(.dark) #mainContent .gh-home .gh-mini-limit[data-state='over'] .gh-mini-limit-value {
+  color: #d81b45 !important;
+}
+html body #mainContent .gh-home .gh-mini-more {
+  align-self: flex-start !important;
+  padding: 2px 0 !important;
+  border: none !important;
+  background: none !important;
+  color: var(--primary) !important;
+  font: inherit !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: .01em !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+}
+
+/* Подсказка «спишется из лимита категории» в окне новой операции. */
+#addModal .add-limit-hint {
+  margin: 6px 0 12px;
+  padding: 0 2px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-soft);
+  opacity: .75;
+}
+#addModal .add-limit-hint[hidden] { display: none; }
+
+/* ── Окно бюджета: окно выше и прокручивается внутри ── */
+#addBudgetModal .modal {
+  height: min(94dvh, 880px) !important;
+  max-height: min(94dvh, 94vh) !important;
+}
+/* ── Плавное открытие и закрытие окна ── */
+/* Окно анимируется переходами (масштаб + прозрачность), а не CSS-анимацией
+   .modal: класс .opening показывает его в стартовом состоянии, .open ведёт к
+   нормальному. При закрытии .closing держит окно на экране, пока идёт
+   fade-out, затем JS удаляет узел. Фон-оверлей затемняется так же плавно. */
+#addBudgetModal.modal-overlay {
+  opacity: 0 !important;
+  transition:
+    opacity .28s cubic-bezier(.4, 0, .2, 1),
+    -webkit-backdrop-filter .28s cubic-bezier(.4, 0, .2, 1),
+    backdrop-filter .28s cubic-bezier(.4, 0, .2, 1) !important;
+}
+#addBudgetModal.modal-overlay.open {
+  opacity: 1 !important;
+}
+#addBudgetModal.opening,
+#addBudgetModal.closing {
+  display: flex !important;
+}
+#addBudgetModal.closing {
+  opacity: 0 !important;
+}
+#addBudgetModal .modal {
+  animation: none !important;
+  opacity: 0;
+  transform: translateY(28px) scale(.94);
+  transition:
+    transform .3s cubic-bezier(.4, 0, .2, 1),
+    opacity .3s ease !important;
+}
+#addBudgetModal.open .modal {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+#addBudgetModal.closing .modal {
+  opacity: 0;
+  transform: translateY(28px) scale(.95);
+}
+#addBudgetModal .modal-body {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  padding: 12px 16px 20px !important;
+}
+#addBudgetModal .bgm-explain {
+  margin: 0 !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.45 !important;
+  color: #a0a0a0 !important;
+}
+#addBudgetModal .bgm-title,
+#addBudgetModal .bgm-group-title {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase !important;
+  color: #8a8a8a !important;
+}
+/* Секция лимитов категорий — второстепенная настройка: отделена линией,
+   заголовок заметнее, под ним пояснение, чтобы список категорий не читался
+   как основное действие окна. */
+#addBudgetModal .bgm-section.bgm-section--categories {
+  gap: 10px !important;
+  border-top: 1px solid rgba(255, 255, 255, .09) !important;
+  padding-top: 16px !important;
+}
+#addBudgetModal .bgm-title--categories {
+  font-size: 12px !important;
+  letter-spacing: .01em !important;
+  text-transform: none !important;
+  color: #d8d8d8 !important;
+}
+#addBudgetModal .bgm-note {
+  margin: -4px 0 0 !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  color: #9a9a9a !important;
+}
+
+/* ── Кольцо прогресса: выпуклый серый трек + вдавленный центр ── */
+#addBudgetModal .bgm-hero {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 16px 14px 14px !important;
+  border-radius: 24px !important;
+  background: #1e1e1e !important;
+  background-image: none !important;
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.6),
+    -6px -6px 14px rgba(255, 255, 255, 0.05) !important;
+}
+/* Трек кольца выпуклый: тень лежит на внешнем круге, поэтому кольцо стоит над
+   карточкой, а дуга прогресса проходит по его ободу. */
+#addBudgetModal .bgm-ring {
+  position: relative !important;
+  width: 172px !important;
+  height: 172px !important;
+  max-width: 60vw !important;
+  max-height: 60vw !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #2b2b2b linear-gradient(145deg, #343434, #1b1b1b) !important;
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, .8),
+    -6px -6px 16px rgba(255, 255, 255, .1) !important;
+  transition: box-shadow .3s ease !important;
+}
+/* Дуга прогресса — отдельный слой: маска оставляет только обод, поэтому
+   вдавленный трек под ним остаётся матовым, а дуга светится. */
+#addBudgetModal .bgm-ring::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 50% !important;
+  /* Дуга — тот же градиент, что у полосы прогресса под кольцом. */
+  background: conic-gradient(
+    #ff7e5f 0deg,
+    #9b59b6 calc(var(--pct, 0) * 3.6deg),
+    transparent calc(var(--pct, 0) * 3.6deg)
+  ) !important;
+  filter: drop-shadow(0 0 6px rgba(155, 89, 182, .55)) !important;
+  box-shadow: inset 0 0 14px rgba(255, 126, 95, .35) !important;
+  -webkit-mask: radial-gradient(circle closest-side, transparent 0 calc(100% - 16px), #000 calc(100% - 16px)) !important;
+  mask: radial-gradient(circle closest-side, transparent 0 calc(100% - 16px), #000 calc(100% - 16px)) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+#addBudgetModal .bgm-ring-inner {
+  position: absolute !important;
+  inset: 16px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  /* Тёмная впадина внутри кольца: цифры лежат «в карточке», кольцо сверху. */
+  background: #1e1e1e !important;
+  box-shadow:
+    inset 6px 6px 14px rgba(0, 0, 0, .9),
+    inset -4px -4px 10px rgba(255, 255, 255, .05) !important;
+  z-index: 2 !important;
+}
+#addBudgetModal .bgm-ring-pct {
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -.02em !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #fff !important;
+}
+#addBudgetModal .bgm-ring-cap {
+  max-width: 108px !important;
+  font-size: 9.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  color: #a0a0a0 !important;
+}
+/* Превышение: красное кольцо с пульсацией (вдавленный трек сохраняется). */
+#addBudgetModal .bgm-ring[data-state='over'] {
+  background: #221518 linear-gradient(145deg, #2b1a1e, #180f12) !important;
+  animation: bgmRingPulse 1.8s ease-in-out infinite !important;
+}
+#addBudgetModal .bgm-ring[data-state='over']::before {
+  background: conic-gradient(
+    #ff4d6d calc(var(--pct, 0) * 3.6deg),
+    transparent 0
+  ) !important;
+  filter: drop-shadow(0 0 8px rgba(255, 77, 109, .75)) !important;
+  box-shadow: inset 0 0 14px rgba(255, 77, 109, .55) !important;
+}
+#addBudgetModal .bgm-ring[data-state='over'] .bgm-ring-pct {
+  color: #ff8fa3 !important;
+}
+@keyframes bgmRingPulse {
+  0%, 100% {
+    box-shadow:
+      8px 8px 20px rgba(0, 0, 0, .8),
+      -6px -6px 16px rgba(255, 255, 255, .1),
+      0 0 18px rgba(255, 77, 109, .35);
+  }
+  50% {
+    box-shadow:
+      8px 8px 20px rgba(0, 0, 0, .8),
+      -6px -6px 16px rgba(255, 255, 255, .1),
+      0 0 38px rgba(255, 77, 109, .8);
+  }
+}
+/* Лимита нет: пунктирное кольцо и плюс вместо процента. */
+#addBudgetModal .bgm-ring[data-state='noLimit'] {
+  background: none !important;
+  border: 2px dashed rgba(255, 255, 255, .25) !important;
+  box-shadow: none !important;
+}
+#addBudgetModal .bgm-ring[data-state='noLimit']::before {
+  display: none !important;
+}
+#addBudgetModal .bgm-ring[data-state='noLimit'] .bgm-ring-inner {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+#addBudgetModal .bgm-ring[data-state='noLimit'] .bgm-ring-pct {
+  font-size: 40px !important;
+  color: #a0a0a0 !important;
+}
+/* ── Цифры «потрачено / лимит» и полоса прогресса ── */
+#addBudgetModal .bgm-figures {
+  display: flex !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+#addBudgetModal .bgm-figure {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  padding: 8px 6px !important;
+  border-radius: 16px !important;
+  background: rgba(0, 0, 0, .18) !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(0, 0, 0, .5),
+    inset -3px -3px 8px rgba(255, 255, 255, .05) !important;
+}
+#addBudgetModal .bgm-figure-label {
+  font-size: 9.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+  color: #a0a0a0 !important;
+}
+#addBudgetModal .bgm-figure-value {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #fff !important;
+  overflow-wrap: anywhere !important;
+}
+/* Полоса прогресса: выпуклый серый лоток, внутри — светящееся заполнение.
+   Ширину ведёт та же rAF-анимация, что и кольцо (transition отключён), поэтому
+   оба индикатора растут синхронно. */
+#addBudgetModal .bgm-bar {
+  width: 100% !important;
+  height: 12px !important;
+  border-radius: 99px !important;
+  overflow: hidden !important;
+  background: #232323 linear-gradient(145deg, #2d2d2d, #1d1d1d) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07),
+    inset 0 1px 0 rgba(255, 255, 255, .06) !important;
+}
+#addBudgetModal .bgm-bar-fill {
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #ff7e5f 0%, #9b59b6 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .35),
+    0 0 12px rgba(255, 126, 95, .5) !important;
+  transition: none !important;
+}
+#addBudgetModal .bgm-hero[data-state='over'] .bgm-bar-fill {
+  background: linear-gradient(90deg, #ff4d6d 0%, #ff8a5c 100%) !important;
+}
+#addBudgetModal .bgm-avg {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #a0a0a0 !important;
+}
+#addBudgetModal .bgm-avg b {
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #fff !important;
+}
+
+/* ── Баннер превышения ── */
+#addBudgetModal .bgm-alert {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  color: #fff !important;
+  background: linear-gradient(145deg, #b01d35, #7d1122) !important;
+  box-shadow:
+    0 8px 20px rgba(255, 77, 109, .28),
+    inset 0 1px 0 rgba(255, 255, 255, .25) !important;
+  animation: bgmAlertIn .35s ease-out both;
+}
+#addBudgetModal .bgm-alert[hidden] {
+  display: none !important;
+}
+#addBudgetModal .bgm-alert-icon {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+#addBudgetModal .bgm-alert-sum {
+  color: #ffd7de !important;
+  white-space: nowrap !important;
+}
+@keyframes bgmAlertIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ── Секции окна, поле общего лимита, подсказки ── */
+#addBudgetModal .bgm-section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 14px !important;
+  border-radius: 22px !important;
+  background: #1e1e1e !important;
+  background-image: none !important;
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.6),
+    -6px -6px 14px rgba(255, 255, 255, 0.05) !important;
+}
+#addBudgetModal .bgm-hint {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  color: #a0a0a0 !important;
+}
+#addBudgetModal .bgm-hint[data-state='categories'] {
+  color: #ffb08f !important;
+}
+#addBudgetModal .bgm-hint[hidden] {
+  display: none !important;
+}
+/* ── Остаток / перерасход и списки категорий ── */
+#addBudgetModal .bgm-remaining {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  padding: 12px 14px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(145deg, #262626, #1c1c1c) !important;
+  box-shadow:
+    inset 5px 5px 12px rgba(0, 0, 0, .7),
+    inset -4px -4px 10px rgba(255, 255, 255, .05) !important;
+}
+#addBudgetModal .bgm-remaining-label {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .02em !important;
+  color: #a0a0a0 !important;
+}
+#addBudgetModal .bgm-remaining-value {
+  font-size: 26px !important;
+  font-weight: 900 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -.02em !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #fff !important;
+}
+#addBudgetModal .bgm-remaining.is-over .bgm-remaining-label {
+  color: #ff8fa3 !important;
+}
+#addBudgetModal .bgm-remaining.is-over .bgm-remaining-value {
+  color: #ff4d6d !important;
+}
+#addBudgetModal .bgm-empty {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  color: #8a8a8a !important;
+}
+#addBudgetModal .bgm-empty[hidden],
+#addBudgetModal .bgm-group[hidden] {
+  display: none !important;
+}
+#addBudgetModal .bgm-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+#addBudgetModal .bgm-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+}
+#addBudgetModal .bgm-mini {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+}
+#addBudgetModal .bgm-mini-head {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  font-size: 12px !important;
+}
+#addBudgetModal .bgm-mini-name {
+  min-width: 0 !important;
+  font-weight: 700 !important;
+  color: #e9e9e9 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#addBudgetModal .bgm-mini-val {
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+  color: #fff !important;
+}
+#addBudgetModal .bgm-mini-track {
+  height: 10px !important;
+  border-radius: 99px !important;
+  overflow: hidden !important;
+  background: #191919 !important;
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, .85),
+    inset -2px -2px 5px rgba(255, 255, 255, .05) !important;
+}
+#addBudgetModal .bgm-mini-fill {
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(90deg, #ff7e5f 0%, #9b59b6 100%) !important;
+  box-shadow: 0 0 10px rgba(255, 126, 95, .35) !important;
+  transition: width .7s cubic-bezier(.22, .61, .36, 1) !important;
+}
+/* Секция лимитов категорий: красная кнопка сброса не должна «прыгать». */
+#addBudgetModal #resetBudget {
+  margin: 0 !important;
+}
+
+/* ── Светлые темы: те же формы, светлый неуморфизм ── */
+body:not(.dark) #addBudgetModal .bgm-hero,
+body:not(.dark) #addBudgetModal .bgm-section {
+  background: #fdfbf7 linear-gradient(145deg, #fdfbf7, #f0eae1) !important;
+  box-shadow:
+    8px 8px 20px rgba(180, 160, 140, .3),
+    -8px -8px 20px rgba(255, 255, 255, .95),
+    inset 0 1px 0 rgba(255, 255, 255, .9) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-ring-inner {
+  background: #f7f1e8 !important;
+  box-shadow:
+    inset 6px 6px 14px rgba(180, 160, 140, .45),
+    inset -4px -4px 10px rgba(255, 255, 255, .95) !important;
+}
+/* Кольцо в светлых темах: тот же выпуклый трек и светящаяся дуга. */
+body:not(.dark) #addBudgetModal .bgm-ring {
+  background: #fdfbf7 linear-gradient(145deg, #fffdf9, #ece5da) !important;
+  box-shadow:
+    8px 8px 20px rgba(180, 160, 140, .5),
+    -6px -6px 16px rgba(255, 255, 255, .95) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-ring[data-state='over'] {
+  background: #fdf1f1 linear-gradient(145deg, #fbeeee, #f3dede) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-section.bgm-section--categories {
+  border-top-color: rgba(120, 113, 108, .22) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-title--categories {
+  color: #44403c !important;
+}
+body:not(.dark) #addBudgetModal .bgm-note {
+  color: #8a8078 !important;
+}
+body:not(.dark) #addBudgetModal .bgm-remaining {
+  background: linear-gradient(145deg, #fdfbf7, #f0eae1) !important;
+  box-shadow:
+    inset 5px 5px 12px rgba(180, 160, 140, .3),
+    inset -4px -4px 10px rgba(255, 255, 255, .9) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-figure {
+  background: rgba(249, 115, 22, .06) !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(180, 160, 140, .25),
+    inset -3px -3px 8px rgba(255, 255, 255, .85) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-bar {
+  background: #f3ece2 linear-gradient(145deg, #fbf6ef, #e9e1d6) !important;
+  box-shadow:
+    6px 6px 16px rgba(180, 160, 140, .4),
+    -5px -5px 14px rgba(255, 255, 255, .95),
+    inset 0 1px 0 rgba(255, 255, 255, .9) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-mini-track {
+  background: #efe8de !important;
+  box-shadow:
+    inset 3px 3px 7px rgba(180, 160, 140, .35),
+    inset -2px -2px 6px rgba(255, 255, 255, .9) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-ring-pct,
+body:not(.dark) #addBudgetModal .bgm-figure-value,
+body:not(.dark) #addBudgetModal .bgm-avg b,
+body:not(.dark) #addBudgetModal .bgm-mini-val,
+body:not(.dark) #addBudgetModal .bgm-mini-name,
+body:not(.dark) #addBudgetModal .bgm-remaining-value {
+  color: #1c1917 !important;
+}
+body:not(.dark) #addBudgetModal .bgm-remaining.is-over .bgm-remaining-value,
+body:not(.dark) #addBudgetModal .bgm-ring[data-state='over'] .bgm-ring-pct {
+  color: #d81b45 !important;
+}
+body:not(.dark) #addBudgetModal .bgm-explain,
+body:not(.dark) #addBudgetModal .bgm-title,
+body:not(.dark) #addBudgetModal .bgm-group-title,
+body:not(.dark) #addBudgetModal .bgm-figure-label,
+body:not(.dark) #addBudgetModal .bgm-ring-cap,
+body:not(.dark) #addBudgetModal .bgm-avg,
+body:not(.dark) #addBudgetModal .bgm-hint,
+body:not(.dark) #addBudgetModal .bgm-empty,
+body:not(.dark) #addBudgetModal .bgm-remaining-label {
+  color: #78716c !important;
+}
+body:not(.dark) #addBudgetModal .bgm-ring[data-state='noLimit'] {
+  border-color: rgba(120, 113, 108, .5) !important;
+}
+
+/* ═══ Список лимитов месяца и форма добавления ═══ */
+/* Окно высокое, поэтому список прокручивается внутри тела окна, а кнопки
+   «Отмена/Сохранить» остаются на виду. */
+#addBudgetModal .modal-body {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  /* Плавная прокрутка внутреннего контейнера окна: скролл к списку лимитов
+     по тапу на слайд 0 и к выбранной карточке по слайдам 1…N. */
+  scroll-behavior: smooth !important;
+}
+#addBudgetModal .bgm-section--limits {
+  gap: 10px !important;
+}
+#addBudgetModal .bgm-title--limits {
+  font-size: 12px !important;
+  letter-spacing: .01em !important;
+  text-transform: none !important;
+  color: #d8d8d8 !important;
+}
+#addBudgetModal .bgm-limit-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+/* Карточка лимита: выпуклая, с эмодзи, названием/привязкой и полем суммы.
+   Поверхность ровная (#1e1e1e), объём — одна двойная тень, без внутренней
+   1px-кромки: она читалась полосой поверх неуморфизма. */
+#addBudgetModal .bgm-limit-card {
+  display: grid !important;
+  /* relative нужен подсветке-псевдоэлементу (is-highlighted) ниже. */
+  position: relative !important;
+  grid-template-columns: 40px minmax(0, 1fr) 34px !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 10px 10px 12px !important;
+  border-radius: 18px !important;
+  background: #1e1e1e !important;
+  background-image: none !important;
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.6),
+    -6px -6px 14px rgba(255, 255, 255, 0.05) !important;
+  animation: bgmLimitCardIn .22s ease-out both !important;
+}
+@keyframes bgmLimitCardIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+/* Лимит, к которому пришёл тап со слайда карусели: ровно три пульсации
+   акцентной рамки — видно, какая карточка открыта. Класс .is-highlighted
+   ставит и снимает pulseBudgetLimitCards в index.js по событию animationend,
+   а не таймером: setTimeout приходился на середину третьей пульсации, и рамка
+   гасла рывком. Рамка — псевдоэлемент, поэтому пульсация не конфликтует с
+   !important-тенью самой карточки и не двигает сетку (box-shadow не влияет
+   на раскладку). 3 итерации по 0.8 с = 2.4 с; кривая cubic-bezier(0.4, 0, 0.2, 1)
+   даёт мягкий разгон/затухание вместо резкого ease-in-out. */
+#addBudgetModal .bgm-limit-card.is-highlighted::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  box-shadow:
+    0 0 0 2px rgba(255, 126, 95, .95),
+    0 0 20px rgba(255, 126, 95, .55) !important;
+  animation: highlightPulse 0.8s cubic-bezier(0.4, 0, 0.2, 1) 3 !important;
+  /* Пульсирует только прозрачность: отдельный слой, без перерисовки карточки. */
+  will-change: opacity;
+}
+@keyframes highlightPulse {
+  0%, 100% { opacity: .2; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #addBudgetModal .bgm-limit-card.is-highlighted::after { animation: none !important; opacity: 1; }
+}
+#addBudgetModal .bgm-limit-emoji {
+  width: 40px !important;
+  height: 40px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 14px !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  background: #1c1c1c linear-gradient(145deg, #262626, #191919) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07) !important;
+}
+#addBudgetModal .bgm-limit-main {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+#addBudgetModal .bgm-limit-head {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 6px !important;
+  min-width: 0 !important;
+}
+#addBudgetModal .bgm-limit-name {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #f2f2f2 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#addBudgetModal .bgm-limit-kind {
+  flex: 0 0 auto !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+  color: #8f8f8f !important;
+}
+#addBudgetModal .bgm-limit-amount-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+#addBudgetModal .bgm-limit-amount {
+  flex: 1 1 0 !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  padding: 8px 10px !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#addBudgetModal .bgm-limit-cur {
+  flex: 0 0 auto !important;
+  min-width: 16px !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.4 !important;
+  text-align: right !important;
+  color: #b3b3b3 !important;
+}
+#addBudgetModal .bgm-limit-del {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  color: #ff8fa3 !important;
+  background: #242424 linear-gradient(145deg, #2c2c2c, #1e1e1e) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07) !important;
+  transition: box-shadow .12s ease, transform .12s ease, color .12s ease !important;
+}
+#addBudgetModal .bgm-limit-del:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, .7),
+    inset -3px -3px 8px rgba(255, 255, 255, .05) !important;
+  transform: scale(.96) !important;
+  color: #ff4d6d !important;
+}
+/* Пустой список и сумма всех лимитов (это и есть общий лимит месяца). */
+#addBudgetModal .bgm-limits-empty,
+#addBudgetModal .bgm-limit-total {
+  padding: 10px 12px !important;
+  border-radius: 16px !important;
+  background: rgba(0, 0, 0, .18) !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(0, 0, 0, .45),
+    inset -3px -3px 8px rgba(255, 255, 255, .04) !important;
+}
+#addBudgetModal .bgm-limits-empty {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  color: #9a9a9a !important;
+}
+#addBudgetModal .bgm-limits-empty[hidden] {
+  display: none !important;
+}
+#addBudgetModal .bgm-limit-total {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+#addBudgetModal .bgm-limit-total-label {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #a0a0a0 !important;
+}
+#addBudgetModal .bgm-limit-total-value {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #fff !important;
+}
+/* Кнопка «＋ Добавить лимит» — выпуклая, во всю ширину секции. */
+#addBudgetModal .bgm-add-limit-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 12px 14px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+#addBudgetModal .bgm-add-limit-plus {
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+/* Форма добавления: выпуклая панель, поля внутри — вдавленные (modal-input). */
+#addBudgetModal .bgm-limit-form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  padding: 12px !important;
+  border-radius: 18px !important;
+  background: #1e1e1e !important;
+  background-image: none !important;
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.6),
+    -6px -6px 14px rgba(255, 255, 255, 0.05) !important;
+}
+#addBudgetModal .bgm-limit-form[hidden] {
+  display: none !important;
+}
+#addBudgetModal .bgm-limit-form.is-open {
+  animation: bgmLimitFormIn .24s ease-out both !important;
+}
+@keyframes bgmLimitFormIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+/* Форма правки, переехавшая под конкретную карточку (аккордеон): акцентная
+   рамка и стрелка к карточке — видно, какой именно лимит правится. */
+#addBudgetModal .bgm-limit-form.is-inline {
+  position: relative !important;
+  margin: -4px 0 2px !important;
+  border: 1px solid rgba(255, 126, 95, .55) !important;
+  box-shadow:
+    4px 4px 12px rgba(0, 0, 0, .55),
+    -3px -3px 10px rgba(255, 255, 255, .05) !important;
+}
+#addBudgetModal .bgm-limit-form.is-inline::before {
+  content: "" !important;
+  position: absolute !important;
+  top: -6px !important;
+  left: 22px !important;
+  width: 10px !important;
+  height: 10px !important;
+  background: #242424 !important;
+  border-left: 1px solid rgba(255, 126, 95, .55) !important;
+  border-top: 1px solid rgba(255, 126, 95, .55) !important;
+  transform: rotate(45deg) !important;
+}
+#addBudgetModal .bgm-limit-form .field-group {
+  margin: 0 !important;
+}
+#addBudgetModal .bgm-limit-form-actions {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 2px !important;
+}
+#addBudgetModal .bgm-limit-form-actions button {
+  flex: 1 1 0 !important;
+}
+/* Кнопка выбора иконки: та же выпуклая поверхность, что у карточек. */
+#addBudgetModal .bgm-emoji-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  padding: 8px 10px !important;
+  text-align: left !important;
+  border-radius: 14px !important;
+  background: #1e1e1e !important;
+  background-image: none !important;
+  box-shadow:
+    8px 8px 16px rgba(0, 0, 0, 0.6),
+    -6px -6px 14px rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ── Светлые темы: те же формы, светлый неуморфизм ── */
+body:not(.dark) #addBudgetModal .bgm-limit-card,
+body:not(.dark) #addBudgetModal .bgm-limit-form,
+body:not(.dark) #addBudgetModal .bgm-emoji-btn {
+  background: #fdfbf7 linear-gradient(145deg, #fdfbf7, #f0eae1) !important;
+  box-shadow:
+    8px 8px 20px rgba(180, 160, 140, .3),
+    -8px -8px 20px rgba(255, 255, 255, .95),
+    inset 0 1px 0 rgba(255, 255, 255, .9) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-limit-emoji,
+body:not(.dark) #addBudgetModal .bgm-limit-del {
+  background: #f7f2ea linear-gradient(145deg, #fffdf9, #ece5da) !important;
+  box-shadow:
+    6px 6px 16px rgba(180, 160, 140, .35),
+    -5px -5px 14px rgba(255, 255, 255, .95) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-limit-del {
+  color: #d81b45 !important;
+}
+body:not(.dark) #addBudgetModal .bgm-limit-total,
+body:not(.dark) #addBudgetModal .bgm-limits-empty {
+  background: rgba(180, 160, 140, .1) !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(180, 160, 140, .25),
+    inset -3px -3px 8px rgba(255, 255, 255, .9) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-limit-name,
+body:not(.dark) #addBudgetModal .bgm-limit-total-value {
+  color: #1c1917 !important;
+}
+body:not(.dark) #addBudgetModal .bgm-title--limits {
+  color: #44403c !important;
+}
+body:not(.dark) #addBudgetModal .bgm-limit-kind,
+body:not(.dark) #addBudgetModal .bgm-limit-cur,
+body:not(.dark) #addBudgetModal .bgm-limit-total-label,
+body:not(.dark) #addBudgetModal .bgm-limits-empty {
+  color: #78716c !important;
+}
+
+
+/* Кому анимации не нужны — пульсация, переходы и раскрытие карточек выключены. */
+@media (prefers-reduced-motion: reduce) {
+  #addBudgetModal .bgm-ring[data-state='over'],
+  #addBudgetModal .bgm-alert {
+    animation: none !important;
+  }
+  #addBudgetModal .bgm-limit-card,
+  #addBudgetModal .bgm-limit-form.is-open {
+    animation: none !important;
+  }
+  #addBudgetModal .bgm-bar-fill,
+  #addBudgetModal .bgm-mini-fill {
+    transition: none !important;
+  }
+  #addBudgetModal.modal-overlay,
+  #addBudgetModal .modal {
+    transition: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Лимиты: остаток в карточке, кнопка правки и окно превышения лимита.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Карточка лимита: эмодзи, название с остатком, сумма, правка, удаление. */
+#addBudgetModal .bgm-limit-card {
+  grid-template-columns: 40px minmax(0, 1fr) 34px 34px !important;
+}
+/* Остаток под названием: в норме — зелёным, превышение — красным. */
+#addBudgetModal .bgm-limit-left {
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+  letter-spacing: .01em !important;
+  font-variant-numeric: tabular-nums !important;
+  color: #22c55e !important;
+}
+#addBudgetModal .bgm-limit-left[data-state='over'] {
+  color: #ff4d6d !important;
+}
+/* Кнопка правки: тот же выпуклый кружок, что и ✕, но нейтрального цвета. */
+#addBudgetModal .bgm-limit-edit {
+  width: 34px !important;
+  height: 34px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: none !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  color: #d8d8d8 !important;
+  background: #242424 linear-gradient(145deg, #2c2c2c, #1e1e1e) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07) !important;
+  transition: box-shadow .12s ease, transform .12s ease !important;
+}
+#addBudgetModal .bgm-limit-edit:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, .7),
+    inset -3px -3px 8px rgba(255, 255, 255, .05) !important;
+  transform: scale(.96) !important;
+}
+/* Заголовок формы: «Новый лимит» / «Редактирование лимита». */
+#addBudgetModal .bgm-limit-form-title {
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: .02em !important;
+  color: #f2f2f2 !important;
+}
+/* Скрытые в режиме правки поля не занимают место. */
+#addBudgetModal .bgm-limit-form .field-group[hidden] {
+  display: none !important;
+}
+/* Привязка при правке заблокирована: приглушаем, но оставляем читаемой. */
+#addBudgetModal .bgm-limit-form .modal-select:disabled {
+  opacity: .6 !important;
+  cursor: not-allowed !important;
+}
+body:not(.dark) #addBudgetModal .bgm-limit-left { color: #15803d !important; }
+body:not(.dark) #addBudgetModal .bgm-limit-left[data-state='over'] { color: #dc2626 !important; }
+body:not(.dark) #addBudgetModal .bgm-limit-edit {
+  color: #44403c !important;
+  background: #fdfbf7 linear-gradient(145deg, #fffdf9, #ece5da) !important;
+  box-shadow:
+    6px 6px 14px rgba(180, 160, 140, .4),
+    -5px -5px 12px rgba(255, 255, 255, .95) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-limit-form-title { color: #1c1917 !important; }
+
+/* Точка цвета у названия лимита: тем же градиентом горит кольцо на главной. */
+#addBudgetModal .bgm-limit-head {
+  align-items: center !important;
+}
+#addBudgetModal .bgm-limit-dot {
+  flex: 0 0 auto !important;
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, .14),
+    0 0 8px rgba(0, 0, 0, .45) !important;
+}
+/* Выбор цвета кольца в форме: color-input + кнопка сброса к градиенту. */
+#addBudgetModal .bgm-color-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+#addBudgetModal .bgm-color-input {
+  flex: 0 0 46px !important;
+  width: 46px !important;
+  height: 34px !important;
+  padding: 3px !important;
+  border: none !important;
+  border-radius: 11px !important;
+  cursor: pointer !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: #242424 linear-gradient(145deg, #2c2c2c, #1e1e1e) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07) !important;
+}
+#addBudgetModal .bgm-color-input::-webkit-color-swatch-wrapper {
+  padding: 0 !important;
+}
+#addBudgetModal .bgm-color-input::-webkit-color-swatch {
+  border: none !important;
+  border-radius: 8px !important;
+}
+#addBudgetModal .bgm-color-input::-moz-color-swatch {
+  border: none !important;
+  border-radius: 8px !important;
+}
+/* Пока цвет не выбран — приглушённый образец градиента по умолчанию. */
+#addBudgetModal .bgm-color-input.is-default {
+  opacity: .7 !important;
+}
+/* Кнопка выбора цвета кольца: образец градиента и подпись. Открывает свой
+   пикер приложения (i18n ru/en/ka) — системный диалог выбора цвета не нужен. */
+#addBudgetModal .bgm-color-btn {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  min-width: 0 !important;
+  padding: 6px 10px !important;
+  border: none !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  text-align: left !important;
+  color: #d8d8d8 !important;
+  background: #242424 linear-gradient(145deg, #2c2c2c, #1e1e1e) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07) !important;
+  transition: box-shadow .12s ease, transform .12s ease !important;
+}
+#addBudgetModal .bgm-color-btn:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, .7),
+    inset -3px -3px 8px rgba(255, 255, 255, .05) !important;
+  transform: scale(.98) !important;
+}
+#addBudgetModal .bgm-color-swatch {
+  flex: 0 0 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 8px !important;
+  background: #ff7e5f;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22) !important;
+}
+#addBudgetModal .bgm-color-btn.is-default .bgm-color-swatch {
+  opacity: .75 !important;
+}
+#addBudgetModal .bgm-color-value {
+  min-width: 0 !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: .03em !important;
+  font-variant-numeric: tabular-nums !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+#addBudgetModal .bgm-color-reset {
+  flex: 0 1 auto !important;
+  padding: 9px 12px !important;
+  border: none !important;
+  border-radius: 12px !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  color: #cfcfcf !important;
+  background: #242424 linear-gradient(145deg, #2c2c2c, #1e1e1e) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07) !important;
+  transition: box-shadow .12s ease, transform .12s ease !important;
+}
+#addBudgetModal .bgm-color-reset:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, .7),
+    inset -3px -3px 8px rgba(255, 255, 255, .05) !important;
+  transform: scale(.96) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-color-input,
+body:not(.dark) #addBudgetModal .bgm-color-btn,
+body:not(.dark) #addBudgetModal .bgm-color-reset {
+  background: #fdfbf7 linear-gradient(145deg, #fffdf9, #ece5da) !important;
+  box-shadow:
+    6px 6px 14px rgba(180, 160, 140, .4),
+    -5px -5px 12px rgba(255, 255, 255, .95) !important;
+}
+body:not(.dark) #addBudgetModal .bgm-color-reset { color: #44403c !important; }
+body:not(.dark) #addBudgetModal .bgm-color-btn { color: #44403c !important; }
+body:not(.dark) #addBudgetModal .bgm-color-swatch {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08) !important;
+}
+
+/* ── Баннер превышения лимита (graphiteNeon, не блокирует работу) ── */
+#budgetOverBanner {
+  position: fixed !important;
+  /* env(safe-area-inset-top) в Android WebView равен 0, поэтому берём инсет
+     системных панелей из --safe-top (SystemBars, insetsHandling: css) и
+     страхуемся минимумом 44px: статус-бар 39 CSS px + вырез камеры. */
+  top: max(calc(8px + var(--safe-top, 0px)), 44px) !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 41000 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  width: min(calc(100% - 24px), 520px) !important;
+  margin: 0 auto !important;
+  padding: 14px 16px !important;
+  box-sizing: border-box !important;
+  border-radius: 18px !important;
+  text-align: left !important;
+  background: #1e1e1e linear-gradient(145deg, #262626, #1c1c1c) !important;
+  /* Красная неоновая обводка вокруг плашки. */
+  box-shadow:
+    0 0 0 1.5px rgba(255, 77, 109, .75),
+    0 0 26px rgba(255, 77, 109, .45),
+    0 0 60px rgba(255, 77, 109, .2),
+    0 14px 28px rgba(0, 0, 0, .5),
+    inset 0 1px 0 rgba(255, 255, 255, .06) !important;
+  /* Выезд сверху и такой же плавный уезд. */
+  transform: translateY(-130%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  /* Баннер интерактивный: жест вверх не должен прокручивать страницу, а тап
+     не должен выделять текст или подсвечиваться системным цветом. */
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  transition:
+    transform .42s cubic-bezier(.22, .61, .36, 1),
+    opacity .32s ease !important;
+}
+#budgetOverBanner[hidden] { display: none !important; }
+#budgetOverBanner.is-open {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  /* Пока плашка видна, она ловит тап (открыть лимит) и свайп вверх (закрыть). */
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+#budgetOverBanner.is-hiding {
+  transform: translateY(-130%) !important;
+  opacity: 0 !important;
+}
+#budgetOverBanner .bob-icon {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50% !important;
+  font-size: 17px !important;
+  line-height: 1 !important;
+  background: #241417 linear-gradient(145deg, #2e1a1d, #180f11) !important;
+  box-shadow:
+    0 0 18px rgba(255, 77, 109, .55),
+    inset 0 1px 0 rgba(255, 255, 255, .06) !important;
+  animation: bobIconPulse 1.6s ease-in-out infinite;
+}
+#budgetOverBanner .bob-body { min-width: 0 !important; }
+#budgetOverBanner .bob-title {
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  letter-spacing: .02em !important;
+  color: #fff !important;
+}
+#budgetOverBanner .bob-text {
+  margin-top: 2px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+  color: #ffd7de !important;
+  font-variant-numeric: tabular-nums !important;
+}
+#budgetOverBanner .bob-line + .bob-line { margin-top: 3px !important; }
+/* Имя лимита — ярко-белое и предельно жирное, сумма превышения — ярко-коралловая
+   с сильным неоновым свечением: на графитовой плашке оба бросаются в глаза, а
+   сумма ещё и мягко пульсирует, чтобы притягивать взгляд. */
+#budgetOverBanner .warn-limit-name {
+  color: #fff !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+  white-space: normal !important;
+}
+#budgetOverBanner .warn-limit-amount {
+  color: #ff7e5f !important;
+  font-weight: 900 !important;
+  text-shadow: 0 0 10px rgba(255, 126, 95, 0.8) !important;
+  white-space: nowrap !important;
+  animation: textPulse 1.4s ease-in-out infinite;
+}
+@keyframes textPulse {
+  0% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 126, 95, 0.8);
+  }
+  50% {
+    opacity: 0.62;
+    text-shadow: 0 0 4px rgba(255, 126, 95, 0.35);
+  }
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 126, 95, 0.8);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #budgetOverBanner .warn-limit-amount { animation: none !important; }
+}
+
+/* ── Эмодзи и цвет операции (окно «Редактирование операции», graphiteNeon) ── */
+/* Две выпуклые кнопки под полем «Категория»: слева эмодзи, справа цвет.
+   Поверхность как у кнопок бюджета: графитовый градиент, внешняя тень и
+   светлая внутренняя кромка; в нажатии — вдавленная. */
+#editModal .edit-style-row {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 10px !important;
+  align-items: stretch !important;
+}
+#editModal .edit-style-btn {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 11px !important;
+  border: none !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  text-align: left !important;
+  color: #d8d8d8 !important;
+  background: #242424 linear-gradient(145deg, #2c2c2c, #1e1e1e) !important;
+  box-shadow:
+    6px 6px 16px rgba(0, 0, 0, .65),
+    -5px -5px 14px rgba(255, 255, 255, .07),
+    inset 0 1px 0 rgba(255, 255, 255, .1) !important;
+  transition: box-shadow .12s ease, transform .12s ease !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+#editModal .edit-style-btn:active {
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, .7),
+    inset -3px -3px 8px rgba(255, 255, 255, .05) !important;
+  transform: scale(.98) !important;
+}
+#editModal .edit-style-glyph {
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 11px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  background: rgba(255, 255, 255, .06) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12) !important;
+}
+#editModal .edit-style-swatch {
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 11px !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .3),
+    0 6px 14px rgba(0, 0, 0, .35) !important;
+}
+#editModal .edit-style-text {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+  min-width: 0 !important;
+}
+#editModal .edit-style-title {
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  color: rgba(255, 255, 255, .55) !important;
+  line-height: 1.1 !important;
+}
+#editModal .edit-style-value {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: #f1edff !important;
+  line-height: 1.2 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+body:not(.dark) #editModal .edit-style-btn {
+  background: #fdfbf7 linear-gradient(145deg, #fffdf9, #ece5da) !important;
+  box-shadow:
+    6px 6px 14px rgba(180, 160, 140, .4),
+    -5px -5px 12px rgba(255, 255, 255, .95),
+    inset 0 1px 0 rgba(255, 255, 255, .9) !important;
+  color: #44403c !important;
+}
+body:not(.dark) #editModal .edit-style-glyph {
+  background: rgba(255, 255, 255, .75) !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06) !important;
+}
+body:not(.dark) #editModal .edit-style-swatch {
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, .1),
+    0 6px 14px rgba(180, 160, 140, .35) !important;
+}
+body:not(.dark) #editModal .edit-style-title { color: rgba(68, 64, 60, .6) !important; }
+body:not(.dark) #editModal .edit-style-value { color: #44403c !important; }
+@keyframes bobIconPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 12px rgba(255, 77, 109, .4),
+      inset 0 1px 0 rgba(255, 255, 255, .06);
+  }
+  50% {
+    transform: scale(1.08);
+    box-shadow:
+      0 0 26px rgba(255, 77, 109, .85),
+      inset 0 1px 0 rgba(255, 255, 255, .06);
+  }
+}
+/* Разовая пульсация карточки бюджета на главной после сохранения операции с
+   превышением: подсвечивает контур, работу не блокирует. Псевдоэлемент нужен
+   потому, что box-shadow самой карточки задан с !important в теме. */
+html body #mainContent .gh-home #ghBudgetCard.is-over-budget-pulse::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  box-shadow:
+    0 0 0 2px rgba(255, 77, 109, .9),
+    0 0 26px rgba(255, 77, 109, .65) !important;
+  animation: budgetOverCardPulse .95s ease-in-out 2 !important;
+}
+@keyframes budgetOverCardPulse {
+  0%, 100% { opacity: 0; }
+  45% { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Карусель бюджета на главной: свайп по слайдам (общий бюджет + каждый
+   лимит), точки пагинации, выпуклое кольцо с градиентом своего лимита.
+   ═══════════════════════════════════════════════════════════════════════ */
+/* Карточка — колонка: сверху трек со слайдами, под ним точки пагинации. */
+html body #mainContent .gh-home .gh-budget {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  overflow: visible !important;
+}
+/* Трек: нативный горизонтальный скролл со снапом. Паддинги трека только
+   вертикальные: горизонтальный паддинг делал окно прокрутки шире слайда, и в
+   него «заглядывал» соседний слайд. Слайд занимает ровно всю ширину трека,
+   поэтому в зоне видимости всегда один слайд. Вертикальный запас (24px сверху,
+   30px снизу) оставляет место выпуклой тени кольца: скролл-контейнер обрезает
+   содержимое по padding-box. Горизонтальный запас под тень даёт сам слайд
+   (padding: 0 16px): у скролл-контейнера горизонтальный паддинг невозможен —
+   он снова открыл бы соседний слайд. */
+html body #mainContent .gh-home .gh-budget-track {
+  display: flex !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  padding: 24px 0 30px !important;
+  margin: -20px 0 -18px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-snap-type: x mandatory !important;
+  overscroll-behavior-x: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+}
+html body #mainContent .gh-home .gh-budget-track::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+html body #mainContent .gh-home .gh-budget-slide {
+  flex: 0 0 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  /* Горизонтальный запас под засвет кольца: тёмная тень (8px 8px 20px) уходит
+     влево на 12px, светлая кромка — на 22px. Без паддинга трек-скроллконтейнер
+     резал их ровной вертикальной линией по краю слайда. Паддинг живёт на
+     слайде, а не на треке: у трека он открыл бы соседний слайд. */
+  padding: 0 16px !important;
+  /* start, а не center: слайд занимает всю ширину трека, поэтому привязка к
+     началу показывает ровно один слайд без «заглядывания» соседей. */
+  scroll-snap-align: start !important;
+  scroll-snap-stop: always !important;
+}
+/* Кольцо: выпуклый круг с двойной тенью (неуморфизм). Круглая обёртка
+   «надевается» на карточку, внутри — тёмная впадина с процентами. */
+html body #mainContent .gh-home .gh-ring-wrap,
+body.theme-graphiteNeon #mainContent .gh-home .gh-ring-wrap {
+  position: relative !important;
+  flex: 0 0 84px !important;
+  width: 84px !important;
+  height: 84px !important;
+  border-radius: 50% !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #1e1e1e !important;
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, .8),
+    -6px -6px 16px rgba(255, 255, 255, .1) !important;
+}
+/* Само кольцо — дуга прогресса: gradient своего лимита (--ring-a/--ring-b),
+   по умолчанию кораллово-фиолетовый, как полоса под кольцом. */
+html body #mainContent .gh-home .gh-budget-slide .gh-ring,
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget-slide .gh-ring {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  flex: none !important;
+  display: grid !important;
+  place-items: center !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: conic-gradient(
+    var(--ring-a, #ff7e5f) 0deg,
+    var(--ring-b, #9b59b6) calc(var(--pct, 0) * 3.6deg),
+    rgba(127, 127, 127, .22) calc(var(--pct, 0) * 3.6deg)
+  ) !important;
+  box-shadow: none !important;
+}
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget-slide .gh-ring {
+  background: conic-gradient(
+    var(--ring-a, #ff7e5f) 0deg,
+    var(--ring-b, #9b59b6) calc(var(--pct, 0) * 3.6deg),
+    rgba(255, 255, 255, .09) calc(var(--pct, 0) * 3.6deg)
+  ) !important;
+}
+html body #mainContent .gh-home .gh-budget-slide .gh-ring-inner {
+  position: absolute !important;
+  inset: 7px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  background: #1e1e1e !important;
+  box-shadow:
+    inset 4px 4px 9px rgba(0, 0, 0, .95),
+    inset -3px -3px 7px rgba(255, 255, 255, .05) !important;
+}
+html body #mainContent .gh-home .gh-budget-slide .gh-ring-pct {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: -.02em !important;
+  color: #fff !important;
+  font-variant-numeric: tabular-nums !important;
+}
+body:not(.dark) #mainContent .gh-home .gh-budget-slide .gh-ring-inner {
+  background: #fdfbf7 !important;
+  color: #1c1917 !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(180, 160, 140, .45),
+    inset -3px -3px 7px rgba(255, 255, 255, .95) !important;
+}
+body:not(.dark) #mainContent .gh-home .gh-budget-slide .gh-ring-pct {
+  color: #1c1917 !important;
+}
+/* Полоса под кольцом — тот же градиент, что и у дуги (включая свой цвет). */
+html body #mainContent .gh-home .gh-budget-slide .gh-bar-fill,
+body.theme-graphiteNeon #mainContent .gh-home .gh-budget-slide .gh-bar-fill {
+  background: linear-gradient(90deg, var(--ring-a, #ff7e5f) 0%, var(--ring-b, #9b59b6) 100%) !important;
+}
+/* Точки пагинации: маленькие кружки, активная — вытянутая с градиентом. */
+html body #mainContent .gh-home .gh-budget-dots {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  min-height: 16px !important;
+}
+html body #mainContent .gh-home .gh-budget-dots[hidden] { display: none !important; }
+html body #mainContent .gh-home .gh-budget-dot {
+  width: 22px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+html body #mainContent .gh-home .gh-budget-dot::before {
+  content: "" !important;
+  display: block !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-radius: 99px !important;
+  background: rgba(127, 127, 127, .45) !important;
+  transition: width .22s ease, background .22s ease, box-shadow .22s ease !important;
+}
+html body #mainContent .gh-home .gh-budget-dot.is-active::before {
+  width: 20px !important;
+  background: linear-gradient(90deg, #ff7e5f 0%, #9b59b6 100%) !important;
+  box-shadow: 0 0 10px rgba(155, 89, 182, .55) !important;
+}
+/* Мини-список лимитов больше не нужен: лимиты стали слайдами карусели. */
+html body #mainContent .gh-home .gh-budget.has-slides .gh-budget-mini {
+  display: none !important;
+}
+/* Превышение на слайде: красная дуга, пульсирует обёртка кольца. */
+html body #mainContent .gh-home .gh-budget-slide[data-state='over'] .gh-ring {
+  background: conic-gradient(
+    #ff4d6d calc(var(--pct, 0) * 3.6deg),
+    rgba(255, 77, 109, .18) 0
+  ) !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+html body #mainContent .gh-home .gh-budget-slide[data-state='over'] .gh-ring-pct {
+  color: #ff4d6d !important;
+}
+html body #mainContent .gh-home .gh-budget-slide[data-state='over'] .gh-bar-fill {
+  background: linear-gradient(90deg, #ff4d6d 0%, #ff8a5c 100%) !important;
+}
+html body #mainContent .gh-home .gh-budget-slide[data-state='over'] .gh-budget-hint {
+  color: #ff4d6d !important;
+}
+html body #mainContent .gh-home .gh-budget-slide[data-state='over'] .gh-ring-wrap {
+  box-shadow:
+    8px 8px 20px rgba(0, 0, 0, .8),
+    -6px -6px 16px rgba(255, 255, 255, .1),
+    0 0 22px rgba(255, 77, 109, .45) !important;
+  animation: ghBudgetWrapPulse 1.9s ease-in-out infinite !important;
+}
+@keyframes ghBudgetWrapPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow:
+      8px 8px 20px rgba(0, 0, 0, .8),
+      -6px -6px 16px rgba(255, 255, 255, .1),
+      0 0 18px rgba(255, 77, 109, .35);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow:
+      8px 8px 20px rgba(0, 0, 0, .8),
+      -6px -6px 16px rgba(255, 255, 255, .1),
+      0 0 30px rgba(255, 77, 109, .75);
+  }
+}
+/* Лимита нет: пунктирный контур вместо выпуклого круга. */
+html body #mainContent .gh-home .gh-budget-slide[data-state='noLimit'] .gh-ring-wrap {
+  background: transparent !important;
+  border: 2px dashed rgba(127, 127, 127, .55) !important;
+  box-shadow: none !important;
+}
+html body #mainContent .gh-home .gh-budget-slide[data-state='noLimit'] .gh-ring {
+  background: none !important;
+  border: none !important;
+}
+html body #mainContent .gh-home .gh-budget-slide[data-state='noLimit'] .gh-ring-inner {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+/* Светлые темы: светлый выпуклый круг вокруг кольца. */
+body:not(.dark) #mainContent .gh-home .gh-ring-wrap {
+  background: #f7f2ea !important;
+  box-shadow:
+    8px 8px 18px rgba(180, 160, 140, .55),
+    -6px -6px 16px rgba(255, 255, 255, .95) !important;
+}
+/* Узкие экраны: кольцо меньше, но остаётся выпуклым. */
+@media (max-width: 360px) {
+  html body #mainContent .gh-home .gh-ring-wrap,
+  body.theme-graphiteNeon #mainContent .gh-home .gh-ring-wrap {
+    flex-basis: 72px !important;
+    width: 72px !important;
+    height: 72px !important;
+  }
+  html body #mainContent .gh-home .gh-budget-slide .gh-ring-pct {
+    font-size: 13.5px !important;
+  }
+  html body #mainContent .gh-home .gh-budget-slide { gap: 10px !important; }
+}
+/* ── Один лимит: название под заголовком карточки ── */
+/* Кольцо показывает расход одного конверта, поэтому над суммой стоит его
+   название с иконкой, а общая подсказка «ghBudgetDesc» скрыта. */
+html body #mainContent .gh-home .gh-budget-limit-name {
+  display: block !important;
+  max-width: 100% !important;
+  margin: 2px 0 0 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: .01em !important;
+  line-height: 1.25 !important;
+  color: var(--text) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+html body #mainContent .gh-home .gh-budget-limit-name[hidden] { display: none !important; }
+html body #mainContent .gh-home .gh-budget-desc[hidden] { display: none !important; }
+
+/* ── Слайд 0 в режиме обзора (лимитов два и больше) ── */
+/* Одно кольцо не может показать сразу все лимиты: слайд 0 становится списком
+   с мини-полосками, а кольца лимитов остаются на своих слайдах. */
+html body #mainContent .gh-home .gh-budget.is-overview #ghBudgetSlide0 {
+  display: block !important;
+  width: 100% !important;
+}
+html body #mainContent .gh-home .gh-budget.is-overview #ghBudgetSlide0 .gh-ring-wrap,
+html body #mainContent .gh-home .gh-budget.is-overview #ghBudgetSlide0 .gh-budget-body {
+  display: none !important;
+}
+html body #mainContent .gh-home .gh-budget-overview {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 9px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+html body #mainContent .gh-home .gh-budget-overview[hidden] { display: none !important; }
+html body #mainContent .gh-home .gh-overview-head {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  color: var(--text-soft) !important;
+}
+html body #mainContent .gh-home .gh-overview-total-label {
+  text-transform: uppercase !important;
+  letter-spacing: .1em !important;
+  white-space: nowrap !important;
+}
+html body #mainContent .gh-home .gh-overview-total-value {
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+}
+html body #mainContent .gh-home .gh-overview-row {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  grid-template-areas:
+    "icon name value"
+    "bar bar bar" !important;
+  align-items: center !important;
+  gap: 6px 8px !important;
+  min-width: 0 !important;
+}
+html body #mainContent .gh-home .gh-overview-icon {
+  grid-area: icon !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+}
+html body #mainContent .gh-home .gh-overview-name {
+  grid-area: name !important;
+  min-width: 0 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: var(--text) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+html body #mainContent .gh-home .gh-overview-value {
+  grid-area: value !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  color: var(--text-soft) !important;
+  font-variant-numeric: tabular-nums !important;
+  white-space: nowrap !important;
+}
+html body #mainContent .gh-home .gh-overview-bar {
+  grid-area: bar !important;
+  display: block !important;
+  height: 5px !important;
+  border-radius: 99px !important;
+  background: rgba(127, 127, 127, .22) !important;
+  overflow: hidden !important;
+}
+html body #mainContent .gh-home .gh-overview-fill {
+  display: block !important;
+  /* Ширину выставляет animateBudgetOverviewBars инлайново (0 → pct), поэтому
+     здесь width без !important: иначе правило перебивает инлайновый стиль и
+     полоска навсегда остаётся пустой. */
+  width: 0;
+  height: 100% !important;
+  border-radius: inherit !important;
+  background: linear-gradient(
+    90deg,
+    var(--fill-a, #ff7e5f) 0%,
+    var(--fill-b, #9b59b6) 100%
+  ) !important;
+  transition: width 1s ease-in-out !important;
+}
+html body #mainContent .gh-home .gh-overview-row[data-state='over'] .gh-overview-fill {
+  background: linear-gradient(90deg, #ff4d6d 0%, #ff8a5c 100%) !important;
+}
+html body #mainContent .gh-home .gh-overview-row[data-state='over'] .gh-overview-value {
+  color: #ff4d6d !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html body #mainContent .gh-home .gh-overview-fill { transition: none !important; }
+  html body #mainContent .gh-home .gh-budget-slide[data-state='over'] .gh-ring-wrap {
+    animation: none !important;
+  }
+  #budgetOverBanner .bob-icon { animation: none !important; }
+  html body #mainContent .gh-home #ghBudgetCard.is-over-budget-pulse::after {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+}
+</style>
+
+    <style id="opCardFlexLayout">
+/* Строка истории: иконка слева (фиксированный размер), текст по центру (flex:1),
+   сумма и удаление справа. Перекрывает grid-раскладку выше: элементы больше не
+   наезжают друг на друга, а иконка из нескольких эмодзи не переносится. */
+html body #homeOpsItems .op-card {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  grid-template-columns: none !important;
+}
+html body #homeOpsItems .op-icon-wrap {
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  height: 32px !important;
+  overflow: hidden !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  font-size: 20px !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+html body #homeOpsItems .op-icon-wrap[data-icon-len="2"] { font-size: 13px !important; }
+html body #homeOpsItems .op-icon-wrap[data-icon-len="3"],
+html body #homeOpsItems .op-icon-wrap[data-icon-len="4"] { font-size: 9px !important; }
+html body #homeOpsItems .op-info {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+html body #mainContent #homeOpsItems .op-right {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  max-width: 48% !important;
+}
+html body #homeOpsItems .op-amount {
+  grid-column: auto !important;
+  grid-row: auto !important;
+  justify-content: flex-end !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+html body #homeOpsItems .op-delete {
+  grid-column: auto !important;
+  grid-row: auto !important;
+  align-self: center !important;
+}
+html body #homeOpsItems .op-time {
+  grid-column: auto !important;
+  grid-row: auto !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+/* Узкие экраны (320–350px): уменьшаем иконку, отступы, сумму и кнопку удаления,
+   чтобы название категории не выходило за свою колонку. */
+@media (max-width: 350px) {
+  html body #homeOpsItems .op-card { gap: 6px !important; }
+  html body #mainContent #homeOpsItems .op-icon-wrap {
+    flex: 0 0 28px !important;
+    width: 28px !important;
+    min-width: 28px !important;
+    max-width: 28px !important;
+    height: 28px !important;
+  }
+  html body #mainContent #homeOpsItems .op-amount { font-size: 12px !important; }
+  html body #mainContent #homeOpsItems .op-category { font-size: 12px !important; }
+  html body #mainContent #homeOpsItems .op-delete {
+    width: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 2px !important;
+  }
+}
+    </style>
+    <style id="ghGlobalNeumorphism">
+      /* ═══════════════════════════════════════════════════════════
+         GRAPHITE NEON — глобальный неуморфизм для всех экранов.
+         Настройки, Аналитика, Инструменты/Калькулятор, Блокнот,
+         Категории, модальные окна, переключатели и инпуты.
+         Все правила ограничены body.theme-graphiteNeon,
+         остальные темы (white / sunset / navy / gold) не меняются.
+         ═══════════════════════════════════════════════════════════ */
+      body.theme-graphiteNeon {
+        --gh-neu-out: 8px 8px 16px rgba(0, 0, 0, 0.6),
+          -6px -6px 14px rgba(255, 255, 255, 0.05);
+        --gh-neu-in: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03);
+        /* Мелкие элементы (иконки, кнопки-квадраты) — та же двойная тень,
+           но с меньшим смещением: на 40px плитке 8px «уводили» её с места. */
+        --gh-neu-out-sm: 6px 6px 12px rgba(0, 0, 0, 0.6),
+          -4px -4px 10px rgba(255, 255, 255, 0.05);
+        --gh-neu-in-sm: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03);
+        --gh-card-grad: none;
+        --gh-surface: #1e1e1e;
+        --gh-surface-soft: #2a2a2a;
+        /* Верхняя кромка карточек: объём даёт светлая половина двойной тени,
+           а жёсткая 1px-линия выглядела «полосой» поверх карточки. */
+        --gh-edge: rgba(255, 255, 255, 0);
+        --gh-muted: #a0a0a0;
+        --gh-accent-grad: linear-gradient(135deg, #ff7e5f 0%, #9b59b6 100%);
+        --gh-accent-glow: 0 8px 22px rgba(155, 89, 182, 0.35),
+          0 4px 14px rgba(255, 126, 95, 0.26);
+      }
+
+      /* ── 1. Модальные окна и шторки: жёсткий графит #1e1e1e ── */
+      body.theme-graphiteNeon .modal,
+      body.theme-graphiteNeon .modal-content,
+      body.theme-graphiteNeon .bottom-sheet,
+      body.theme-graphiteNeon .dialog,
+      body.theme-graphiteNeon .modal-add-sheet,
+      body.theme-graphiteNeon .add-modal-sheet,
+      body.theme-graphiteNeon .more-sheet {
+        background: #1e1e1e !important;
+        background-image: none !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: 0px -6px 16px rgba(0, 0, 0, 0.65),
+          -5px -5px 14px rgba(255, 255, 255, 0.07) !important;
+      }
+      body.theme-graphiteNeon .confirm-box {
+        background: #1e1e1e !important;
+        background-image: none !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        border-radius: 24px !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      /* карточка диалога в панели создателя — обычная выпуклая карточка */
+      body.theme-graphiteNeon .creator-dialog-card {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        border-radius: 20px !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .modal-header,
+      body.theme-graphiteNeon .modal-body,
+      body.theme-graphiteNeon .modal-actions,
+      body.theme-graphiteNeon .more-grid {
+        background: transparent !important;
+        border-color: rgba(255, 255, 255, 0.07) !important;
+      }
+      body.theme-graphiteNeon .more-handle,
+      body.theme-graphiteNeon .modal-handle {
+        background: rgba(255, 255, 255, 0.18) !important;
+      }
+      body.theme-graphiteNeon .modal-close {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+        transition: box-shadow 0.1s ease, transform 0.1s ease !important;
+      }
+      body.theme-graphiteNeon .modal-close:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.96) !important;
+      }
+
+      /* ── 2. Инпуты: вдавленные графитовые поля ── */
+      body.theme-graphiteNeon .modal-input,
+      body.theme-graphiteNeon .modal-select,
+      body.theme-graphiteNeon .modal-textarea,
+      body.theme-graphiteNeon .settings-select,
+      body.theme-graphiteNeon .search-input,
+      body.theme-graphiteNeon .notification-clock-number-input,
+      body.theme-graphiteNeon .notifications-chip-input {
+        background: #1a1a1a !important;
+        border: none !important;
+        border-radius: 14px !important;
+        color: #f2f2f2 !important;
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+          inset -2px -2px 5px rgba(255, 255, 255, 0.03) !important;
+      }
+      body.theme-graphiteNeon select option,
+      body.theme-graphiteNeon .modal-select option {
+        background: #1e1e1e !important;
+        color: #f2f2f2 !important;
+      }
+      body.theme-graphiteNeon .modal-input:focus,
+      body.theme-graphiteNeon .modal-select:focus,
+      body.theme-graphiteNeon .modal-textarea:focus,
+      body.theme-graphiteNeon .settings-select:focus,
+      body.theme-graphiteNeon .search-input:focus {
+        box-shadow: var(--gh-neu-in-sm), 0 0 0 1px rgba(255, 126, 95, 0.45) !important;
+        outline: none !important;
+      }
+      body.theme-graphiteNeon .modal-input::placeholder,
+      body.theme-graphiteNeon .modal-textarea::placeholder,
+      body.theme-graphiteNeon .search-input::placeholder {
+        color: #8a8a8a !important;
+      }
+      /* Поле поиска («Подробности, поиск и фильтры»): высокий вдавленный блок,
+         а не узкая щель. Вдавленность и отступы — на обёртке, сам input
+         прозрачный и без собственной тени, чтобы не было «щели в щели». */
+      body.theme-graphiteNeon .search-input-wrapper {
+        padding: 16px 20px !important;
+        border-radius: 16px !important;
+        border: 0 !important;
+        background: #1a1a1a !important;
+        gap: 12px !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -4px -4px 9px rgba(255, 255, 255, 0.04) !important;
+        transition: box-shadow 0.15s ease !important;
+      }
+      body.theme-graphiteNeon .search-input-wrapper:focus-within {
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -4px -4px 9px rgba(255, 255, 255, 0.04),
+          0 0 0 1px rgba(255, 126, 95, 0.45) !important;
+      }
+      body.theme-graphiteNeon .search-input-wrapper .search-input,
+      body.theme-graphiteNeon .search-input-wrapper .search-input:focus {
+        font-size: 16px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+      body.theme-graphiteNeon .search-input-wrapper .search-icon {
+        font-size: 17px !important;
+        line-height: 1 !important;
+      }
+
+      /* ── 3. Главные кнопки: коралл-фиолетовый градиент, объёмнее ── */
+      body.theme-graphiteNeon .btn-primary,
+      body.theme-graphiteNeon .calc-key.eq-key,
+      body.theme-graphiteNeon .datepicker-btn.primary,
+      body.theme-graphiteNeon .simple-action-btn.add,
+      body.theme-graphiteNeon .set-full-btn-primary {
+        background: var(--gh-accent-grad) !important;
+        border: none !important;
+        color: #fff !important;
+        box-shadow: var(--gh-accent-glow), var(--gh-neu-out-sm) !important;
+        transition: box-shadow 0.1s ease, transform 0.1s ease !important;
+      }
+      body.theme-graphiteNeon .btn-primary:active,
+      body.theme-graphiteNeon .calc-key.eq-key:active,
+      body.theme-graphiteNeon .datepicker-btn.primary:active,
+      body.theme-graphiteNeon .simple-action-btn.add:active,
+      body.theme-graphiteNeon .set-full-btn-primary:active {
+        background: var(--gh-accent-grad) !important;
+        box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.45),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03) !important;
+        transform: scale(0.97) !important;
+      }
+      body.theme-graphiteNeon .btn-secondary {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+        transition: box-shadow 0.1s ease, transform 0.1s ease !important;
+      }
+      body.theme-graphiteNeon .btn-secondary:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+
+      /* ── 4. Настройки: графитовые карточки вместо индиго ── */
+      body.theme-graphiteNeon .settings-home-wrap,
+      body.theme-graphiteNeon .settings-subpage-wrap,
+      body.theme-graphiteNeon .notifications-page {
+        --settings-surface: #1e1e1e !important;
+        --settings-surface-strong: #232323 !important;
+        --settings-surface-soft: #1a1a1a !important;
+        --settings-border: rgba(255, 255, 255, 0.06) !important;
+        --settings-border-strong: rgba(255, 255, 255, 0.1) !important;
+        --settings-shadow-soft: 6px 6px 16px rgba(0, 0, 0, 0.65) !important;
+        --settings-shadow-strong: 6px 6px 16px rgba(0, 0, 0, 0.65) !important;
+        --settings-highlight: rgba(255, 255, 255, 0.08) !important;
+        --settings-glass-base-0: #1e1e1e !important;
+        --settings-glass-base-1: #1e1e1e !important;
+        --settings-glass-base-2: #1a1a1a !important;
+        --settings-glass-aurora-a: rgba(255, 255, 255, 0.035) !important;
+        --settings-glass-aurora-b: rgba(255, 255, 255, 0.04) !important;
+        --settings-glass-aurora-c: rgba(255, 255, 255, 0.03) !important;
+        --settings-glass-crystal-a: rgba(255, 255, 255, 0.035) !important;
+        --settings-glass-crystal-b: rgba(255, 255, 255, 0.04) !important;
+        --settings-glass-crystal-c: rgba(255, 255, 255, 0.03) !important;
+        --settings-glass-fracture-a: rgba(255, 255, 255, 0.035) !important;
+        --settings-glass-fracture-b: rgba(255, 255, 255, 0.04) !important;
+        --settings-glass-fracture-c: rgba(255, 255, 255, 0.03) !important;
+        --settings-glass-blade: rgba(255, 255, 255, 0.04) !important;
+        --settings-glass-sheen: rgba(255, 255, 255, 0.03) !important;
+        --settings-glass-card-border: rgba(255, 255, 255, 0.06) !important;
+        --settings-glass-card-border-strong: rgba(255, 255, 255, 0.1) !important;
+        --settings-glass-header-border: rgba(255, 255, 255, 0.08) !important;
+        --settings-glass-button-border: rgba(255, 255, 255, 0.06) !important;
+        --settings-glass-card-shadow: 6px 6px 16px rgba(0, 0, 0, 0.65),
+          -5px -5px 14px rgba(255, 255, 255, 0.07) !important;
+        --settings-glass-header-shadow: 6px 6px 16px rgba(0, 0, 0, 0.65),
+          -5px -5px 14px rgba(255, 255, 255, 0.07) !important;
+        --settings-glass-button-shadow: 6px 6px 16px rgba(0, 0, 0, 0.65),
+          -5px -5px 14px rgba(255, 255, 255, 0.07) !important;
+        --settings-water-caustic-a: rgba(255, 255, 255, 0.035) !important;
+        --settings-water-caustic-b: rgba(255, 255, 255, 0.04) !important;
+        --settings-water-core: rgba(255, 255, 255, 0.035) !important;
+        --settings-water-mist: rgba(255, 255, 255, 0.03) !important;
+      }
+      body.theme-graphiteNeon .settings-home-hero,
+      body.theme-graphiteNeon .settings-home-card,
+      body.theme-graphiteNeon .settings-home-legacy-btn,
+      body.theme-graphiteNeon .settings-subpage-header,
+      body.theme-graphiteNeon .settings-subpage-back,
+      body.theme-graphiteNeon .settings-placeholder-card,
+      body.theme-graphiteNeon .account-card,
+      body.theme-graphiteNeon .security-card,
+      body.theme-graphiteNeon .appearance-card,
+      body.theme-graphiteNeon .data-sync-card,
+      body.theme-graphiteNeon .notifications-card,
+      body.theme-graphiteNeon .notifications-diagnostics,
+      body.theme-graphiteNeon .settings-card,
+      body.theme-graphiteNeon .set-card,
+      body.theme-graphiteNeon .danger-card {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out) !important;
+        animation: none !important;
+      }
+      /* иконки настроек — неуморфные квадратики как на главной */
+      body.theme-graphiteNeon .settings-home-card-ico,
+      body.theme-graphiteNeon .settings-placeholder-icon,
+      body.theme-graphiteNeon .appearance-theme-mode-ico,
+      body.theme-graphiteNeon .set-row-ico {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-radius: 14px !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .set-row-ico {
+        width: 42px !important;
+        height: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 20px !important;
+        flex-shrink: 0 !important;
+      }
+      body.theme-graphiteNeon .set-action-btn,
+      body.theme-graphiteNeon .settings-subpage-back {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .set-action-btn:active,
+      body.theme-graphiteNeon .settings-subpage-back:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.94) !important;
+      }
+      body.theme-graphiteNeon .set-row-sub,
+      body.theme-graphiteNeon .settings-home-kicker,
+      body.theme-graphiteNeon .settings-card-title,
+      body.theme-graphiteNeon .settings-card-desc {
+        color: var(--gh-muted) !important;
+      }
+
+      /* ── 5. Аналитика: графитовые карточки, сегменты и графики ── */
+      body.theme-graphiteNeon .stats-period-btns {
+        background: #1b1b1b !important;
+        border: none !important;
+        box-shadow: var(--gh-neu-in-sm) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      body.theme-graphiteNeon .stats-period-btn,
+      body.theme-graphiteNeon .htf-btn {
+        background: transparent !important;
+        border: none !important;
+        color: var(--gh-muted) !important;
+        box-shadow: none !important;
+      }
+      body.theme-graphiteNeon .stats-period-btn.active,
+      body.theme-graphiteNeon .htf-btn.active {
+        background: var(--gh-accent-grad) !important;
+        color: #fff !important;
+        box-shadow: 0 4px 14px rgba(155, 89, 182, 0.32) !important;
+      }
+      body.theme-graphiteNeon .stat-kpi,
+      body.theme-graphiteNeon .stat-chart-card,
+      body.theme-graphiteNeon .stat-cats-card,
+      body.theme-graphiteNeon .stat-donut-card,
+      body.theme-graphiteNeon .stat-gauge-card,
+      body.theme-graphiteNeon .stat-status-card,
+      body.theme-graphiteNeon .stat-tips-card,
+      body.theme-graphiteNeon .stat-heatmap-card,
+      body.theme-graphiteNeon .stat-budgets-card,
+      body.theme-graphiteNeon .compare-card,
+      body.theme-graphiteNeon .stat-summary-table,
+      body.theme-graphiteNeon .stat-tip-item {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .stat-kpi-icon {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-radius: 14px !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .stat-cat-bar,
+      body.theme-graphiteNeon .budget-bar,
+      body.theme-graphiteNeon .stat-chart-bar {
+        background: var(--gh-accent-grad) !important;
+        box-shadow: 0 0 10px rgba(155, 89, 182, 0.3) !important;
+      }
+      body.theme-graphiteNeon .heatmap-bar.heatmap-bar-val {
+        background: linear-gradient(180deg, #ff7e5f 0%, #9b59b6 100%) !important;
+      }
+      body.theme-graphiteNeon .dot-balance {
+        background: #ff7e5f !important;
+        box-shadow: 0 0 8px rgba(255, 126, 95, 0.55) !important;
+      }
+      body.theme-graphiteNeon .row-balance {
+        border-left-color: #ff7e5f !important;
+      }
+      body.theme-graphiteNeon .stat-section-label,
+      body.theme-graphiteNeon .stat-kpi-label,
+      body.theme-graphiteNeon .stat-sum-label,
+      body.theme-graphiteNeon .stat-cat-pct,
+      body.theme-graphiteNeon .stat-status-desc,
+      body.theme-graphiteNeon .stat-status-count,
+      body.theme-graphiteNeon .stat-gauge-sub,
+      body.theme-graphiteNeon .stat-donut2-sub,
+      body.theme-graphiteNeon .stat-donut2-legend,
+      body.theme-graphiteNeon .heatmap-day,
+      body.theme-graphiteNeon .heatmap-val,
+      body.theme-graphiteNeon .pie-legend-name,
+      body.theme-graphiteNeon .compare-title,
+      body.theme-graphiteNeon .forecast-note,
+      body.theme-graphiteNeon .stats-period-label,
+      body.theme-graphiteNeon .htf-label {
+        color: var(--gh-muted) !important;
+      }
+      /* таблицы/легенды без фиолетовых линий */
+      body.theme-graphiteNeon .stat-sum-row,
+      body.theme-graphiteNeon .stat-legend-dot,
+      body.theme-graphiteNeon .stat-tip-item {
+        border-color: rgba(255, 255, 255, 0.07) !important;
+      }
+
+      /* ── 6. Инструменты и калькулятор: выпуклые клавиши ── */
+      body.theme-graphiteNeon .tool-card {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        border-radius: 22px !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .tool-card-header {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      body.theme-graphiteNeon .calc-display {
+        background: #1b1b1b !important;
+        border: none !important;
+        border-radius: 18px !important;
+        box-shadow: var(--gh-neu-in) !important;
+      }
+      body.theme-graphiteNeon .calc-key,
+      body.theme-graphiteNeon .numpad-btn,
+      body.theme-graphiteNeon .pin-key {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #f0f0f0 !important;
+        border-radius: 16px !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+        transition: box-shadow 0.1s ease, transform 0.1s ease !important;
+      }
+      body.theme-graphiteNeon .calc-key.op-key,
+      body.theme-graphiteNeon .calc-key.clear,
+      body.theme-graphiteNeon .numpad-btn.clear {
+        background: #2a2a2a !important;
+        color: #ffb9a8 !important;
+      }
+      body.theme-graphiteNeon .calc-key:active,
+      body.theme-graphiteNeon .calc-key.op-key:active,
+      body.theme-graphiteNeon .calc-key.clear:active,
+      body.theme-graphiteNeon .numpad-btn:active,
+      body.theme-graphiteNeon .numpad-btn.clear:active,
+      body.theme-graphiteNeon .pin-key:active {
+        background: #1c1c1c !important;
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      body.theme-graphiteNeon .section-hint,
+      body.theme-graphiteNeon .sm-hint,
+      body.theme-graphiteNeon .simple-tip,
+      body.theme-graphiteNeon .conv-result {
+        background: #1b1b1b !important;
+        border: none !important;
+        border-radius: 14px !important;
+        color: var(--gh-muted) !important;
+        box-shadow: var(--gh-neu-in-sm) !important;
+      }
+      body.theme-graphiteNeon .history-btn,
+      body.theme-graphiteNeon .sm-history-btn,
+      body.theme-graphiteNeon .simple-view-all,
+      body.theme-graphiteNeon .new-tool-btn {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .history-btn:active,
+      body.theme-graphiteNeon .sm-history-btn:active,
+      body.theme-graphiteNeon .simple-view-all:active,
+      body.theme-graphiteNeon .new-tool-btn:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      /* переключатель Расход/Доход */
+      body.theme-graphiteNeon .type-tab,
+      body.theme-graphiteNeon .type-btn {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #cfcfcf !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .type-tab.active,
+      body.theme-graphiteNeon .type-btn.active {
+        background: #1a1a1a !important;
+        border: none !important;
+        color: #ff9c85 !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+          0 0 0 1px rgba(255, 126, 95, 0.45) !important;
+      }
+
+      /* ── 7. Категории: чипсы и группы без фиолетовой обводки ── */
+      body.theme-graphiteNeon .cat-section {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .cat-section-title {
+        color: var(--gh-muted) !important;
+      }
+      body.theme-graphiteNeon .chip {
+        background: #2a2a2a !important;
+        border: none !important;
+        color: #eaeaea !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+        transition: box-shadow 0.1s ease, transform 0.1s ease !important;
+      }
+      body.theme-graphiteNeon .chip:active {
+        background: #2a2a2a !important;
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      body.theme-graphiteNeon .chip > span {
+        color: inherit !important;
+      }
+      body.theme-graphiteNeon .cat-add-sub-btn {
+        background: #2a2a2a !important;
+        border: none !important;
+        color: #cfcfcf !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .cat-add-sub-btn:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      body.theme-graphiteNeon .cat-unified-add-btn {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #ededed !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .cat-unified-add-btn:active {
+        box-shadow: var(--gh-neu-in) !important;
+        transform: scale(0.99) !important;
+      }
+      body.theme-graphiteNeon .cat-unified-icon,
+      body.theme-graphiteNeon .cat-type-icon {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-radius: 14px !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+
+      /* ── 8. Переключатели: трек вдавленный, кружок выпуклый ── */
+      body.theme-graphiteNeon .slider,
+      body.theme-graphiteNeon .toggle-slider {
+        background: #262626 !important;
+        border: none !important;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.5) !important;
+      }
+      body.theme-graphiteNeon .slider::before,
+      body.theme-graphiteNeon .toggle-slider::before {
+        background: #d4d4d4 !important;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5),
+          -1px -1px 3px rgba(255, 255, 255, 0.1) !important;
+      }
+      body.theme-graphiteNeon input:checked + .slider,
+      body.theme-graphiteNeon input:checked + .toggle-slider {
+        background: var(--gh-accent-grad) !important;
+        border: none !important;
+        box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.35),
+          2px 2px 6px rgba(0, 0, 0, 0.35) !important;
+      }
+      body.theme-graphiteNeon input:checked + .slider::before,
+      body.theme-graphiteNeon input:checked + .toggle-slider::before {
+        background: #ffffff !important;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.45),
+          -1px -1px 3px rgba(255, 255, 255, 0.35) !important;
+      }
+      body.theme-graphiteNeon .set-simple-toggle,
+      body.theme-graphiteNeon .set-profile-card,
+      body.theme-graphiteNeon .set-prof-switch {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .settings-nav-tab.active,
+      body.theme-graphiteNeon .font-size-btn.active,
+      body.theme-graphiteNeon .set-theme-sw.active,
+      body.theme-graphiteNeon .quick-date-btn.active {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #ff9c85 !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+          0 0 0 1px rgba(255, 126, 95, 0.4) !important;
+      }
+
+      /* ── 9. Блокнот и прочие карточки ── */
+      body.theme-graphiteNeon .note-card {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .note-card::before {
+        background: var(--gh-accent-grad) !important;
+      }
+      body.theme-graphiteNeon .settings-btn.primary {
+        background: var(--gh-accent-grad) !important;
+        border: none !important;
+        color: #fff !important;
+        box-shadow: var(--gh-accent-glow) !important;
+      }
+      body.theme-graphiteNeon .settings-btn:not(.primary):not(.danger) {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .datepicker-day.selected {
+        background: var(--gh-accent-grad) !important;
+        box-shadow: 0 4px 12px rgba(155, 89, 182, 0.32) !important;
+      }
+      body.theme-graphiteNeon .spinner {
+        border-color: rgba(255, 255, 255, 0.12) !important;
+        border-top-color: #ff7e5f !important;
+      }
+      body.theme-graphiteNeon .theme-swatch-btn:hover {
+        border-color: rgba(255, 126, 95, 0.4) !important;
+      }
+
+      /* ── 10. Уточнения после визуальной проверки ── */
+      /* (a) «Категории»: .cat-section — обёртка, карточки — .cat-item */
+      body.theme-graphiteNeon .cat-section {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      body.theme-graphiteNeon .cat-item {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      /* (b) «Аналитика»: контейнер KPI не рисует вторую карточку */
+      body.theme-graphiteNeon .stat-kpi-grid {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      body.theme-graphiteNeon .line-chart-card,
+      body.theme-graphiteNeon .pie-chart-card,
+      body.theme-graphiteNeon .forecast-card {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      /* (c) иконка KPI — компактный неуморфный квадратик */
+      body.theme-graphiteNeon .stat-kpi-icon {
+        width: 44px !important;
+        height: 44px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 auto 8px !important;
+        font-size: 20px !important;
+      }
+      /* (d) подписи полей в модалках — без лилового */
+      body.theme-graphiteNeon .field-label {
+        color: var(--gh-muted) !important;
+      }
+      /* (e) кнопка «История» не перекрывает заголовок калькулятора */
+      body.theme-graphiteNeon .tool-card-header > .btn-secondary {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        padding: 8px 14px !important;
+        font-size: 13px !important;
+      }
+      /* (f) тип операции: расход — коралл темы, доход — зелёный темы */
+      body.theme-graphiteNeon .type-btn.expense.active,
+      body.theme-graphiteNeon .type-tab.expense.active,
+      body.theme-graphiteNeon .type-btn.active-expense,
+      body.theme-graphiteNeon .cat-type-btn.expense.active,
+      body.theme-graphiteNeon .cat-type-btn.active-expense {
+        background: #1a1a1a !important;
+        border: none !important;
+        color: #ff9c85 !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+          0 0 0 1px rgba(255, 126, 95, 0.45) !important;
+      }
+      body.theme-graphiteNeon .type-btn.income.active,
+      body.theme-graphiteNeon .type-tab.income.active,
+      body.theme-graphiteNeon .type-btn.active-income,
+      body.theme-graphiteNeon .cat-type-btn.income.active,
+      body.theme-graphiteNeon .cat-type-btn.active-income {
+        background: rgba(74, 222, 128, 0.12) !important;
+        border: none !important;
+        color: #6ee7a0 !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+          0 0 0 1px rgba(74, 222, 128, 0.4) !important;
+      }
+      body.theme-graphiteNeon .cat-type-btn {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #cfcfcf !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      /* (g) акцентный текст вместо лилового */
+      body.theme-graphiteNeon .cat-unified-icon {
+        color: #ff7e5f !important;
+      }
+      body.theme-graphiteNeon .calc-display {
+        color: #ff7e5f !important;
+      }
+      body.theme-graphiteNeon .cat-unified-title {
+        color: #f2f2f2 !important;
+      }
+      /* (h) приветственная карточка на главной — тоже графит */
+      body.theme-graphiteNeon .welcome-tip {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .welcome-tip-icon {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border-radius: 14px !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .welcome-tip-text p {
+        color: var(--gh-muted) !important;
+      }
+      body.theme-graphiteNeon .welcome-tip-close {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        color: #ff9c85 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .welcome-tip-close:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      /* (i) Светлая кромка сверху для всех остальных выпуклых поверхностей темы:
+         иконки, клавиши, чипсы, вторичные кнопки, сегменты. Акцентные
+         градиентные кнопки (.btn-primary, .eq-key) сюда не входят — у них свой цвет. */
+      body.theme-graphiteNeon .modal-close,
+      body.theme-graphiteNeon .btn-secondary,
+      body.theme-graphiteNeon .settings-home-card-ico,
+      body.theme-graphiteNeon .settings-placeholder-icon,
+      body.theme-graphiteNeon .appearance-theme-mode-icon,
+      body.theme-graphiteNeon .set-action-btn,
+      body.theme-graphiteNeon .settings-subpage-back,
+      body.theme-graphiteNeon .stat-kpi-icon,
+      body.theme-graphiteNeon .calc-key:not(.eq-key),
+      body.theme-graphiteNeon .numpad-btn,
+      body.theme-graphiteNeon .pin-key,
+      body.theme-graphiteNeon .history-btn,
+      body.theme-graphiteNeon .sm-history-btn,
+      body.theme-graphiteNeon .simple-view-all,
+      body.theme-graphiteNeon .type-tab,
+      body.theme-graphiteNeon .type-btn,
+      body.theme-graphiteNeon .chip,
+      body.theme-graphiteNeon .cat-add-sub-btn,
+      body.theme-graphiteNeon .cat-unified-icon,
+      body.theme-graphiteNeon .cat-type-icon,
+      body.theme-graphiteNeon .settings-btn:not(.primary):not(.danger),
+      body.theme-graphiteNeon .cat-type-btn,
+      body.theme-graphiteNeon .welcome-tip-icon,
+      body.theme-graphiteNeon .welcome-tip-close {
+        border-top: 1px solid var(--gh-edge) !important;
+      }
+
+      /* ═══════════════════════════════════════════════════════════
+         11. МОДАЛЬНЫЕ ОКНА, ШТОРКИ И ПАНЕЛЬ СОЗДАТЕЛЯ
+         Единый неуморфизм: те же тени и градиент, что на главной.
+         ═══════════════════════════════════════════════════════════ */
+      /* (a) внутри окон — нейтральные токены: убираем коралловые
+         и лиловые подложки, которые читались как коричневые */
+      body.theme-graphiteNeon .modal,
+      body.theme-graphiteNeon .modal-content,
+      body.theme-graphiteNeon .bottom-sheet,
+      body.theme-graphiteNeon .dialog,
+      body.theme-graphiteNeon .add-modal-sheet,
+      body.theme-graphiteNeon .more-sheet,
+      body.theme-graphiteNeon .confirm-box {
+        --primary-pale: rgba(255, 255, 255, 0.045);
+        --gold-pale: rgba(255, 255, 255, 0.045);
+        --gold-border: rgba(255, 255, 255, 0.08);
+        --balance-pale: rgba(255, 255, 255, 0.045);
+        --lux-em: #ff7e5f;
+        --lux-em2: #c86b87;
+        --lux-em3: #ff7e5f;
+      }
+      /* (b) заголовок окна — графит вместо лаванды */
+      body.theme-graphiteNeon .modal-header h2,
+      body.theme-graphiteNeon .modal-title {
+        color: #f2f2f2 !important;
+      }
+      /* (c) карточки внутри окон: блоки, собранные на inline-стилях
+         с токенами темы (голосовой ввод, подключение, создатель) */
+      body.theme-graphiteNeon .modal-body div[style*="padding"][style*="var(--primary-pale)"],
+      body.theme-graphiteNeon .modal-body div[style*="padding"][style*="var(--balance-pale)"],
+      body.theme-graphiteNeon .modal-body div[style*="padding"][style*="var(--gold-pale)"],
+      body.theme-graphiteNeon .modal-body div[style*="padding"][style*="var(--cream-dark)"],
+      body.theme-graphiteNeon .modal-body div[style*="padding"][style*="var(--card-bg)"] {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border-radius: 20px !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.65),
+          -5px -5px 14px rgba(255, 255, 255, 0.07) !important;
+      }
+      /* (d) кнопки, чипсы и строки-кнопки внутри окон — выпуклые,
+         при нажатии вдавливаются */
+      body.theme-graphiteNeon .modal .voice-alt-btn,
+      body.theme-graphiteNeon .modal .voice-quick-alt,
+      body.theme-graphiteNeon .modal .chat-tpl-btn,
+      body.theme-graphiteNeon .modal .supportSettingsToggle,
+      body.theme-graphiteNeon .modal .userChatClearHistoryBtn,
+      body.theme-graphiteNeon .modal .goal-emoji-opt,
+      body.theme-graphiteNeon .modal .theme-swatch-btn,
+      body.theme-graphiteNeon .modal .datepicker-btn:not(.active):not(.primary),
+      body.theme-graphiteNeon .modal .quick-date-btn:not(.active),
+      body.theme-graphiteNeon .modal .creator-filter-btn:not(.active),
+      body.theme-graphiteNeon .modal-body button[style*="var(--cream-dark)"],
+      body.theme-graphiteNeon .modal-body button[style*="var(--card-bg)"],
+      body.theme-graphiteNeon .more-item {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #eaeaea !important;
+        box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.65),
+          -5px -5px 14px rgba(255, 255, 255, 0.07) !important;
+        transition: box-shadow 0.1s ease, transform 0.1s ease !important;
+      }
+      body.theme-graphiteNeon .modal .voice-alt-btn:active,
+      body.theme-graphiteNeon .modal .voice-quick-alt:active,
+      body.theme-graphiteNeon .modal .chat-tpl-btn:active,
+      body.theme-graphiteNeon .modal .supportSettingsToggle:active,
+      body.theme-graphiteNeon .modal .userChatClearHistoryBtn:active,
+      body.theme-graphiteNeon .modal .goal-emoji-opt:active,
+      body.theme-graphiteNeon .modal .theme-swatch-btn:active,
+      body.theme-graphiteNeon .modal .datepicker-btn:not(.active):not(.primary):active,
+      body.theme-graphiteNeon .modal .quick-date-btn:not(.active):active,
+      body.theme-graphiteNeon .modal .creator-filter-btn:not(.active):active,
+      body.theme-graphiteNeon .modal-body button[style*="var(--cream-dark)"]:active,
+      body.theme-graphiteNeon .modal-body button[style*="var(--card-bg)"]:active,
+      body.theme-graphiteNeon .more-item:active {
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03) !important;
+        transform: scale(0.97) !important;
+      }
+      /* выбранные состояния внутри окон — вдавленные с акцентом */
+      body.theme-graphiteNeon .modal .creator-filter-btn.active,
+      body.theme-graphiteNeon .modal .datepicker-btn.active,
+      body.theme-graphiteNeon .modal .goal-emoji-opt.active {
+        background: #1a1a1a !important;
+        background-image: none !important;
+        border: none !important;
+        color: #ff9c85 !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+          0 0 0 1px rgba(255, 126, 95, 0.45) !important;
+      }
+      body.theme-graphiteNeon .more-item-lbl {
+        color: #f2f2f2 !important;
+      }
+      /* (e) подсказки и превью внутри окон — слегка вдавленные панели */
+      body.theme-graphiteNeon .modal .suggestions-block,
+      body.theme-graphiteNeon .modal .scanPreview {
+        background: #1a1a1a !important;
+        background-image: none !important;
+        border: none !important;
+        border-radius: 18px !important;
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+          inset -2px -2px 5px rgba(255, 255, 255, 0.03) !important;
+      }
+      /* (f) меню чата поддержки и циферблат выбора времени — графит */
+      body.theme-graphiteNeon #userChatMenu {
+        background: #1e1e1e !important;
+        background-image: none !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        border-radius: 16px !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon #userChatClearHistoryBtn {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #ff9c85 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon #userChatClearHistoryBtn:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.98) !important;
+      }
+      body.theme-graphiteNeon #notificationClockRoot {
+        background: #1a1a1a !important;
+        background-image: none !important;
+        border: none !important;
+        border-radius: 26px !important;
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+          inset -2px -2px 5px rgba(255, 255, 255, 0.03) !important;
+      }
+      body.theme-graphiteNeon #notificationClockWeekday {
+        background: #232323 !important;
+        border: none !important;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5),
+          -1px -1px 3px rgba(255, 255, 255, 0.1) !important;
+      }
+      /* (g) раскрывающиеся блоки внутри окон — выпуклые строки */
+      body.theme-graphiteNeon .modal-body summary {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        border-radius: 14px !important;
+        padding: 10px 14px !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+        cursor: pointer !important;
+      }
+      /* (h) кнопка «+» в нижнем меню — градиент темы и объём */
+      body.theme-graphiteNeon .nav-fab-circle {
+        background: #1e1e1e var(--gh-accent-grad, linear-gradient(135deg, #ff7e5f 0%, #9b59b6 100%)) !important;
+        background-image: var(--gh-accent-grad, linear-gradient(135deg, #ff7e5f 0%, #9b59b6 100%)) !important;
+        border: none !important;
+        color: #fff !important;
+        box-shadow: var(--gh-accent-glow), var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .nav-fab-btn:active .nav-fab-circle {
+        box-shadow: inset 4px 4px 8px rgba(0, 0, 0, 0.45),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03) !important;
+        transform: scale(0.92) !important;
+      }
+      /* (i) сканер чека: рамка превью — вдавленная панель */
+      body.theme-graphiteNeon .modal-body div[style*="dashed"] {
+        background: #1a1a1a !important;
+        background-image: none !important;
+        border: 1px dashed rgba(255, 255, 255, 0.12) !important;
+        border-radius: 20px !important;
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+          inset -2px -2px 5px rgba(255, 255, 255, 0.03) !important;
+      }
+      /* (j) круглые акцентные элементы внутри окон (аватары, отправка,
+         нумерация шагов) — градиент темы вместо плоской заливки */
+      body.theme-graphiteNeon .modal div[style*="background:var(--primary)"][style*="border-radius:50%"],
+      body.theme-graphiteNeon .modal button[style*="background:var(--primary)"][style*="border-radius:50%"],
+      body.theme-graphiteNeon .modal [style*="var(--primary),var(--primary-light)"],
+      body.theme-graphiteNeon .modal [style*="var(--primary),var(--primary-med)"] {
+        background: var(--gh-accent-grad) !important;
+        background-image: var(--gh-accent-grad) !important;
+        border: none !important;
+        box-shadow: var(--gh-accent-glow), var(--gh-neu-out-sm) !important;
+      }
+      /* (k) иконка-чип категории — выпуклый квадратик */
+      body.theme-graphiteNeon .modal span[style*="border-radius:12px"][style*="var(--card-bg)"] {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      /* (l) служебный текст в окнах и шторках был лиловым
+         (#d4c8f8 / rgba(196,181,253)) — делаем нейтральным */
+      body.theme-graphiteNeon
+        :is(
+          .modal,
+          .add-modal-sheet,
+          .more-sheet,
+          .bottom-sheet,
+          .dialog,
+          .confirm-box
+        )
+        :is(
+          .quick-date-btn:not(.active),
+          .datepicker-btn:not(.active):not(.primary),
+          .suggestions-empty
+        ) {
+        color: #cfcfcf !important;
+      }
+      body.theme-graphiteNeon .confirm-box .btn-secondary,
+      body.theme-graphiteNeon #confirmCancel {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon #confirmCancel:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      body.theme-graphiteNeon
+        :is(.modal, .add-modal-sheet, .more-sheet)
+        :is(.quick-date-btn.active, .datepicker-btn.active) {
+        background: #1a1a1a !important;
+        background-image: none !important;
+        border: none !important;
+        color: #ff9c85 !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+          0 0 0 1px rgba(255, 126, 95, 0.45) !important;
+      }
+      /* (m) тосты: плотный тёмный фон, полная рамка и мягкая тень — ошибка и
+         успех отличаются цветом рамки, а не прозрачной подложкой */
+      body.theme-graphiteNeon #toast,
+      body.theme-graphiteNeon .toast {
+        background: #1e1e1e !important;
+        background-image: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+        font-weight: 800 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+      }
+      body.theme-graphiteNeon #toast.error,
+      body.theme-graphiteNeon .toast.error {
+        border-color: rgba(248, 113, 113, 0.6) !important;
+        color: #ffe4e6 !important;
+        box-shadow:
+          0 4px 12px rgba(0, 0, 0, 0.5),
+          0 0 16px rgba(248, 113, 113, 0.35) !important;
+      }
+      body.theme-graphiteNeon #toast.success,
+      body.theme-graphiteNeon .toast.success {
+        border-color: rgba(52, 211, 153, 0.55) !important;
+        color: #eafff5 !important;
+        box-shadow:
+          0 4px 12px rgba(0, 0, 0, 0.5),
+          0 0 16px rgba(52, 211, 153, 0.3) !important;
+      }
+      body.theme-graphiteNeon .search-results-count {
+        background: #1e1e1e !important;
+        background-image: none !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      /* (n) настройки/инструменты/блокнот: нейтральные токены вместо
+         коралловых и лиловых подложек (те же значения, что в окнах) */
+      body.theme-graphiteNeon .settings-home-wrap,
+      body.theme-graphiteNeon .settings-subpage-wrap,
+      body.theme-graphiteNeon .notifications-page,
+      body.theme-graphiteNeon .appearance-screen,
+      body.theme-graphiteNeon .notebook-grid,
+      body.theme-graphiteNeon .tool-card {
+        --primary-pale: rgba(255, 255, 255, 0.045);
+        --gold-pale: rgba(255, 255, 255, 0.045);
+        --gold-border: rgba(255, 255, 255, 0.08);
+        --balance-pale: rgba(255, 255, 255, 0.045);
+      }
+      body.theme-graphiteNeon .appearance-hero {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        border-radius: 22px !important;
+        box-shadow: var(--gh-neu-out) !important;
+      }
+      body.theme-graphiteNeon .appearance-option {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #ececec !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+        animation: none !important;
+      }
+      body.theme-graphiteNeon .appearance-option:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      body.theme-graphiteNeon .appearance-option.active {
+        background: #1a1a1a !important;
+        background-image: none !important;
+        color: #ff9c85 !important;
+        box-shadow: inset 5px 5px 10px rgba(0, 0, 0, 0.7),
+          inset -3px -3px 8px rgba(255, 255, 255, 0.03),
+          0 0 0 1px rgba(255, 126, 95, 0.45) !important;
+      }
+      body.theme-graphiteNeon .appearance-option-sub,
+      body.theme-graphiteNeon .appearance-font-letter,
+      body.theme-graphiteNeon .appearance-font-name,
+      body.theme-graphiteNeon .appearance-chip-note {
+        color: #cfcfcf !important;
+      }
+      body.theme-graphiteNeon .appearance-option.active .appearance-option-sub,
+      body.theme-graphiteNeon .appearance-option.active .appearance-font-letter,
+      body.theme-graphiteNeon .appearance-option.active .appearance-font-name,
+      body.theme-graphiteNeon .appearance-option.active .appearance-chip-note {
+        color: #ff9c85 !important;
+      }
+      /* (o) вспомогательные элементы настроек: вместо индиго-градиентов
+         (#1a1040 → #1e1550) из служебного CSS — графит */
+      body.theme-graphiteNeon .notifications-back-btn,
+      body.theme-graphiteNeon .settings-home-legacy-btn,
+      body.theme-graphiteNeon .appearance-danger-btn,
+      body.theme-graphiteNeon .notifications-quick-btn,
+      body.theme-graphiteNeon .notifications-chip,
+      body.theme-graphiteNeon .notifications-weekday-btn,
+      body.theme-graphiteNeon .notifications-reminder-card,
+      body.theme-graphiteNeon .account-kv-row,
+      body.theme-graphiteNeon .security-status-row,
+      body.theme-graphiteNeon .data-sync-status-row,
+      body.theme-graphiteNeon .data-sync-status-note,
+      body.theme-graphiteNeon .data-sync-details {
+        background: #1e1e1e var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        background-image: var(--gh-card-grad, linear-gradient(145deg, #262626, #1c1c1c)) !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-out-sm) !important;
+      }
+      body.theme-graphiteNeon .appearance-danger-btn,
+      body.theme-graphiteNeon .notifications-quick-btn,
+      body.theme-graphiteNeon .notifications-weekday-btn {
+        color: #ff9c85 !important;
+      }
+      body.theme-graphiteNeon .notifications-back-btn:active,
+      body.theme-graphiteNeon .notifications-quick-btn:active,
+      body.theme-graphiteNeon .notifications-chip:active,
+      body.theme-graphiteNeon .notifications-weekday-btn:active,
+      body.theme-graphiteNeon .settings-home-legacy-btn:active,
+      body.theme-graphiteNeon .appearance-danger-btn:active {
+        box-shadow: var(--gh-neu-in-sm) !important;
+        transform: scale(0.97) !important;
+      }
+      /* поля выбора даты/времени напоминания — вдавленные, как инпуты */
+      body.theme-graphiteNeon #reminderDateBtn,
+      body.theme-graphiteNeon #reminderTimeBtn {
+        background: #1a1a1a !important;
+        border: none !important;
+        border-radius: 14px !important;
+        color: #f2f2f2 !important;
+        box-shadow: inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+          inset -2px -2px 5px rgba(255, 255, 255, 0.03) !important;
+      }
+      body.theme-graphiteNeon #reminderDateText,
+      body.theme-graphiteNeon #reminderTimeText {
+        color: #f2f2f2 !important;
+      }
+      body.theme-graphiteNeon .appearance-current-pill,
+      body.theme-graphiteNeon .data-sync-status-pill {
+        background: #232323 !important;
+        background-image: none !important;
+        border: none !important;
+        border-top: 1px solid var(--gh-edge) !important;
+        color: #e6e6e6 !important;
+        box-shadow: var(--gh-neu-in-sm) !important;
+      }
+      /* (p) служебный лиловый текст: глобальные правила тёмной темы
+         перекрашивали инлайновые color:var(--text-muted) в лаванду
+         (body.dark [style*="color:var(--text-muted)"]). Для графита —
+         нейтральный серый и почти белый основной текст. */
+      body.theme-graphiteNeon [style*="color:var(--text-muted)"] {
+        color: #a8a8a8 !important;
+      }
+      body.theme-graphiteNeon [style*="color:var(--text)"] {
+        color: #f2f2f2 !important;
+      }
+      /* ── Мини-график в карточке баланса: восходящая S-кривая,
+            тонкая коралловая линия, мягкое свечение, заливка
+            фиолетовым градиентом сверху вниз.
+            Класс .is-animating ставит playHomeChartAnimation() из renderHome(),
+            поэтому линия прорисовывается при каждом открытии главной. ── */
+      body.theme-graphiteNeon #mainContent .gh-home .gh-spark svg {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: visible !important;
+      }
+      body.theme-graphiteNeon #mainContent .gh-home .gh-spark .gh-spark-area {
+        opacity: 0;
+      }
+      body.theme-graphiteNeon #mainContent .gh-home .gh-spark .gh-spark-line {
+        stroke: #ff7e5f !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
+        stroke-dasharray: var(--gh-spark-len, 300);
+        stroke-dashoffset: var(--gh-spark-len, 300);
+        filter: drop-shadow(0 0 6px rgba(255, 126, 95, 0.8));
+      }
+      body.theme-graphiteNeon #mainContent .gh-home .gh-spark .gh-spark-dot {
+        fill: #ff7e5f !important;
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+        filter: drop-shadow(0 0 6px rgba(255, 126, 95, 0.8));
+      }
+      body.theme-graphiteNeon #mainContent .gh-home .gh-spark.is-animating .gh-spark-line {
+        animation: ghSparkDraw 1.3s cubic-bezier(.4, 0, .2, 1) forwards;
+      }
+      body.theme-graphiteNeon #mainContent .gh-home .gh-spark.is-animating .gh-spark-area {
+        animation: ghSparkAreaIn 1s ease-out .2s forwards;
+      }
+      body.theme-graphiteNeon #mainContent .gh-home .gh-spark.is-animating .gh-spark-dot {
+        animation: ghSparkDotIn .45s cubic-bezier(.34, 1.56, .64, 1) .95s forwards;
+      }
+      @keyframes ghSparkDraw {
+        from { stroke-dashoffset: var(--gh-spark-len, 300); }
+        to { stroke-dashoffset: 0; }
+      }
+      @keyframes ghSparkAreaIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes ghSparkDotIn {
+        from { opacity: 0; transform: scale(.3); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      /* Пока animateBudget() набирает проценты через rAF, ширина полосы
+         не должна догонять их CSS-переходом: кольцо и полоса идут синхронно.
+         Правило общее для всех тем: раньше оно было только для neon, и в
+         остальных темах полоса «опадала» за 0.45 с вместо мгновенного сброса. */
+      html body #mainContent .gh-home .gh-budget.gh-pct-animating .gh-bar-fill,
+      body.theme-graphiteNeon #mainContent .gh-home .gh-budget.gh-pct-animating .gh-bar-fill {
+        transition: none !important;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        body.theme-graphiteNeon #mainContent .gh-home .gh-spark .gh-spark-line {
+          stroke-dashoffset: 0 !important;
+          animation: none !important;
+        }
+        body.theme-graphiteNeon #mainContent .gh-home .gh-spark .gh-spark-area,
+        body.theme-graphiteNeon #mainContent .gh-home .gh-spark .gh-spark-dot {
+          opacity: 1 !important;
+          animation: none !important;
+        }
+      }
+    </style>
+    <style id="scrollPerfAccordion">
+      /* ════════════════════════════════════════════════════════════
+         Прокрутка длинной истории и плавные аккордеоны.
+         Правила касаются только строк списка операций и двух
+         раскрывающихся блоков, остальные поверхности не меняются.
+         ════════════════════════════════════════════════════════════ */
+
+      /* 1. Строки истории рисуются на GPU: при скролле карточка не
+            растеризуется заново на CPU каждый кадр. */
+      html body #mainContent #homeOpsItems > :is(.op-swipe-wrap, .sm-op-row),
+      html body #mainContent #homeOpsItems > .history-expand-wrapper > .history-expand-inner > :is(.op-swipe-wrap, .sm-op-row),
+      html body #fullHistoryModal .history-item {
+        transform: translateZ(0);
+        will-change: transform;
+        backface-visibility: hidden;
+      }
+
+      /* 2. Размытие фона под каждой строкой (backdrop-filter) — самый
+            дорогой эффект при скролле. Фон строк почти непрозрачный,
+            поэтому замена на обычную заливку визуально не заметна. */
+      html body #mainContent :is(.op-card, .sm-op-row),
+      html body #fullHistoryModal .history-item {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+
+      /* 3. Аккордеон «Показать все / Свернуть» и панель «Подробности,
+            поиск и фильтры». Плавность целиком на CSS: обёртка анимирует
+            grid-template-rows 0fr → 1fr, поэтому высота считается
+            браузером, а не JS. Внутренний слой обрезает контент при 0fr. */
+      html body #mainContent .history-expand-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        opacity: 0;
+        transition:
+          grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          opacity 0.3s ease;
+      }
+      html body #mainContent .history-expand-wrapper.is-open {
+        grid-template-rows: 1fr;
+        opacity: 1;
+      }
+      html body #mainContent .history-expand-wrapper > .history-expand-inner {
+        overflow: hidden;
+        min-height: 0;
+      }
+      /* Свёрнутая обёртка не перехватывает тапы и не участвует в табуляции. */
+      html body #mainContent .history-expand-wrapper:not(.is-open) {
+        pointer-events: none;
+      }
+      /* В простом режиме список — flex с отступом 6px: повторяем его внутри
+         обёртки, чтобы раскрытые строки стояли на тех же местах. */
+      html body #mainContent .sm-ops-list > .history-expand-wrapper > .history-expand-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 6px !important;
+      }
+      html body #mainContent .sm-ops-list > .history-expand-wrapper:not(.is-open) {
+        margin-top: -6px;
+      }
+      /* Пользователь с отключённой анимацией получает мгновенное раскрытие. */
+      @media (prefers-reduced-motion: reduce) {
+        html body #mainContent .history-expand-wrapper {
+          transition: none;
+        }
+      }
+    </style>
+    <style id="neumorphicCardFix">
+/* ═══════════════════════════════════════════════════════════════════════
+   GRAPHITE NEON — один объём на карточку (финальный слой).
+   Здесь собрано всё, что отвечает за «тело» карточки в тёмной теме:
+   • ровная поверхность #1e1e1e чуть светлее фона страницы #1a1a1a
+     (диагональный градиент на тёмном фоне читался полосами на AMOLED);
+   • ровно ОДНА двойная тень — тёмная справа-снизу и светлая кромка
+     слева-сверху; вторые слои, inset-блики и drop-shadow убраны;
+   • GPU-слой (translateZ(0) + will-change), чтобы WebView не рисовал
+     «полосатые» засветы при прокрутке;
+   • контейнеры списков не обрезают тень: overflow visible и отступ 16px.
+   Блок идёт последним в документе и перекрывает остальные тени темы,
+   поэтому конфликтующих слоёв box-shadow на карточке быть не может.
+   ═══════════════════════════════════════════════════════════════════════ */
+html body.theme-graphiteNeon {
+  --gh-card: #1e1e1e;
+  --gh-card-grad: none;
+  --gh-edge: rgba(255, 255, 255, 0);
+  --gh-neu-out: 8px 8px 16px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.05);
+}
+
+/* 1. Карточки: одна двойная тень, ровный фон, без рамок и фильтров. */
+html body.theme-graphiteNeon #mainContent .gh-home .gh-card,
+html body.theme-graphiteNeon #mainContent .gh-home .gh-balance,
+html body.theme-graphiteNeon #mainContent .gh-home .gh-stat,
+html body.theme-graphiteNeon #mainContent .gh-home .gh-budget,
+html body.theme-graphiteNeon #mainContent #homeOpsItems .op-swipe-wrap,
+html body.theme-graphiteNeon #fullHistoryModal .history-item,
+html body.theme-graphiteNeon .cat-item,
+html body.theme-graphiteNeon .settings-card,
+html body.theme-graphiteNeon .set-card,
+html body.theme-graphiteNeon .appearance-card,
+html body.theme-graphiteNeon .settings-home-card,
+html body.theme-graphiteNeon .settings-home-hero,
+html body.theme-graphiteNeon .settings-placeholder-card,
+html body.theme-graphiteNeon .account-card,
+html body.theme-graphiteNeon .security-card,
+html body.theme-graphiteNeon .data-sync-card,
+html body.theme-graphiteNeon .notifications-card,
+html body.theme-graphiteNeon .notifications-diagnostics,
+html body.theme-graphiteNeon .danger-card,
+html body.theme-graphiteNeon .creator-dialog-card,
+html body.theme-graphiteNeon #addBudgetModal .bgm-hero,
+html body.theme-graphiteNeon #addBudgetModal .bgm-section,
+html body.theme-graphiteNeon #addBudgetModal .bgm-limit-card,
+html body.theme-graphiteNeon #addBudgetModal .bgm-limit-form {
+  background: #1e1e1e !important;
+  background-image: none !important;
+  border: none !important;
+  border-top: none !important;
+  box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.6), -6px -6px 14px rgba(255, 255, 255, 0.05) !important;
+  filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+/* GPU-слой — только карточкам и строкам истории: их тень перерисовывалась
+   на каждом кадре прокрутки. */
+html body.theme-graphiteNeon #mainContent .gh-home .gh-card,
+html body.theme-graphiteNeon #mainContent #homeOpsItems .op-swipe-wrap,
+html body.theme-graphiteNeon #fullHistoryModal .history-item,
+html body.theme-graphiteNeon #addBudgetModal .bgm-limit-card,
+html body.theme-graphiteNeon .cat-item,
+html body.theme-graphiteNeon .settings-card,
+html body.theme-graphiteNeon .appearance-card {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* 2. Контейнеры списков: место под тень и никакого обрезания по краю. */
+html body.theme-graphiteNeon .app,
+html body.theme-graphiteNeon .main-scroll,
+html body.theme-graphiteNeon #mainContent,
+html body.theme-graphiteNeon #mainContent .gh-home,
+html body.theme-graphiteNeon #mainContent .ops-list,
+html body.theme-graphiteNeon #mainContent .sm-ops-list,
+html body.theme-graphiteNeon #mainContent .cat-section {
+  overflow: visible !important;
+}
+/* Исключение — карточка бюджета: внутри неё карусель лимитов со снапом, и её
+   тень в padding трека иначе выходила бы за верхнюю грань карточки. Своя тень
+   карточки рисуется снаружи и от этого клипа не страдает. */
+html body.theme-graphiteNeon #mainContent .gh-home .gh-budget {
+  overflow: hidden !important;
+}
+html body.theme-graphiteNeon .main-scroll {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+/* Аккордеон «Показать все»: внутренний слой обязан оставаться
+   overflow: hidden (на нём держится анимация 0fr → 1fr), поэтому место под
+   тень строк даём отступами и выносим слой за края отрицательными полями —
+   строки остаются на прежних местах, а тень больше не режется по бокам. */
+html body.theme-graphiteNeon #mainContent .history-expand-wrapper > .history-expand-inner {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  margin-left: -16px !important;
+  margin-right: -16px !important;
+}
+html body.theme-graphiteNeon #addBudgetModal .modal-body,
+html body.theme-graphiteNeon #fullHistoryModal .modal-body {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+/* 3. Строки истории в теме непрозрачные: backdrop-filter им не нужен, а на
+   прокрутке давал полосы и лишний слой композиции. */
+html body.theme-graphiteNeon #mainContent .op-card {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* 4. Эмодзи в плитках: всегда одна строка и обрезка по краям плитки.
+   Составная иконка («👏💰», «🏠🏦🎯») шире плитки, а при обычном
+   white-space: normal браузер переносил её на вторую строку — вторая строка
+   вылезала за серый квадрат вверх и вниз. Теперь плитка центрирует содержимое
+   и обрезает лишнее, а шрифт уменьшается по числу глифов: data-emoji-len и
+   data-icon-len считает emojiGlyphCount() в index.js. */
+.op-icon-wrap,
+.sm-op-icon,
+.cat-icon-tile,
+.bgm-limit-emoji {
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* Плитка 34×34 в списке «Категории» (.cat-icon-tile в index.js). */
+.cat-icon-tile[data-emoji-len="2"] { font-size: 11px !important; }
+.cat-icon-tile[data-emoji-len="3"] { font-size: 8px !important; }
+.cat-icon-tile[data-emoji-len="4"] { font-size: 7px !important; }
+/* Плитка 40×40 в карточке лимита (окно бюджета): базовый шрифт 22px. */
+#addBudgetModal .bgm-limit-emoji[data-emoji-len="2"] { font-size: 14px !important; }
+#addBudgetModal .bgm-limit-emoji[data-emoji-len="3"] { font-size: 10px !important; }
+#addBudgetModal .bgm-limit-emoji[data-emoji-len="4"] { font-size: 7px !important; }
+/* Строки истории: 40×40 в окне истории и 32×32 на главной, базовый шрифт 20px. */
+.op-icon-wrap[data-icon-len="2"] { font-size: 14px !important; }
+.op-icon-wrap[data-icon-len="3"],
+.op-icon-wrap[data-icon-len="4"] { font-size: 9px !important; }
+html body #mainContent .sm-op-icon[data-icon-len="2"] { font-size: 14px !important; }
+html body #mainContent .sm-op-icon[data-icon-len="3"],
+html body #mainContent .sm-op-icon[data-icon-len="4"] { font-size: 9px !important; }
+    </style>
+
+

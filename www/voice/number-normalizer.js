@@ -16,11 +16,21 @@
     for (let r = 1; r < 20; r++) values.ka[base.slice(0, -1) + 'და' + kaSmall[r]] = n + r;
   }
   ['ასი', 'ორასი', 'სამასი', 'ოთხასი', 'ხუთასი', 'ექვსასი', 'შვიდასი', 'რვაასი', 'ცხრაასი'].forEach((w, i) => { values.ka[w] = (i + 1) * 100; values.ka[w.slice(0, -1)] = (i + 1) * 100; });
+  // Vosk appends the nominative ი to compound numerals (ოცდაცხრაი instead of
+  // ოცდაცხრა). Only a known numeral stem may lose the ending, so normal words
+  // are never reinterpreted as numbers.
+  const lookup = (lang, w) => {
+    const table = values[lang];
+    if (!table) return undefined;
+    if (table[w] !== undefined) return table[w];
+    if (lang === 'ka' && w.length > 2 && w.endsWith('ი')) return table[w.slice(0, -1)];
+    return undefined;
+  };
   const scales = { en: { hundred: 100, thousand: 1000, million: 1000000, billion: 1000000000 }, ru: { тысяча: 1000, тысячи: 1000, тысяч: 1000, миллион: 1000000, миллиона: 1000000, миллионов: 1000000, миллиард: 1000000000, миллиарда: 1000000000, миллиардов: 1000000000 }, ka: { ათასი: 1000, ათას: 1000, მილიონი: 1000000, მილიონ: 1000000, მილიარდი: 1000000000, მილიარდ: 1000000000 } };
   const markers = /^(number|code|phone|id|номер|код|телефон|ნომერი|კოდი|ტელეფონი)$/u;
   const decimal = { en: /^(point|dot)$/, ru: /^(запятая|точка)$/, ka: /^(მძიმე|წერტილი)$/ };
   function parse(words, lang, digitContext = false) {
-    const nums = words.map(w => values[lang][w]);
+    const nums = words.map(w => lookup(lang, w));
     if (nums.every(n => n !== undefined && n < 10) && (digitContext || nums.length >= 3)) return nums.join('');
     let total = 0, group = 0, previous = null, additive = false;
     for (const w of words) {
@@ -31,7 +41,7 @@
       if (w === 'და' && lang === 'ka') { additive = true; continue; }
       const scale = scales[lang][w];
       if (scale) { if (scale === 100) group = (group || 1) * scale; else { total += (group || 1) * scale; group = 0; } previous = null; additive = false; continue; }
-      const n = values[lang][w];
+      const n = lookup(lang, w);
       if (n === undefined) return null;
       if (previous !== null && previous < 20 && n >= 10 && n < 100) return null;
       if (!additive && previous !== null && previous >= 20 && previous < 100 && n >= 20 && n < 100) return null;
@@ -50,7 +60,7 @@
       let output = '', cursor = 0;
       for (let i = 0; i < tokens.length; i++) {
         const word = tokens[i][0].toLowerCase();
-        const numberWord = w => values[lang][w] !== undefined || scales[lang][w] !== undefined;
+        const numberWord = w => lookup(lang, w) !== undefined || scales[lang][w] !== undefined;
         if (!numberWord(word.split('-')[0])) continue;
         let j = i, words = [];
         while (j < tokens.length) {

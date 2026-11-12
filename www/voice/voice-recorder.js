@@ -35,7 +35,11 @@
   async finishOnce(){
    if(this.closed||!this.node)throw error('MICROPHONE_NOT_READY');this.metrics.captureStopRequestedAt=Date.now();let timer,input,pcm;
    try{
-    await new Promise((resolve,reject)=>{this.stopResolve=resolve;this.stopReject=reject;timer=setTimeout(()=>reject(error('MICROPHONE_FLUSH_TIMEOUT')),1000);this.node.port.postMessage({type:'stop'});});clearTimeout(timer);this.stopResolve=this.stopReject=null;
+    // Stop must flush the worklet buffer and wait for its acknowledgement, otherwise the
+    // last words are dropped. The 2 s budget covers a busy main thread right after Stop.
+    this.metrics.flushRequestedAt=Date.now();
+    await new Promise((resolve,reject)=>{this.stopResolve=resolve;this.stopReject=reject;timer=setTimeout(()=>reject(error('MICROPHONE_FLUSH_TIMEOUT')),2000);this.node.port.postMessage({type:'stop'});});clearTimeout(timer);this.stopResolve=this.stopReject=null;
+    this.metrics.flushWaitMs=Date.now()-this.metrics.flushRequestedAt;
     if(this.captureError)throw this.captureError;
     input=new Float32Array(this.sampleCount);let offset=0;for(const f of this.frames){input.set(f,offset);offset+=f.length;}
     await this.close();this.metrics.captureStoppedAt=Date.now();pcm=root.VoicePCM.resample(input,this.sampleRate);

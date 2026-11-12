@@ -26,9 +26,12 @@ test('multiple operations and wrong currency refuse a misleading ready draft',()
  assert.equal(safety.check('8 USD и 12 EUR','USD').error,'VOICE_AMBIGUOUS_AMOUNT');
 });
 const fs=require('node:fs'),vm=require('node:vm'),crypto=require('node:crypto');
-function localSession(language='ka'){
+function localSession(language='ka',{whisper=true}={}){
  const values=new Map([['voiceLanguage',language],['financial','UNCHANGED']]);let mic=0,send=0,token=0,recorder;
- const ctx={ArrayBuffer,document:{addEventListener(){}},localStorage:{getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)},crypto,navigator:{onLine:false},console,setTimeout,clearTimeout,AbortController,VoiceTranscriptValidator:require('../../www/voice/transcript-validator'),BudgetPROVoiceNumberNormalizer:require('../../www/voice/number-normalizer'),VoiceDiagnostics:{begin(){},update(){},event(){},get(){return{}},retain(){},discard(){}},VoiceApiClient:{isLocal:()=>true,transcribe:async()=>{send++;return{transcript:language==='ru'?'Потратил восемь лари на кофе':language==='en'?'Spent eight lari on coffee':'ყავაში რვა ლარი გადავიხადე',detectedLanguage:language,provider:'vosk-android-offline',model:'fixture'};}},VoiceRecorder:class{constructor(_,frame){recorder=this;this.frame=frame;}async start(){mic++}async close(){}async finish(){return{wav:new ArrayBuffer(44),metrics:{}}}}};
+ const text=language==='ru'?'Потратил восемь лари на кофе':language==='en'?'Spent eight lari on coffee':'ყავაში რვა ლარი გადავიხადე';
+ // Offline routing: Vosk serves ka, Whisper serves ru/en; both must stay auth-free.
+ const whisperClient=whisper?{isLocal:()=>true,supportsLanguage:l=>['ru','en','ka','auto'].includes(l),transcribe:async()=>{send++;return{ok:true,transcript:text,detectedLanguage:language,provider:'whisper-android-offline',model:'ggml-small-q5_1'};}}:undefined;
+ const ctx={ArrayBuffer,document:{addEventListener(){}},localStorage:{getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)},crypto,navigator:{onLine:false},console,setTimeout,clearTimeout,AbortController,VoiceTranscriptValidator:require('../../www/voice/transcript-validator'),BudgetPROVoiceNumberNormalizer:require('../../www/voice/number-normalizer'),VoiceDiagnostics:{begin(){},update(){},event(){},get(){return{}},retain(){},discard(){}},VoiceApiClient:{isLocal:()=>true,transcribe:async()=>{send++;return{transcript:text,detectedLanguage:language,provider:'vosk-android-offline',model:'fixture'};}},VoiceWhisperClient:whisperClient,VoiceRecorder:class{constructor(_,frame){recorder=this;this.frame=frame;}async start(){mic++}async close(){}async finish(){return{wav:new ArrayBuffer(44),metrics:{}}}}};
  vm.runInNewContext(fs.readFileSync('www/voice/voice-session.js','utf8'),ctx);
  return{voice:ctx.BudgetPROVoiceModule,values,frame:m=>recorder.frame(m),start:options=>ctx.BudgetPROVoiceModule.start({getToken(){token++;throw Error('AUTH_MUST_NOT_BE_TOUCHED')},...options}),stats:()=>({mic,send,token})};
 }
@@ -37,7 +40,7 @@ for(const language of ['ka','ru','en'])test('session '+language+' works offline 
  for(let i=0;i<2;i++){const p=s.start({onTranscript:t=>{assert(t.includes('8'));results++;}});await new Promise(r=>setImmediate(r));s.frame({ended:true,elapsed:2000,rms:.05,peak:.2});await new Promise(r=>setImmediate(r));assert.equal(s.voice.isActive(),true);s.voice.stop();s.voice.stop();assert.equal((await p).error,undefined);}
  assert.deepEqual(s.stats(),{mic:2,send:2,token:0});assert.equal(results,2);assert.equal(s.values.get('financial'),'UNCHANGED');
 });
-test('local session refuses automatic language before microphone',async()=>{const s=localSession('auto');assert.equal((await s.start()).error,'VOSK_LANGUAGE_REQUIRED');assert.deepEqual(s.stats(),{mic:0,send:0,token:0});});
+test('local session without the routed offline engine refuses before microphone',async()=>{const s=localSession('en',{whisper:false});assert.equal((await s.start()).error,'WHISPER_NATIVE_UNAVAILABLE');assert.deepEqual(s.stats(),{mic:0,send:0,token:0});});
 
 test('negative amounts, Russian minor units and multiple bare amounts are not guessed',()=>{
  for(const text of ['-8 ლარი','−8 ლარი','минус 8 лари','minus 8 GEL'])assert.equal(safety.check(text,'GEL').valid,false,text);
@@ -64,3 +67,45 @@ test('currency units do not confuse a shirt with rubles and unsupported minor un
  assert.equal(safety.check('8 ლარს ვიხდი','RUB').error,'VOICE_CURRENCY_MISMATCH');
  assert.equal(safety.check('50 центов','GEL').valid,false);
 });
+
+test('doubled-consonant Vosk money spellings stay GEL and trailing bare numbers are ignored',()=>{
+ for(const text of ['Купил хлеб за 5 ларри','Купил хлеб за 5 ларри и 50 а и 3','Купил хлеб за 5 ларри и 50 тетри','Потратил 5 тети'])assert.equal(safety.check(text,'GEL').valid,true,text);
+ assert.equal(safety.check('Купил хлеб за 5 ларри','RUB').error,'VOICE_CURRENCY_MISMATCH');
+ assert.equal(safety.check('8 ларри на кофе и 12 ларри на такси','GEL').error,'VOICE_MULTIPLE_OPERATIONS');
+ assert.equal(safety.check('Потратил 8 на кофе и 12 ларри на такси','GEL').valid,true);
+});
+
+test('RU draft keeps the amount up to the currency and drops unattached trailing digits',()=>{
+ const {fixture}=require('./helpers/finance-parser.cjs'),p=fixture('www/index.js',{lang:'ru'}),before=p.snapshot();
+ for(const [text,amount]of [['Купил хлеб за пять ларри',5],['Купил хлеб за пять ларри и пятьдесят а и три',5],['Купил хлеб за пять ларри и пятьдесят тетри',5.5],['Купил хлеб за пять ларри и пятьдесят тети',5.5],['Купил хлеб за пять тети',.05]])assert.equal(p.draft(text,'ru').amount,amount,text);
+ assert.equal(p.snapshot(),before);
+});
+
+test('Stop flushes the worklet buffer and waits up to 2 s for the final result acknowledgement',()=>{
+ const source=fs.readFileSync('www/voice/voice-recorder.js','utf8');
+ assert.ok(/port\.postMessage\(\{type:'stop'\}\)/.test(source),'worklet flush command missing');
+ const wait=/MICROPHONE_FLUSH_TIMEOUT'\)\),(\d+)\)/.exec(source);assert.ok(wait,'flush budget missing');
+ const budget=Number(wait[1]);assert.ok(budget>=1500&&budget<=2000,'flush budget '+budget);
+ assert.ok(/flushWaitMs/.test(source));
+});
+
+test('safety accepts a Vosk-dropped tetri tail yet still refuses two operations',()=>{
+ for(const text of ['Купил хлеб за 5 ларри и 53','Купил хлеб за 5 лари и 53','I spent 5 lari and 53','5 ლარი და 53'])assert.equal(safety.check(text,'GEL').valid,true,text);
+ assert.equal(safety.check('8 ларри на кофе и 12 ларри на такси','GEL').error,'VOICE_MULTIPLE_OPERATIONS');
+ assert.equal(safety.check('5 ლარი და 12 ლარი','GEL').error,'VOICE_MULTIPLE_OPERATIONS');
+});
+
+test('interface language en is propagated to dictation now that the model is bundled',()=>{
+ const m=fs.readFileSync('www/index.js','utf8').match(/const VOICE_OFFLINE_LANGUAGES = \[([^\]]*)\]/);
+ assert.ok(m,'VOICE_OFFLINE_LANGUAGES declaration missing');
+ for(const code of ['"ka"','"ru"','"en"'])assert.ok(m[1].includes(code),code);
+});
+
+test('loosely spelled English GEL units keep the safety gate on GEL and the 1/100 minor unit',()=>{
+ for(const text of ['15 tetri','fifteen tetry','5 lari and fifteen tetri','five larry and fifteen tetra','I spent 5 larry and 50 tetry'])assert.equal(safety.check(text,'GEL').valid,true,text);
+ assert.equal(safety.check('15 tetri','GEL').currency,'GEL');
+ assert.equal(safety.check('five larry and fifteen tetra','RUB').error,'VOICE_CURRENCY_MISMATCH');
+ assert.equal(safety.check('5 larry and 12 larry','GEL').error,'VOICE_MULTIPLE_OPERATIONS');
+ assert.equal(safety.check('3 dollars 50 cents','GEL').error,'VOICE_CURRENCY_MISMATCH');
+});
+

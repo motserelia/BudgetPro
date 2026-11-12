@@ -23,3 +23,10 @@ test('Georgian conjunction only folds adjacent numbers and keeps real lists apar
   assert.equal(n('ორი და სამი','ka'),'2 და 3');
   assert.equal(n('8 ლარი და 12 ლარი','ka'),'8 ლარი და 12 ლარი');
 });
+
+// Vosk appends the nominative ი to compounds and separates the vigesimal parts.
+test('Vosk Georgian numeral variants stay one number',()=>{
+  for(const [input,expected] of [['ოცდაცხრაი','29'],['ორმოცდაცხრაი','49'],['ოცდა ცხრაი','29'],['ოცდა ცხრამეტი','39'],['ორმოცი და ცხრაი','49'],['ორმოცდაათი','50']])assert.equal(n(input,'ka'),expected,input);
+  assert.equal(n('ვიყიდე ოცდაცხრაი ლარი და ოცდაცხრაი თეთრის კიტრი','ka'),'ვიყიდე 29 ლარი და 29 თეთრის კიტრი');
+  assert.equal(n('ორმოცდახუთი წლის','ka'),'45 წლის');
+});

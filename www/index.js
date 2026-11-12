@@ -172,6 +172,13 @@ const translations = {
     saveAsTemplate: "⭐ Шаблон",
     manageTemplates: "🗂 Управление шаблонами",
     deleteTemplate: "Удалить шаблон",
+    quickSuggestionsEnabledTitle: "Быстрые предложения",
+    quickSuggestionsEnabledDesc: "Показывать блок шаблонов в окне добавления операции.",
+    quickSuggestionsEnabledOn: "Быстрые предложения включены",
+    quickSuggestionsEnabledOff: "Быстрые предложения скрыты",
+    quickSuggestionDeleteTitle: "Удалить предложение",
+    quickSuggestionDeleteMsg: "Удалить это предложение из списка? История операций не изменится.",
+    quickSuggestionDeleted: "🗑️ Предложение удалено",
     noTemplates: "Шаблоны не добавлены",
     edit: "Изменить",
     delete: "Удалить",
@@ -209,6 +216,9 @@ const translations = {
     noOperations: "Пока нет записей.\nНажмите «+» внизу ↓",
     newOperation: "Новая операция",
     editOperation: "Изменить запись",
+    opEmojiLabel: "Эмодзи",
+    opColorLabel: "Цвет",
+    opStyleFromCategory: "как у категории",
     confirmDelete: "Удалить эту запись?",
     confirmDeleteAll: "Удалить ВСЕ записи?",
     enterAmount: "Введите сумму",
@@ -528,7 +538,7 @@ const translations = {
     forecastBalance: "💎 Прогнозируемый остаток",
     forecastNote: "На основе средних трат за 30 дней",
     lineChartTitle: "📈 Динамика баланса",
-    lineChartExplanation: "Баланс на конец каждого месяца.",
+    lineChartExplanation: "Баланс на конец каждого дня выбранного периода.",
     pieChartTop5: "(топ-5)",
     periodThisMonth: "Этот месяц",
     periodLastMonth: "Прошлый месяц",
@@ -573,6 +583,20 @@ const translations = {
     trendVsLastMonth: "vs прошлый месяц",
     heatmapTitle: "🗓 Активность по дням недели",
     heatmapSubtitle: "Средние расходы",
+    healthIndexTitle: "🫀 Индекс финансового здоровья",
+    healthIndexWord: "Здоровье",
+    healthIndexGreat: "Отличный месяц! Вы сэкономили {pct}% дохода.",
+    healthIndexOk: "Здоровый баланс: сбережения {pct}% дохода.",
+    healthIndexLow: "Осторожно: траты съедают {pct}% дохода.",
+    healthIndexNoIncome: "Доходов пока нет — индексу нечего считать.",
+    healthIndexHint: "Индекс = (доходы − расходы) ÷ доходы × 100",
+    heatmapCalendarTitle: "🔥 Тепловая карта трат",
+    heatmapCalendarHint: "Чем ярче день, тем больше трат",
+    heatmapLegendLess: "Меньше",
+    heatmapLegendMore: "Больше",
+    heatmapNoSpend: "без трат",
+    podiumTitle: "🏆 Топ-3 категорий",
+    podiumPlace: "{place} место",
     exportPDF: "📄 Экспорт PDF",
     pdfTitle: "Финансовый отчёт",
     cloudBackup: "☁️ Резервное копирование",
@@ -609,7 +633,7 @@ const translations = {
     statsRemaining: "Остаток",
     statsSaved2: "сберегается",
     statsSpentOf2: "трат",
-    statsTips: "🧠 Советы",
+    statsTips: "Советы",
     statsSummaryTable: "📋 Итого",
     statsStartAmt: "💼 Начальная сумма",
     statsTotalIncLabel: "📈 Всего доходов",
@@ -639,6 +663,13 @@ const translations = {
     statsTipSaveLow: "Рекомендуется сберегать минимум 10% доходов.",
     statsTipNoIncome: "Добавьте источники дохода для полной картины.",
     statsTipGoodSaving: "Отличный показатель! Подумайте об инвестировании.",
+    // Инсайты аналитики: человеческие фразы вместо машинных («категория занимает %»).
+    statsInsightTopCat: "Больше всего вы потратили на «{cat}» — {pct}% всех расходов.",
+    statsInsightSurplus: "Доходы больше расходов на {pct}%. Отличная работа!",
+    statsInsightDeficit: "Расходы больше доходов на {pct}%. Стоит сократить траты.",
+    statsInsightSavings: "Вы сохранили {pct}% доходов — {amount}. Так держать!",
+    statsInsightNoIncome: "За этот период доходов нет — траты идут из накоплений.",
+    statsInsightNoOperations: "За этот период операций нет.",
     statsMoreCats: "ещё",
     simpleMode: "🔤 Упрощённый режим",
     normalMode: "✨ Обычный режим",
@@ -681,6 +712,7 @@ const translations = {
       dark: "🌌 Северное сияние",
       navy: "🌌 Полночный синий",
       gold: "✨ Золотое напыление",
+      graphiteNeon: "⚡ Graphite Neon",
     },
     themeDescs: {
       white: "Тёплые лучи заходящего солнца",
@@ -690,6 +722,7 @@ const translations = {
       dark: "Полярное сияние в ночном небе",
       navy: "Звёздное небо над океаном",
       gold: "Тёмный с золотыми акцентами",
+      graphiteNeon: "Графит с неоновыми акцентами",
     },
   },
   en: {
@@ -711,6 +744,13 @@ const translations = {
     saveAsTemplate: "⭐ Template",
     manageTemplates: "🗂 Manage templates",
     deleteTemplate: "Delete template",
+    quickSuggestionsEnabledTitle: "Quick suggestions",
+    quickSuggestionsEnabledDesc: "Show the templates block in the add operation window.",
+    quickSuggestionsEnabledOn: "Quick suggestions on",
+    quickSuggestionsEnabledOff: "Quick suggestions hidden",
+    quickSuggestionDeleteTitle: "Delete suggestion",
+    quickSuggestionDeleteMsg: "Remove this suggestion from the list? The operations history will not change.",
+    quickSuggestionDeleted: "🗑️ Suggestion removed",
     noTemplates: "No templates yet",
     edit: "Edit",
     delete: "Delete",
@@ -748,6 +788,9 @@ const translations = {
     noOperations: "No records yet.\nTap «+» below ↓",
     newOperation: "New transaction",
     editOperation: "Edit record",
+    opEmojiLabel: "Emoji",
+    opColorLabel: "Color",
+    opStyleFromCategory: "category default",
     confirmDelete: "Delete this record?",
     confirmDeleteAll: "Delete ALL records?",
     enterAmount: "Enter amount",
@@ -1066,7 +1109,7 @@ const translations = {
     forecastBalance: "💎 Projected balance",
     forecastNote: "Based on last 30 days",
     lineChartTitle: "📈 Balance dynamics",
-    lineChartExplanation: "Balance at end of each month.",
+    lineChartExplanation: "Balance at the end of each day in the selected period.",
     pieChartTop5: "(top 5)",
     periodThisMonth: "This month",
     periodLastMonth: "Last month",
@@ -1111,6 +1154,20 @@ const translations = {
     trendVsLastMonth: "vs last month",
     heatmapTitle: "🗓 Activity by day of week",
     heatmapSubtitle: "Average expenses",
+    healthIndexTitle: "🫀 Financial health index",
+    healthIndexWord: "Health",
+    healthIndexGreat: "Great month! You saved {pct}% of your income.",
+    healthIndexOk: "Healthy balance: savings are {pct}% of income.",
+    healthIndexLow: "Careful: spending takes {pct}% of your income.",
+    healthIndexNoIncome: "No income yet — nothing to score.",
+    healthIndexHint: "Index = (income − expenses) ÷ income × 100",
+    heatmapCalendarTitle: "🔥 Spending heatmap",
+    heatmapCalendarHint: "The brighter the day, the more you spent",
+    heatmapLegendLess: "Less",
+    heatmapLegendMore: "More",
+    heatmapNoSpend: "no spending",
+    podiumTitle: "🏆 Top 3 categories",
+    podiumPlace: "Place {place}",
     exportPDF: "📄 Export PDF",
     pdfTitle: "Financial Report",
     cloudBackup: "☁️ Cloud backup",
@@ -1147,7 +1204,7 @@ const translations = {
     statsRemaining: "Remaining",
     statsSaved2: "saved",
     statsSpentOf2: "spent",
-    statsTips: "🧠 Tips",
+    statsTips: "Tips",
     statsSummaryTable: "📋 Summary",
     statsStartAmt: "💼 Starting amount",
     statsTotalIncLabel: "📈 Total income",
@@ -1177,6 +1234,12 @@ const translations = {
     statsTipSaveLow: "Experts recommend saving at least 10%.",
     statsTipNoIncome: "Add income sources for full picture.",
     statsTipGoodSaving: "Great! Consider investing.",
+    statsInsightTopCat: "Your biggest spend was «{cat}» — {pct}% of all expenses.",
+    statsInsightSurplus: "Income is {pct}% higher than expenses. Great job!",
+    statsInsightDeficit: "Expenses are {pct}% higher than income. Time to cut spending.",
+    statsInsightSavings: "You saved {pct}% of income — {amount}. Keep it up!",
+    statsInsightNoIncome: "No income in this period — spending comes from savings.",
+    statsInsightNoOperations: "No operations in this period.",
     statsMoreCats: "more",
     simpleMode: "🔤 Simple mode",
     normalMode: "✨ Normal mode",
@@ -1219,6 +1282,7 @@ const translations = {
       dark: "🌌 Northern Lights",
       navy: "🌌 Midnight Blue",
       gold: "✨ Gold Dust",
+      graphiteNeon: "⚡ Graphite Neon",
     },
     themeDescs: {
       white: "Warm rays of sunset",
@@ -1228,6 +1292,7 @@ const translations = {
       dark: "Aurora borealis in night sky",
       navy: "Starry sky above the ocean",
       gold: "Dark with golden accents",
+      graphiteNeon: "Graphite with neon accents",
     },
   },
   ka: {
@@ -1249,6 +1314,13 @@ const translations = {
     saveAsTemplate: "⭐ შაბლონი",
     manageTemplates: "🗂 შაბლონების მართვა",
     deleteTemplate: "შაბლონის წაშლა",
+    quickSuggestionsEnabledTitle: "სწრაფი შეთავაზებები",
+    quickSuggestionsEnabledDesc: "აჩვენეთ შაბლონების ბლოკი ოპერაციის დამატების ფანჯარაში.",
+    quickSuggestionsEnabledOn: "სწრაფი შეთავაზებები ჩართულია",
+    quickSuggestionsEnabledOff: "სწრაფი შეთავაზებები დამალულია",
+    quickSuggestionDeleteTitle: "წინადადების წაშლა",
+    quickSuggestionDeleteMsg: "წაიშალოს ეს წინადადება სიიდან? ოპერაციების ისტორია არ შეიცვლება.",
+    quickSuggestionDeleted: "🗑️ წინადადება წაშლილია",
     noTemplates: "შაბლონები არ არის",
     edit: "შეცვლა",
     delete: "წაშლა",
@@ -1286,6 +1358,9 @@ const translations = {
     noOperations: "ჩანაწერები არ არის.\nდააჭირეთ «+»",
     newOperation: "ახალი ოპერაცია",
     editOperation: "ჩანაწერის შეცვლა",
+    opEmojiLabel: "ემოჯი",
+    opColorLabel: "ფერი",
+    opStyleFromCategory: "როგორც კატეგორიაში",
     confirmDelete: "წაიშალოს?",
     confirmDeleteAll: "წაიშალოს ყველა?",
     enterAmount: "თანხა",
@@ -1603,7 +1678,7 @@ const translations = {
     forecastBalance: "💎 პროგნოზირებული ნაშთი",
     forecastNote: "ბოლო 30 დღის საფუძველზე",
     lineChartTitle: "📈 ბალანსის დინამიკა",
-    lineChartExplanation: "ბალანსი თვის ბოლოს.",
+    lineChartExplanation: "ბალანსი არჩეული პერიოდის ყოველი დღის ბოლოს.",
     pieChartTop5: "(ტოპ 5)",
     periodThisMonth: "ეს თვე",
     periodLastMonth: "გასული თვე",
@@ -1648,6 +1723,21 @@ const translations = {
     trendVsLastMonth: "vs გასული თვე",
     heatmapTitle: "🗓 აქტივობა კვირის დღეების მიხედვით",
     heatmapSubtitle: "საშუალო ხარჯები",
+    // TODO-ka: новые строки ниже стоит проверить носителю языка.
+    healthIndexTitle: "🫀 ფინანსური ჯანმრთელობის ინდექსი", // TODO-ka
+    healthIndexWord: "ჯანმრთელობა", // TODO-ka
+    healthIndexGreat: "შესანიშნავი თვე! დაზოგეთ შემოსავლის {pct}%.", // TODO-ka
+    healthIndexOk: "ჯანსაღი ბალანსი: დანაზოგი შემოსავლის {pct}%.", // TODO-ka
+    healthIndexLow: "ფრთხილად: ხარჯები შემოსავლის {pct}%-ია.", // TODO-ka
+    healthIndexNoIncome: "შემოსავალი ჯერ არ არის — ინდექსი ვერ ჩაითვლება.", // TODO-ka
+    healthIndexHint: "ინდექსი = (შემოსავალი − ხარჯი) ÷ შემოსავალი × 100", // TODO-ka
+    heatmapCalendarTitle: "🔥 ხარჯების სითბური რუკა", // TODO-ka
+    heatmapCalendarHint: "რაც უფრო კაშკაშაა დღე, მით მეტია ხარჯი", // TODO-ka
+    heatmapLegendLess: "ნაკლები", // TODO-ka
+    heatmapLegendMore: "მეტი", // TODO-ka
+    heatmapNoSpend: "ხარჯის გარეშე", // TODO-ka
+    podiumTitle: "🏆 ტოპ-3 კატეგორია", // TODO-ka
+    podiumPlace: "{place} ადგილი", // TODO-ka
     exportPDF: "📄 PDF",
     pdfTitle: "ფინანსური ანგარიში",
     cloudBackup: "☁️ სარეზერვო კოპია",
@@ -1684,7 +1774,7 @@ const translations = {
     statsRemaining: "ნაშთი",
     statsSaved2: "ინახება",
     statsSpentOf2: "ხარჯი",
-    statsTips: "🧠 რჩევები",
+    statsTips: "რჩევები",
     statsSummaryTable: "📋 ჯამი",
     statsStartAmt: "💼 საწყისი",
     statsTotalIncLabel: "📈 შემოსავალი",
@@ -1714,6 +1804,13 @@ const translations = {
     statsTipSaveLow: "10% დაზოგვა რეკომენდებულია.",
     statsTipNoIncome: "დაამატეთ შემოსავლები.",
     statsTipGoodSaving: "შესანიშნავი!",
+    // TODO-ka: ქართული ტექსტები სასურველია ნატიფი მშობლიური მოსაუბრეს მიერ შემოწმდეს.
+    statsInsightTopCat: "ყველაზე მეტი დახარჯეთ «{cat}»-ზე — ყველა ხარჯის {pct}%.",
+    statsInsightSurplus: "შემოსავალი ხარჯზე {pct}%-ით მეტია. შესანიშნავია!",
+    statsInsightDeficit: "ხარჯი შემოსავალზე {pct}%-ით მეტია. ღირს ხარჯების შემცირება.",
+    statsInsightSavings: "შეინახეთ შემოსავლის {pct}% — {amount}. ასე გააგრძელეთ!",
+    statsInsightNoIncome: "ამ პერიოდში შემოსავალი არ არის — ხარჯები დანაზოგიდან მიდის.",
+    statsInsightNoOperations: "ამ პერიოდში ოპერაციები არ არის.",
     statsMoreCats: "კატ.",
     simpleMode: "🔤 გამარტივებული რეჟიმი",
     normalMode: "✨ ჩვეულებრივი რეჟიმი",
@@ -1756,6 +1853,7 @@ const translations = {
       dark: "🌌 ჩრდილოეთის ნათება",
       navy: "🌌 შუაღამის ლურჯი",
       gold: "✨ ოქროს მტვერი",
+      graphiteNeon: "⚡ Graphite Neon",
     },
     themeDescs: {
       white: "მზის ჩასვლის თბილი სხივები",
@@ -1765,6 +1863,7 @@ const translations = {
       dark: "პოლარული ნათება ღამის ცაში",
       navy: "ვარსკვლავიანი ცა ოკეანეზე",
       gold: "მუქი ოქროს აქცენტებით",
+      graphiteNeon: "გრაფიტი ნეონის აქცენტებით",
     },
   },
 };
@@ -1773,6 +1872,25 @@ const translations = {
 // ТЕКУЩИЙ ЯЗЫК И ФУНКЦИИ ПЕРЕВОДА
 // ============================================================
 let currentLang = localStorage.getItem("lang") || "en";
+
+// Offline Vosk models packaged into the APK are ka, ru and en
+// (.cache/vosk-assets, verified by scripts/prepare-vosk-models.py), so all three
+// interface languages are propagated to the dictation language.
+const VOICE_OFFLINE_LANGUAGES = ["ka", "ru", "en"];
+
+// Speech recognition follows the interface language. The voice module keeps its
+// own language key, so it is re-asserted on boot and on every language switch;
+// a choice made in the voice settings applies until the interface language
+// changes or the app restarts.
+function syncVoiceLanguage(lang) {
+  try {
+    if (!VOICE_OFFLINE_LANGUAGES.includes(lang)) return;
+    if (!window.BudgetPROVoiceModule || window.BudgetPROVoiceModule.isActive()) return;
+    window.BudgetPROVoiceModule.setLanguage(lang);
+  } catch (e) {}
+}
+
+syncVoiceLanguage(currentLang);
 
 Object.assign(translations.ru, {
   authTitle: "Вход по Magic Link",
@@ -1876,6 +1994,91 @@ Object.assign(translations.ru, {
   moreLabel: "Ещё",
   sharePlain: "Поделиться",
   confirmTitleText: "Вы уверены?",
+  ghTotalBalance: "Общий баланс",
+  ghThisMonth: "Этот месяц",
+  ghMonthlyBudget: "Месячный бюджет",
+  ghBudgetHint: "потрачено из лимита",
+  ghBudgetDesc: "Установите лимит, чтобы контролировать расходы",
+  ghBudgetCurrent: "Текущий лимит",
+  ghBudgetUpdate: "Сохранить изменения",
+  ghBudgetReset: "Сбросить бюджет",
+  ghBudgetResetDone: "Лимит бюджета сброшен",
+  // ── Окно месячного бюджета: пояснение, общий лимит, аналитика, превышение ──
+  ghBudgetOverBy: "Превышено на",
+  budgetExplain:
+    "Месячный бюджет — это ваш общий лимит трат на месяц. Установите сумму, и приложение будет считать, сколько вы уже потратили и сколько осталось.",
+  budgetGlobalLimit: "Общий лимит на месяц",
+  budgetGlobalHint: "Пустое поле — общий лимит не задан",
+  budgetGlobalFromCategories: "Лимит пока считается по суммам категорий",
+  budgetSpentLabel: "Потрачено",
+  budgetLimitWord: "Лимит",
+  budgetAnalytics: "Аналитика",
+  budgetRemainingLabel: "Осталось потратить",
+  budgetOverrunLabel: "Перерасход",
+  budgetTopTitle: "Больше всего",
+  budgetLowTitle: "Меньше всего",
+  budgetAvgPerDay: "В среднем в день",
+  budgetNoExpenses: "В этом месяце расходов пока нет",
+  budgetCategorySection: "Лимиты по категориям (опционально)",
+  budgetCategoryNote: "Дополнительно: лимит для отдельной категории. Общий лимит выше важнее — если он задан, сумма категорий не учитывается.",
+  // ── Окно бюджета: список лимитов месяца и форма добавления ──
+  budgetLimitsTitle: "Лимиты месяца",
+  budgetLimitsNote: "Общий лимит месяца — сумма всех лимитов ниже. Кольцо, полоса и «Осталось потратить» считаются от неё.",
+  budgetLimitsEmpty: "Лимитов пока нет. Добавьте первый — он станет общим лимитом месяца.",
+  budgetLimitTotal: "Сумма всех лимитов",
+  budgetAddLimit: "Добавить лимит",
+  budgetLimitName: "Название",
+  budgetLimitNamePlaceholder: "Например, Отпуск",
+  budgetLimitBind: "Привязка к категории",
+  budgetLimitCustomOption: "Свой лимит (без категории)",
+  budgetLimitIcon: "Иконка",
+  budgetLimitAmount: "Сумма лимита",
+  budgetLimitDelete: "Удалить лимит",
+  budgetLimitBoundBadge: "категория",
+  budgetLimitCustomBadge: "свой лимит",
+  budgetLimitNameRequired: "Введите название лимита",
+  budgetLimitExists: "Лимит этой категории уже есть — сумма обновлена",
+  budgetLimitAdded: "Лимит добавлен",
+  budgetLimitSpendFrom: "Списать из лимита",
+  budgetLimitSpendFromNone: "Не списывать из лимита",
+  budgetLimitAutoDeduct: "Спишется из лимита категории",
+  budgetLimitLeft: "Осталось:",
+  budgetLimitOverBy: "Превышено на:",
+  budgetLimitEdit: "Редактировать лимит",
+  budgetLimitNewTitle: "Новый лимит",
+  budgetLimitEditTitle: "Редактирование лимита",
+  budgetLimitColor: "Цвет кольца",
+  budgetLimitColorAuto: "Градиент по умолчанию",
+  budgetLimitColorReset: "Сбросить цвет",
+  budgetSlideTotal: "Общий бюджет",
+  budgetSlideLabel: "Слайд {n}",
+  budgetOverTitle: "Превышение лимита",
+  budgetOverWarnItem:
+    "Лимит на «{name}» превышен на {sum}. Вы уверены, что хотите продолжить?",
+  budgetOverWarnTotal:
+    "Общий бюджет месяца превышен на {sum}. Вы уверены, что хотите продолжить?",
+  budgetOverContinue: "Продолжить",
+  budgetOverNote:
+    "Операция будет добавлена, но лимит уже превышен. «Отмена» вернёт к правке.",
+  ghBudgetShowAll: "Показать все лимиты",
+  homeBudgetShown: "Месячный бюджет показан",
+  homeBudgetHidden: "Месячный бюджет скрыт",
+  budgetOverAlertTitle: "Внимание!",
+  budgetOverAlert: "Вы превысили бюджет на",
+  budgetOverBannerTitle: "Внимание!",
+  budgetOverBannerItem: "Вы превысили лимит «{name}» на {sum}.",
+  budgetOverBannerTotal: "Вы превысили общий бюджет месяца на {sum}.",
+  ghLimitNotSet: "Лимит не задан",
+  ghTapToSetLimit: "Нажмите, чтобы задать лимит",
+  ghScopeTotal: "всего",
+  filterEmptyTitle: "Нет операций по этому фильтру",
+  ghPhoto: "Фото",
+  ghProfile: "Профиль",
+  ghAnalytics: "Аналитика",
+  ghNotifications: "Уведомления",
+  ghMenu: "Меню",
+  ghRecentHistory: "Последние операции",
+  ghSeeAll: "Все",
 });
 
 Object.assign(translations.en, {
@@ -1980,6 +2183,90 @@ Object.assign(translations.en, {
   moreLabel: "More",
   sharePlain: "Share",
   confirmTitleText: "Are you sure?",
+  ghTotalBalance: "Total balance",
+  ghThisMonth: "This month",
+  ghMonthlyBudget: "Monthly budget",
+  ghBudgetHint: "spent of the limit",
+  ghBudgetDesc: "Set a limit to control your expenses",
+  ghBudgetCurrent: "Current limit",
+  ghBudgetUpdate: "Update budget",
+  ghBudgetReset: "Reset budget",
+  ghBudgetResetDone: "Budget limit reset",
+  ghBudgetOverBy: "Over by",
+  budgetExplain:
+    "A monthly budget is your total spending limit for the month. Set an amount, and the app will calculate how much you've spent and how much is left.",
+  budgetGlobalLimit: "Total limit per month",
+  budgetGlobalHint: "Leave the field empty to keep no total limit",
+  budgetGlobalFromCategories: "The limit is currently the sum of category limits",
+  budgetSpentLabel: "Spent",
+  budgetLimitWord: "Limit",
+  budgetAnalytics: "Analytics",
+  budgetRemainingLabel: "Left to spend",
+  budgetOverrunLabel: "Overspend",
+  budgetTopTitle: "Biggest spending",
+  budgetLowTitle: "Smallest spending",
+  budgetAvgPerDay: "Average per day",
+  budgetNoExpenses: "No expenses this month yet",
+  budgetCategorySection: "Category limits (optional)",
+  budgetCategoryNote: "Optional fine-tuning: a limit for a single category. The overall limit above takes priority — when it is set, the category sum is ignored.",
+  // ── Budget modal: list of monthly limits and the add form ──
+  budgetLimitsTitle: "Monthly limits",
+  budgetLimitsNote: "The monthly limit is the sum of all limits below. The ring, the bar and “Left to spend” are calculated from it.",
+  budgetLimitsEmpty: "No limits yet. Add the first one — it becomes your monthly limit.",
+  budgetLimitTotal: "Sum of all limits",
+  budgetAddLimit: "Add limit",
+  budgetLimitName: "Name",
+  budgetLimitNamePlaceholder: "E.g. Vacation",
+  budgetLimitBind: "Linked category",
+  budgetLimitCustomOption: "Custom limit (no category)",
+  budgetLimitIcon: "Icon",
+  budgetLimitAmount: "Limit amount",
+  budgetLimitDelete: "Delete limit",
+  budgetLimitBoundBadge: "category",
+  budgetLimitCustomBadge: "custom",
+  budgetLimitNameRequired: "Enter a limit name",
+  budgetLimitExists: "This category already has a limit — the amount was updated",
+  budgetLimitAdded: "Limit added",
+  budgetLimitSpendFrom: "Charge to a limit",
+  budgetLimitSpendFromNone: "Do not charge a limit",
+  budgetLimitAutoDeduct: "Will be charged from the category limit",
+  budgetLimitLeft: "Left:",
+  budgetLimitOverBy: "Over by:",
+  budgetLimitEdit: "Edit limit",
+  budgetLimitNewTitle: "New limit",
+  budgetLimitEditTitle: "Edit limit",
+  budgetLimitColor: "Ring color",
+  budgetLimitColorAuto: "Default gradient",
+  budgetLimitColorReset: "Reset color",
+  budgetSlideTotal: "Total budget",
+  budgetSlideLabel: "Slide {n}",
+  budgetOverTitle: "Limit exceeded",
+  budgetOverWarnItem:
+    "The “{name}” limit is exceeded by {sum}. Are you sure you want to continue?",
+  budgetOverWarnTotal:
+    "The monthly budget is exceeded by {sum}. Are you sure you want to continue?",
+  budgetOverContinue: "Continue",
+  budgetOverNote:
+    "The operation will be added, but the limit is already exceeded. “Cancel” returns to editing.",
+  ghBudgetShowAll: "Show all limits",
+  homeBudgetShown: "Monthly budget shown",
+  homeBudgetHidden: "Monthly budget hidden",
+  budgetOverAlertTitle: "Warning!",
+  budgetOverAlert: "You have exceeded the budget by",
+  budgetOverBannerTitle: "Warning!",
+  budgetOverBannerItem: "You have exceeded the “{name}” limit by {sum}.",
+  budgetOverBannerTotal: "You have exceeded the monthly budget by {sum}.",
+  ghLimitNotSet: "No limit set",
+  ghTapToSetLimit: "Tap to set a limit",
+  ghScopeTotal: "total",
+  filterEmptyTitle: "No operations match this filter",
+  ghPhoto: "Photo",
+  ghProfile: "Profile",
+  ghAnalytics: "Analytics",
+  ghNotifications: "Notifications",
+  ghMenu: "Menu",
+  ghRecentHistory: "Recent history",
+  ghSeeAll: "See all",
 });
 
 Object.assign(translations.ka, {
@@ -2084,6 +2371,93 @@ Object.assign(translations.ka, {
   moreLabel: "მეტი",
   sharePlain: "გაზიარება",
   confirmTitleText: "დარწმუნებული ხართ?",
+  ghTotalBalance: "საერთო ბალანსი",
+  ghThisMonth: "ამ თვეში",
+  ghMonthlyBudget: "თვიური ბიუჯეტი",
+  ghBudgetHint: "დახარჯულია ლიმიტიდან",
+  ghBudgetDesc: "დააყენეთ ლიმიტი ხარჯების გასაკონტროლებლად",
+  ghBudgetCurrent: "მიმდინარე ლიმიტი",
+  ghBudgetUpdate: "ცვლილებების შენახვა",
+  ghBudgetReset: "ბიუჯეტის განულება",
+  ghBudgetResetDone: "ბიუჯეტის ლიმიტი განულებულია",
+  ghBudgetOverBy: "გადაჭარბებულია",
+  budgetExplain:
+    "თვიური ბიუჯეტი არის თქვენი ხარჯვის მთლიანი ლიმიტი თვის განმავლობაში. დააყენეთ თანხა და აპლიკაცია დაითვლის რამდენი დახარჯეთ და რამდენი დარჩათ.",
+  budgetGlobalLimit: "ზოგადი ლიმიტი თვეში",
+  budgetGlobalHint: "ცარიელი ველი — ზოგადი ლიმიტი დაყენებული არ არის",
+  budgetGlobalFromCategories: "ლიმიტი ჯერ ითვლება კატეგორიების ჯამით",
+  budgetSpentLabel: "დახარჯულია",
+  budgetLimitWord: "ლიმიტი",
+  budgetAnalytics: "ანალიტიკა",
+  budgetRemainingLabel: "დარჩენილი თანხა",
+  budgetOverrunLabel: "გადაჭარბება",
+  budgetTopTitle: "ყველაზე მეტი",
+  budgetLowTitle: "ყველაზე ნაკლები",
+  budgetAvgPerDay: "საშუალოდ დღეში",
+  budgetNoExpenses: "ამ თვეში ხარჯები ჯერ არ არის",
+  budgetCategorySection: "ლიმიტები კატეგორიების მიხედვით (სურვილისამებრ)",
+  // TODO-ka: перевод требует проверки носителем.
+  budgetCategoryNote: "დამატებითი პარამეტრი: ლიმიტი ცალკეული კატეგორიისთვის. ზემოთ მოცემულ მთავარ ლიმიტს უპირატესობა აქვს — თუ ის დაყენებულია, კატეგორიების ჯამი არ ითვლება.",
+  // ── ბიუჯეტის ფანჯარა: თვის ლიმიტების სია და დამატების ფორმა ──
+  // TODO-ka: перевод требует проверки носителем.
+  budgetLimitsTitle: "თვის ლიმიტები",
+  budgetLimitsNote: "თვის ზოგადი ლიმიტი არის ქვემოთ მოცემული ყველა ლიმიტის ჯამი. რგოლი, ზოლი და «დარჩენილი თანხა» ითვლება ამ ჯამიდან.",
+  budgetLimitsEmpty: "ლიმიტები ჯერ არ არის. დაამატეთ პირველი — ის გახდება თვის ზოგადი ლიმიტი.",
+  budgetLimitTotal: "ყველა ლიმიტის ჯამი",
+  budgetAddLimit: "ლიმიტის დამატება",
+  budgetLimitName: "სახელწოდება",
+  budgetLimitNamePlaceholder: "მაგალითად, შვებულება",
+  budgetLimitBind: "კატეგორიასთან მიბმა",
+  budgetLimitCustomOption: "საკუთარი ლიმიტი (კატეგორიის გარეშე)",
+  budgetLimitIcon: "ხატულა",
+  budgetLimitAmount: "ლიმიტის თანხა",
+  budgetLimitDelete: "ლიმიტის წაშლა",
+  budgetLimitBoundBadge: "კატეგორია",
+  budgetLimitCustomBadge: "საკუთარი ლიმიტი",
+  budgetLimitNameRequired: "შეიყვანეთ ლიმიტის სახელწოდება",
+  budgetLimitExists: "ამ კატეგორიის ლიმიტი უკვე არსებობს — თანხა განახლდა",
+  budgetLimitAdded: "ლიმიტი დამატებულია",
+  // TODO-ka: проверить формулировки у носителя языка.
+  budgetLimitSpendFrom: "ლიმიტიდან ჩამოწერა",
+  budgetLimitSpendFromNone: "ლიმიტიდან არ ჩამოიწეროს",
+  budgetLimitAutoDeduct: "ჩამოიწერება კატეგორიის ლიმიტიდან",
+  budgetLimitLeft: "დარჩა:",
+  budgetLimitOverBy: "გადაჭარბებულია:",
+  budgetLimitEdit: "ლიმიტის რედაქტირება",
+  budgetLimitNewTitle: "ახალი ლიმიტი",
+  budgetLimitEditTitle: "ლიმიტის რედაქტირება",
+  budgetLimitColor: "რგოლის ფერი",
+  budgetLimitColorAuto: "ნაგულისხმევი გრადიენტი",
+  budgetLimitColorReset: "ფერის გადატვირთვა",
+  budgetSlideTotal: "საერთო ბიუჯეტი",
+  budgetSlideLabel: "სლაიდი {n}",
+  budgetOverTitle: "ლიმიტის გადაჭარბება",
+  budgetOverWarnItem:
+    "ლიმიტი «{name}» გადაჭარბებულია {sum}-ით. დარწმუნებული ხართ, რომ გსურთ გაგრძელება?",
+  budgetOverWarnTotal:
+    "თვიური ბიუჯეტი გადაჭარბებულია {sum}-ით. დარწმუნებული ხართ, რომ გსურთ გაგრძელება?",
+  budgetOverContinue: "გაგრძელება",
+  budgetOverNote:
+    "ოპერაცია დაემატება, თუმცა ლიმიტი უკვე გადაჭარბებულია. «გაუქმება» დააბრუნებს რედაქტირებაზე.",
+  ghBudgetShowAll: "ყველა ლიმიტის ჩვენება",
+  homeBudgetShown: "თვიური ბიუჯეტი ნაჩვენებია",
+  homeBudgetHidden: "თვიური ბიუჯეტი დამალულია",
+  budgetOverAlertTitle: "ყურადღება!",
+  budgetOverAlert: "თქვენ გადააჭარბეთ ბიუჯეტს",
+  budgetOverBannerTitle: "ყურადღება!",
+  budgetOverBannerItem: "ლიმიტი „{name}“ გადაჭარბებულია {sum}-ით.",
+  budgetOverBannerTotal: "თვიური ბიუჯეტი გადაჭარბებულია {sum}-ით.",
+  ghLimitNotSet: "ლიმიტი დაყენებული არ არის",
+  ghTapToSetLimit: "შეეხეთ ლიმიტის დასაყენებლად",
+  ghScopeTotal: "სულ",
+  filterEmptyTitle: "ამ ფილტრით ოპერაცია არ არის",
+  ghPhoto: "ფოტო",
+  ghProfile: "პროფილი",
+  ghAnalytics: "ანალიტიკა",
+  ghNotifications: "შეტყობინებები",
+  ghMenu: "მენიუ",
+  ghRecentHistory: "ბოლო ოპერაციები",
+  ghSeeAll: "ყველა",
 });
 
 // ============================================================
@@ -2658,6 +3032,7 @@ function setLanguage(lang) {
   currentLang = lang;
   saveGuideRuntimeState({ language: lang });
   localStorage.setItem("lang", lang);
+  syncVoiceLanguage(lang);
   document.documentElement.lang = lang;
   applyTranslations();
   updateHeroTrendText();
@@ -2883,6 +3258,13 @@ let historyFilter = "allTime"; // фильтр истории по времен�
 
 // Новые структуры данных
 let categoryBudgets = {}; // { "Продукты": 5000 } в рублях
+// Свои лимиты без привязки к категории: [{ id, name, emoji, amountRub }].
+// Вместе с categoryBudgets дают общий лимит месяца (см. getMonthlyBudgetLimitRub).
+let budgetCustomLimits = [];
+// Устаревшее поле «общий лимит на месяц» (₽). При загрузке данных переносится
+// в budgetCustomLimits отдельной карточкой, чтобы общий лимит всегда был
+// суммой всех лимитов (см. migrateLegacyMonthlyLimitRub).
+let monthlyBudgetLimitRub = 0;
 let recurringOps = []; // повторяющиеся операции
 let pinHash = null; // хеш пин-кода
 let pinEnabled = false;
@@ -2891,7 +3273,34 @@ let supportMessages = [];
 // Профили и состояние
 let _creatorTaps = 0;
 let _creatorTapTimer = null;
-let suggestionsEnabled = localStorage.getItem("suggestionsEnabled") !== "false";
+// Флаг блока «Быстрые предложения» в окне добавления операции.
+// Новый ключ — источник истины, прежний ключ (suggestionsEnabled) читается
+// как резервный, чтобы настройка не слетала у уже установленных копий.
+const QUICK_SUGGESTIONS_STORAGE_KEY = "budgetpro_quick_suggestions_enabled";
+const LEGACY_SUGGESTIONS_STORAGE_KEY = "suggestionsEnabled";
+function readQuickSuggestionsEnabled() {
+  const raw = localStorage.getItem(QUICK_SUGGESTIONS_STORAGE_KEY);
+  if (raw !== null) return raw !== "false";
+  return localStorage.getItem(LEGACY_SUGGESTIONS_STORAGE_KEY) !== "false";
+}
+let suggestionsEnabled = readQuickSuggestionsEnabled();
+// Видимость блока «Месячный бюджет» на главной. По умолчанию карточка
+// включена: у уже установленных копий она не должна пропасть после обновления.
+const HOME_BUDGET_VISIBLE_STORAGE_KEY = "budgetpro_home_budget_visible";
+function readHomeBudgetVisible() {
+  return localStorage.getItem(HOME_BUDGET_VISIBLE_STORAGE_KEY) !== "false";
+}
+let homeBudgetVisible = readHomeBudgetVisible();
+function setHomeBudgetVisible(enabled) {
+  homeBudgetVisible = !!enabled;
+  try {
+    localStorage.setItem(
+      HOME_BUDGET_VISIBLE_STORAGE_KEY,
+      homeBudgetVisible ? "true" : "false",
+    );
+  } catch (e) {}
+  return homeBudgetVisible;
+}
 let reminderMode = localStorage.getItem("reminderMode") || "interval";
 let customReminderDatetime =
   localStorage.getItem("customReminderDatetime") || "";
@@ -4992,6 +5401,44 @@ function getBaseCategoryStyle(cat, type) {
       };
 }
 
+// Одна точка правды для эмодзи категории: ею пользуются список категорий,
+// история (главная, простой режим, полная история), карточки лимитов и кольца
+// бюджета. Порядок источников:
+//   1) оформление категории — categoryCustomizations[категория].icon (то, что
+//      выбирается пикером в окне категории и в окне лимита);
+//   2) поле emoji/customEmoji самой категории — резервная копия, которую
+//      сохраняем при любом выборе иконки (переживает сброс оформления);
+//   3) иконка по названию категории (встроенный справочник);
+//   4) «📁», если ничего не нашлось.
+function getCategoryEmoji(cat, type = "expense", fallback = "") {
+  const name = String(cat || "").trim();
+  if (!name) return String(fallback || "").trim() || "📁";
+  const custom = categoryCustomizations?.[name]?.icon;
+  if (typeof custom === "string" && custom.trim()) return custom.trim();
+  const store = type === "income" ? incomeCategories : categories;
+  const entry = store?.[name];
+  const saved =
+    typeof entry?.emoji === "string"
+      ? entry.emoji
+      : typeof entry?.customEmoji === "string"
+        ? entry.customEmoji
+        : "";
+  if (saved.trim()) return saved.trim();
+  const base = String(getBaseCategoryStyle(name, type)?.icon || "").trim();
+  return base || String(fallback || "").trim() || "📁";
+}
+
+// Число глифов в иконке (1..4). Составная иконка («👏💰», «🏠🏦🎯») шире
+// плитки, поэтому плитки уменьшают шрифт по этому числу — правила
+// [data-emoji-len] / [data-icon-len] в index.html. Как и в строках истории,
+// селекторы представления (VS15/VS16) и ZWJ не считаем за отдельные глифы.
+function emojiGlyphCount(icon) {
+  const count = Array.from(String(icon || "")).filter(
+    (ch) => ch.trim() && !/[\uFE0E\uFE0F\u200D]/u.test(ch),
+  ).length;
+  return Math.min(4, count || 1);
+}
+
 function getEmojiOptionsMarkup(selectedEmoji, allowEmpty = false) {
   const options = [];
   const list = CATEGORY_EMOJI_OPTIONS.includes(selectedEmoji)
@@ -5692,7 +6139,80 @@ const COLOR_THEMES = {
       "--radius-xl": "34px",
     },
   },
+  graphiteNeon: {
+    label: "⚡ Graphite Neon",
+    dark: true,
+    accent: "#FF7E5F",
+    vars: {
+      "--primary": "#FF7E5F",
+      "--primary-med": "#C86B87",
+      "--primary-light": "#9B59B6",
+      "--primary-pale": "rgba(255,126,95,0.14)",
+      "--gold": "#FF7E5F",
+      "--gold-pale": "rgba(255,126,95,0.10)",
+      "--gold-border": "rgba(255,126,95,0.26)",
+      "--income-color": "#4ADE80",
+      "--income-pale": "rgba(74,222,128,0.12)",
+      "--expense-color": "#FF7E5F",
+      "--expense-pale": "rgba(255,126,95,0.12)",
+      "--balance-pale": "rgba(155,89,182,0.16)",
+      "--balance-color": "#FF7E5F",
+      "--text": "#FFFFFF",
+      "--text-soft": "#E6E6E6",
+      "--text-muted": "#A0A0A0",
+      "--card-bg": "#1E1E1E",
+      "--cream": "#121212",
+      "--cream-dark": "rgba(255,255,255,0.04)",
+      "--cream-border": "rgba(255,255,255,0.05)",
+      "--shadow-sm": "0 2px 10px rgba(0,0,0,0.45)",
+      "--shadow-md": "0 8px 28px rgba(0,0,0,0.50)",
+      "--shadow-lg": "0 18px 48px rgba(0,0,0,0.60)",
+      "--radius-sm": "16px",
+      "--radius-md": "20px",
+      "--radius-lg": "24px",
+      "--radius-xl": "28px",
+      "--lux-em": "#FF7E5F",
+      "--lux-em2": "#C86B87",
+      "--lux-em3": "#9B59B6",
+      "--gh-bg": "#121212",
+      "--gh-card": "#232323",
+      "--gh-border": "rgba(255,255,255,0.05)",
+      "--gh-shadow": "0 10px 30px rgba(0,0,0,0.55)",
+      "--gh-radius": "24px",
+      "--gh-accent": "#FF7E5F",
+      "--gh-accent-2": "#9B59B6",
+      "--gh-gradient": "linear-gradient(135deg,#FF7E5F 0%,#9B59B6 100%)",
+      "--gh-text": "#FFFFFF",
+      "--gh-muted": "#A0A0A0",
+    },
+  },
 };
+
+// Graphite Neon: подписи нижнего меню (Analytics / Profile) только для этой темы
+function syncGraphiteShell() {
+  const on = document.body.classList.contains("theme-graphiteNeon");
+  const apply = (el, key) => {
+    if (!el || el.dataset.i18n === key) return;
+    el.dataset.i18n = key;
+    el.textContent = t(key);
+    const btn = el.closest("button");
+    if (btn) {
+      btn.title = t(key);
+      btn.setAttribute("aria-label", t(key));
+    }
+  };
+  document
+    .querySelectorAll(
+      '#mainNav .nav-btn[data-tab="stats"] [data-i18n], #simpleNav .nav-btn[data-tab="stats"] [data-i18n]',
+    )
+    .forEach((el) => apply(el, on ? "ghAnalytics" : "stats"));
+  ["moreNavBtn", "moreNavBtnSimple"].forEach((id) => {
+    apply(
+      document.querySelector(`#${id} [data-i18n]`),
+      on ? "ghProfile" : "moreLabel",
+    );
+  });
+}
 
 function applyColorTheme(themeKey) {
   colorTheme = themeKey || "dark";
@@ -5708,6 +6228,7 @@ function applyColorTheme(themeKey) {
     "theme-navy",
     "theme-gold",
     "theme-sunrise",
+    "theme-graphiteNeon",
     "dark",
   ].forEach((cls) => document.body.classList.remove(cls));
   if (theme.dark) document.body.classList.add("dark");
@@ -5940,13 +6461,18 @@ function applyColorTheme(themeKey) {
     // Trigger repaint
     void document.body.offsetHeight;
   });
+  syncGraphiteShell();
 }
 
 function getCategoryStyle(cat, type) {
   const baseStyle = getBaseCategoryStyle(cat, type);
   const custom = categoryCustomizations?.[cat] || {};
   return {
-    icon: custom.icon || baseStyle.icon,
+    // Эмодзи — через общий резолвер: свой, затем сохранённый в категории,
+    // затем подобранный по названию. Список категорий и история берут иконку
+    // отсюда, поэтому подмена или потеря одного источника больше не «съедает»
+    // выбранный пользователем эмодзи.
+    icon: getCategoryEmoji(cat, type, baseStyle.icon),
     color: normalizeHexColor(custom.color) || baseStyle.color,
   };
 }
@@ -5986,6 +6512,40 @@ function getFrequentSuggestions(limit = 5) {
       };
     });
 }
+// Удаление быстрого предложения из списка «⚡ Быстрые предложения».
+// Убирается только сама запись статистики частоты: массив transactions
+// и баланс при этом не меняются — история операций остаётся нетронутой.
+function removeFrequentSuggestion(category, amountRub) {
+  const target = Number(amountRub);
+  if (!Number.isFinite(target)) return false;
+  let removed = false;
+  Object.keys(frequentStats).forEach((key) => {
+    const sep = key.lastIndexOf("|");
+    if (sep < 0) return;
+    const cat = key.slice(0, sep);
+    const amt = parseFloat(key.slice(sep + 1));
+    if (cat !== category || !Number.isFinite(amt)) return;
+    if (Math.abs(amt - target) > 0.005) return;
+    delete frequentStats[key];
+    removed = true;
+  });
+  if (removed) saveFrequentStats();
+  return removed;
+}
+
+// Включение/выключение блока «Быстрые предложения».
+// Новый ключ — источник истины, прежний ключ дублируется для старого экрана.
+function setQuickSuggestionsEnabled(enabled) {
+  suggestionsEnabled = !!enabled;
+  const value = suggestionsEnabled ? "true" : "false";
+  try {
+    localStorage.setItem(QUICK_SUGGESTIONS_STORAGE_KEY, value);
+    localStorage.setItem(LEGACY_SUGGESTIONS_STORAGE_KEY, value);
+  } catch (e) {}
+  updateSuggestions();
+  return suggestionsEnabled;
+}
+
 function addUserTemplate(tpl) {
   userTemplates.push({ id: Date.now(), ...tpl });
   saveUserTemplates();
@@ -5995,25 +6555,30 @@ function removeUserTemplate(id) {
   saveUserTemplates();
 }
 
-// Обновлённый рендер предложений с кнопкой удаления
+// Рендер блока «Быстрые предложения» с кнопкой удаления у каждой карточки.
 function updateSuggestions() {
-  const sb = document.getElementById("suggestionsList");
-  if (!sb) return;
-  if (!suggestionsEnabled) {
-    const bl = document.getElementById("suggestionsBlock");
-    if (bl) bl.style.display = "none";
-    return;
-  }
-
+  const block = document.getElementById("suggestionsBlock");
   const sl = document.getElementById("suggestionsList");
   if (!sl) return;
+  // Выключенный переключатель полностью убирает блок из окна добавления.
+  if (!suggestionsEnabled) {
+    sl.innerHTML = "";
+    if (block) block.style.display = "none";
+    return;
+  }
+  if (block) block.style.display = "";
+
   const auto = getFrequentSuggestions(3);
   const manual = userTemplates.slice(0, 5);
+  const deleteLabel = t("quickSuggestionDeleteTitle");
   let html = "";
   if (auto.length) {
     html += `<div class="suggestions-subtitle">⚡ ${t("quickSuggestions")}</div>`;
     auto.forEach((s) => {
-      html += `<button class="suggestion-item" data-type="auto" data-category="${esc(s.category)}" data-amount="${s.amountRub}"><span>📌 ${esc(s.category)} · ${fmt(s.amountRub)}</span></button>`;
+      html += `<div class="suggestion-item-wrap">
+        <button class="suggestion-item" data-type="auto" data-category="${esc(s.category)}" data-amount="${s.amountRub}"><span>📌 ${esc(s.category)} · ${fmt(s.amountRub)}</span></button>
+        <button class="suggestion-delete-btn" type="button" data-kind="auto" data-category="${esc(s.category)}" data-amount="${s.amountRub}" title="${esc(deleteLabel)}" aria-label="${esc(deleteLabel)}">✕</button>
+      </div>`;
     });
   }
   if (manual.length) {
@@ -6024,7 +6589,7 @@ function updateSuggestions() {
         <button class="suggestion-item" data-type="manual" data-id="${tpl.id}" data-category="${esc(tpl.category)}" data-subcategory="${esc(tpl.subcategory || "")}" data-amount="${tpl.amountRub}" data-note="${esc(tpl.note || "")}">
           <span>${icon} ${esc(tpl.name)} · ${fmt(tpl.amountRub)}</span>
         </button>
-        <button class="suggestion-delete-btn" data-id="${tpl.id}" title="${t("deleteTemplate")}">✕</button>
+        <button class="suggestion-delete-btn" type="button" data-kind="manual" data-id="${tpl.id}" title="${esc(deleteLabel)}" aria-label="${esc(deleteLabel)}">✕</button>
       </div>`;
     });
   }
@@ -6086,18 +6651,25 @@ function updateSuggestions() {
     });
   });
 
-  // Обработчики удаления
+  // Обработчики удаления: убирается только само предложение, история операций
+  // и баланс не меняются.
   sl.querySelectorAll(".suggestion-delete-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {
+      e.preventDefault();
       e.stopPropagation();
+      const kind = btn.dataset.kind === "auto" ? "auto" : "manual";
       askConfirm(
-        t("deleteTemplate"),
+        t("quickSuggestionDeleteMsg"),
         () => {
-          removeUserTemplate(parseInt(btn.dataset.id));
+          if (kind === "auto") {
+            if (!removeFrequentSuggestion(btn.dataset.category, btn.dataset.amount)) return;
+          } else {
+            removeUserTemplate(parseInt(btn.dataset.id, 10));
+          }
           updateSuggestions();
-          showToast(t("deleted"));
+          showToast(t("quickSuggestionDeleted"));
         },
-        { icon: "🗑️" },
+        { icon: "🗑️", title: t("quickSuggestionDeleteTitle") },
       );
     });
   });
@@ -6310,6 +6882,74 @@ function getFinancialTotals(txList = getMoneyTransactions()) {
   return { income, expense, balance: startBalanceRub + income - expense };
 }
 
+// Кнопки периода «Период:» в блоке деталей должны совпадать с historyFilter.
+function syncHistoryFilterChips() {
+  const buttons = document.querySelectorAll ? document.querySelectorAll(".htf-btn") : [];
+  buttons.forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.hf === (historyFilter || "allTime"));
+  });
+}
+
+// Карточка «Доходы»/«Расходы»: повторное нажатие снимает фильтр и возвращает
+// историю в исходное состояние (раньше фильтр только выставлялся заново).
+// Фильтр по типу НЕ ограничивает период: суммы на карточках считаются за всё
+// время, поэтому в истории должны остаться все операции этого типа, включая
+// прошлые месяцы (иначе июньский доход «исчезал» из списка). Параметр
+// cardPeriod оставлен для совместимости вызовов и на период не влияет.
+function toggleHistoryFilter(type, cardPeriod) {
+  if (currentFilter === type) {
+    currentFilter = null;
+    historyFilter = "allTime";
+  } else {
+    currentFilter = type;
+    historyFilter = "allTime";
+  }
+  syncHistoryFilterChips();
+  return currentFilter;
+}
+
+// Карточка «Баланс» и кнопка сброса: убираем и фильтр по типу, и по периоду.
+function resetHistoryFilter() {
+  currentFilter = null;
+  historyFilter = "allTime";
+  syncHistoryFilterChips();
+  return currentFilter;
+}
+
+// Прокрутка к началу истории после смены фильтра по типу.
+// Раньше здесь вызывался scrollIntoView на самом списке: цель считалась по
+// геометрии до перерисовки, а липкая шапка (.app-header, position: sticky)
+// перекрывала верх блока — список останавливался ниже своего верха, а при
+// снятии фильтра (список снова длинный) уезжал в середину. Теперь прокручивается
+// страница (скроллер — window), явно к верху блока истории, с поправкой на
+// высоту липкой шапки.
+function scrollHistoryToTop() {
+  const byId = (id) =>
+    document.getElementById ? document.getElementById(id) : null;
+  const listEl =
+    byId("opsList") ||
+    (document.querySelector
+      ? document.querySelector(".sm-recent-block")
+      : null) ||
+    byId("homeOpsItems");
+  if (!listEl || typeof listEl.getBoundingClientRect !== "function") return false;
+  const header = document.querySelector
+    ? document.querySelector(".app-header")
+    : null;
+  const headerHeight =
+    header && typeof header.getBoundingClientRect === "function"
+      ? Math.max(0, Math.round(header.getBoundingClientRect().height || 0))
+      : 0;
+  const rect = listEl.getBoundingClientRect();
+  const pageY =
+    typeof window !== "undefined" && window.scrollY ? window.scrollY : 0;
+  const top = Math.max(0, Math.round(pageY + rect.top - headerHeight - 8));
+  if (typeof window === "undefined" || typeof window.scrollTo !== "function")
+    return false;
+  window.scrollTo({ top, behavior: "smooth" });
+  return true;
+}
+
 function getFilteredOperations(query = "") {
   const search = query.toLowerCase().trim();
   let filtered = getMoneyTransactions();
@@ -6326,6 +6966,23 @@ function getFilteredOperations(query = "") {
     });
   }
   return filtered;
+}
+
+// Порядок операций «новые сверху». Дата хранится строкой YYYY-MM-DD, а поле
+// time заполнено не у всех операций, поэтому при равенстве даты и времени
+// сравниваем позицию в массиве transactions: она отражает порядок добавления
+// (добавлено позже — выше в списке). Без этого новая операция за сегодня
+// оставалась в конце своей дневной группы.
+function sortOperationsNewestFirst(list) {
+  const order = new Map();
+  (transactions || []).forEach((tx, index) => order.set(tx, index));
+  return (list || []).slice().sort((a, b) => {
+    const byDate = `${b.date || ""} ${b.time || ""}`.localeCompare(
+      `${a.date || ""} ${a.time || ""}`,
+    );
+    if (byDate !== 0) return byDate;
+    return (order.get(b) ?? -1) - (order.get(a) ?? -1);
+  });
 }
 
 function refreshOperationViews() {
@@ -6743,6 +7400,8 @@ function loadProfileData(pid) {
       frequentStats = {};
       categoryCustomizations = {};
       categoryBudgets = {};
+      budgetCustomLimits = [];
+      monthlyBudgetLimitRub = 0;
       recurringOps = [];
       return;
     }
@@ -6804,6 +7463,12 @@ function loadProfileData(pid) {
       userTemplates = d.userTemplates || [];
       frequentStats = d.frequentStats || {};
       categoryBudgets = d.categoryBudgets || {};
+      budgetCustomLimits = Array.isArray(d.budgetCustomLimits)
+        ? d.budgetCustomLimits
+        : [];
+      monthlyBudgetLimitRub = Math.max(0, Number(d.monthlyBudgetLimitRub) || 0);
+      // Старый единый лимит переносим в список своих лимитов.
+      migrateLegacyMonthlyLimitRub();
       recurringOps = d.recurringOps || [];
       supportMessages = d.supportMessages || [];
       categoryCustomizations = d.categoryCustomizations || {};
@@ -6887,6 +7552,8 @@ function saveProfileData() {
       frequentStats,
       categoryCustomizations,
       categoryBudgets,
+      budgetCustomLimits,
+      monthlyBudgetLimitRub,
       recurringOps,
       supportMessages, // <-- добавили
     }),
@@ -7287,6 +7954,14 @@ async function recoverMissingDataInBackground() {
           frequentStats = backup.frequentStats || {};
           categoryCustomizations = backup.categoryCustomizations || {};
           categoryBudgets = backup.categoryBudgets || {};
+          budgetCustomLimits = Array.isArray(backup.budgetCustomLimits)
+            ? backup.budgetCustomLimits
+            : [];
+          monthlyBudgetLimitRub = Math.max(
+            0,
+            Number(backup.monthlyBudgetLimitRub) || 0,
+          );
+          migrateLegacyMonthlyLimitRub();
           recurringOps = backup.recurringOps || [];
           saveProfileData();
           const diagnosticsAfterState = buildTransactionDiagnosticsState(
@@ -7448,6 +8123,8 @@ function buildBackupPayload() {
     frequentStats,
     categoryCustomizations,
     categoryBudgets,
+    budgetCustomLimits,
+    monthlyBudgetLimitRub,
     recurringOps,
     supportMessages,
   };
@@ -7476,6 +8153,8 @@ function buildBackupPayload() {
     frequentStats: frequentStats,
     categoryCustomizations: categoryCustomizations,
     categoryBudgets: categoryBudgets,
+    budgetCustomLimits: budgetCustomLimits,
+    monthlyBudgetLimitRub: monthlyBudgetLimitRub,
     recurringOps: recurringOps,
     timestamp: Date.now(),
   };
@@ -7831,9 +8510,18 @@ function updateHeaderButtons() {
   if (lb)
     lb.textContent = { ru: "🇷🇺", en: "🇬🇧", ka: "🇬🇪" }[currentLang] || "🌐";
 }
+// Одновременно на элементе может идти только одна анимация числа: без отмены
+// старого кадра несколько вызовов подряд (renderHome + восстановление)
+// накладываются и цифра дёргается.
+const _valueAnimFrames = new WeakMap();
+
 function animateValue(el, from, to, suffix, duration) {
-  if (!el || from === to) {
-    el && (el.textContent = to.toFixed(2) + " " + suffix);
+  if (!el) return;
+  const pending = _valueAnimFrames.get(el);
+  if (pending) cancelAnimationFrame(pending);
+  _valueAnimFrames.delete(el);
+  if (from === to) {
+    el.textContent = to.toFixed(2) + " " + suffix;
     return;
   }
   const start = performance.now();
@@ -7844,29 +8532,66 @@ function animateValue(el, from, to, suffix, duration) {
     const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
     const current = from + diff * eased;
     el.textContent = current.toFixed(2) + " " + suffix;
-    if (progress < 1) requestAnimationFrame(step);
+    if (progress < 1) {
+      _valueAnimFrames.set(el, requestAnimationFrame(step));
+      return;
+    }
+    _valueAnimFrames.delete(el);
   };
-  requestAnimationFrame(step);
+  _valueAnimFrames.set(el, requestAnimationFrame(step));
 }
 
 let _lastBalVals = { bal: null, inc: null, exp: null, sal: null };
 
+// Период верхних карточек: всё время. Раньше здесь был текущий месяц и
+// правила «если в этом месяце пусто — считать всё время»: из-за этого при
+// живом доходе за прошлый месяц (например, июнь) карточка «Доходы»
+// показывала 0.00 и не совпадала с историей. Общая сумма дохода/расхода
+// должна быть видна всегда, поэтому период постоянный.
+function getTopBlockPeriod() {
+  return "allTime";
+}
+
 function getTopBlockDisplayValues() {
   const { balance } = getFinancialTotals();
-  const { income, expense } = getFinancialTotals(filterByTime(getMoneyTransactions(), "thisMonth"));
+  const period = getTopBlockPeriod();
+  const { income, expense } = getFinancialTotals(filterByTime(getMoneyTransactions(), period));
   return {
     balD: toDisp(balance),
     incD: toDisp(income),
     expD: toDisp(expense),
     salD: toDisp(startBalanceRub),
+    period,
   };
+}
+
+// Подпись под «Доходами»/«Расходами» — «Всё время» (ключ periodAllTime уже
+// есть на ru/en/ka). Суммы считаются за всё время, поэтому отдельная
+// пометка «· всего» рядом с цифрой больше не нужна и скрыта.
+function syncTopBlockPeriod(period) {
+  const key = period === "allTime" ? "allTime" : "thisMonth";
+  ["incomeCard", "expenseCard"].forEach((id) => {
+    const card = document.getElementById(id);
+    if (!card) return;
+    card.dataset.period = key;
+    const sub = card.querySelector(".gh-stat-sub");
+    if (sub) {
+      sub.textContent = t("periodAllTime");
+      sub.dataset.i18n = "periodAllTime";
+    }
+    const scope = card.querySelector(".gh-stat-scope");
+    if (!scope) return;
+    scope.textContent = " · " + t("ghScopeTotal");
+    scope.style.display = "none";
+  });
 }
 
 function updateTopBlocks() {
   const s = sym();
-  // Overall balance and current-calendar-month income/expense.
-  // Initial balance is excluded from monthly income.
-  const { balD, incD, expD, salD } = getTopBlockDisplayValues();
+  // Overall balance for all time and income/expense totals for all time —
+  // the cards must match the full history, not only the current month.
+  // Initial balance is excluded from income.
+  const { balD, incD, expD, salD, period } = getTopBlockDisplayValues();
   const els = {
     balanceValue: { val: balD, prev: _lastBalVals.bal },
     incomeValue: { val: incD, prev: _lastBalVals.inc },
@@ -7893,7 +8618,1716 @@ function updateTopBlocks() {
     }
   });
   _lastBalVals = { bal: balD, inc: incD, exp: expD, sal: salD };
+  syncTopBlockPeriod(period);
   updateHeroTrendText();
+  updateBudgetCard();
+}
+
+// Процент бюджета для подписи в кольце. Огромный перерасход (например,
+// лимит 0.03 ₾) не должен вылезать за кольцо — показываем «999%+».
+function formatBudgetPct(pct) {
+  const value = Math.max(0, Math.round(Number(pct) || 0));
+  return value > 999 ? "999%+" : value + "%";
+}
+
+// Лимит месяца в рублях — сумма ЛИМИТОВ КАТЕГОРИЙ и СВОИХ лимитов. От этой
+// суммы считаются кольцо на главной, полоса прогресса и «Осталось потратить».
+// ── Лимиты месяца ─────────────────────────────────────────────────────────
+// Сумма лимитов категорий (categoryBudgets), ₽.
+function getCategoryBudgetSumRub() {
+  return Object.values(categoryBudgets || {}).reduce(
+    (sum, value) => sum + Math.max(0, Number(value) || 0),
+    0,
+  );
+}
+
+// Сумма своих лимитов (budgetCustomLimits), ₽.
+function getCustomBudgetLimitsSumRub() {
+  return (Array.isArray(budgetCustomLimits) ? budgetCustomLimits : []).reduce(
+    (sum, item) => sum + Math.max(0, Number((item || {}).amountRub) || 0),
+    0,
+  );
+}
+
+// Общий лимит месяца = сумма всех активных лимитов. Устаревший
+// monthlyBudgetLimitRub тоже входит в сумму, пока не перенесён в список.
+function getMonthlyBudgetLimitRub() {
+  return (
+    Math.max(0, Number(monthlyBudgetLimitRub) || 0) +
+    getCategoryBudgetSumRub() +
+    getCustomBudgetLimitsSumRub()
+  );
+}
+
+// Прежний единый лимит становится обычной карточкой списка: после переноса в
+// данных остаётся только categoryBudgets + budgetCustomLimits.
+function migrateLegacyMonthlyLimitRub() {
+  const legacyRub = Math.max(0, Number(monthlyBudgetLimitRub) || 0);
+  monthlyBudgetLimitRub = 0;
+  if (legacyRub <= 0) return false;
+  const list = Array.isArray(budgetCustomLimits) ? budgetCustomLimits : [];
+  if (list.some((item) => item && item.id === "limit-legacy-global")) return false;
+  list.push({
+    id: "limit-legacy-global",
+    name: "",
+    emoji: "📅",
+    amountRub: legacyRub,
+  });
+  budgetCustomLimits = list;
+  return true;
+}
+
+// Черновик списка лимитов для окна бюджета. kind: "category" — лимит привязан
+// к категории и живёт в categoryBudgets, "custom" — свой лимит
+// (budgetCustomLimits). Суммы — в рублях, как и в данных.
+function buildBudgetLimitsDraft(src) {
+  const source = src || {};
+  const categoryMap = source.categoryBudgets || {};
+  const customList = Array.isArray(source.customLimits) ? source.customLimits : [];
+  const categoryColors = source.categoryColors || {};
+  const draft = Object.keys(categoryMap)
+    .filter((cat) => cat && Number(categoryMap[cat]) > 0)
+    .map((cat) => ({
+      id: "cat:" + cat,
+      kind: "category",
+      category: cat,
+      name: cat,
+      emoji: "",
+      amountRub: Number(categoryMap[cat]),
+      // Цвет кольца лимита категории (categoryCustomizations[cat].budgetColor).
+      color: normalizeLimitColor(categoryColors[cat]),
+    }));
+  customList.forEach((item, index) => {
+    const rub = Math.max(0, Number((item || {}).amountRub) || 0);
+    if (rub <= 0) return;
+    draft.push({
+      id: String((item && item.id) || "custom:" + index),
+      kind: "custom",
+      category: null,
+      name: String((item && item.name) || ""),
+      emoji: String((item && item.emoji) || ""),
+      amountRub: rub,
+      color: normalizeLimitColor((item || {}).color),
+    });
+  });
+  return draft;
+}
+
+// Применение черновика к данным. Карточка с нулевой суммой (удалённая или
+// очищенная) не попадает ни в categoryBudgets, ни в массив своих лимитов.
+// Цвета возвращаются отдельной картой: лимит категории живёт в categoryBudgets,
+// а его цвет — в categoryCustomizations[категория].budgetColor.
+function applyBudgetLimitsDraft(draft) {
+  const nextCategoryBudgets = {};
+  const nextCategoryColors = {};
+  const nextCustomLimits = [];
+  (Array.isArray(draft) ? draft : []).forEach((item) => {
+    if (!item) return;
+    const rub = Math.max(0, Number(item.amountRub) || 0);
+    if (rub <= 0) return;
+    const color = normalizeLimitColor(item.color);
+    if (item.kind === "category" && item.category) {
+      nextCategoryBudgets[String(item.category)] = rub;
+      if (color) nextCategoryColors[String(item.category)] = color;
+      return;
+    }
+    if (item.kind === "custom") {
+      nextCustomLimits.push({
+        id: String(item.id || "limit-" + nextCustomLimits.length),
+        name: String(item.name || "").trim(),
+        emoji: String(item.emoji || "").trim() || "🎯",
+        amountRub: rub,
+        color: color,
+      });
+    }
+  });
+  return {
+    categoryBudgets: nextCategoryBudgets,
+    customLimits: nextCustomLimits,
+    categoryColors: nextCategoryColors,
+  };
+}
+
+// Новый свой лимит из формы добавления. null — сумма не положительная или не
+// заполнено название: такой лимит не создаётся, окно показывает ошибку.
+function normalizeCustomBudgetLimit(input, seedId) {
+  const src = input || {};
+  const amountRub = Number(src.amountRub);
+  if (!(amountRub > 0)) return null;
+  const name = String(src.name || "").trim().slice(0, 40);
+  if (!name) return null;
+  return {
+    id: String(src.id || seedId || "limit-" + Date.now()),
+    name: name,
+    emoji: String(src.emoji || "").trim() || "🎯",
+    amountRub: amountRub,
+    // Свой цвет кольца лимита: пусто — кораллово-фиолетовый по умолчанию.
+    color: normalizeLimitColor(src.color),
+  };
+}
+
+// ── Цвета колец лимитов ────────────────────────────────────────────────────
+// Цвет хранится в тех же данных, что и сам лимит: у своего лимита — поле
+// color в budgetCustomLimits, у лимита категории — budgetColor в
+// categoryCustomizations[категория]. Отдельного хранилища нет, поэтому цвета
+// переезжают вместе с профилем, бэкапом и синхронизацией.
+const DEFAULT_BUDGET_RING_COLORS = { a: "#ff7e5f", b: "#9b59b6" };
+
+function normalizeLimitColor(value) {
+  return normalizeHexColor(value);
+}
+
+// Пара стопов для кольца и полосы: без своего цвета — кораллово-фиолетовый
+// градиент, со своим — выбранный цвет и его затемнённый оттенок, чтобы
+// градиент оставался объёмным.
+function limitGradientStops(color) {
+  const normalized = normalizeLimitColor(color);
+  const rgb = normalized ? hexToRgb(normalized) : null;
+  if (!rgb) return { a: DEFAULT_BUDGET_RING_COLORS.a, b: DEFAULT_BUDGET_RING_COLORS.b };
+  return { a: normalized, b: rgbToHex(rgb.r * 0.62, rgb.g * 0.52, rgb.b * 0.82) };
+}
+
+// Цвета лимитов категорий: {категория: hex}. Пустые значения не попадают,
+// чтобы по умолчанию работал общий градиент.
+function getCategoryBudgetColors() {
+  const out = {};
+  const budgets = typeof categoryBudgets !== "undefined" ? categoryBudgets : null;
+  const customizations =
+    typeof categoryCustomizations !== "undefined" ? categoryCustomizations : null;
+  Object.keys(budgets || {}).forEach((cat) => {
+    const color = normalizeLimitColor(customizations?.[cat]?.budgetColor);
+    if (color) out[cat] = color;
+  });
+  return out;
+}
+
+// Цвет кольца конкретной карточки лимита (своей или привязанной к категории).
+function getBudgetLimitColor(item) {
+  const src = item || {};
+  if (src.color) return normalizeLimitColor(src.color);
+  if (src.kind === "category" && src.category) {
+    const customizations =
+      typeof categoryCustomizations !== "undefined" ? categoryCustomizations : null;
+    return normalizeLimitColor(customizations?.[src.category]?.budgetColor);
+  }
+  return "";
+}
+
+// ── Конверты: сколько потрачено из каждого лимита ─────────────────────────
+// Потраченное нигде не хранится счётчиком — оно всегда считается по операциям
+// месяца. Поэтому удаление операции само возвращает сумму в конверт.
+// Операция списывается ровно из одного конверта: если пользователь выбрал свой
+// лимит (tx.budgetLimitId), сумма идёт только в него, иначе — в лимит категории.
+function computeEnvelopeSpentRub(envelope, txList) {
+  const env = envelope || {};
+  const list = Array.isArray(txList) ? txList : [];
+  let spent = 0;
+  for (const tx of list) {
+    if (!tx || tx.type !== "expense" || isInitialBalanceTx(tx)) continue;
+    const amountRub = Math.max(0, Number(tx.amountRub) || 0);
+    if (amountRub <= 0) continue;
+    if (env.kind === "category") {
+      if (tx.budgetLimitId) continue;
+      if (env.category && tx.category === env.category) spent += amountRub;
+    } else if (env.id && tx.budgetLimitId === env.id) {
+      spent += amountRub;
+    }
+  }
+  return spent;
+}
+
+// Лимиты месяца с потраченным, остатком и процентом. Общий бюджет месяца —
+// по-прежнему сумма amountRub всех карточек (см. getMonthlyBudgetLimitRub).
+function buildBudgetEnvelopes(src) {
+  const source = src || {};
+  const txList = Array.isArray(source.expenseTx) ? source.expenseTx : [];
+  return buildBudgetLimitsDraft({
+    categoryBudgets: source.categoryBudgets,
+    customLimits: source.customLimits,
+    categoryColors: source.categoryColors,
+  }).map((item) => {
+    const amountRub = Math.max(0, Number(item.amountRub) || 0);
+    const spentRub = computeEnvelopeSpentRub(item, txList);
+    return {
+      id: item.id,
+      kind: item.kind,
+      category: item.category,
+      name: item.name,
+      emoji: item.emoji,
+      color: item.color || "",
+      amountRub: amountRub,
+      spentRub: spentRub,
+      leftRub: amountRub - spentRub,
+      pct: amountRub > 0 ? Math.round((spentRub / amountRub) * 100) : 0,
+    };
+  });
+}
+
+// Мини-список лимитов на главной: первые max штук и признак «есть ещё»,
+// чтобы показать кнопку «Показать все» и открыть окно бюджета.
+function pickHomeBudgetLimits(envelopes, max = 3) {
+  const list = (Array.isArray(envelopes) ? envelopes : []).filter(
+    (item) => item && Number(item.amountRub) > 0,
+  );
+  const limitCount = Math.max(1, Math.round(Number(max) || 3));
+  return {
+    items: list.slice(0, limitCount),
+    total: list.length,
+    hasMore: list.length > limitCount,
+  };
+}
+
+// Правка существующей карточки лимита. Меняются сумма и (для своего лимита)
+// название с иконкой; привязка к категории остаётся прежней. null — карточка
+// не найдена или новые значения не прошли проверку.
+function applyBudgetLimitEdit(draft, id, patch) {
+  const list = Array.isArray(draft) ? draft : [];
+  const src = patch || {};
+  const amountRub = Number(src.amountRub);
+  if (!(amountRub > 0)) return null;
+  const index = list.findIndex((entry) => entry && entry.id === id);
+  if (index < 0) return null;
+  const item = list[index];
+  const next = Object.assign({}, item, { amountRub });
+  // Цвет кольца правится у любого лимита; пустая строка — вернуть градиент
+  // по умолчанию.
+  if ("color" in src) next.color = normalizeLimitColor(src.color);
+  if (item.kind === "custom") {
+    const name = String(src.name || "").trim().slice(0, 40);
+    if (!name) return null;
+    next.name = name;
+    next.emoji = String(src.emoji || "").trim() || "🎯";
+  }
+  return list.map((entry, position) => (position === index ? next : entry));
+}
+
+// Какие лимиты превысит операция: ровно тот конверт, к которому она относится,
+// — выбранный свой лимит или лимит её категории. Операция без лимита не
+// предупреждает ни о чём: иначе баннер всплывал бы на каждом расходе, как
+// только сумма расходов месяца перевалит за сумму лимитов. Пустой список —
+// предупреждать не о чем.
+function findOperationBudgetOverruns(input) {
+  const src = input || {};
+  const amountRub = Math.max(0, Number(src.amountRub) || 0);
+  const txList = Array.isArray(src.txList) ? src.txList : [];
+  const overruns = [];
+  if (!(amountRub > 0)) return overruns;
+  const envelopes = buildBudgetEnvelopes({
+    categoryBudgets: src.categoryBudgets,
+    customLimits: src.customLimits,
+    expenseTx: txList,
+  });
+  const limitId = String(src.limitId || "");
+  const category = String(src.category || "");
+  const target = limitId
+    ? envelopes.find((env) => env.kind === "custom" && env.id === limitId)
+    : envelopes.find((env) => env.kind === "category" && env.category === category);
+  if (target && target.amountRub > 0) {
+    const overRub = target.spentRub + amountRub - target.amountRub;
+    if (overRub > 0)
+      overruns.push({
+        kind: "envelope",
+        // id карточки лимита в окне бюджета: "cat:<категория>" или id своего
+        // лимита. Нужен, чтобы баннер вёл к превышенному лимиту (data-limit-id).
+        limitId: String(target.id || ""),
+        name: target.kind === "category" ? target.category : target.name || "",
+        overRub,
+      });
+  }
+  return overruns;
+}
+
+// Таймер автоскрытия баннера превышения лимита (перезапускается, если
+// превышений подряд несколько). 8 секунд: текст бывает в две строки (лимит
+// категории + общий бюджет), и за 3–4 с его не успевали прочитать.
+const BUDGET_OVER_BANNER_HIDE_MS = 8000;
+let _budgetOverBannerTimer = null;
+
+// Свайп вверх закрывает баннер. Порог — 64 px (четверть высоты плашки), а
+// движение меньше 8 px считается тапом: клик по баннеру ведёт к лимиту.
+const BUDGET_OVER_BANNER_SWIPE_CLOSE_PX = 64;
+const BUDGET_OVER_BANNER_TAP_SLOP_PX = 8;
+
+// Пауза между открытием окна бюджета и прокруткой к превышенному лимиту:
+// окно выезжает ~220 мс, за 700 мс карточки лимитов уже в DOM и плавный
+// скролл не обрывается на полпути.
+const BUDGET_OVER_BANNER_FOCUS_DELAY_MS = 700;
+
+// Баннер о превышении лимита (graphiteNeon: тёмная плашка с красной неоновой
+// обводкой). Ничего не блокирует: операция к этому моменту уже сохранена, а
+// баннер лишь сообщает, на сколько превышен лимит, выезжает сверху и уезжает
+// сам. Параллельно карточка бюджета на главной коротко пульсирует красным.
+// Возвращает true, если было о чём сообщать.
+function showBudgetOverWarning(items) {
+  const list = (Array.isArray(items) ? items : []).filter(Boolean);
+  if (!list.length) return false;
+  const s = sym();
+  const sumText = (rub) =>
+    toDisp(Math.max(0, Number(rub) || 0)).toFixed(2) + " " + s;
+  const banner = document.getElementById("budgetOverBanner");
+  const textEl = document.getElementById("budgetOverBannerText");
+  if (banner && textEl) {
+    const titleEl = document.getElementById("budgetOverBannerTitle");
+    if (titleEl) titleEl.textContent = t("budgetOverBannerTitle");
+    textEl.innerHTML = list
+      .map((item) => {
+        const text =
+          item.kind === "total"
+            ? t("budgetOverBannerTotal")
+            : t("budgetOverBannerItem");
+        // Название лимита и сумму выделяем отдельными span: в CSS они белые,
+        // жирные и с неоновой тенью, а сумма ещё и мягко пульсирует.
+        const filled = String(text)
+          .replace(
+            "{name}",
+            `<span class="warn-limit-name">${esc(item.name || "")}</span>`,
+          )
+          .replace(
+            "{sum}",
+            `<span class="warn-limit-amount">${sumText(item.overRub)}</span>`,
+          );
+        return `<div class="bob-line">${filled}</div>`;
+      })
+      .join("");
+    // Новый показ после свайпа: снимаем inline-стили жеста (они с !important),
+    // иначе плашка осталась бы за экраном, и отмечаем поколение показа — по нему
+    // отложенное закрытие свайпа понимает, что гасить уже нечего.
+    resetBudgetOverBannerSwipe(banner);
+    if (banner.dataset)
+      banner.dataset.showSeq = String(Number(banner.dataset.showSeq || 0) + 1);
+    banner.hidden = false;
+    banner.classList.remove("is-hiding");
+    // id лимита, к которому ведёт тап по баннеру: первое превышение с
+    // привязкой к карточке (общий бюджет отдельной карточки не имеет).
+    const focusItem = list.find((item) => String(item.limitId || "")) || null;
+    if (banner.dataset)
+      banner.dataset.limitId = focusItem ? String(focusItem.limitId) : "";
+    // Тап и свайп вверх навешиваем один раз: показать баннер можно многократно.
+    bindBudgetOverBannerInteractions();
+    // Рефлоу после снятия hidden: иначе браузер не проиграет выезд из-за
+    // перехода от display:none.
+    if (typeof banner.offsetWidth === "number") void banner.offsetWidth;
+    banner.classList.add("is-open");
+    // Повторное превышение: перезапускаем отсчёт, чтобы баннер не мигал.
+    if (_budgetOverBannerTimer) clearTimeout(_budgetOverBannerTimer);
+    if (typeof setTimeout === "function")
+      _budgetOverBannerTimer = setTimeout(() => {
+        _budgetOverBannerTimer = null;
+        hideBudgetOverBanner();
+      }, BUDGET_OVER_BANNER_HIDE_MS);
+  }
+  pulseHomeBudgetCard();
+  return true;
+}
+
+// Плавно убирает баннер тем же уездом вверх, что и автоскрытие, и снимает
+// таймер, чтобы он не сработал по уже скрытой плашке.
+function hideBudgetOverBanner() {
+  const banner = document.getElementById("budgetOverBanner");
+  if (!banner) return false;
+  if (_budgetOverBannerTimer) {
+    clearTimeout(_budgetOverBannerTimer);
+    _budgetOverBannerTimer = null;
+  }
+  resetBudgetOverBannerSwipe(banner);
+  if (banner.classList) {
+    banner.classList.remove("is-open");
+    banner.classList.add("is-hiding");
+  }
+  if (typeof setTimeout === "function")
+    setTimeout(() => {
+      // За это время могли показать новый баннер — его не гасим.
+      if (banner.classList && banner.classList.contains("is-open")) return;
+      banner.hidden = true;
+      if (banner.classList) banner.classList.remove("is-hiding");
+    }, 420);
+  return true;
+}
+
+// Сброс inline-стилей свайпа: они выставлены с !important, поэтому просто
+// удаляем свойства и возвращаемся к стилям из index.html.
+function resetBudgetOverBannerSwipe(banner) {
+  const style = banner && banner.style;
+  if (!style || typeof style.removeProperty !== "function") return;
+  ["transform", "transition", "opacity"].forEach((name) =>
+    style.removeProperty(name),
+  );
+}
+
+// Интерактив баннера превышения лимита:
+//   • свайп вверх — плашка тянется за пальцем и, если отпустить выше порога,
+//     уезжает вверх и исчезает (ниже порога — возвращается на место);
+//   • тап — закрывает баннер и открывает окно «Месячный бюджет», а затем той же
+//     логикой, что и тап по слайду карусели, прокручивает окно к превышенному
+//     лимиту и подсвечивает его карточку.
+// Обработчики навешиваются один раз (флаг в dataset): баннер показывается
+// многократно, и накопление слушателей дало бы двойные открытия окна.
+function bindBudgetOverBannerInteractions() {
+  const banner = document.getElementById("budgetOverBanner");
+  if (!banner || typeof banner.addEventListener !== "function") return false;
+  if (!banner.dataset) banner.dataset = {};
+  if (banner.dataset.interactive === "1") return false;
+  banner.dataset.interactive = "1";
+  let startY = 0;
+  let pullDy = 0;
+  let moved = false;
+  let closing = false;
+  const setStyle = (name, value) => {
+    const style = banner.style;
+    // !important обязателен: стили баннера в index.html тоже !important,
+    // иначе inline-значение проиграет каскад и плашка не потянется за пальцем.
+    if (style && typeof style.setProperty === "function")
+      style.setProperty(name, value, "important");
+  };
+  const stopAutoHide = () => {
+    if (!_budgetOverBannerTimer) return;
+    clearTimeout(_budgetOverBannerTimer);
+    _budgetOverBannerTimer = null;
+  };
+  // Доводим плашку до полного ухода вверх и только потом прячем.
+  const closeBySwipe = () => {
+    closing = true;
+    stopAutoHide();
+    const seq = String((banner.dataset && banner.dataset.showSeq) || "");
+    setStyle(
+      "transition",
+      "transform .3s cubic-bezier(.22, .61, .36, 1), opacity .18s ease",
+    );
+    setStyle("transform", "translateY(-130%)");
+    setStyle("opacity", "0");
+    if (typeof setTimeout === "function")
+      setTimeout(() => {
+        closing = false;
+        // За время анимации могли показать новое предупреждение — его не гасим.
+        if (seq && String((banner.dataset && banner.dataset.showSeq) || "") !== seq)
+          return;
+        banner.hidden = true;
+        if (banner.classList) banner.classList.remove("is-open");
+        resetBudgetOverBannerSwipe(banner);
+      }, 320);
+  };
+  const touchY = (event) => {
+    const touch =
+      (event && event.touches && event.touches[0]) ||
+      (event && event.changedTouches && event.changedTouches[0]) ||
+      null;
+    return touch ? Number(touch.clientY) || 0 : null;
+  };
+  banner.addEventListener(
+    "touchstart",
+    (event) => {
+      if (closing) return;
+      const y = touchY(event);
+      if (y === null) return;
+      startY = y;
+      pullDy = 0;
+      moved = false;
+      // Во время жеста двигаем без перехода — иначе плашка отстаёт от пальца.
+      setStyle("transition", "none");
+    },
+    { passive: true },
+  );
+  banner.addEventListener(
+    "touchmove",
+    (event) => {
+      if (closing) return;
+      const y = touchY(event);
+      if (y === null) return;
+      // Положительное значение — палец ушёл вверх: плашку тянем вверх.
+      const dy = startY - y;
+      if (Math.abs(dy) > BUDGET_OVER_BANNER_TAP_SLOP_PX) moved = true;
+      pullDy = Math.max(0, dy);
+      if (pullDy <= 0) return;
+      // Жест вниз отдаём странице как обычный скролл.
+      if (
+        event &&
+        event.cancelable &&
+        typeof event.preventDefault === "function"
+      )
+        event.preventDefault();
+      setStyle("transform", `translateY(${-pullDy}px)`);
+    },
+    { passive: false },
+  );
+  const settleBack = () => {
+    pullDy = 0;
+    setStyle("transition", "transform .28s cubic-bezier(.22, .61, .36, 1)");
+    setStyle("transform", "translateY(0px)");
+    if (typeof setTimeout === "function")
+      setTimeout(() => resetBudgetOverBannerSwipe(banner), 320);
+  };
+  banner.addEventListener("touchend", () => {
+    if (closing) return;
+    const dy = pullDy;
+    pullDy = 0;
+    if (dy >= BUDGET_OVER_BANNER_SWIPE_CLOSE_PX) closeBySwipe();
+    // Не дотянули до порога — плавно возвращаем плашку на место.
+    else settleBack();
+  });
+  banner.addEventListener("touchcancel", () => {
+    if (closing) return;
+    settleBack();
+  });
+  banner.addEventListener("click", () => {
+    if (closing) return;
+    // Свайп заканчивается тем же click — это не тап по баннеру.
+    if (moved) {
+      moved = false;
+      return;
+    }
+    const limitId = String((banner.dataset && banner.dataset.limitId) || "");
+    if (typeof haptic === "function") haptic("light");
+    hideBudgetOverBanner();
+    // Окно открываем существующей функцией, а к превышенному лимиту ведём той
+    // же логикой, что и тап по слайду карусели: плавная прокрутка + пульсация.
+    openAddBudgetModal();
+    if (typeof setTimeout === "function")
+      setTimeout(() => {
+        if (limitId) focusBudgetLimitCard(limitId);
+        else focusBudgetLimitsList();
+      }, BUDGET_OVER_BANNER_FOCUS_DELAY_MS);
+  });
+  return true;
+}
+
+// Разовая красная пульсация карточки бюджета на главной (две итерации): видно,
+// что именно этот лимит превышен, но ничего не блокируется. Класс снимается по
+// animationend, таймер — только страховка (reduced motion, скрытая страница).
+function pulseHomeBudgetCard() {
+  const card = document.getElementById("ghBudgetCard");
+  if (!card || !card.classList || typeof card.classList.add !== "function")
+    return;
+  card.classList.remove("is-over-budget-pulse");
+  // Рефлоу: без него повторная пульсация не перезапускается.
+  if (typeof card.offsetWidth === "number") void card.offsetWidth;
+  card.classList.add("is-over-budget-pulse");
+  if (typeof card.addEventListener === "function") {
+    const onPulseEnd = (event) => {
+      const name = event && event.animationName;
+      if (name && name !== "budgetOverCardPulse") return;
+      if (typeof card.removeEventListener === "function")
+        card.removeEventListener("animationend", onPulseEnd);
+      card.classList.remove("is-over-budget-pulse");
+    };
+    card.addEventListener("animationend", onPulseEnd);
+  }
+  if (typeof setTimeout === "function")
+    setTimeout(() => card.classList.remove("is-over-budget-pulse"), 2600);
+}
+
+// Monthly budget card (read-only view): limit = sum of category limits, spent = this month expenses.
+// Если лимит не задан, процент считать не от чего: вместо «0%» показываем
+// пунктирное кольцо и подсказку, что лимит можно задать нажатием на карточку.
+function updateBudgetCard() {
+  const card = document.getElementById("ghBudgetCard");
+  if (!card) return;
+  const s = sym();
+  const monthTx = filterByTime(getMoneyTransactions(), "thisMonth");
+  const { expense } = getFinancialTotals(monthTx);
+  // Единственный лимит — карусели нет, и карточка показывает именно его:
+  // иначе кольцо считалось бы от всех расходов месяца, а список под ним — от
+  // расходов категории, и цифры на одном экране противоречили бы друг другу.
+  const envelopes = buildBudgetEnvelopes({
+    categoryBudgets: categoryBudgets,
+    customLimits: budgetCustomLimits,
+    categoryColors: getCategoryBudgetColors(),
+    expenseTx: monthTx,
+  });
+  const totalLimitRub = getMonthlyBudgetLimitRub();
+  const singleEnvelope =
+    envelopes.length === 1 &&
+    Math.abs((Number(envelopes[0].amountRub) || 0) - totalLimitRub) < 0.005
+      ? envelopes[0]
+      : null;
+  const spent = toDisp(singleEnvelope ? singleEnvelope.spentRub : expense);
+  const limitRub = singleEnvelope ? singleEnvelope.amountRub : totalLimitRub;
+  const limit = toDisp(limitRub);
+  const hasLimit = limit > 0;
+  // Процент = (расходы / лимит) * 100. Кольцо и полоса ограничены 100%,
+  // а подпись показывает фактический процент, чтобы был виден перерасход.
+  const pct = hasLimit ? Math.round((spent / limit) * 100) : 0;
+  const ringPct = Math.min(100, pct);
+  card.dataset.state = hasLimit ? (spent > limit ? "over" : "ok") : "noLimit";
+  // Цель кольца не изменилась, а набор процента ещё идёт — --pct и подпись
+  // принадлежат анимации. Запись цели здесь обрывала набор: кольцо прыгало
+  // вперёд и возвращалось назад при каждом восстановлении главной после
+  // закрытия окна добавления.
+  const ringTargetSame =
+    card.dataset.pct === String(ringPct) &&
+    card.dataset.pctText === String(pct);
+  const keepRingAnimation = isBudgetAnimating && ringTargetSame;
+  if (!keepRingAnimation) {
+    // Цель изменилась (новая операция) — старый набор отменяем, а не доигрываем
+    // его поверх новых значений.
+    if (_budgetPctRafId) {
+      if (typeof cancelAnimationFrame === "function")
+        cancelAnimationFrame(_budgetPctRafId);
+      _budgetPctRafId = 0;
+      _budgetPctAnimToken += 1;
+      card.classList.remove("gh-pct-animating");
+    }
+    // Цель переписана — прежняя сессия анимации больше не актуальна.
+    isBudgetAnimating = false;
+    card.style.setProperty("--pct", String(ringPct));
+  }
+  card.dataset.pct = String(ringPct);
+  card.dataset.pctText = String(pct);
+  const pctEl = document.getElementById("ghBudgetPct");
+  // Лимита нет — процент считать не от чего: вместо «0%» плюс в пунктирном кольце.
+  if (pctEl && !keepRingAnimation)
+    pctEl.textContent = hasLimit ? formatBudgetPct(pct) : "+";
+  const spentEl = document.getElementById("ghBudgetSpent");
+  if (spentEl) spentEl.textContent = spent.toFixed(2) + " " + s;
+  const limitEl = document.getElementById("ghBudgetLimit");
+  if (limitEl)
+    limitEl.textContent = hasLimit ? limit.toFixed(2) + " " + s : t("ghLimitNotSet");
+  // Один лимит: вместо общей подсказки — название и иконка этого лимита,
+  // чтобы было видно, чьи расходы показывает кольцо.
+  const nameEl = document.getElementById("ghBudgetLimitName");
+  if (nameEl) {
+    if (singleEnvelope) {
+      const categoryIcon =
+        singleEnvelope.kind === "category"
+          ? (getCategoryStyle(singleEnvelope.category, "expense") || {}).icon
+          : "";
+      const icon = categoryIcon || singleEnvelope.emoji || "🎯";
+      const name =
+        singleEnvelope.kind === "category"
+          ? singleEnvelope.category
+          : singleEnvelope.name || t("budgetGlobalLimit");
+      nameEl.textContent = icon + " " + name;
+      nameEl.hidden = false;
+    } else {
+      nameEl.textContent = "";
+      nameEl.hidden = true;
+    }
+  }
+  const descEl = document.getElementById("ghBudgetDesc");
+  if (descEl && descEl.style) descEl.hidden = !!singleEnvelope;
+  const hintEl = document.getElementById("ghBudgetHint");
+  if (hintEl) hintEl.textContent = hasLimit ? t("ghBudgetHint") : t("ghTapToSetLimit");
+  // Перерасход: отдельная строка под полосой (подсказка в этот момент скрыта
+  // стилями). Сумма превышения — в валюте отображения.
+  const overEl = document.getElementById("ghBudgetOver");
+  if (overEl) {
+    overEl.textContent =
+      card.dataset.state === "over"
+        ? t("ghBudgetOverBy") + " " + toDisp(spent - limit).toFixed(2) + " " + s
+        : "";
+  }
+  // Слайд 0 (общий бюджет) наследует --pct от карточки. Если карусель уже
+  // анимировала этот слайд отдельно, её inline-значение убираем, иначе оно
+  // перекроет свежий процент.
+  const slide0 = document.getElementById("ghBudgetSlide0");
+  if (slide0) {
+    if (slide0.dataset) {
+      slide0.dataset.state = card.dataset.state;
+      // Карусель анимирует активный слайд от 0 до data-pct. У слайда 0 процента
+      // в разметке нет, поэтому копируем его с карточки: иначе свайп назад
+      // «обнулял» кольцо общего бюджета.
+      slide0.dataset.pct = String(ringPct);
+      slide0.dataset.pctText = String(pct);
+    }
+    if (slide0.style && typeof slide0.style.removeProperty === "function")
+      slide0.style.removeProperty("--pct");
+  }
+  // Мини-список активных лимитов под кольцом (первые три + «Показать все»).
+  renderHomeBudgetLimits();
+  // Слайды карусели: общий бюджет + каждый активный лимит отдельно.
+  renderHomeBudgetSlides();
+}
+
+// Мини-список лимитов внутри карточки бюджета на главной:
+// «эмодзи Название: потрачено / лимит». Общее кольцо остаётся общим бюджетом
+// (сумма всех лимитов), а строки показывают расход по каждому конверту.
+// Лимитов больше трёх — первые три и кнопка «Показать все» (открывает окно
+// бюджета; вся карточка и так кликабельна).
+function renderHomeBudgetLimits() {
+  const wrap = document.getElementById("ghBudgetMini");
+  if (!wrap) return;
+  const monthTx = filterByTime(getMoneyTransactions(), "thisMonth");
+  const picked = pickHomeBudgetLimits(
+    buildBudgetEnvelopes({
+      categoryBudgets: categoryBudgets,
+      customLimits: budgetCustomLimits,
+      expenseTx: monthTx,
+    }),
+    3,
+  );
+  if (!picked.items.length) {
+    wrap.innerHTML = "";
+    wrap.hidden = true;
+    return;
+  }
+  const s = sym();
+  const rows = picked.items
+    .map((item) => {
+      const icon =
+        item.kind === "category"
+          ? (getCategoryStyle(item.category, "expense") || {}).icon || "🏷️"
+          : item.emoji || "🎯";
+      const name =
+        item.kind === "category" ? item.category : item.name || t("budgetGlobalLimit");
+      const state = item.spentRub > item.amountRub ? "over" : "ok";
+      return `<div class="gh-mini-limit" data-state="${state}"><span class="gh-mini-limit-emoji" aria-hidden="true">${icon}</span><span class="gh-mini-limit-name">${esc(name)}:</span><span class="gh-mini-limit-value">${toDisp(item.spentRub).toFixed(2)} / ${toDisp(item.amountRub).toFixed(2)} ${s}</span></div>`;
+    })
+    .join("");
+  const more = picked.hasMore
+    ? `<button type="button" class="gh-mini-more" id="ghBudgetShowAll">${esc(t("ghBudgetShowAll"))}</button>`
+    : "";
+  wrap.innerHTML = rows + more;
+  wrap.dataset.count = String(picked.total);
+  wrap.hidden = false;
+}
+
+
+// ------------------------------------------------------------
+// Карусель бюджета на главной. Слайд 0 — общий бюджет (сумма всех лимитов),
+// слайды 1…N — каждый активный лимит отдельно. Свайп — обычный горизонтальный
+// скролл со scroll-snap, жесты не переписываются: точки пагинации просто
+// следуют за прокруткой.
+// ------------------------------------------------------------
+let _budgetCarouselIndex = 0;
+// Короткая «заморозка» клика после свайпа и после тапа по точке: иначе
+// палец, отпущенный после прокрутки, открывает окно бюджета. Ставится только
+// по факту реального сдвига пальца, а НЕ на каждое scroll-событие: инерция и
+// снап генерят scroll ещё сотни миллисекунд после свайпа, и тап по карточке
+// (окно бюджета) не открывался с первого раза.
+let _budgetCarouselTapGuardUntil = 0;
+let _budgetSlideAnimToken = 0;
+// Индекс слайда, на котором анимации уже проиграны. Во время свайпа индекс
+// меняется несколько раз, поэтому анимация запускается один раз — когда
+// карусель остановилась на слайде.
+let _budgetSlidePlayedIndex = -1;
+// Таймер «карусель остановилась» (120 мс без новых scroll-событий).
+let _budgetCarouselSettleTimer = 0;
+// Наблюдатель за видимостью слайдов (IntersectionObserver).
+let _budgetCarouselObserver = null;
+// Геометрия касания: по сдвигу пальца отличаем свайп от тапа.
+let _budgetCarouselTouchStartX = 0;
+let _budgetCarouselTouchStartY = 0;
+let _budgetCarouselTouchMoved = false;
+
+// Слайды карусели: общий бюджет + каждый лимит с потраченным, остатком и
+// процентом. Чистая функция: на вход только данные, поэтому проверяется
+// тестами без DOM.
+function buildBudgetCarouselSlides(src) {
+  const source = src || {};
+  const txList = Array.isArray(source.expenseTx) ? source.expenseTx : [];
+  const envelopes = buildBudgetEnvelopes({
+    categoryBudgets: source.categoryBudgets,
+    customLimits: source.customLimits,
+    categoryColors: source.categoryColors,
+    expenseTx: txList,
+  });
+  const sumOf = (list, pick) =>
+    list.reduce((acc, item) => acc + Math.max(0, Number(pick(item)) || 0), 0);
+  const totalLimitRub = sumOf(envelopes, (env) => env.amountRub);
+  // Расход месяца — все расходы, как и в кольце: траты без лимита тоже в счёт.
+  const totalSpentRub = sumOf(
+    txList.filter((tx) => tx && tx.type === "expense" && !isInitialBalanceTx(tx)),
+    (tx) => tx.amountRub,
+  );
+  const slides = [
+    {
+      key: "total",
+      id: "",
+      kind: "total",
+      category: null,
+      name: "",
+      emoji: "📅",
+      color: "",
+      amountRub: totalLimitRub,
+      spentRub: totalSpentRub,
+      leftRub: totalLimitRub - totalSpentRub,
+      pct:
+        totalLimitRub > 0 ? Math.round((totalSpentRub / totalLimitRub) * 100) : 0,
+    },
+  ];
+  envelopes.forEach((env) =>
+    slides.push(Object.assign({}, env, { key: env.id })),
+  );
+  return slides;
+}
+
+function getBudgetCarouselSlides() {
+  const track = document.getElementById("ghBudgetTrack");
+  if (!track || typeof track.querySelectorAll !== "function") return [];
+  return Array.from(track.querySelectorAll(".gh-budget-slide"));
+}
+
+function getActiveBudgetSlide() {
+  const slides = getBudgetCarouselSlides();
+  if (!slides.length) return null;
+  const index = Math.min(Math.max(0, _budgetCarouselIndex), slides.length - 1);
+  return slides[index] || null;
+}
+
+// ── Блокировка анимаций бюджета ─────────────────────────────────────────────
+// Набор процента (кольцо карточки, кольца слайдов, полоски обзора) — одна
+// анимация. Пока она идёт, повторный запуск игнорируется: закрытие окна
+// «Добавить операцию» раньше запускало её 2–3 раза подряд (таймер закрытия,
+// восстановление главной по таймерам, settle карусели), из-за чего кольца и
+// полоски перезапускались с нуля и картинка дёргалась.
+let isBudgetAnimating = false;
+let _budgetAnimStartedAt = 0;
+// Окно, в котором повторный запуск считается дублем, а не осознанным
+// перезапуском: закрытие окна и возврат на вкладку передают force.
+const BUDGET_ANIM_DUPLICATE_MS = 400;
+// Незавершённый кадр анимации слайда и функция снятия inline-ограничений:
+// перед новым запуском их нужно отменить, иначе два кадра правят одну полосу.
+let _budgetSlideRafId = 0;
+let _budgetSlideRelease = null;
+// Кадры двойного requestAnimationFrame у полосок обзора — тоже отменяются.
+let _budgetOverviewRafIds = [];
+
+// Принудительный сброс индикаторов слайда перед анимацией.
+// Шаг 1: гасим CSS-переход и обнуляем цели — --pct кольца (аналог
+//        stroke-dashoffset: max для conic-gradient) и ширину полосы 0%.
+//        Без этого полоса с CSS-переходом 0.45 с «опадает» в ноль на глазах.
+// Шаг 2: читаем offsetWidth — браузер обязан отрисовать нули, иначе склеит
+//        «0» и «цель» в один кадр и анимации не будет.
+// Шаг 3: animateBudgetSlide оставляет переход выключенным, пока процент
+//        набирается кадрами, и возвращает его из CSS после финиша.
+function resetBudgetSlideIndicators(slide) {
+  if (!slide || !slide.style || typeof slide.style.setProperty !== "function")
+    return;
+  const pick = (selector) =>
+    typeof slide.querySelector === "function"
+      ? slide.querySelector(selector)
+      : null;
+  const ring = pick(".gh-ring");
+  const bar = pick(".gh-bar-fill");
+  const pctEl = pick(".gh-ring-pct");
+  [slide, ring, bar].forEach((el) => {
+    if (!el || !el.style) return;
+    if (typeof el.style.setProperty === "function")
+      el.style.setProperty("transition", "none", "important");
+    else el.style.transition = "none";
+  });
+  slide.style.setProperty("--pct", "0");
+  if (bar && typeof bar.style.setProperty === "function")
+    bar.style.setProperty("width", "0%", "important");
+  if (pctEl) pctEl.textContent = "0%";
+  // Шаг 2: принудительный рефлоу нулевого состояния.
+  void slide.offsetWidth;
+  if (bar) void bar.offsetWidth;
+  if (ring) void ring.offsetWidth;
+}
+
+// Плавный набор процента конкретного слайда: кольцо и полоса читают --pct со
+// слайда, поэтому заполняются синхронно от 0 до актуального значения.
+function animateBudgetSlide(slide, duration = 1000) {
+  if (!slide || !slide.style || typeof slide.style.setProperty !== "function")
+    return;
+  const data = slide.dataset || {};
+  if (data.state === "noLimit") return;
+  // Незавершённый набор предыдущего слайда отменяем: два кадра на одной полосе
+  // дают рывки, а не снятые inline-ограничения (transition: none, width: 0)
+  // оставили бы полосу пустой.
+  if (_budgetSlideRafId && typeof cancelAnimationFrame === "function")
+    cancelAnimationFrame(_budgetSlideRafId);
+  _budgetSlideRafId = 0;
+  if (typeof _budgetSlideRelease === "function") {
+    const release = _budgetSlideRelease;
+    _budgetSlideRelease = null;
+    release();
+  }
+  const ringTarget = Math.max(0, Math.min(100, Math.round(Number(data.pct) || 0)));
+  const textTarget = Math.max(
+    0,
+    Math.round(Number(data.pctText || ringTarget) || 0),
+  );
+  const pctEl =
+    typeof slide.querySelector === "function"
+      ? slide.querySelector(".gh-ring-pct")
+      : null;
+  const bar =
+    typeof slide.querySelector === "function"
+      ? slide.querySelector(".gh-bar-fill")
+      : null;
+  const token = ++_budgetSlideAnimToken;
+  data.animToken = String(token);
+  // Шаги 1–2: слайд появляется на экране пустым, а не «уже заполненным».
+  resetBudgetSlideIndicators(slide);
+  // Шаг 3 завершён: снимаем инлайновые ограничения — ширина полосы снова
+  // считается от --pct, а CSS-переход возвращается для будущих обновлений.
+  const releaseIndicators = () => {
+    if (bar && typeof bar.style.removeProperty === "function") {
+      bar.style.removeProperty("width");
+      bar.style.removeProperty("transition");
+    }
+    const ring =
+      typeof slide.querySelector === "function"
+        ? slide.querySelector(".gh-ring")
+        : null;
+    if (ring && typeof ring.style.removeProperty === "function")
+      ring.style.removeProperty("transition");
+    if (typeof slide.style.removeProperty === "function")
+      slide.style.removeProperty("transition");
+    // Анимация закончилась (или её отменили) — следить больше не за чем.
+    _budgetSlideRafId = 0;
+    _budgetSlideRelease = null;
+  };
+  // Отмена посреди набора должна снять inline-ограничения, иначе полоса
+  // останется пустой с выключенным переходом.
+  _budgetSlideRelease = releaseIndicators;
+  const start = performance.now();
+  const step = (now) => {
+    if (String((slide.dataset || {}).animToken) !== String(token)) {
+      _budgetSlideRafId = 0;
+      return;
+    }
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const pctNow = ringTarget * eased;
+    slide.style.setProperty("--pct", pctNow.toFixed(2));
+    // Полоса не замирает на нуле, пока кольцо набирает процент: ширину ведём
+    // тем же кадром (inline width с !important, иначе базовая CSS-ширина
+    // calc(--pct) перебьёт её).
+    if (bar) {
+      if (typeof bar.style.setProperty === "function")
+        bar.style.setProperty("width", pctNow.toFixed(2) + "%", "important");
+      else bar.style.width = pctNow.toFixed(2) + "%";
+    }
+    if (pctEl) pctEl.textContent = formatBudgetPct(textTarget * eased);
+    if (progress < 1) {
+      _budgetSlideRafId = requestAnimationFrame(step);
+      return;
+    }
+    slide.style.setProperty("--pct", String(ringTarget));
+    if (bar) {
+      if (typeof bar.style.setProperty === "function")
+        bar.style.setProperty("width", ringTarget + "%", "important");
+      else bar.style.width = ringTarget + "%";
+    }
+    if (pctEl) pctEl.textContent = formatBudgetPct(textTarget);
+    releaseIndicators();
+  };
+  _budgetSlideRafId = requestAnimationFrame(step);
+}
+
+// Разметка слайда лимита: кольцо, название с иконкой, потрачено/лимит,
+// полоса и остаток (или сумма превышения).
+function buildBudgetSlideMarkup(item, index) {
+  const s = sym();
+  const over = item.spentRub > item.amountRub;
+  const pct = Math.max(0, Math.round(Number(item.pct) || 0));
+  const ringPct = Math.min(100, pct);
+  const stops = limitGradientStops(item.color);
+  const icon =
+    item.kind === "category"
+      ? (getCategoryStyle(item.category, "expense") || {}).icon || "🏷️"
+      : item.emoji || "🎯";
+  const name =
+    item.kind === "category" ? item.category : item.name || t("budgetGlobalLimit");
+  const hint = over
+    ? `${t("budgetLimitOverBy")} ${toDisp(Math.abs(item.leftRub)).toFixed(2)} ${s}`
+    : `${t("budgetLimitLeft")} ${toDisp(item.leftRub).toFixed(2)} ${s}`;
+  return `<div class="gh-budget-slide" data-slide="${index}" data-state="${over ? "over" : "ok"}" data-pct="${ringPct}" data-pct-text="${pct}" data-limit-id="${esc(item.id || "")}" style="--ring-a:${stops.a};--ring-b:${stops.b};">
+        <div class="gh-ring-wrap">
+          <div class="gh-ring" aria-hidden="true">
+            <div class="gh-ring-inner">
+              <span class="gh-ring-pct">${formatBudgetPct(pct)}</span>
+            </div>
+          </div>
+        </div>
+        <div class="gh-budget-body">
+          <div class="gh-label">${icon} ${esc(name)}</div>
+          <div class="gh-budget-amount">
+            <span>${toDisp(item.spentRub).toFixed(2)} ${s}</span>
+            <span class="gh-budget-limit">/ ${toDisp(item.amountRub).toFixed(2)} ${s}</span>
+          </div>
+          <div class="gh-bar" aria-hidden="true"><div class="gh-bar-fill"></div></div>
+          <div class="gh-budget-hint">${esc(hint)}</div>
+        </div>
+      </div>`;
+}
+
+// Слайд-обзор (лимитов два и больше): строка на каждый лимит — иконка,
+// название, «потрачено / лимит» и своя мини-полоска прогресса. Сверху общий
+// итог, если общий лимит месяца задан.
+function buildBudgetOverviewMarkup(src) {
+  const source = src || {};
+  const items = (Array.isArray(source.items) ? source.items : []).filter(
+    (item) => item && Number(item.amountRub) > 0,
+  );
+  if (!items.length) return "";
+  const s = sym();
+  const rows = items
+    .map((item) => {
+      const over = item.spentRub > item.amountRub;
+      const pct = Math.max(0, Math.round(Number(item.pct) || 0));
+      const ringPct = Math.min(100, pct);
+      const stops = limitGradientStops(item.color);
+      const icon =
+        item.kind === "category"
+          ? (getCategoryStyle(item.category, "expense") || {}).icon || "🏷️"
+          : item.emoji || "🎯";
+      const name =
+        item.kind === "category" ? item.category : item.name || t("budgetGlobalLimit");
+      return `<div class="gh-overview-row" data-state="${over ? "over" : "ok"}" data-pct="${ringPct}" data-limit-id="${esc(item.id || "")}" style="--fill-a:${stops.a};--fill-b:${stops.b};">
+          <span class="gh-overview-icon" aria-hidden="true">${icon}</span>
+          <span class="gh-overview-name">${esc(name)}</span>
+          <span class="gh-overview-value">${toDisp(item.spentRub).toFixed(2)} / ${toDisp(item.amountRub).toFixed(2)} ${s}</span>
+          <span class="gh-overview-bar" aria-hidden="true"><span class="gh-overview-fill"></span></span>
+        </div>`;
+    })
+    .join("");
+  if (!(Number(source.limitRub) > 0)) return rows;
+  const head = `<div class="gh-overview-head"><span class="gh-overview-total-label">${esc(t("budgetSlideTotal"))}</span><span class="gh-overview-total-value">${toDisp(source.spentRub).toFixed(2)} / ${toDisp(source.limitRub).toFixed(2)} ${s}</span></div>`;
+  return head + rows;
+}
+
+// Полоски обзора набирают ширину от 0 при каждом показе слайда: возврат на
+// слайд 0 после лимита снова проигрывает анимацию.
+function animateBudgetOverviewBars() {
+  const wrap = document.getElementById("ghBudgetOverview");
+  if (!wrap || typeof wrap.querySelectorAll !== "function") return;
+  const fills = [];
+  Array.from(wrap.querySelectorAll(".gh-overview-row")).forEach((row) => {
+    const el =
+      typeof row.querySelector === "function"
+        ? row.querySelector(".gh-overview-fill")
+        : null;
+    if (!el || !el.style) return;
+    const pct = Math.max(
+      0,
+      Math.min(100, Math.round(Number((row.dataset || {}).pct) || 0)),
+    );
+    fills.push({ el: el, pct: pct });
+  });
+  if (!fills.length) return;
+  // Незавершённые кадры предыдущего запуска отменяем: иначе полоски дважды
+  // сбрасываются в ноль и дважды едут к цели — это и видно как рывок.
+  if (typeof cancelAnimationFrame === "function")
+    _budgetOverviewRafIds.forEach((id) => {
+      if (id) cancelAnimationFrame(id);
+    });
+  _budgetOverviewRafIds = [];
+  // Перезапуск перехода с нуля. Пока полоска уже нарисована, простой сброс
+  // ширины в 0 и возврат к цели через кадр даёт лишь рывок на пару пикселей:
+  // CSS-переход не успевает пройти от нуля. Поэтому сначала гасим переход
+  // инлайново (со !important — в index.html он тоже !important), ставим ноль,
+  // заставляем браузер отрисовать ноль и только в следующем кадре включаем
+  // переход обратно и задаём нужную ширину.
+  fills.forEach((fill) => {
+    if (typeof fill.el.style.setProperty === "function")
+      fill.el.style.setProperty("transition", "none", "important");
+    else fill.el.style.transition = "none";
+    fill.el.style.width = "0%";
+  });
+  // Чтение offsetWidth сбрасывает накопленные стили: без него браузер
+  // склеит «0» и «цель» в один кадр и перехода не будет.
+  fills.forEach((fill) => {
+    void fill.el.offsetWidth;
+  });
+  const apply = () =>
+    fills.forEach((fill) => {
+      if (typeof fill.el.style.removeProperty === "function")
+        fill.el.style.removeProperty("transition");
+      else fill.el.style.transition = "";
+      fill.el.style.width = fill.pct + "%";
+    });
+  if (typeof requestAnimationFrame !== "function") {
+    apply();
+    return;
+  }
+  // Двойной кадр — чтобы браузер успел отрисовать нулевую ширину.
+  const first = requestAnimationFrame(() => {
+    _budgetOverviewRafIds = [requestAnimationFrame(apply)];
+  });
+  _budgetOverviewRafIds = [first];
+}
+
+// Индикаторы «приехавшего» слайда обнуляем сразу при смене активного слайда,
+// а не по остановке карусели. Иначе при свайпе на уже показанный слайд кольцо
+// и полоса стоят заполненными, а после остановки «опадают» в ноль и только
+// потом начинают набор. Сброс помечает слайд непроигранным — settle обязан
+// запустить анимацию заново.
+function resetBudgetCarouselIndicators(index) {
+  const slides = getBudgetCarouselSlides();
+  if (!slides.length) return;
+  const target = Math.min(
+    Math.max(0, Math.round(Number(index) || 0)),
+    slides.length - 1,
+  );
+  _budgetSlidePlayedIndex = -1;
+  if (target) {
+    resetBudgetSlideIndicators(slides[target]);
+    return;
+  }
+  // Слайд 0: кольцо живёт на карточке, полоски — в списке обзора лимитов.
+  const card = document.getElementById("ghBudgetCard");
+  if (card && card.style && card.classList) {
+    // Класс выключает CSS-переход полосы карточки (0.45 с) на время сброса и
+    // набора процентов — снимает его animateBudget() по завершении.
+    card.classList.add("gh-pct-animating");
+    if ((card.dataset || {}).state !== "noLimit") {
+      if (typeof card.style.setProperty === "function")
+        card.style.setProperty("--pct", "0");
+      const pctEl = document.getElementById("ghBudgetPct");
+      if (pctEl) pctEl.textContent = "0%";
+    }
+  }
+  const wrap = document.getElementById("ghBudgetOverview");
+  if (wrap && typeof wrap.querySelectorAll === "function") {
+    Array.from(wrap.querySelectorAll(".gh-overview-fill")).forEach((fill) => {
+      if (!fill || !fill.style) return;
+      if (typeof fill.style.setProperty === "function")
+        fill.style.setProperty("transition", "none", "important");
+      else fill.style.transition = "none";
+      fill.style.width = "0%";
+      void fill.offsetWidth;
+    });
+  }
+}
+
+// Активный слайд «успокоился»: анимации проигрываются с нуля — кольцо и полоса
+// набирают процент, слайд 0 (обзор) заново пускает полоски лимитов. Повторный
+// вызов для того же слайда ничего не делает (_budgetSlidePlayedIndex).
+function replayBudgetSlideAnimations(index) {
+  const slides = getBudgetCarouselSlides();
+  if (!slides.length) return;
+  const target = Math.min(
+    Math.max(0, Math.round(Number(index) || 0)),
+    slides.length - 1,
+  );
+  // Кольцо карточки уже набирает процент (анимация после закрытия окна или
+  // повторной отрисовки главной) — второй запуск от settle дал бы наложение.
+  // Слайды лимитов живут отдельными элементами и сюда не попадают.
+  if (
+    !target &&
+    isBudgetAnimating &&
+    Date.now() - _budgetAnimStartedAt < BUDGET_ANIM_DUPLICATE_MS
+  )
+    return;
+  if (_budgetSlidePlayedIndex === target) return;
+  _budgetSlidePlayedIndex = target;
+  if (!target) {
+    // Слайд 0 — общее кольцо карточки (его --pct живёт на #ghBudgetCard) и
+    // список лимитов с мини-полосками.
+    const card = document.getElementById("ghBudgetCard");
+    if (
+      card &&
+      card.dataset &&
+      card.dataset.state !== "noLimit" &&
+      typeof animateBudget === "function"
+    ) {
+      animateBudget(
+        Number(card.dataset.pct || 0),
+        1000,
+        Number(card.dataset.pctText || card.dataset.pct || 0),
+      );
+    }
+    animateBudgetOverviewBars();
+    return;
+  }
+  animateBudgetSlide(slides[target], 1000);
+}
+
+// Карусель остановилась: фиксируем слайд, синхронизируем точки, играем анимации.
+function settleBudgetCarousel(index) {
+  if (_budgetCarouselSettleTimer) {
+    clearTimeout(_budgetCarouselSettleTimer);
+    _budgetCarouselSettleTimer = 0;
+  }
+  const slides = getBudgetCarouselSlides();
+  if (!slides.length) return;
+  const clamped = Math.min(
+    Math.max(0, Math.round(Number(index) || 0)),
+    slides.length - 1,
+  );
+  _budgetCarouselIndex = clamped;
+  syncBudgetCarouselDots();
+  replayBudgetSlideAnimations(clamped);
+}
+
+// Планировщик «карусель остановилась». Scroll и IntersectionObserver зовут его
+// на каждое движение; пока палец двигает ленту, таймер перезапускается, поэтому
+// анимация стартует только по остановке — иначе она заканчивалась бы, пока
+// слайд ещё едет.
+function scheduleBudgetCarouselSettle() {
+  if (typeof setTimeout !== "function") return;
+  if (_budgetCarouselSettleTimer) clearTimeout(_budgetCarouselSettleTimer);
+  _budgetCarouselSettleTimer = setTimeout(() => {
+    _budgetCarouselSettleTimer = 0;
+    settleBudgetCarousel(currentBudgetCarouselIndex());
+  }, 120);
+}
+
+// Индекс активного слайда по доле видимости: при снапе и инерции это точнее,
+// чем деление scrollLeft на шаг. Анимацию всё равно запускает settle.
+function observeBudgetCarouselSlides(track) {
+  const el = track || document.getElementById("ghBudgetTrack");
+  if (!el || typeof el.querySelectorAll !== "function") return;
+  if (typeof IntersectionObserver !== "function") return;
+  if (_budgetCarouselObserver && typeof _budgetCarouselObserver.disconnect === "function")
+    _budgetCarouselObserver.disconnect();
+  _budgetCarouselObserver = null;
+  const slides = Array.from(el.querySelectorAll(".gh-budget-slide"));
+  if (!slides.length) return;
+  _budgetCarouselObserver = new IntersectionObserver(
+    (entries) => {
+      let bestIndex = -1;
+      let bestRatio = 0;
+      (entries || []).forEach((entry) => {
+        const index = slides.indexOf(entry.target);
+        if (index < 0) return;
+        const ratio = Number(entry.intersectionRatio) || 0;
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          bestIndex = index;
+        }
+      });
+      if (bestIndex < 0 || bestRatio < 0.6) return;
+      if (bestIndex !== _budgetCarouselIndex) {
+        _budgetCarouselIndex = bestIndex;
+        syncBudgetCarouselDots();
+        // Индикаторы нового слайда обнуляем сразу, пока он ещё едет: к моменту
+        // остановки он уже пустой и анимация стартует без «опавшего» кольца.
+        resetBudgetCarouselIndicators(bestIndex);
+      }
+      scheduleBudgetCarouselSettle();
+    },
+    { root: el, threshold: [0, 0.25, 0.5, 0.6, 0.75, 0.9, 1] },
+  );
+  slides.forEach((slide) => _budgetCarouselObserver.observe(slide));
+}
+
+// Перерисовка слайдов лимитов (слайд 0 с общим бюджетом не трогаем, его
+// обновляет updateBudgetCard). Индекс слайда и обработчики сохраняются.
+function renderHomeBudgetSlides() {
+  const track = document.getElementById("ghBudgetTrack");
+  if (!track || typeof track.querySelectorAll !== "function") return;
+  const monthTx = filterByTime(getMoneyTransactions(), "thisMonth");
+  const allSlides = buildBudgetCarouselSlides({
+    categoryBudgets: categoryBudgets,
+    customLimits: budgetCustomLimits,
+    categoryColors: getCategoryBudgetColors(),
+    expenseTx: monthTx,
+  });
+  const limitSlides = allSlides.slice(1);
+  // Один лимит — карусели нет: слайд 0 сам показывает этот лимит (суммы
+  // приходят из updateBudgetCard), отдельный слайд был бы его копией.
+  // Два и больше — слайд 0 становится обзором со списком всех лимитов.
+  const singleMode = limitSlides.length === 1;
+  const overviewMode = limitSlides.length >= 2;
+  const slides = singleMode ? [] : limitSlides;
+  // Подпись состава слайдов. Если данные и режим не изменились, разметку не
+  // пересоздаём: раньше каждая перерисовка главной (восстановление после
+  // закрытия окна добавления, страховочные таймеры) удаляла и вставляла слайды
+  // заново, сбрасывала _budgetSlidePlayedIndex и заново запускала анимации
+  // колец и полосок — они накладывались друг на друга.
+  const slidesSignature = JSON.stringify({
+    mode: singleMode ? "single" : overviewMode ? "overview" : "plain",
+    total: [allSlides[0].spentRub, allSlides[0].amountRub],
+    items: slides.map((item) => [
+      item.id,
+      item.kind,
+      item.category,
+      item.name,
+      item.emoji,
+      item.amountRub,
+      item.spentRub,
+      item.leftRub,
+      item.pct,
+      item.color,
+    ]),
+  });
+  const slidesUnchanged =
+    !!track.dataset && track.dataset.budgetSlidesSig === slidesSignature;
+  const markup = slides
+    .map((item, index) => buildBudgetSlideMarkup(item, index + 1))
+    .join("");
+  if (!slidesUnchanged) {
+    Array.from(
+      track.querySelectorAll('.gh-budget-slide[data-slide]:not([data-slide="0"])'),
+    ).forEach((el) => el.remove());
+    if (markup && typeof track.insertAdjacentHTML === "function")
+      track.insertAdjacentHTML("beforeend", markup);
+  }
+  const count = slides.length + 1;
+  if (_budgetCarouselIndex > count - 1) _budgetCarouselIndex = 0;
+  const card = document.getElementById("ghBudgetCard");
+  if (card && card.classList) {
+    // has-slides прячет строки-подсказки под кольцом: при одном лимите
+    // название лимита уже стоит над суммой.
+    card.classList.toggle("has-slides", limitSlides.length > 0);
+    card.classList.toggle("is-single", singleMode);
+    card.classList.toggle("is-overview", overviewMode);
+  }
+  // Один лимит: кольцо слайда 0 красится цветом этого лимита.
+  const slide0 = document.getElementById("ghBudgetSlide0");
+  if (slide0 && slide0.style) {
+    if (singleMode) {
+      const stops = limitGradientStops(limitSlides[0].color);
+      if (typeof slide0.style.setProperty === "function") {
+        slide0.style.setProperty("--ring-a", stops.a);
+        slide0.style.setProperty("--ring-b", stops.b);
+      }
+    } else if (typeof slide0.style.removeProperty === "function") {
+      slide0.style.removeProperty("--ring-a");
+      slide0.style.removeProperty("--ring-b");
+    }
+  }
+  // Слайд 0 в режиме обзора: список всех лимитов с мини-полосками.
+  const overviewEl = document.getElementById("ghBudgetOverview");
+  if (overviewEl) {
+    if (overviewMode) {
+      // Разметку пересобираем только при изменении данных: пересоздание списка
+      // на каждой перерисовке заново запускало анимацию полосок.
+      if (!slidesUnchanged)
+        overviewEl.innerHTML = buildBudgetOverviewMarkup({
+          items: limitSlides,
+          spentRub: allSlides[0].spentRub,
+          limitRub: allSlides[0].amountRub,
+        });
+      overviewEl.hidden = false;
+    } else {
+      if (!slidesUnchanged) overviewEl.innerHTML = "";
+      overviewEl.hidden = true;
+    }
+  }
+  renderBudgetCarouselDots(count);
+  if (!slidesUnchanged) {
+    bindBudgetCarousel(track);
+    // Слайды пересозданы: анимации на них ещё не играли.
+    _budgetSlidePlayedIndex = -1;
+    observeBudgetCarouselSlides(track);
+    restoreBudgetCarouselScroll(track);
+    if (track.dataset) track.dataset.budgetSlidesSig = slidesSignature;
+  }
+}
+
+// Точки пагинации под кольцом: активная — с градиентом кольца.
+function renderBudgetCarouselDots(count) {
+  const dotsWrap = document.getElementById("ghBudgetDots");
+  if (!dotsWrap) return;
+  const total = Math.max(0, Math.round(Number(count) || 0));
+  if (total < 2) {
+    dotsWrap.innerHTML = "";
+    dotsWrap.hidden = true;
+    return;
+  }
+  dotsWrap.innerHTML = Array.from({ length: total }, (_, index) => {
+    const active = index === _budgetCarouselIndex;
+    const label = t("budgetSlideLabel").replace("{n}", String(index + 1));
+    return `<button type="button" class="gh-budget-dot${active ? " is-active" : ""}" data-slide-index="${index}" aria-label="${esc(label)}"${active ? ' aria-current="true"' : ""}></button>`;
+  }).join("");
+  dotsWrap.hidden = false;
+}
+
+function syncBudgetCarouselDots() {
+  const dotsWrap = document.getElementById("ghBudgetDots");
+  if (!dotsWrap || typeof dotsWrap.querySelectorAll !== "function") return;
+  Array.from(dotsWrap.querySelectorAll(".gh-budget-dot")).forEach((dot) => {
+    const index = Number((dot.dataset || {}).slideIndex) || 0;
+    if (!dot.classList) return;
+    dot.classList.toggle("is-active", index === _budgetCarouselIndex);
+    if (index === _budgetCarouselIndex) dot.setAttribute("aria-current", "true");
+    else dot.removeAttribute("aria-current");
+  });
+}
+
+// Шаг прокрутки карусели — ширина одного слайда (100% ширины контента трека).
+// Ширина трека больше на боковые паддинги, поэтому для индекса берём слайд:
+// иначе при большом числе лимитов округление «уползает» на узком экране.
+function getBudgetSlideStep(track) {
+  const el = track || document.getElementById("ghBudgetTrack");
+  const width = Number(el && el.clientWidth) || 0;
+  if (!width) return 0;
+  const slides = getBudgetCarouselSlides();
+  const first = slides[0];
+  return Number(first && first.offsetWidth) || width;
+}
+
+// Индекс слайда по текущей прокрутке трека.
+function currentBudgetCarouselIndex() {
+  const track = document.getElementById("ghBudgetTrack");
+  const slides = getBudgetCarouselSlides();
+  if (!track || !slides.length) return 0;
+  const step = getBudgetSlideStep(track);
+  if (!step) return 0;
+  const index = Math.round((Number(track.scrollLeft) || 0) / step);
+  return Math.min(Math.max(0, index), slides.length - 1);
+}
+
+// Возврат к активному слайду без анимации: главная могла перерисоваться.
+function restoreBudgetCarouselScroll(track) {
+  const el = track || document.getElementById("ghBudgetTrack");
+  if (!el || !_budgetCarouselIndex) return;
+  const step = getBudgetSlideStep(el);
+  if (!step || typeof el.scrollTo !== "function") return;
+  el.scrollTo({ left: step * _budgetCarouselIndex, behavior: "auto" });
+}
+
+// Обработчики свайпа и точек. Навешиваются один раз на сам трек и на контейнер
+// точек: они живут дольше перерисовки слайдов.
+function bindBudgetCarousel(track) {
+  const el = track || document.getElementById("ghBudgetTrack");
+  if (!el || typeof el.addEventListener !== "function") return;
+  if (!(el.dataset && el.dataset.carouselBound === "1")) {
+    if (el.dataset) el.dataset.carouselBound = "1";
+    // Scroll: сразу обновляем точки (визуальный отклик), а анимации запускаем
+    // только по остановке. Клик здесь НЕ блокируется: раньше каждое
+    // scroll-событие продлевало «заморозку» на 400 мс, и тап по карточке
+    // открывал окно бюджета только со 2–3 раза.
+    el.addEventListener(
+      "scroll",
+      () => {
+        const index = currentBudgetCarouselIndex();
+        if (index !== _budgetCarouselIndex) {
+          _budgetCarouselIndex = index;
+          syncBudgetCarouselDots();
+          // Слайд сменился по ходу свайпа — сразу гасим его индикаторы, чтобы
+          // кольцо и полоса не стояли заполненными до остановки карусели.
+          resetBudgetCarouselIndicators(index);
+        }
+        scheduleBudgetCarouselSettle();
+      },
+      { passive: true },
+    );
+    // Свайп vs тап: сдвиг пальца больше 8px — это прокрутка, и отпускание
+    // после неё не должно открывать окно. Заморозка ставится только по факту
+    // сдвига и всего на 220 мс (на синтетический click после drag).
+    const markGestureStart = (x, y) => {
+      _budgetCarouselTouchStartX = Number(x) || 0;
+      _budgetCarouselTouchStartY = Number(y) || 0;
+      _budgetCarouselTouchMoved = false;
+    };
+    const markGestureMove = (x, y) => {
+      if (_budgetCarouselTouchMoved) return;
+      const dx = Math.abs((Number(x) || 0) - _budgetCarouselTouchStartX);
+      const dy = Math.abs((Number(y) || 0) - _budgetCarouselTouchStartY);
+      if (dx > 8 || dy > 8) _budgetCarouselTouchMoved = true;
+    };
+    const markGestureEnd = () => {
+      if (_budgetCarouselTouchMoved)
+        _budgetCarouselTapGuardUntil = Date.now() + 220;
+      _budgetCarouselTouchMoved = false;
+    };
+    el.addEventListener(
+      "touchstart",
+      (event) => {
+        const touch = event && event.touches && event.touches[0];
+        if (touch) markGestureStart(touch.clientX, touch.clientY);
+      },
+      { passive: true },
+    );
+    el.addEventListener(
+      "touchmove",
+      (event) => {
+        const touch = event && event.touches && event.touches[0];
+        if (touch) markGestureMove(touch.clientX, touch.clientY);
+      },
+      { passive: true },
+    );
+    el.addEventListener("touchend", markGestureEnd, { passive: true });
+    el.addEventListener("touchcancel", markGestureEnd, { passive: true });
+    // Мышь и перо (в том числе проверки через CDP) — тот же критерий 8px.
+    el.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (event && event.pointerType === "touch") return;
+        markGestureStart(event && event.clientX, event && event.clientY);
+      },
+      { passive: true },
+    );
+    el.addEventListener(
+      "pointerup",
+      (event) => {
+        if (event && event.pointerType === "touch") return;
+        markGestureMove(event && event.clientX, event && event.clientY);
+        markGestureEnd();
+      },
+      { passive: true },
+    );
+    // Там, где браузер поддерживает scrollend, снап фиксируем мгновенно.
+    el.addEventListener(
+      "scrollend",
+      () => settleBudgetCarousel(currentBudgetCarouselIndex()),
+      { passive: true },
+    );
+  }
+  const dotsWrap = document.getElementById("ghBudgetDots");
+  if (
+    dotsWrap &&
+    typeof dotsWrap.addEventListener === "function" &&
+    !(dotsWrap.dataset && dotsWrap.dataset.carouselBound === "1")
+  ) {
+    if (dotsWrap.dataset) dotsWrap.dataset.carouselBound = "1";
+    // capture: клик по точке не должен доходить до карточки (она открывает окно).
+    dotsWrap.addEventListener(
+      "click",
+      (event) => {
+        const target = event.target;
+        const btn =
+          target && typeof target.closest === "function"
+            ? target.closest("[data-slide-index]")
+            : null;
+        if (!btn) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const index = Number((btn.dataset || {}).slideIndex) || 0;
+        const step = getBudgetSlideStep(el);
+        if (step && typeof el.scrollTo === "function")
+          el.scrollTo({ left: step * index, behavior: "smooth" });
+        _budgetCarouselIndex = index;
+        _budgetCarouselTapGuardUntil = Date.now() + 220;
+        syncBudgetCarouselDots();
+        // Анимация активного слайда — сразу, не дожидаясь снапа: тап по точке
+        // должен отзываться мгновенно.
+        settleBudgetCarousel(index);
+      },
+      true,
+    );
+  }
+}
+
+// ------------------------------------------------------------
+// Анимации главного экрана: прорисовка графика баланса и набор процентов
+// бюджета. Запускаются из renderHome(), то есть при каждом открытии
+// главной вкладки. Денежные значения не меняются — анимируются только
+// CSS-переменная --pct, текст процента и CSS-класс графика.
+// ------------------------------------------------------------
+let _budgetPctAnimToken = 0;
+let _budgetPctRafId = 0;
+
+// Плавно набирает процент бюджета от 0 до target за duration мс.
+// Кольцо (conic-gradient) и полоса заполняются из --pct на карточке,
+// поэтому кольцо, полоса и число растут синхронно.
+// ringPercent ограничен 100% (как и кольцо), textPercent — фактический
+// процент для подписи: при перерасходе кольцо стоит на 100%, а число растёт дальше.
+function animateBudget(ringPercent, duration = 1500, textPercent = ringPercent, force = false) {
+  const card = document.getElementById("ghBudgetCard");
+  const pctEl = document.getElementById("ghBudgetPct");
+  if (!card || !pctEl) return;
+  // Лимита нет — в кольце «+», считать нечего.
+  if (card.dataset.state === "noLimit") return;
+  // Повторный запуск в пределах одной и той же анимации — дубль: восстановление
+  // главной после закрытия окна добавления и settle карусели звали её по 2–3
+  // раза, и кольцо с числом дёргались. force — осознанный перезапуск с нуля.
+  if (
+    !force &&
+    isBudgetAnimating &&
+    Date.now() - _budgetAnimStartedAt < BUDGET_ANIM_DUPLICATE_MS
+  )
+    return;
+  isBudgetAnimating = true;
+  _budgetAnimStartedAt = Date.now();
+  const target = Math.max(0, Math.min(100, Math.round(Number(ringPercent) || 0)));
+  const textTarget = Math.max(0, Math.round(Number(textPercent) || 0));
+  // Незавершённый кадр предыдущей анимации отменяем: иначе старая и новая
+  // анимации идут одновременно и кольцо с числом дёргаются.
+  if (_budgetPctRafId) cancelAnimationFrame(_budgetPctRafId);
+  _budgetPctRafId = 0;
+  const token = ++_budgetPctAnimToken;
+  card.classList.add("gh-pct-animating");
+  card.style.setProperty("--pct", "0");
+  pctEl.textContent = "0%";
+  // Принудительный рефлоу: браузер обязан отрисовать нулевое состояние до
+  // первого кадра rAF. Без него при первом входе в приложение кольцо уже
+  // стояло заполненным, и анимация начиналась «с середины».
+  void card.offsetWidth;
+  const start = performance.now();
+  const step = (now) => {
+    if (token !== _budgetPctAnimToken) {
+      _budgetPctRafId = 0;
+      return;
+    }
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    card.style.setProperty("--pct", (target * eased).toFixed(2));
+    pctEl.textContent = formatBudgetPct(textTarget * eased);
+    if (progress < 1) {
+      _budgetPctRafId = requestAnimationFrame(step);
+      return;
+    }
+    _budgetPctRafId = 0;
+    isBudgetAnimating = false;
+    card.style.setProperty("--pct", String(target));
+    pctEl.textContent = formatBudgetPct(textTarget);
+    card.classList.remove("gh-pct-animating");
+  };
+  _budgetPctRafId = requestAnimationFrame(step);
+}
+
+// Перезапускает CSS-анимацию линии графика. Длину пути берём из самого path,
+// чтобы stroke-dasharray точно совпал с кривой при любой ширине карточки.
+// SVG растянут по ширине (preserveAspectRatio="none"), а getTotalLength()
+// считает в единицах viewBox, поэтому путь обходится точками и длина
+// суммируется уже в экранных координатах — иначе на широком экране линия
+// «не дотягивается» до конца или превращается в пунктир.
+function playHomeChartAnimation() {
+  const spark = document.querySelector("#mainContent .gh-home .gh-spark");
+  if (!spark) return;
+  const line = spark.querySelector(".gh-spark-line");
+  if (line && typeof line.getTotalLength === "function") {
+    let length = 0;
+    try {
+      const total = line.getTotalLength();
+      const matrix = line.getScreenCTM();
+      if (total > 0 && matrix) {
+        const steps = 240;
+        let prevX = null;
+        let prevY = null;
+        let screenLength = 0;
+        for (let i = 0; i <= steps; i++) {
+          const point = line.getPointAtLength((total * i) / steps);
+          const x = matrix.a * point.x + matrix.c * point.y + matrix.e;
+          const y = matrix.b * point.x + matrix.d * point.y + matrix.f;
+          if (prevX !== null) screenLength += Math.hypot(x - prevX, y - prevY);
+          prevX = x;
+          prevY = y;
+        }
+        // Небольшой запас: если dasharray окажется короче пути, линия
+        // распадётся на несколько штрихов.
+        if (screenLength > 0) length = Math.ceil(screenLength * 1.06);
+      }
+    } catch (error) {
+      // Геометрия недоступна — остаётся запасная длина из CSS.
+    }
+    if (length > 0) spark.style.setProperty("--gh-spark-len", String(length));
+  }
+  spark.classList.remove("is-animating");
+  void spark.offsetWidth; // reflow, чтобы анимация началась с нуля
+  spark.classList.add("is-animating");
+}
+
+// Последняя карточка бюджета, для которой уже запускались анимации, и время
+// запуска. Один и тот же узел не анимируется повторно в пределах 600 мс —
+// иначе график и кольцо стартуют второй раз и «дёргаются».
+let _heroAnimCard = null;
+let _heroAnimStartedAt = 0;
+
+function playHomeHeroAnimations(force = false) {
+  const card = document.getElementById("ghBudgetCard");
+  const now = Date.now();
+  if (!force && card && card === _heroAnimCard && now - _heroAnimStartedAt < 600) return;
+  _heroAnimCard = card;
+  _heroAnimStartedAt = now;
+  playHomeChartAnimation();
+  if (!card || card.dataset.state === "noLimit") return;
+  animateBudget(
+    Number(card.dataset.pct || 0),
+    1500,
+    Number(card.dataset.pctText || card.dataset.pct || 0),
+    force,
+  );
+  // Карусель стоит не на первом слайде — оживляем именно открытый лимит.
+  if (
+    typeof _budgetCarouselIndex === "number" &&
+    _budgetCarouselIndex > 0 &&
+    typeof getActiveBudgetSlide === "function"
+  ) {
+    const slide = getActiveBudgetSlide();
+    if (slide && typeof animateBudgetSlide === "function")
+      animateBudgetSlide(slide, 1000);
+    return;
+  }
+  // Слайд 0 — обзор лимитов: полоски снова набирают ширину.
+  if (typeof animateBudgetOverviewBars === "function") animateBudgetOverviewBars();
 }
 
 // ============================================================
@@ -8006,13 +10440,13 @@ function setTab(tab, onRendered) {
 // ============================================================
 // ГЛАВНАЯ — УПРОЩЁННЫЙ РЕЖИМ
 // ============================================================
-function getHomeToolsMarkup() {
+function getHomeToolsMarkup(open = false) {
   const title = { ru: "Подробности, поиск и фильтры", en: "Details, search and filters", ka: "დეტალები, ძიება და ფილტრები" }[currentLang] || "Details, search and filters";
-  return `<details class="home-details" id="homeDetails"><summary><span class="home-details-icon" aria-hidden="true">▸</span><span class="home-details-title">${title}</span></summary><div class="home-details-body" id="homeDetailsBody">
+  return `<details class="home-details" id="homeDetails"><summary><span class="home-details-icon" aria-hidden="true">▸</span><span class="home-details-title">${title}</span></summary><div class="history-expand-wrapper" id="homeDetailsWrapper"${open ? " is-open" : " inert"}><div class="home-details-body history-expand-inner" id="homeDetailsBody">
     <div id="balanceSummaryContainer"></div><div id="searchContainer"></div>
     <div class="history-time-filter"><span class="htf-label">${t("filterLabel")}</span><div class="htf-btns">
       ${["allTime", "today", "yesterday", "twoDaysAgo", "thisWeek", "thisMonth"].map((f) => `<button class="htf-btn${historyFilter === f ? " active" : ""}" data-hf="${f}">${t("filter" + f.charAt(0).toUpperCase() + f.slice(1))}</button>`).join("")}
-    </div></div></div></details>`;
+    </div></div></div></div></details>`;
 }
 
 function bindHomeHistoryTools() {
@@ -8112,26 +10546,55 @@ function animateHomeHeight(element, from, to, finish, closing = false) {
   };
 }
 
+// Аккордеон «Показать все / Свернуть» и панель «Подробности, поиск и фильтры»
+// раскрываются CSS-переходом обёртки .history-expand-wrapper: у неё
+// анимируется grid-template-rows 0fr ↔ 1fr. JS только переключает класс,
+// поэтому высоту считает браузер и длинный список не дёргается.
+const HISTORY_EXPAND_ANIM_MS = 320;
+
+function setHistoryExpandState(wrapper, open) {
+  if (!wrapper) return;
+  wrapper.classList.toggle("is-open", open);
+  wrapper.inert = !open;
+}
+
+// Панель «Подробности, поиск и фильтры»: содержимое раскрывает CSS-переход
+// обёртки, поэтому details.open, класс is-open и inert меняются вместе.
+function setHomeToolsOpen(open) {
+  const details = document.getElementById("homeDetails");
+  const wrapper = document.getElementById("homeDetailsWrapper");
+  if (details) details.open = open;
+  if (wrapper) {
+    wrapper.classList.toggle("is-open", open);
+    wrapper.inert = !open;
+  }
+  return details;
+}
+
 function bindHomeDetailsMotion() {
   const details = document.getElementById("homeDetails");
+  const wrapper = document.getElementById("homeDetailsWrapper");
   const body = document.getElementById("homeDetailsBody");
   const summary = details?.querySelector("summary");
-  if (!summary || !body || summary.dataset.motionBound) return;
+  if (!summary || !body || !wrapper || summary.dataset.motionBound) return;
   summary.dataset.motionBound = "true";
   summary.addEventListener("click", (event) => {
     event.preventDefault();
-    const opening = details.dataset.expanded !== undefined ? details.dataset.expanded !== "true" : !details.open;
-    const from = details.open ? body.getBoundingClientRect().height : 0;
+    const opening = !wrapper.classList.contains("is-open");
+    // Содержимое <details> должно оставаться в документе, пока идёт переход.
+    details.open = true;
     details.dataset.expanded = String(opening);
     summary.setAttribute("aria-expanded", String(opening));
-    details.open = true;
     if (!opening && body.contains(document.activeElement)) summary.focus({ preventScroll: true });
-    body.inert = !opening;
-    animateHomeHeight(body, from, opening ? body.scrollHeight : 0, () => {
-      details.open = opening;
-      body.inert = !opening;
-      delete details.dataset.expanded;
-    }, !opening);
+    setHistoryExpandState(wrapper, opening);
+    if (!opening) {
+      // Закрываем <details> уже после перехода: к этому моменту контент скрыт.
+      setTimeout(() => {
+        if (wrapper.classList.contains("is-open")) return;
+        details.open = false;
+        delete details.dataset.expanded;
+      }, HISTORY_EXPAND_ANIM_MS);
+    }
   });
 }
 
@@ -8154,31 +10617,12 @@ function bindHomeOperationsToggle() {
   if (!button || button.dataset.motionBound) return;
   button.dataset.motionBound = "true";
   button.addEventListener("click", () => {
-    let list = document.getElementById("homeOpsItems");
-    const from = list?.getBoundingClientRect().height || 0;
     homeOperationsExpanded = !homeOperationsExpanded;
-    // The nonvisual render path also remains usable without the animation API.
-    if (!list) { refreshHomeList(); return; }
-    let rows = list.querySelectorAll(simpleMode ? ".sm-op-row" : ".op-swipe-wrap");
-    if (homeOperationsExpanded && rows.length <= 3) {
-      refreshHomeList();
-      list = document.getElementById("homeOpsItems");
-      rows = list.querySelectorAll(simpleMode ? ".sm-op-row" : ".op-swipe-wrap");
-    }
-    const nextButton = document.getElementById("homeOpsToggleBtn");
-    nextButton.textContent = getHomeOperationsToggleText(Number(nextButton.dataset.count));
-    nextButton.setAttribute("aria-expanded", String(homeOperationsExpanded));
-    nextButton.focus({ preventScroll: true });
-    rows.forEach((row, index) => { row.inert = !homeOperationsExpanded && index >= 3; });
-    const expanded = homeOperationsExpanded;
-    list.classList.add("home-motion");
-    const to = expanded ? list.scrollHeight : rows[2].getBoundingClientRect().bottom - list.getBoundingClientRect().top;
-    animateHomeHeight(list, from, to, () => {
-      if (!expanded) {
-        refreshHomeList();
-        document.getElementById("homeOpsToggleBtn")?.focus({ preventScroll: true });
-      }
-    }, !expanded);
+    button.textContent = getHomeOperationsToggleText(Number(button.dataset.count));
+    button.setAttribute("aria-expanded", String(homeOperationsExpanded));
+    // Строки уже в DOM: раскрывает и сворачивает их CSS-переход обёртки.
+    setHistoryExpandState(document.getElementById("homeOpsExpandWrapper"), homeOperationsExpanded);
+    button.focus({ preventScroll: true });
   });
 }
 
@@ -8248,6 +10692,17 @@ function bindHomeVoiceButton() {
     window.__homeVoiceVisibilityBound = true;
   }
   syncHomeVoiceAnimation();
+}
+
+// Home photo shortcut: reuses the existing receipt scanner, no new camera logic.
+function bindHomePhotoButton() {
+  const button = document.getElementById("homePhotoBtn");
+  if (!button || button.dataset.bound) return;
+  button.dataset.bound = "true";
+  button.addEventListener("click", () => {
+    haptic("medium");
+    if (typeof openReceiptScanner === "function") openReceiptScanner();
+  });
 }
 
 function renderSimpleHome(query = "", toolsOpen = false) {
@@ -8345,13 +10800,12 @@ function renderSimpleHome(query = "", toolsOpen = false) {
   };
 
   // В простом режиме показываем последние записи, а не только сегодняшний день.
-  const filteredOperations = getFilteredOperations(query)
-    .sort((a, b) =>
-      `${b.date || ""} ${b.time || ""}`.localeCompare(
-        `${a.date || ""} ${a.time || ""}`,
-      ),
-    );
-  const recent = homeOperationsExpanded ? filteredOperations : filteredOperations.slice(0, 3);
+  // Рендерим сразу все: аккордеон раскрывается CSS-переходом обёртки
+  // (grid-template-rows 0fr → 1fr), поэтому по клику список не перерисовывается.
+  const filteredOperations = sortOperationsNewestFirst(
+    getFilteredOperations(query),
+  );
+  const recent = filteredOperations;
   const operationIndexes = new Map(transactions.map((tx, index) => [tx, index]));
   const operationView = createHomeOperationViewCache();
 
@@ -8399,6 +10853,35 @@ function renderSimpleHome(query = "", toolsOpen = false) {
     },
   ];
 
+  // Первые три записи видны всегда, остальные лежат в обёртке, которую
+  // раскрывает CSS (grid-template-rows 0fr → 1fr) без перерисовки списка.
+  const recentRowsHtml = recent.map((tx) => {
+    const st2 = operationView.style(tx);
+    const sign = tx.type === "income" ? "+" : "−";
+    const isInc = tx.type === "income";
+    const icoBg = isInc
+      ? "rgba(45,212,191,0.18)"
+      : "rgba(248,113,113,0.16)";
+    const amtColor = isInc ? "#5eead4" : "#fca5a5";
+    const idx2 = operationIndexes.get(tx);
+    const dateStr =
+      t(tx.type === "income" ? "income" : "expense") + " · " + operationView.date(tx) + (tx.time ? " · " + esc(tx.time) : "");
+    const smIcon = getOperationEmoji(tx, st2.icon);
+    return `<div class="sm-op-row" data-idx="${idx2}">
+              <div class="sm-op-icon" data-icon-len="${emojiGlyphCount(smIcon)}" style="background:${icoBg}">${esc(smIcon)}</div>
+              <div class="sm-op-info">
+                <div class="sm-op-name" title="${esc(tx.category)}${tx.subcategory ? ` · ${esc(operationView.subcategory(tx))}` : ""}"><span class="op-category-name">${esc(tx.category)}</span>${tx.subcategory ? ` <span class="op-subcategory">· ${esc(operationView.subcategory(tx))}</span>` : ""}</div>
+              </div>
+              <div class="sm-op-amount" style="color:${amtColor}">${sign}${fmt(tx.amountRub)}</div>
+              <div class="sm-op-date">${dateStr}</div>
+            </div>`;
+  });
+  const visibleRecentHtml = recentRowsHtml.slice(0, 3).join("");
+  const extraRecentHtml = recentRowsHtml.slice(3).join("");
+  const extraRecentBlock = extraRecentHtml
+    ? `<div class="history-expand-wrapper${homeOperationsExpanded ? " is-open" : ""}" id="homeOpsExpandWrapper"${homeOperationsExpanded ? "" : " inert"}><div class="history-expand-inner">${extraRecentHtml}</div></div>`
+    : "";
+
   const recentHtml = `
     <!-- ── ПОСЛЕДНИЕ ЗАПИСИ ── -->
     <div class="sm-recent-block" id="guideHistoryAnchor">
@@ -8408,28 +10891,7 @@ function renderSimpleHome(query = "", toolsOpen = false) {
           ? `
         <div class="sm-hint">💡 ${T.hint}</div>
         <div class="sm-ops-list" id="homeOpsItems" data-large-text="${typeof fontSize !== "undefined" && ["large", "xl"].includes(fontSize)}">
-          ${recent
-            .map((tx) => {
-              const st2 = operationView.style(tx);
-              const sign = tx.type === "income" ? "+" : "−";
-              const isInc = tx.type === "income";
-              const icoBg = isInc
-                ? "rgba(45,212,191,0.18)"
-                : "rgba(248,113,113,0.16)";
-              const amtColor = isInc ? "#5eead4" : "#fca5a5";
-              const idx2 = operationIndexes.get(tx);
-              const dateStr =
-                t(tx.type === "income" ? "income" : "expense") + " · " + operationView.date(tx) + (tx.time ? " · " + esc(tx.time) : "");
-              return `<div class="sm-op-row" data-idx="${idx2}">
-              <div class="sm-op-icon" style="background:${icoBg}">${st2.icon}</div>
-              <div class="sm-op-info">
-                <div class="sm-op-name" title="${esc(tx.category)}${tx.subcategory ? ` · ${esc(operationView.subcategory(tx))}` : ""}"><span class="op-category-name">${esc(tx.category)}</span>${tx.subcategory ? ` <span class="op-subcategory">· ${esc(operationView.subcategory(tx))}</span>` : ""}</div>
-              </div>
-              <div class="sm-op-amount" style="color:${amtColor}">${sign}${fmt(tx.amountRub)}</div>
-              <div class="sm-op-date">${dateStr}</div>
-            </div>`;
-            })
-            .join("")}
+          ${visibleRecentHtml}${extraRecentBlock}
         </div>
         ${getHomeOperationsToggleMarkup(filteredOperations.length)}
       `
@@ -8482,7 +10944,7 @@ function renderSimpleHome(query = "", toolsOpen = false) {
     </div>
 
     ${recentHtml}
-    ${getHomeToolsMarkup()}
+    ${getHomeToolsMarkup(toolsOpen)}
     <details class="home-details"><summary>${T.quick}</summary>
     <!-- ── МИНИ-СТАТИСТИКА ── -->
     <div class="sm-mini-stats">
@@ -8527,8 +10989,7 @@ function renderSimpleHome(query = "", toolsOpen = false) {
   bindHomeOperationsToggle();
   const searchInput = document.getElementById("searchInput");
   if (searchInput) searchInput.value = query;
-  const homeDetails = document.getElementById("homeDetails");
-  if (homeDetails) homeDetails.open = toolsOpen;
+  const homeDetails = setHomeToolsOpen(toolsOpen);
   const clearSearch = document.getElementById("clearSearchBtn");
   if (clearSearch) clearSearch.style.display = query ? "flex" : "none";
   renderBalanceSummary();
@@ -8611,17 +11072,6 @@ function renderSimpleHome(query = "", toolsOpen = false) {
 }
 
 function renderHome() {
-  const guideState =
-    typeof loadGuideRuntimeState === "function" ? loadGuideRuntimeState() : null;
-  console.log(
-    "[RENDER_HOME] " +
-      JSON.stringify({
-        timestamp: performance.now(),
-        currentGuideTopic: guideState?.topicId ?? null,
-        currentGuideStep: guideState?.stepId ?? null,
-        stack: (new Error().stack || "").replace(/\n/g, "\\n"),
-      }),
-  );
   // setTab уже управляет видимостью heroCardWrap
   // Simple mode redirect
   if (simpleMode) {
@@ -8636,7 +11086,7 @@ function renderHome() {
   });
   traceLayoutSnapshot("renderHome:start");
   const sw = !localStorage.getItem("welcomeSeen") && transactions.length === 0;
-  let html = createHeroWrapNode().outerHTML + getHomeVoiceButtonMarkup();
+  let html = createHeroWrapNode().outerHTML;
   if (sw)
     html += `<div class="welcome-tip"><div class="welcome-tip-icon">👋</div><div class="welcome-tip-text"><h3>${t("welcomeTitle")}</h3><p>${t("welcomeText")}</p><button class="welcome-tip-close" id="welcomeClose">${t("welcomeClose")}</button></div></div>`;
   html += getHomeToolsMarkup();
@@ -8644,6 +11094,7 @@ function renderHome() {
   document.getElementById("mainContent").innerHTML = html;
   document.getElementById("mainContent").classList.add("tab-anim");
   bindHomeVoiceButton();
+  bindHomePhotoButton();
   restoreHomeHeroIfNeeded();
   updateTopBlocks();
   attachAppTraceObservers();
@@ -8663,6 +11114,7 @@ function renderHome() {
   });
   renderOpsList();
   ensureHomeHeroStable(4, 100);
+  playHomeHeroAnimations();
 }
 
 function renderBalanceSummary() {
@@ -8694,30 +11146,66 @@ function renderBalanceSummary() {
   });
 }
 
+// Заглушка эмодзи нового своего лимита в окне бюджета. Пока пользователь не
+// выбрал свой эмодзи, история показывает иконку категории, а не «🎯».
+const DEFAULT_LIMIT_EMOJI = "🎯";
+
+// Эмодзи операции для всех списков истории: свой эмодзи операции важнее эмодзи
+// выбранного лимита, а если нет ни того, ни другого — иконка категории. Одна
+// функция на главную, упрощённый режим и полную историю, чтобы они не
+// расходились в оформлении одной и той же записи.
+function getOperationEmoji(tx, fallbackIcon) {
+  const src = tx || {};
+  const own = typeof src.customEmoji === "string" ? src.customEmoji.trim() : "";
+  if (own) return own;
+  const limitId = String(src.budgetLimitId || "");
+  if (limitId) {
+    const limits = Array.isArray(budgetCustomLimits) ? budgetCustomLimits : [];
+    const limit = limits.find((item) => item && String(item.id) === limitId);
+    const icon = String((limit && limit.emoji) || "").trim();
+    if (icon && icon !== DEFAULT_LIMIT_EMOJI) return icon;
+  }
+  return String(fallbackIcon || "").trim() || "📁";
+}
+
 function renderOpsList() {
   const c = document.getElementById("opsList");
   if (!c) return;
   const si = document.getElementById("searchInput");
   const sq = si ? si.value.toLowerCase().trim() : "";
-  const filtered = getFilteredOperations(sq);
+  let filtered = getFilteredOperations(sq);
+  // Фильтр по типу/периоду применяется строго: если по нему нет ни одной
+  // операции — показываем пустое состояние с кнопкой сброса, а не всю историю
+  // (иначе при нажатии на «Расходы» в списке оставались доходы).
   renderBalanceSummary();
   const rsc = document.getElementById("searchResultsCount");
   if (rsc)
     rsc.textContent = sq
       ? `${t("searchFound") || { ru: "Найдено", en: "Found", ka: "ნაპოვნია" }[currentLang]}: ${filtered.length} ${t("of") || { ru: "из", en: "of", ka: "/ " }[currentLang]} ${getMoneyTransactions().length}`
       : `${filtered.length} ${t("searchRecords")}`;
-  let html = `<div class="home-history-heading history-btn-wrap" id="guideHistoryAnchor"><div class="ops-section-label">${t("recentOpsLabel")}</div><button class="history-btn" id="showAllHistoryBtn">${t("allHistory")}</button></div>`;
+  let html = `<div class="gh-history-head history-btn-wrap" id="guideHistoryAnchor"><div class="gh-label" data-i18n="ghRecentHistory">${t("ghRecentHistory")}</div><button class="gh-see-all" id="showAllHistoryBtn" data-i18n="ghSeeAll">${t("ghSeeAll")}</button></div>`;
   if (currentFilter) {
     html += `<div class="ops-section-header operation-type-header" style="display:flex;justify-content:space-between;align-items:center;"><div class="ops-section-label"><span class="operation-type-icon" aria-hidden="true">${currentFilter === "income" ? "📈" : "📉"}</span><span class="operation-type-title">${currentFilter === "income" ? t("income") : t("expense")}</span></div><button id="clearFilterBtn" class="btn-secondary" style="padding:8px 14px;font-size:13px;">✖ ${t("cancel")}</button></div>`;
   }
-  const sorted = filtered.sort((a, b) => `${b.date || ""} ${b.time || ""}`.localeCompare(`${a.date || ""} ${a.time || ""}`));
-  const recent = homeOperationsExpanded ? sorted : sorted.slice(0, 3);
+  const sorted = sortOperationsNewestFirst(filtered);
+  // Рендерим все записи сразу: по клику «Показать все» список не перерисовывается,
+  // а раскрывается CSS-переходом обёртки (grid-template-rows 0fr → 1fr).
+  const recent = sorted;
   const operationIndexes = new Map(transactions.map((tx, index) => [tx, index]));
   const operationView = createHomeOperationViewCache();
+  const hasActiveFilter =
+    getMoneyTransactions().length > 0 &&
+    (Boolean(currentFilter) || Boolean(historyFilter && historyFilter !== "allTime"));
   if (!recent.length) {
     html += sq
       ? `<div class="empty-block"><div class="empty-emoji">🔍</div><p>Ничего не найдено «${esc(sq)}»</p></div>`
-      : `<div class="empty-block" style="padding:56px 24px;text-align:center;">
+      : hasActiveFilter
+        ? `<div class="empty-block" style="padding:44px 20px;text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;opacity:0.6;">🔍</div>
+      <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:12px;">${t("filterEmptyTitle")}</div>
+      <button type="button" class="btn-secondary" id="emptyFilterResetBtn" style="padding:8px 16px;font-size:13px;">${t("ghSeeAll")}</button>
+    </div>`
+        : `<div class="empty-block" style="padding:56px 24px;text-align:center;">
       <div style="font-size:64px;margin-bottom:14px;opacity:0.6;">💸</div>
       <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:8px;">${
         { ru: "Пока пусто", en: "Nothing here yet", ka: "ჯერ ცარიელია" }[
@@ -8734,41 +11222,63 @@ function renderOpsList() {
     </div>`;
   } else {
     let lastDate = null;
-    html += `<div class="ops-list" id="homeOpsItems" data-large-text="${typeof fontSize !== "undefined" && ["large", "xl"].includes(fontSize)}">`;
+    const rowsHtml = [];
     recent.forEach((tx) => {
       const idx = operationIndexes.get(tx);
       const txDate = tx.date || today();
+      let rowHtml = "";
       if (txDate !== lastDate) {
         lastDate = txDate;
-        html += `<div class="ops-date-group">${getDateGroupLabel(txDate)}</div>`;
+        rowHtml += `<div class="ops-date-group">${getDateGroupLabel(txDate)}</div>`;
       }
       const sign = tx.type === "income" ? "+" : " −";
       const palette = operationView.palette(tx);
-      const style = palette.style;
-      const categoryColor = palette.accentColor;
+      // Свой эмодзи операции и эмодзи выбранного лимита важнее оформления
+      // категории; цвет полоски слева — только свой, иначе оформление категории.
+      const customColor = normalizeHexColor(tx.customColor) || "";
+      const style = {
+        ...palette.style,
+        icon: getOperationEmoji(tx, palette.style.icon),
+      };
       const displaySubcategory = operationView.subcategory(tx);
       let dcat = `<span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span>`;
       if (sq && tx.category.toLowerCase().includes(sq))
         dcat = `<span style="background:${palette.searchTone};border-radius:6px;padding:1px 5px;display:inline-block;"><span style="color:${palette.titleColor};font-weight:800;">${esc(tx.category)}</span></span>`;
-      html += `<div class="op-swipe-wrap"><div class="op-delete-reveal" aria-hidden="true"><span>🗑️</span></div><div class="op-card" data-idx="${idx}" data-type="${tx.type}">
-        <div class="op-icon-wrap">${style.icon}</div>
+      const iconGlyphs =
+        Array.from(String(style.icon || "")).filter(
+          (ch) => ch.trim() && !/[\uFE0E\uFE0F\u200D]/u.test(ch),
+        ).length || 1;
+      rowHtml += `<div class="op-swipe-wrap"><div class="op-delete-reveal" aria-hidden="true"><span>🗑️</span></div><div class="op-card" data-idx="${idx}" data-type="${tx.type}"${
+        customColor ? ` data-custom-accent="1" style="--op-accent:${customColor}"` : ""
+      }>
+        <div class="op-icon-wrap" data-icon-len="${iconGlyphs}">${esc(style.icon)}</div>
         <div class="op-info" style="flex:1;min-width:0;">
           <div class="op-category" title="${esc(tx.category)}${displaySubcategory ? ` · ${esc(displaySubcategory)}` : ""}" style="font-size:13px;font-weight:700;">${dcat}${displaySubcategory ? ` <span class="op-subcategory" style="font-weight:700;font-size:11px;color:${palette.subColor};">· ${esc(displaySubcategory)}</span>` : ""}</div>
           ${tx.note ? `<div class="op-note" style="font-size:11px;opacity:.7;">📝 ${esc(tx.note.substring(0, 50))}</div>` : ""}
           ${tx._recurring ? `<div class="op-note" style="font-size:11px;opacity:.7;">🔄 ${t("recurring") || "повтор."}</div>` : ""}
+          <div class="op-time" style="font-size:10px;font-weight:600;opacity:.55;margin-top:1px;">${t(tx.type === "income" ? "income" : "expense")} · ${operationView.date(tx)}${tx.time ? " · " + esc(tx.time) : ""}</div>
         </div>
         <div class="op-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;">
           <div class="op-amount ${tx.type === "income" ? "income-amount" : tx.type === "salary" ? "salary-amount" : "expense-amount"}" style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;">${sign}${fmt(tx.amountRub)}</div>
           <button class="op-delete" data-idx="${idx}" aria-label="${t("ariaDeleteOp")}" style="opacity:0;font-size:14px;padding:4px;cursor:pointer;color:#f87171;">✕</button>
         </div>
-          <div class="op-time" style="font-size:10px;font-weight:600;opacity:.55;margin-top:1px;">${t(tx.type === "income" ? "income" : "expense")} · ${operationView.date(tx)}${tx.time ? " · " + esc(tx.time) : ""}</div>
       </div></div>`;
+      rowsHtml.push(rowHtml);
     });
+    // Первые три записи видны всегда, остальные раскрывает CSS-обёртка.
+    const extraRowsHtml = rowsHtml.slice(3).join("");
+    html += `<div class="ops-list" id="homeOpsItems" data-large-text="${typeof fontSize !== "undefined" && ["large", "xl"].includes(fontSize)}">${rowsHtml.slice(0, 3).join("")}`;
+    if (extraRowsHtml)
+      html += `<div class="history-expand-wrapper${homeOperationsExpanded ? " is-open" : ""}" id="homeOpsExpandWrapper"${homeOperationsExpanded ? "" : " inert"}><div class="history-expand-inner">${extraRowsHtml}</div></div>`;
     html += "</div>";
   }
   html += getHomeOperationsToggleMarkup(filtered.length);
   c.innerHTML = html;
   document.getElementById("showAllHistoryBtn")?.addEventListener("click", showFullHistory);
+  document.getElementById("emptyFilterResetBtn")?.addEventListener("click", () => {
+    resetHistoryFilter();
+    renderOpsList();
+  });
   bindHomeOperationsToggle();
   c.querySelectorAll(".op-card").forEach((card) => {
     card.addEventListener("click", (e) => {
@@ -8801,7 +11311,7 @@ function renderOpsList() {
   const cfb = document.getElementById("clearFilterBtn");
   if (cfb)
     cfb.addEventListener("click", () => {
-      currentFilter = null;
+      resetHistoryFilter();
       renderOpsList();
     });
   addSwipeToDelete(c);
@@ -8880,6 +11390,9 @@ function addSwipeToDelete(container) {
     aC = null,
     aI = null,
     aW = null;
+  // Текущее смещение активной карточки влево (px) — от него стартует пружина.
+  let pullNow = 0;
+  let springTimer = null;
 
   function clearReveal() {
     if (aW) {
@@ -8891,6 +11404,50 @@ function addSwipeToDelete(container) {
     }
   }
 
+  // Возврат карточки на место, когда свайп не завершён (отпустили раньше
+  // удаления, повели пальцем вертикально или жест отменила система). Раньше
+  // карточка в таких случаях оставалась смещённой и выглядела сломанной.
+  // Анимация — пружина с перерегулированием: пара «подпрыгиваний» через 0.
+  function springBack(card, fromPx) {
+    if (!card) return;
+    if (springTimer && typeof clearTimeout === "function") {
+      clearTimeout(springTimer);
+      springTimer = null;
+    }
+    const from = Math.max(0, Number(fromPx) || 0);
+    const clear = () => {
+      springTimer = null;
+      card.style.animation = "";
+      card.style.transition = "";
+      card.style.transform = "";
+      if (typeof card.style.removeProperty === "function")
+        card.style.removeProperty("--springFrom");
+    };
+    if (!from) {
+      clear();
+      return;
+    }
+    card.style.setProperty("--springFrom", `-${from}px`);
+    card.style.transform = `translate3d(-${from}px,0,0)`;
+    card.style.transition = "none";
+    card.style.animation =
+      "opSwipeSpringBack .42s cubic-bezier(.175,.885,.32,1.275) both";
+    if (typeof card.addEventListener !== "function") {
+      if (typeof setTimeout === "function") springTimer = setTimeout(clear, 700);
+      return;
+    }
+    const onSpringEnd = (event) => {
+      const name = event && event.animationName;
+      if (name && name !== "opSwipeSpringBack") return;
+      card.removeEventListener("animationend", onSpringEnd);
+      clear();
+    };
+    card.addEventListener("animationend", onSpringEnd);
+    // Страховка: при reduced motion или скрытой странице animationend может
+    // не прийти — карточка всё равно должна вернуться.
+    if (typeof setTimeout === "function") springTimer = setTimeout(clear, 700);
+  }
+
   container.querySelectorAll(".op-card").forEach((card) => {
     card.addEventListener(
       "touchstart",
@@ -8900,6 +11457,7 @@ function addSwipeToDelete(container) {
         aC = card;
         aI = parseInt(card.dataset.idx);
         aW = card.closest(".op-swipe-wrap");
+        pullNow = 0;
         clearReveal();
       },
       { passive: true },
@@ -8912,15 +11470,22 @@ function addSwipeToDelete(container) {
         const dx = e.touches[0].clientX - sX;
         const dy = e.touches[0].clientY - sY;
         if (Math.abs(dy) > Math.abs(dx) + 4) {
+          // Жест ушёл в вертикальный скролл: карточку, если её уже потянули,
+          // возвращаем на место пружиной, а не оставляем смещённой.
+          const cardRef = aC;
+          const from = pullNow;
           clearReveal();
           aC = null;
           aW = null;
+          pullNow = 0;
+          springBack(cardRef, from);
           return;
         }
         if (dx < -6) {
           if (dx < -10) e.preventDefault();
           const rawPull = Math.abs(dx);
           const pull = Math.min(rawPull, 142);
+          pullNow = pull;
           const revealPct = Math.min(pull / 110, 1);
           const elasticStart = 30;
           const elasticPct = Math.max(
@@ -8931,6 +11496,9 @@ function addSwipeToDelete(container) {
           const stretch = 1 + easedElastic * 0.14;
           const squash = 1 - easedElastic * 0.05;
           aC.style.transform = `translate3d(${-pull}px,0,0) scaleX(${stretch}) scaleY(${squash})`;
+          // Незавершённая пружина прошлого отпускания не должна перебивать
+          // новое перетаскивание.
+          aC.style.animation = "";
           aC.style.transition = "none";
           if (aW) {
             aW.classList.add("swiping");
@@ -8968,6 +11536,7 @@ function addSwipeToDelete(container) {
           const cardRef = aC,
             idxRef = aI;
           clearReveal();
+          pullNow = 0;
           setTimeout(() => {
             askConfirm(
               t("confirmDelete"),
@@ -8991,21 +11560,33 @@ function addSwipeToDelete(container) {
             aC = null;
           }, 280);
         } else {
+          // Свайп не доведён до удаления — карточка возвращается на место
+          // пружиной с перерегулированием, а не остаётся смещённой.
+          const cardRef = aC;
+          const from = pullNow;
           clearReveal();
-          if (aC) {
-            aC.style.animation = "";
-            aC.style.transition =
-              "transform .34s cubic-bezier(.2,.9,.22,1), opacity .2s ease";
-            aC.style.transform = "translate3d(0,0,0) scaleX(1) scaleY(1)";
-            setTimeout(() => {
-              if (aC) {
-                aC.style.transition = "";
-              }
-            }, 360);
-          }
           aC = null;
           aW = null;
+          pullNow = 0;
+          springBack(cardRef, from);
         }
+      },
+      { passive: true },
+    );
+
+    // Система отменила жест (например, забрала касание под скролл): карточку
+    // тоже возвращаем на место.
+    card.addEventListener(
+      "touchcancel",
+      () => {
+        if (!aC) return;
+        const cardRef = aC;
+        const from = pullNow;
+        clearReveal();
+        aC = null;
+        aW = null;
+        pullNow = 0;
+        springBack(cardRef, from);
       },
       { passive: true },
     );
@@ -9042,9 +11623,7 @@ function getOpEmoji(tx) {
 // ПОЛНАЯ ИСТОРИЯ
 // ============================================================
 function showFullHistory() {
-  const all = [...transactions].sort((a, b) =>
-    (b.date || "").localeCompare(a.date || ""),
-  );
+  const all = sortOperationsNewestFirst(transactions);
   if (!all.length) {
     showToast(t("noOperations").split("\n")[0]);
     return;
@@ -9065,7 +11644,7 @@ function showFullHistory() {
           document.body.classList.contains("dark") ? 0.15 : 0.1,
         )} 0%, var(--card-bg) 68%);`
       : `border-left:4px solid var(--cream-border);`;
-    html += `<div class="history-item" style="${cardStyle}"><div class="history-item-info"><div class="history-item-cat" title="${esc(op.category)}${displaySubcategory ? ` · ${esc(displaySubcategory)}` : ""}"><span style="color:${palette.titleColor};font-weight:800;">${style.icon} ${esc(op.category)}</span>${displaySubcategory ? ` <span class="op-subcategory" style="font-weight:700;color:${palette.subColor};">(${esc(displaySubcategory)})</span>` : ""}</div></div><div class="history-item-amt ${op.type}">${sign}${fmt(op.amountRub)}</div><div class="history-item-meta">${fmtDate(op.date)}${op.note ? " 📝 " + esc(op.note.substring(0, 30)) : ""}</div><div class="history-item-btns"><button class="icon-btn edit" aria-label="${esc(t("editOperation"))}" data-idx="${ri}">✏️</button><button class="icon-btn delete" aria-label="${esc(t("delete"))}" data-idx="${ri}">🗑</button></div></div>`;
+    html += `<div class="history-item" style="${cardStyle}"><div class="history-item-info"><div class="history-item-cat" title="${esc(op.category)}${displaySubcategory ? ` · ${esc(displaySubcategory)}` : ""}"><span style="color:${palette.titleColor};font-weight:800;">${esc(getOperationEmoji(op, style.icon))} ${esc(op.category)}</span>${displaySubcategory ? ` <span class="op-subcategory" style="font-weight:700;color:${palette.subColor};">(${esc(displaySubcategory)})</span>` : ""}</div></div><div class="history-item-amt ${op.type}">${sign}${fmt(op.amountRub)}</div><div class="history-item-meta">${fmtDate(op.date)}${op.note ? " 📝 " + esc(op.note.substring(0, 30)) : ""}</div><div class="history-item-btns"><button class="icon-btn edit" aria-label="${esc(t("editOperation"))}" data-idx="${ri}">✏️</button><button class="icon-btn delete" aria-label="${esc(t("delete"))}" data-idx="${ri}">🗑</button></div></div>`;
   });
   html += `</div><div style="margin-top:16px;"><button class="btn-danger" id="clearAllHistoryBtn" style="width:100%">🗑 ${t("clearAllOps")}</button></div>`;
   const modal = createModal("fullHistoryModal", t("allHistory"), html);
@@ -9516,8 +12095,32 @@ function openEditModal(idx) {
   const op = transactions[idx];
   if (!op) return;
   editingOpIndex = idx;
+  // Эмодзи и цвет конкретной операции. По умолчанию берутся из категории, а
+  // свои значения лежат прямо в транзакции: customEmoji / customColor.
+  let editDraftEmoji = String(op.customEmoji || "").trim();
+  let editDraftColor = normalizeHexColor(op.customColor) || "";
+  const editCategoryInput = () =>
+    (document.getElementById("editCategory")?.value || op.category || "").trim();
+  const editFallbackIcon = () =>
+    getCategoryStyle(editCategoryInput() || op.category, op.type).icon ||
+    (op.type === "income" ? "💰" : "💸");
+  const editCategoryColor = () =>
+    getCategoryUiPalette(op.category, op.type).accentColor;
+  const renderEditStyleButtons = () => {
+    const emojiBtn = document.getElementById("editEmojiBtn");
+    const colorBtn = document.getElementById("editColorBtn");
+    if (emojiBtn)
+      emojiBtn.innerHTML = `<span class="edit-style-glyph" aria-hidden="true">${esc(editDraftEmoji || editFallbackIcon())}</span><span class="edit-style-text"><span class="edit-style-title">${esc(t("opEmojiLabel"))}</span><span class="edit-style-value">${esc(editDraftEmoji || t("opStyleFromCategory"))}</span></span>`;
+    if (colorBtn)
+      colorBtn.innerHTML = `<span class="edit-style-swatch" aria-hidden="true" style="background:${editDraftColor || editCategoryColor()};"></span><span class="edit-style-text"><span class="edit-style-title">${esc(t("opColorLabel"))}</span><span class="edit-style-value">${esc(editDraftColor || t("opStyleFromCategory"))}</span></span>`;
+  };
   const html = `
-    <div class="field-group"><label class="field-label">${t("category")}</label><input type="text" id="editCategory" class="modal-input" value="${esc(op.category)}"></div>
+    <div class="field-group"><label class="field-label">${t("category")}</label><input type="text" id="editCategory" class="modal-input" value="${esc(op.category)}">${
+      // Начальный капитал — системная запись: свой эмодзи/цвет ей не нужен.
+      isInitialBalanceTx(op)
+        ? ""
+        : `<div class="edit-style-row"><button type="button" id="editEmojiBtn" class="edit-style-btn" aria-label="${esc(t("opEmojiLabel"))}"></button><button type="button" id="editColorBtn" class="edit-style-btn" aria-label="${esc(t("opColorLabel"))}"></button></div>`
+    }</div>
     ${op.subcategory ? `<div class="field-group"><label class="field-label">${t("subcategory")}</label><div class="operation-subcategory-full">${esc(getDisplaySubcategoryLabel(op.subcategory, op.type))}</div></div>` : ""}
     <div class="field-group"><label class="field-label">${t("amount")} (${sym()})</label><input type="number" id="editAmount" class="modal-input" step="any" min="0.01" value="${toDisp(op.amountRub).toFixed(2)}" inputmode="decimal"></div>
     <div class="field-group"><label class="field-label">${t("date")}</label><div class="date-input-wrapper"><input type="text" id="editDateDisplay" class="modal-input" readonly value="${fmtDate(op.date || today())}"><input type="hidden" id="editDate" value="${op.date || today()}"><button type="button" class="datepicker-btn" id="editDateBtn">📅</button></div></div>
@@ -9532,6 +12135,27 @@ function openEditModal(idx) {
       document.getElementById("editDateDisplay").value = fmtDate(d);
     }),
   );
+  // Эмодзи: тот же пикер, что и для категорий. Пустой выбор = «как у категории».
+  renderEditStyleButtons();
+  document.getElementById("editEmojiBtn")?.addEventListener("click", () => {
+    openEmojiPickerModal({
+      selectedEmoji: editDraftEmoji || editFallbackIcon(),
+      allowEmpty: true,
+      suggestedText: editCategoryInput(),
+      type: op.type,
+      onPick: (emoji) => {
+        editDraftEmoji = String(emoji || "").trim();
+        renderEditStyleButtons();
+      },
+    });
+  });
+  // Цвет: тот же пикер, что и у кольца лимита. Значение пишем в customColor.
+  document.getElementById("editColorBtn")?.addEventListener("click", () => {
+    openCategoryColorPicker(editDraftColor || editCategoryColor(), (color) => {
+      editDraftColor = normalizeHexColor(color) || "";
+      renderEditStyleButtons();
+    });
+  });
   document.getElementById("saveEditBtn")?.addEventListener("click", () => {
     const a = parseMoneyInput(document.getElementById("editAmount").value);
     if (isNaN(a) || a <= 0) {
@@ -9561,6 +12185,13 @@ function openEditModal(idx) {
     transactions[editingOpIndex].note = document
       .getElementById("editNote")
       .value.trim();
+    // Свой эмодзи и цвет операции: пустое значение удаляет поле, чтобы в
+    // localStorage не копились пустые строки (тогда используется категория).
+    const editedTx = transactions[editingOpIndex];
+    if (editDraftEmoji) editedTx.customEmoji = editDraftEmoji;
+    else delete editedTx.customEmoji;
+    if (editDraftColor) editedTx.customColor = editDraftColor;
+    else delete editedTx.customColor;
     saveAll();
     refreshOperationViews();
     closeModal("editModal");
@@ -10231,6 +12862,11 @@ function openEditCategoryModal(cat, isIncome) {
     } else {
       categoryCustomizations[nn] = nextCustomization;
     }
+    // Копия иконки в самой категории: список категорий и история читают её,
+    // если оформление категории было сброшено (импорт, смена профиля).
+    if (catObj[nn] && typeof catObj[nn] === "object") {
+      catObj[nn].emoji = String(ni || baseStyle.icon || "").trim() || "📁";
+    }
     saveAll();
     renderCategories();
     closeModal("editCategoryModal");
@@ -10407,6 +13043,8 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
     <div class="field-group"><label class="field-label">${t("type")}</label><div class="type-toggle"><button class="type-btn expense ${defaultType === "expense" ? "active" : ""}" data-type="expense">${t("expenseType")}</button><button class="type-btn income ${defaultType === "income" ? "active" : ""}" data-type="income">${t("incomeType")}</button></div></div>
     <div class="field-group"><label class="field-label" id="catLabel">${defaultType === "expense" ? t("expCategory") : t("incCategory")}</label><select id="addCategorySelect" class="modal-select">${defaultType === "expense" ? eo : io}</select></div>
     <div class="field-group" id="addSubcatDiv" style="display:none"><label class="field-label">${t("subcategory")}</label><select id="addSubcatSelect" class="modal-select"></select></div>
+    <div class="field-group add-limit-group" id="addLimitDiv" style="display:none"><label class="field-label" for="addLimitSelect">${t("budgetLimitSpendFrom")}</label><select id="addLimitSelect" class="modal-select"></select></div>
+    <div class="add-limit-hint" id="addLimitAutoHint" hidden></div>
     <div class="field-group"><label class="field-label">${t("amount")} (${sym()})</label><input type="text" id="addAmount" class="modal-input" placeholder="0.00" inputmode="decimal"></div>
     <div class="quick-numpad">
       <div class="numpad-row"><button class="numpad-btn" data-numpad="1">1</button><button class="numpad-btn" data-numpad="2">2</button><button class="numpad-btn" data-numpad="3">3</button></div>
@@ -10415,7 +13053,7 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       <div class="numpad-row"><button class="numpad-btn" data-numpad="0">0</button><button class="numpad-btn" data-numpad=".">.</button><button class="numpad-btn clear" data-numpad="backspace">⌫</button></div>
       <div class="numpad-row"><button class="numpad-btn clear" data-numpad="clear">C</button></div>
     </div>
-    <div id="suggestionsBlock" class="suggestions-block" style="margin-top:12px;"><div class="suggestions-title">${t("quickSuggestions")}</div><div id="suggestionsList" class="suggestions-list"></div></div>
+    <div id="suggestionsBlock" class="suggestions-block" style="margin-top:12px;${suggestionsEnabled ? "" : "display:none;"}"><div class="suggestions-title">${t("quickSuggestions")}</div><div id="suggestionsList" class="suggestions-list"></div></div>
     <div class="field-group"><label class="field-label">${t("date")}</label><div class="date-input-wrapper"><input type="text" id="addDateDisplay" class="modal-input" readonly value="${fmtDate(today())}"><input type="hidden" id="addDate" value="${today()}"><button class="datepicker-btn" id="addDateBtn">📅</button></div><div class="quick-dates"><button type="button" class="quick-date-btn" data-qd="today">${t("today")}</button><button type="button" class="quick-date-btn" data-qd="yesterday">${t("yesterday")}</button><button type="button" class="quick-date-btn" data-qd="startOfMonth">${t("startOfMonth")}</button></div></div>
     <div class="field-group"><label class="field-label">${t("note")}</label><textarea id="addNote" class="modal-textarea" rows="2" placeholder="${t("noteHint")}"></textarea></div>
     <div class="modal-actions" style="flex-wrap:wrap;gap:8px;"><button class="btn-secondary" id="saveAsTemplateBtn">${t("saveAsTemplate")}</button><button class="btn-primary" id="saveAddBtn">✓ ${t("add")}</button></div>`;
@@ -10463,6 +13101,129 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       if (optFound) sel.value = optFound.value;
     }
   }
+
+  // «Списать из лимита»: в списке только свои лимиты (без категории). Лимит
+  // категории вычитается автоматически — расход по нему считается по категории
+  // операции, поэтому для него показываем подсказку, а не отдельный пункт.
+  const addLimitSelect = document.getElementById("addLimitSelect");
+  const addLimitDiv = document.getElementById("addLimitDiv");
+  const addLimitHint = document.getElementById("addLimitAutoHint");
+  // Подсказка про лимит категории нужна только когда свой лимит не выбран:
+  // выбранная карточка забирает расход себе, и категория его не получает.
+  const updateAddLimitHint = () => {
+    if (!addLimitHint) return;
+    const hintCat = document.getElementById("addCategorySelect").value;
+    const autoLimitRub =
+      addType === "expense" ? Number(categoryBudgets[hintCat] || 0) : 0;
+    const bound =
+      autoLimitRub > 0 && !(addLimitSelect && addLimitSelect.value);
+    addLimitHint.hidden = !bound;
+    addLimitHint.textContent = bound
+      ? t("budgetLimitAutoDeduct") + " «" + hintCat + "»"
+      : "";
+  };
+  // Умная связка «категория ↔ свой лимит» по одинаковому названию: лимит «One»
+  // сам подхватывает операции категории «One», и одно и то же имя не приходится
+  // выбирать дважды. Сравнение — без учёта регистра и пробелов по краям.
+  const addLimitLinkKey = (value) => String(value || "").trim().toLowerCase();
+  // Лимит, который реально попал в список поля: пустые и нулевые не в счёт —
+  // иначе связка выбрала бы пункт, которого в списке нет.
+  const findAddLimitByName = (name) => {
+    const key = addLimitLinkKey(name);
+    if (!key) return null;
+    const list = Array.isArray(budgetCustomLimits) ? budgetCustomLimits : [];
+    return (
+      list.find(
+        (item) =>
+          item &&
+          Number(item.amountRub) > 0 &&
+          addLimitLinkKey(item.name) === key,
+      ) || null
+    );
+  };
+  const findAddLimitById = (id) => {
+    const key = String(id || "");
+    if (!key) return null;
+    const list = Array.isArray(budgetCustomLimits) ? budgetCustomLimits : [];
+    return (
+      list.find(
+        (item) =>
+          item && Number(item.amountRub) > 0 && String(item.id) === key,
+      ) || null
+    );
+  };
+  // Пользователь сам выбрал лимит (или «не списывать»): связка по названию его
+  // больше не перебивает — до следующей смены категории.
+  let addLimitManualChoice = false;
+  const refreshAddLimitSelect = () => {
+    if (!addLimitSelect || !addLimitDiv) return;
+    const customLimits = (
+      Array.isArray(budgetCustomLimits) ? budgetCustomLimits : []
+    ).filter((item) => item && Number(item.amountRub) > 0);
+    if (addType !== "expense" || !customLimits.length) {
+      addLimitDiv.style.display = "none";
+      addLimitSelect.value = "";
+    } else {
+      const previous = addLimitSelect.value;
+      const envelopes = buildBudgetEnvelopes({
+        categoryBudgets: {},
+        customLimits: customLimits,
+        expenseTx: filterByTime(getMoneyTransactions(), "thisMonth"),
+      });
+      addLimitSelect.innerHTML =
+        `<option value="">${t("budgetLimitSpendFromNone")}</option>` +
+        envelopes
+          .map((env) => {
+            const left = toDisp(env.leftRub).toFixed(2);
+            const limit = toDisp(env.amountRub).toFixed(2);
+            return `<option value="${esc(env.id)}">${env.emoji || "🎯"} ${esc(env.name || t("budgetGlobalLimit"))} · ${left} / ${limit} ${sym()}</option>`;
+          })
+          .join("");
+      // Связка по названию: категория «One» сама выбирает лимит «One». Ручной
+      // выбор пользователя сильнее — тогда остаётся он, но только если лимит
+      // ещё существует. В режиме связки поле решает только название: иначе
+      // прошлый лимит остался бы висеть при смене категории на «без лимита».
+      if (addLimitManualChoice) {
+        addLimitSelect.value =
+          previous && envelopes.some((env) => env.id === previous)
+            ? previous
+            : "";
+      } else {
+        const matched = findAddLimitByName(
+          document.getElementById("addCategorySelect").value,
+        );
+        addLimitSelect.value =
+          matched && envelopes.some((env) => env.id === String(matched.id))
+            ? String(matched.id)
+            : "";
+      }
+      addLimitDiv.style.display = "block";
+    }
+    updateAddLimitHint();
+  };
+  // Обратная связка: выбрали лимит «One» — подставляем категорию «One», если
+  // такая категория уже есть. Нет такой категории — на ходу её не создаём:
+  // операция сохранится с привязкой к лимиту, а категорией станет его название
+  // (см. обработчик кнопки «Добавить»).
+  const syncAddCategoryToLimit = (limit) => {
+    const catSel = document.getElementById("addCategorySelect");
+    const name = String((limit && limit.name) || "").trim();
+    if (!catSel || !name) return;
+    const list =
+      addType === "expense" ? window.categories : window.incomeCategories;
+    if (!list || !Object.prototype.hasOwnProperty.call(list, name)) return;
+    if (catSel.value === name) return;
+    catSel.value = name;
+    handleAddCategoryChange();
+  };
+  const handleAddLimitChange = () => {
+    addLimitManualChoice = true;
+    updateAddLimitHint();
+    syncAddCategoryToLimit(findAddLimitById(addLimitSelect.value));
+  };
+  if (addLimitSelect)
+    addLimitSelect.addEventListener("change", handleAddLimitChange);
+  refreshAddLimitSelect();
 
   modal.querySelectorAll("[data-numpad]").forEach((btn) =>
     btn.addEventListener("click", () => {
@@ -10514,9 +13275,11 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       document.getElementById("addCategorySelect").innerHTML =
         addType === "expense" ? eo : io;
       document.getElementById("addSubcatDiv").style.display = "none";
+      // Доходу конверт не нужен: список «Списать из лимита» пересобирается.
+      refreshAddLimitSelect();
     }),
   );
-  document.getElementById("addCategorySelect").onchange = () => {
+  const handleAddCategoryChange = () => {
     const cat = document.getElementById("addCategorySelect").value;
     const sc =
       addType === "expense"
@@ -10531,14 +13294,43 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       sd.style.display = "block";
       enhanceSubcategorySelect(ss);
     } else sd.style.display = "none";
+    // Смена категории заново включает связку по названию: для «One» снова
+    // подхватится лимит «One», а ручной выбор лимита больше не в силе.
+    addLimitManualChoice = false;
+    // Категория решает, есть ли у неё лимит: подсказка «спишется из лимита
+    // категории» и предупреждение о превышении меняются вместе с выбором.
+    refreshAddLimitSelect();
   };
+  document.getElementById("addCategorySelect").onchange = handleAddCategoryChange;
   if (presetCategory) document.getElementById("addCategorySelect").dispatchEvent(new Event("change"));
   document.getElementById("saveAddBtn")?.addEventListener("click", () => {
-    const cat = document.getElementById("addCategorySelect").value;
-    const sub = document.getElementById("addSubcatSelect")?.value || "";
+    const catRaw = document.getElementById("addCategorySelect").value;
+    // Подкатегория принадлежит выбранной категории: без категории она пустая,
+    // иначе в операции остался бы выбор от прошлой категории.
+    const sub = catRaw ? document.getElementById("addSubcatSelect")?.value || "" : "";
     const amt = parseMoneyInput(document.getElementById("addAmount").value);
     const date = document.getElementById("addDate").value;
     const note = document.getElementById("addNote").value.trim();
+    // Выбранный «свой» лимит (без категории), если пользователь его указал.
+    // Если поле пустое, лимит ищем по названию категории — та же умная связка,
+    // что и в окне: «One» списывается из лимита «One». Ручной выбор «не
+    // списывать» не перебиваем.
+    let limitId = document.getElementById("addLimitSelect")?.value || "";
+    if (!limitId && catRaw && !addLimitManualChoice) {
+      const matchedLimit = findAddLimitByName(catRaw);
+      if (matchedLimit) limitId = String(matchedLimit.id);
+    }
+    // С выбранным лимитом категория не обязательна: операция привязывается к
+    // лимиту (budgetLimitId), а категорией становится его название — иначе
+    // запись осталась бы без подписи в истории и статистике. Без лимита
+    // категория по-прежнему нужна.
+    const chosenLimit = limitId
+      ? (Array.isArray(budgetCustomLimits) ? budgetCustomLimits : []).find(
+          (item) => item && String(item.id) === limitId,
+        )
+      : null;
+    const cat =
+      catRaw || (chosenLimit ? String(chosenLimit.name || "").trim() : "");
     if (!cat) {
       showToast(t("selectCategoryFirst"), "error");
       return;
@@ -10547,40 +13339,9 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       showToast(t("enterPositive"), "error");
       return;
     }
-    if (addType === "expense" && categoryBudgets[cat]) {
-      const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-      const spent = transactions
-        .filter(
-          (tx) =>
-            tx.type === "expense" &&
-            tx.category === cat &&
-            tx.date &&
-            new Date(tx.date + "T00:00:00") >= monthStart,
-        )
-        .reduce((s, tx) => s + tx.amountRub, 0);
-      const limit = categoryBudgets[cat];
-      const newSpent = spent + toRub(amt);
-      if (newSpent > limit) {
-        const msg =
-          { ru: "Продолжить?", en: "Continue?", ka: "გაგრძელება?" }[
-            currentLang
-          ] || "Continue?";
-        if (!confirm(t("budgetOverLimit") + " " + fmt(limit) + ". " + msg))
-          return;
-      } else if (newSpent / limit >= 0.8) {
-        const remaining = limit - newSpent;
-        showToast(
-          t("budgetWarning80") +
-            " · " +
-            fmt(remaining) +
-            " " +
-            t("budgetWarning80Desc"),
-          "error",
-          3500,
-        );
-      }
-    }
+    // Проверки лимитов (80% и превышение) выполняются ниже — после того как
+    // собрана сама операция. Они только предупреждают (тост и баннер) и не
+    // блокируют сохранение.
     const tx = {
       type: addType,
       category: cat,
@@ -10589,22 +13350,71 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
       date,
       note: note || null,
     };
-    traceApp("addModal-save", {
-      type: addType,
-      category: cat,
-      amount: amt,
-    });
-    addModalCommitted = true;
-    transactions.push(tx);
-    updateFrequentStats(tx);
-    saveAll();
-    refreshOperationViews();
-    closeModal("addModal");
-    setTimeout(() => {
-      if (tx.type === "income") showCoinAnimation();
-      else showMoneyFlyEffect();
-    }, 430);
-    showToast(addType === "income" ? t("incomeAdded") : t("expenseAdded"));
+    // Конверт запоминается в самой операции: из него считается потраченное, а
+    // при удалении операции сумма автоматически возвращается в лимит.
+    if (limitId) tx.budgetLimitId = limitId;
+    // Запись данных отделена от проверок: операция сохраняется сразу, а
+    // превышение лимита показывается баннером уже после сохранения.
+    const commit = () => {
+      traceApp("addModal-save", {
+        type: addType,
+        category: cat,
+        amount: amt,
+      });
+      addModalCommitted = true;
+      transactions.push(tx);
+      updateFrequentStats(tx);
+      saveAll();
+      refreshOperationViews();
+      closeModal("addModal");
+      setTimeout(() => {
+        if (tx.type === "income") showCoinAnimation();
+        else showMoneyFlyEffect();
+      }, 430);
+      showToast(addType === "income" ? t("incomeAdded") : t("expenseAdded"));
+    };
+    // Превышение: лимит категории/свой лимит и общий бюджет месяца. Баннер
+    // перечисляет все затронутые лимиты строками и не блокирует сохранение.
+    let overruns = [];
+    if (addType === "expense") {
+      const monthTx = filterByTime(getMoneyTransactions(), "thisMonth");
+      const envelopes = buildBudgetEnvelopes({
+        categoryBudgets,
+        customLimits: budgetCustomLimits,
+        expenseTx: monthTx,
+      });
+      // Операция спишется ровно из одного конверта: выбранный свой лимит или
+      // лимит категории. По нему же считаем мягкое предупреждение 80%.
+      const target = limitId
+        ? envelopes.find((env) => env.kind === "custom" && env.id === limitId)
+        : envelopes.find((env) => env.kind === "category" && env.category === cat);
+      if (target && target.amountRub > 0) {
+        const newSpent = target.spentRub + tx.amountRub;
+        if (newSpent <= target.amountRub && newSpent / target.amountRub >= 0.8) {
+          showToast(
+            t("budgetWarning80") +
+              " · " +
+              fmt(target.amountRub - newSpent) +
+              " " +
+              t("budgetWarning80Desc"),
+            "error",
+            3500,
+          );
+        }
+      }
+      // Превышение: лимит категории/свой лимит и общий бюджет месяца. Баннер
+      // перечисляет все затронутые лимиты строками и не блокирует сохранение.
+      overruns = findOperationBudgetOverruns({
+        txList: monthTx,
+        categoryBudgets,
+        customLimits: budgetCustomLimits,
+        category: cat,
+        limitId,
+        amountRub: tx.amountRub,
+      });
+    }
+    commit();
+    if (overruns.length) showBudgetOverWarning(overruns);
   });
   document
     .getElementById("saveAsTemplateBtn")
@@ -10635,6 +13445,791 @@ function openAddModal(defaultType = "expense", presetCategory = null) {
 // ============================================================
 // СТАТИСТИКА
 // ============================================================
+// ============================================================
+// АНАЛИТИКА: РАСЧЁТЫ ДЛЯ ГРАФИКОВ И ИНСАЙТОВ
+// ============================================================
+// Брендовая палитра аналитики задана в CSS переменными --st-exp-grad
+// (расходы: коралл→фиолетовый) и --st-inc-grad (доходы: зелёный) —
+// одна палитра на все полоски и столбики, без случайных цветов.
+// Максимум точек кривой баланса: для периода «всё время» дни прореживаются
+// с постоянным шагом, чтобы SVG не разрастался на сотни узлов.
+const STATS_MAX_DAILY_POINTS = 180;
+
+// Компактная подпись суммы для осей графиков: 1 250 → «1.3k».
+function formatAxisMoney(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "0";
+  const abs = Math.abs(n);
+  if (abs >= 1000000) return (n / 1000000).toFixed(1) + "M";
+  if (abs >= 1000) return (n / 1000).toFixed(abs >= 10000 ? 0 : 1) + "k";
+  return String(Math.round(n));
+}
+
+// Баланс по дням выбранного периода: значение на конец каждого дня.
+// Старт — начальная сумма (startBalance), дальше по операциям дня. Начальный
+// баланс как операция (_initial) не учитывается: он уже сидит в startBalance,
+// иначе сумма посчиталась бы дважды (как в getFinancialTotals).
+function buildDailyBalanceSeries(txList, period, nowDate, startBalance) {
+  const now = nowDate instanceof Date ? nowDate : new Date();
+  const base = Number(startBalance);
+  const list = (Array.isArray(txList) ? txList : []).filter(
+    (tx) =>
+      tx &&
+      tx.date &&
+      (tx.type === "income" || tx.type === "expense") &&
+      !isInitialBalanceTx(tx) &&
+      Number.isFinite(Number(tx.amountRub)),
+  );
+  const dayMs = 86400000;
+  const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  let from, to;
+  if (period === "lastMonth") {
+    from = new Date(y, m - 1, 1);
+    to = new Date(y, m, 0);
+  } else {
+    from = new Date(y, m, 1);
+    to = startOfDay(now);
+    if (period === "allTime") {
+      for (const tx of list) {
+        const d = startOfDay(new Date(tx.date + "T00:00:00"));
+        if (Number.isNaN(d.getTime())) continue;
+        if (d < from) from = d;
+        if (d > to) to = d;
+      }
+    }
+  }
+  const fromKey = localCalendarDate(from);
+  const totalDays = Math.floor((to - from) / dayMs) + 1;
+  if (totalDays < 1) return { points: [], from: fromKey, to: fromKey, step: 1 };
+  const delta = new Map();
+  let running = Number.isFinite(base) ? base : 0;
+  for (const tx of list) {
+    const amount = Number(tx.amountRub) * (tx.type === "income" ? 1 : -1);
+    if (tx.date < fromKey) running += amount;
+    else delta.set(tx.date, (delta.get(tx.date) || 0) + amount);
+  }
+  const step = Math.max(1, Math.ceil(totalDays / STATS_MAX_DAILY_POINTS));
+  const points = [];
+  for (let i = 0; i < totalDays; i++) {
+    const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i);
+    const key = localCalendarDate(d);
+    running += delta.get(key) || 0;
+    if (i % step === 0 || i === totalDays - 1)
+      points.push({ date: key, value: Math.round(running * 100) / 100 });
+  }
+  return { points, from: fromKey, to: localCalendarDate(to), step };
+}
+
+// Геометрия кривой: значения → координаты viewBox. Пустой список даёт пустые
+// пути (карточка покажет заглушку), одинаковые значения — ровную линию
+// посередине, а не деление на ноль.
+function buildBalanceLineGeometry(values, options) {
+  const opts = options || {};
+  const width = Number(opts.width) || 300;
+  const height = Number(opts.height) || 140;
+  const padX = 12;
+  const padTop = 18;
+  const padBottom = 26;
+  const numbers = (Array.isArray(values) ? values : [])
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value));
+  const innerW = Math.max(1, width - padX * 2);
+  const innerH = Math.max(1, height - padTop - padBottom);
+  const baseY = padTop + innerH;
+  if (!numbers.length)
+    return {
+      points: [],
+      line: "",
+      area: "",
+      min: 0,
+      max: 0,
+      padTop,
+      baseY,
+      width,
+      height,
+      flat: true,
+    };
+  const min = Math.min(...numbers);
+  const max = Math.max(...numbers);
+  const span = max - min;
+  const points = numbers.map((value, index) => {
+    const x =
+      numbers.length === 1
+        ? padX + innerW / 2
+        : padX + (innerW * index) / (numbers.length - 1);
+    const y =
+      span > 0
+        ? padTop + innerH - ((value - min) / span) * innerH
+        : padTop + innerH / 2;
+    return {
+      x: Math.round(x * 100) / 100,
+      y: Math.round(y * 100) / 100,
+      value,
+    };
+  });
+  // Плавная кривая вместо ломаной: Catmull-Rom переводим в кубические Безье.
+  // Прямые отрезки «L» на телефоне выглядели сломанными (резкие изломы на
+  // каждом дне), поэтому управляющие точки считаем с мягким натяжением 0.18 и
+  // держим их внутри viewBox, чтобы кривая не выходила за поля графика.
+  const coord = (v) => String(Math.round(v * 100) / 100);
+  const clampY = (v) => Math.min(height - 2, Math.max(2, v));
+  const smooth = (list) => {
+    if (!list.length) return "";
+    let path = `M ${coord(list[0].x)} ${coord(list[0].y)}`;
+    const tension = 0.18;
+    for (let i = 0; i < list.length - 1; i++) {
+      const p0 = list[i - 1] || list[i];
+      const p1 = list[i];
+      const p2 = list[i + 1];
+      const p3 = list[i + 2] || p2;
+      const c1x = p1.x + (p2.x - p0.x) * tension;
+      const c1y = clampY(p1.y + (p2.y - p0.y) * tension);
+      const c2x = p2.x - (p3.x - p1.x) * tension;
+      const c2y = clampY(p2.y - (p3.y - p1.y) * tension);
+      path += ` C ${coord(c1x)} ${coord(c1y)}, ${coord(c2x)} ${coord(c2y)}, ${coord(p2.x)} ${coord(p2.y)}`;
+    }
+    return path;
+  };
+  const line = smooth(points);
+  const area = line
+    ? `${line} L ${points[points.length - 1].x} ${baseY} L ${points[0].x} ${baseY} Z`
+    : "";
+  return { points, line, area, min, max, padTop, baseY, width, height, flat: span === 0 };
+}
+
+// SVG-график «Динамика баланса»: кораллово-фиолетовый градиент линии, заливка
+// под кривой и неоновое свечение — как у мини-графика на главной.
+function buildStatsLineChartMarkup(series, options) {
+  const opts = options || {};
+  const width = Number(opts.width) || 300;
+  const height = Number(opts.height) || 140;
+  const points = Array.isArray(series?.points) ? series.points : [];
+  const g = buildBalanceLineGeometry(
+    points.map((p) => toDisp(p.value)),
+    { width, height },
+  );
+  const head = `<div class="stat-line-card"><div class="stat-card-head"><div class="stat-card-title">${t("lineChartTitle")}</div><div class="stat-line-legend"><span class="stat-line-legend-dot" aria-hidden="true"></span>${esc(t("balance"))} · ${esc(sym())}</div></div>`;
+  const note = `<div class="line-chart-note">${t("lineChartExplanation")}</div></div>`;
+  if (!g.points.length)
+    return `${head}<div class="stat-line-empty">${t("statsInsightNoOperations")}</div>${note}`;
+  const last = g.points[g.points.length - 1];
+  const shortDate = (key) =>
+    String(key || "").slice(8, 10) + "." + String(key || "").slice(5, 7);
+  const labelIdx = [
+    ...new Set([0, Math.floor((g.points.length - 1) / 2), g.points.length - 1]),
+  ].filter((i) => i >= 0);
+  const xLabels = labelIdx
+    .map((i) => {
+      const p = g.points[i];
+      const anchor =
+        i === 0 ? "start" : i === g.points.length - 1 ? "end" : "middle";
+      return `<text x="${p.x}" y="${height - 6}" text-anchor="${anchor}">${esc(shortDate(points[i]?.date))}</text>`;
+    })
+    .join("");
+  const round2 = (v) => Math.round(v * 100) / 100;
+  // Ось Y не спорит с графиком: только еле заметная базовая линия и пунктир
+  // посередине. Раньше было три сплошные линии на всю ширину — визуальный шум.
+  const grid = `<line class="stat-line-base" x1="0" y1="${round2(g.baseY)}" x2="${width}" y2="${round2(g.baseY)}"></line><line class="stat-line-mid" x1="0" y1="${round2((g.padTop + g.baseY) / 2)}" x2="${width}" y2="${round2((g.padTop + g.baseY) / 2)}" stroke-dasharray="2 6"></line>`;
+  return `${head}
+    <div class="stat-line-wrap">
+      <svg class="stat-line-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(t("lineChartTitle"))}">
+        <defs>
+          <linearGradient id="statLineStroke" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ff7e5f"></stop>
+            <stop offset="55%" stop-color="#c86b87"></stop>
+            <stop offset="100%" stop-color="#9b59b6"></stop>
+          </linearGradient>
+          <linearGradient id="statLineArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ff7e5f" stop-opacity="0.38"></stop>
+            <stop offset="55%" stop-color="#c86b87" stop-opacity="0.16"></stop>
+            <stop offset="100%" stop-color="#9b59b6" stop-opacity="0"></stop>
+          </linearGradient>
+          <filter id="statLineGlow" x="-15%" y="-40%" width="130%" height="180%">
+            <feGaussianBlur stdDeviation="3.2" result="statLineBlur"></feGaussianBlur>
+            <feMerge><feMergeNode in="statLineBlur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+          </filter>
+        </defs>
+        <g class="stat-line-grid">${grid}</g>
+        <path class="stat-line-area" d="${g.area}" fill="url(#statLineArea)"></path>
+        <path class="stat-line-curve" d="${g.line}" fill="none" stroke="url(#statLineStroke)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#statLineGlow)"></path>
+        <circle class="stat-line-halo" cx="${last.x}" cy="${last.y}" r="8"></circle>
+        <circle class="stat-line-dot" cx="${last.x}" cy="${last.y}" r="3.8"></circle>
+        <g class="stat-line-axis">${xLabels}</g>
+      </svg>
+      <div class="stat-line-chip"><span>${esc(t("statsRemaining"))}</span><b>${esc(fmt(points[points.length - 1]?.value))}</b></div>
+    </div>${note}`;
+}
+
+// Активность по дням недели: средний расход дня. Раньше это была «тепловая
+// карта» из мелких квадратов — теперь аккуратные столбики с читаемыми Пн…Вс.
+function buildWeekdayActivity(txList, labels) {
+  const list = Array.isArray(txList) ? txList : [];
+  const names = Array.isArray(labels) ? labels : [];
+  const totals = [0, 0, 0, 0, 0, 0, 0];
+  const counts = [0, 0, 0, 0, 0, 0, 0];
+  for (const tx of list) {
+    if (!tx || tx.type !== "expense" || !tx.date) continue;
+    const amount = Number(tx.amountRub);
+    if (!Number.isFinite(amount)) continue;
+    const d = new Date(tx.date + "T00:00:00");
+    if (Number.isNaN(d.getTime())) continue;
+    const dow = d.getDay();
+    const index = dow === 0 ? 6 : dow - 1;
+    totals[index] += amount;
+    counts[index] += 1;
+  }
+  const average = totals.map((sum, i) => (counts[i] > 0 ? sum / counts[i] : 0));
+  const max = Math.max(...average) || 0;
+  const bars = average.map((value, i) => ({
+    label: names[i] || String(i + 1),
+    value,
+    pct: max > 0 ? Math.round((value / max) * 100) : 0,
+  }));
+  return { bars, max, hasData: max > 0 };
+}
+
+// Индекс финансового здоровья: доля дохода, которая осталась после расходов.
+// 100 — ничего не потратили, 0 — потратили всё (или больше). Считаем только
+// когда есть доход, иначе индекса не существует — возвращаем hasIncome:false.
+function buildHealthIndex(data) {
+  const src = data || {};
+  const inc = Number(src.inc) || 0;
+  const exp = Number(src.exp) || 0;
+  if (!(inc > 0))
+    return { score: 0, savedPct: 0, hasIncome: false, tone: "empty", emoji: "🩺" };
+  const savedPct = Math.round(((inc - exp) / inc) * 100);
+  const score = Math.max(0, Math.min(100, savedPct));
+  const tone = score >= 30 ? "great" : score >= 10 ? "ok" : "low";
+  const emoji = tone === "great" ? "💚" : tone === "ok" ? "💛" : "🧡";
+  return { score, savedPct, hasIncome: true, tone, emoji };
+}
+
+// Календарь-теплокарта трат за месяц: одна клетка на день, яркость по сумме
+// расходов дня относительно самого дорогого дня месяца (5 уровней).
+function buildMonthHeatmap(txList, options) {
+  const opts = options || {};
+  const now = opts.now && typeof opts.now.getFullYear === "function" ? opts.now : new Date();
+  const monthOffset = Number(opts.monthOffset) || 0;
+  const year = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getFullYear();
+  const month = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1).getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prefix = `${year}-${String(month + 1).padStart(2, "0")}-`;
+  const sums = new Array(daysInMonth + 1).fill(0);
+  const list = Array.isArray(txList) ? txList : [];
+  for (const tx of list) {
+    if (!tx || tx.type !== "expense" || !tx.date) continue;
+    const date = String(tx.date);
+    if (date.slice(0, 7) !== prefix.slice(0, 7)) continue;
+    const day = Number(date.slice(8, 10));
+    const amount = Number(tx.amountRub);
+    if (!Number.isFinite(amount) || !(day >= 1 && day <= daysInMonth)) continue;
+    sums[day] += amount;
+  }
+  let max = 0;
+  let total = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
+    if (sums[day] > max) max = sums[day];
+    total += sums[day];
+  }
+  // Первый день месяца: 0 — понедельник, как в остальных календарях проекта.
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
+  const cells = [];
+  for (let day = 1; day <= daysInMonth; day++) {
+    const sum = sums[day];
+    const level = sum <= 0 || max <= 0 ? 0 : Math.min(4, Math.max(1, Math.ceil((sum / max) * 4)));
+    cells.push({
+      day,
+      date: prefix + String(day).padStart(2, "0"),
+      sum: Math.round(sum * 100) / 100,
+      level,
+    });
+  }
+  return {
+    key: prefix.slice(0, 7),
+    year,
+    month,
+    daysInMonth,
+    firstDow,
+    max: Math.round(max * 100) / 100,
+    total: Math.round(total * 100) / 100,
+    cells,
+    hasData: total > 0,
+  };
+}
+
+// Пьедестал «Топ-3 категорий»: вход — уже отсортированный список [категория,
+// сумма], выход — три места с медалью и долей от общей суммы расходов.
+function buildCategoryPodium(categories, total) {
+  const list = Array.isArray(categories) ? categories : [];
+  const sum = Number(total) || 0;
+  const medals = ["🥇", "🥈", "🥉"];
+  const podium = [];
+  for (const entry of list) {
+    if (!Array.isArray(entry) || !entry[0] || podium.length >= 3) continue;
+    const amount = Number(entry[1]) || 0;
+    const place = podium.length + 1;
+    podium.push({
+      cat: String(entry[0]),
+      amount,
+      pct: sum > 0 ? Math.round((amount / sum) * 100) : 0,
+      place,
+      medal: medals[place - 1] || "",
+    });
+  }
+  return podium;
+}
+
+// Тексты блока «Советы»: короткие человеческие выводы вместо машинных фраз
+// вроде «категория занимает % всех расходов». Порядок фиксирован: главный
+// вывод первым, ситуация с доходами/расходами следом.
+function buildStatsInsights(data) {
+  const src = data || {};
+  const inc = Number(src.inc) || 0;
+  const exp = Number(src.exp) || 0;
+  const ops = Number(src.opsCount) || 0;
+  const topExp = Array.isArray(src.topExp) ? src.topExp : [];
+  const fill = (key, values) =>
+    String(t(key) || "").replace(/\{(\w+)\}/g, (m, name) =>
+      values[name] !== undefined ? values[name] : m,
+    );
+  const list = [];
+  if (!ops)
+    return [{ icon: "💡", text: fill("statsInsightNoOperations", {}) }];
+  if (topExp.length && exp > 0) {
+    const cat = topExp[0][0];
+    const pct = Math.round((Number(topExp[0][1]) / exp) * 100);
+    list.push({ icon: "💡", text: fill("statsInsightTopCat", { cat, pct }) });
+  }
+  if (inc > 0 && exp > inc) {
+    const pct = Math.round(((exp - inc) / inc) * 100);
+    list.push({ icon: "⚠️", text: fill("statsInsightDeficit", { pct }) });
+  } else if (inc > 0) {
+    const pct = Math.round(((inc - exp) / inc) * 100);
+    const saved = Math.round((inc - exp) * 100) / 100;
+    if (pct >= 20)
+      list.push({
+        icon: "🌟",
+        text: fill("statsInsightSavings", { pct, amount: fmt(saved) }),
+      });
+    else list.push({ icon: "📈", text: fill("statsInsightSurplus", { pct }) });
+  } else if (exp > 0) {
+    list.push({ icon: "⚠️", text: fill("statsInsightNoIncome", {}) });
+  }
+  return list.slice(0, 3);
+}
+
+// ── Анимации аналитики по скроллу ───────────────────────────
+// Раньше всё проигрывалось сразу при входе на вкладку: пока пользователь
+// доскролливал до блока, заполнение уже заканчивалось и он видел статику.
+// Теперь карточка спрятана (.stats-animate-hidden) и проявляется снизу, когда
+// попадает в зону видимости, а полоски/линия/кольцо/теплокарта внутри неё
+// стартуют в этот же момент. Каждый блок запускается один раз (WeakSet),
+// поэтому скролл вверх-вниз ничего не ломает.
+const STATS_START_DELAY = 240; // пауза перед заполнением: пустое состояние видно
+const STATS_FLASH_GAP = 30; // вспышка чуть позже окончания перехода
+// Набор чисел (KPI, прогноз, итоги) идёт с той же паузой, что и полоски, но
+// короче их заполнения: цифра должна «доехать» до финала до вспышки блока.
+const STATS_COUNT_DURATION = 1000;
+// Пауза перед включением наблюдателя: спрятанное состояние обязано попасть в
+// отрисованный кадр. Если снять его раньше, Chrome не видит перехода «было →
+// стало» и карточка появляется без плавности (проверено на телефоне:
+// 8мс — рывок, 120мс — нормальное проявление).
+const STATS_REVEAL_DELAY = 90;
+// Триггер появления: блок должен быть реально в кадре — не меньше половины его
+// высоты (раньше хватало 10%, и анимация проигрывалась, пока блок ещё только
+// выглядывал из-за нижнего края). Отрицательный rootMargin дополнительно
+// отрезает от области наблюдения нижние 100px экрана.
+const STATS_REVEAL_THRESHOLD = 0.5;
+const STATS_REVEAL_ROOT_MARGIN = "0px 0px -100px 0px";
+const STATS_REVEAL_SELECTOR = [
+  ".stat-status-card",
+  ".stat-kpi",
+  ".stat-health-card",
+  ".stat-insight-card",
+  ".stat-line-card",
+  ".stat-activity-card",
+  ".stat-heatmap-card",
+  ".stat-podium-card",
+  ".stat-budgets-card",
+  ".stat-trend-section",
+  ".stat-chart-card",
+  ".stat-cats-card",
+  ".forecast-card",
+  ".stat-summary-card",
+].join(",");
+let statsRevealObserver = null;
+const statsAnimatedBlocks = new WeakSet();
+
+function statsReduceMotion() {
+  return !!window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+}
+
+// Запуск отрисовки: пауза, затем два кадра. Без двух кадров браузер иногда
+// склеивает нулевое и конечное состояние, и анимации не видно.
+function startStatsAnimation(run) {
+  if (typeof requestAnimationFrame === "function") {
+    setTimeout(
+      () => requestAnimationFrame(() => requestAnimationFrame(run)),
+      STATS_START_DELAY,
+    );
+  } else {
+    setTimeout(run, STATS_START_DELAY + STATS_FLASH_GAP);
+  }
+}
+
+// Универсальная анимация числа: start -> end по requestAnimationFrame.
+// Каждый кадр форматируется через fmt(), поэтому финальный текст совпадает с
+// тем, что было отрисовано в разметке (два знака после запятой и символ
+// валюты), а промежуточные значения не выбиваются из формата.
+function animateNumber(element, start, end, duration, prefix) {
+  if (!element) return null;
+  const pre = prefix || "";
+  const to = Number(end);
+  const from = Number.isFinite(Number(start)) ? Number(start) : 0;
+  const finalText = pre + fmt(Number.isFinite(to) ? to : 0);
+  // Анимация не нужна: значение не меняется, анимации отключены или нет rAF.
+  if (
+    !Number.isFinite(to) ||
+    to === from ||
+    statsReduceMotion() ||
+    typeof requestAnimationFrame !== "function"
+  ) {
+    element.textContent = finalText;
+    return finalText;
+  }
+  const now = () =>
+    typeof performance !== "undefined" && typeof performance.now === "function"
+      ? performance.now()
+      : Date.now();
+  const ms = Math.max(0, Number(duration) || 0);
+  const t0 = now();
+  const tick = (frameTime) => {
+    const stamp = Number.isFinite(Number(frameTime)) ? Number(frameTime) : now();
+    const p = ms > 0 ? Math.min(1, Math.max(0, stamp - t0) / ms) : 1;
+    if (p >= 1) {
+      element.textContent = finalText;
+      return;
+    }
+    // easeOutCubic: быстрый разгон и мягкое торможение у финального значения.
+    const eased = 1 - Math.pow(1 - p, 3);
+    element.textContent = pre + fmt(from + (to - from) * eased);
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  return finalText;
+}
+
+// Числа внутри блока: KPI, прогноз, итоги. Стартовая пауза та же, что у
+// полосок (startStatsAnimation), поэтому цифры и графики оживают одновременно.
+function animateStatsNumbers(block) {
+  if (!block || !block.querySelectorAll) return;
+  const numbers = Array.from(block.querySelectorAll("[data-num-value]"));
+  if (!numbers.length) return;
+  startStatsAnimation(() => {
+    numbers.forEach((el) => {
+      const value = Number(el.dataset.numValue);
+      if (!Number.isFinite(value)) return;
+      animateNumber(
+        el,
+        0,
+        value,
+        STATS_COUNT_DURATION,
+        el.dataset.numPrefix || "",
+      );
+    });
+  });
+}
+
+// Исходное состояние сразу после рендера: карточки спрятаны, полоски и
+// столбики на нуле, линия свёрнута, кольцо пустое, клетки теплокарты скрыты.
+function resetStatsAnimations(scope) {
+  if (!scope || !scope.querySelectorAll) return;
+  if (statsRevealObserver) {
+    statsRevealObserver.disconnect();
+    statsRevealObserver = null;
+  }
+  // У кого анимации отключены — сразу конечное состояние, ничего не прячем.
+  if (statsReduceMotion()) return;
+  scope.querySelectorAll("[data-stat-w]").forEach((el) => {
+    el.style.width = "0%";
+  });
+  scope.querySelectorAll("[data-stat-h]").forEach((el) => {
+    el.style.height = "0%";
+  });
+  const curve = scope.querySelector(".stat-line-curve");
+  if (curve && typeof curve.getTotalLength === "function") {
+    const len = curve.getTotalLength();
+    if (Number.isFinite(len) && len > 0) {
+      const dash = Math.round(len * 100) / 100;
+      // Стартовое состояние ставим при выключенном переходе. Иначе на повторном
+      // входе на вкладку браузер видит inline 0 -> len и запускает «обратную»
+      // отрисовку, из-за чего линия появляется целиком без анимации.
+      // setProperty с important обязателен: CSS-правило перехода не должно выигрывать.
+      curve.style.setProperty("transition", "none", "important");
+      curve.style.strokeDasharray = `${dash}`;
+      curve.style.strokeDashoffset = `${dash}`;
+      curve.dataset.statDash = `${dash}`;
+    }
+  }
+  // Кольцо индекса здоровья: запоминаем целевую дугу и обнуляем её.
+  const arc = scope.querySelector(".stat-health-arc");
+  if (arc) {
+    const target = (arc.getAttribute("stroke-dasharray") || "").trim();
+    const parts = target
+      .split(/[\s,]+/)
+      .filter(Boolean)
+      .map(Number);
+    if (parts.length === 2 && parts.every((n) => Number.isFinite(n))) {
+      arc.dataset.statArc = target;
+      arc.setAttribute(
+        "stroke-dasharray",
+        `0 ${Math.round((parts[0] + parts[1]) * 100) / 100}`,
+      );
+    }
+  }
+  // Клетки теплокарты появятся волной, когда блок доскроллен.
+  scope.querySelectorAll(".stat-heatmap-cell").forEach((cell) => {
+    cell.style.opacity = "0";
+    cell.style.transform = "scale(.55)";
+  });
+  // Числа (KPI, прогноз, итоги) тоже стартуют с нуля: набор происходит в момент
+  // появления блока. Формат нуля тот же, что и у значения: без него ширина
+  // строки прыгала бы на первом кадре.
+  scope.querySelectorAll("[data-num-value]").forEach((el) => {
+    el.textContent = (el.dataset.numPrefix || "") + fmt(0);
+  });
+  scope.querySelectorAll(STATS_REVEAL_SELECTOR).forEach((card) => {
+    card.classList.remove("stats-animate-visible");
+    card.classList.add("stats-animate-hidden");
+  });
+  // Принудительный рефлоу: фиксируем нулевой кадр до включения переходов.
+  void scope.offsetWidth;
+}
+
+// Вспышка в конце заполнения. Полоска категории лежит в треке с
+// overflow:hidden, поэтому вспыхивает сам трек — иначе свечение обрезается.
+function flashStatBar(bar) {
+  const flashEl = bar.closest(".stat-cat-bar-wrap") || bar;
+  const kind = bar.classList.contains("inc") ? "inc" : "exp";
+  const ms = Math.round(
+    (parseFloat(getComputedStyle(bar).transitionDuration) || 0) * 1000,
+  );
+  flashEl.setAttribute("data-flash", kind);
+  setTimeout(() => {
+    flashEl.classList.add("stat-flash");
+    flashEl.addEventListener(
+      "animationend",
+      () => flashEl.classList.remove("stat-flash"),
+      { once: true },
+    );
+  }, ms + STATS_FLASH_GAP);
+}
+
+// Полоски и столбики блоков: 0% -> значение из data-атрибутов + вспышка.
+function animateBars(block) {
+  if (!block) return;
+  const bars = Array.from(
+    block.querySelectorAll("[data-stat-w],[data-stat-h]"),
+  ).filter((el) => {
+    const attr = el.hasAttribute("data-stat-w") ? "data-stat-w" : "data-stat-h";
+    return (parseFloat(el.getAttribute(attr)) || 0) > 0;
+  });
+  if (!bars.length) return;
+  startStatsAnimation(() => {
+    bars.forEach((el) => {
+      const w = el.getAttribute("data-stat-w");
+      const h = el.getAttribute("data-stat-h");
+      if (w !== null) el.style.width = w;
+      if (h !== null) el.style.height = h;
+      flashStatBar(el);
+    });
+  });
+}
+
+// Линия баланса рисуется слева направо, в конце — неоновый всполох.
+function animateLineChart(block) {
+  if (!block) return;
+  const curve = block.querySelector(".stat-line-curve");
+  if (!curve) return;
+  let dash = Number(curve.dataset.statDash) || 0;
+  if (!dash && typeof curve.getTotalLength === "function") {
+    dash = Math.round(curve.getTotalLength() * 100) / 100;
+  }
+  if (!dash) return;
+  const deco = Array.from(
+    block.querySelectorAll(
+      ".stat-line-area,.stat-line-halo,.stat-line-dot",
+    ),
+  );
+  startStatsAnimation(() => {
+    // Заливка и точка стартуют из CSS с задержками 0.35s/2.45s от создания
+    // элемента. При скролл-триггере карточка может появиться позже, поэтому
+    // перезапускаем их: точка должна вспыхнуть в конце отрисовки линии.
+    deco.forEach((el) => {
+      el.style.animation = "none";
+    });
+    void block.offsetWidth;
+    deco.forEach((el) => {
+      el.style.removeProperty("animation");
+    });
+    // Снимаем inline-переход (возвращается CSS из 2.5s) и только затем тянем линию к нулю.
+    curve.style.removeProperty("transition");
+    curve.style.strokeDashoffset = "0";
+    const ms = Math.round(
+      (parseFloat(getComputedStyle(curve).transitionDuration) || 0) * 1000,
+    );
+    curve.setAttribute("data-flash", "line");
+    setTimeout(() => {
+      curve.classList.add("stat-flash");
+      curve.addEventListener(
+        "animationend",
+        () => curve.classList.remove("stat-flash"),
+        { once: true },
+      );
+    }, ms + STATS_FLASH_GAP);
+  });
+}
+
+// Кольцо индекса здоровья: пустая дуга раскрывается до целевого значения.
+function animateStatsRing(block) {
+  const arc = block && block.querySelector(".stat-health-arc");
+  const target = arc && arc.dataset.statArc;
+  if (!target) return;
+  startStatsAnimation(() => {
+    arc.setAttribute("stroke-dasharray", target);
+  });
+}
+
+// Теплокарта: клетки проявляются волной из левого верхнего угла.
+function animateHeatmap(block) {
+  if (!block) return;
+  const cells = Array.from(block.querySelectorAll(".stat-heatmap-cell"));
+  if (!cells.length) return;
+  const canAnimate = typeof cells[0].animate === "function";
+  startStatsAnimation(() => {
+    cells.forEach((cell, i) => {
+      // Инлайновые ноль/масштаб из resetStatsAnimations отпускаем: при
+      // fill:"backwards" анимация сама держит стартовый кадр и не мигает.
+      cell.style.opacity = "";
+      cell.style.transform = "";
+      if (!canAnimate) return;
+      cell.animate(
+        [
+          { opacity: 0, transform: "scale(.55)" },
+          { opacity: 1, transform: "scale(1)" },
+        ],
+        {
+          duration: 340,
+          delay: Math.min(i * 14, 420),
+          easing: "ease-out",
+          fill: "backwards",
+        },
+      );
+    });
+  });
+}
+
+// Какая анимация живёт в каком блоке.
+function animateStatsBlock(block) {
+  if (!block || !block.matches) return;
+  if (block.matches(".stat-line-card")) animateLineChart(block);
+  if (block.matches(".stat-health-card")) animateStatsRing(block);
+  if (block.matches(".stat-heatmap-card")) animateHeatmap(block);
+  if (block.matches(".stat-cats-card,.stat-activity-card,.stat-chart-card")) {
+    animateBars(block);
+  }
+  if (block.matches(".stat-kpi,.forecast-card,.stat-summary-card")) {
+    animateStatsNumbers(block);
+  }
+}
+
+// Показать карточку: снять спрятанное состояние и один раз запустить её
+// анимации. Повторный скролл вверх-вниз ничего не перезапускает.
+function revealStatsBlock(card) {
+  if (!card) return;
+  card.classList.add("stats-animate-visible");
+  card.classList.remove("stats-animate-hidden");
+  card.addEventListener("transitionend", function statsRevealDone(ev) {
+    if (ev.target !== card) return;
+    card.removeEventListener("transitionend", statsRevealDone);
+    // Классы нужны только на время проявления: иначе transform остаётся
+    // висеть на карточке и мешает ховер-эффектам.
+    card.classList.remove("stats-animate-visible", "stats-animate-hidden");
+  });
+  if (statsAnimatedBlocks.has(card)) return;
+  statsAnimatedBlocks.add(card);
+  animateStatsBlock(card);
+}
+
+// Наблюдатель появления: блок проявляется, когда в кадре не меньше половины его
+// высоты (STATS_REVEAL_THRESHOLD), а нижние 100px экрана не считаются видимой
+// зоной (STATS_REVEAL_ROOT_MARGIN). Так анимация не проигрывается, пока блок
+// только выглянул из-за нижнего края.
+function setupStatsScrollAnimations(scope) {
+  if (!scope || !scope.querySelectorAll) return;
+  const cards = Array.from(scope.querySelectorAll(STATS_REVEAL_SELECTOR));
+  if (!cards.length) return;
+  // Нет IntersectionObserver или анимации отключены — показываем всё сразу.
+  if (statsReduceMotion() || typeof IntersectionObserver !== "function") {
+    cards.forEach((card) => {
+      if (statsAnimatedBlocks.has(card)) return;
+      statsAnimatedBlocks.add(card);
+      animateStatsBlock(card);
+    });
+    return;
+  }
+  // Прячем без перехода: иначе новая карточка сначала гаснет из дефолтного
+  // opacity:1 (переход 1 → 0) и мигает перед проявлением по скроллу.
+  cards.forEach((card) => {
+    card.style.transition = "none";
+    card.classList.add("stats-animate-hidden");
+  });
+  // Спрятанное состояние обязано попасть в отрисованный кадр: без рефлоу и
+  // паузы перед наблюдением браузер не видит смены «до/после» и карточки
+  // первого экрана появляются без перехода.
+  void scope.offsetWidth;
+  cards.forEach((card) => {
+    card.style.transition = "";
+  });
+  const observe = () => {
+    if (statsRevealObserver) statsRevealObserver.disconnect();
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          // Порог — половина блока в кадре. Блок выше экрана наполовину показать
+          // нельзя, поэтому для него достаточно половины экрана: иначе такой
+          // блок не проявился бы никогда и остался бы невидимым с нулями.
+          const halfCard = entry.intersectionRatio >= STATS_REVEAL_THRESHOLD;
+          const tallCard =
+            entry.boundingClientRect.height > window.innerHeight &&
+            entry.intersectionRect.height >=
+              window.innerHeight * STATS_REVEAL_THRESHOLD;
+          if (!halfCard && !tallCard) return;
+          obs.unobserve(entry.target);
+          revealStatsBlock(entry.target);
+        });
+      },
+      {
+        // Шаг 0.25 нужен, чтобы callback приходил и до порога 0.5 (для блоков
+        // выше экрана), а отрицательный rootMargin отрезает нижние 100px: пока
+        // блок только показался из-за края, анимация не стартует.
+        threshold: [0, 0.25, STATS_REVEAL_THRESHOLD],
+        rootMargin: STATS_REVEAL_ROOT_MARGIN,
+      },
+    );
+    statsRevealObserver = obs;
+    cards.forEach((card) => obs.observe(card));
+  };
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(observe, STATS_REVEAL_DELAY)));
+  } else {
+    setTimeout(observe, STATS_REVEAL_DELAY);
+  }
+}
+
 function renderStats() {
   const content = document.getElementById("mainContent");
   content.innerHTML = `<div class="stats-loading"><div class="spinner"></div><p>${t("loading")}</p></div>`;
@@ -10675,9 +14270,10 @@ function renderStats() {
       else expAll += tx.amountRub;
     }
     const bal = incAll - expAll;
-    const totalFlow = inc,
-      spentPct =
-        totalFlow > 0 ? Math.min(100, Math.round((exp / totalFlow) * 100)) : 0;
+    const totalFlow = inc;
+    // Доля расходов от дохода без потолка (при перерасходе бывает >100%) —
+    // из неё строится честная фраза индекса здоровья при низком балле.
+    const spentRealPct = totalFlow > 0 ? Math.round((exp / totalFlow) * 100) : 0;
     const savedAmt = totalFlow - exp,
       savedPct =
         totalFlow > 0
@@ -10730,121 +14326,71 @@ function renderStats() {
       sD = t("statsBudgetAlmostDesc").replace("%", savedPct + "%");
       sC = "warning";
     }
-    const tips = [];
-    if (topExp.length) {
-      const tc = topExp[0],
-        tp = exp > 0 ? Math.round((tc[1] / exp) * 100) : 0;
-      if (tp > 40) tips.push(`💡 «${tc[0]}» — ${tp}% ${t("statsTipHighCat")}`);
-    }
-    if (savedPct < 10 && ptx.length > 3)
-      tips.push("💡 " + t("statsTipSaveLow"));
-    if (nExp > 0 && nInc === 0) tips.push("💡 " + t("statsTipNoIncome"));
-    if (savedPct >= 20) tips.push("💡 " + t("statsTipGoodSaving"));
+    // Человеческие выводы вместо машинных фраз: тексты собирает
+    // buildStatsInsights, чтобы их можно было проверить тестом.
+    const insights = buildStatsInsights({
+      inc,
+      exp,
+      opsCount: ptx.length,
+      topExp,
+    });
     const gC =
       savedPct >= 20
         ? "var(--income-color)"
         : savedPct >= 10
           ? "var(--gold)"
           : "var(--expense-color)";
+    // Индекс финансового здоровья: балл 0–100 и человеческая подпись к нему.
+    const health = buildHealthIndex({ inc, exp });
+    const healthColor =
+      health.tone === "great"
+        ? "var(--income-color)"
+        : health.tone === "ok"
+          ? "var(--gold)"
+          : "var(--expense-color)";
+    const healthRing = 2 * Math.PI * 46;
+    const healthDash = Math.round((health.score / 100) * healthRing * 100) / 100;
+    const healthGap = Math.round((healthRing - healthDash) * 100) / 100;
+    const healthNoteKey = health.hasIncome
+      ? health.tone === "great"
+        ? "healthIndexGreat"
+        : health.tone === "ok"
+          ? "healthIndexOk"
+          : "healthIndexLow"
+      : "healthIndexNoIncome";
+    const healthNote = String(t(healthNoteKey)).replace(
+      "{pct}",
+      health.tone === "low" ? spentRealPct : health.score,
+    );
     const months = t("months");
-    let chartBars = "";
+    let chartBars = "",
+      chartLabels = "";
     allM.forEach((m) => {
       const d = monthlyData[m];
-      const iH = Math.round((toDisp(d.inc) / toDisp(maxB)) * 64),
-        eH = Math.round((toDisp(d.exp) / toDisp(maxB)) * 64);
+      // Высота в процентах от максимума: столбики стоят на одной базовой линии,
+      // а не «висят» на разной высоте, как было с пиксельными height.
+      const iH = maxB > 0 ? Math.round((toDisp(d.inc) / toDisp(maxB)) * 100) : 0,
+        eH = maxB > 0 ? Math.round((toDisp(d.exp) / toDisp(maxB)) * 100) : 0;
       const [, mn] = m.split("-");
       const lbl = months[parseInt(mn) - 1]?.slice(0, 3) || m.slice(5);
-      chartBars += `<div class="stat-chart-col"><div class="stat-chart-bars" style="display:flex;align-items:flex-end;gap:3px;height:80px"><div class="stat-chart-bar inc" style="height:${iH}px;min-width:10px" title="+${fmt(d.inc)}"></div><div class="stat-chart-bar exp" style="height:${eH}px;min-width:10px" title="−${fmt(d.exp)}"></div></div><div class="stat-chart-label">${lbl}</div></div>`;
+      chartBars += `<div class="stat-chart-col"><div class="stat-chart-bars"><div class="stat-chart-bar inc" data-stat-h="${iH}%" style="height:${iH}%" title="+${fmt(d.inc)}"></div><div class="stat-chart-bar exp" data-stat-h="${eH}%" style="height:${eH}%" title="−${fmt(d.exp)}"></div></div></div>`;
+      chartLabels += `<div class="stat-chart-label">${esc(lbl)}</div>`;
     });
-    const isDME = document.body.classList.contains("dark");
-    const CE = isDME
-      ? ["#f87171", "#fb923c", "#fbbf24", "#f472b6", "#a78bfa", "#60a5fa"]
-      : ["#dc2626", "#ea580c", "#d97706", "#db2777", "#7c3aed", "#1d4ed8"];
+    // Единая палитра: расходы — коралл→фиолетовый, доходы — зелёный.
+    // Цвет задаётся классом (.exp/.inc), а не случайным hex для каждой строки.
     let ceR = "";
-    topExp.forEach(([cat, amt], i) => {
-      const p = exp > 0 ? Math.round((amt / exp) * 100) : 0,
-        cl = CE[i] || CE[CE.length - 1];
-      ceR += `<div class="stat-cat-row"><div class="stat-cat-dot" style="background:${cl}"></div><div class="stat-cat-info"><div class="stat-cat-top"><span class="stat-cat-name">${getOpEmoji({ type: "expense", category: cat })} ${esc(cat)}</span><span class="stat-cat-amount" style="color:${cl}">−${fmt(amt)}</span></div><div class="stat-cat-bar-wrap"><div class="stat-cat-bar" style="width:${p}%;background:${cl}"></div></div></div><div class="stat-cat-pct" style="color:${cl}">${p}%</div></div>`;
+    topExp.forEach(([cat, amt]) => {
+      const p = exp > 0 ? Math.round((amt / exp) * 100) : 0;
+      // Иконка — из оформления категории (getCategoryStyle), а не из старой
+      // карты ключевых слов: там «პროდუქტები»/«One» падали в 💸 и все строки
+      // выглядели одинаково.
+      ceR += `<div class="stat-cat-row row-exp"><div class="stat-cat-ico" aria-hidden="true" data-icon-len="${emojiGlyphCount(getCategoryStyle(cat, "expense").icon)}">${getCategoryStyle(cat, "expense").icon}</div><div class="stat-cat-info"><div class="stat-cat-top"><span class="stat-cat-name">${esc(cat)}</span><span class="stat-cat-amount exp">−${fmt(amt)}</span></div><div class="stat-cat-bar-wrap"><div class="stat-cat-bar exp" data-stat-w="${p}%" style="width:${p}%"></div></div></div><div class="stat-cat-pct exp">${p}%</div></div>`;
     });
-    const isDM = document.body.classList.contains("dark");
-    const CI = isDM
-      ? ["#5eead4", "#34d399", "#6ee7b7", "#a7f3d0"]
-      : ["#16a34a", "#15803d", "#166534", "#14532d"];
     let ciR = "";
-    topInc.forEach(([cat, amt], i) => {
-      const p = inc > 0 ? Math.round((amt / inc) * 100) : 0,
-        cl = CI[i] || CI[CI.length - 1];
-      ciR += `<div class="stat-cat-row"><div class="stat-cat-dot" style="background:${cl}"></div><div class="stat-cat-info"><div class="stat-cat-top"><span class="stat-cat-name">${getOpEmoji({ type: "income", category: cat })} ${esc(cat)}</span><span class="stat-cat-amount" style="color:${cl}">+${fmt(amt)}</span></div><div class="stat-cat-bar-wrap"><div class="stat-cat-bar" style="width:${p}%;background:${cl}"></div></div></div><div class="stat-cat-pct" style="color:${cl}">${p}%</div></div>`;
+    topInc.forEach(([cat, amt]) => {
+      const p = inc > 0 ? Math.round((amt / inc) * 100) : 0;
+      ciR += `<div class="stat-cat-row row-inc"><div class="stat-cat-ico" aria-hidden="true" data-icon-len="${emojiGlyphCount(getCategoryStyle(cat, "income").icon)}">${getCategoryStyle(cat, "income").icon}</div><div class="stat-cat-info"><div class="stat-cat-top"><span class="stat-cat-name">${esc(cat)}</span><span class="stat-cat-amount inc">+${fmt(amt)}</span></div><div class="stat-cat-bar-wrap"><div class="stat-cat-bar inc" data-stat-w="${p}%" style="width:${p}%"></div></div></div><div class="stat-cat-pct inc">${p}%</div></div>`;
     });
-    // Пирог
-    const pd = Object.entries(catExp)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-    const pt = pd.reduce((s, [, a]) => s + a, 0);
-    let pieSvg = "",
-      legHtml = "";
-    if (pd.length) {
-      let cum = 0;
-      const pc = document.body.classList.contains("dark")
-        ? ["#f87171", "#fb923c", "#fbbf24", "#f472b6", "#a78bfa"]
-        : ["#dc2626", "#ea580c", "#d97706", "#db2777", "#7c3aed"];
-      pd.forEach(([cat, amt], idx) => {
-        const pct = (amt / pt) * 100,
-          cl = pc[idx] || pc[pc.length - 1];
-        if (pd.length === 1 || pct >= 99.99) {
-          pieSvg += `<circle cx="50" cy="50" r="40" fill="${cl}" stroke="var(--card-bg)" stroke-width="1.5" class="pie-slice" style="animation:pieIn .8s ease forwards;animation-delay:${idx * 0.1}s;opacity:0;transform-origin:50% 50%;"/>`;
-        } else {
-          const sA = cum * 3.6,
-            eA = (cum + pct) * 3.6,
-            la = pct > 50 ? 1 : 0;
-          const x1 = 50 + 40 * Math.cos(((sA - 90) * Math.PI) / 180),
-            y1 = 50 + 40 * Math.sin(((sA - 90) * Math.PI) / 180),
-            x2 = 50 + 40 * Math.cos(((eA - 90) * Math.PI) / 180),
-            y2 = 50 + 40 * Math.sin(((eA - 90) * Math.PI) / 180);
-          pieSvg += `<path d="M 50 50 L ${x1} ${y1} A 40 40 0 ${la} 1 ${x2} ${y2} Z" fill="${cl}" stroke="var(--card-bg)" stroke-width="1.5" class="pie-slice" style="animation:pieIn .8s ease forwards;animation-delay:${idx * 0.1}s;opacity:0;transform-origin:50% 50%;"></path>`;
-        }
-        cum += pct;
-        legHtml += `<div class="pie-legend-item"><div class="pie-legend-color" style="background:${cl}"></div><span class="pie-legend-name">${esc(cat)}</span><span class="pie-legend-value">${fmt(amt)} (${pct.toFixed(1)}%)</span></div>`;
-      });
-    } else {
-      pieSvg = `<circle cx="50" cy="50" r="40" fill="var(--cream-dark)"/>`;
-      legHtml = `<div class="pie-legend-item">${t("noStatsYet").split("\n")[0]}</div>`;
-    }
-    // Income pie chart
-    const incPd = Object.entries(catInc)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-    const incPt = incPd.reduce((s, [, a]) => s + a, 0);
-    let incPieSvg = "",
-      incLegHtml = "";
-    const incPc = document.body.classList.contains("dark")
-      ? ["#5eead4", "#34d399", "#6ee7b7", "#4ade80", "#86efac"]
-      : ["#16a34a", "#15803d", "#166534", "#14532d", "#052e16"];
-    if (incPd.length) {
-      let cum2 = 0;
-      incPd.forEach(([cat, amt], idx) => {
-        const pct = (amt / incPt) * 100,
-          cl = incPc[idx] || incPc[incPc.length - 1];
-        if (incPd.length === 1 || pct >= 99.99) {
-          incPieSvg += `<circle cx="50" cy="50" r="40" fill="${cl}" stroke="var(--card-bg)" stroke-width="1.5"/>`;
-        } else {
-          const sA = cum2 * 3.6,
-            eA = (cum2 + pct) * 3.6,
-            la = pct > 50 ? 1 : 0;
-          const x1 = 50 + 40 * Math.cos(((sA - 90) * Math.PI) / 180),
-            y1 = 50 + 40 * Math.sin(((sA - 90) * Math.PI) / 180);
-          const x2 = 50 + 40 * Math.cos(((eA - 90) * Math.PI) / 180),
-            y2 = 50 + 40 * Math.sin(((eA - 90) * Math.PI) / 180);
-          incPieSvg += `<path d="M 50 50 L ${x1} ${y1} A 40 40 0 ${la} 1 ${x2} ${y2} Z" fill="${cl}" stroke="var(--card-bg)" stroke-width="1.5" style="animation:pieIn .8s ease forwards;animation-delay:${idx * 0.1}s;opacity:0;transform-origin:50% 50%;"></path>`;
-        }
-        cum2 += pct;
-        incLegHtml += `<div class="pie-legend-item"><div class="pie-legend-color" style="background:${cl}"></div><span class="pie-legend-name">${esc(cat)}</span><span class="pie-legend-value">+${fmt(amt)}</span></div>`;
-      });
-    } else {
-      incPieSvg = `<circle cx="50" cy="50" r="40" fill="var(--cream-dark)"/>`;
-      incLegHtml = `<div class="pie-legend-item">${t("noStatsYet").split("\n")[0]}</div>`;
-    }
-
     // Тренд по категориям
     let prevCatExp = {};
     for (const tx of ptxPrev) {
@@ -10868,7 +14414,7 @@ function renderStats() {
         .sort((a, b) => Math.abs(b.diff) - Math.abs(a.diff))
         .slice(0, 5);
       if (rows.length) {
-        trendHtml = `<div class="stat-trend-section"><div class="stat-section-label">${t("trendTitle")}</div>`;
+        trendHtml = `<div class="stat-trend-section"><div class="stat-card-head"><div class="stat-card-title">${t("trendTitle")}</div></div>`;
         rows.forEach((r) => {
           const cl =
             r.diff > 0
@@ -10882,37 +14428,72 @@ function renderStats() {
         trendHtml += "</div>";
       }
     }
-    // Тепловая карта
-    const dayTotals = [0, 0, 0, 0, 0, 0, 0]; // Пн=0...Вс=6
-    const dayCounts = [0, 0, 0, 0, 0, 0, 0];
-    transactions
-      .filter((tx) => tx.type === "expense" && tx.date)
-      .forEach((tx) => {
-        let dow = new Date(tx.date + "T00:00:00").getDay();
-        dow = dow === 0 ? 6 : dow - 1;
-        dayTotals[dow] += tx.amountRub;
-        dayCounts[dow]++;
-      });
-    const dayAvg = dayTotals.map((t, i) =>
-      dayCounts[i] > 0 ? t / dayCounts[i] : 0,
-    );
-    const maxDay = Math.max(...dayAvg) || 1;
-    const wd = t("weekdaysShort");
-    let heatHtml = `<div class="stat-heatmap-card"><div class="stat-section-label">${t("heatmapTitle")}</div><div class="stat-section-desc">${t("heatmapSubtitle")}</div><div class="heatmap-grid">`;
-    dayAvg.forEach((avg, i) => {
-      const pct = Math.round((avg / maxDay) * 100);
-      const op = 0.15 + (pct / 100) * 0.85;
-      const heatOpacity = op;
-      const heatHeight = Math.max(4, pct * 0.6);
-      heatHtml += `<div class="heatmap-cell"><div class="heatmap-bar heatmap-bar-val" style="height:${heatHeight}px;--heat-op:${heatOpacity};border-radius:4px 4px 0 0;"></div><div class="heatmap-day">${wd[i]}</div><div class="heatmap-val">${avg > 0 ? fmt(avg) : ""}</div></div>`;
+    // Активность по дням недели: столбики растут от общей базовой линии.
+    const activity = buildWeekdayActivity(transactions, t("weekdaysShort"));
+    let activityHtml = "";
+    if (activity.hasData) {
+      const activityCols = activity.bars
+        .map((bar) => {
+          const h = bar.pct > 0 ? Math.max(4, bar.pct) : 0;
+          const val = bar.value > 0 ? formatAxisMoney(toDisp(bar.value)) : "—";
+          return `<div class="stat-activity-col"><div class="stat-activity-val">${val}</div><div class="stat-activity-track"><div class="stat-activity-bar" data-stat-h="${h}%" style="height:${h}%"></div></div></div>`;
+        })
+        .join("");
+      const activityDays = activity.bars
+        .map((bar) => `<div class="stat-activity-day">${esc(bar.label)}</div>`)
+        .join("");
+      activityHtml = `<div class="stat-activity-card"><div class="stat-card-head"><div class="stat-card-title">${t("heatmapTitle")}</div><div class="stat-card-hint">${t("heatmapSubtitle")} · ${sym()}</div></div><div class="stat-activity-plot">${activityCols}</div><div class="stat-activity-days">${activityDays}</div></div>`;
+    }
+    // Теплокарта месяца: одна клетка на день, яркость — по сумме трат дня.
+    const hm = buildMonthHeatmap(transactions, {
+      now: new Date(),
+      monthOffset: statsPeriod === "lastMonth" ? -1 : 0,
     });
-    heatHtml += "</div></div>";
+    const hmWeek = t("weekdaysShort");
+    let hmCells = "";
+    for (let pad = 0; pad < hm.firstDow; pad++)
+      hmCells += `<div class="stat-heatmap-pad" aria-hidden="true"></div>`;
+    hm.cells.forEach((cell) => {
+      const sumText = cell.sum > 0 ? fmt(cell.sum) : t("heatmapNoSpend");
+      hmCells += `<div class="stat-heatmap-cell lvl-${cell.level}" title="${esc(cell.day + " · " + sumText)}"><span class="stat-heatmap-day">${cell.day}</span></div>`;
+    });
+    let hmLegend = "";
+    for (let lvl = 0; lvl <= 4; lvl++)
+      hmLegend += `<i class="stat-heatmap-key lvl-${lvl}" aria-hidden="true"></i>`;
+    const hmWeekdays = (Array.isArray(hmWeek) ? hmWeek : [])
+      .map((lbl) => `<span>${esc(lbl)}</span>`)
+      .join("");
+    const heatmapHtml = `<div class="stat-heatmap-card">
+      <div class="stat-card-head"><div class="stat-card-title">${t("heatmapCalendarTitle")}</div><div class="stat-card-hint">${esc(`${months[hm.month] || ""} ${hm.year}`)} · ${sym()}</div></div>
+      <div class="stat-heatmap-weekdays">${hmWeekdays}</div>
+      <div class="stat-heatmap-grid">${hmCells}</div>
+      <div class="stat-heatmap-legend"><span>${t("heatmapLegendLess")}</span>${hmLegend}<span>${t("heatmapLegendMore")}</span></div>
+      <div class="stat-heatmap-foot">${t("heatmapCalendarHint")}${hm.hasData ? ` · ${t("statsTotalExpLabel")} ${fmt(hm.total)}` : ""}</div>
+    </div>`;
+    // Пьедестал топ-3 категорий расходов (2 — 1 — 3, как на награждении).
+    const podium = buildCategoryPodium(topExp, exp);
+    let podiumHtml = "";
+    if (podium.length) {
+      const podiumCols = [podium[1], podium[0], podium[2]]
+        .filter(Boolean)
+        .map(
+          (p) => `<div class="stat-podium-item place-${p.place}">
+            <div class="stat-podium-medal" aria-hidden="true">${p.medal}</div>
+            <div class="stat-podium-ico" aria-hidden="true">${getOpEmoji({ type: "expense", category: p.cat })}</div>
+            <div class="stat-podium-name">${esc(p.cat)}</div>
+            <div class="stat-podium-amount">−${fmt(p.amount)}</div>
+            <div class="stat-podium-step"><span>${p.place}</span><i>${p.pct}%</i></div>
+          </div>`,
+        )
+        .join("");
+      podiumHtml = `<div class="stat-podium-card"><div class="stat-card-head"><div class="stat-card-title">${t("podiumTitle")}</div><div class="stat-card-hint">${t("statsExpCats")}</div></div><div class="stat-podium">${podiumCols}</div></div>`;
+    }
     // Бюджеты
     let budgetHtml = "";
     if (Object.keys(categoryBudgets).length) {
       const now2 = new Date();
       const ms = new Date(now2.getFullYear(), now2.getMonth(), 1);
-      budgetHtml = `<div class="stat-budgets-card"><div class="stat-section-label">${t("budgets")}</div>`;
+      budgetHtml = `<div class="stat-budgets-card"><div class="stat-card-head"><div class="stat-card-title">${t("budgets")}</div><div class="stat-card-hint">${Object.keys(categoryBudgets).length}</div></div>`;
       Object.entries(categoryBudgets).forEach(([cat, limit]) => {
         const spent = transactions
           .filter(
@@ -10934,33 +14515,6 @@ function renderStats() {
       });
       budgetHtml += "</div>";
     }
-    // Сравнение
-    const sma = mwa;
-    let lmd = null,
-      pmd = null;
-    if (sma.length >= 2) {
-      lmd = monthlyData[sma[sma.length - 1]];
-      pmd = monthlyData[sma[sma.length - 2]];
-    } else if (sma.length === 1) {
-      lmd = monthlyData[sma[0]];
-      pmd = { inc: 0, exp: 0 };
-    }
-    let cmpHtml = "";
-    if (lmd) {
-      const ic = pmd ? lmd.inc - pmd.inc : lmd.inc,
-        ec = pmd ? lmd.exp - pmd.exp : lmd.exp;
-      const ip = pmd?.inc
-          ? Math.round((ic / pmd.inc) * 100)
-          : lmd.inc > 0
-            ? 100
-            : 0,
-        ep = pmd?.exp
-          ? Math.round((ec / pmd.exp) * 100)
-          : lmd.exp > 0
-            ? 100
-            : 0;
-      cmpHtml = `<div class="compare-card"><div class="compare-title">${t("compareTitle")}</div><div class="compare-row"><span>${ic >= 0 ? "📈" : "📉"} ${t("compareIncome")}</span><span class="${ic >= 0 ? "positive" : "negative"}">${ic >= 0 ? "+" : ""}${fmt(ic)} (${ip > 0 ? "+" : ""}${ip}%)</span></div><div class="compare-row"><span>${ec >= 0 ? "📈" : "📉"} ${t("compareExpense")}</span><span class="${ec <= 0 ? "positive" : "negative"}">${ec >= 0 ? "+" : ""}${fmt(ec)} (${ep > 0 ? "+" : ""}${ep}%)</span></div></div>`;
-    }
     // Прогноз
     const nd = new Date(),
       td = new Date(nd);
@@ -10975,136 +14529,86 @@ function renderStats() {
       else rE += tx.amountRub;
     });
     const fB = bal + rI - rE;
-    const fcHtml = `<div class="forecast-card"><div class="forecast-title">${t("forecastTitle")}</div><div class="forecast-row"><span>${t("forecastIncome")}</span><span class="positive">+${fmt(rI)}</span></div><div class="forecast-row"><span>${t("forecastExpense")}</span><span class="negative">−${fmt(rE)}</span></div><div class="forecast-row forecast-balance"><span>${t("forecastBalance")}</span><span class="${fB >= 0 ? "positive" : "negative"}">${fmt(fB)}</span></div><div class="forecast-note">${t("forecastNote")}</div></div>`;
+    const fcHtml = `<div class="forecast-card"><div class="forecast-title">${t("forecastTitle")}</div><div class="forecast-row"><span>${t("forecastIncome")}</span><span class="positive" data-num-value="${rI}" data-num-prefix="+">+${fmt(rI)}</span></div><div class="forecast-row"><span>${t("forecastExpense")}</span><span class="negative" data-num-value="${rE}" data-num-prefix="−">−${fmt(rE)}</span></div><div class="forecast-row forecast-balance"><span>${t("forecastBalance")}</span><span class="${fB >= 0 ? "positive" : "negative"}" data-num-value="${fB}">${fmt(fB)}</span></div><div class="forecast-note">${t("forecastNote")}</div></div>`;
 
+    // Блок «Советы» — одна карточка с пульсирующей лампочкой и выводами.
+    const insightHtml = `<div class="stat-insight-card"><div class="stat-insight-head"><span class="stat-insight-bulb" aria-hidden="true">💡</span><div class="stat-card-title">${t("statsTips")}</div></div><div class="stat-insight-list">${insights.map((item) => `<div class="stat-insight-item"><span class="stat-insight-ico" aria-hidden="true">${item.icon}</span><span class="stat-insight-text">${esc(item.text)}</span></div>`).join("")}</div></div>`;
+    // Динамика баланса по дням периода — статический SVG с градиентом и свечением.
+    const lineChartHtml = buildStatsLineChartMarkup(
+      buildDailyBalanceSeries(transactions, statsPeriod, new Date(), startBalanceRub),
+      { width: 300, height: 140 },
+    );
+    // Индекс финансового здоровья — кольцо-прогресс с неоновым свечением.
+    const healthHtml = `<div class="stat-health-card tone-${health.tone}">
+      <div class="stat-card-head"><div class="stat-card-title">${t("healthIndexTitle")}</div><div class="stat-card-hint">${health.emoji} ${t("healthIndexWord")}</div></div>
+      <div class="stat-health-body">
+        <div class="stat-health-ring">
+          <svg viewBox="0 0 100 100" class="stat-health-svg" role="img" aria-label="${esc(t("healthIndexTitle"))}: ${health.score}">
+            <defs>
+              <linearGradient id="statHealthGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ff7e5f"></stop>
+                <stop offset="100%" stop-color="#9b59b6"></stop>
+              </linearGradient>
+              <filter id="statHealthGlow" x="-25%" y="-25%" width="150%" height="150%">
+                <feGaussianBlur stdDeviation="2.4" result="statHealthBlur"></feGaussianBlur>
+                <feMerge><feMergeNode in="statHealthBlur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+              </filter>
+            </defs>
+            <circle class="stat-health-track" cx="50" cy="50" r="46" fill="none" stroke-width="10"></circle>
+            <circle class="stat-health-arc" cx="50" cy="50" r="46" fill="none" stroke="url(#statHealthGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="${healthDash} ${healthGap}" transform="rotate(-90 50 50)" filter="url(#statHealthGlow)"></circle>
+          </svg>
+          <div class="stat-health-center"><div class="stat-health-score" style="color:${health.hasIncome ? healthColor : "var(--text-muted)"}">${health.hasIncome ? health.score : "—"}</div><div class="stat-health-word">/ 100</div></div>
+        </div>
+        <div class="stat-health-side">
+          <div class="stat-health-note">${esc(healthNote)}</div>
+          <div class="stat-health-hint">${esc(t("healthIndexHint"))}</div>
+          <div class="stat-health-foot">${ptx.length} ${t("statsRec")}</div>
+        </div>
+      </div>
+    </div>`;
     const html = `<div class="stats-v2">
       ${periodHtml}
       <div class="stat-status-card ${sC}"><div class="stat-status-left"><div class="stat-status-emoji">${sE}</div><div><div class="stat-status-title">${sT}</div><div class="stat-status-desc">${sD}</div></div></div><div class="stat-status-count">${ptx.length}<span>${t("statsRec")}</span></div></div>
       <div class="stat-kpi-grid">
-        <div class="stat-kpi balance"><div class="stat-kpi-icon">💎</div><div class="stat-kpi-val ${bal >= 0 ? "pos" : "neg"}">${fmt(bal)}</div><div class="stat-kpi-label">${t("statsRemaining")}</div></div>
-        <div class="stat-kpi start"><div class="stat-kpi-icon">💼</div><div class="stat-kpi-val">${fmt(startBalanceRub)}</div><div class="stat-kpi-label">${t("salary")}</div></div>
-        <div class="stat-kpi income"><div class="stat-kpi-icon">📈</div><div class="stat-kpi-val inc">+${fmt(inc)}</div><div class="stat-kpi-label">${nInc} ${t("statsInc2")}</div></div>
-        <div class="stat-kpi expense"><div class="stat-kpi-icon">📉</div><div class="stat-kpi-val exp">−${fmt(exp)}</div><div class="stat-kpi-label">${nExp} ${t("statsExp2")}</div></div>
+        <div class="stat-kpi balance"><div class="stat-kpi-icon">💎</div><div class="stat-kpi-val ${bal >= 0 ? "pos" : "neg"}" data-num-value="${bal}">${fmt(bal)}</div><div class="stat-kpi-label">${t("statsRemaining")}</div></div>
+        <div class="stat-kpi start"><div class="stat-kpi-icon">💼</div><div class="stat-kpi-val" data-num-value="${startBalanceRub}">${fmt(startBalanceRub)}</div><div class="stat-kpi-label">${t("salary")}</div></div>
+        <div class="stat-kpi income"><div class="stat-kpi-icon">📈</div><div class="stat-kpi-val inc" data-num-value="${inc}" data-num-prefix="+">+${fmt(inc)}</div><div class="stat-kpi-label">${nInc} ${t("statsInc2")}</div></div>
+        <div class="stat-kpi expense"><div class="stat-kpi-icon">📉</div><div class="stat-kpi-val exp" data-num-value="${exp}" data-num-prefix="−">−${fmt(exp)}</div><div class="stat-kpi-label">${nExp} ${t("statsExp2")}</div></div>
       </div>
-      <div class="stat-visual-row">
-        <div class="stat-gauge-card"><div class="stat-section-label">${t("statsSavingsGauge")}</div><div class="stat-gauge-wrap"><svg viewBox="0 0 160 95" class="stat-gauge-svg"><path d="M 18 88 A 62 62 0 0 1 142 88" fill="none" stroke="var(--cream-dark)" stroke-width="14" stroke-linecap="round"/><path d="M 18 88 A 62 62 0 0 1 142 88" fill="none" stroke="${gC}" stroke-width="14" stroke-linecap="round" stroke-dasharray="195" stroke-dashoffset="${195 - (savedPct / 100) * 195}" class="gauge-arc"/><text x="80" y="22" font-size="9" fill="var(--text-muted)" text-anchor="middle">50%</text></svg><div class="stat-gauge-center"><div class="stat-gauge-pct" style="color:${gC}">${savedPct}%</div><div class="stat-gauge-sub">${t("statsSaved2")}</div></div></div><div class="stat-gauge-amount" style="color:${gC}">${savedAmt >= 0 ? "+" : ""}${fmt(savedAmt)}</div></div>
-        <div class="stat-donut-card"><div class="stat-section-label">${t("statsRatio")}</div><div class="stat-donut2-wrap"><svg viewBox="0 0 100 100" class="stat-donut2-svg"><circle cx="50" cy="50" r="38" fill="none" stroke="var(--income-color)" stroke-width="18"/><circle cx="50" cy="50" r="38" fill="none" stroke="var(--expense-color)" stroke-width="18" stroke-dasharray="${spentPct * 2.388} ${(100 - spentPct) * 2.388}" stroke-dashoffset="0" transform="rotate(-90 50 50)" class="donut-arc"/></svg><div class="stat-donut2-center"><div class="stat-donut2-pct" style="color:var(--expense-color)">${spentPct}%</div><div class="stat-donut2-sub">${t("statsSpentOf2")}</div></div></div><div class="stat-donut2-legend"><span class="stat-legend-dot" style="background:var(--income-color)"></span>${t("income")}<span class="stat-legend-dot" style="background:var(--expense-color);margin-left:8px"></span>${t("expense")}</div></div>
-      </div>
+      ${healthHtml}
+      ${insightHtml}
+      ${lineChartHtml}
+      ${activityHtml}
+      ${heatmapHtml}
+      ${podiumHtml}
       ${budgetHtml}
       ${trendHtml}
-      ${heatHtml}
-      ${cmpHtml}${fcHtml}
-      ${allM.length > 1 ? `<div class="stat-chart-card"><div class="stat-section-label">${t("statsMonthlyDyn")}</div><div class="stat-chart-legend"><span class="stat-legend-dot" style="background:var(--income-color)"></span>${t("income")}<span class="stat-legend-dot" style="background:var(--expense-color);margin-left:12px"></span>${t("expense")}</div><div class="stat-chart-grid">${chartBars}</div></div>` : ""}
-      <div class="line-chart-card"><div class="line-chart-title">${t("lineChartTitle")}</div><div class="line-chart-container"><canvas id="balanceLineChart"></canvas></div><div class="line-chart-note">${t("lineChartExplanation")}</div></div>
-      <div class="pie-chart-card"><div class="pie-chart-title">🍩 ${t("statsExpCats")} ${t("pieChartTop5")}</div><div class="pie-chart-wrapper"><div class="pie-svg-container"><svg viewBox="0 0 100 100" style="width:100%;height:100%;">${pieSvg}</svg></div><div class="pie-legend">${legHtml}</div></div></div>
-      ${incPieSvg ? `<div class="pie-chart-card" style="border-left-color:var(--income-color);"><div class="pie-chart-title">🍩 ${t("statsIncCats")} ${t("pieChartTop5")}</div><div class="pie-chart-wrapper"><div class="pie-svg-container"><svg viewBox="0 0 100 100" style="width:100%;height:100%;">${incPieSvg}</svg></div><div class="pie-legend">${incLegHtml}</div></div></div>` : ""}
-      ${topExp.length ? `<div class="stat-cats-card"><div class="stat-section-label">${t("statsExpCats")}</div><div class="stat-cats-list">${ceR}</div></div>` : ""}
-      ${topInc.length ? `<div class="stat-cats-card income-cats"><div class="stat-section-label">${t("statsIncCats")}</div><div class="stat-cats-list">${ciR}</div></div>` : ""}
-      ${tips.length ? `<div class="stat-tips-card"><div class="stat-section-label">${t("statsTips")}</div>${tips.map((tip) => `<div class="stat-tip-item">${tip}</div>`).join("")}</div>` : ""}
-      <div class="stat-summary-table"><div class="stat-section-label">${t("statsSummaryTable")}</div>
-        <div class="stat-sum-row"><span class="stat-sum-label">${t("statsStartAmt")}</span><span class="stat-sum-val">${fmt(startBalanceRub)}</span></div>
-        <div class="stat-sum-row inc-row"><span class="stat-sum-label">${t("statsTotalIncLabel")}</span><span class="stat-sum-val" style="color:var(--income-color)">+${fmt(inc)}</span></div>
-        <div class="stat-sum-row exp-row"><span class="stat-sum-label">${t("statsTotalExpLabel")}</span><span class="stat-sum-val" style="color:var(--expense-color)">−${fmt(exp)}</span></div>
-        <div class="stat-sum-row bal-row"><span class="stat-sum-label">${t("statsBalanceLabel")}</span><span class="stat-sum-val" style="color:${bal >= 0 ? "#2563eb" : "var(--expense-color)"};font-size:20px">${fmt(bal)}</span></div>
+      ${allM.length > 1 ? `<div class="stat-chart-card"><div class="stat-card-head"><div class="stat-card-title">${t("statsMonthlyDyn")}</div><div class="stat-chart-legend"><span class="stat-legend-dot" style="background:var(--income-color)"></span>${t("income")}<span class="stat-legend-dot" style="background:var(--expense-color);margin-left:12px"></span>${t("expense")}</div></div><div class="stat-chart-grid">${chartBars}</div><div class="stat-chart-labels">${chartLabels}</div></div>` : ""}
+      ${topExp.length ? `<div class="stat-cats-card"><div class="stat-card-head"><div class="stat-card-title">${t("statsExpCats")}</div><div class="stat-card-hint">${topExp.length} ${t("statsExp2")}</div></div><div class="stat-cats-list">${ceR}</div></div>` : ""}
+      ${topInc.length ? `<div class="stat-cats-card income-cats"><div class="stat-card-head"><div class="stat-card-title">${t("statsIncCats")}</div><div class="stat-card-hint">${topInc.length} ${t("statsInc2")}</div></div><div class="stat-cats-list">${ciR}</div></div>` : ""}
+      ${fcHtml}
+      <div class="stat-summary-card"><div class="stat-card-head"><div class="stat-card-title">${t("statsSummaryTable")}</div></div>
+        <div class="stat-sum-row"><span class="stat-sum-label">${t("statsStartAmt")}</span><span class="stat-sum-val" data-num-value="${startBalanceRub}">${fmt(startBalanceRub)}</span></div>
+        <div class="stat-sum-row inc-row"><span class="stat-sum-label">${t("statsTotalIncLabel")}</span><span class="stat-sum-val inc" data-num-value="${inc}" data-num-prefix="+">+${fmt(inc)}</span></div>
+        <div class="stat-sum-row exp-row"><span class="stat-sum-label">${t("statsTotalExpLabel")}</span><span class="stat-sum-val exp" data-num-value="${exp}" data-num-prefix="−">−${fmt(exp)}</span></div>
         <div class="stat-sum-row"><span class="stat-sum-label">${t("statsTotalOpsLabel")}</span><span class="stat-sum-val">${ptx.length}</span></div>
-        <div class="stat-sum-row"><span class="stat-sum-label">${t("statsSavingsLabel")}</span><span class="stat-sum-val" style="color:${gC}">${savedPct}% (${fmt(Math.max(0, savedAmt))})</span></div>
+        <div class="stat-sum-row"><span class="stat-sum-label">${t("statsSavingsLabel")}</span><span class="stat-sum-val" style="color:${gC}">${savedPct}% (<span data-num-value="${Math.max(0, savedAmt)}">${fmt(Math.max(0, savedAmt))}</span>)</span></div>
+        <div class="stat-summary-total"><div class="stat-summary-total-label">${t("statsBalanceLabel")}</div><div class="stat-summary-total-val ${bal >= 0 ? "pos" : "neg"}" data-num-value="${bal}">${fmt(bal)}</div></div>
       </div>
     </div>`;
     content.innerHTML = html;
     injectStatsStyles();
+    // Карточки прячем и обнуляем полоски сразу после рендера, а запускаем
+    // заполнение только когда пользователь доскроллит до конкретного блока.
+    resetStatsAnimations(content);
+    setupStatsScrollAnimations(content);
     content.querySelectorAll(".stats-period-btn").forEach((btn) =>
       btn.addEventListener("click", () => {
         statsPeriod = btn.dataset.period;
         renderStats();
       }),
     );
-    setTimeout(() => {
-      const canvas = document.getElementById("balanceLineChart");
-      if (!canvas) return;
-      // Ensure container is visible
-      const container = canvas.parentElement;
-      if (container) {
-        container.style.position = "relative";
-        container.style.height = "220px";
-        container.style.width = "100%";
-      }
-      const allMs = Object.keys(monthlyData).sort();
-      let rb = startBalanceRub;
-      const md = [];
-      allMs.forEach((mo) => {
-        const d = monthlyData[mo];
-        rb = rb + (d.inc || 0) - (d.exp || 0);
-        md.push({ month: mo, balance: rb });
-      });
-      const labels = md.map((d) => {
-        const [, m] = d.month.split("-");
-        return months[parseInt(m) - 1]?.slice(0, 3) || d.month.slice(5);
-      });
-      const values = md.map((d) => toDisp(d.balance));
-      const ec = Chart.getChart("balanceLineChart");
-      if (ec) ec.destroy();
-      const chartIsDark = document.body.classList.contains("dark");
-      const chartTextColor = chartIsDark ? "#f8fafc" : "#1f2937";
-      const chartMutedColor = chartIsDark ? "#dbeafe" : "#475569";
-      const chartGridColor = chartIsDark
-        ? "rgba(219,234,254,0.16)"
-        : "rgba(71,85,105,0.16)";
-      new Chart(canvas, {
-        type: "line",
-        data: {
-          labels,
-          datasets: [
-            {
-              label: t("balance") + " (" + sym() + ")",
-              data: values,
-              borderColor: chartIsDark ? "#a78bfa" : "#f97316",
-              backgroundColor: chartIsDark
-                ? "rgba(167,139,250,0.08)"
-                : "rgba(249,115,22,0.06)",
-              borderWidth: 2.5,
-              pointBackgroundColor: chartIsDark ? "#a78bfa" : "#f97316",
-              pointBorderColor: chartIsDark ? "#111827" : "#ffffff",
-              pointBorderWidth: 2,
-              pointRadius: 5,
-              pointHoverRadius: 7,
-              tension: 0.3,
-              fill: true,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) =>
-                  `${ctx.dataset.label}: ${ctx.raw.toFixed(2)} ${sym()}`,
-              },
-            },
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              grid: { color: chartGridColor },
-              ticks: {
-                color: chartTextColor,
-                font: { weight: "800", size: 11 },
-                callback: (v) => v + " " + sym(),
-              },
-            },
-            x: {
-              grid: { display: false },
-              ticks: {
-                color: chartMutedColor,
-                font: { weight: "800", size: 11 },
-              },
-            },
-          },
-        },
-      });
-    }, 100);
+
   }, 20);
 }
 
@@ -11177,7 +14681,7 @@ function injectStatsStyles() {
   .stat-chart-grid{display:flex;align-items:flex-end;justify-content:space-around;gap:4px;height:80px;padding:0 4px;}
   .stat-chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
   .stat-chart-bars{display:flex;align-items:flex-end;gap:2px;height:64px;}
-  .stat-chart-bar{width:13px;border-radius:4px 4px 0 0;min-height:3px;transition:height .8s cubic-bezier(0.34,1.3,0.64,1);}
+  .stat-chart-bar{width:13px;border-radius:4px 4px 0 0;min-height:3px;transition:height 1.5s ease-out;}
   .stat-chart-bar.inc{background:var(--income-color);opacity:.85;}
   .stat-chart-bar.exp{background:var(--expense-color);opacity:.85;}
   .stat-chart-label{font-size:9px;font-weight:700;color:var(--text-muted);margin-top:4px;white-space:nowrap;}
@@ -11190,14 +14694,15 @@ function injectStatsStyles() {
   .stat-cat-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:8px;}
   .stat-cat-name{font-size:14px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;}
   .stat-cat-amount{font-size:14px;font-weight:900;white-space:nowrap;flex-shrink:0;}
-  .stat-cat-bar-wrap{height:6px;background:var(--cream-dark);border-radius:99px;overflow:hidden;}
-  .stat-cat-bar{height:100%;border-radius:99px;transition:width .9s cubic-bezier(0.34,1.3,0.64,1);}
+  .stat-cat-bar-wrap{height:12px;background:var(--cream-dark);border-radius:99px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.18);}
+  .stat-cat-bar{height:100%;border-radius:99px;transition:width 1.5s ease-out;}
   .stat-cat-pct{font-size:12px;font-weight:800;min-width:32px;text-align:right;flex-shrink:0;}
   .stat-tips-card{background:linear-gradient(135deg,var(--primary-pale),rgba(255,255,255,0.4));border:1.5px solid rgba(64,145,108,0.3);border-radius:var(--radius-lg);padding:16px;}
   body.dark .stat-tips-card{background:linear-gradient(135deg,var(--primary-pale),rgba(0,0,0,0.1));}
   .stat-tip-item{font-size:14px;color:var(--text-soft);line-height:1.5;padding:8px 0;border-bottom:1px solid var(--cream-border);}
   .stat-tip-item:last-child{border-bottom:none;padding-bottom:0;}
   .stat-summary-table{background:var(--card-bg);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm);border:1.5px solid var(--cream-border);}
+  .stat-summary-card,.stat-line-card,.stat-activity-card{background:var(--card-bg);border-radius:var(--radius-lg);padding:16px;box-shadow:var(--shadow-sm);border:1.5px solid var(--cream-border);}
   .stat-sum-row{display:flex;justify-content:space-between;align-items:center;padding:10px 6px;border-bottom:1px solid var(--cream-border);gap:12px;}
   .stat-sum-row:last-child{border-bottom:none;}
   .stat-sum-row.bal-row{background:rgba(37,99,235,.05);margin:0 -4px;padding:10px;border-radius:8px;border-bottom:none;margin-top:4px;}
@@ -11259,6 +14764,293 @@ function injectStatsStyles() {
   .suggestion-item-wrap{display:flex;align-items:center;gap:4px;}
   .suggestion-delete-btn{background:var(--expense-pale);border:none;border-radius:50%;width:24px;height:24px;font-size:12px;cursor:pointer;color:var(--expense-color);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:var(--transition);}
   .suggestion-delete-btn:hover{background:var(--expense-color);color:white;}
+  /* ── Аналитика: неуморфизм и брендовая палитра ──
+     Базовая часть работает во всех темах, neon-часть включает вдавленные
+     тени graphiteNeon (как на главном экране). */
+  .stats-v2{--st-neu-out:var(--shadow-sm);--st-neu-in:none;--st-track:var(--cream-dark);--st-glow:none;--st-exp-grad:linear-gradient(90deg,#ff7e5f 0%,#9b59b6 100%);--st-inc-grad:linear-gradient(90deg,#22c55e 0%,#4ade80 100%);--st-neon-exp:0 4px 20px rgba(255,126,95,.15),0 2px 8px rgba(155,89,182,.1);--st-neon-inc:0 4px 20px rgba(34,197,94,.15);}
+  body.theme-graphiteNeon .stats-v2{--st-neu-out:var(--gh-neu-out);--st-neu-in:var(--gh-neu-in);--st-track:rgba(255,255,255,.06);--st-glow:0 0 10px rgba(255,126,95,.35);}
+  .stats-v2 .stat-cats-card,.stats-v2 .stat-activity-card,.stats-v2 .stat-line-card,.stats-v2 .stat-insight-card,.stats-v2 .stat-summary-card,.stats-v2 .stat-chart-card,.stats-v2 .stat-heatmap-card,.stats-v2 .stat-trend-section,.stats-v2 .stat-budgets-card,.stats-v2 .forecast-card,.stats-v2 .stat-gauge-card,.stats-v2 .stat-donut-card,.stats-v2 .stat-kpi,.stats-v2 .stats-period-bar{border:none;background:var(--card-bg);box-shadow:var(--st-neu-out);}
+  /* KPI: вместо синих/жёлтых полосок — брендовый градиент */
+  .stats-v2 .stat-kpi{position:relative;overflow:hidden;padding-top:16px;}
+  .stats-v2 .stat-kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--st-exp-grad);}
+  .stats-v2 .stat-kpi.income::before{background:var(--st-inc-grad);}
+  .stats-v2 .stat-kpi.start::before{background:linear-gradient(90deg,rgba(255,255,255,.22),rgba(255,255,255,.04));}
+  .stats-v2 .stat-kpi.balance{border-top:0;}
+  .stats-v2 .stat-kpi.income,.stats-v2 .stat-kpi.expense,.stats-v2 .stat-kpi.start{border-top:0;}
+  .stats-v2 .stat-kpi-val.pos{color:var(--text);}
+  /* Категории: вдавленный трек + градиентная полоска */
+  .stats-v2 .stat-cat-ico{width:30px;height:30px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--cream-dark);box-shadow:var(--st-neu-in);flex-shrink:0;}
+  .stats-v2 .stat-cat-name{font-size:14px;font-weight:800;}
+  .stats-v2 .stat-cat-amount,.stats-v2 .stat-cat-pct{font-size:13px;font-weight:900;}
+  .stats-v2 .stat-cat-amount.exp,.stats-v2 .stat-cat-pct.exp{color:var(--expense-color);}
+  .stats-v2 .stat-cat-amount.inc,.stats-v2 .stat-cat-pct.inc{color:var(--income-color);}
+  .stats-v2 .stat-cat-bar-wrap{height:14px;border-radius:99px;background:var(--st-track);box-shadow:var(--st-neu-in),inset 0 2px 5px rgba(0,0,0,.55);overflow:hidden;}
+  .stats-v2 .stat-cat-bar{height:100%;border-radius:99px;box-shadow:var(--st-glow);transition:width 1.5s ease-out;}
+  .stats-v2 .stat-cat-bar.exp{background:var(--st-exp-grad);}
+  .stats-v2 .stat-cat-bar.inc{background:var(--st-inc-grad);}
+  /* Активность по дням недели: столбики с закруглённым верхом и свечением */
+  .stats-v2 .stat-activity-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:118px;margin-top:10px;}
+  .stats-v2 .stat-activity-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;min-width:0;}
+  .stats-v2 .stat-activity-val{font-size:10px;font-weight:800;color:var(--text-muted);white-space:nowrap;}
+  .stats-v2 .stat-activity-bar{width:100%;max-width:26px;border-radius:8px 8px 4px 4px;background:linear-gradient(180deg,#9b59b6 0%,#ff7e5f 100%);box-shadow:var(--st-glow);transition:height 1.5s ease-out;}
+  .stats-v2 .stat-activity-day{font-size:12px;font-weight:800;color:var(--text-soft);letter-spacing:.02em;}
+  /* Динамика баланса: SVG с градиентом и неоновым свечением */
+  .stats-v2 .stat-line-legend{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--text-muted);margin-bottom:4px;}
+  .stats-v2 .stat-line-legend-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#ff7e5f,#9b59b6);box-shadow:0 0 8px rgba(255,126,95,.6);flex-shrink:0;}
+  .stats-v2 .stat-line-wrap{padding-top:2px;}
+  .stats-v2 .stat-line-svg{display:block;width:100%;height:auto;overflow:visible;}
+  .stats-v2 .stat-line-svg .stat-line-grid line{stroke:var(--cream-border);stroke-width:1;}
+  .stats-v2 .stat-line-svg .stat-line-axis text{fill:var(--text-muted);font-size:9px;font-weight:800;}
+  .stats-v2 .stat-line-dot{fill:#ff7e5f;filter:drop-shadow(0 0 6px rgba(255,126,95,.85));}
+  .stats-v2 .stat-line-empty{padding:26px 0;text-align:center;font-size:13px;font-weight:700;color:var(--text-muted);}
+  /* Советы: одна карточка с лампочкой */
+  .stats-v2 .stat-insight-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .stats-v2 .stat-insight-head .stat-section-label{margin-bottom:0;}
+  .stats-v2 .stat-insight-bulb{width:32px;height:32px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--primary-pale);box-shadow:var(--st-glow);flex-shrink:0;}
+  .stats-v2 .stat-insight-list{display:flex;flex-direction:column;gap:8px;}
+  .stats-v2 .stat-insight-item{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--text-soft);background:var(--cream-dark);border-radius:14px;padding:10px 12px;box-shadow:var(--st-neu-in);}
+  .stats-v2 .stat-insight-ico{flex-shrink:0;font-size:14px;line-height:1.45;}
+  .stats-v2 .stat-insight-text{min-width:0;}
+  /* Итоги: крупный итоговый баланс, как на главной */
+  .stats-v2 .stat-summary-total{margin-top:12px;padding:14px;border-radius:18px;background:var(--cream-dark);box-shadow:var(--st-neu-in);display:flex;flex-direction:column;gap:4px;}
+  .stats-v2 .stat-summary-total-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);}
+  .stats-v2 .stat-summary-total-val{font-size:clamp(22px,6.5vw,30px);font-weight:800;line-height:1.08;letter-spacing:-.02em;}
+  .stats-v2 .stat-summary-total-val.pos{color:var(--text);}
+  .stats-v2 .stat-summary-total-val.neg{color:var(--expense-color);}
+  .stats-v2 .stat-sum-val.inc{color:var(--income-color);}
+  .stats-v2 .stat-sum-val.exp{color:var(--expense-color);}
+  body.theme-graphiteNeon .stats-v2 .stat-summary-total-val.pos{color:#fff;}
+  /* Динамика по месяцам: те же скругления и свечение */
+  .stats-v2 .stat-chart-bar{border-radius:7px 7px 3px 3px;box-shadow:var(--st-glow);opacity:1;}
+  .stats-v2 .stat-chart-bar.inc{background:var(--st-inc-grad);}
+  .stats-v2 .stat-chart-bar.exp{background:var(--st-exp-grad);}
+  .stats-v2 .stat-chart-grid{height:92px;align-items:flex-end;padding:0 4px;}
+  .stats-v2 .stat-chart-col{height:100%;justify-content:flex-end;}
+  .stats-v2 .stat-chart-bars{width:100%;height:100%;flex:1;align-items:flex-end;justify-content:center;gap:3px;}
+  .stats-v2 .stat-chart-labels{display:flex;justify-content:space-around;gap:4px;padding:0 4px;margin-top:6px;}
+  .stats-v2 .stat-chart-labels .stat-chart-label{margin-top:0;text-align:center;flex:1;}
+  /* Активность по дням недели: столбики от общей базовой линии */
+  .stats-v2 .stat-activity-plot{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;height:112px;padding-bottom:6px;border-bottom:1px solid var(--cream-border);}
+  .stats-v2 .stat-activity-plot .stat-activity-col{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%;min-width:0;}
+  .stats-v2 .stat-activity-track{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center;min-height:0;}
+  .stats-v2 .stat-activity-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:8px;}
+  .stats-v2 .stat-activity-days .stat-activity-day{text-align:center;}
+  /* Теплокарта месяца: 5 уровней яркости */
+  .stats-v2 .stat-heatmap-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
+  .stats-v2 .stat-heatmap-weekdays span{text-align:center;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted);}
+  .stats-v2 .stat-heatmap-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .stats-v2 .stat-heatmap-pad{border-radius:9px;background:transparent;}
+  .stats-v2 .stat-heatmap-cell{aspect-ratio:1/1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--text-muted);background:var(--st-track);box-shadow:var(--st-neu-in);transition:transform .18s ease;}
+  .stats-v2 .stat-heatmap-day{font-size:10px;font-weight:800;line-height:1;opacity:.85;}
+  .stats-v2 .stat-heatmap-cell.lvl-1{background:rgba(255,126,95,.16);color:var(--text);}
+  .stats-v2 .stat-heatmap-cell.lvl-2{background:rgba(255,126,95,.30);color:var(--text);}
+  .stats-v2 .stat-heatmap-cell.lvl-3{background:linear-gradient(135deg,rgba(255,126,95,.62),rgba(155,89,182,.55));color:#fff;box-shadow:0 0 10px rgba(255,126,95,.25);}
+  .stats-v2 .stat-heatmap-cell.lvl-4{background:linear-gradient(135deg,#ff7e5f 0%,#9b59b6 100%);color:#fff;box-shadow:0 0 14px rgba(255,126,95,.45);}
+  .stats-v2 .stat-heatmap-legend{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:10px;font-size:10px;font-weight:800;color:var(--text-muted);}
+  .stats-v2 .stat-heatmap-key{display:inline-block;width:12px;height:12px;border-radius:4px;background:var(--st-track);box-shadow:var(--st-neu-in);}
+  .stats-v2 .stat-heatmap-key.lvl-1{background:rgba(255,126,95,.16);}
+  .stats-v2 .stat-heatmap-key.lvl-2{background:rgba(255,126,95,.30);}
+  .stats-v2 .stat-heatmap-key.lvl-3{background:linear-gradient(135deg,rgba(255,126,95,.62),rgba(155,89,182,.55));}
+  .stats-v2 .stat-heatmap-key.lvl-4{background:linear-gradient(135deg,#ff7e5f 0%,#9b59b6 100%);}
+  .stats-v2 .stat-heatmap-foot{margin-top:8px;font-size:11px;font-weight:700;color:var(--text-muted);}
+  /* Пьедестал топ-3 категорий: 2 — 1 — 3 */
+  .stats-v2 .stat-podium{display:flex;align-items:flex-end;justify-content:center;gap:8px;}
+  .stats-v2 .stat-podium-item{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;}
+  .stats-v2 .stat-podium-medal{font-size:19px;line-height:1;filter:drop-shadow(0 0 8px rgba(255,126,95,.35));}
+  .stats-v2 .stat-podium-ico{font-size:19px;line-height:1;}
+  .stats-v2 .stat-podium-name{font-size:12px;font-weight:900;color:var(--text);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .stats-v2 .stat-podium-amount{font-size:11.5px;font-weight:800;color:var(--expense-color);white-space:nowrap;}
+  .stats-v2 .stat-podium-step{width:100%;margin-top:6px;border-radius:14px 14px 8px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--st-track);box-shadow:var(--st-neon-exp);}
+  .stats-v2 .stat-podium-step span{font-size:18px;font-weight:900;line-height:1;color:var(--text-muted);}
+  .stats-v2 .stat-podium-step i{font-size:10px;font-weight:800;font-style:normal;color:var(--text-muted);}
+  .stats-v2 .stat-podium-item.place-1 .stat-podium-step{height:76px;background:linear-gradient(180deg,rgba(255,126,95,.30),rgba(155,89,182,.16));box-shadow:0 0 18px rgba(255,126,95,.3),0 4px 20px rgba(255,126,95,.15);}
+  .stats-v2 .stat-podium-item.place-1 .stat-podium-step span{font-size:22px;color:#fff;}
+  .stats-v2 .stat-podium-item.place-2 .stat-podium-step{height:58px;}
+  .stats-v2 .stat-podium-item.place-3 .stat-podium-step{height:46px;}
+  /* ── Аналитика 2.0: заголовки карточек, индекс здоровья, плавная линия ── */
+  .stats-v2 .stat-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  .stats-v2 .stat-card-title{font-size:13px;font-weight:900;line-height:1.2;letter-spacing:.02em;min-width:0;}
+  .stats-v2 .stat-card-hint{font-size:11px;font-weight:800;color:var(--text-muted);white-space:nowrap;flex-shrink:0;}
+  .stats-v2 .stat-card-head .stat-chart-legend,.stats-v2 .stat-card-head .stat-line-legend{margin-bottom:0;}
+  body.theme-graphiteNeon .stats-v2 .stat-card-title{background:linear-gradient(92deg,#ff7e5f 0%,#c86b87 55%,#9b59b6 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;}
+  body.theme-graphiteNeon .stats-v2 .stat-card-hint{color:rgba(255,255,255,.62);}
+  .stats-v2 .stat-health-card,.stats-v2 .stat-podium-card,.stats-v2 .stat-heatmap-card{border-radius:var(--radius-lg);padding:16px;background:var(--card-bg);box-shadow:var(--shadow-sm);border:1.5px solid var(--cream-border);}
+  body.theme-graphiteNeon .stats-v2 .stat-heatmap-card,body.theme-graphiteNeon .stats-v2 .stat-podium-card{border:none;box-shadow:var(--st-neu-out);}
+  .stats-v2 .stat-health-body{display:flex;align-items:center;gap:14px;}
+  .stats-v2 .stat-health-ring{position:relative;width:104px;height:104px;flex-shrink:0;}
+  .stats-v2 .stat-health-svg{display:block;width:104px;height:104px;overflow:visible;animation:statHealthIn .8s cubic-bezier(.34,1.3,.64,1) both;}
+  .stats-v2 .stat-health-track{stroke:var(--st-track);}
+  .stats-v2 .stat-health-card.tone-great .stat-health-track{stroke:rgba(34,197,94,.20);}
+  .stats-v2 .stat-health-card.tone-ok .stat-health-track{stroke:rgba(234,179,8,.20);}
+  .stats-v2 .stat-health-card.tone-low .stat-health-track{stroke:rgba(255,126,95,.22);}
+  .stats-v2 .stat-health-arc{transition:stroke-dasharray .9s cubic-bezier(.34,1.3,.64,1);}
+  .stats-v2 .stat-health-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .stats-v2 .stat-health-score{font-size:30px;font-weight:900;line-height:1;letter-spacing:-.03em;}
+  .stats-v2 .stat-health-word{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);margin-top:2px;}
+  .stats-v2 .stat-health-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;}
+  .stats-v2 .stat-health-note{font-size:13.5px;font-weight:800;line-height:1.4;color:var(--text);}
+  .stats-v2 .stat-health-hint{font-size:11px;font-weight:700;line-height:1.4;color:var(--text-muted);}
+  .stats-v2 .stat-health-foot{font-size:11px;font-weight:800;color:var(--text-muted);opacity:.8;}
+  body.theme-graphiteNeon .stats-v2 .stat-health-card{background:radial-gradient(circle at 0% 0%,rgba(255,126,95,.10),transparent 55%),radial-gradient(circle at 100% 100%,rgba(155,89,182,.14),transparent 55%),var(--card-bg);border:none;box-shadow:var(--st-neu-out);}
+  body.theme-graphiteNeon .stats-v2 .stat-health-note{color:#fff;}
+  @keyframes statHealthIn{from{opacity:0;transform:scale(.86) rotate(-8deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+  @keyframes statBulbPulse{0%,100%{box-shadow:0 0 0 rgba(255,126,95,0);transform:scale(1);}50%{box-shadow:0 0 18px rgba(255,126,95,.55);transform:scale(1.06);}}
+  .stats-v2 .stat-insight-bulb{animation:statBulbPulse 2.8s ease-in-out infinite;}
+  @media (prefers-reduced-motion:reduce){.stats-v2 .stat-insight-bulb,.stats-v2 .stat-health-svg{animation:none;}}
+  /* Ось графика баланса: тонкая база + пунктир, без сплошных линий на всю ширину */
+  .stats-v2 .stat-line-svg .stat-line-base{stroke:var(--cream-border);stroke-width:1;}
+  .stats-v2 .stat-line-svg .stat-line-mid{stroke:var(--cream-border);stroke-width:1;opacity:.55;}
+  .stats-v2 .stat-line-halo{fill:rgba(255,126,95,.22);}
+  .stats-v2 .stat-line-chip{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:7px 12px;border-radius:999px;background:var(--st-track);box-shadow:var(--st-neu-in);font-size:11px;font-weight:800;color:var(--text-muted);}
+  .stats-v2 .stat-line-chip b{font-size:13px;font-weight:900;color:var(--text);}
+  body.theme-graphiteNeon .stats-v2 .stat-line-chip b{color:#fff;}
+  /* ── Нижняя часть аналитики: строки категорий как выпуклые карточки ── */
+  body.theme-graphiteNeon .stats-v2{--st-line:rgba(255,255,255,.08);--st-row-bg:rgba(255,255,255,.035);}
+  .stats-v2{--st-line:var(--cream-border);--st-row-bg:var(--cream-dark);}
+  .stats-v2 .stat-cats-list{gap:10px;}
+  .stats-v2 .stat-cat-row{padding:10px 12px;border-radius:16px;background:var(--st-row-bg,var(--cream-dark));box-shadow:var(--st-neon-exp);}
+  body.theme-graphiteNeon .stats-v2 .stat-cats-list{gap:0;}
+  body.theme-graphiteNeon .stats-v2 .stat-cat-row{margin-bottom:12px;padding:12px;border-radius:16px;background:linear-gradient(145deg,#262626,#1c1c1c);box-shadow:var(--st-neon-exp);}
+  body.theme-graphiteNeon .stats-v2 .stat-cat-row.row-inc{box-shadow:var(--st-neon-inc);}
+  body.theme-graphiteNeon .stats-v2 .stat-cat-row:last-child{margin-bottom:0;}
+  .stats-v2 .stat-cat-ico{width:34px;height:34px;border-radius:12px;font-size:17px;}
+  body.theme-graphiteNeon .stats-v2 .stat-cat-ico{width:38px;height:38px;border-radius:50%;font-size:18px;background:linear-gradient(145deg,#1b1b1b,#232323);box-shadow:inset 4px 4px 8px rgba(0,0,0,.75),inset -3px -3px 7px rgba(255,255,255,.05);}
+  .stats-v2 .stat-cat-top{margin-bottom:7px;}
+  .stats-v2 .stat-cat-bar.exp{box-shadow:0 0 12px rgba(255,126,95,.55),inset 0 1px 0 rgba(255,255,255,.4);}
+  .stats-v2 .stat-cat-bar.inc{box-shadow:0 0 12px rgba(34,197,94,.45),inset 0 1px 0 rgba(255,255,255,.4);}
+  /* ── «Итоги» как премиальный чек: тонкие линии и крупный остаток ── */
+  .stats-v2 .stat-summary-card{padding:14px 16px 18px;}
+  .stats-v2 .stat-sum-row,.stats-v2 .stat-sum-row.inc-row,.stats-v2 .stat-sum-row.exp-row,.stats-v2 .stat-sum-row.bal-row{background:transparent;margin:0;padding:12px 2px;border-radius:0;border-bottom:1px solid var(--st-line,rgba(255,255,255,.08));}
+  .stats-v2 .stat-sum-label{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;}
+  .stats-v2 .stat-sum-val{font-size:15px;font-variant-numeric:tabular-nums;}
+  .stats-v2 .stat-summary-total{margin-top:16px;padding:18px 14px;border-radius:18px;background:var(--cream-dark);box-shadow:inset 0 2px 6px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;}
+  .stats-v2 .stat-summary-total-label{font-size:10px;font-weight:800;letter-spacing:.16em;}
+  .stats-v2 .stat-summary-total-val{font-size:clamp(30px,9.5vw,42px);font-weight:900;line-height:1.05;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
+  body.theme-graphiteNeon .stats-v2 .stat-summary-total{background:linear-gradient(145deg,#1b1b1b,#232323);box-shadow:inset 7px 7px 16px rgba(0,0,0,.8),inset -5px -5px 12px rgba(255,255,255,.04),0 0 20px rgba(255,126,95,.18);}
+  body.theme-graphiteNeon .stats-v2 .stat-summary-total-val.pos{color:#fff;text-shadow:0 0 18px rgba(255,126,95,.55),0 0 48px rgba(155,89,182,.45);}
+  body.theme-graphiteNeon .stats-v2 .stat-summary-total-val.neg{color:#ffb3a1;text-shadow:0 0 18px rgba(255,126,95,.6),0 0 48px rgba(255,126,95,.35);}
+  /* ── Единый неуморфный стиль всей страницы аналитики (graphiteNeon) ── */
+  body.theme-graphiteNeon .stats-v2 .stats-period-bar,
+  body.theme-graphiteNeon .stats-v2 .stat-kpi,
+  body.theme-graphiteNeon .stats-v2 .stat-cats-card,
+  body.theme-graphiteNeon .stats-v2 .stat-activity-card,
+  body.theme-graphiteNeon .stats-v2 .stat-line-card,
+  body.theme-graphiteNeon .stats-v2 .stat-insight-card,
+  body.theme-graphiteNeon .stats-v2 .stat-summary-card,
+  body.theme-graphiteNeon .stats-v2 .stat-chart-card,
+  body.theme-graphiteNeon .stats-v2 .stat-heatmap-card,
+  body.theme-graphiteNeon .stats-v2 .stat-podium-card,
+  body.theme-graphiteNeon .stats-v2 .stat-trend-section,
+  body.theme-graphiteNeon .stats-v2 .stat-budgets-card,
+  body.theme-graphiteNeon .stats-v2 .forecast-card{border:none;border-radius:18px;background:linear-gradient(145deg,#262626,#1c1c1c);box-shadow:var(--st-neon-exp);}
+  body.theme-graphiteNeon .stats-v2 .forecast-card{border-radius:16px;}
+  /* Теплокарта: мягкое цветное свечение вместо чёрных вдавленных теней */
+  .stats-v2 .stat-heatmap-cell{border-radius:10px;box-shadow:0 2px 10px rgba(255,126,95,.08);}
+  body.theme-graphiteNeon .stats-v2 .stat-heatmap-cell{box-shadow:0 2px 10px rgba(255,126,95,.08);}
+  .stats-v2 .stat-heatmap-cell.lvl-1{box-shadow:0 2px 10px rgba(255,126,95,.2);}
+  .stats-v2 .stat-heatmap-cell.lvl-2{box-shadow:0 2px 14px rgba(255,126,95,.28);}
+  .stats-v2 .stat-heatmap-cell.lvl-3{box-shadow:0 3px 16px rgba(255,126,95,.36);}
+  .stats-v2 .stat-heatmap-cell.lvl-4{box-shadow:0 4px 20px rgba(255,126,95,.45),0 2px 10px rgba(155,89,182,.3);}
+  /* ── ПЕРЕОПРЕДЕЛЕНИЕ legacy-правил из index.html ──
+     В index.html есть старый блок .stat-cat-* / .stat-sum-* с !important и с
+     селекторами вида body.dark .stat-cat-bar-wrap (0,2,1). Наши .stats-v2 ...
+     (0,2,0) ему проигрывали: строка категории превращалась в колонку по центру,
+     трек полоски становился 4px, полоска теряла переход, а глобальное
+     body * {font-size:13px !important} (настройка размера шрифта) убивало
+     крупный «Остаток». Нижнюю половину фиксируем через id #mainContent. */
+  .stats-v2{--st-row-shadow:0 4px 20px rgba(255,126,95,.15),0 2px 8px rgba(155,89,182,.1);--st-row-shadow-inc:0 4px 20px rgba(34,197,94,.15);}
+  body.theme-graphiteNeon .stats-v2{--st-row-bg:linear-gradient(145deg,#262626,#1c1c1c);--st-row-shadow:0 4px 20px rgba(255,126,95,.15),0 2px 8px rgba(155,89,182,.1);--st-row-shadow-inc:0 4px 20px rgba(34,197,94,.15);}
+  #mainContent .stats-v2 .stat-cats-list{display:flex!important;flex-direction:column!important;gap:10px!important;}
+  #mainContent .stats-v2 .stat-cat-row{display:flex!important;flex-direction:row!important;align-items:center!important;gap:10px!important;margin-bottom:12px!important;padding:12px!important;border-radius:16px!important;background:var(--st-row-bg,var(--cream-dark))!important;box-shadow:var(--st-row-shadow)!important;}
+  #mainContent .stats-v2 .stat-cat-row:last-child{margin-bottom:0!important;}
+  /* Доходные строки светятся зелёным, расходные — кораллово-фиолетовым. */
+  #mainContent .stats-v2 .stat-cat-row.row-inc{box-shadow:var(--st-row-shadow-inc,0 4px 20px rgba(34,197,94,.15))!important;}
+  #mainContent .stats-v2 .stat-cat-info{display:flex!important;flex-direction:column!important;gap:6px!important;flex:1 1 auto!important;min-width:0!important;}
+  #mainContent .stats-v2 .stat-cat-top{display:flex!important;align-items:baseline!important;justify-content:space-between!important;gap:8px!important;margin-bottom:0!important;}
+  #mainContent .stats-v2 .stat-cat-ico{font-size:18px!important;}
+  /* Составная иконка («🤲💵», «🏠🏦🎯») не влезает в кружок 38px — уменьшаем по числу глифов. */
+  #mainContent .stats-v2 .stat-cat-ico[data-icon-len="2"]{font-size:13px!important;}
+  #mainContent .stats-v2 .stat-cat-ico[data-icon-len="3"]{font-size:11px!important;}
+  #mainContent .stats-v2 .stat-cat-ico[data-icon-len="4"]{font-size:9px!important;}
+  #mainContent .stats-v2 .stat-cat-name{font-size:14px!important;font-weight:800!important;min-width:0!important;}
+  #mainContent .stats-v2 .stat-cat-amount{font-size:13px!important;font-weight:900!important;}
+  #mainContent .stats-v2 .stat-cat-pct{font-size:13px!important;font-weight:900!important;}
+  #mainContent .stats-v2 .stat-cat-pct.exp{color:var(--expense-color)!important;}
+  #mainContent .stats-v2 .stat-cat-pct.inc{color:var(--income-color)!important;}
+  #mainContent .stats-v2 .stat-cat-bar-wrap{height:14px!important;border-radius:99px!important;background:var(--st-track)!important;box-shadow:var(--st-neu-in),inset 0 2px 5px rgba(0,0,0,.55)!important;overflow:hidden!important;}
+  #mainContent .stats-v2 .stat-cat-bar{height:100%!important;border-radius:99px!important;transition:width 1.5s ease-out!important;}
+  #mainContent .stats-v2 .stat-activity-bar{transition:height 1.5s ease-out!important;}
+  #mainContent .stats-v2 .stat-chart-bar{transition:height 1.5s ease-out!important;}
+  #mainContent .stats-v2 .stat-activity-val{font-size:10px!important;}
+  #mainContent .stats-v2 .stat-activity-day{font-size:12px!important;}
+  #mainContent .stats-v2 .stat-heatmap-cell,#mainContent .stats-v2 .stat-heatmap-day{font-size:10px!important;}
+  #mainContent .stats-v2 .stat-heatmap-weekdays span{font-size:10px!important;}
+  #mainContent .stats-v2 .stat-line-svg .stat-line-axis text{font-size:9px!important;}
+  #mainContent .stats-v2 .stat-sum-row{display:flex!important;align-items:center!important;justify-content:space-between!important;margin:0!important;padding:12px 2px!important;border-radius:0!important;background:transparent!important;border-bottom:1px solid var(--st-line,rgba(255,255,255,.08))!important;}
+  #mainContent .stats-v2 .stat-sum-row:last-child{border-bottom:none!important;}
+  #mainContent .stats-v2 .stat-sum-label{font-size:12px!important;font-weight:800!important;}
+  #mainContent .stats-v2 .stat-sum-val{font-size:15px!important;font-weight:900!important;}
+  #mainContent .stats-v2 .stat-summary-total-val{font-size:clamp(30px,9.5vw,42px)!important;font-weight:900!important;line-height:1.05!important;}
+  /* ── НЕОНОВЫЕ ТЕНИ вместо серого неуморфизма ──
+     Расходы и нейтральные блоки — мягкое кораллово-фиолетовое свечение,
+     доходы — зелёное. !important и id в селекторе нужны потому, что в
+     index.html эти же карточки получают box-shadow:var(--gh-neu-out)!important
+     из legacy-правил темы graphiteNeon. */
+  #mainContent .stats-v2 .stats-period-bar,
+  #mainContent .stats-v2 .stat-kpi,
+  #mainContent .stats-v2 .stat-cats-card,
+  #mainContent .stats-v2 .stat-activity-card,
+  #mainContent .stats-v2 .stat-line-card,
+  #mainContent .stats-v2 .stat-insight-card,
+  #mainContent .stats-v2 .stat-summary-card,
+  #mainContent .stats-v2 .stat-chart-card,
+  #mainContent .stats-v2 .stat-heatmap-card,
+  #mainContent .stats-v2 .stat-podium-card,
+  #mainContent .stats-v2 .stat-trend-section,
+  #mainContent .stats-v2 .stat-budgets-card,
+  #mainContent .stats-v2 .forecast-card{box-shadow:0 4px 20px rgba(255,126,95,.15),0 2px 8px rgba(155,89,182,.1)!important;}
+  #mainContent .stats-v2 .stat-cats-card.income-cats{box-shadow:0 4px 20px rgba(34,197,94,.15)!important;}
+  #mainContent .stats-v2 .stat-podium-step{box-shadow:0 4px 20px rgba(255,126,95,.15),0 2px 8px rgba(155,89,182,.1)!important;}
+  #mainContent .stats-v2 .stat-podium-item.place-1 .stat-podium-step{box-shadow:0 0 18px rgba(255,126,95,.3),0 4px 20px rgba(255,126,95,.15)!important;}
+  #mainContent .stats-v2 .stat-heatmap-cell{box-shadow:0 2px 10px rgba(255,126,95,.08)!important;}
+  #mainContent .stats-v2 .stat-heatmap-cell.lvl-1{box-shadow:0 2px 10px rgba(255,126,95,.2)!important;}
+  #mainContent .stats-v2 .stat-heatmap-cell.lvl-2{box-shadow:0 2px 14px rgba(255,126,95,.28)!important;}
+  #mainContent .stats-v2 .stat-heatmap-cell.lvl-3{box-shadow:0 3px 16px rgba(255,126,95,.36)!important;}
+  #mainContent .stats-v2 .stat-heatmap-cell.lvl-4{box-shadow:0 4px 20px rgba(255,126,95,.45),0 2px 10px rgba(155,89,182,.3)!important;}
+  #mainContent .stats-v2 .stat-summary-total{box-shadow:inset 7px 7px 16px rgba(0,0,0,.55),inset -5px -5px 12px rgba(255,255,255,.04),0 0 20px rgba(255,126,95,.18)!important;}
+  /* ── Появление карточек при скролле ──
+     Блок приходит снизу и проявляется, когда до него доскроллили. Переход
+     объявлен в обоих классах: если снять .stats-animate-hidden и сразу
+     добавить .stats-animate-visible, браузер обязан анимировать смену.
+     Длительность 1.2s — эффект должен читаться, а не проскакивать. */
+  .stats-v2 .stats-animate-hidden{opacity:0;transform:translateY(30px);}
+  .stats-v2 .stats-animate-hidden,.stats-v2 .stats-animate-visible{transition:opacity 1.2s ease-out,transform 1.2s ease-out;}
+  .stats-v2 .stats-animate-visible{opacity:1;transform:translateY(0);}
+  /* Анимации входа на вкладку: линия баланса рисуется слева направо */
+  .stats-v2 .stat-line-curve{transition:stroke-dashoffset 2.5s ease-out;}
+  .stats-v2 .stat-line-area{animation:statAreaIn .9s ease-out .35s both;}
+  /* Точка вспыхивает на конце линии: задержка чуть больше отрисовки (2.5s). */
+  .stats-v2 .stat-line-halo,.stats-v2 .stat-line-dot{transform-box:fill-box;transform-origin:center;animation:statDotIn .32s ease-out 2.45s both;}
+  @keyframes statDotIn{from{opacity:0;transform:scale(.35);}to{opacity:1;transform:scale(1);}}
+  @keyframes statAreaIn{from{opacity:0;}to{opacity:1;}}
+  /* Вспышка в конце заполнения: короткий неоновый импульс 0.2s.
+     box-shadow работает в обычных темах, filter дублирует свечение там, где
+     legacy-правила темы перебили box-shadow через !important. */
+  @keyframes statNeonFlashExp{0%{box-shadow:0 0 0 rgba(255,126,95,0);filter:drop-shadow(0 0 0 rgba(255,126,95,0));}40%{box-shadow:0 0 20px #FF7E5F;filter:drop-shadow(0 0 12px rgba(255,126,95,.9));}100%{box-shadow:0 0 0 rgba(255,126,95,0);filter:drop-shadow(0 0 0 rgba(255,126,95,0));}}
+  @keyframes statNeonFlashInc{0%{box-shadow:0 0 0 rgba(34,197,94,0);filter:drop-shadow(0 0 0 rgba(34,197,94,0));}40%{box-shadow:0 0 20px #22c55e;filter:drop-shadow(0 0 12px rgba(34,197,94,.9));}100%{box-shadow:0 0 0 rgba(34,197,94,0);filter:drop-shadow(0 0 0 rgba(34,197,94,0));}}
+  .stats-v2 .stat-flash{animation:statNeonFlashExp .2s ease-out 1;}
+  .stats-v2 .stat-flash[data-flash="inc"]{animation-name:statNeonFlashInc;}
+  /* Линия графика — неоновый всполох по завершении отрисовки. */
+  @keyframes statLineFlash{0%{filter:drop-shadow(0 0 0 rgba(255,126,95,0));}40%{filter:drop-shadow(0 0 10px #FF7E5F);}100%{filter:drop-shadow(0 0 0 rgba(255,126,95,0));}}
+  .stats-v2 .stat-flash[data-flash="line"]{animation-name:statLineFlash;}
+  @media (prefers-reduced-motion:reduce){
+    .stats-v2 .stat-line-area,.stats-v2 .stat-line-halo,.stats-v2 .stat-line-dot{animation:none;}
+    .stats-v2 .stats-animate-hidden,.stats-v2 .stats-animate-visible{transition:none;}
+    .stats-v2 .stat-line-curve,.stats-v2 .stat-cat-bar,.stats-v2 .stat-activity-bar,.stats-v2 .stat-chart-bar{transition:none;}
+    #mainContent .stats-v2 .stat-line-area,#mainContent .stats-v2 .stat-line-halo,#mainContent .stats-v2 .stat-line-dot{animation:none!important;}
+    #mainContent .stats-v2 .stat-line-curve,#mainContent .stats-v2 .stat-cat-bar,#mainContent .stats-v2 .stat-activity-bar,#mainContent .stats-v2 .stat-chart-bar{transition:none!important;}
+    #mainContent .stats-v2 .stat-flash{animation:none!important;}
+  }
   `;
   document.head.appendChild(style);
 }
@@ -11626,9 +15418,20 @@ function openAddCategoryModal(defType = "expense") {
       normalizeHexColor(baseStyle.color) ||
       (sel === "income" ? "#22C55E" : "#EF4444");
     const icon =
-      newCatIconSelect?.value || detectEmojiByText(name, sel, baseStyle.icon);
+      String(
+        newCatIconSelect?.value || detectEmojiByText(name, sel, baseStyle.icon),
+      ).trim() ||
+      String(baseStyle.icon || "").trim() ||
+      "📁";
+    // Эмодзи сохраняем в двух местах: в оформлении категории (основной
+    // источник для карточек и редактора) и в самой категории — копия, которая
+    // переживает сброс оформления и видна во всех списках истории.
+    const savedCat = (sel === "income" ? incomeCategories : categories)[name];
+    if (savedCat && typeof savedCat === "object") savedCat.emoji = icon;
     if (icon !== baseStyle.icon) {
       categoryCustomizations[name] = { icon, color: baseColor };
+    } else if (categoryCustomizations[name]?.icon) {
+      delete categoryCustomizations[name].icon;
     }
     saveAll();
     renderCategories();
@@ -11659,7 +15462,7 @@ function renderCategories() {
         div.style.borderLeft = `4px solid var(--cream-border)`;
         div.style.background = "";
       }
-      div.innerHTML = `<div class="cat-item-header"><div class="cat-item-name" style="display:flex;align-items:center;gap:10px;"><span style="width:34px;height:34px;border-radius:12px;background:${palette.iconTone};border:1px solid ${palette.borderTone};display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;">${style.icon}</span><span style="color:${palette.titleColor};font-weight:800;">${esc(cat)}</span></div><button class="icon-btn delete" data-delcat="${esc(cat)}">✕</button></div><div class="chips-row" id="${safeId}"></div><button class="cat-add-sub-btn add-sub" data-cat="${esc(cat)}">＋ ${t("addSubcategory")}</button>`;
+      div.innerHTML = `<div class="cat-item-header"><div class="cat-item-name" style="display:flex;align-items:center;gap:10px;"><span class="cat-icon-tile" data-emoji-len="${emojiGlyphCount(style.icon)}" style="width:34px;height:34px;border-radius:12px;background:${palette.iconTone};border:1px solid ${palette.borderTone};display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;overflow:hidden;white-space:nowrap;line-height:1;">${style.icon}</span><span style="color:${palette.titleColor};font-weight:800;">${esc(cat)}</span></div><button class="icon-btn delete" data-delcat="${esc(cat)}">✕</button></div><div class="chips-row" id="${safeId}"></div><button class="cat-add-sub-btn add-sub" data-cat="${esc(cat)}">＋ ${t("addSubcategory")}</button>`;
       container.appendChild(div);
       const chips = document.getElementById(safeId);
       data.subcats.forEach((sub) => {
@@ -15147,6 +18950,8 @@ function initSettingsCanvasEffects() {
   const reopenStart = performance.now();
   cleanupSettingsCanvasEffects();
   markSettingsPerf("canvas.cleanup", reopenStart);
+  // Graphite Neon: без анимированных волн на карточках настроек
+  if (document.body.classList.contains("theme-graphiteNeon")) return;
   const selectorsStart = performance.now();
   const selectors = [
     ".settings-home-card",
@@ -15785,6 +19590,9 @@ function getAppearanceSettingsMarkup() {
       simpleDesc: "Более спокойный и упрощённый интерфейс для ежедневного использования.",
       voiceBtnTitle: "🎤 Показывать кнопку голосового ввода",
       voiceBtnDesc: "Управляет плавающей кнопкой голосового ввода на главном экране.",
+      budgetCardTitle: "💰 Показывать месячный бюджет",
+      budgetCardDesc:
+        "Карточка бюджета с кольцом прогресса и лимитами на главном экране.",
       resetTitle: "♻ Сброс оформления",
       resetDesc: "Вернуть текущую тему оформления к базовой цветовой схеме.",
       light: "Светлая",
@@ -15818,6 +19626,9 @@ function getAppearanceSettingsMarkup() {
       simpleDesc: "A calmer, simplified interface for everyday use.",
       voiceBtnTitle: "🎤 Show voice input button",
       voiceBtnDesc: "Controls the floating voice input button on the home screen.",
+      budgetCardTitle: "💰 Show monthly budget",
+      budgetCardDesc:
+        "The budget card with the progress ring and limits on the home screen.",
       resetTitle: "♻ Reset Appearance",
       resetDesc: "Return the current theme setup to the base color scheme.",
       light: "Light",
@@ -15851,6 +19662,9 @@ function getAppearanceSettingsMarkup() {
       simpleDesc: "უფრო მშვიდი და გამარტივებული ინტერფეისი ყოველდღიური გამოყენებისთვის.",
       voiceBtnTitle: "🎤 ხმოვანი შეყვანის ღილაკის ჩვენება",
       voiceBtnDesc: "მართავს მთავარ ეკრანზე ხმოვანი შეყვანის მცურავ ღილაკს.",
+      budgetCardTitle: "💰 თვიური ბიუჯეტის ჩვენება",
+      budgetCardDesc:
+        "ბიუჯეტის ბარათი პროგრესის რგოლითა და ლიმიტებით მთავარ ეკრანზე.",
       resetTitle: "♻ გაფორმების განულება",
       resetDesc: "დააბრუნეთ მიმდინარე თემა საბაზისო ფერთა სქემაზე.",
       light: "ნათელი",
@@ -15868,7 +19682,7 @@ function getAppearanceSettingsMarkup() {
   }[L];
   const themeSections = [
     { label: copy.themeGroups.light, items: ["white", "default", "sunset", "ocean"] },
-    { label: copy.themeGroups.dark, items: ["dark", "navy", "gold"] },
+    { label: copy.themeGroups.dark, items: ["dark", "navy", "gold", "graphiteNeon"] },
   ];
   const languages = [
     { value: "ru", flag: "🇷🇺", label: "Русский" },
@@ -16065,6 +19879,26 @@ function getAppearanceSettingsMarkup() {
         </div>
       </section>
 
+      <section class="appearance-card">
+        <div class="appearance-toggle-row">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">${esc(copy.budgetCardTitle)}</h3>
+            <p class="appearance-card-desc">${esc(copy.budgetCardDesc)}</p>
+          </div>
+          <label class="switch"><input type="checkbox" id="homeBudgetToggle" ${homeBudgetVisible ? "checked" : ""}><span class="slider round"></span></label>
+        </div>
+      </section>
+
+      <section class="appearance-card">
+        <div class="appearance-toggle-row">
+          <div class="appearance-card-copy">
+            <h3 class="appearance-card-kicker">📌 ${esc(t("quickSuggestionsEnabledTitle"))}</h3>
+            <p class="appearance-card-desc">${esc(t("quickSuggestionsEnabledDesc"))}</p>
+          </div>
+          <label class="switch"><input type="checkbox" id="quickSuggestionsToggle" ${suggestionsEnabled ? "checked" : ""}><span class="slider round"></span></label>
+        </div>
+      </section>
+
       <section class="appearance-card danger-card">
         <div class="appearance-card-head">
           <div class="appearance-card-copy">
@@ -16200,6 +20034,8 @@ function bindAppearanceSettingsHandlers() {
 
   document.querySelectorAll(".set-theme-sw").forEach((btn) => {
     btn.addEventListener("click", () => {
+      // Mark as manual override so time-theme doesn't auto-revert the choice
+      localStorage.setItem("themeManualOverride", "1");
       applyColorTheme(btn.dataset.theme);
       showToast(
         "🎨 " + (tObj("themeLabels")[btn.dataset.theme] || btn.dataset.theme),
@@ -16234,6 +20070,30 @@ function bindAppearanceSettingsHandlers() {
         return;
       }
       detachVoiceButton();
+    });
+
+  // Блок «Месячный бюджет» на главной: карточка прячется/показывается без
+  // перерисовки главной — карусель и её обработчики остаются на месте.
+  document
+    .getElementById("homeBudgetToggle")
+    ?.addEventListener("change", (e) => {
+      const enabled = !!e.target.checked;
+      setHomeBudgetVisible(enabled);
+      syncHomeBudgetCardVisibility();
+      haptic("light");
+      showToast(enabled ? t("homeBudgetShown") : t("homeBudgetHidden"));
+    });
+
+  // Блок «Быстрые предложения» в окне добавления операции.
+  document
+    .getElementById("quickSuggestionsToggle")
+    ?.addEventListener("change", (e) => {
+      const enabled = !!e.target.checked;
+      setQuickSuggestionsEnabled(enabled);
+      haptic("light");
+      showToast(
+        enabled ? t("quickSuggestionsEnabledOn") : t("quickSuggestionsEnabledOff"),
+      );
     });
 
   document
@@ -17515,7 +21375,7 @@ function renderSettingsAutomationScreen() {
     ?.addEventListener("click", openSettingsHome);
   document
     .getElementById("addBudgetBtn")
-    ?.addEventListener("click", openAddBudgetModal);
+    ?.addEventListener("click", () => openAddBudgetModal());
   document
     .getElementById("addRecurringBtn")
     ?.addEventListener("click", openAddRecurringModal);
@@ -19797,23 +23657,15 @@ function renderSettingsLegacy() {
   });
 
   // ── Предложения ──
+  // Тот же флаг, что и в «Внешний вид»: оба переключателя меняют одно состояние.
   document
     .getElementById("suggestionsToggle")
     ?.addEventListener("change", (e) => {
-      suggestionsEnabled = e.target.checked;
-      localStorage.setItem("suggestionsEnabled", suggestionsEnabled);
+      const enabled = setQuickSuggestionsEnabled(e.target.checked);
       showToast(
-        suggestionsEnabled
-          ? {
-              ru: "Предложения включены",
-              en: "Suggestions on",
-              ka: "ჩართულია",
-            }[currentLang]
-          : {
-              ru: "Предложения скрыты",
-              en: "Suggestions off",
-              ka: "გამორთულია",
-            }[currentLang],
+        enabled
+          ? t("quickSuggestionsEnabledOn")
+          : t("quickSuggestionsEnabledOff"),
       );
     });
 
@@ -19869,6 +23721,8 @@ function renderSettingsLegacy() {
         frequentStats = {};
         categoryCustomizations = {};
         categoryBudgets = {};
+        budgetCustomLimits = [];
+        monthlyBudgetLimitRub = 0;
         recurringOps = [];
         localStorage.removeItem("welcomeSeen");
         await clearIndexedDB();
@@ -20065,37 +23919,1041 @@ function openPinSetModal(isChange = false, options = {}) {
   });
 }
 
-function openAddBudgetModal() {
-  const cats = Object.keys(categories).filter((c) => !categoryBudgets[c]);
-  if (!cats.length) {
-    showToast(t("allCategoriesBudgeted"));
+// Лимит категории в валюте отображения; 0 — лимит не задан.
+function getCategoryBudgetLimit(cat) {
+  const rub = Number((categoryBudgets || {})[cat]);
+  return rub > 0 ? toDisp(rub) : 0;
+}
+
+// Категория, которая открывается в окне лимитов сразу: с уже заданным лимитом,
+// иначе пустая (пользователь выбирает сам). Так существующий лимит виден и
+// правится, а не прячется за пустым списком.
+function getBudgetModalInitialCategory() {
+  return (
+    Object.keys(categories || {}).find((c) => getCategoryBudgetLimit(c) > 0) || ""
+  );
+}
+
+// Обнуление лимита категории. true — лимит был и удалён, false — нечего удалять.
+function resetCategoryBudget(cat) {
+  if (!cat || !categoryBudgets || !categoryBudgets[cat]) return false;
+  delete categoryBudgets[cat];
+  return true;
+}
+
+// ── Аналитика месячного бюджета ───────────────────────────────────────────
+// Чистый расчёт без DOM и без записи данных: лимит, потрачено, остаток или
+// перерасход, топ и антитоп категорий, средний расход в день. Все суммы — в
+// рублях (как categoryBudgets), доли (share) — относительно самой крупной
+// категории, чтобы длина полоски была пропорциональна сумме.
+function buildMonthlyBudgetAnalytics(input) {
+  const src = input || {};
+  const limitRub = Math.max(0, Number(src.limitRub) || 0);
+  const spentRub = Math.max(0, Number(src.spentRub) || 0);
+  const elapsedDays = Math.max(
+    1,
+    Math.min(31, Math.round(Number(src.elapsedDays) || 1)),
+  );
+  const topCount = Math.max(0, Math.round(Number(src.topCount) || 3));
+  const lowCount = Math.max(0, Math.round(Number(src.lowCount) || 3));
+  const rows = (Array.isArray(src.byCategory) ? src.byCategory : [])
+    .map((row) => ({
+      category: String((row && row.category) || ""),
+      amountRub: Math.max(0, Number(row && row.amountRub) || 0),
+    }))
+    .filter((row) => row.category && row.amountRub > 0)
+    .sort((a, b) => b.amountRub - a.amountRub);
+  const maxAmountRub = rows.length ? rows[0].amountRub : 0;
+  const top = rows.slice(0, topCount).map((row) => ({
+    ...row,
+    share: maxAmountRub > 0 ? row.amountRub / maxAmountRub : 0,
+  }));
+  // «Меньше всего» — самые мелкие из оставшихся: категория не попадает в оба
+  // списка. Порядок — от меньшей суммы к большей.
+  const low = rows
+    .slice(top.length)
+    .slice(-lowCount)
+    .reverse()
+    .map((row) => ({
+      ...row,
+      share: maxAmountRub > 0 ? row.amountRub / maxAmountRub : 0,
+    }));
+  const pct = limitRub > 0 ? Math.round((spentRub / limitRub) * 100) : 0;
+  const overRub = limitRub > 0 && spentRub > limitRub ? spentRub - limitRub : 0;
+  return {
+    limitRub,
+    spentRub,
+    remainingRub: limitRub - spentRub,
+    overRub,
+    isOver: overRub > 0,
+    hasLimit: limitRub > 0,
+    pct,
+    ringPct: Math.max(0, Math.min(100, pct)),
+    avgPerDayRub: spentRub / elapsedDays,
+    elapsedDays,
+    hasExpenses: rows.length > 0,
+    top,
+    low,
+  };
+}
+
+// Данные аналитики за текущий месяц. limitRubInput === undefined — берём
+// действующий лимит (общий или сумму категорий); 0 — «лимита нет», так
+// предпросмотр в окне показывает результат до сохранения.
+function getMonthlyBudgetAnalytics(limitRubInput) {
+  const monthTx = filterByTime(getMoneyTransactions(), "thisMonth");
+  const byCategoryMap = {};
+  let spentRub = 0;
+  monthTx.forEach((tx) => {
+    if (!tx || isInitialBalanceTx(tx) || tx.type !== "expense") return;
+    const amountRub = Number(tx.amountRub) || 0;
+    if (amountRub <= 0) return;
+    spentRub += amountRub;
+    const cat = tx.category || "";
+    byCategoryMap[cat] = (byCategoryMap[cat] || 0) + amountRub;
+  });
+  const byCategory = Object.entries(byCategoryMap).map(([category, amountRub]) => ({
+    category,
+    amountRub,
+  }));
+  const limitRub =
+    limitRubInput === undefined || limitRubInput === null
+      ? getMonthlyBudgetLimitRub()
+      : Math.max(0, Number(limitRubInput) || 0);
+  return buildMonthlyBudgetAnalytics({
+    limitRub,
+    spentRub,
+    byCategory,
+    elapsedDays: new Date().getDate(),
+    topCount: 3,
+    lowCount: 3,
+  });
+}
+
+// Подсветка карточек лимитов в окне бюджета: ровно три итерации highlightPulse
+// по 0.8 с (кадры — в index.html). Класс .is-highlighted снимается по событию
+// animationend, а не таймером: setTimeout(2600/3000 мс) приходился на середину
+// третьей пульсации, и рамка гасла рывком. Карточки лимитов одновременно
+// проигрывают свою bgmLimitCardIn, поэтому событие фильтруем по animationName
+// (и по псевдоэлементу, если браузер его сообщает).
+function pulseBudgetLimitCards(cards) {
+  const list = Array.from(cards || []).filter(Boolean);
+  if (!list.length) return;
+  const schedule = typeof setTimeout === "function" ? setTimeout : null;
+  list.forEach((card) => {
+    if (!card.classList) return;
+    card.classList.add("is-highlighted");
+    let released = false;
+    const release = () => {
+      if (released) return;
+      released = true;
+      if (card.classList) card.classList.remove("is-highlighted");
+    };
+    if (typeof card.addEventListener === "function") {
+      const onPulseEnd = (event) => {
+        const name = event && event.animationName;
+        const pseudo = event && event.pseudoElement;
+        // Анимация появления самой карточки и прочие — не наш сигнал.
+        if (name && name !== "highlightPulse") return;
+        if (pseudo && pseudo !== "::after") return;
+        if (typeof card.removeEventListener === "function")
+          card.removeEventListener("animationend", onPulseEnd);
+        release();
+      };
+      card.addEventListener("animationend", onPulseEnd);
+    }
+    // 3 × 0.8 с = 2.4 с. Таймер — только страховка: при prefers-reduced-motion
+    // анимации нет и animationend не приходит. Запас больше длительности
+    // пульсации, поэтому третью итерацию он не обрывает.
+    if (schedule) schedule(release, 2800);
+  });
+}
+
+// Карточка лимита в окне бюджета, к которой пришёл тап со слайда карусели:
+// плавно прокручиваем её в центр тела окна и, дождавшись конца прокрутки,
+// включаем пульсацию подсветки (.is-highlighted), чтобы было видно, какой
+// лимит открыли. Порядок тот же, что у списка всех лимитов (слайд 0):
+// сначала scrollIntoView, потом подсветка.
+function focusBudgetLimitCard(limitId) {
+  const wanted = String(limitId || "");
+  if (!wanted) return;
+  const listEl = document.getElementById("bgmLimitList");
+  if (!listEl || typeof listEl.querySelectorAll !== "function") return;
+  const cards = Array.from(listEl.querySelectorAll(".bgm-limit-card"));
+  const card = cards.find(
+    (el) => String((el.dataset || {}).limitId || "") === wanted,
+  );
+  if (!card) return;
+  // Та же пауза, что на слайде 0: пока карточка едет к центру окна, пульсация
+  // успевала отыграть, и пользователь её не видел.
+  const PULSE_AFTER_SCROLL_MS = 700;
+  const schedule = typeof setTimeout === "function" ? setTimeout : null;
+  const scrollToCard = () => {
+    // Окно могло закрыться между кадрами — проверяем, что карточка ещё в DOM.
+    if (!card.isConnected) return false;
+    if (typeof card.scrollIntoView === "function")
+      card.scrollIntoView({ behavior: "smooth", block: "center" });
+    return true;
+  };
+  const highlightCard = () => {
+    // За время прокрутки окно могли закрыть — подсвечивать нечего.
+    if (!card.isConnected) return;
+    // Три пульсации рамки; класс снимает animationend (см. pulseBudgetLimitCards).
+    pulseBudgetLimitCards([card]);
+  };
+  const scrollAndHighlight = () => {
+    if (!scrollToCard()) return;
+    // Подсветка — только после плавной прокрутки к карточке.
+    if (schedule) schedule(highlightCard, PULSE_AFTER_SCROLL_MS);
+    else highlightCard();
+  };
+  // Ждём появления окна (анимация ~220 мс), затем прокручиваем и подсвечиваем.
+  if (typeof requestAnimationFrame === "function")
+    requestAnimationFrame(() => {
+      if (schedule) schedule(scrollAndHighlight, 260);
+      else scrollAndHighlight();
+    });
+  else if (schedule) schedule(scrollAndHighlight, 260);
+  else scrollAndHighlight();
+}
+
+// Куда вести окно бюджета по тапу на карточку карусели.
+// Слайд 0 — общий обзор: выполняется прокрутка к началу списка всех лимитов и
+// подсвечиваются сразу все карточки (общий бюджет). Слайды 1…N — конкретный
+// лимит: окно прокручивается к его карточке и подсвечивает только её.
+function getBudgetTapFocusOptions(target) {
+  const el = target && typeof target.closest === "function" ? target : null;
+  const slideEl = el ? el.closest(".gh-budget-slide") : null;
+  // Вне трека (точки, мини-список под кольцом) — это тоже общий обзор.
+  const slideIndex = slideEl
+    ? Math.max(0, Number((slideEl.dataset || {}).slide) || 0)
+    : 0;
+  if (!slideIndex) return { focusLimitsList: true };
+  const limitEl = el ? el.closest("[data-limit-id]") : null;
+  const limitId = limitEl
+    ? String((limitEl.dataset || {}).limitId || "")
+    : "";
+  return limitId ? { focusLimitId: limitId } : {};
+}
+
+// Слайд 0 (общий обзор): окно открывается на начале списка лимитов, и все
+// карточки подсвечиваются одновременно — это общий бюджет, а не один лимит.
+function focusBudgetLimitsList() {
+  const listEl = document.getElementById("bgmLimitList");
+  if (!listEl || typeof listEl.querySelectorAll !== "function") return;
+  // Пауза между началом плавной прокрутки и пульсацией: список едет ~0,6–0,7 с,
+  // и подсветка, включённая одновременно со скроллом, заканчивалась раньше, чем
+  // пользователь успевал увидеть, куда его прокрутили.
+  const PULSE_AFTER_SCROLL_MS = 700;
+  const modalEl = document.getElementById("addBudgetModal");
+  const bodyEl =
+    modalEl && typeof modalEl.querySelector === "function"
+      ? modalEl.querySelector(".modal-body")
+      : null;
+  const cardsInList = () =>
+    Array.from(listEl.querySelectorAll(".bgm-limit-card"));
+  // Цель прокрутки — верх списка внутри тела окна. Считаем по прямоугольникам:
+  // offsetTop ненадёжен, если offsetParent не является скролл-контейнером.
+  const targetTop = () => {
+    if (!bodyEl || typeof bodyEl.getBoundingClientRect !== "function") return 0;
+    const bodyRect = bodyEl.getBoundingClientRect();
+    const listRect = listEl.getBoundingClientRect();
+    return Math.max(
+      0,
+      Math.round(bodyEl.scrollTop + (listRect.top - bodyRect.top) - 8),
+    );
+  };
+  const highlightAll = () => {
+    // Пульсация рамки на всех карточках сразу (тот же класс, что и одиночная
+    // подсветка лимита) — видно, что открыт список целиком. Каждая карточка
+    // играет свои три итерации и снимает класс по собственному animationend.
+    // За время прокрутки окно могли закрыть — тогда подсвечивать нечего.
+    if (!listEl.isConnected) return;
+    pulseBudgetLimitCards(cardsInList());
+  };
+  const applyScroll = () => {
+    // Окно могло закрыться между кадрами — проверяем, что список ещё в DOM.
+    if (!listEl.isConnected) return false;
+    const top = targetTop();
+    // Прокручиваем плавно именно тело окна (внутренний скролл-контейнер), а не
+    // window. У самого контейнера в CSS задан scroll-behavior: smooth.
+    if (bodyEl && typeof bodyEl.scrollTo === "function")
+      bodyEl.scrollTo({ top, behavior: "smooth" });
+    else if (bodyEl && typeof bodyEl.scrollTop === "number")
+      bodyEl.scrollTop = top;
+    else if (typeof listEl.scrollIntoView === "function")
+      listEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    return true;
+  };
+  const schedule = typeof setTimeout === "function" ? setTimeout : null;
+  if (!schedule) {
+    // Без таймеров порядок всё равно важен: сначала прокрутка, потом подсветка.
+    applyScroll();
+    highlightAll();
     return;
   }
-  const html = `
-    <div class="field-group"><label class="field-label">${t("budgetCategory")}</label><select id="budgetCatSel" class="modal-select"><option value="">${t("selectCategory")}</option>${cats.map((c) => `<option value="${c}">${getCategoryStyle(c, "expense").icon} ${esc(c)}</option>`).join("")}</select></div>
-    <div class="field-group"><label class="field-label">${t("budgetLimit")} (${sym()})</label><input type="number" id="budgetLimitInput" class="modal-input" min="1" step="any" placeholder="5000" inputmode="decimal"></div>
-    <div class="modal-actions"><button class="btn-secondary" id="cancelBudget">${t("cancel")}</button><button class="btn-primary" id="saveBudget">${t("save")}</button></div>`;
-  const modal = createModal("addBudgetModal", t("addBudget"), html);
-  document.body.appendChild(modal);
-  openModal("addBudgetModal");
-  document
-    .getElementById("cancelBudget")
-    .addEventListener("click", () => closeModal("addBudgetModal"));
-  document.getElementById("saveBudget").addEventListener("click", () => {
-    const cat = document.getElementById("budgetCatSel").value;
-    const limit = parseFloat(document.getElementById("budgetLimitInput").value);
-    if (!cat) {
-      showToast(t("selectCategoryFirst"), "error");
+  // Ждём, пока окно перестанет двигаться (анимация открытия), и только потом
+  // прокручиваем: во время движения геометрия ещё не окончательная.
+  let lastTop = null;
+  let stable = 0;
+  let attempts = 0;
+  const waitSettled = () => {
+    if (!listEl.isConnected) return;
+    const top =
+      bodyEl && typeof bodyEl.getBoundingClientRect === "function"
+        ? Math.round(bodyEl.getBoundingClientRect().top)
+        : 0;
+    if (top === lastTop) stable += 1;
+    else {
+      stable = 0;
+      lastTop = top;
+    }
+    if (stable < 2 && attempts < 18) {
+      attempts += 1;
+      schedule(waitSettled, 100);
       return;
     }
-    if (isNaN(limit) || limit <= 0) {
+    if (!applyScroll()) return;
+    // Подсветка стартует только после плавной прокрутки: раньше она включалась
+    // одновременно со скроллом и успевала отмигать, пока список ещё ехал.
+    // Пауза чуть больше длительности плавного скролла; класс снимает
+    // animationend (см. pulseBudgetLimitCards), третья итерация не обрывается.
+    schedule(highlightAll, PULSE_AFTER_SCROLL_MS);
+    // Поправка, если после прокрутки высота содержимого успела измениться.
+    // Если пользователь уже начал листать список сам — прокрутку не трогаем.
+    let userScrolled = false;
+    const markUserScroll = () => {
+      userScrolled = true;
+    };
+    const userEvents = ["touchstart", "pointerdown", "wheel"];
+    const listenUser = typeof bodyEl.addEventListener === "function";
+    if (listenUser)
+      userEvents.forEach((name) =>
+        bodyEl.addEventListener(name, markUserScroll, { passive: true }),
+      );
+    schedule(() => {
+      if (listenUser)
+        userEvents.forEach((name) =>
+          bodyEl.removeEventListener(name, markUserScroll),
+        );
+      if (userScrolled) return;
+      if (!listEl.isConnected) return;
+      if (!bodyEl || typeof bodyEl.scrollTop !== "number") return;
+      const now = targetTop();
+      // Плавная прокрутка идёт ~0,5 с, поэтому поправку делаем после неё.
+      if (Math.abs(Number(bodyEl.scrollTop) - now) > 4) applyScroll();
+    }, 1200);
+  };
+  schedule(waitSettled, 100);
+}
+
+function openAddBudgetModal(options) {
+  // Необязательный focusLimitId: окно открылось тапом по слайду карусели —
+  // список лимитов прокручивается к этой карточке и подсвечивает её.
+  const focusLimitId = String(
+    (options && typeof options === "object" && options.focusLimitId) || "",
+  );
+  // Необязательный focusLimitsList: тап по слайду 0 (общий обзор) — прокрутка
+  // к началу списка всех лимитов и одновременная подсветка всех карточек.
+  const focusLimitsList = Boolean(
+    options && typeof options === "object" && options.focusLimitsList,
+  );
+  // Окно бюджета: пояснение, кольцо прогресса и аналитика, ниже — список всех
+  // лимитов (лимиты категорий + свои лимиты) и форма добавления новой карточки.
+  // Отдельного поля общего лимита нет: общий лимит месяца — это сумма всех
+  // карточек списка, по ней считаются кольцо, полоса и «Осталось потратить».
+  // Прежний единый лимит при первом открытии становится карточкой списка.
+  migrateLegacyMonthlyLimitRub();
+  const cats = Object.keys(categories);
+  const s = sym();
+  // Список лимитов и раскрывающаяся форма добавления. Форма — внутри окна
+  // (не вложенное модальное окно): так она прокручивается вместе со списком и
+  // не перекрывает кольцо и аналитику.
+  const limitsHtml = `
+    <div class="bgm-section bgm-section--limits">
+      <div class="bgm-title bgm-title--limits" data-i18n="budgetLimitsTitle">${t("budgetLimitsTitle")}</div>
+      <div class="bgm-note" data-i18n="budgetLimitsNote">${t("budgetLimitsNote")}</div>
+      <div class="bgm-limit-list" id="bgmLimitList"></div>
+      <div class="bgm-limits-empty" id="bgmLimitsEmpty" hidden data-i18n="budgetLimitsEmpty">${t("budgetLimitsEmpty")}</div>
+      <div class="bgm-limit-total"><span class="bgm-limit-total-label" data-i18n="budgetLimitTotal">${t("budgetLimitTotal")}</span><b class="bgm-limit-total-value" id="bgmLimitTotalValue"></b></div>
+      <button type="button" class="btn-secondary bgm-add-limit-btn" id="bgmAddLimitBtn"><span class="bgm-add-limit-plus" aria-hidden="true">＋</span>${t("budgetAddLimit")}</button>
+      <div class="bgm-limit-form" id="bgmLimitForm" hidden>
+        <div class="bgm-limit-form-title" id="bgmLimitFormTitle">${t("budgetLimitNewTitle")}</div>
+        <div class="field-group" id="bgmLimitNameGroup">
+          <label class="field-label" for="bgmLimitName">${t("budgetLimitName")}</label>
+          <input type="text" id="bgmLimitName" class="modal-input" maxlength="40" autocomplete="off" spellcheck="false" placeholder="${esc(t("budgetLimitNamePlaceholder"))}">
+        </div>
+        <div class="field-group" id="bgmLimitBindGroup">
+          <label class="field-label" for="bgmLimitBind">${t("budgetLimitBind")}</label>
+          <select id="bgmLimitBind" class="modal-select">
+            <option value="">${esc(t("budgetLimitCustomOption"))}</option>
+            ${cats.map((c) => `<option value="${esc(c)}">${getCategoryStyle(c, "expense").icon} ${esc(c)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="field-group" id="bgmLimitEmojiGroup">
+          <label class="field-label">${t("budgetLimitIcon")}</label>
+          <button type="button" class="bgm-emoji-btn theme-swatch-btn" id="bgmLimitEmojiBtn"></button>
+        </div>
+        <div class="field-group" id="bgmLimitColorGroup">
+          <label class="field-label" for="bgmLimitColorBtn">${t("budgetLimitColor")}</label>
+          <div class="bgm-color-row">
+            <button type="button" id="bgmLimitColorBtn" class="bgm-color-btn" aria-label="${esc(t("budgetLimitColor"))}">
+              <span class="bgm-color-swatch" id="bgmLimitColorSwatch" aria-hidden="true"></span>
+              <span class="bgm-color-value" id="bgmLimitColorValue"></span>
+            </button>
+            <button type="button" class="bgm-color-reset" id="bgmLimitColorReset">${t("budgetLimitColorReset")}</button>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="bgmLimitAmount">${t("budgetLimitAmount")} (${s})</label>
+          <input type="number" id="bgmLimitAmount" class="modal-input" min="1" step="any" inputmode="decimal" placeholder="5000">
+        </div>
+        <div class="bgm-limit-form-actions">
+          <button type="button" class="btn-secondary" id="bgmLimitCancel">${t("cancel")}</button>
+          <button type="button" class="btn-primary" id="bgmLimitAdd">${t("add")}</button>
+        </div>
+      </div>
+    </div>`;
+  const html = `
+    <p class="bgm-explain" data-i18n="budgetExplain">${t("budgetExplain")}</p>
+    <div class="bgm-alert" id="bgmAlert" hidden>
+      <span class="bgm-alert-icon" aria-hidden="true">⚠️</span>
+      <span class="bgm-alert-text"><b data-i18n="budgetOverAlertTitle">${t("budgetOverAlertTitle")}</b> <span data-i18n="budgetOverAlert">${t("budgetOverAlert")}</span> <b class="bgm-alert-sum" id="bgmAlertAmount"></b></span>
+    </div>
+    <div class="bgm-hero">
+      <div class="bgm-ring" id="bgmRing" data-state="noLimit" style="--pct:0">
+        <div class="bgm-ring-inner">
+          <span class="bgm-ring-pct" id="bgmRingPct">0%</span>
+          <span class="bgm-ring-cap" data-i18n="ghBudgetHint">${t("ghBudgetHint")}</span>
+        </div>
+      </div>
+      <div class="bgm-figures">
+        <div class="bgm-figure"><span class="bgm-figure-label" data-i18n="budgetSpentLabel">${t("budgetSpentLabel")}</span><span class="bgm-figure-value" id="bgmSpent"></span></div>
+        <div class="bgm-figure"><span class="bgm-figure-label" data-i18n="budgetLimitWord">${t("budgetLimitWord")}</span><span class="bgm-figure-value" id="bgmLimit"></span></div>
+      </div>
+      <div class="bgm-bar" aria-hidden="true"><div class="bgm-bar-fill" id="bgmBarFill"></div></div>
+      <div class="bgm-avg"><span data-i18n="budgetAvgPerDay">${t("budgetAvgPerDay")}</span> <b id="bgmAvgValue"></b></div>
+    </div>
+    ${limitsHtml}
+    <div class="bgm-section bgm-analytics">
+      <div class="bgm-title" data-i18n="budgetAnalytics">${t("budgetAnalytics")}</div>
+      <div class="bgm-remaining" id="bgmRemaining">
+        <span class="bgm-remaining-label" id="bgmRemainingLabel"></span>
+        <span class="bgm-remaining-value" id="bgmRemainingValue"></span>
+      </div>
+      <div class="bgm-empty" id="bgmEmpty" hidden data-i18n="budgetNoExpenses">${t("budgetNoExpenses")}</div>
+      <div class="bgm-group" id="bgmTopGroup" hidden><div class="bgm-group-title" data-i18n="budgetTopTitle">${t("budgetTopTitle")}</div><div class="bgm-list" id="bgmTopList"></div></div>
+      <div class="bgm-group" id="bgmLowGroup" hidden><div class="bgm-group-title" data-i18n="budgetLowTitle">${t("budgetLowTitle")}</div><div class="bgm-list" id="bgmLowList"></div></div>
+    </div>
+    <div class="modal-actions"><button class="btn-secondary" id="cancelBudget">${t("cancel")}</button><button class="btn-primary" id="saveBudget">${t("ghBudgetUpdate")}</button></div>`;
+  const modal = createModal("addBudgetModal", t("ghMonthlyBudget"), html);
+  // Кнопки выносим из прокручиваемого тела окна: окно высокое и прокручивается,
+  // а «Отмена/Сохранить» должны быть на виду всегда (как в окне операции).
+  const budgetActions = modal.querySelector(".modal-actions");
+  if (budgetActions) modal.querySelector(".modal").appendChild(budgetActions);
+  document.body.appendChild(modal);
+  openModal("addBudgetModal");
+  const saveBtn = document.getElementById("saveBudget");
+  // ── Черновик списка лимитов ───────────────────────────────────────────────
+  // Окно ничего не пишет в данные до «Сохранить изменения»: правки сумм,
+  // удаления и добавления живут в черновике и применяются одной операцией.
+  let draftLimits = buildBudgetLimitsDraft({
+    categoryBudgets,
+    customLimits: budgetCustomLimits,
+    categoryColors: getCategoryBudgetColors(),
+  });
+  // Иконки, выбранные в форме для лимитов категорий. Как и суммы, они живут
+  // только в черновике окна: в данные попадают по «Сохранить изменения», иначе
+  // закрытие окна без сохранения меняло бы оформление категории.
+  const draftCategoryEmojis = new Map();
+  const totalDraftRub = () =>
+    draftLimits.reduce((sum, item) => sum + Math.max(0, Number(item.amountRub) || 0), 0);
+  const limitEmoji = (item) =>
+    item.kind === "category"
+      ? (getCategoryStyle(item.category, "expense") || {}).icon || "🏷️"
+      : item.emoji || "🎯";
+  // Пустое название бывает только у перенесённого единого лимита: для него
+  // показываем прежний заголовок «Общий лимит на месяц».
+  const limitName = (item) =>
+    item.kind === "category" ? item.category : item.name || t("budgetGlobalLimit");
+  const limitKind = (item) =>
+    item.kind === "category" ? t("budgetLimitBoundBadge") : t("budgetLimitCustomBadge");
+
+  // Кольцо и полоса прогресса. Одна rAF-анимация ведёт оба индикатора (--pct
+  // кольца и width полосы), поэтому при открытии окна они растут строго
+  // синхронно от 0 до текущего процента за 1500 мс.
+  const BUDGET_ANIM_MS = 1500;
+  let ringRafId = 0;
+  let ringToken = 0;
+  const setRingPct = (ringPct, textPct, animate) => {
+    if (ringRafId) cancelAnimationFrame(ringRafId);
+    ringRafId = 0;
+    ringToken += 1;
+    if (!document.getElementById("bgmRing")) return;
+    const target = Math.max(0, Math.min(100, Math.round(Number(ringPct) || 0)));
+    const textTarget = Math.max(0, Math.round(Number(textPct) || 0));
+    const paint = (eased) => {
+      const liveRing = document.getElementById("bgmRing");
+      if (!liveRing) return false;
+      liveRing.style.setProperty("--pct", (target * eased).toFixed(2));
+      const liveBar = document.getElementById("bgmBarFill");
+      if (liveBar) liveBar.style.width = (target * eased).toFixed(2) + "%";
+      const num = document.getElementById("bgmRingPct");
+      if (num) num.textContent = formatBudgetPct(textTarget * eased);
+      return true;
+    };
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!animate || reduceMotion) {
+      paint(1);
+      return;
+    }
+    const token = ringToken;
+    paint(0);
+    const start = performance.now();
+    const step = (now) => {
+      if (token !== ringToken) {
+        ringRafId = 0;
+        return;
+      }
+      const progress = Math.min((now - start) / BUDGET_ANIM_MS, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      if (!paint(eased)) {
+        ringRafId = 0;
+        return;
+      }
+      if (progress < 1) ringRafId = requestAnimationFrame(step);
+      else ringRafId = 0;
+    };
+    ringRafId = requestAnimationFrame(step);
+  };
+
+  // Строка категории в аналитике: сумма и полоска, длина — относительно самой
+  // крупной категории месяца.
+  const miniRow = (row) => {
+    const icon = (getCategoryStyle(row.category, "expense") || {}).icon || "";
+    const share = Math.max(4, Math.round((Number(row.share) || 0) * 100));
+    return `<div class="bgm-mini"><div class="bgm-mini-head"><span class="bgm-mini-name">${icon} ${esc(row.category)}</span><span class="bgm-mini-val">${toDisp(row.amountRub).toFixed(2)} ${sym()}</span></div><div class="bgm-mini-track"><div class="bgm-mini-fill" style="width:${share}%"></div></div></div>`;
+  };
+
+  // Остаток карточки лимита: «Осталось: 100.00 ₾» или красное «Превышено на:
+  // 14.00 ₾». Потраченное всегда считается по операциям месяца, поэтому
+  // удаление операции сразу возвращает сумму в конверт.
+  const limitLeftInfo = (item, monthTx) => {
+    const spentRub = computeEnvelopeSpentRub(item, monthTx);
+    const leftRub = Math.max(0, Number(item.amountRub) || 0) - spentRub;
+    const s = sym();
+    return leftRub < 0
+      ? { state: "over", text: t("budgetLimitOverBy") + " " + toDisp(-leftRub).toFixed(2) + " " + s }
+      : { state: "ok", text: t("budgetLimitLeft") + " " + toDisp(leftRub).toFixed(2) + " " + s };
+  };
+  // Перерисовка списка лимитов и суммы под ним. Сумма карточек — это и есть
+  // общий лимит месяца: по ней сразу пересчитываются кольцо и аналитика.
+  const renderLimits = () => {
+    const listEl = document.getElementById("bgmLimitList");
+    if (listEl) {
+      const monthTx = filterByTime(getMoneyTransactions(), "thisMonth");
+      listEl.innerHTML = draftLimits
+        .map((item) => {
+          const left = limitLeftInfo(item, monthTx);
+          const limitIcon = limitEmoji(item);
+          // Точка у названия показывает цвет кольца этого лимита на главной.
+          const dot = limitGradientStops(getBudgetLimitColor(item));
+          return `<div class="bgm-limit-card" data-limit-id="${esc(item.id)}">
+        <span class="bgm-limit-emoji" data-emoji-len="${emojiGlyphCount(limitIcon)}" aria-hidden="true">${limitIcon}</span>
+        <div class="bgm-limit-main">
+          <div class="bgm-limit-head"><span class="bgm-limit-dot" style="background:linear-gradient(135deg,${dot.a},${dot.b})" aria-hidden="true"></span><span class="bgm-limit-name">${esc(limitName(item))}</span><span class="bgm-limit-kind">${limitKind(item)}</span></div>
+          <div class="bgm-limit-left" data-limit-left="${esc(item.id)}" data-state="${left.state}">${esc(left.text)}</div>
+          <div class="bgm-limit-amount-row"><input type="number" class="modal-input bgm-limit-amount" data-limit-amount="${esc(item.id)}" min="0" step="any" inputmode="decimal" value="${Number(toDisp(item.amountRub).toFixed(2))}" aria-label="${esc(limitName(item))}"><span class="bgm-limit-cur">${sym()}</span></div>
+        </div>
+        <button type="button" class="bgm-limit-edit" data-limit-edit="${esc(item.id)}" aria-label="${esc(t("budgetLimitEdit"))}" title="${esc(t("budgetLimitEdit"))}">✏️</button>
+        <button type="button" class="bgm-limit-del" data-limit-del="${esc(item.id)}" aria-label="${esc(t("budgetLimitDelete"))}" title="${esc(t("budgetLimitDelete"))}">✕</button>
+      </div>`;
+        })
+        .join("");
+    }
+    const emptyEl = document.getElementById("bgmLimitsEmpty");
+    if (emptyEl) emptyEl.hidden = draftLimits.length > 0;
+    const totalEl = document.getElementById("bgmLimitTotalValue");
+    if (totalEl) totalEl.textContent = toDisp(totalDraftRub()).toFixed(2) + " " + sym();
+    paintAnalytics(getMonthlyBudgetAnalytics(totalDraftRub()), false);
+  };
+  // Перерисовка кольца, цифр, баннера превышения и блока аналитики.
+  const paintAnalytics = (analytics, animate) => {
+    const cur = sym();
+    const ring = document.getElementById("bgmRing");
+    if (ring)
+      ring.dataset.state = analytics.hasLimit
+        ? analytics.isOver
+          ? "over"
+          : "ok"
+        : "noLimit";
+    // Состояние шапки окна — для цвета полосы прогресса при перерасходе.
+    const heroEl = document.querySelector("#addBudgetModal .bgm-hero");
+    if (heroEl)
+      heroEl.dataset.state = analytics.isOver
+        ? "over"
+        : analytics.hasLimit
+          ? "ok"
+          : "noLimit";
+    if (analytics.hasLimit) {
+      setRingPct(analytics.ringPct, analytics.pct, animate);
+    } else {
+      setRingPct(0, 0, false);
+      const pctEl = document.getElementById("bgmRingPct");
+      if (pctEl) pctEl.textContent = "+";
+    }
+    const spentEl = document.getElementById("bgmSpent");
+    if (spentEl)
+      spentEl.textContent = toDisp(analytics.spentRub).toFixed(2) + " " + cur;
+    const limitEl = document.getElementById("bgmLimit");
+    if (limitEl)
+      limitEl.textContent = analytics.hasLimit
+        ? toDisp(analytics.limitRub).toFixed(2) + " " + cur
+        : t("ghLimitNotSet");
+    const alertEl = document.getElementById("bgmAlert");
+    if (alertEl) alertEl.hidden = !analytics.isOver;
+    const alertAmount = document.getElementById("bgmAlertAmount");
+    if (alertAmount)
+      alertAmount.textContent = toDisp(analytics.overRub).toFixed(2) + " " + cur;
+    const remainingBox = document.getElementById("bgmRemaining");
+    if (remainingBox) remainingBox.classList.toggle("is-over", analytics.isOver);
+    const remainingLabel = document.getElementById("bgmRemainingLabel");
+    if (remainingLabel)
+      remainingLabel.textContent = analytics.isOver
+        ? t("budgetOverrunLabel")
+        : t("budgetRemainingLabel");
+    const remainingValue = document.getElementById("bgmRemainingValue");
+    if (remainingValue)
+      remainingValue.textContent = analytics.hasLimit
+        ? toDisp(analytics.isOver ? analytics.overRub : analytics.remainingRub).toFixed(2) +
+          " " +
+          cur
+        : "—";
+    const avgEl = document.getElementById("bgmAvgValue");
+    if (avgEl)
+      avgEl.textContent = toDisp(analytics.avgPerDayRub).toFixed(2) + " " + cur;
+    const emptyEl = document.getElementById("bgmEmpty");
+    if (emptyEl) emptyEl.hidden = analytics.hasExpenses;
+    const topGroup = document.getElementById("bgmTopGroup");
+    const topList = document.getElementById("bgmTopList");
+    if (topGroup) topGroup.hidden = !analytics.top.length;
+    if (topList) topList.innerHTML = analytics.top.map(miniRow).join("");
+    const lowGroup = document.getElementById("bgmLowGroup");
+    const lowList = document.getElementById("bgmLowList");
+    if (lowGroup) lowGroup.hidden = !analytics.low.length;
+    if (lowList) lowList.innerHTML = analytics.low.map(miniRow).join("");
+  };
+
+  // ── Элементы списка и формы добавления ──
+  const limitListEl = document.getElementById("bgmLimitList");
+  const formEl = document.getElementById("bgmLimitForm");
+  const formTitleEl = document.getElementById("bgmLimitFormTitle");
+  const addBtn = document.getElementById("bgmAddLimitBtn");
+  const saveLimitBtn = document.getElementById("bgmLimitAdd");
+  const nameInput = document.getElementById("bgmLimitName");
+  const nameGroupEl = document.getElementById("bgmLimitNameGroup");
+  const bindGroupEl = document.getElementById("bgmLimitBindGroup");
+  const bindSel = document.getElementById("bgmLimitBind");
+  const emojiGroupEl = document.getElementById("bgmLimitEmojiGroup");
+  const amountInput = document.getElementById("bgmLimitAmount");
+  const emojiBtn = document.getElementById("bgmLimitEmojiBtn");
+  const colorBtn = document.getElementById("bgmLimitColorBtn");
+  const colorSwatch = document.getElementById("bgmLimitColorSwatch");
+  const colorValueEl = document.getElementById("bgmLimitColorValue");
+  const colorResetBtn = document.getElementById("bgmLimitColorReset");
+  let formEmoji = "🎯";
+  let emojiTouched = false;
+  // Цвет кольца лимита: пустая строка — градиент по умолчанию (коралл →
+  // фиолетовый), иначе выбранный hex. Живёт только в форме до сохранения.
+  let formColor = "";
+  // Кнопка цвета открывает собственный пикер приложения (переведён на ru/en/ka),
+  // а не системный диалог выбора цвета: тот говорит на языке ОС и в грузинском
+  // интерфейсе выглядел как русский.
+  const syncColorInput = () => {
+    const stops = limitGradientStops(formColor || "");
+    if (colorSwatch)
+      colorSwatch.style.background = `linear-gradient(135deg, ${stops.a}, ${stops.b})`;
+    if (colorValueEl)
+      colorValueEl.textContent = formColor
+        ? String(formColor).toUpperCase()
+        : t("budgetLimitColorAuto");
+    if (colorBtn) colorBtn.classList.toggle("is-default", !formColor);
+  };
+  // Карточка, которую правим: пусто — форма создаёт новый лимит.
+  let editingLimitId = "";
+  // Кнопка иконки — тот же компонент, что и в окне категорий.
+  const syncEmojiBtn = () =>
+    renderEmojiFieldButton(emojiBtn, formEmoji, "expense", false);
+  // Режим формы: «Новый лимит» или «Редактирование лимита». У лимита категории
+  // название принадлежит самой категории, поэтому поле имени скрыто; иконку
+  // менять можно всегда — у лимита категории она запоминается в настройках
+  // категории. Привязку при правке не меняем.
+  const syncFormMode = () => {
+    const editing = !!editingLimitId;
+    const editingItem = editing
+      ? draftLimits.find((entry) => entry.id === editingLimitId)
+      : null;
+    const categoryBound = !!(editingItem && editingItem.kind === "category");
+    if (formTitleEl)
+      formTitleEl.textContent = t(
+        editing ? "budgetLimitEditTitle" : "budgetLimitNewTitle",
+      );
+    if (saveLimitBtn)
+      saveLimitBtn.textContent = editing ? t("save") : t("add");
+    if (nameGroupEl) nameGroupEl.hidden = categoryBound;
+    if (emojiGroupEl) emojiGroupEl.hidden = false;
+    if (bindGroupEl) bindGroupEl.hidden = !!editing;
+    if (bindSel) bindSel.disabled = editing;
+  };
+  const resetForm = () => {
+    editingLimitId = "";
+    if (nameInput) nameInput.value = "";
+    if (bindSel) {
+      bindSel.value = "";
+      bindSel.disabled = false;
+    }
+    if (amountInput) amountInput.value = "";
+    formEmoji = "🎯";
+    emojiTouched = false;
+    formColor = "";
+    syncEmojiBtn();
+    syncColorInput();
+    syncFormMode();
+  };
+  // Форма живёт в секции лимитов, но при правке переезжает под конкретную
+  // карточку (аккордеон): поле суммы оказывается рядом с ✏️, а не в низу
+  // списка. После закрытия форма возвращается на своё место в разметке.
+  const formHomeParent = formEl ? formEl.parentNode : null;
+  const formHomeNext = formEl ? formEl.nextSibling : null;
+  const restoreFormHome = () => {
+    if (!formEl || !formHomeParent) return;
+    if (formEl.parentNode !== formHomeParent)
+      formHomeParent.insertBefore(formEl, formHomeNext || null);
+    formEl.classList.remove("is-inline");
+  };
+  const moveFormUnderLimit = (id) => {
+    if (!formEl || !limitListEl || typeof limitListEl.querySelectorAll !== "function")
+      return;
+    const cardNode = Array.from(
+      limitListEl.querySelectorAll("[data-limit-id]"),
+    ).find((el) => (el.dataset || {}).limitId === id);
+    // insertBefore переносит узел, поэтому копии в списке не появляется.
+    if (cardNode && cardNode.parentNode)
+      cardNode.parentNode.insertBefore(formEl, cardNode.nextSibling);
+    formEl.classList.add("is-inline");
+  };
+  const setFormOpen = (open) => {
+    if (!formEl) return;
+    if (!open) restoreFormHome();
+    formEl.hidden = !open;
+    if (addBtn) addBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    formEl.classList.toggle("is-open", !!open);
+    if (!open) return;
+    // Аккордеон внутри списка — подкручиваем к форме, если она ушла за экран.
+    if (
+      formEl.classList.contains("is-inline") &&
+      typeof formEl.scrollIntoView === "function"
+    )
+      setTimeout(
+        () => formEl.scrollIntoView({ block: "nearest", behavior: "smooth" }),
+        80,
+      );
+    // В правке лимита категории первый доступный шаг — сумма.
+    const focusEl =
+      editingLimitId && nameGroupEl && nameGroupEl.hidden ? amountInput : nameInput;
+    if (focusEl) setTimeout(() => focusEl.focus(), 60);
+  };
+  // Открыть существующий лимит в той же форме: название, иконка, сумма уже
+  // заполнены, сохранение обновит карточку, а не создаст новую.
+  const startEditLimit = (id) => {
+    const item = draftLimits.find((entry) => entry.id === id);
+    if (!item) return;
+    editingLimitId = id;
+    const categoryBound = item.kind === "category";
+    if (nameInput) nameInput.value = categoryBound ? "" : item.name || "";
+    if (bindSel) bindSel.value = categoryBound ? item.category || "" : "";
+    if (amountInput)
+      amountInput.value = String(Number(toDisp(item.amountRub).toFixed(2)));
+    formEmoji = categoryBound
+      ? (getCategoryStyle(item.category, "expense") || {}).icon || "🎯"
+      : item.emoji || "🎯";
+    emojiTouched = true;
+    // Цвет кольца: у лимита категории он берётся из настроек категории.
+    formColor = getBudgetLimitColor(item) || "";
+    syncEmojiBtn();
+    syncColorInput();
+    syncFormMode();
+    moveFormUnderLimit(id);
+    setFormOpen(true);
+  };
+  syncEmojiBtn();
+  syncColorInput();
+  syncFormMode();
+
+  // Правка суммы в карточке: новое значение сразу уходит в предпросмотр
+  // (кольцо, полоса, «Осталось потратить»), но в данные попадает только по
+  // кнопке «Сохранить изменения».
+  limitListEl?.addEventListener("input", (event) => {
+    const field = event.target;
+    const id = field && field.dataset ? field.dataset.limitAmount : "";
+    if (!id) return;
+    const item = draftLimits.find((entry) => entry.id === id);
+    if (!item) return;
+    const typed = parseFloat(String(field.value).replace(",", "."));
+    item.amountRub = !isNaN(typed) && typed > 0 ? toRub(typed) : 0;
+    const totalEl = document.getElementById("bgmLimitTotalValue");
+    if (totalEl)
+      totalEl.textContent = toDisp(totalDraftRub()).toFixed(2) + " " + sym();
+    // Строка остатка в той же карточке — без перерисовки списка, чтобы не
+    // потерять фокус в поле суммы.
+    const left = limitLeftInfo(
+      item,
+      filterByTime(getMoneyTransactions(), "thisMonth"),
+    );
+    Array.from(limitListEl.querySelectorAll("[data-limit-left]")).forEach((el) => {
+      if (el.dataset.limitLeft !== id) return;
+      el.dataset.state = left.state;
+      el.textContent = left.text;
+    });
+    paintAnalytics(getMonthlyBudgetAnalytics(totalDraftRub()), false);
+  });
+  // Клик по карточке: ✏️ открывает лимит в форме правки, ✕ убирает его из
+  // списка. Из данных лимит исчезает только после «Сохранить изменения».
+  limitListEl?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!target || !target.closest) return;
+    const editBtn = target.closest("[data-limit-edit]");
+    if (editBtn) {
+      startEditLimit(editBtn.dataset.limitEdit);
+      return;
+    }
+    const delBtn = target.closest("[data-limit-del]");
+    if (!delBtn) return;
+    const id = delBtn.dataset.limitDel;
+    // Удаляемую карточку могла занимать открытая форма правки: сначала
+    // возвращаем форму на место, иначе renderLimits() удалит её вместе со списком.
+    if (editingLimitId === id) {
+      resetForm();
+      setFormOpen(false);
+    }
+    draftLimits = draftLimits.filter((entry) => entry.id !== id);
+    renderLimits();
+  });
+  addBtn?.addEventListener("click", () => {
+    if (formEl && !formEl.hidden) {
+      resetForm();
+      setFormOpen(false);
+      return;
+    }
+    resetForm();
+    restoreFormHome();
+    setFormOpen(true);
+  });
+  document.getElementById("bgmLimitCancel")?.addEventListener("click", () => {
+    resetForm();
+    setFormOpen(false);
+  });
+  emojiBtn?.addEventListener("click", () => {
+    openEmojiPickerModal({
+      selectedEmoji: formEmoji,
+      allowEmpty: false,
+      suggestedText:
+        (nameInput && nameInput.value) || (bindSel && bindSel.value) || "",
+      type: "expense",
+      onPick: (emoji) => {
+        formEmoji = emoji;
+        emojiTouched = true;
+        syncEmojiBtn();
+      },
+    });
+  });
+  bindSel?.addEventListener("change", () => {
+    const cat = bindSel.value;
+    if (!cat) return;
+    // Привязка к категории: название и иконку подставляем из самой категории.
+    if (nameInput && !nameInput.value.trim()) nameInput.value = cat;
+    if (!emojiTouched) {
+      formEmoji = (getCategoryStyle(cat, "expense") || {}).icon || formEmoji;
+      syncEmojiBtn();
+    }
+  });
+  // Цвет кольца: свой пикер приложения (i18n ru/en/ka), а «Сбросить цвет»
+  // возвращает градиент по умолчанию. Правка живёт в форме до сохранения.
+  colorBtn?.addEventListener("click", () => {
+    openCategoryColorPicker(formColor || DEFAULT_BUDGET_RING_COLORS.a, (hex) => {
+      formColor = normalizeLimitColor(hex) || "";
+      syncColorInput();
+    });
+  });
+  colorResetBtn?.addEventListener("click", () => {
+    formColor = "";
+    syncColorInput();
+  });
+
+  document.getElementById("bgmLimitAdd")?.addEventListener("click", () => {
+    const rawAmount = String(amountInput ? amountInput.value : "").trim();
+    const typed = parseFloat(rawAmount.replace(",", "."));
+    if (isNaN(typed) || typed <= 0) {
       showToast(t("enterPositive"), "error");
       return;
     }
-    categoryBudgets[cat] = toRub(limit);
+    // Правка существующей карточки: значения применяются к ней, новая не
+    // создаётся. У лимита категории меняется сумма и (по желанию) иконка.
+    if (editingLimitId) {
+      const editingItem = draftLimits.find((entry) => entry.id === editingLimitId);
+      const nextDraft = applyBudgetLimitEdit(draftLimits, editingLimitId, {
+        amountRub: toRub(typed),
+        name: nameInput ? nameInput.value : "",
+        emoji: formEmoji,
+        color: formColor,
+      });
+      if (!nextDraft) {
+        showToast(t("budgetLimitNameRequired"), "error");
+        return;
+      }
+      draftLimits = nextDraft;
+      // Иконка лимита категории принадлежит самой категории: выбранный эмодзи
+      // сохраняем в categoryCustomizations, чтобы он появился и в карточке
+      // лимита, и на кольце главной.
+      if (editingItem && editingItem.kind === "category" && editingItem.category) {
+        const icon = String(formEmoji || "").trim();
+        const current =
+          (getCategoryStyle(editingItem.category, "expense") || {}).icon || "";
+        if (icon && icon !== current) {
+          const prev = categoryCustomizations[editingItem.category];
+          categoryCustomizations[editingItem.category] = Object.assign(
+            {},
+            prev && typeof prev === "object" ? prev : {},
+            { icon: icon },
+          );
+          // Копия в самой категории: её читает резолвер эмодзи, если
+          // оформление категории сброшено.
+          const catEntry = categories[editingItem.category];
+          if (catEntry && typeof catEntry === "object") catEntry.emoji = icon;
+          saveAll();
+          // Иконка категории участвует в истории операций: перерисовываем
+          // список, иначе он остался бы со старым эмодзи до следующего действия.
+          refreshOperationViews();
+        }
+      }
+      resetForm();
+      setFormOpen(false);
+      renderLimits();
+      showToast(t("saved"));
+      return;
+    }
+    const cat = bindSel ? bindSel.value : "";
+    if (cat) {
+      // Выбрана категория — это лимит категории (categoryBudgets).
+      const existing = draftLimits.find(
+        (entry) => entry.kind === "category" && entry.category === cat,
+      );
+      if (existing) existing.amountRub = toRub(typed);
+      else
+        draftLimits.push({
+          id: "cat:" + cat,
+          kind: "category",
+          category: cat,
+          name: cat,
+          emoji: "",
+          amountRub: toRub(typed),
+          color: normalizeLimitColor(formColor),
+        });
+      if (existing && formColor) existing.color = normalizeLimitColor(formColor);
+      // Иконка лимита категории — это иконка самой категории: раньше выбор в
+      // форме при создании нового лимита терялся, и карточка с историей
+      // показывали дефолтную денежную эмодзи.
+      const catIcon = String(formEmoji || "").trim();
+      if (catIcon) draftCategoryEmojis.set(cat, catIcon);
+      showToast(existing ? t("budgetLimitExists") : t("budgetLimitAdded"));
+    } else {
+      // «Свой лимит» — независимая карточка со своим названием и иконкой.
+      const item = normalizeCustomBudgetLimit({
+        name: nameInput ? nameInput.value : "",
+        emoji: formEmoji,
+        amountRub: toRub(typed),
+        color: formColor,
+      });
+      if (!item) {
+        showToast(t("budgetLimitNameRequired"), "error");
+        return;
+      }
+      draftLimits.push({
+        id: item.id + "-" + draftLimits.length,
+        kind: "custom",
+        category: null,
+        name: item.name,
+        emoji: item.emoji,
+        amountRub: item.amountRub,
+        color: item.color,
+      });
+      showToast(t("budgetLimitAdded"));
+    }
+    resetForm();
+    setFormOpen(false);
+    renderLimits();
+  });
+
+  // Первичная отрисовка списка, затем кольцо и полоса набирают процент от 0.
+  renderLimits();
+  paintAnalytics(getMonthlyBudgetAnalytics(), true);
+  // Открыли тапом по слайду лимита — прокручиваем список к его карточке и
+  // подсвечиваем только её. Тап по слайду 0 (общий обзор) — прокрутка к началу
+  // списка всех лимитов и одновременная подсветка всех карточек.
+  if (focusLimitId) focusBudgetLimitCard(focusLimitId);
+  else if (focusLimitsList) focusBudgetLimitsList();
+  document
+    .getElementById("cancelBudget")
+    .addEventListener("click", () => closeModal("addBudgetModal"));
+  saveBtn.addEventListener("click", () => {
+    // Все правки списка применяются разом: изменённые суммы, удаления и
+    // добавления. Нулевая (или очищенная) сумма означает «лимит снят».
+    const next = applyBudgetLimitsDraft(draftLimits);
+    categoryBudgets = next.categoryBudgets;
+    budgetCustomLimits = next.customLimits;
+    // Цвета лимитов категорий живут в categoryCustomizations[категория].budgetColor:
+    // удалённый лимит забирает цвет с собой, сброшенный — возвращает градиент.
+    const colorMap = next.categoryColors || {};
+    Object.keys(categoryCustomizations || {}).forEach((cat) => {
+      const cust = categoryCustomizations[cat];
+      if (!cust || typeof cust !== "object") return;
+      if (colorMap[cat]) cust.budgetColor = colorMap[cat];
+      else delete cust.budgetColor;
+    });
+    Object.keys(colorMap).forEach((cat) => {
+      if (categoryCustomizations[cat]) return;
+      categoryCustomizations[cat] = { budgetColor: colorMap[cat] };
+    });
+    // Иконки, выбранные в форме для лимитов категорий: пишем и в оформление
+    // категории, и в саму категорию, чтобы эмодзи был одинаковым в списке
+    // категорий, в карточке лимита и в истории операций.
+    draftCategoryEmojis.forEach((emoji, cat) => {
+      const next = String(emoji || "").trim();
+      if (!cat || !next) return;
+      const base = getBaseCategoryStyle(cat, "expense");
+      const prev = categoryCustomizations[cat];
+      const patch = Object.assign(
+        {},
+        prev && typeof prev === "object" ? prev : {},
+      );
+      if (next !== base.icon) patch.icon = next;
+      else delete patch.icon;
+      if (Object.keys(patch).length) categoryCustomizations[cat] = patch;
+      else delete categoryCustomizations[cat];
+      const catEntry = categories[cat];
+      if (catEntry && typeof catEntry === "object") catEntry.emoji = next;
+    });
+    // Прежний единый лимит уже перенесён в список карточкой.
+    monthlyBudgetLimitRub = 0;
     saveAll();
+    updateBudgetCard();
     closeModal("addBudgetModal");
-    renderSettings();
+    // Настройки перерисовываем только если они открыты: иначе вызов
+    // renderSettings() с главной подменяет #mainContent экраном настроек.
+    if (currentTab === "settings") renderSettings();
     showToast(t("saved"));
   });
 }
@@ -20197,6 +25055,8 @@ function exportToJSON() {
     frequentStats,
     categoryCustomizations,
     categoryBudgets,
+    budgetCustomLimits,
+    monthlyBudgetLimitRub,
     recurringOps,
     pinHash,
     pinEnabled,
@@ -20276,6 +25136,9 @@ function importFromJSON(file) {
           frequentStats = d.frequentStats || {};
           categoryCustomizations = d.categoryCustomizations || {};
           categoryBudgets = d.categoryBudgets || {};
+          budgetCustomLimits = Array.isArray(d.budgetCustomLimits)
+            ? d.budgetCustomLimits
+            : [];
           recurringOps = d.recurringOps || [];
           if (d.pinHash) {
             pinHash = d.pinHash;
@@ -20416,6 +25279,8 @@ async function cloudSave() {
     frequentStats,
     categoryCustomizations,
     categoryBudgets,
+    budgetCustomLimits,
+    monthlyBudgetLimitRub,
     recurringOps,
     version: "2.2",
     exportDate: new Date().toISOString(),
@@ -20501,6 +25366,12 @@ function cloudLoad() {
       frequentStats = d.frequentStats || {};
       categoryCustomizations = d.categoryCustomizations || {};
       categoryBudgets = d.categoryBudgets || {};
+      budgetCustomLimits = Array.isArray(d.budgetCustomLimits)
+        ? d.budgetCustomLimits
+        : [];
+      monthlyBudgetLimitRub = Math.max(0, Number(d.monthlyBudgetLimitRub) || 0);
+      // Старый единый лимит переносим в список своих лимитов.
+      migrateLegacyMonthlyLimitRub();
       recurringOps = d.recurringOps || [];
       syncStartBalanceTransaction();
       saveAll();
@@ -22078,10 +26949,15 @@ function openModal(id) {
       }
       m.classList.remove("closing");
       const compactWindow = ["fullHistoryModal", "subcategoryPickerModal", "subcategoryEditorModal"].includes(id);
+      // Окно бюджета анимируется переходами (масштаб + прозрачность), а не
+      // CSS-анимацией .modal: класс .opening показывает окно в стартовом
+      // состоянии, reflow фиксирует его, и только потом включается .open.
+      const budgetWindow = id === "addBudgetModal";
       if (compactWindow) { m.classList.add("opening"); m.offsetHeight; }
+      if (budgetWindow) { m.classList.add("opening"); void m.offsetHeight; }
       requestAnimationFrame(() => {
         m.classList.add("open");
-        if (compactWindow) m.classList.remove("opening");
+        if (compactWindow || budgetWindow) m.classList.remove("opening");
       });
     }
     document.body.style.overflow = "hidden";
@@ -22102,6 +26978,16 @@ function restoreHomeHeroIfNeeded() {
   forceHeroChipLayout(heroWrap);
   updateHeroChipLabels(heroWrap);
   updateHeroDebugOverlay();
+  bindHomePhotoButton();
+}
+
+// Настройка «Показывать месячный бюджет»: карточка на главной просто прячется,
+// разметка и обработчики остаются на месте — включение возвращает всё как было
+// без полной перерисовки главной.
+function syncHomeBudgetCardVisibility() {
+  const card = document.getElementById("ghBudgetCard");
+  if (card && card.style) card.style.display = homeBudgetVisible ? "" : "none";
+  return !!homeBudgetVisible;
 }
 
 function ensureHomeHeroStable(attempts = 6, delay = 120) {
@@ -22112,54 +26998,126 @@ function ensureHomeHeroStable(attempts = 6, delay = 120) {
 }
 
 function createHeroWrapNode() {
-  const { balD, incD, expD, salD } = getTopBlockDisplayValues();
+  const { balD, incD, expD, period } = getTopBlockDisplayValues();
+  const topPeriodKey = period === "allTime" ? "allTime" : "thisMonth";
+  // Суммы «Доходов»/«Расходов» — за всё время, поэтому пометка «· всего» у
+  // цифры не нужна: период целиком написан в подписи карточки.
+  const scopeStyle = "display:none";
+  const scopeText = " · " + t("ghScopeTotal");
   const s = sym();
   const wrap = document.createElement("div");
-  wrap.className = "hero-card-wrap home-overview";
+  wrap.className = "hero-card-wrap home-overview gh-home";
   wrap.id = "heroCardWrap";
+  // Маркер для восстановления главной: карточка бюджета может быть выключена
+  // настройкой, и её отсутствие — не потеря разметки.
+  wrap.dataset.budgetCard = homeBudgetVisible ? "on" : "off";
   wrap.innerHTML = `
     <div
       id="balanceCard"
-      class="balance-card balance-card-wide"
+      class="balance-card balance-card-wide gh-card gh-balance"
       data-type="balance"
       role="button"
       tabindex="0"
     >
-      <div id="balanceHeroFocus">
-        <div class="hero-label" data-i18n="balance">${t("balance")}</div>
-        <div class="hero-value" id="balanceValue">${balD.toFixed(2)} ${s}</div>
-        <div class="hero-sub" id="heroTrend"></div>
+      <div class="gh-balance-main" id="balanceHeroFocus">
+        <div class="gh-label hero-label" data-i18n="ghTotalBalance">${t("ghTotalBalance")}</div>
+        <div class="gh-balance-value" id="balanceValue">${balD.toFixed(2)} ${s}</div>
+        <div class="gh-trend" id="heroTrend"></div>
       </div>
-      <div class="hero-chips">
-        <div
-          id="incomeCard"
-          class="hero-chip hc-income"
-          data-type="income"
-          data-period="thisMonth"
-          role="button"
-          tabindex="0"
-        >
-          <div class="hc-label">
-            <span class="hc-icon">📈</span>
-            <span class="hc-label-text" id="incomeHeroLabel"></span>
-          </div>
-          <div class="hc-value" id="incomeValue">${incD.toFixed(2)} ${s}</div>
+      <div class="gh-spark" aria-hidden="true">
+        <svg viewBox="0 0 100 50" focusable="false" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="ghSparkArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FF7E5F" stop-opacity="0.3"></stop>
+              <stop offset="100%" stop-color="#FF7E5F" stop-opacity="0"></stop>
+            </linearGradient>
+          </defs>
+          <path class="gh-spark-area" d="M 0 45 C 10 45, 15 30, 25 30 C 35 30, 40 40, 50 40 C 60 40, 65 15, 75 15 C 85 15, 90 25, 95 25 C 98 25, 100 5, 100 5 L 100 50 L 0 50 Z" fill="url(#ghSparkArea)"></path>
+          <path class="gh-spark-line" d="M 0 45 C 10 45, 15 30, 25 30 C 35 30, 40 40, 50 40 C 60 40, 65 15, 75 15 C 85 15, 90 25, 95 25 C 98 25, 100 5, 100 5" fill="none" stroke="#FF7E5F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+        </svg>
+      </div>
+    </div>
+    <div class="gh-split">
+      <div
+        id="incomeCard"
+        class="gh-card gh-stat hero-chip gh-stat-income"
+        data-type="income"
+        data-period="${topPeriodKey}"
+        role="button"
+        tabindex="0"
+      >
+        <div class="gh-stat-top">
+          <span class="gh-stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 5v14M6 13l6 6 6-6"></path></svg>
+          </span>
+          <span class="gh-stat-labels">
+            <span class="gh-stat-label" data-i18n="income">${t("income")}</span>
+            <span class="gh-stat-sub" data-i18n="periodAllTime">${t("periodAllTime")}</span>
+          </span>
         </div>
-        <div
-          id="expenseCard"
-          class="hero-chip hc-expense"
-          data-type="expense"
-          data-period="thisMonth"
-          role="button"
-          tabindex="0"
-        >
-          <div class="hc-label">
-            <span class="hc-icon">📉</span>
-            <span class="hc-label-text" id="expenseHeroLabel"></span>
+        <div class="gh-stat-value"><span class="gh-sign" aria-hidden="true">+</span><span id="incomeValue">${incD.toFixed(2)} ${s}</span><span class="gh-stat-scope" id="incomeScope" style="${scopeStyle}">${scopeText}</span></div>
+      </div>
+      <div
+        id="expenseCard"
+        class="gh-card gh-stat hero-chip gh-stat-expense"
+        data-type="expense"
+        data-period="${topPeriodKey}"
+        role="button"
+        tabindex="0"
+      >
+        <div class="gh-stat-top">
+          <span class="gh-stat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
+          </span>
+          <span class="gh-stat-labels">
+            <span class="gh-stat-label" data-i18n="expense">${t("expense")}</span>
+            <span class="gh-stat-sub" data-i18n="periodAllTime">${t("periodAllTime")}</span>
+          </span>
+        </div>
+        <div class="gh-stat-value"><span class="gh-sign" aria-hidden="true">−</span><span id="expenseValue">${expD.toFixed(2)} ${s}</span><span class="gh-stat-scope" id="expenseScope" style="${scopeStyle}">${scopeText}</span></div>
+      </div>
+    </div>
+    ${homeBudgetVisible ? `<div class="gh-card gh-budget" id="ghBudgetCard" data-type="budget" data-state="noLimit" role="button" tabindex="0" aria-label="${esc(t("ghMonthlyBudget"))}">
+      <div class="gh-budget-track" id="ghBudgetTrack">
+        <div class="gh-budget-slide" id="ghBudgetSlide0" data-slide="0" data-state="noLimit">
+          <div class="gh-ring-wrap">
+            <div class="gh-ring" aria-hidden="true">
+              <div class="gh-ring-inner">
+                <span class="gh-ring-pct" id="ghBudgetPct">—</span>
+              </div>
+            </div>
           </div>
-          <div class="hc-value" id="expenseValue">${expD.toFixed(2)} ${s}</div>
+          <div class="gh-budget-body">
+            <div class="gh-label" data-i18n="ghMonthlyBudget">${t("ghMonthlyBudget")}</div>
+            <div class="gh-budget-limit-name" id="ghBudgetLimitName" hidden></div>
+            <div class="gh-budget-desc" id="ghBudgetDesc" data-i18n="ghBudgetDesc">${t("ghBudgetDesc")}</div>
+            <div class="gh-budget-amount">
+              <span id="ghBudgetSpent">0.00 ${s}</span>
+              <span class="gh-budget-limit">/ <span id="ghBudgetLimit">${t("ghLimitNotSet")}</span></span>
+            </div>
+            <div class="gh-bar" aria-hidden="true"><div class="gh-bar-fill" id="ghBudgetBar"></div></div>
+            <div class="gh-budget-hint" id="ghBudgetHint" data-i18n="ghBudgetHint">${t("ghBudgetHint")}</div>
+            <div class="gh-budget-over" id="ghBudgetOver"></div>
+          </div>
+          <div class="gh-budget-overview" id="ghBudgetOverview" hidden></div>
         </div>
       </div>
+      <div class="gh-budget-dots" id="ghBudgetDots" hidden></div>
+      <div class="gh-budget-mini" id="ghBudgetMini" hidden></div>
+    </div>` : ""}
+    <div class="gh-actions">
+      <button type="button" id="homeVoiceBtn" class="home-voice-btn gh-action-btn gh-action-voice">
+        <span class="home-voice-orb gh-action-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"></path></svg>
+        </span>
+        <span class="home-voice-label" aria-live="polite">${esc(getVoiceDraftLabels().title)}</span>
+      </button>
+      <button type="button" id="homePhotoBtn" class="gh-action-btn gh-action-photo">
+        <span class="gh-action-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M4 8h3l1.6-2.2h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"></path><circle cx="12" cy="13" r="3.2"></circle></svg>
+        </span>
+        <span class="gh-action-label" data-i18n="ghPhoto">${t("ghPhoto")}</span>
+      </button>
     </div>
   `;
   updateHeroTrendText();
@@ -22808,7 +27766,24 @@ function scheduleHomeRecoveryAfterAddCancel() {
     const timerId = setTimeout(() => {
       if (document.getElementById("addModal")) return;
       if (currentTab !== "home" || simpleMode) return;
-      renderHome();
+      // Раньше здесь вызывался renderHome() — четыре полных перерисовки главной
+      // заново запускали анимацию графика и бюджета, из-за чего они накладывались
+      // друг на друга. Если карточки на месте, достаточно вернуть им видимость;
+      // renderHome — только если разметка главной действительно потеряна.
+      const heroWrapEl = document.getElementById("heroCardWrap");
+      const budgetHidden =
+        !!heroWrapEl &&
+        !!heroWrapEl.dataset &&
+        heroWrapEl.dataset.budgetCard === "off";
+      const heroIntact =
+        !!heroWrapEl &&
+        // Карточка бюджета выключена настройкой — её отсутствие не поломка.
+        (budgetHidden || !!document.getElementById("ghBudgetCard"));
+      if (heroIntact) {
+        restoreHomeHeroIfNeeded();
+      } else {
+        renderHome();
+      }
       updateTopBlocks();
     }, delay);
     addModalRecoveryTimers.push(timerId);
@@ -22844,11 +27819,30 @@ function closeModal(id) {
         m.style.display = "none";
         m.remove();
       }, duration);
+      // Анимация графика и бюджета после закрытия окна — ровно один раз.
+      // Раньше её запускали четыре восстановительных renderHome(), из-за чего
+      // анимации накладывались друг на друга и дёргались.
+      setTimeout(() => {
+        if (currentTab !== "home" || simpleMode) return;
+        // Если главная уже перерисовалась и анимация только что стартовала
+        // (восстановление потерянной разметки), второй запуск не нужен.
+        if (Date.now() - _heroAnimStartedAt < 250) return;
+        playHomeHeroAnimations(true);
+      }, duration + 40);
     } else {
       m.classList.remove("open");
       const compactWindow = ["fullHistoryModal", "subcategoryPickerModal", "subcategoryEditorModal"].includes(id);
       if (compactWindow) { m.classList.add("closing"); m.inert = true; m.setAttribute("aria-hidden", "true"); }
-      const duration = compactWindow ? (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? 0 : 260) : 350;
+      // Окно бюджета закрывается переходом: класс .closing держит его на экране,
+      // пока идут fade-out и scale(0.95), и лишь потом узел удаляется.
+      const budgetWindow = id === "addBudgetModal";
+      if (budgetWindow) { m.classList.add("closing"); m.inert = true; m.setAttribute("aria-hidden", "true"); }
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      const duration = compactWindow
+        ? (reduceMotion ? 0 : 260)
+        : budgetWindow
+          ? (reduceMotion ? 0 : 300)
+          : 350;
       setTimeout(() => m.remove(), duration);
     }
     const keepBodyLocked = !!document.querySelector(
@@ -23132,7 +28126,7 @@ function init() {
     const traceTarget = describeTraceTarget(e.target);
     if (traceTarget) traceApp("click", { target: traceTarget });
     const card = e.target.closest(
-      ".summary-card, .hero-chip, .balance-card-wide",
+      ".summary-card, .hero-chip, .balance-card-wide, .gh-budget",
     );
     if (!card) return;
     haptic("light");
@@ -23141,20 +28135,31 @@ function init() {
       openSalaryModal();
       return;
     }
+    if (type === "budget") {
+      // Свайп карусели и тап по точке пагинации не должны открывать окно:
+      // после реального сдвига пальца клик гасится на 220 мс.
+      if (Date.now() < _budgetCarouselTapGuardUntil) return;
+      // Слайд 0 — общий обзор: окно открывается на начале списка всех лимитов и
+      // подсвечивает все карточки сразу. Слайды 1…N — конкретный лимит: окно
+      // прокручивается к его карточке и подсвечивает только её.
+      openAddBudgetModal(getBudgetTapFocusOptions(e.target));
+      return;
+    }
     if (type === "income" || type === "expense") {
-      currentFilter = simpleMode && currentFilter === type ? null : type;
-      if (card.dataset.period) {
-        historyFilter = card.dataset.period;
-        document.querySelectorAll(".htf-btn").forEach((btn) => {
-          btn.classList.toggle("active", btn.dataset.hf === historyFilter);
-        });
-      }
+      // Повторное нажатие по той же карточке снимает фильтр (и по типу, и по
+      // периоду), чтобы история вернулась в исходное состояние.
+      // Возвращённое значение — состояние currentFilter после переключения:
+      // тип при применении фильтра и null при отмене.
+      const activeFilter = toggleHistoryFilter(type, card.dataset.period);
       if (simpleMode) {
         // В упрощённом режиме — обновляем список и прокручиваем
+        // Задержка — на перерисовку: высота списка после фильтра другая,
+        // поэтому цель прокрутки считаем уже по новому DOM.
         refreshHomeList();
         setTimeout(() => {
-          const el = document.querySelector(".sm-ops-list, .sm-empty");
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          // Скролл к истории нужен только когда фильтр применён. При отмене
+          // пользователь остаётся на том же месте экрана, где нажал карточку.
+          if (activeFilter) scrollHistoryToTop();
           showToast(
             currentFilter === null ? t("cancel") : type === "income"
               ? t("toastIncomeFilter")
@@ -23168,26 +28173,29 @@ function init() {
           renderOpsList();
         }
         setTimeout(() => {
-          const el =
-            document.querySelector(".ops-list") ||
-            document.getElementById("opsList");
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+          // Как и в упрощённом режиме: снятие фильтра не двигает экран.
+          if (activeFilter) scrollHistoryToTop();
           showToast(
-            type === "income"
-              ? t("toastIncomeFilter")
-              : t("toastExpenseFilter"),
+            currentFilter === null
+              ? t("cancel")
+              : type === "income"
+                ? t("toastIncomeFilter")
+                : t("toastExpenseFilter"),
             "success",
           );
         }, 200);
       }
     } else {
-      if (currentFilter !== null) {
-        currentFilter = null;
-        if (currentTab === "home") {
-          if (simpleMode) refreshHomeList();
-          else renderOpsList();
-        }
-      } else if (currentTab !== "home") setTab("home");
+      // Карточка «Баланс»: всегда возвращает историю к исходному состоянию.
+      const hadFilter =
+        currentFilter !== null || (historyFilter && historyFilter !== "allTime");
+      resetHistoryFilter();
+      if (currentTab !== "home") setTab("home");
+      else if (hadFilter) {
+        if (simpleMode) refreshHomeList();
+        else renderOpsList();
+        showToast(t("cancel"), "success");
+      }
     }
   });
   document.addEventListener("keydown", (e) => {
@@ -23209,6 +28217,17 @@ function init() {
 
   setTab("home", () => {
     appBooting = false;
+    // Первая отрисовка главной = appReady: только теперь снимаем сплэш.
+    hideBootSplash();
+    // Сплэш уходит с плавным затуханием (~200 мс). Анимацию бюджета
+    // перезапускаем уже после него: иначе при первом входе она целиком
+    // проигрывает под сплэшем, и пользователь видит только готовый процент.
+    if (typeof setTimeout === "function")
+      setTimeout(() => {
+        if (currentTab !== "home" || simpleMode) return;
+        if (typeof playHomeHeroAnimations === "function")
+          playHomeHeroAnimations(true);
+      }, 220);
     startDeferredBackgroundServices();
     ensureHeroWrapGuard();
     setTimeout(() => ensureHomeHeroStable(8, 150), 120);
@@ -23317,6 +28336,23 @@ function init() {
   document
     .getElementById("settingsNavBtnSimple")
     ?.addEventListener("click", () => setTab("settings"));
+
+  // ── Graphite Neon: иконки шапки (уведомления и меню) ──
+  const ghBellBtn = document.getElementById("ghBellBtn");
+  if (ghBellBtn && !ghBellBtn.dataset.ghBound) {
+    ghBellBtn.dataset.ghBound = "1";
+    ghBellBtn.addEventListener("click", () => {
+      setTab("settings");
+      if (typeof openSettingsNotifications === "function") {
+        openSettingsNotifications();
+      }
+    });
+  }
+  const ghMenuBtn = document.getElementById("ghMenuBtn");
+  if (ghMenuBtn && !ghMenuBtn.dataset.ghBound) {
+    ghMenuBtn.dataset.ghBound = "1";
+    ghMenuBtn.addEventListener("click", openMoreDrawer);
+  }
 
   // ==== ПРОВЕРКА ФЛАГА НОВЫХ СООБЩЕНИЙ ПРИ ЗАГРУЗКЕ ====
   const checkSupportFlag = () => {
@@ -24369,6 +29405,8 @@ function resetRuntimeStateForOwnershipSwitch(source = "resetRuntimeStateForOwner
   frequentStats = {};
   categoryCustomizations = {};
   categoryBudgets = {};
+  budgetCustomLimits = [];
+  monthlyBudgetLimitRub = 0;
   recurringOps = [];
   profiles = [
     {
@@ -25089,6 +30127,8 @@ function showAuthScreen(source = "showAuthScreen") {
   card.appendChild(guestButton);
   overlay.appendChild(card);
   document.body.appendChild(overlay);
+  // Экран входа уже отрисован — стартовый сплэш больше не нужен.
+  hideBootSplash();
 
   const updateSentState = (email) => {
     if (!email) {
@@ -25266,6 +30306,79 @@ function setupAuthAppStateListener() {
     }
     clearAuthSession("appStateChange:active:refresh-failed");
     showAuthScreen("appStateChange:active:refresh-failed");
+  });
+}
+
+// Страховка на возврат из фона. На части устройств WebView после паузы не
+// перерисовывает слой: пользователь видит пустой (чёрный) экран и «зависание».
+// Если разметка текущей вкладки действительно пропала — перерисовываем её;
+// если всё на месте, только восстанавливаем видимость главной карточки, без
+// повторного запуска анимаций.
+let appResumeGuardInstalled = false;
+let appBackgroundedAt = 0;
+let lastResumeRecoveryAt = 0;
+
+function ensureUiAliveAfterResume() {
+  if (!appInitDone || appBooting) return;
+  const content = document.getElementById("mainContent");
+  if (!content) return;
+  if (!content.children.length) {
+    traceApp("resume-repair-ui", { tab: currentTab, simpleMode });
+    setTab(currentTab);
+    return;
+  }
+  if (currentTab === "home" && !simpleMode) {
+    restoreHomeHeroIfNeeded();
+    updateTopBlocks();
+  }
+}
+
+// Лёгкий «пинок» WebView после возврата из фона: Chromium иногда не
+// перерисовывает страницу сам, и пользователь видит серый/чёрный фон,
+// пока не произойдёт хоть одна отрисовка. Меняем прозрачность на 0.999 и
+// возвращаем обратно на следующем кадре — это заставляет перерисовать слой.
+function nudgeWebViewRepaint() {
+  const target = document.getElementById("mainContent") || document.body;
+  if (!target) return;
+  target.style.opacity = "0.999";
+  void target.offsetHeight;
+  requestAnimationFrame(() => {
+    target.style.opacity = "";
+  });
+}
+
+function setupAppResumeGuard() {
+  if (appResumeGuardInstalled) return;
+  const AppPlugin = window.Capacitor?.Plugins?.App;
+  if (!AppPlugin || typeof AppPlugin.addListener !== "function") return;
+  appResumeGuardInstalled = true;
+
+  // appStateChange и resume приходят почти одновременно, поэтому восстановление
+  // выполняем один раз на возврат — иначе UI перерисовывается дважды подряд.
+  const runResumeRecovery = () => {
+    const now = Date.now();
+    if (now - lastResumeRecoveryAt < 500) return;
+    lastResumeRecoveryAt = now;
+    ensureUiAliveAfterResume();
+    nudgeWebViewRepaint();
+  };
+
+  AppPlugin.addListener("appStateChange", ({ isActive }) => {
+    if (!isActive) {
+      appBackgroundedAt = Date.now();
+      return;
+    }
+    const awayMs = appBackgroundedAt ? Date.now() - appBackgroundedAt : 0;
+    appBackgroundedAt = 0;
+    // Короткие переключения (диалог разрешений, выбор файла) не трогаем.
+    if (awayMs < 1500) return;
+    setTimeout(runResumeRecovery, 60);
+  });
+
+  // Отдельное событие resume: принудительно просим WebView перерисовать
+  // страницу, чтобы вместо серого фона сразу появился интерфейс.
+  AppPlugin.addListener("resume", () => {
+    setTimeout(runResumeRecovery, 40);
   });
 }
 
@@ -25481,6 +30594,8 @@ async function showShareWelcomeScreen(pkg) {
       frequentStats: {},
       categoryCustomizations: {},
       categoryBudgets: {},
+      budgetCustomLimits: [],
+      monthlyBudgetLimitRub: 0,
       recurringOps: [],
     };
     if (!localStorage.getItem(getProfileStorageKey(newId)))
@@ -25540,6 +30655,8 @@ function exitGuestMode() {
         frequentStats: {},
         categoryCustomizations: {},
         categoryBudgets: {},
+        budgetCustomLimits: [],
+        monthlyBudgetLimitRub: 0,
         recurringOps: [],
       }),
     );
@@ -26413,6 +31530,7 @@ function openNotificationHelpModal() {
 
 setupAppUrlOpenListener();
 setupAuthAppStateListener();
+setupAppResumeGuard();
 bootApp();
 setTimeout(updateOfflineBar, 600);
 
@@ -31977,8 +37095,52 @@ if (!window._toolsHookInstalled) {
 // ██████████████████████████████████████████████████████████████
 
 // ═══════════════════════════════════════════════════════════════
-// 🎬 1. SPLASH SCREEN
+// 🎬 1. SPLASH SCREEN — «денежный дождь» с физикой отскока
 // ═══════════════════════════════════════════════════════════════
+
+// Физика монет сплэша. Лежит вне IIFE, чтобы её можно было прогонять в тестах
+// без DOM (см. tests/finance/indicators.test.js).
+const SPLASH_COIN_PHYSICS = {
+  gravity: 2600,        // px/s² — падение ускоряется по закону гравитации
+  restitution: 0.6,     // доля скорости, возвращаемая при ударе о дно (vy = -vy * 0.6)
+  minBounceSpeed: 150,  // px/s — медленнее это уже не отскок, а успокоение
+  maxBounces: 3,        // после 2–3 отскоков монета ложится на дно
+};
+
+// Один шаг физики: гравитация -> удар о дно -> затухающий отскок -> покой.
+// coin: { y, vy, bounces, resting }, floorY — координата дна для центра монеты.
+function splashCoinStep(coin, dt, floorY) {
+  if (coin.resting) return coin;
+  // Ограничение шага: после сворачивания приложения rAF отдаёт большой dt,
+  // и без клампа монета «телепортируется» сквозь дно.
+  const step = Math.min(Math.max(dt, 0), 0.05);
+  coin.vy += SPLASH_COIN_PHYSICS.gravity * step;
+  coin.y += coin.vy * step;
+  if (coin.y < floorY) return coin;
+  coin.y = floorY;
+  if (coin.vy <= 0) return coin;
+  coin.bounces += 1;
+  coin.vy = -coin.vy * SPLASH_COIN_PHYSICS.restitution;
+  if (
+    coin.bounces >= SPLASH_COIN_PHYSICS.maxBounces ||
+    Math.abs(coin.vy) < SPLASH_COIN_PHYSICS.minBounceSpeed
+  ) {
+    coin.vy = 0;
+    coin.resting = true;
+  }
+  return coin;
+}
+
+// 3D-наклон монеты при вращении: rotateY качается в пределах ±SPLASH_COIN_TILT,
+// поэтому монета никогда не встаёт строго на ребро (там она схлопнулась бы в
+// тонкую полоску), но плоскость по X честно сжимается по косинусу угла —
+// именно это и читается как объём, а не как плоский блин.
+const SPLASH_COIN_TILT = 1.0; // рад (~57°)
+
+function splashCoinFaceAngle(angle) {
+  return Math.sin(angle) * SPLASH_COIN_TILT;
+}
+
 (function initSplashScreen() {
   // Don't show on every reload — only on first visit of session
   if (sessionStorage.getItem("splashShown")) return;
@@ -31986,51 +37148,312 @@ if (!window._toolsHookInstalled) {
 
   const splash = document.createElement("div");
   splash.id = "splashScreen";
+  // graphiteNeon: графит #1e1e1e — тот же фон, что у нативного splash
+  // (drawable/splash.png и windowSplashScreenBackground), поэтому переход
+  // от системного сплэша к оверлею не даёт вспышки другого оттенка.
   splash.style.cssText = [
     "position:fixed;inset:0;z-index:999999;",
-    "background:linear-gradient(160deg,var(--primary) 0%,#1a4731 60%,#0f2318 100%);",
+    "background:radial-gradient(95% 60% at 50% 33%,rgba(155,89,182,0.12) 0%,rgba(155,89,182,0) 65%),#1e1e1e;",
     "display:flex;flex-direction:column;align-items:center;justify-content:center;",
     "gap:16px;transition:opacity 0.18s ease, transform 0.18s ease;",
   ].join("");
 
   const style = document.createElement("style");
   style.textContent = `
-    @keyframes splashLogo {
-      0%   { transform: scale(0.3) rotate(-20deg); opacity: 0; }
-      50%  { transform: scale(1.15) rotate(4deg);  opacity: 1; }
-      100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
+    /* Слой монет: absolute + pointer-events:none — не участвует в раскладке
+       и не перехватывает касания, текст остаётся над ним. */
+    #splashScreen .splash-coin-layer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
     }
+    /* Монета: обёртка отвечает за позицию и 3D-наклон, металл — во вложенных
+       слоях. Двигается только transform, will-change: transform выносит монету
+       на отдельный слой композитора: кадр — это композиция готовой текстуры,
+       а не перерисовка (иначе 16 вращающихся монет заметно лагают). */
+    #splashScreen .splash-coin {
+      position: absolute;
+      top: 0;
+      left: 0;
+      --c: 44px; /* диаметр монеты: от него считаются обод, тени и рельеф */
+      will-change: transform;
+      transform-style: preserve-3d;
+    }
+    /* Диск: металл собран из conic-gradient (круговой блик, как на шлифованном
+       металле) и двух radial-gradient (верхний свет, нижнее затемнение).
+       Плоских заливок нет — с ними монета выглядит наклейкой.
+       Тени и обод считаются от --c (диаметр монеты): на 32 px фиксированные
+       8 px «света» съедали бы весь диск и монета выглядела бледной. */
+    #splashScreen .splash-coin-body {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background-color: #a97a1f;
+      background-image:
+        radial-gradient(78% 78% at 30% 22%, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.10) 26%, rgba(255,255,255,0) 58%),
+        radial-gradient(95% 95% at 76% 94%, rgba(38,20,2,0.5) 0%, rgba(38,20,2,0) 62%),
+        conic-gradient(from 205deg at 50% 50%, #7a4c0d 0deg, #d8b055 24deg, #f4dc94 44deg, #c79a30 70deg, #6d430b 102deg, #a97a1f 134deg, #e8c471 166deg, #8a5c13 198deg, #5f3a08 234deg, #b98a25 266deg, #f6e2a4 298deg, #94651a 332deg, #7a4c0d 360deg);
+      /* Обод и объём: свет сверху, тень снизу (направленный свет, а не свечение
+         по всей кромке — иначе на 32–40 px монета читается как стеклянная
+         бусина), затем тёмная кромка 1 px и внешняя тень под монетой.
+         Для 58 px это соответствует inset 8 px / 0 10px 15px. */
+      box-shadow:
+        inset 0 calc(var(--c) * 0.035) calc(var(--c) * 0.08) rgba(255,247,214,0.42),
+        inset 0 calc(var(--c) * -0.055) calc(var(--c) * 0.1) rgba(0,0,0,0.5),
+        0 0 0 calc(var(--c) * 0.014) rgba(74,44,8,0.75),
+        0 calc(var(--c) * 0.1) calc(var(--c) * 0.18) rgba(0,0,0,0.55);
+    }
+    /* Медная монета: тот же металл, другой сплав. */
+    #splashScreen .splash-coin-body.is-copper {
+      background-color: #a85e2c;
+      background-image:
+        radial-gradient(78% 78% at 30% 22%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.09) 26%, rgba(255,255,255,0) 58%),
+        radial-gradient(95% 95% at 76% 94%, rgba(34,14,3,0.55) 0%, rgba(34,14,3,0) 62%),
+        conic-gradient(from 205deg at 50% 50%, #6f3a17 0deg, #c98a58 24deg, #efc096 44deg, #a8602e 70deg, #54250b 102deg, #96522a 134deg, #dfa878 166deg, #7d3f1c 198deg, #4e220a 234deg, #b06a3a 266deg, #f3cdab 298deg, #8a4722 332deg, #6f3a17 360deg);
+      box-shadow:
+        inset 0 calc(var(--c) * 0.035) calc(var(--c) * 0.08) rgba(255,226,196,0.4),
+        inset 0 calc(var(--c) * -0.055) calc(var(--c) * 0.1) rgba(0,0,0,0.5),
+        0 0 0 calc(var(--c) * 0.014) rgba(60,28,10,0.75),
+        0 calc(var(--c) * 0.1) calc(var(--c) * 0.18) rgba(0,0,0,0.55);
+    }
+    /* Накатка на ребре: частое радиальное рифление. Маска оставляет только
+       внешнее кольцо, чтобы рифление не залезало на поле монеты. */
+    #splashScreen .splash-coin-rim {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,0.22) 0deg 4.5deg, rgba(0,0,0,0.3) 4.5deg 9deg);
+      -webkit-mask: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0 76%, #000 79% 100%);
+      mask: radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 0 76%, #000 79% 100%);
+      opacity: 0.55;
+    }
+    /* Поле монеты: углублённая площадка, на которой вычеканен клевер. */
+    #splashScreen .splash-coin-face {
+      position: absolute;
+      inset: 9%;
+      border-radius: 50%;
+      overflow: hidden;
+      background: radial-gradient(110% 110% at 34% 26%, rgba(255,255,255,0.16) 0%, rgba(255,255,255,0) 44%, rgba(0,0,0,0.16) 78%, rgba(0,0,0,0.38) 100%);
+      box-shadow:
+        inset 0 calc(var(--c) * 0.035) calc(var(--c) * 0.09) rgba(0,0,0,0.55),
+        inset 0 calc(var(--c) * -0.035) calc(var(--c) * 0.09) rgba(255,240,200,0.32);
+    }
+    #splashScreen .splash-coin-relief { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
     @keyframes splashText {
       0%   { transform: translateY(24px); opacity: 0; }
       100% { transform: translateY(0);    opacity: 1; }
     }
     @keyframes splashSub {
       0%   { opacity: 0; }
-      100% { opacity: 0.7; }
+      100% { opacity: 1; }
     }
     @keyframes splashBar {
       0%   { width: 0%; }
       100% { width: 100%; }
     }
+    @media (prefers-reduced-motion: reduce) {
+      /* Без rAF монеты просто лежат на дне — тот же кадр, что и в финале. */
+      #splashScreen .splash-coin { will-change: auto; }
+    }
   `;
   document.head.appendChild(style);
 
   splash.innerHTML = `
-    <div style="font-size:80px;line-height:1;animation:splashLogo 0.7s cubic-bezier(0.34,1.56,0.64,1) both;">🌿</div>
-    <div style="font-size:32px;font-weight:900;color:white;letter-spacing:-1px;animation:splashText 0.5s 0.3s ease both;font-family:'Playfair Display',serif;">BudgetPRO</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:600;animation:splashSub 0.5s 0.5s ease both;letter-spacing:0.5px;">Your capital — Your rules</div>
-    <div style="width:120px;height:3px;background:rgba(255,255,255,0.2);border-radius:99px;overflow:hidden;margin-top:12px;">
-      <div style="height:100%;background:rgba(255,255,255,0.8);border-radius:99px;animation:splashBar 0.7s 0.1s ease both;"></div>
+    <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+      <defs>
+        <!-- Металл чеканки: один свет на весь клевер (userSpaceOnUse), иначе
+             каждый лепесток получал бы свой градиент и выглядел надутым шаром. -->
+        <linearGradient id="splashReliefGold" gradientUnits="userSpaceOnUse" x1="-20" y1="-24" x2="16" y2="24">
+          <stop offset="0" stop-color="#EBD293"/>
+          <stop offset="0.42" stop-color="#D6B362"/>
+          <stop offset="0.78" stop-color="#B0862F"/>
+          <stop offset="1" stop-color="#9A6E1E"/>
+        </linearGradient>
+        <linearGradient id="splashReliefCopper" gradientUnits="userSpaceOnUse" x1="-20" y1="-24" x2="16" y2="24">
+          <stop offset="0" stop-color="#EEC79F"/>
+          <stop offset="0.42" stop-color="#CB915E"/>
+          <stop offset="0.78" stop-color="#9E5E2C"/>
+          <stop offset="1" stop-color="#83481F"/>
+        </linearGradient>
+        <!-- Один лепесток клевера, остальные три — поворотом на 90/180/270°.
+             Смещение света/тени задаётся до rotate, в системе координат монеты,
+             иначе у каждого лепестка свет падал бы в свою сторону. -->
+        <path id="splashCloverLeaf" d="M0 0 C0 -6 -6 -10 -11 -10 C-17 -10 -19 -16 -14.5 -20 C-10 -24 -4 -19 0 -13 C4 -19 10 -24 14.5 -20 C19 -16 17 -10 11 -10 C6 -10 0 -6 0 0 Z"/>
+        <!-- Клевер в технике чеканки: 4 лепестка × 3 слоя (свет, тень, металл).
+             Свет и тень лежат ПОД металлом и видны только кромкой — рельеф
+             выглядит выдавленным в монете, а не наклеенным сверху.
+             Заливки заданы атрибутами, а не CSS: так они гарантированно
+             доезжают до клона внутри shadow-tree <use>. -->
+        <g id="splashCloverReliefGold">
+          <use href="#splashCloverLeaf" fill="#fff6d8" fill-opacity="0.5" transform="translate(-0.55 -0.65)"/>
+          <use href="#splashCloverLeaf" fill="#fff6d8" fill-opacity="0.5" transform="translate(-0.55 -0.65) rotate(90)"/>
+          <use href="#splashCloverLeaf" fill="#fff6d8" fill-opacity="0.5" transform="translate(-0.55 -0.65) rotate(180)"/>
+          <use href="#splashCloverLeaf" fill="#fff6d8" fill-opacity="0.5" transform="translate(-0.55 -0.65) rotate(270)"/>
+          <use href="#splashCloverLeaf" fill="#1d0d02" fill-opacity="0.4" transform="translate(0.55 0.65)"/>
+          <use href="#splashCloverLeaf" fill="#1d0d02" fill-opacity="0.4" transform="translate(0.55 0.65) rotate(90)"/>
+          <use href="#splashCloverLeaf" fill="#1d0d02" fill-opacity="0.4" transform="translate(0.55 0.65) rotate(180)"/>
+          <use href="#splashCloverLeaf" fill="#1d0d02" fill-opacity="0.4" transform="translate(0.55 0.65) rotate(270)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefGold)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefGold)" transform="rotate(90)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefGold)" transform="rotate(180)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefGold)" transform="rotate(270)"/>
+          <circle cx="0.55" cy="0.65" r="3" fill="#1d0d02" fill-opacity="0.4"/>
+          <circle cx="0" cy="0" r="3" fill="url(#splashReliefGold)"/>
+        </g>
+        <g id="splashCloverReliefCopper">
+          <use href="#splashCloverLeaf" fill="#ffe8d2" fill-opacity="0.5" transform="translate(-0.55 -0.65)"/>
+          <use href="#splashCloverLeaf" fill="#ffe8d2" fill-opacity="0.5" transform="translate(-0.55 -0.65) rotate(90)"/>
+          <use href="#splashCloverLeaf" fill="#ffe8d2" fill-opacity="0.5" transform="translate(-0.55 -0.65) rotate(180)"/>
+          <use href="#splashCloverLeaf" fill="#ffe8d2" fill-opacity="0.5" transform="translate(-0.55 -0.65) rotate(270)"/>
+          <use href="#splashCloverLeaf" fill="#1b0a02" fill-opacity="0.42" transform="translate(0.55 0.65)"/>
+          <use href="#splashCloverLeaf" fill="#1b0a02" fill-opacity="0.42" transform="translate(0.55 0.65) rotate(90)"/>
+          <use href="#splashCloverLeaf" fill="#1b0a02" fill-opacity="0.42" transform="translate(0.55 0.65) rotate(180)"/>
+          <use href="#splashCloverLeaf" fill="#1b0a02" fill-opacity="0.42" transform="translate(0.55 0.65) rotate(270)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefCopper)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefCopper)" transform="rotate(90)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefCopper)" transform="rotate(180)"/>
+          <use href="#splashCloverLeaf" fill="url(#splashReliefCopper)" transform="rotate(270)"/>
+          <circle cx="0.55" cy="0.65" r="3" fill="#1b0a02" fill-opacity="0.42"/>
+          <circle cx="0" cy="0" r="3" fill="url(#splashReliefCopper)"/>
+        </g>
+        <!-- Монета целиком: металл, обод и накатка живут в CSS (.splash-coin-body),
+             здесь — только вычеканенный клевер, вписанный в поле 100×100. -->
+        <symbol id="splashCoinRelief" viewBox="0 0 100 100">
+          <g transform="translate(50 50) scale(1.24)"><use href="#splashCloverReliefGold"/></g>
+        </symbol>
+        <symbol id="splashCoinReliefCopper" viewBox="0 0 100 100">
+          <g transform="translate(50 50) scale(1.24)"><use href="#splashCloverReliefCopper"/></g>
+        </symbol>
+      </defs>
+    </svg>
+    <div class="splash-coin-layer" aria-hidden="true"></div>
+    <div style="position:relative;z-index:1;font-size:32px;font-weight:900;color:#ffffff;letter-spacing:-1px;animation:splashText 0.5s 0.35s ease both;font-family:'Playfair Display',serif;">BudgetPRO</div>
+    <div style="position:relative;z-index:1;font-size:14px;color:#a0a0a0;font-weight:600;animation:splashSub 0.5s 0.5s ease both;letter-spacing:0.5px;">Your capital — Your rules</div>
+    <div style="position:relative;z-index:1;width:120px;height:3px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;margin-top:12px;">
+      <div style="height:100%;background:linear-gradient(to right,#FF7E5F,#9B59B6);border-radius:99px;box-shadow:0 0 10px rgba(155,89,182,0.55);animation:splashBar 0.8s 0.35s ease both;"></div>
     </div>
   `;
   document.body.appendChild(splash);
 
-  requestAnimationFrame(() => {
-    splash.style.opacity = "0";
-    splash.style.transform = "scale(1.05)";
-    setTimeout(() => splash.remove(), 180);
-  });
+  // «Денежный дождь»: монеты падают, отскакивают и замирают на дне.
+  // Физика считается в rAF, на экран выводится только transform (will-change),
+  // поэтому layout/paint не пересчитываются и анимация не лагает на телефоне.
+  const coinLayer = splash.querySelector(".splash-coin-layer");
+  const reduceMotion =
+    !animationsEnabled || !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const coins = [];
+
+  function paintCoin(coin) {
+    // perspective() стоит первым в цепочке: без него rotateY() не даёт объёма.
+    const face = splashCoinFaceAngle(coin.rot);
+    coin.el.style.transform =
+      "translate3d(" + coin.x.toFixed(1) + "px," + coin.y.toFixed(1) + "px,0)" +
+      " perspective(760px)" +
+      " rotateY(" + face.toFixed(3) + "rad)" +
+      " rotateZ(" + coin.tilt.toFixed(3) + "rad)";
+  }
+
+  function buildCoins() {
+    const width = window.innerWidth || 360;
+    const margin = Math.round(width * 0.08);
+    const count = width < 380 ? 12 : 16;
+    for (let i = 0; i < count; i++) {
+      const size = 32 + Math.round(Math.random() * 26); // 32…58 px
+      const el = document.createElement("div");
+      el.className = "splash-coin";
+      el.style.width = size + "px";
+      el.style.height = size + "px";
+      // --c — диаметр монеты: обод, тени и рельеф масштабируются от него,
+      // иначе на 32 px монета выглядела бледной, а на 58 px — плоской.
+      el.style.setProperty("--c", size + "px");
+      // Каждая третья монета медная — как в настоящей горсти мелочи.
+      // Металл, обод и накатка — слои CSS, клевер — SVG-чеканка из спрайта.
+      el.innerHTML =
+        '<div class="splash-coin-body' + (i % 3 === 2 ? " is-copper" : "") + '">' +
+          '<span class="splash-coin-rim"></span>' +
+          '<span class="splash-coin-face">' +
+            '<svg class="splash-coin-relief" viewBox="0 0 100 100" aria-hidden="true">' +
+              '<use href="#' + (i % 3 === 2 ? "splashCoinReliefCopper" : "splashCoinRelief") + '"/>' +
+            '</svg>' +
+          '</span>' +
+        '</div>';
+      coinLayer.appendChild(el);
+      const coin = {
+        el,
+        size,
+        x: margin + Math.random() * Math.max(0, width - margin * 2 - size),
+        y: -size - Math.random() * 80, // старт за верхней кромкой экрана
+        vy: 0,
+        rot: Math.random() * Math.PI * 2,
+        tilt: (Math.random() - 0.5) * 0.7, // статичный наклон по Z: монеты падают вразнобой
+        spin: (Math.random() < 0.5 ? -1 : 1) * (2.5 + Math.random() * 3.5), // рад/с
+        bounces: 0,
+        resting: false,
+        delay: i * 140 + Math.random() * 80, // каскад ~140 мс между монетами
+      };
+      paintCoin(coin);
+      coins.push(coin);
+    }
+  }
+
+  buildCoins();
+
+  if (reduceMotion) {
+    // Без анимации показываем финальный кадр: монеты лежат на дне.
+    const floorY = coinLayer.clientHeight - 1;
+    for (const coin of coins) {
+      coin.y = floorY - coin.size / 2;
+      coin.bounces = SPLASH_COIN_PHYSICS.maxBounces;
+      coin.resting = true;
+      coin.rot = 0; // без вращения — монета лежит лицом к зрителю
+      paintCoin(coin);
+    }
+  } else {
+    let last = 0;
+    let elapsed = 0;
+    const tick = (time) => {
+      // hideBootSplash снял оверлей — гасим цикл, чтобы не жечь кадры.
+      if (!splash.isConnected || splash.dataset.hiding) return;
+      if (!last) last = time;
+      const dt = Math.min((time - last) / 1000, 0.05);
+      last = time;
+      elapsed += dt * 1000;
+      const floorY = coinLayer.clientHeight - 1;
+      let moving = false;
+      for (const coin of coins) {
+        if (coin.resting) continue;
+        if (elapsed < coin.delay) {
+          moving = true;
+          continue;
+        }
+        coin.rot += coin.spin * dt;
+        splashCoinStep(coin, dt, floorY - coin.size / 2);
+        paintCoin(coin);
+        if (!coin.resting) moving = true;
+      }
+      if (moving) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // Оверлей снимается по готовности интерфейса (hideBootSplash вызывает
+  // bootApp после первой отрисовки или showAuthScreen), а не сразу по таймеру.
+  // 2.5 с — только страховка, чтобы сплэш не залип при сбое загрузки данных.
+  setTimeout(hideBootSplash, 2500);
 })();
+
+// Снимает стартовый оверлей после готовности UI, не дожидаясь таймера.
+function hideBootSplash() {
+  const splash = document.getElementById("splashScreen");
+  if (!splash || splash.dataset.hiding) return;
+  splash.dataset.hiding = "true";
+  splash.style.opacity = "0";
+  splash.style.transform = "scale(1.05)";
+  setTimeout(() => {
+    try { splash.remove(); } catch (e) {}
+  }, 200);
+}
 
 // ═══════════════════════════════════════════════════════════════
 // 🎉 2. CONFETTI / CELEBRATION SYSTEM
@@ -32145,6 +37568,9 @@ function normalizeVoiceMeaningText(text) {
   return String(text || "")
     .toLowerCase()
     .replace(/[’']/g, "")
+    // Vosk sometimes doubles the consonant in the Russian money units ("ларри", "тетри"/"тети").
+    .replace(/(?<![\p{L}])ларр?и(?![\p{L}])/gu, "лари")
+    .replace(/(?<![\p{L}])тетр?и(?![\p{L}])/gu, "тетри")
     .replace(/[₾$€£¥]/g, " ")
     .replace(/[^\p{L}\p{N}\s.,-]/gu, " ")
     .replace(/\s+/g, " ")
@@ -32740,21 +38166,34 @@ function parseGeorgianMoneyUnits(text) {
   const normalizer = typeof BudgetPROVoiceNumberNormalizer !== "undefined"
     ? BudgetPROVoiceNumberNormalizer : null;
   // Russian names for the same 1/100 money units must use the strict unit-aware path too.
-  const russianGel = /(?<![\p{L}])(лари|тетри)(?![\p{L}])/iu.test(text);
+  const russianGel = /(?<![\p{L}])(лар[р]?и|тет[р]?и)(?![\p{L}])/iu.test(text);
   const russianRub = /(?<![\p{L}])(рубль|рубля|рублей|копейка|копейки|копеек|коп)(?![\p{L}])/iu.test(text);
-  if (russianRub && (russianGel || /ლარ|თეთრ/u.test(text))) return { matched: true, value: null };
+  // The English Vosk model spells the same units loosely: lari/larry/lary/laris,
+  // tetri/tetry/tetra/tetris. Minor-only dictation ("fifteen tetri") is 0.15, not 15.
+  const latinLari = /(?<![\p{L}])(?:lar[ry]*i?(?:e?s)?|gel)(?![\p{L}])/u.test(text.toLowerCase());
+  const latinTetri = /(?<![\p{L}])(?:tet[ry]*a?i?(?:e?s)?|cents?)(?![\p{L}])/u.test(text.toLowerCase());
+  // "cents" only means the 1/100 unit when no other currency is named in the phrase;
+  // "3 dollars 50 cents" must stay a non-GEL phrase and keep its old fallback amount.
+  const latinMinor = /(?:\b(?:usd|eur|rub|dollars?|euros?)\b|[$€])/iu.test(text)
+    ? /(?<![\p{L}])(tet[ry]*a?i?(?:e?s)?)(?![\p{L}])/gu
+    : /(?<![\p{L}])(tet[ry]*a?i?(?:e?s)?|cents?)(?![\p{L}])/gu;
+  if (russianRub && (russianGel || latinLari || latinTetri || /ლარ|თეთრ/u.test(text)))
+    return { matched: true, value: null };
   const normalized = normalizeVoiceMeaningText(normalizer
-    ? normalizer.normalizeNumbers(text, russianGel || russianRub ? "ru" : "ka") : text)
+    ? normalizer.normalizeNumbers(text, russianGel || russianRub ? "ru"
+      : latinLari || latinTetri ? "en" : "ka") : text)
     .replace(/(?<![\p{L}])(лари|рубль|рубля|рублей)(?![\p{L}])/gu, "ლარი")
-    .replace(/(?<![\p{L}])(тетри|копейка|копейки|копеек|коп)(?![\p{L}])/gu, "თეთრი");
-  const unit = /(?<![\p{L}\p{N}])(ლარი|ლარს|ლარად|თეთრი|თეთრს)(?![\p{L}\p{N}])/gu;
+    .replace(/(?<![\p{L}])(тетри|копейка|копейки|копеек|коп)(?![\p{L}])/gu, "თეთრი")
+    .replace(/(?<![\p{L}])(gel|lar[ry]*i?(?:e?s)?)(?![\p{L}])/gu, "ლარი")
+    .replace(latinMinor, "თეთრი");
+  const unit = /(?<![\p{L}\p{N}])(ლარი|ლარის|ლარს|ლარად|თეთრი|თეთრის|თეთრს)(?![\p{L}\p{N}])/gu;
   const units = [...normalized.matchAll(unit)];
   if (!units.length) return { matched: false, value: null };
   if (/(?:^|\s)(?:მინუს|minus|минус)\s/iu.test(text) || /−\s*(?:\d|[ა-ჰ])/u.test(text))
     return { matched: true, value: null };
   if (/(?:\b(?:usd|eur|rub|dollars?|euros?)\b|[$€])/iu.test(text))
     return { matched: true, value: null };
-  const amounts = [...normalized.matchAll(/(?<![\p{L}\p{N}.,-])((?:\d{1,3}(?:[ ,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?))\s+(ლარი|ლარს|ლარად|თეთრი|თეთრს)(?![\p{L}\p{N}])/gu)];
+  const amounts = [...normalized.matchAll(/(?<![\p{L}\p{N}.,-])((?:\d{1,3}(?:[ ,]\d{3})+(?:[.,]\d{1,2})?|\d+(?:[.,]\d{1,2})?))\s+(ლარი|ლარის|ლარს|ლარად|თეთრი|თეთრის|თეთრს)(?![\p{L}\p{N}])/gu)];
   const invalid = { matched: true, value: null };
   if (amounts.length !== units.length || amounts.length > 2) return invalid;
   const major = m => m[2].startsWith("ლარ");
@@ -32765,6 +38204,16 @@ function parseGeorgianMoneyUnits(text) {
     const n = value(amounts[0]);
     if (!major(amounts[0]) && !Number.isInteger(n)) return invalid;
     total = major(amounts[0]) ? n : n / 100;
+    // Vosk can drop the minor unit word: "... 5 лари и 53" still means 5.53.
+    // Only a junction followed by a bare number below 100 at the end of the phrase glues.
+    if (major(amounts[0]) && Number.isInteger(n)) {
+      const tail = normalized.slice(amounts[0].index + amounts[0][0].length);
+      const trailingMinor = /^\s*(?:და|и|and)\s*(\d{1,2})\s*$/u.exec(tail);
+      if (trailingMinor) {
+        const minor = parseVoiceNumericCandidate(trailingMinor[1]);
+        if (Number.isInteger(minor) && minor < 100) total = n + minor / 100;
+      }
+    }
   } else {
     const [a, b] = amounts;
     const join = normalized.slice(a.index + a[0].length, b.index);
@@ -33123,6 +38572,11 @@ function extractVoiceCurrencyPairAmount(text) {
     "копеек",
     "копейки",
   ]);
+  // Vosk misspells the GEL units; classify by family instead of exact spelling.
+  const isMajorUnit = (token) => majorWords.has(token)
+    || /^lar[ry]*i?(?:e?s)?$/u.test(token);
+  const isMinorUnit = (token) => minorWords.has(token)
+    || /^tet[ry]*a?i?(?:e?s)?$/u.test(token);
 
   const parseNearPhrase = (start, end) => {
     if (start >= end) return null;
@@ -33155,18 +38609,26 @@ function extractVoiceCurrencyPairAmount(text) {
   };
 
   for (let i = 0; i < tokens.length; i++) {
-    if (!majorWords.has(tokens[i])) continue;
+    if (!isMajorUnit(tokens[i])) continue;
     const major = parseNearPhrase(Math.max(0, i - 10), i);
     if (!(Number.isFinite(major) && major > 0)) continue;
     let value = major;
 
     for (let j = i + 1; j < Math.min(tokens.length, i + 6); j++) {
-      if (!minorWords.has(tokens[j])) continue;
+      if (!isMinorUnit(tokens[j])) continue;
       const minor = parseNearPhrase(i + 1, j);
       if (Number.isFinite(minor) && minor >= 0) {
         value += minor >= 100 ? minor / 100 : minor / 100;
       }
       break;
+    }
+    // Vosk can drop the minor unit word: "5 lari and 53" / "5 ლარი და 53" still means 5.53.
+    // Only a junction followed by a bare number below 100 at the end of the phrase glues.
+    const tail = tokens.slice(i + 1);
+    if (tail.length === 2 && ["и", "and", "და"].includes(tail[0]) && /^\d{1,2}$/.test(tail[1])) {
+      const minor = parseVoiceNumericCandidate(tail[1]);
+      if (Number.isInteger(minor) && minor < 100)
+        value = Math.round((value + minor / 100) * 100) / 100;
     }
     return value;
   }
@@ -33186,6 +38648,8 @@ function extractVoiceAmount(text) {
     "₾",
     "gel",
     "lari",
+    "larry",
+    "lary",
     "ლარი",
     "ლარს",
     "ლარად",
@@ -33204,6 +38668,8 @@ function extractVoiceAmount(text) {
     "евро",
     "თეთრი",
     "tetri",
+    "tetry",
+    "tetra",
     "cents",
     "cent",
   ];
@@ -33333,6 +38799,9 @@ function buildVoiceDraftFromText(input) {
       "подарили",
       "кэшбэк",
       "вернули",
+      "продал",
+      "продала",
+      "продали",
     ],
     en: [
       "received",
@@ -33343,6 +38812,7 @@ function buildVoiceDraftFromText(input) {
       "gift",
       "refund",
       "cashback",
+      "sold",
     ],
     ka: [
       "მივიღე",
@@ -33354,6 +38824,8 @@ function buildVoiceDraftFromText(input) {
       "მომივიდა",
       "ჩამირიცხა",
       "მიმიტანეს",
+      "გავყიდე",
+      "ვიშოვე",
     ],
   };
   const expenseWords = {
@@ -33587,10 +39059,14 @@ function scoreVoiceTranscript(text) {
     "лар",
     "gel",
     "lari",
+    "larry",
+    "lary",
     "ლარი",
     "ლარს",
     "თეთრი",
     "tetri",
+    "tetry",
+    "tetra",
     "₾",
     "руб",
     "usd",
@@ -40755,8 +46231,8 @@ async function openInteractiveGuide(options = {}) {
         );
       }
       if (step?.id === "starting_amount") {
-        const details = document.getElementById("homeDetails");
-        if (details) details.open = true;
+        // Панель раскрывает CSS-обёртка, поэтому открываем её через общий хелпер.
+        setHomeToolsOpen(true);
         return (
           document.getElementById("salaryCard") ||
           document.getElementById("salaryRowBtn") ||
@@ -40790,8 +46266,7 @@ async function openInteractiveGuide(options = {}) {
     }
     if (step.action) {
       if (step.action === "salaryCard") {
-        const details = document.getElementById("homeDetails");
-        if (details) details.open = true;
+        setHomeToolsOpen(true);
         const startingAmount = document.getElementById("salaryRowBtn");
         if (startingAmount) return startingAmount;
       }
@@ -42627,6 +48102,13 @@ function initLuxuryBackground() {
 
   function drawFrame() {
     ctx.clearRect(0, 0, W, H);
+
+    // graphiteNeon: фон не рисуется — остаётся чистый графит #121212 (CSS)
+    if (document.body.classList.contains("theme-graphiteNeon")) {
+      t++;
+      animId = requestAnimationFrame(drawFrame);
+      return;
+    }
 
     const dark = isDark();
 

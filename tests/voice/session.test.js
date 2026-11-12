@@ -1,10 +1,10 @@
 const test = require('node:test'), assert = require('node:assert/strict'), vm = require('node:vm'), fs = require('node:fs'), crypto = require('node:crypto');
 const validator = require('../../www/voice/transcript-validator'), numbers = require('../../www/voice/number-normalizer');
-function setup({transcribe}={}) {
+function setup({transcribe,extra}={}) {
  let starts=0,closed=0,diags={},requestResolve,recorder,onVisibility;
  const values=new Map();
  class Recorder { constructor(mode,frame){this.mode=mode;this.frame=frame;recorder=this;}async start(){starts++;}async close(){closed++;}async finish(){await this.close();return {wav:new ArrayBuffer(44),metrics:{duration:500}};} }
- const ctx = { document:{hidden:false,addEventListener(type,fn){if(type==='visibilitychange')onVisibility=fn;}}, localStorage:{getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)}, crypto, navigator:{onLine:true}, console, setTimeout, clearTimeout, AbortController, VoiceRecorder:Recorder, VoiceTranscriptValidator:validator, BudgetPROVoiceNumberNormalizer:numbers, VoiceDiagnostics:{begin:d=>diags=d,update:d=>Object.assign(diags,d),get:()=>diags,retain(){},discard(){}}, VoiceApiClient:{transcribe:transcribe||(()=>new Promise(r=>requestResolve=r))} };
+ const ctx = { document:{hidden:false,addEventListener(type,fn){if(type==='visibilitychange')onVisibility=fn;}}, localStorage:{getItem:k=>values.get(k),setItem:(k,v)=>values.set(k,v)}, crypto, navigator:{onLine:true}, console, setTimeout, clearTimeout, AbortController, VoiceRecorder:Recorder, VoiceTranscriptValidator:validator, BudgetPROVoiceNumberNormalizer:numbers, VoiceDiagnostics:{begin:d=>diags=d,update:d=>Object.assign(diags,d),get:()=>diags,retain(){},discard(){}}, VoiceApiClient:{transcribe:transcribe||(()=>new Promise(r=>requestResolve=r))}, ...extra };
  vm.runInNewContext(fs.readFileSync('www/voice/voice-session.js','utf8'),ctx);
  return {voice:ctx.BudgetPROVoiceModule,ctx,values,counts:()=>({starts,closed}),hide:()=>{ctx.document.hidden=true;onVisibility();},frame:m=>recorder.frame(m),resolve:r=>requestResolve(r),diags:()=>diags};
 }
@@ -47,3 +47,80 @@ test('backgrounding cancels capture and returns ready without a request',async()
  const pending=s.voice.start({token:'test'});await tick();s.hide();assert.equal((await pending).cancelled,true);
  assert.equal(s.counts().closed,1);assert.equal(requests,0);assert.equal(state.status,'ready');assert.equal(s.voice.isActive(),false);
 });
+
+test('speech language follows the interface language until one is chosen for voice',()=>{
+ const s=setup();
+ s.values.set('lang','ru');assert.equal(s.voice.getLanguage(),'ru');
+ s.values.set('lang','ka');assert.equal(s.voice.getLanguage(),'ka');
+ // The en-us model is bundled into the APK too, so en selects the English model.
+ s.values.set('lang','en');assert.equal(s.voice.getLanguage(),'en');
+ s.values.set('voiceLanguage','en');assert.equal(s.voice.getLanguage(),'en');
+ s.values.set('voiceLanguage','auto');assert.equal(s.voice.getLanguage(),'auto');
+ s.values.delete('voiceLanguage');s.values.set('lang','ka');assert.equal(s.voice.getLanguage(),'ka');
+});
+// Э2: hybrid routing. Online goes to the cloud client for every language; offline
+// uses Vosk for Georgian and Whisper for Russian, English and "auto".
+const installProvider=require('../../www/voice/voice-provider');
+const speech={ka:'ყავა რვა ლარი',ru:'Кофе восемь лари',en:'Coffee eight lari',auto:'Coffee eight lari'};
+function nativeSetup({whisper=true,vosk=true,online=true}={}) {
+ let whisperCalls=0,voskCalls=0,cloudCalls=0;
+ const whisperClient=whisper?{isLocal:()=>true,supportsLanguage:l=>['ru','en','ka','auto'].includes(l),transcribe:async o=>{whisperCalls++;return {ok:true,transcript:speech[o.language],detectedLanguage:o.language==='auto'?'en':o.language,provider:'whisper-android-offline',model:'ggml-small-q5_1'};}}:undefined;
+ const api={transcribe:async o=>{voskCalls++;return {transcript:speech[o.language],detectedLanguage:o.language==='ka'?'ka-GE':'en-US',provider:'vosk-android-offline',model:'vosk-model-small-ka-0.42'};},isLocal:()=>vosk};
+ const cloudClient={transcribe:async o=>{cloudCalls++;return {ok:true,transcript:speech[o.language],detectedLanguage:o.language==='auto'?'en':o.language,provider:'groq',model:'whisper-large-v3'};}};
+ const s=setup({extra:{Capacitor:{isNativePlatform:()=>true,getPlatform:()=>'android'},VoiceWhisperClient:whisperClient,VoiceApiClient:api,VoiceCloudClient:cloudClient,VoiceProvider:installProvider({})}});
+ s.ctx.navigator.onLine=online;
+ return {s,counts:()=>({whisperCalls,voskCalls,cloudCalls})};
+}
+test('offline Georgian uses the local Vosk client instead of Whisper',async()=>{
+ const {s,counts}=nativeSetup({online:false});s.values.set('voiceLanguage','ka');
+ const p=s.voice.start({});await tick();s.voice.stop();const result=await p;
+ assert.equal(result.text,'ყავა 8 ლარი');assert.equal(counts().voskCalls,1);assert.equal(counts().whisperCalls,0);assert.equal(counts().cloudCalls,0);
+ assert.equal(s.diags().provider,'vosk-android-offline');
+});
+test('offline Russian and English use the local Whisper client',async()=>{
+ for(const language of ['ru','en']){
+  const {s,counts}=nativeSetup({online:false});s.values.set('voiceLanguage',language);
+  const p=s.voice.start({});await tick();s.voice.stop();const result=await p;
+  assert.equal(counts().whisperCalls,1);assert.equal(counts().voskCalls,0);assert.equal(counts().cloudCalls,0);
+  assert.equal(result.error,undefined);assert.equal(s.diags().provider,'whisper-android-offline');assert.equal(s.diags().model,'ggml-small-q5_1');
+ }
+});
+test('offline "auto" goes to Whisper because Vosk has no automatic model',async()=>{
+ const {s,counts}=nativeSetup({online:false});s.values.set('voiceLanguage','auto');
+ const p=s.voice.start({});await tick();s.voice.stop();const result=await p;
+ assert.equal(result.text,'Coffee 8 lari');assert.equal(counts().whisperCalls,1);assert.equal(counts().voskCalls,0);
+});
+test('online sessions of every language go to the cloud client with an app token',async()=>{
+ for(const language of ['ka','ru','en']){
+  const {s,counts}=nativeSetup({online:true});s.values.set('voiceLanguage',language);
+  const p=s.voice.start({token:'test'});await tick();s.voice.stop();const result=await p;
+  assert.equal(result.error,undefined,language);assert.equal(counts().cloudCalls,1);
+  assert.equal(counts().voskCalls,0);assert.equal(counts().whisperCalls,0);
+  assert.equal(s.diags().provider,'groq');assert.equal(s.diags().model,'whisper-large-v3');
+ }
+});
+test('the cloud route still requires an app token and never captures without one',async()=>{
+ const {s,counts}=nativeSetup({online:true});s.values.set('voiceLanguage','ka');
+ assert.equal((await s.voice.start({})).error,'VOICE_AUTH_REQUIRED');
+ assert.equal(s.counts().starts,0);assert.equal(counts().cloudCalls,0);
+});
+test('offline Georgian fails closed when the Vosk client is missing',async()=>{
+ const {s,counts}=nativeSetup({online:false,vosk:false});s.values.set('voiceLanguage','ka');
+ assert.equal((await s.voice.start({})).error,'VOSK_NATIVE_UNAVAILABLE');
+ assert.equal(s.counts().starts,0);assert.equal(counts().whisperCalls,0);
+});
+test('a missing Whisper client fails closed before the microphone is requested',async()=>{
+ const {s,counts}=nativeSetup({online:false,whisper:false});s.values.set('voiceLanguage','en');
+ assert.equal((await s.voice.start({})).error,'WHISPER_NATIVE_UNAVAILABLE');
+ assert.equal(s.counts().starts,0);assert.equal(counts().voskCalls,0);assert.equal(counts().cloudCalls,0);
+});
+test('getEngine reports the automatic route and the manual switch is gone',async()=>{
+ const {s}=nativeSetup({online:false});
+ s.values.set('voiceLanguage','ka');assert.equal(s.voice.getEngine(),'vosk');
+ s.values.set('voiceLanguage','en');assert.equal(s.voice.getEngine(),'whisper');
+ s.values.set('voiceLanguage','auto');assert.equal(s.voice.getEngine(),'whisper');
+ s.ctx.navigator.onLine=true;assert.equal(s.voice.getEngine(),'cloud');
+ assert.equal(s.voice.setEngine,undefined);
+ assert.equal(s.values.has('budgetpro_voice_engine'),false);
+});
+

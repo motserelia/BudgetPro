@@ -105,6 +105,7 @@ public class MainActivity extends BridgeActivity {
     protected void onCreate(Bundle savedInstanceState) {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         registerPlugin(pro.budget.app.voice.LocalVoskPlugin.class);
+        registerPlugin(pro.budget.app.voice.LocalWhisperPlugin.class);
         super.onCreate(savedInstanceState);
 
         View webView = findViewById(R.id.webview);
@@ -112,6 +113,9 @@ public class MainActivity extends BridgeActivity {
             if (webView instanceof WebView) {
                 WebView wv = (WebView) webView;
                 budgetWebView = wv;
+                // Тёмный фон самого WebView: белая вспышка при холодном старте
+                // исчезает ещё до загрузки HTML и CSS.
+                wv.setBackgroundColor(0xFF121212);
                 wv.clearCache(true);
                 wv.clearHistory();
                 wv.getSettings().setCacheMode(android.webkit.WebSettings.LOAD_NO_CACHE);
@@ -150,6 +154,35 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleNotificationClockIntent(intent);
+    }
+
+    // Возврат из фона: WebView мог остаться на паузе после onPause(), тогда
+    // страница не перерисовывается и пользователь видит чёрный экран.
+    // Возобновляем таймеры, сам WebView и принудительно просим перерисовку.
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (budgetWebView == null) {
+            budgetWebView = findBudgetWebView();
+        }
+        if (budgetWebView == null) return;
+        budgetWebView.onResume();
+        budgetWebView.resumeTimers();
+        budgetWebView.requestLayout();
+        budgetWebView.invalidate();
+    }
+
+    @Override
+    public void onPause() {
+        if (budgetWebView != null) {
+            budgetWebView.onPause();
+        }
+        super.onPause();
+    }
+
+    private WebView findBudgetWebView() {
+        View view = findViewById(R.id.webview);
+        return view instanceof WebView ? (WebView) view : null;
     }
 
     private void handleNotificationClockIntent(Intent intent) {
