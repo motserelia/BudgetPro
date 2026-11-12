@@ -724,6 +724,21 @@ const translations = {
       gold: "Тёмный с золотыми акцентами",
       graphiteNeon: "Графит с неоновыми акцентами",
     },
+    // Согласие на облачное распознавание речи (умный ввод, шаг 3)
+    voiceConsentTitle: "🎤 Куда отправлять запись",
+    voiceConsentBody:
+      "Облачное распознавание отправляет запись на сервер BudgetPRO и в выбранный сервис распознавания речи. Распознавание на устройстве работает без сети и никуда запись не передаёт. Изменить выбор можно в Настройки → Голосовой ввод.",
+    voiceConsentCloud: "☁️ Облако — точнее",
+    voiceConsentLocal: "📱 Только на устройстве",
+    voiceConsentWebNote:
+      "В веб-версии распознавания на устройстве нет: без согласия на облако микрофон не включится.",
+    voiceConsentOfflineUnavailable:
+      "В веб-версии распознавания на устройстве нет. Разрешите облако в Настройки → Голосовой ввод.",
+    voiceSettingsCloudLabel: "☁️ Облачное распознавание",
+    voiceSettingsCloudHint:
+      "Запись уходит на сервер BudgetPRO. Выключите, чтобы распознавать только на устройстве.",
+    voiceSettingsCloudOn: "Облачное распознавание включено",
+    voiceSettingsCloudOff: "Запись остаётся на устройстве",
   },
   en: {
     appName: "BudgetPRO",
@@ -1294,6 +1309,21 @@ const translations = {
       gold: "Dark with golden accents",
       graphiteNeon: "Graphite with neon accents",
     },
+    // Cloud speech consent (smart input, step 3)
+    voiceConsentTitle: "🎤 Where the recording goes",
+    voiceConsentBody:
+      "Cloud recognition sends the recording to the BudgetPRO server and then to the chosen speech service. On-device recognition works without the network and never sends the recording anywhere. You can change this later in Settings → Voice input.",
+    voiceConsentCloud: "☁️ Cloud — more accurate",
+    voiceConsentLocal: "📱 On device only",
+    voiceConsentWebNote:
+      "The web build has no on-device recognition: without cloud consent the microphone stays off.",
+    voiceConsentOfflineUnavailable:
+      "The web build has no on-device recognition. Allow the cloud in Settings → Voice input.",
+    voiceSettingsCloudLabel: "☁️ Cloud recognition",
+    voiceSettingsCloudHint:
+      "The recording goes to the BudgetPRO server. Turn it off to recognize on the device only.",
+    voiceSettingsCloudOn: "Cloud recognition is on",
+    voiceSettingsCloudOff: "The recording stays on the device",
   },
   ka: {
     appName: "BudgetPRO",
@@ -1865,6 +1895,21 @@ const translations = {
       gold: "მუქი ოქროს აქცენტებით",
       graphiteNeon: "გრაფიტი ნეონის აქცენტებით",
     },
+    // Cloud speech consent (smart input, step 3) — TODO-ka: перевод на проверку
+    voiceConsentTitle: "TODO-ka: 🎤 სად იგზავნება ჩანაწერი",
+    voiceConsentBody:
+      "TODO-ka: ღრუბლოვანი ამოცნობა ჩანაწერს აგზავნის BudgetPRO-ს სერვერზე და შემდეგ არჩეულ მეტყველების ამოცნობის სერვისში. მოწყობილობაზე ამოცნობა მუშაობს ინტერნეტის გარეშე და ჩანაწერს არსად არ აგზავნის. არჩევანის შეცვლა შესაძლებელია პარამეტრებში → ხმოვანი შეყვანა.",
+    voiceConsentCloud: "TODO-ka: ☁️ ღრუბელი — უფრო ზუსტი",
+    voiceConsentLocal: "TODO-ka: 📱 მხოლოდ მოწყობილობაზე",
+    voiceConsentWebNote:
+      "TODO-ka: ვებ-ვერსიაში მოწყობილობაზე ამოცნობა არ არის: ღრუბლის თანხმობის გარეშე მიკროფონი არ ჩაირთვება.",
+    voiceConsentOfflineUnavailable:
+      "TODO-ka: ვებ-ვერსიაში მოწყობილობაზე ამოცნობა არ არის. დაუშვით ღრუბელი პარამეტრებში → ხმოვანი შეყვანა.",
+    voiceSettingsCloudLabel: "TODO-ka: ☁️ ღრუბლოვანი ამოცნობა",
+    voiceSettingsCloudHint:
+      "TODO-ka: ჩანაწერი იგზავნება BudgetPRO-ს სერვერზე. გამორთეთ, რომ მხოლოდ მოწყობილობაზე ამოიცნოს.",
+    voiceSettingsCloudOn: "TODO-ka: ღრუბლოვანი ამოცნობა ჩართულია",
+    voiceSettingsCloudOff: "TODO-ka: ჩანაწერი რჩება მოწყობილობაზე",
   },
 };
 
@@ -20140,7 +20185,14 @@ function renderSettingsVoiceScreen() {
     begin: startVoiceSession, use: parseVoiceInput, back: openSettingsHome,
     login: () => showAuthScreen("voice-settings"),
     floating: getFloatingBtnSetting("showVoiceBtn"),
-    setFloating(enabled) { syncVoiceButtonEnabled(enabled); addVoiceButton(); }
+    setFloating(enabled) { syncVoiceButtonEnabled(enabled); addVoiceButton(); },
+    cloudConsent: getVoiceCloudConsent(),
+    cloudLabel: t("voiceSettingsCloudLabel"),
+    cloudHint: t("voiceSettingsCloudHint"),
+    setCloudConsent(value) {
+      setVoiceCloudConsent(value);
+      showToast(value === "cloud" ? t("voiceSettingsCloudOn") : t("voiceSettingsCloudOff"));
+    }
   });
 }
 
@@ -37742,9 +37794,98 @@ function scoreVoiceLabelMatch(normalizedText, label) {
   return score;
 }
 
+// §3: облачное распознавание включается только после явного выбора пользователя.
+// По умолчанию согласия нет, а в веб-сборке локального движка нет — поэтому без
+// согласия микрофон не открывается вообще.
+const VOICE_CONSENT_KEY = "budgetpro_voice_cloud_consent";
+
+function getVoiceCloudConsent() {
+  try {
+    const value = localStorage.getItem(VOICE_CONSENT_KEY);
+    return value === "cloud" || value === "local" ? value : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function setVoiceCloudConsent(value) {
+  try {
+    if (value === "cloud" || value === "local") {
+      localStorage.setItem(VOICE_CONSENT_KEY, value);
+    } else {
+      localStorage.removeItem(VOICE_CONSENT_KEY);
+    }
+  } catch (e) {
+    // Приватный режим: выбор не сохранится, микрофон останется выключенным.
+  }
+}
+
+function getVoiceConsentGate() {
+  const provider = window.VoiceProvider;
+  if (typeof provider?.gate !== "function") {
+    return { allowed: false, engine: null, reason: "VOICE_CLOUD_CONSENT_REQUIRED" };
+  }
+  return provider.gate({
+    consent: getVoiceCloudConsent(),
+    native: provider.isNative?.() === true,
+  });
+}
+
+function openVoiceConsentModal(onDecided) {
+  if (document.getElementById("voiceConsentModal")) return;
+  const native = window.VoiceProvider?.isNative?.() === true;
+  const html = `
+    <div style="display:grid;gap:12px;">
+      <p style="margin:0;font-size:14px;line-height:1.5;color:var(--text-muted);">${esc(
+        t("voiceConsentBody"),
+      )}</p>
+      ${
+        native
+          ? ""
+          : `<p style="margin:0;font-size:13px;line-height:1.45;color:var(--text-muted);">${esc(
+              t("voiceConsentWebNote"),
+            )}</p>`
+      }
+      <button type="button" class="btn-primary" id="voiceConsentCloudBtn" style="font-size:16px;padding:15px;">${esc(
+        t("voiceConsentCloud"),
+      )}</button>
+      <button type="button" class="btn-secondary" id="voiceConsentLocalBtn" style="padding:14px;">${esc(
+        t("voiceConsentLocal"),
+      )}</button>
+    </div>
+  `;
+  const modal = createModal("voiceConsentModal", t("voiceConsentTitle"), html);
+  document.body.appendChild(modal);
+  openModal("voiceConsentModal");
+  const decide = (value) => {
+    setVoiceCloudConsent(value);
+    closeModal("voiceConsentModal");
+    onDecided?.(value);
+  };
+  document
+    .getElementById("voiceConsentCloudBtn")
+    ?.addEventListener("click", () => decide("cloud"));
+  document
+    .getElementById("voiceConsentLocalBtn")
+    ?.addEventListener("click", () => decide("local"));
+}
+
 async function startVoiceSession(options = {}) {
   const voice = window.BudgetPROVoiceModule;
   if (!voice || voice.isActive()) return;
+  const consentGate = getVoiceConsentGate();
+  if (!consentGate.allowed) {
+    if (consentGate.reason === "VOICE_CLOUD_CONSENT_REQUIRED") {
+      haptic("light");
+      openVoiceConsentModal((value) => {
+        if (getVoiceConsentGate().allowed) startVoiceSession(options);
+        else if (value === "local") showToast(t("voiceConsentOfflineUnavailable"), "error");
+      });
+    } else {
+      showToast(t("voiceConsentOfflineUnavailable"), "error");
+    }
+    return;
+  }
   let close = () => {};
   const run = async (closeOverlay, diagnosticSource = options.diagnosticSource || 'main') => {
     const btn = document.getElementById("voiceInputBtn");

@@ -35,3 +35,20 @@ test('the offline engine map is frozen and the router never records or stores an
  assert.deepEqual({...provider.offlineEngines},{ka:'vosk',ru:'whisper',en:'whisper',auto:'whisper'});
  assert.deepEqual(Object.keys(provider.select({language:'ka',online:false})),['engine','local','language']);
 });
+test('the consent gate blocks the cloud until the user decides and never guesses',()=>{
+ const provider=fixture();
+ assert.deepEqual(provider.gate({consent:null,native:true}),{allowed:false,engine:null,reason:'VOICE_CLOUD_CONSENT_REQUIRED'});
+ assert.deepEqual(provider.gate({consent:undefined,native:false}),{allowed:false,engine:null,reason:'VOICE_CLOUD_CONSENT_REQUIRED'});
+ assert.deepEqual(provider.gate({consent:'cloud',native:true}),{allowed:true,engine:'cloud',reason:null});
+ assert.deepEqual(provider.gate({consent:'cloud',native:false}),{allowed:true,engine:'cloud',reason:null});
+ assert.deepEqual(provider.gate({consent:'local',native:true}),{allowed:true,engine:'offline',reason:null});
+ assert.deepEqual(provider.gate({consent:'local',native:false}),{allowed:false,engine:null,reason:'VOICE_OFFLINE_UNAVAILABLE'});
+});
+test('the local consent pins the offline engine even when the network is up',()=>{
+ const provider=fixture();
+ assert.deepEqual(provider.select({language:'ka',online:true,consent:'local'}),{engine:'vosk',local:true,language:'ka'});
+ assert.deepEqual(provider.select({language:'ru',online:true,consent:'local'}),{engine:'whisper',local:true,language:'ru'});
+ assert.deepEqual(provider.select({language:'ka',online:true,consent:'cloud'}),{engine:'cloud',local:false,language:'ka'});
+ assert.deepEqual(provider.select({language:'ka',online:true,consent:null}),{engine:'cloud',local:false,language:'ka'});
+ assert.deepEqual(fixture({native:false}).select({language:'ka',online:true,consent:'local'}),{engine:'cloud',local:false,language:'ka',blocked:'VOICE_OFFLINE_UNAVAILABLE'});
+});

@@ -15,11 +15,23 @@
  // browser build always resolves to the cloud and then reports OFFLINE through the
  // existing session check. A failed cloud upload is reported, never auto-retried
  // on another engine: the user asked for one route per language.
- function select({language='auto',online,native}={}){
+ // `consent` is the stored cloud-consent value (§3): with "local" the audio is never
+ // sent, so the route is the offline engine even when the network is up.
+ function select({language='auto',online,native,consent}={}){
   const device=native===undefined?isNative():native===true;
+  if(consent==='local')return device?{engine:offlineEngines[language]||'whisper',local:true,language}:{engine:'cloud',local:false,language,blocked:'VOICE_OFFLINE_UNAVAILABLE'};
   if(!device||isOnline(online))return {engine:'cloud',local:false,language};
   return {engine:offlineEngines[language]||'whisper',local:true,language};
  }
- const api={select,isOnline,isNative,offlineEngines};
+ // Consent gate (§3): the cloud ASR only runs after an explicit user decision. The
+ // gate is a pure decision function — it reads nothing, stores nothing and never
+ // records audio; the caller owns the stored consent value.
+ function gate({consent,native}={}){
+  const device=native===undefined?isNative():native===true;
+  if(consent==='cloud')return {allowed:true,engine:'cloud',reason:null};
+  if(consent==='local')return device?{allowed:true,engine:'offline',reason:null}:{allowed:false,engine:null,reason:'VOICE_OFFLINE_UNAVAILABLE'};
+  return {allowed:false,engine:null,reason:'VOICE_CLOUD_CONSENT_REQUIRED'};
+ }
+ const api={select,gate,isOnline,isNative,offlineEngines};
  root.VoiceProvider=api;return api;
 });

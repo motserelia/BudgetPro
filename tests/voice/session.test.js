@@ -123,4 +123,16 @@ test('getEngine reports the automatic route and the manual switch is gone',async
  assert.equal(s.voice.setEngine,undefined);
  assert.equal(s.values.has('budgetpro_voice_engine'),false);
 });
+// §3: после выбора «только на устройстве» запись не уходит в облако даже при сети.
+test('the local consent keeps the audio on the device even when online',async()=>{
+ const {s,counts}=nativeSetup({online:true});s.values.set('voiceLanguage','ru');s.values.set('budgetpro_voice_cloud_consent','local');
+ const p=s.voice.start({});await tick();s.voice.stop();const result=await p;
+ assert.equal(result.error,undefined);assert.equal(counts().cloudCalls,0);assert.equal(counts().whisperCalls,1);
+ assert.equal(s.diags().provider,'whisper-android-offline');
+});
+test('the local consent without a device engine fails closed instead of uploading',async()=>{
+ const s=setup();s.values.set('budgetpro_voice_cloud_consent','local');
+ assert.equal((await s.voice.start({token:'test'})).error,'VOICE_OFFLINE_UNAVAILABLE');
+ assert.equal(s.counts().starts,0);
+});
 

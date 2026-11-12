@@ -18,10 +18,19 @@
   const isNative = () => root.Capacitor?.isNativePlatform?.() === true && root.Capacitor?.getPlatform?.() === 'android';
   // The Vosk adapter reports isLocal() === true only inside the Android build.
   const hasDeviceEngine = () => isNative() || root.VoiceApiClient?.isLocal?.() === true;
-  const route = language => root.VoiceProvider?.select
-    ? root.VoiceProvider.select({ language, online: isOnline(), native: hasDeviceEngine() })
+  // §3: the stored cloud consent. "local" pins the offline engine so the audio is
+  // never uploaded even when the network is up; anything else keeps the previous
+  // routing, because whether the microphone may be opened is decided by the screen.
+  const cloudConsent = () => { const raw = localStorage.getItem('budgetpro_voice_cloud_consent'); return raw === 'cloud' || raw === 'local' ? raw : null; };
+  const route = language => {
+    const consent = cloudConsent(), device = hasDeviceEngine();
+    if (root.VoiceProvider?.select) return root.VoiceProvider.select({ language, online: isOnline(), native: device, consent });
     // Fail closed to the offline engine if the provider script is missing.
-    : { engine: hasDeviceEngine() ? (language === 'ka' ? 'vosk' : 'whisper') : 'cloud', local: hasDeviceEngine(), language };
+    if (consent === 'local') return device
+      ? { engine: language === 'ka' ? 'vosk' : 'whisper', local: true, language }
+      : { engine: 'cloud', local: false, language, blocked: 'VOICE_OFFLINE_UNAVAILABLE' };
+    return { engine: device ? (language === 'ka' ? 'vosk' : 'whisper') : 'cloud', local: device, language };
+  };
   const getEngine = () => route(getLanguage()).engine;
   function cancel() {
     const session = active; active = null;
@@ -87,6 +96,9 @@
       }); active = session;
       emit({ status: 'authenticating', transcript: '', error: null, meter: 0 });
       const whisper = session.engine === 'whisper';
+      // The consent "local" route has no device engine in the browser build: fail
+      // closed instead of silently uploading the recording.
+      if (decision.blocked) { fail(session, { code: decision.blocked }); return; }
       // The cloud route is the online engine; browser builds have no offline one.
       if (session.engine === 'cloud' && !isOnline()) { fail(session, { code: 'OFFLINE' }); return; }
       if (whisper && root.VoiceWhisperClient?.isLocal?.() !== true) { fail(session, { code: 'WHISPER_NATIVE_UNAVAILABLE' }); return; }
