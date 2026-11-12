@@ -24235,24 +24235,12 @@ function parseAuthUserIdFromToken(token) {
 }
 
 function logAuthDiag(tag, source, session) {
-  const safeSession =
-    session && typeof session === "object"
-      ? {
-          email: String(session.email || ""),
-          expires_at: Number(session.expires_at || 0),
-        }
-      : { email: "", expires_at: 0 };
-  console.log(
-    tag,
-    "EMAIL=",
-    safeSession.email,
-    "EXPIRES_AT=",
-    safeSession.expires_at,
-    "NOW=",
-    Math.floor(Date.now() / 1000),
-    "SOURCE=",
-    source,
+  const emailPresent = !!(
+    session &&
+    typeof session === "object" &&
+    String(session.email || "").trim()
   );
+  console.log(tag, "EMAIL_PRESENT=", emailPresent, "SOURCE=", source);
 }
 
 let authRefreshPromise = null;
