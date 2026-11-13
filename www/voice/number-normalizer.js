@@ -101,5 +101,14 @@
     result = result.replace(/(?<![\p{L}])(number|code|phone|id|номер|код|телефон|ნომერი|კოდი|ტელეფონი)\s+(\d(?:\s+\d)+)(?=\s*(?:$|[^\d\s]))/giu, (_, marker, digits) => marker + ' ' + digits.replace(/\s+/g, ''));
     return result.replace(/(\d)\s+(percent|процент(?:а|ов)?|პროცენტი)(?=\s|$|[.!?,])/giu, '$1%');
   }
-  return { normalizeNumbers, parse };
+  // Cloud keyterms are derived from this table so the recognizer and the parser
+  // never drift apart. Vigecimal stems (ოცდა, ორმოცდა...) are prefixes, not
+  // dictated words, so they are excluded.
+  const keytermWords = lang => {
+    const table = values[lang];
+    if (!table) return [];
+    const words = new Set(Object.keys(table).concat(Object.keys(scales[lang] || {})));
+    return [...words].filter(w => w.length >= 3 && w !== 'and' && !/და$/u.test(w)).sort();
+  };
+  return { normalizeNumbers, parse, keytermWords };
 });

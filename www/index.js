@@ -728,6 +728,8 @@ const translations = {
     voiceConsentTitle: "🎤 Куда отправлять запись",
     voiceConsentBody:
       "Облачное распознавание отправляет запись на сервер BudgetPRO и в выбранный сервис распознавания речи. Распознавание на устройстве работает без сети и никуда запись не передаёт. Изменить выбор можно в Настройки → Голосовой ввод.",
+    voiceConsentProviderStored:
+      "⚠️ Сервис распознавания речи по умолчанию сохраняет запись у себя на серверах (это настройка провайдера, не приложения). BudgetPRO запись не сохраняет. Режим без сохранения у провайдера доступен только по отдельному корпоративному договору.",
     voiceConsentCloud: "☁️ Облако — точнее",
     voiceConsentLocal: "📱 Только на устройстве",
     voiceConsentWebNote:
@@ -1313,6 +1315,8 @@ const translations = {
     voiceConsentTitle: "🎤 Where the recording goes",
     voiceConsentBody:
       "Cloud recognition sends the recording to the BudgetPRO server and then to the chosen speech service. On-device recognition works without the network and never sends the recording anywhere. You can change this later in Settings → Voice input.",
+    voiceConsentProviderStored:
+      "⚠️ The speech service stores the recording on its own servers by default (a provider setting, not the app's). BudgetPRO does not keep the recording. A no-storage mode at the provider is available only under a separate enterprise agreement.",
     voiceConsentCloud: "☁️ Cloud — more accurate",
     voiceConsentLocal: "📱 On device only",
     voiceConsentWebNote:
@@ -1899,6 +1903,8 @@ const translations = {
     voiceConsentTitle: "TODO-ka: 🎤 სად იგზავნება ჩანაწერი",
     voiceConsentBody:
       "TODO-ka: ღრუბლოვანი ამოცნობა ჩანაწერს აგზავნის BudgetPRO-ს სერვერზე და შემდეგ არჩეულ მეტყველების ამოცნობის სერვისში. მოწყობილობაზე ამოცნობა მუშაობს ინტერნეტის გარეშე და ჩანაწერს არსად არ აგზავნის. არჩევანის შეცვლა შესაძლებელია პარამეტრებში → ხმოვანი შეყვანა.",
+    voiceConsentProviderStored:
+      "TODO-ka: ⚠️ მეტყველების ამოცნობის სერვისი ნაგულისხმევად ინახავს ჩანაწერს საკუთარ სერვერებზე (ეს პროვაიდერის პარამეტრია და არა აპის). BudgetPRO ჩანაწერს არ ინახავს. პროვაიდერთან შენახვის გარეშე რეჟიმი ხელმისაწვდომია მხოლოდ ცალკე კორპორატიული ხელშეკრულებით.",
     voiceConsentCloud: "TODO-ka: ☁️ ღრუბელი — უფრო ზუსტი",
     voiceConsentLocal: "TODO-ka: 📱 მხოლოდ მოწყობილობაზე",
     voiceConsentWebNote:
@@ -37838,6 +37844,9 @@ function openVoiceConsentModal(onDecided) {
     <div style="display:grid;gap:12px;">
       <p style="margin:0;font-size:14px;line-height:1.5;color:var(--text-muted);">${esc(
         t("voiceConsentBody"),
+      )}</p>
+      <p style="margin:0;font-size:13px;line-height:1.45;color:var(--text-muted);">${esc(
+        t("voiceConsentProviderStored"),
       )}</p>
       ${
         native

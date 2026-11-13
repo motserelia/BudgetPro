@@ -1,7 +1,7 @@
 'use strict';
 const { validateTranscript } = require('../../www/voice/transcript-validator');
 const asr = require('../../server/voice/asr');
-const { createRequestLimiter } = require('../../server/voice/request-limits');
+const { createRequestLimiter, createKaRequestLimiter } = require('../../server/voice/request-limits');
 const { setCors } = require('../../server/voice/cors');
 const LOCALES = Object.freeze({ auto: 'auto', ka: 'ka-GE', ru: 'ru-RU', en: 'en-US' });
 const MAX_BYTES = 44 + 32000 * 30;
@@ -67,7 +67,7 @@ function createHandler(dependencies = {}) {
       if (!/^[a-zA-Z0-9-]{16,64}$/.test(sessionId || '')) fail('INVALID_SESSION');
       let hints; try { hints = JSON.parse(query.get('hints') || '[]'); } catch { fail('INVALID_HINTS'); }
       if (!Array.isArray(hints) || hints.length > 20 || hints.reduce((n, h) => n + (typeof h === 'string' ? h.length : 0), 0) > 400 || hints.some(h => typeof h !== 'string' || !h.trim() || h.length > 60 || /[\p{Cc}]/u.test(h))) fail('INVALID_HINTS');
-      const provider = (dependencies.validateConfig || asr.readConfig)();
+      const provider = (dependencies.validateConfig || (language => asr.providerForLanguage(language)))(language);
       const userId = await abortable(auth(req, controller.signal), controller.signal);
       const now = Date.now();
       for (const [k, v] of rates) if (now - v.start >= 60000) rates.delete(k);
@@ -78,8 +78,10 @@ function createHandler(dependencies = {}) {
       // readAudio awaits chunks. Keep the reservation once a provider is invoked.
       sessions.set(sessionKey, now); reservedSession = sessionKey;
       const audio = await abortable(readAudio(req), controller.signal), durationMs = validateWav(audio);
-      if (provider.name === 'groq') {
-        limiter = (dependencies.createLimiter || createRequestLimiter)();
+      // Each provider keeps its own reservation store: the free Groq quotas and
+      // the paid Georgian budget must never share a prefix or a counter.
+      if (provider.name === 'groq' || provider.name === 'elevenlabs') {
+        limiter = provider.name === 'groq' ? (dependencies.createLimiter || createRequestLimiter)() : (dependencies.createKaLimiter || createKaRequestLimiter)();
         await abortable(limiter.reserve(userId, sessionId, durationMs, controller.signal), controller.signal);
       }
       const request = provider.name === 'google' ? buildRequest(audio, language, hints) : { audio, language };
