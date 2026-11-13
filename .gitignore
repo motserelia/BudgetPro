@@ -6,6 +6,7 @@ android/app/build/
 dist/
 .cache/
 .gradle-local/
+.vercel/
 
 Secret key
 PRIVATE_SECRETS.local.md
